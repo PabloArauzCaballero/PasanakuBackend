@@ -88,8 +88,12 @@ Clasificación según §9.4.a del metaprompt. «Norma» = fuente del repo citada
 | APR-13 | `servicios/cumplimiento/.../aplicacion/CU52AtenderReclamo.java:173-238` | Punto de reclamo responde; alimenta `EfectoDelReclamo` | `POST /reclamos/{id}/respuesta`; `RECLAMO_ATENDER` | CONSERVAR POR NORMA (protección del consumidor, `docs/Cumplimiento.md` §1.3) | debido proceso (91.4) |
 | APR-14 | `CU47EvaluarRiesgoDeProducto.java:149-190`, `CU48CalibrarReglas.java:131-164`, `CU49DesignarOficial.java:68-162`, `CU53ElevarReclamo.java:116-157`, `CU55GestionarIncidente.java:145-204`, `CU56EjecutarPruebaDeContinuidad.java:73-78` | Gobierno: comité, reglas LFT, oficial, segunda instancia, incidentes, continuidad | varios sin endpoint | CONSERVAR (gobierno interno; fuera del circuito del pasanaku) | — |
 | APR-15 | `sql/60_semillas/10-roles-y-permisos.sql` | Permisos de aprobación de otros módulos sembrados acá: `ENTREGA_AUTORIZAR`, `SOLICITUD_INGRESO_RESOLVER`, `REVERSO_AUTORIZAR` | — | DECISIÓN REQUERIDA en los lotes L2/L3 (tocan el circuito) | `SegregacionDeFunciones` ya no los reconoce (IDCU-DEFECTO-079) |
+| APR-16 | `apps/backoffice/src/app/rutas/cumplimiento/organizadores/pantalla-de-habilitacion.ts:80-95`; `dominio/cu90-habilitacion.ts:33-39` | Operador de plataforma habilita a un organizador tras la capacitación | `POST /organizadores/{id}/habilitacion` (servicio organizador, `ADMIN_PLATAFORMA`); ruta sin guardia (tanda 6) | DECISIÓN REQUERIDA (A-1; ADR-054 ya quitó al organizador humano del alta y del inicio; la decisión sobre la habilitación es del lote L3) | creación de grupos con organizador |
+| APR-17 | `apps/web/src/app/paginas/invitacion/invitacion.ts:15,52-53,97` | Texto público al invitado: la admisión «la resuelve una persona de AportaYa» | texto; la admisión vive en grupos (lote L3) | ELIMINABLE el texto si R-NUEVA-1 quita la admisión manual; DECISIÓN REQUERIDA en L3 | el texto queda falso |
 
-Total: **15 filas** (≈ 30 puntos de código). DECISIÓN REQUERIDA: APR-01, APR-03, APR-07, APR-12, APR-15 (5). CONSERVAR / CONSERVAR POR NORMA: 9. ELIMINABLE: APR-02 como vía de activación (1). Las filas de backoffice se completan en la tanda 6.
+Pantallas del backoffice que ejecutan las filas anteriores (tanda 6): APR-01 → `apps/backoffice/src/app/rutas/cumplimiento/verificaciones/vista-decision-del-expediente.ts:68-82`; APR-07 → `operacion/retiros/pantalla-de-aprobacion-de-retiro.ts:150-171` y `bandeja-de-retiros.ts:87-102`; APR-09 → `cumplimiento/uif/aprobar-y-enviar.ts:65-90`; APR-10 → `cumplimiento/alertas/abrir-caso.ts:56-77`, `cumplimiento/casos/decidir-caso.ts:78-102`; APR-11 → `cumplimiento/uif/registrar-requerimiento.ts:57-78`, `responder-requerimiento.ts:41-59`; APR-04 → `sistemas/usuarios-internos/modal-asignar-roles.ts:73-88`.
+
+Total: **17 filas** (≈ 30 puntos de código). DECISIÓN REQUERIDA: APR-01, APR-03, APR-07, APR-12, APR-15, APR-16 (6). CONSERVAR / CONSERVAR POR NORMA: 9 (APR-04, -06, -08, -09, -10, -11, -13, -14; APR-05 NO APLICA). ELIMINABLE: APR-02 como vía de activación y APR-17 como texto (2).
 
 ### 4.b Inventario de respaldo y cobertura
 
@@ -1693,7 +1697,7 @@ Rutas sin prefijo: relativas a `servicios/identidad/src/main/java/bo/aportaya/id
 Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/`. Peldaño: DISCOVERED. El hallazgo del subagente sobre CU-40 se fusionó en IDCU-REESCRITURA-001 / IDCU-ACOPLE-002 (agrega: `svc_cumplimiento` sin GRANT sobre `nucleo_financiero`).
 
 ### IDCU-FLUJO-FALTANTE-117 — La detección UIF (PCC-01 y ROG, CU-41/CU-42) no tiene ningún disparador: los reportes mensuales a la UIF salen siempre "en cero"
-- Clase / Severidad / Confianza: FLUJO-FALTANTE / **S1** / confirmado (por lectura y grep)
+- Clase / Severidad / Confianza: FLUJO-FALTANTE / S2 / confirmado (por lectura y grep)
 - Ubicaciones: `aplicacion/CU41RegistrarPcc01.java:56-172`, `aplicacion/CU42RegistrarRog.java:322-407`, `aplicacion/CU43RemitirReportes.java:86-89`, `README.md:28-30,83-87`, `src/main/resources/openapi/cumplimiento.yaml:9-10`
 - Evidencia: grep de referencias a `CU41RegistrarPcc01` en main → solo `CU42RegistrarRog.java` (tipos de record); `CU42RegistrarRog` → ninguna; no hay `@KafkaListener` ni consumidor en el servicio; README "Eventos que consume | | |". CU-43 arma el reporte con `operaciones.pendientesDelPeriodo(...)` sobre `registro_operacion_relevante`, que en producción nunca recibe filas.
 - Cómo se comprobó: grep cruzado de cada CU contra `web/`, `trabajos/` y consumidores; lectura de CU-43.
@@ -1707,7 +1711,7 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Esfuerzo estimado: grande
 
 ### IDCU-FLUJO-FALTANTE-118 — Un oficio de autoridad con orden de bloqueo nunca bloquea nada y el acceso por oficio no queda en bitácora
-- Clase / Severidad / Confianza: FLUJO-FALTANTE / **S1** / confirmado
+- Clase / Severidad / Confianza: FLUJO-FALTANTE / S2 / confirmado
 - Ubicaciones: `aplicacion/CU45AtenderRequerimiento.java:370-385,391-400`, `web/AccionesDeCumplimientoWeb.java:60-74`
 - Evidencia: el evento `cumplimiento.requerimiento_recibido` lleva `exigeBloqueo` y `justificacionDeAcceso` pero **no** `usuarioAfectadoId`; `anotarBloqueo` no tiene llamador en main; ningún servicio consume el evento (grep).
 - Cómo se comprobó: lectura del payload y grep de consumidores y de `anotarBloqueo`.
@@ -2624,12 +2628,110 @@ Operaciones que alguien llama y no existen: progreso de tutoriales `/identidad/t
 
 ## 8. Cobertura por clase
 
-Pendiente.
+| Clase | Qué se revisó y con qué método | Hallazgos |
+|---|---|---|
+| APROB | grep `aprob|confirm|habilit|revis|PENDIENTE_|doble` en servicios, SQL, app y backoffice; lectura de cada endpoint (lotes 1–5) | 4 |
+| RESPALDO | grep `respaldo|cobertura|garant|fondo|subsid|anticip` en todo el módulo; lectura del tour de la app; ADR-051 | 1 |
+| FLUJO-QR | el módulo no participa del cobro QR; se buscó si identidad/cumplimiento avanzan el flujo sin QR (gating de KYC, límites). Sin hallazgos: no hay camino de este módulo que acredite aportes | 0 |
+| FLUJO-FALTANTE | búsqueda de consumidores y disparadores (`@KafkaListener`, `@Scheduled`, controladores) para cada caso de uso; retiro autorizado; detección UIF; oficios | 6 |
+| COHERENCIA | contraste ADR-049/051/054, `docs/Cumplimiento.md`, catálogo de flujos, OpenAPI, textos de la app | 6 |
+| DUP-INT | comparación de clases y componentes homónimos dentro de cada servicio/app | 5 |
+| DUP-X | búsqueda por concepto entre servicios (CU-40 duplicado entre cumplimiento y nucleo-financiero quedó como REESCRITURA). Sin otra fila propia | 0 |
+| REESCRITURA | búsqueda de casos de uso duplicados y sin referencia | 1 |
+| PISADA | comentarios contradictorios y convenciones mezcladas; historial completo disponible pero no se recorrió commit por commit (§11). Se registró como DOC/COHERENCIA cuando apareció | 0 |
+| PARCHE | búsqueda de valores fijos, `catch` que tragan, banderas; registrados como CLEAN/FRAGIL/DATOS | 0 |
+| FRAGIL | lectura de cadenas mágicas y estados compartidos | 8 |
+| DEFECTO | lectura completa de main de ambos servicios | 14 |
+| HUECO | endpoints/pantallas sin implementación; CU sin entrada | 16 |
+| RESILIENCIA | timeouts de clientes, estado en memoria, efectos dentro de transacciones | 4 |
+| DINERO | 91.1/91.2: tipos de importe, moneda, append-only, idempotencia en retiros y límites | 7 |
+| DEBIDO-PROCESO | bloqueos y acciones automáticas sin expediente; deber de reserva en casos LFT | 2 |
+| DDD | lenguaje ubicuo y objetos de valor; los desvíos aparecen dentro de COHERENCIA/DINERO/ARQ. Sin fila propia | 0 |
+| ARQ | capas, SQL crudo en aplicación, ADR-032 | 2 |
+| CLEAN | código muerto, `$any`/`as`, literales | 5 |
+| ACOPLE | lecturas de esquemas ajenos (`auditar_backend.py` invariante 11) e importaciones cruzadas | 2 |
+| CONTRATO | matriz §6: OpenAPI vs controlador vs cliente vs app | 10 |
+| DATOS | esquema, semillas, procedencia de catálogos (97.4/97.5.4) | 13 |
+| RENDIMIENTO | listados sin paginar, N+1 | 4 |
+| PRUEBAS | lectura de pruebas de autorización y plantillas; ninguna ejecutada | 7 |
+| UX-A11Y | lectura de pantallas de la app y del backoffice; sin capturas | 8 |
+| OBSERV | logs con PII, huellas y métricas | 2 |
+| CONFIG | valores por omisión de secretos (`auditar_backend.py` «Cableado»), backup Android | 2 |
+| DOC | comentarios y documentación contra el código | 5 |
+| SEG | autorización por endpoint (matriz §6), tokens, MFA, RLS, PII, enumeración | 33 |
+| TRAZA | bitácora de lectura, rastro de aprobaciones | 4 |
+| REG | contraste con `docs/Cumplimiento.md`; parámetros normativos sin fuente | 4 |
+| OTRO | lo que no encaja en otra clase | 1 |
+
+Total de fichas en §5: 176. Un hallazgo con dos clases cuenta en la primera (la que describe la causa).
 
 ## 9. Lo que está bien
 
 - No hay confianza en cabeceras de identidad sin firmar: `grep -rniE 'X-User|X-Usuario|X-Actor|X-Rol'` sobre identidad, cumplimiento y `comun-web` → sin resultados; la identidad se resuelve del JWT validado (`SesionDeLaPeticion.java:66-84`).
 - El emisor de tokens falla al arrancar sin clave en `staging`/`production` (`EmisorDeAcceso.java:75-79`).
+
+### servicio identidad
+
+- Identidad del actor desde **JWT RS256 verificado en cada servicio**, nunca cabecera (`SesionDeLaPeticion.java:155-180`; `ConfiguracionDeSeguridad` sin confianza en el gateway). Guardia de permisos real (`GuardiaDePermiso`) y arranque que exige `@Permiso`/`@Publico` en cada endpoint.
+- Control de objeto del expediente con token de alta HMAC atado a usuario+propósito+vencimiento, 403 idéntico (`TokenDeAlta`, `TitularDelExpediente`), con pruebas negativas.
+- Argon2id con pimienta, `char[]` borrado, comparación constante; OTP de correo e invitaciones con HMAC, intentos y bloqueo por token; refresh rotatorio con detección de reuso por trigger y ventana de gracia; cookie HttpOnly/Secure/SameSite=Strict.
+- Outbox en la misma transacción; intento de login registrado aunque falle (no lanza dentro de la tx).
+- Respuesta mínima en titularidad (sí/no) y en contacto de grupo; teléfono por cuerpo en la búsqueda nueva; rotación de claves JWKS con `kid`.
+- Precondición en la escritura en `resolver` KYC y en `pasarARevisionSiFaltabaDocumento`; `FOR UPDATE` en decisión y fecha.
+- Clientes HTTP con timeout global y fallo cerrado.
+
+### servicio cumplimiento
+
+- Actor desde la sesión en CU-43 aprobar, CU-45 responder, CU-44 decidir, CU-47/48 aprobar/activar; el contrato rechaza `aprobadoPor`/plazo en el cuerpo (`AccionesDeCumplimiento.java:23-27`, `web/AccionesDeCumplimientoWebTest.java:129-176`).
+- CU-44 decisión: transición condicional `estado <> 'CERRADO'` + reintento idéntico sin segundo evento + prueba de concurrencia real (`CasoLftRepositorio.java:71-92`, `CU44DecisionTest.java:218-244`).
+- Deber de reserva en bandejas: las consultas LFT no leen `usuario_id`, montos ni resúmenes (`BandejasLftRepositorio.java:14-17`); evento `caso_abierto` sin usuario; `notificarAlTitular=false`; RLS por omisión deniega las tablas LFT al titular (`restricciones.sql:1437-1438`).
+- Segregación R-SEG-04 del reporte garantizada en base (`ck_reporte_segregacion`).
+- Outbox transaccional en todas las escrituras; sin publicación directa a Kafka; sin clientes HTTP salientes.
+- `fail-on-unknown-properties: true` + `additionalProperties: false` (mass assignment) con pruebas (`AmbitoDeLaPersonaWebTest.java:141-183`).
+- `soloElPropio` en PEP y aceptación con negativa indistinguible (AP-SEG-01).
+- Umbrales UIF como dato con base normativa y cita (catálogo `umbral_reporte_uif`), coincidentes con docs/Cumplimiento.md §2.1-2.2; reporte en cero; plazos guardados y no recalculados.
+- Pérdida neta leída de la columna GENERATED; `DECIMAL` y `BigDecimal` en todo importe (sin double/float).
+- Controles diarios CU-54/55 idempotentes por código derivado y `SKIP LOCKED`, con tope por corrida.
+- `EfectoDelReclamo` deniega por omisión y está probado en tres niveles (`dominio/EfectoDelReclamoTest.java`).
+- Sin TODO/FIXME; ningún `catch` que trague errores (solo traducción a `ErrorDeNegocio`); sin PII en logs (solo conteos).
+
+### esquema, contratos y retiros
+
+- Doble capa real contra autoaprobación: `if` en Java + `UPDATE ... AND solicitada_por <> aprobada_por` + CHECK (`AprobacionDeRetiroRepositorio.java:22-30`, `restricciones.sql:1529-1535`); concurrencia resuelta por UPDATE condicionado.
+- Idempotencia del retiro por `(cuenta, clave)` con lock y verificación de "misma solicitud" (`SolicitudDeRetiro.java:82-96`, `ReglasDeRetiro.java:135-143`, `uq_retiro_idem`).
+- Retención antes de la orden; BOLA del titular antes de tomar el lock (`SolicitudDeRetiro.java:77-82`).
+- Cuenta verificada + titular + enfriamiento en Java y en trigger de base (`CondicionesDeRetiro.java:64-78`, `fn_bil_validar_instrumento_retiro`).
+- `SegundoFactorLocal` confinado a `local/test`; `SegundoFactorStepUp` deniega por omisión y no loguea el JWT.
+- Registro UIF por umbral en la misma transacción, idempotente (`uq_operelev_tx_umbral`), con tipo de cambio reproducible y umbrales versionados con EXCLUDE.
+- RLS: lo que cumplimiento escribe sobre una persona no es visible para ella (anti-soplo, `restricciones.sql:1353-1360`).
+- Documento cifrado con versión de llave; tokens y contraseñas sólo como hash; R-SEG-09 (reuso de refresh revoca familia).
+- Seeds dev/volumen con guarda `app.entorno='dev'`.
+- Simulado alineado 1:1 con los contratos (38/28 operaciones con escenarios ok/vacío/adverso/rechazo).
+
+### app móvil
+
+- Tokens de acceso/refresco solo en almacén seguro; iOS `unlocked_this_device`; nada en SharedPreferences (`apps/movil/lib/proveedores/sesion.dart:28-49`). Logout revoca en servidor (`cierre_de_sesion.dart:45-57`).
+- La contraseña del alta solo vive en memoria y nunca se persiste (`dominio/modelo_alta.dart:85-89`); el borrador no la incluye.
+- MFA decidido por el servidor (`dominio/cu04_autenticar.dart:14-20,94-104`); sin refresh no se usa `sesionId` como credencial (`:85-90`).
+- Cero `print`/`debugPrint`/logs en el lote; las rutas de archivos de documentos nunca se loguean (`dominio/capturas_del_expediente.dart:28-45`).
+- FLAG_SECURE en las fases cuenta/identidad del alta (`dominio/comportamiento_de_pantalla_del_alta.dart:37-48`).
+- `Token-De-Alta` de un solo propósito para operar sin sesión, nunca se envía el de otro usuario (`dominio/estado_de_verificacion.dart:43-52`).
+- Idempotencia de alta, código de correo y subida (con rotación al repetir) bien pensada (`dominio/subida_del_expediente.dart:173-191`, `dominio/verificacion_correo.dart:32-58`).
+- `usuarioId` para completar KYC se toma del token, no de la navegación (`pantalla_completar_kyc_de_sesion.dart:7`).
+- Movimiento reducido respetado en tour, candado, transiciones y cuenta atrás; semántica cuidada en riel, miniaturas, filas de perfil; estados con texto + tono, no solo color (`seccion_verificacion_kyc.dart:129-135`).
+- Consentimientos separados y botón habilitado solo tras leer hasta el final y con los tres ids vigentes (`dominio/estado_contrato.dart:49-56`).
+
+### backoffice y web
+
+- Deber de reserva en bandejas LFT: ni la fila ni el código piden persona/monto (`cu44-bandejas.ts:21`, contrato `cumplimiento.yaml:575-580`), "nunca avisar al titular" explícito (`decidir-caso.ts:24-26`). En `apps/web` no hay ninguna pantalla que exponga alertas, casos o ROS (grep sin aciertos).
+- Idempotencia por contenido en todas las escrituras de cumplimiento, KYC y retiros; 200 vs 201 distingue reintento (`cu43-reportes.ts:42-45`).
+- Estado "sin confirmar" en retiro (no confunde "sin respuesta" con "no pasó") y reintento con la misma clave (`pantalla-de-aprobacion-de-retiro.ts:173-182`).
+- Fotos de cédula pedidas de a una, como binario autenticado, revocadas al salir (salvo la carrera señalada) (`tira-de-fotos.ts`); el número de documento no viaja (`cu02-presentacion.ts:64-68`).
+- Cuatro estados + "denegado" en bandejas de cursor; errores traducidos con traza (`bandeja-por-cursor.ts`, `listado-de-bandeja.ts`); export de datos de identidad condicionado a permiso (`pantalla-de-expedientes.ts:67,110`).
+- Datos de ejemplo de Sistemas solo en `development`/`demo` por `fileReplacements`; producción usa el proveedor real (`apps/backoffice/angular.json:65-96`).
+- Ingreso: credencial solo en memoria, `volverA` restringido a rutas internas (`pantalla-de-ingreso.ts:189-193`), sin distinguir cuenta inexistente.
+- Invitación web: secreto en fragmento, retirado de historial, `Referrer-Policy: no-referrer`, `noindex`, `RenderMode.Client` (`app.routes.server.ts:34-38`).
+- Autoampliación de permisos bloqueada en servidor (`UsuariosInternosRepositorio.java:249`).
 
 ## 10. Observado fuera de alcance
 
@@ -2637,12 +2739,709 @@ Pendiente.
 
 - **nucleo-financiero / recarga (lote L1)** — La recarga la acredita TESORERIA a mano; el catálogo dice que la acredita el proveedor con firma: `servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/web/BilleteraController.java:141-148`. Acredita saldo por acción de TESORERÍA y no por webhook firmado; choca con 91.3.1 y R-NUEVA-1. Propuesto S1 por el subagente; no es de este módulo.
 
+- `scripts/auditar_backend.py` — falso positivo: cuenta como «declaradas sin implementar» operaciones heredadas de una clase abstracta (`servicios/cumplimiento/.../web/ColasDeCumplimientoWeb.java:28`).
+- `scripts/verificar_rutas_frontend.py` — exit 1 por una ruta de grupos que ya tiene contrato (`GET /grupos/solicitudes-escaladas`), lote L3.
+
+### servicio identidad
+
+- `plataforma/gateway/.../LimitadorDeTasa.java`: clave de rate limit = IP + `Authorization.hashCode()`; `/sesion/**` y `/usuarios-internos/**` sin rate limit (`rutas.yml:107-112`).
+- `plataforma/comun-web/.../ClienteDeServicio.java:302-310`: registra en log y en el mensaje de error el cuerpo de respuestas 4xx/5xx de otros servicios (posible PII).
+- `nucleo-financiero/.../ConsumidorDeUsuariosKafka.java:33`: abre billetera al registrarse aun sin KYC.
+- `grupos/.../PersonasPorHttp.java:25`: pide `/usuarios/{id}/kyc` de terceros con token de participante (403→vacío).
+- `sql/40_reglas/restricciones.sql:1326-1328`: un solo rol privilegiado de fila para todo el personal.
+
+### servicio cumplimiento
+
+- `servicios/garantia/src/main/java/bo/aportaya/garantia/infraestructura/ClienteConCircuito.java:35,72` — propaga el token del usuario a llamadas entre servicios (98.6.3).
+- `servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/clientes/HechosPorHttp.java:160` — servicio interpolado en la URL sin codificar.
+- `sql/60_semillas/06-umbrales-uif.sql:5-28` — `vigente_desde = current_date`.
+- `sql/40_reglas/restricciones.sql:1326-1329` — `fn_seg_rol_privilegiado` solo reconoce `BACKOFFICE|CUMPLIMIENTO|AUDITOR`; si el `rol` del token de un analista es otro (p. ej. `OFICIAL_CUMPLIMIENTO`), la RLS dejaría vacías sus bandejas (sospecha, no verificado).
+- `plataforma/comun-web/.../idempotencia/Idempotencia.java` — existe y no la usa cumplimiento.
+
+### esquema, contratos y retiros
+
+- `servicios/grupos/.../grupos.yaml:1031` publica `consultarSiCompartenGrupo` (productor del pacto).
+- `sql/40_reglas/restricciones.sql:1501-1516` `ck_entrega_segregacion` (entregas) y `ck_reverso_segregacion` exigen aprobación humana en entregas/reversos (lote de entregas).
+- `CU13RetenerSaldo.ejecutar` vía `cerrarRetencion` deja al titular "ejecutar" su propia retención sin movimiento (consume saldo sin asiento).
+- `ADR-017`: FK cruzadas entre esquemas como desvío declarado de 98.1.
+
+### app móvil
+
+- `servicios/identidad/src/main/resources/openapi/identidad.yaml:1038-1048` — `BorradorOnboarding` con enum y patrón de teléfono distintos del resto del contrato (ver H12).
+- `servicios/identidad/src/main/resources/openapi/identidad.yaml:350-352` — `resolverVerificacion` (decisión humana del KYC), punto APROB del servidor.
+- `.gitignore:51` — `clientes/dart/` ignorado: el cliente generado no está versionado; el contraste por campos/enums se hizo contra el spec, no contra el código generado.
+- `packages/diseno_flutter` — `ArteFondoDeGarantia` (ilustración de cobertura, H01).
+
+### backoffice y web
+
+- `apps/backoffice/src/app/nucleo/borrador.ts:7-16` — IndexedDB sin cifrado ni purga; abre la base en cada operación sin cerrarla.
+- `servicios/identidad/.../UsuariosInternosRepositorio.java:181-183` — contraseña provisional generada y descartada.
+- `servicios/identidad/.../openapi/identidad.yaml:271-291,830-859` — listados sin paginación.
+- `packages/ui/src/listado/listado.ts:98` — `exportable` por defecto `true`.
+- `apps/backoffice/src/app/rutas/postulaciones/pantalla-de-postulacion.ts:54` — enlace a habilitación (aprobación de postulación, otro lote).
+
 ## 11. Límites de esta auditoría
 
 - Gradle no corrió: `./gradlew :servicios:identidad:testBarrido` → `BUILD FAILED`, «Received status code 429 from server: Too Many Requests» al resolver dependencias de `buildSrc` (`evidencia/gradle-identidad-testBarrido.txt`). Además la generación jOOQ exige PostgreSQL con el esquema aplicado (`buildSrc/src/main/kotlin/aportaya.jooq.gradle.kts:22`) y el metaprompt prohíbe aplicar migraciones. Todas las pruebas Java del módulo y el barrido de tamaño/umbrales/secretos quedan **NO COMPROBADO**.
 - `yarn typecheck` (backoffice) no corrió: «packageManager yarn@4.18.0 … current global version of Yarn is 1.22.22» (Corepack deshabilitado; no se instaló nada). Flutter/Dart no están instalados. **NO COMPROBADO**.
 - No se ejecutaron `scripts/inventario_endpoints.py` ni `scripts/matriz_de_pruebas.py` sin `--check`/`--servicio` porque escriben archivos del repo; `inventario_endpoints.py --check` sí corrió.
 
+- Supuesto de frontera: el resto de `nucleo-financiero` (recarga, mayor, QR) es del lote L1; pantallas de grupos/admisiones/postulaciones del lote L3; `plataforma/*` del lote L5. De ellos se leyó solo el punto de contacto.
+- Historial: completo, pero no se recorrió commit por commit buscando PISADA; los rastros de pisada se registraron cuando aparecieron en el código (comentarios contradictorios, convenciones mezcladas).
+- Ejecución: nada se ejecutó contra una base ni se levantó ningún servicio, ni la app. Todo el informe está en peldaño DISCOVERED salvo las salidas de los verificadores Python de `scripts/` (en `evidencia/`).
+- Clientes generados: `clientes/dart/*/lib/src` y `clientes/angular/*` no están versionados (`.gitignore`); la comparación se hizo contra los OpenAPI fuente.
+- Lectura de pruebas: se leyeron completas las de autorización, step-up, UIF y PEP; el resto se inventarió por nombre (ver cada lote).
+- Severidad: el orquestador ajustó la severidad de 8 fichas propuestas por los subagentes (5 S1→S2, 2 S1 mantenidos tras re-verificar, 1 S1 de recarga movido a §10); cada ajuste lleva «Nota del orquestador» en su ficha.
+- Datos personales: el informe no contiene datos de participantes; los importes citados (por ejemplo, el umbral 5000.00 de `application.yml`) son parámetros de configuración del repo, no importes de personas.
+
+### servicio identidad
+
+- No se ejecutó nada (regla del contrato): ninguna afirmación pasa de DISCOVERED.
+- Tests: leídos completos 6 (ArquitecturaTest, SeguridadWebTest, UsuariosAutorizacionNegativaWebTest, StepUpTest, CableadoDelSegundoFactorTest, CU04RechazosTest) y parcial BaseDeCU04; del resto se inventariaron nombres `@DisplayName` y cabeceras. No se leyeron completos CU04Test, CU04RenovacionTest, CU02RevisionTest, CU02DecisionDelServidorTest, CU69*, CU08*/CU09*, VerificacionesControllerWebTest, UsuariosSubirDocumentoWebTest, SesionControllerWebTest, SesionesStepUpWebTest, UsuariosInvitacionesKycWebTest (por tiempo; su cobertura se infirió de los nombres).
+- No se verificaron políticas RLS concretas de `identidad.usuario` (UPDATE por BACKOFFICE) ni del resto de tablas: condiciona la severidad de F02 y F06.
+- `PlantillaCorreoDeVerificacion.java` leído hasta la línea 60 (resto es HTML).
+- OpenAPI: líneas 830–980 (usuarios-internos/roles/permisos paths) y 1500–1631 (schemas de internos) leídas por extracción de índices y schemas puntuales, no línea a línea.
+- `gradle.lockfile` (221) y `.jqwik-database` no revisados.
+
+### servicio cumplimiento
+
+- `gradle.lockfile` no auditado línea a línea (dependencias; fuera del foco regulatorio).
+- `openapi/cumplimiento.yaml` (1761 líneas): leídos cabecera de errores, todas las rutas/operationId, permisos en `description`, `Idempotency-Key` y los esquemas con campos sensibles (`aprobadaPor`, `analistaId`, `formulario`, `aceptadoPorElOrganismo`); no se cotejó cada esquema de respuesta campo por campo.
+- Pruebas: leídas completas las de autorización (`AutorizacionNegativaWebTest`, `AmbitoDeLaPersonaWebTest`, `SeguridadWebTest`), `CU44DecisionTest`, `CU44Test`; de UIF/PEP/KYC (CU-41/42/43/06/03/02) se leyeron nombres y las aserciones clave citadas; el resto inventariado con una frase.
+- `TableroDeCumplimientoWeb.java` y `TableroDeCumplimientoRepositorio.java` leídos en su primera mitad y el resto por estructura (mapeos y SQL análogos).
+- Plataforma: solo `GuardiaDePermiso`, `SesionDeLaPeticion`, `PermisoAlternativo`, `Datos` (set_config) e `Idempotencia` (existencia).
+- Nada ejecutado (contrato del lote): las fallas de GRANT/RLS son por lectura del SQL, no reproducidas.
+
+### esquema, contratos y retiros
+
+- No se leyó `servicios/identidad` ni `servicios/cumplimiento` salvo greps de cotejo (`DocumentoDeIdentidad`, `MapeoDelAlta`, `BorradorOnboardingRepositorio`, `ExpedienteController @Publico`), por contrato del lote.
+- `sql/30_indices/12_cumplimiento_asfi.sql`, `restricciones.sql` fuera de los rangos citados, y `prueba_humo.sql` fuera de UIF: no leídos completos.
+- `CU-01/02/03/06/08/18/41/43/44` sólo por grep de aprobaciones/umbrales; no se contrastaron línea a línea.
+- Postman: inventario de requests y headers, no los scripts de prueba.
+- Nada ejecutado: los hallazgos "probable" (doble gasto por liberar retención, costo sin línea, step-up no ligado) requieren una prueba de integración para confirmarse.
+
+### app móvil
+
+- No se ejecutó nada (ni `flutter test` ni la app): todos los hallazgos son peldaño DISCOVERED; ninguno está verificado en runtime ni con capturas.
+- Tests: de 112 archivos de `apps/movil/test/**` que importan identidad (14 999 líneas) solo se leyeron por grep dirigido y los rangos citados; no se auditó cada aserción.
+- `lib/dominio/cliente.dart`, `cierre_de_sesion.dart`, `biometria_ios.dart` y el lado Android de la biometría: solo rangos/grep (punto de contacto), no lectura completa.
+- No se pudo comparar contra el código Dart generado (`clientes/dart/identidad/lib/src/` ausente); se usó el OpenAPI fuente.
+- Si el «fondo de garantía» se financia con dinero de la empresa o de los participantes no se puede determinar desde este lote (H01 queda «probable»).
+
+### backoffice y web
+
+- Specs (`*.spec.ts`, ~3.5k líneas): se leyeron todos los títulos y por muestreo `pantalla-de-caso.spec.ts:55-75`; no se leyó cada aserción.
+- `clientes/angular/*` está en `.gitignore` y no existe en el checkout (solo `publicidad`): no se pudo contrastar los tipos generados con los manuales; el contraste se hizo contra los YAML.
+- No se leyeron `nucleo/` (interceptores de errores, idempotencia, sesión, timeout HTTP): el timeout de clientes y la traducción de errores se asumen ahí y quedan sin verificar.
+- `sistemas/dominio/accesos.ts` leído hasta la línea 60; resto de `sistemas/` (fuera de lote) no leído.
+- No se ejecutó nada: ningún hallazgo está verificado en runtime (peldaño `DISCOVERED`).
+
 ## 12. Anexo de cobertura de archivos
 
-Pendiente.
+Una tabla por lote, tal como la registró cada lectura. «Leído completo: no» lleva su motivo.
+
+### servicio identidad
+
+
+### main (todos leídos completos)
+| ruta (relativa a `servicios/identidad/`) | líneas | leído completo | qué hace |
+|---|---|---|---|
+| README.md | 68 | sí | Ficha del servicio; declara CU-01/02/04/07/08/09 "Implementado"; tablas de eventos vacías |
+| build.gradle.kts | 50 | sí | Plugins servicio/jooq/openapi, deps (argon2, oauth2, kafka, shedlock, resilience4j) |
+| descriptor.yml | 30 | sí | N1, réplicas min 4 / max 10, hikari_por_replica 10 |
+| src/main/resources/application.yml | 82 | sí | Config; pimienta obligatoria; claves JWT/invitaciones opcionales; hikari 20 |
+| src/main/resources/openapi/identidad.yaml | 1631 | sí (paths completos; schemas leídos 980–1631) | Contrato OpenAPI 3.1 |
+| Aplicacion.java / ConfiguracionDeIdentidad.java | 21/29 | sí | Arranque; beans Reloj/Ids/Outbox |
+| aplicacion/ActivarRolOrganizador.java | 59 | sí | CU-90: firma contrato + llama a organizador + concede ORGANIZADOR |
+| aplicacion/AnotarFotoEnExpediente.java | 48 | sí | Anota clave de foto en documento/verificación (tx corta, contexto sistema) |
+| aplicacion/BuscarPorTelefono.java | 40 | sí | Teléfono→UUID como contexto de sistema |
+| aplicacion/CU01RegistrarUsuario.java | 291 | sí | Alta: usuario, credencial, documento, verificación, consentimientos, outbox |
+| aplicacion/CU02ActualizarFechaExpiracion.java | 35 | sí | Titular corrige fecha de vencimiento |
+| aplicacion/CU02ConsultarEstadoDeVerificacion.java | 42 | sí | Estado del expediente (contexto sistema) |
+| aplicacion/CU02GuardarFotoDelExpediente.java | 72 | sí | Sube foto al almacén y anota |
+| aplicacion/CU02IniciarVerificacion.java | 73 | sí | KYC diferido: INCOMPLETO_KYC→PENDIENTE_VERIFICACION |
+| aplicacion/CU02RevisarExpediente.java | 133 | sí | Cola KYC, fotos y **decisión humana** |
+| aplicacion/CU04Autenticar.java | 224 | sí | Login, lockout, factor, sesión |
+| aplicacion/CU04StepUp.java | 117 | sí | Step-up: desafío en memoria + evidencia JWT |
+| aplicacion/CU07FotoDePerfil.java | 51 | sí | Foto de perfil propia |
+| aplicacion/CU08AsignarRol.java / CU08RevocarRol.java | 118/76 | sí | Asignar/revocar rol con SoD (sin endpoint) |
+| aplicacion/CU09CambiarCredencial.java / CU09SolicitarBaja.java | 136/69 | sí | Cambio de clave / baja (sin endpoint) |
+| aplicacion/CerrarSesion.java | 55 | sí | Logout: revoca sesión + refresh |
+| aplicacion/ConfirmarVerificacionCorreo.java | 31 | sí | Confirma OTP de correo |
+| aplicacion/ConsultarContactoEnGrupo.java | 32 | sí | Teléfono de un integrante tras preguntar a grupos |
+| aplicacion/ConsultarMiPerfil.java | 83 | sí | Perfil propio |
+| aplicacion/ConsultarNivelKyc.java | 43 | sí | Nivel KYC (propio o por rol) |
+| aplicacion/ConsumirInvitacion.java | 175 | sí | Canje/revocación de token de invitación (SQL crudo) |
+| aplicacion/EmitirAcceso.java | 89 | sí | Calcula permisos y firma JWT de acceso |
+| aplicacion/EmitirTokenDeInvitacion.java | 175 | sí | Emite token de invitación idempotente con límite diario |
+| aplicacion/EntradaAutenticacion.java | 31 | sí | Record de entrada login |
+| aplicacion/FotoDePerfilEnLaCuenta.java | 55 | sí | url_avatar |
+| aplicacion/GestionarUsuariosInternos.java | 153 | sí | CRUD personal interno + outbox |
+| aplicacion/GuardarBorradorOnboarding.java | 29 | sí | Guarda borrador del alta |
+| aplicacion/IndicadoresDeIdentidad.java | 43 | sí | Conteos para tableros |
+| aplicacion/RenovarSesion.java | 253 | sí | Refresh rotatorio con detección de reuso |
+| aplicacion/SolicitarVerificacionCorreo.java | 73 | sí | OTP de correo previo al alta |
+| aplicacion/ValidarTokenDeInvitacion.java | 61 | sí | Valida token + teléfono + KYC mínimo |
+| aplicacion/VerificarTitularidad.java | 88 | sí | Sí/no nombre+documento para entregas |
+| dominio/*.java (17 + 3 puertos) | ~860 | sí | Átomos: ámbitos, documento, SoD, políticas, perfiles, resultado |
+| infraestructura/AccesoRepositorio.java | 179 | sí | Intentos, dispositivos, sesiones, bloqueos |
+| infraestructura/AccesosRepositorio.java | 148 | sí | Roles/permisos/asignaciones |
+| infraestructura/Argon2Hasheador.java | 67 | sí | Argon2id + pimienta |
+| infraestructura/BorradorOnboardingRepositorio.java | 208 | sí | Borrador del alta (texto plano) |
+| infraestructura/ContactoEnGrupoRepositorio.java | 31 | sí | Lee teléfono como sistema |
+| infraestructura/CorreoDeAccesoRepositorio.java | 47 | sí | Correo verificado para OTP de acceso |
+| infraestructura/CorreoDeVerificacionLocal.java | 26 | sí | Adaptador de correo nulo |
+| infraestructura/CredencialRepositorio.java | 85 | sí | Historial, reemplazo, cierre de sesiones, baja |
+| infraestructura/DesafioDeDesarrollo.java | 81 | sí | Factor fijo `000000` con perfil `local` |
+| infraestructura/DesafioLocal.java | 104 | sí | Único DesafioDeFactor "real": códigos en memoria |
+| infraestructura/EmisorDeAcceso.java | 232 | sí | Firma RS256, JWKS, evidencia step-up |
+| infraestructura/ExpedienteRepositorio.java | 76 | sí | Anota fotos (sin precondición de estado) |
+| infraestructura/FechaDeExpiracionRepositorio.java | 45 | sí | Actualiza fecha con FOR UPDATE |
+| infraestructura/FilaDeExpediente.java | 75 | sí | Mapeo fila→expediente |
+| infraestructura/FirmaDeOrganizadorRepositorio.java | 136 | sí | Token FIRMA_CONTRATO + rol ORGANIZADOR como sistema |
+| infraestructura/GmailApiCorreoDeVerificacion.java | 97 | sí | Envío Gmail API |
+| infraestructura/IndicadoresDeIdentidadRepositorio.java | 52 | sí | Conteos |
+| infraestructura/PlantillaCorreoDeVerificacion.java | 123 | sí (texto/HTML) | Plantilla HTML del OTP |
+| infraestructura/ProteccionDeVerificacionCorreo.java | 57 | sí | HMAC de código y destino con la pimienta |
+| infraestructura/RegistroRepositorio.java | 269 | sí | Escrituras del alta |
+| infraestructura/RevisionRepositorio.java | 236 | sí | Cola KYC, decisión, activación y rol base |
+| infraestructura/RolesYPermisosRepositorio.java | 83 | sí | Catálogos |
+| infraestructura/RotacionDeRolesInternos.java | 83 | sí | Reemplazo de roles de internos |
+| infraestructura/SecretoDeInvitacion.java | 40 | sí | HMAC de invitaciones |
+| infraestructura/TextoDeVerificacion.java | 42 | sí | Enmascarado + intento |
+| infraestructura/UsuarioInternoMapeador.java | 59 | sí | Mapeo DTO |
+| infraestructura/UsuarioRepositorio.java | 84 | sí | Lecturas del login |
+| infraestructura/UsuariosInternosRepositorio.java | 287 | sí | Alta/edición/roles/desbloqueo internos |
+| infraestructura/VerificacionCorreoRepositorio.java | 257 | sí | OTP de correo |
+| infraestructura/clientes/GruposPorHttp.java / OrganizadorPorHttp.java | 41/50 | sí | Clientes HTTP salientes |
+| web/*.java (17 archivos) | ~1600 | sí | Controladores, token de alta, cookie, límite |
+
+### test (inventario; ver Límites)
+| ruta (src/test/java/bo/aportaya/identidad/) | líneas | leído completo | qué hace |
+|---|---|---|---|
+| ArquitecturaTest | 60 | sí | ArchUnit: dominio puro, @Transactional solo en aplicación, sin import cruzado, sin JPA, web↛infra |
+| web/SeguridadWebTest | 123 | sí | Barrido 401/403 de todas las rutas (casos de uso mockeados) |
+| web/UsuariosAutorizacionNegativaWebTest | 280 | sí | Matriz negativa por rol: búsqueda, titularidad, invitación, CU-90 (mocks) |
+| StepUpTest | 132 | sí | Evidencia step-up con DesafioDeFactor MOCK |
+| CableadoDelSegundoFactorTest | 58 | sí | Confirma que TEST corre perfil `local` (factor 000000) + Gmail |
+| CU04RechazosTest | 194 | sí | Reglas R-xxx en base; escribe en `comun` y `nucleo_financiero` |
+| web/UsuariosInternosControllerWebTest | 231 | no (nombres de prueba) | 9 casos felices + 401/403; sin SoD ni escalada |
+| UsuariosInternosRepositorioTest | 122 | no (nombres) | Alta de operador contra Testcontainers |
+| web/VerificacionesControllerWebTest | 299 | no (nombres) | Cola/fotos/decisión: permiso, cara inválida |
+| web/UsuariosSubirDocumentoWebTest | 299 | no (nombres) | Token de alta: ajeno/vencido/forjado/403 idéntico |
+| web/SesionControllerWebTest | 177 | no (nombres) | Refresh web/móvil, logout |
+| CU04RenovacionTest | 241 | no (nombres) | Rotación/reuso/gracia de refresh contra BD real |
+| CU04Test / CU04CodigoPorCorreoTest / CU04IngresoConCorreoTest / CU04CuentaSinDocumentoTest | 278/149/111/58 | no (nombres) | Login, lockout, factor por correo |
+| web/SesionesStepUpWebTest / SesionesControllerWebTest / SesionesIngresoConCorreoWebTest | 115/279/116 | no (nombres) | Contrato HTTP de sesiones (mocks) |
+| CU08Test / CU08RechazosTest / CU08CodigosDeRolVigentesTest / BaseDeCU08 | 199/129/58/106 | no (nombres) | CU-08 a nivel caso de uso (sin endpoint en producción) |
+| CU09Test / CU09RechazosTest / BaseDeCU09 | 224/152/194 | no (nombres) | CU-09 a nivel caso de uso (sin endpoint) |
+| CU69* (5) / BaseDeEmisionDeInvitacion | ~600 | no (nombres) | Token de invitación: emisión, política, auditoría, validación |
+| web/UsuariosInvitacionesKycWebTest | 199 | no (nombres) | Canje/revocación/KYC 401/403/422 |
+| CU02RevisionTest / CU02DecisionDelServidorTest / CU02NivelKycTest | 249/134/72 | no (cabecera) | Reglas de aprobación KYC |
+| CU01*Test (5) / BaseDeCU01 / DoblesDeLaCoreografia | ~1200 | no (cabecera) | Alta |
+| CU07*Test, CU90RolOrganizadorTest, CUVerificarTitularidadTest, CUIndicadoresDeIdentidadTest | ~640 | no (cabecera) | Foto perfil, organizador, titularidad (BD real), indicadores |
+| ContactoEnGrupoRepositorioTest, infraestructura/clientes/GruposPorHttpPactoContratoTest, web/ContactoEnGrupoWebTest | 105/164/69 | no (cabecera) | Teléfono de integrante + pacto consumidor con grupos |
+| Borrador*Test (2), web/MapeoDelBorradorTest | 159/198/155 | no (cabecera) | Borrador del alta |
+| DesafioDeDesarrolloTest, DesafioPorCorreoTest, GmailApiCorreoDeVerificacionTest | 54/84/105 | no (nombres) | Factores y correo |
+| RotacionDeClavesDeFirmaTest, web/JwksControllerWebTest | 169/88 | no (cabecera) | Rotación JWKS |
+| EsquemaAlDiaRepositorioTest, FechaDeExpiracionRepositorioTest, Arranque*Test (3), BarridoTest | ~550 | no (cabecera) | Deriva jOOQ, fecha, arranque, barrido |
+| web/Usuarios*WebTest restantes (Consultas, Controller, FechaExpiracion, FotoDePerfil, IniciarVerificacion, TitularidadLimite, VerificacionCorreo), web/EstadoDeVerificacionWebTest(+Complemento), web/Permisos/RolesControllerWebTest | ~1900 | no (cabecera) | Contrato HTTP con casos de uso mockeados |
+| FixturaDeIdentidad, ExpedientesDePrueba, CorreoEnMemoria, BaseDeCU04 | ~520 | parcial (BaseDeCU04 40–60) | Fixtures; BaseDeCU04 usa Testcontainers o `APORTAYA_TEST_DB_URL` |
+
+### servicio cumplimiento
+
+| ruta | líneas | leído completo (sí/no + motivo) | qué hace (una frase) |
+|---|---|---|---|
+| servicios/cumplimiento/.jqwik-database | 1 | sí | Vacío |
+| servicios/cumplimiento/README.md | 116 | sí | Ficha del servicio; declara CU 'Implementado' y eventos (incompleto) |
+| servicios/cumplimiento/build.gradle.kts | 45 | sí | Plugins de convención, pisos de cobertura, dependencias |
+| servicios/cumplimiento/descriptor.yml | 30 | sí | Nivel N3, réplicas, sondas; nivel_porque inexacto |
+| servicios/cumplimiento/gradle.lockfile | 206 | no (lockfile) | Lockfile de dependencias (no auditado línea a línea) |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/Aplicacion.java | 26 | sí | Arranque Spring + @EnableScheduling |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/ConfiguracionDeCumplimiento.java | 103 | sí | Beans de política: requisitos, plazos LFT/incidente, escalas, roles incompatibles (sin fuente) |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/AccionesDeCumplimiento.java | 133 | sí | Fachada HTTP CU-43/45/56 con reintento por estado y actor de sesión |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU02ElevarDiligencia.java | 194 | sí | Eleva nivel DD; cuatro ojos PEP con ids del llamador |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU03DeclararPep.java | 219 | sí | Declaración PEP + BF (DELETE/INSERT) + recalificación; alConfirmarseCoincidencia sin llamador |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU05AceptarContrato.java | 176 | sí | Aceptación append-only con hash de evidencia; consentimientos por evento |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU05ConsultarContratosVigentes.java | 44 | sí | Lista contratos vigentes (ruta pública) |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU06RevisarConocimiento.java | 212 | sí | Revisión KYC y desvío de perfil; sin disparador |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU40EvaluarLimites.java | 98 | sí | Evalúa límites leyendo nucleo_financiero; sin disparador |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU41RegistrarPcc01.java | 272 | sí | Detección PCC-01; tipo de cambio y acumulado del llamador; sin disparador |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU42RegistrarRog.java | 138 | sí | Detección ROG; sin disparador |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU43RemitirReportes.java | 273 | sí | Genera/aprueba/registra envío de reportes UIF (archivo no persistido) |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU44DecidirComoRevisor.java | 158 | sí | Decisión de caso LFT con revisor = sesión |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU44InvestigarYReportar.java | 265 | sí | Abre caso (analista del cuerpo) y decide (versión insegura, solo tests) |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU45AtenderRequerimiento.java | 196 | sí | Registra/responde oficio; bloqueo sin ejecución |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU46VerificarAlcance.java | 156 | sí | Decide habilitación por licencia/sandbox; emite rechazo |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU47EvaluarRiesgoDeProducto.java | 212 | sí | Evaluación de producto; aprobación con booleanos autodeclarados; sin entrada |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU48CalibrarReglas.java | 213 | sí | Reglas LFT: crear/simular/activar/triar con autodeclaraciones; sin entrada |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU49DesignarOficial.java | 218 | sí | Designación/baja de oficial y capacitación; sin entrada |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU52AtenderReclamo.java | 275 | sí | Ingreso/prórroga/respuesta de reclamos; solo responder expuesto |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU53ElevarReclamo.java | 171 | sí | Segunda instancia; sin entrada |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU54EscalarPlanesVencidos.java | 140 | sí | Control diario planes vencidos -> hallazgo |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU54RegistrarRiesgoOperativo.java | 225 | sí | Registra evento de riesgo operativo + plan |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU55EscalarIncidentesVencidos.java | 106 | sí | Control diario incidentes sin reportar -> hallazgo |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU55GestionarIncidente.java | 262 | sí | Registra incidente, reporta, notifica |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU56EjecutarPruebaDeContinuidad.java | 162 | sí | Registra prueba BCP, resultado calculado, plan de acción |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU94ElevarAlComite.java | 212 | sí | Sesión de comité con quórum; aprueba evaluaciones; sin entrada |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/ConsultarBandejaDeReclamos.java | 121 | sí | Bandeja y ficha de reclamos paginadas |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/ConsultarBandejasLft.java | 159 | sí | Bandejas de alertas y casos LFT |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/ConsultarEfectoDelReclamo.java | 111 | sí | Si un reclamo frena deuda/sanción (consumido por garantia/organizador) |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/ConsultarTableroDeCumplimiento.java | 281 | sí | Colas paginadas de reportes, oficios, riesgos, incidentes, pruebas, actas |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/dominio/ArchivoRegulatorio.java | 54 | sí | Arma contenido determinista y SHA-256 (contenido no se guarda) |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/dominio/ClasificacionDeEvento.java | 106 | sí | Taxonomía riesgo operativo y validaciones |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/dominio/ClasificacionPep.java | 79 | sí | Clasifica PEP/BF a nivel de riesgo |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/dominio/CoberturaDeCapacitacion.java | 59 | sí | Cobertura de capacitación por periodo |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/dominio/ConceptoRog.java | 34 | sí | Mapeo tipo de transacción -> concepto ROG |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/dominio/ContratoPublicado.java | 32 | sí | Record de contrato publicado |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/dominio/DesvioDePerfil.java | 73 | sí | Cálculo de desvío % y severidad |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/dominio/EfectoDelReclamo.java | 100 | sí | Regla pura: frena/no frena deuda o sanción |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/dominio/EstadoDeLicencia.java | 29 | sí | Enum de estados de licencia |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/dominio/EvaluacionDeLimites.java | 73 | sí | Veredicto de límites (sin moneda) |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/dominio/EvidenciaDeAceptacion.java | 65 | sí | Hash de evidencia de aceptación |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/dominio/ExpresionDeRegla.java | 117 | sí | Valida expresión de regla LFT y proporcionalidad |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/dominio/HabilitacionDeServicio.java | 111 | sí | Decide vía de habilitación licencia/sandbox |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/dominio/NivelDeDiligencia.java | 27 | sí | Enum ordenado de niveles DD |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/dominio/ObjetivosDeContinuidad.java | 60 | sí | Compara RTO/RPO |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/dominio/PeriodicidadDeRevision.java | 26 | sí | Meses de revisión por riesgo |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/dominio/PlazoDelReclamo.java | 74 | sí | Plazo hábil, conservación 10 años, prórroga |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/dominio/PlazosDelIncidente.java | 56 | sí | Plazos de reporte/notificación por severidad |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/dominio/QuorumDeComite.java | 78 | sí | Quórum, composición, votos viciados |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/dominio/RequisitosDeNivel.java | 38 | sí | Documentos faltantes por nivel |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/dominio/RiesgoDelProducto.java | 120 | sí | Matriz de riesgo de producto |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/dominio/UmbralAlcanzado.java | 66 | sí | Medición y conversión a USD (CU-41 no la usa) |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/dominio/VersionAceptable.java | 32 | sí | Versión de contrato aceptable |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/AccionesDeCumplimientoRepositorio.java | 82 | sí | Lecturas de oficio/prueba para reintentos |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/AceptacionRepositorio.java | 84 | sí | INSERT aceptacion_contrato |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/BandejaDeReclamosRepositorio.java | 104 | sí | SQL de bandeja/ficha de reclamos |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/BandejasLftRepositorio.java | 121 | sí | SQL de bandejas LFT sin PII |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/CalificacionRiesgoRepositorio.java | 85 | sí | Cierra/abre calificación vigente |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/CasoLftRepositorio.java | 131 | sí | Casos LFT: abrir, decidir condicional, consulta |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/ContinuidadRepositorio.java | 129 | sí | Planes y pruebas BCP (2 métodos sin uso) |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/ContratoRepositorio.java | 131 | sí | Contratos y tarifario (lee catalogo.tarifario) |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/DeclaracionPepRepositorio.java | 77 | sí | PEP y BF con DELETE; LocalDate.now() |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/DiligenciaRepositorio.java | 95 | sí | DD: abrir, elevarTipo sin id, completar |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/EvaluacionProductoRepositorio.java | 104 | sí | Evaluaciones de producto versionadas |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/GobiernoRepositorio.java | 267 | sí | Comités, actas, oficial, capacitación, hallazgos (check-then-insert) |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/IncidenteSeguridadRepositorio.java | 198 | sí | Incidentes, activos, designación; SKIP LOCKED |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/LicenciaRepositorio.java | 76 | sí | Lee catalogo.licencia_regulatoria |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/LimiteRepositorio.java | 132 | sí | Lee catalogo y nucleo_financiero (sin GRANT, sin FOR UPDATE) |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/MonitoreoLftRepositorio.java | 212 | sí | Reglas y alertas LFT |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/OperacionRelevanteRepositorio.java | 191 | sí | Umbrales UIF, registros, declaración de origen |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/PerfilTransaccionalRepositorio.java | 34 | sí | Perfil declarado más reciente |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/ReclamoRepositorio.java | 285 | sí | Reclamos, instancias, efecto por usuario |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/ReporteRegulatorioRepositorio.java | 197 | sí | Catálogo, reportes, envíos |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/RequerimientoRepositorio.java | 102 | sí | Oficios de autoridad |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/RevisionKycRepositorio.java | 156 | sí | Revisiones KYC, desvíos (upsert), alertas |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/RiesgoOperativoRepositorio.java | 207 | sí | Eventos, planes, hallazgos automáticos |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/SandboxRepositorio.java | 64 | sí | Entorno de prueba regulado |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/TableroDeCumplimientoRepositorio.java | 275 | sí | SQL de colas del backoffice |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/trabajos/ControlDeIncidentesVencidos.java | 43 | sí | @Scheduled 06:45 CU-55 |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/trabajos/ControlDePlanesVencidos.java | 58 | sí | @Scheduled 06:15 CU-54 |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/web/AccionesDeCumplimientoWeb.java | 128 | sí | Mapeo HTTP de CU-43/45/56 (201/200) |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/web/AdhesionController.java | 183 | sí | CU-02/03/05: soloElPropio; aprobadores del cuerpo |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/web/ColasDeCumplimientoWeb.java | 76 | sí | Colas /cumplimiento y registro de prueba |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/web/CumplimientoController.java | 268 | sí | /cumplimiento: CU-44, 54, 55, adhesión |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/web/LicenciaController.java | 58 | sí | GET /licencia/alcance (PARTICIPANTE) |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/web/MapeoDeLft.java | 62 | sí | Mapeo de bandejas LFT |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/web/MapeoDeReclamos.java | 51 | sí | Mapeo de reclamos |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/web/ReclamosController.java | 126 | sí | /reclamos: bandeja, ficha, respuesta, efecto |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/web/TableroDeCumplimientoWeb.java | 212 | sí | Mapeo de colas a DTO |
+| servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/web/UifController.java | 81 | sí | /uif: reportes y requerimientos |
+| servicios/cumplimiento/src/main/resources/application.yml | 90 | sí | Config: jackson fail-on-unknown, plazos y umbrales internos sin fuente |
+| servicios/cumplimiento/src/main/resources/openapi/cumplimiento.yaml | 1761 | parcial: cabecera, rutas, permisos, campos sensibles | Contrato 3.1: 27 operaciones + catálogo de errores de CU sin ruta |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/ArmadoDeOla3.java | 117 | sí | Cableado manual de CU de ola 3 para pruebas |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/ArquitecturaTest.java | 60 | parcial: nombres de pruebas y aserciones clave | ArchUnit: dirección de dependencias |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/ArranqueTest.java | 65 | parcial: nombres de pruebas y aserciones clave | Contexto levanta y rutas en prefijos |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/BarridoTest.java | 28 | parcial: nombres de pruebas y aserciones clave | Reglas de barrido sobre fuentes |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/BaseDeCumplimiento.java | 242 | sí | Base de integración: conecta como dueño del contenedor (sin SET ROLE) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU02RechazosTest.java | 150 | sí | Rechazos CU-02 (leído completo) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU02Test.java | 185 | sí | CU-02 + plantillas transversales (leído completo; criterio3 prueba función SQL, no LIMITADA) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU03Test.java | 290 | sí | CU-03 PEP/BF + plantillas (leído completo; corre como dueño, no detecta DELETE/RLS) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU05Test.java | 270 | parcial: nombres de pruebas y aserciones clave | CU-05 aceptación + plantillas |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU05VigentesTest.java | 80 | parcial: nombres de pruebas y aserciones clave | Contratos vigentes |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU06Test.java | 267 | sí | CU-06 (leído completo; 'LIMITADA' solo verifica el evento) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU40RechazosTest.java | 107 | parcial: nombres de pruebas y aserciones clave | Rechazos CU-40 |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU40Test.java | 204 | parcial: nombres de pruebas y aserciones clave | CU-40 contra nucleo_financiero como dueño |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU41CuadreTest.java | 182 | sí | Plantillas cuadre/compensación CU-41 (leído completo) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU41RechazosTest.java | 238 | sí | Rechazos R-UIF-01..05 (leído completo) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU41Test.java | 225 | sí | CU-41 (leído completo; reinicio de ventana lo provee el test con acumulado 0) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU42RechazosTest.java | 145 | sí | Rechazos ROG (leído completo) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU42Test.java | 280 | sí | CU-42 ROG (leído completo) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU43AccionesTest.java | 122 | sí | Acciones CU-43 vía fachada (leído completo) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU43ColaTest.java | 78 | sí | Cola de reportes (leído completo) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU43RechazosTest.java | 141 | sí | Rechazos CU-43 (leído completo) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU43Test.java | 284 | sí | CU-43 (leído completo; 'control diario' es el envío tardío, no un job) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU44BandejaTest.java | 168 | sí | Bandejas LFT (leído completo) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU44DecisionTest.java | 245 | sí | Decisión revisor=sesión, concurrencia (leído completo) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU44RechazosTest.java | 153 | sí | Rechazos CU-44 (leído completo) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU44Test.java | 270 | sí | CU-44 vía versión insegura + plantillas (leído completo) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU45AccionesTest.java | 125 | parcial: nombres de pruebas y aserciones clave | Acciones CU-45 |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU45ColaTest.java | 75 | parcial: nombres de pruebas y aserciones clave | Cola de oficios |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU45RechazosTest.java | 150 | parcial: nombres de pruebas y aserciones clave | Rechazos CU-45 |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU45Test.java | 226 | parcial: nombres de pruebas y aserciones clave | CU-45 + plantillas |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU46Test.java | 218 | parcial: nombres de pruebas y aserciones clave | CU-46 licencia/sandbox |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU47RechazosTest.java | 185 | parcial: nombres de pruebas y aserciones clave | Rechazos CU-47 |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU47Test.java | 286 | parcial: nombres de pruebas y aserciones clave | CU-47 + plantillas |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU48RechazosTest.java | 185 | parcial: nombres de pruebas y aserciones clave | Rechazos CU-48 |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU48Test.java | 273 | parcial: nombres de pruebas y aserciones clave | CU-48 + plantillas |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU49RechazosTest.java | 144 | parcial: nombres de pruebas y aserciones clave | Rechazos CU-49 |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU49Test.java | 268 | parcial: nombres de pruebas y aserciones clave | CU-49 + plantillas |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU52BandejaTest.java | 202 | parcial: nombres de pruebas y aserciones clave | Bandeja/ficha reclamos contra PG |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU52EfectoDelReclamoTest.java | 183 | parcial: nombres de pruebas y aserciones clave | Efecto del reclamo integración |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU52RechazosTest.java | 186 | parcial: nombres de pruebas y aserciones clave | Rechazos CU-52 |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU52RespuestaTest.java | 157 | parcial: nombres de pruebas y aserciones clave | Reintento de respuesta CU-52 |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU52Test.java | 298 | parcial: nombres de pruebas y aserciones clave | CU-52 + plantillas |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU53RechazosTest.java | 116 | parcial: nombres de pruebas y aserciones clave | Rechazos CU-53 |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU53Test.java | 275 | parcial: nombres de pruebas y aserciones clave | CU-53 + plantillas |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU54ColaTest.java | 74 | parcial: nombres de pruebas y aserciones clave | Cola de eventos de riesgo |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU54RechazosTest.java | 131 | parcial: nombres de pruebas y aserciones clave | Rechazos CU-54 |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU54Test.java | 182 | parcial: nombres de pruebas y aserciones clave | CU-54 registro y escalado |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU55ColaTest.java | 69 | parcial: nombres de pruebas y aserciones clave | Cola de incidentes |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU55RechazosTest.java | 95 | parcial: nombres de pruebas y aserciones clave | Rechazos CU-55 |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU55Test.java | 216 | parcial: nombres de pruebas y aserciones clave | CU-55 incidente y escalado |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU56AccionesTest.java | 63 | parcial: nombres de pruebas y aserciones clave | Acciones CU-56 |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU56ColaTest.java | 66 | parcial: nombres de pruebas y aserciones clave | Cola de pruebas BCP |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU56RechazosTest.java | 96 | parcial: nombres de pruebas y aserciones clave | Rechazos CU-56 |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU56Test.java | 239 | parcial: nombres de pruebas y aserciones clave | CU-56 + plantillas |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU94ColaTest.java | 45 | parcial: nombres de pruebas y aserciones clave | Cola de actas |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU94CuadreTest.java | 132 | parcial: nombres de pruebas y aserciones clave | Plantillas cuadre CU-94 |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU94RechazosTest.java | 209 | parcial: nombres de pruebas y aserciones clave | Rechazos CU-94 |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/CU94Test.java | 262 | parcial: nombres de pruebas y aserciones clave | CU-94 comité |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/EscenarioDeAcciones.java | 32 | sí | Base de pruebas de acciones |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/EscenarioDeColas.java | 90 | sí | Base de pruebas de colas |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/EscenarioDeProducto.java | 48 | sí | Fixture de evaluación en borrador |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/FixturaDeCumplimiento.java | 174 | sí | Inserta filas de prueba sintéticas |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/FixturaDeGobierno.java | 212 | sí | Filas de gobierno/LFT sintéticas |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/FixturaDeIncidentes.java | 114 | sí | Filas de incidentes |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/FixturaDeRiesgos.java | 66 | sí | Filas de riesgo operativo |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/FixturaDeUif.java | 264 | sí | Filas UIF/umbral sintéticas |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/PoliticaDeCarril.java | 52 | sí | Política de armado en pruebas |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/dominio/EfectoDelReclamoTest.java | 145 | parcial: nombres de pruebas y aserciones clave | Regla pura EfectoDelReclamo en 3 niveles |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/web/AccionesDeCumplimientoWebTest.java | 213 | parcial: nombres | Web acciones CU-43/45/56 con dobles (leído por nombres) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/web/AmbitoDeLaPersonaWebTest.java | 196 | sí | Ámbito titular PEP/aceptación (leído completo) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/web/AutorizacionNegativaWebTest.java | 166 | sí | Matriz 401/403 por rol (leído completo) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/web/CumplimientoControllerWebTest.java | 287 | parcial: nombres de pruebas y aserciones clave | Web CU-02/03/05/54/55 con dobles |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/web/LftAccionesWebTest.java | 199 | parcial: nombres | Web abrir/decidir caso (leído por nombres; no cubre que quien abre no decida) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/web/LftBandejaWebTest.java | 194 | parcial: nombres | Web bandejas LFT (leído por nombres) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/web/LicenciaControllerWebTest.java | 120 | parcial: nombres de pruebas y aserciones clave | Web licencia |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/web/ReclamosBandejaWebTest.java | 237 | parcial: nombres de pruebas y aserciones clave | Web bandeja reclamos |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/web/ReclamosControllerWebTest.java | 222 | parcial: nombres de pruebas y aserciones clave | Web efecto: 403 a ORGANIZADOR y tokens de servicio |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/web/SeguridadWebTest.java | 79 | sí | Sábana de seguridad heredada (leído completo) |
+| servicios/cumplimiento/src/test/java/bo/aportaya/cumplimiento/web/UifControllerWebTest.java | 221 | parcial: nombres | Web colas UIF (leído por nombres) |
+
+### esquema, contratos y retiros
+
+
+| ruta | líneas | leído completo | qué hace |
+|---|---|---|---|
+| `sql/10_tablas/01_identidad_usuarios/*.sql` (27 archivos) | ~720 | sí (DDL completo; comentarios de columna leídos en las tablas clave) | Tablas del esquema `identidad` |
+| `sql/10_tablas/12_cumplimiento_asfi/*.sql` (47 archivos) | ~1460 | sí (DDL completo; comentarios clave) | Tablas de `cumplimiento` y `catalogo` (umbral UIF, licencia) |
+| `sql/20_claves/01_identidad_usuarios.sql` | 180 | sí | FK de identidad |
+| `sql/20_claves/12_cumplimiento_asfi.sql` | 520 | sí (todas las REFERENCES) | FK de cumplimiento (cruzan a identidad, nucleo_financiero, auditoria, tarifas) |
+| `sql/30_indices/01_identidad_usuarios.sql` | 125 | sí | Índices identidad |
+| `sql/30_indices/12_cumplimiento_asfi.sql` | 407 | no, por grep | Índices cumplimiento |
+| `sql/35_append_only/append_only.sql` | 244 | sólo líneas de mis tablas | Triggers append-only |
+| `sql/00_base/03_permisos.sql` | 284 | grants/revokes de mis esquemas + bloque search_path | GRANT/REVOKE por rol |
+| `sql/00_base/02_esquemas.sql` | 595 | sólo search_path por rol | |
+| `sql/15_infra/borradores.sql` | 51 | sí | `identidad.borrador_onboarding` (fuera del .puml) |
+| `sql/15_infra/nulabilidad.sql` | 828 | sólo mis tablas | DROP NOT NULL |
+| `sql/40_reglas/restricciones.sql` | ~3200 | rangos 255-280, 430-560, 870-1300, 1330-1720 | R-BIL retiro, R-UIF, R-CON, R-SEG, RLS, segregación |
+| `sql/50_verificacion/{verificaciones,prueba_humo}.sql` | 145 / 824 | verificaciones completo por encabezados; humo por grep + función `debe_fallar` | Controles y prueba de humo |
+| `sql/60_semillas/06,07,08,10,11,13,19(parcial),20(encabezado)` | ~530 | sí salvo 19/20 parciales | Catálogos mínimos de mi alcance |
+| `sql/61_dev/15,14,17,18,02,05` | — | por grep (enmascarado) | Seeds dev de identidad |
+| `sql/62_volumen/*` | — | por grep | Volumen sintético (guarda dev) |
+| `seeders/README.md`, `seeders/minimos/{06,07,08,10,11,13,20}.json` (metadatos) | — | metadatos | Procedencia de seeds |
+| `contratos/pactos/identidad-grupos-pertenencia.json` | 46 | sí | Pacto identidad→grupos |
+| `contratos/pactos/*` (resto) | — | grep identidad/cumplimiento | Sin otros pactos de identidad/cumplimiento |
+| `clientes/dart/{identidad,cumplimiento}` | 65/67 | sí (barrel) + comparación automática con OpenAPI | Clientes Dart generados |
+| `servicios/{identidad,cumplimiento}/src/main/resources/openapi/*.yaml` | 1631 / 1761 | inventario de operaciones + rangos puntuales | Contratos |
+| `packages/simulado/ejemplos/{identidad,cumplimiento}` | 38 + 28 json | inventario de escenarios + 1 completo | Mock por contrato |
+| `postman/coleccion|humo/{identidad,cumplimiento}` + entornos | — | inventario de requests/headers | Colecciones |
+| `docs/Arquitectura/ADR-049 Doble aprobación de retiros.md` | 187 | sí | Decisión doble aprobación |
+| `docs/Arquitectura/ADR-032`, `ADR-017` | — | ADR-032 completo; ADR-017 por grep | Fuente de verdad del esquema; FK cruzadas |
+| `nucleo-financiero/.../AprobacionDeRetiroRepositorio.java` | 44 | sí | UPDATE condicionado de aprobación |
+| `.../BandejaDeRetiros.java`, `BandejaDeRetirosRepositorio.java` | 75 / 74 | sí | Bandeja EN_REVISION |
+| `.../ResolucionDeRetiro.java` | 291 | sí | confirmar/rechazar/aprobar |
+| `.../ReglasDeRetiro.java`, `CondicionesDeRetiro.java`, `EstadoDeRetiro.java`, `CodigosDeRetiro.java` | 58/90/44/20 | sí | Reglas puras |
+| `.../CU11RetirarSaldo.java`, `SolicitudDeRetiro.java` | 261 / 176 | sí | Orquestación CU-11 |
+| `.../SegundoFactor.java`, `SegundoFactorLocal.java`, `SegundoFactorStepUp.java` | 28/47/124 | sí | MFA de retiro |
+| `.../OrdenRetiroRepositorio.java` | 299 | sí | Persistencia orden_retiro |
+| `.../web/BilleteraController.java` | 296 | sólo endpoints de retiro/aprobación/retención/recarga | |
+| `.../web/FondeoDeLaBilletera.java` | — | rangos 60-90, 140-248 | Cálculo del flag de doble aprobación |
+| `.../aplicacion/CU13RetenerSaldo.java`, `RetencionRepositorio.java`, `VigenciaDeRetencion.java` | — | rangos de liberar/vencer | Cierre de retención (cotejo) |
+| `sql/10_tablas/10_billetera_custodia/orden_retiro.sql` + FK/índices | — | sí | Tabla de la orden (no existe tabla de aprobación separada) |
+| `BilleteraAprobacionWebTest.java`, `BilleteraBandejaWebTest.java` | 232 / 229 | casos (DisplayName/expect) | Pruebas web |
+| `docs/catalogo-de-flujos/recarga-y-retiro.yaml`, `matriz.md` | 155 / — | yaml completo; matriz por grep | Catálogo de flujos |
+| `docs/CasosDeUso/CU-11` | 312 | sí | Retirar saldo |
+| `docs/CasosDeUso/CU-01,02,03,06,08,18,41,43,44` | — | grep de puntos de aprobación/umbral | |
+
+### app móvil
+
+| ruta | líneas | leído completo (sí/no + motivo) | qué hace (una frase) |
+|---|---|---|---|
+| apps/movil/lib/pantallas/identidad/acciones_de_verificacion.dart | 92 | sí | Botón principal según estado KYC/sesión (activar, salir, reintentar, entrar) |
+| apps/movil/lib/pantallas/identidad/activar_cuenta.dart | 20 | sí | Renueva token tras KYC aprobado y navega a billetera |
+| apps/movil/lib/pantallas/identidad/avatar_con_aro.dart | 69 | sí | Avatar del perfil con insignia de cámara (excluido de semántica) |
+| apps/movil/lib/pantallas/identidad/avisos_de_sesion.dart | 56 | sí | Alertas del login (cuenta creada, sesión caducada 8 h, error) y nota de custodia |
+| apps/movil/lib/pantallas/identidad/banda_de_ingreso.dart | 78 | sí | Banda de marca del login con saludo |
+| apps/movil/lib/pantallas/identidad/banda_de_marca.dart | 69 | sí | Banda de marca de la portada |
+| apps/movil/lib/pantallas/identidad/barra_de_lectura.dart | 48 | sí | Barra de progreso de lectura del contrato |
+| apps/movil/lib/pantallas/identidad/boton_consultar_estado.dart | 75 | sí | «Consultar estado»: pregunta si ya aprobaron el KYC y renueva acceso |
+| apps/movil/lib/pantallas/identidad/campos_de_sesion.dart | 97 | sí | Campos celular/correo + contraseña del ingreso |
+| apps/movil/lib/pantallas/identidad/capa_de_bloqueo.dart | 168 | sí | Candado local (overlay) con desbloqueo biométrico |
+| apps/movil/lib/pantallas/identidad/capa_de_bloqueo_animacion.dart | 47 | sí | Animación del candado con movimiento reducido |
+| apps/movil/lib/pantallas/identidad/capa_de_bloqueo_biometria.dart | 87 | sí | Pedido biométrico nativo por episodio |
+| apps/movil/lib/pantallas/identidad/capa_de_bloqueo_vista.dart | 157 | sí | Vista del candado (textos fijos, fallo biométrico crudo) |
+| apps/movil/lib/pantallas/identidad/continuar_alta.dart | 67 | sí | Enlace y aviso para retomar alta a medias |
+| apps/movil/lib/pantallas/identidad/controlador_prueba_de_vida.dart | 197 | sí | Máquina de la prueba de vida (cámara, juez, captura) |
+| apps/movil/lib/pantallas/identidad/cuerpo_del_contrato.dart | 170 | sí | Pinta el contrato local por bloques |
+| apps/movil/lib/pantallas/identidad/dominio/bloques_del_contrato.dart | 120 | sí | Parser del texto del contrato en bloques |
+| apps/movil/lib/pantallas/identidad/dominio/borrador_alta.dart | 116 | sí | Mapeo estado del alta <-> BorradorOnboarding (monto como double) |
+| apps/movil/lib/pantallas/identidad/dominio/calidad_de_captura.dart | 64 | sí | Chequeo local de tamaño/proporción de la foto |
+| apps/movil/lib/pantallas/identidad/dominio/camara_identidad.dart | 13 | sí | Provider del puerto Cámara |
+| apps/movil/lib/pantallas/identidad/dominio/canales_de_verificacion.dart | 4 | sí | Canal único CORREO |
+| apps/movil/lib/pantallas/identidad/dominio/captura_desde_archivo.dart | 61 | sí | Lee foto, evalúa calidad, arma Captura con sha corto |
+| apps/movil/lib/pantallas/identidad/dominio/capturas_del_expediente.dart | 135 | sí | Modelo inmutable de las 5 capturas y borrado local |
+| apps/movil/lib/pantallas/identidad/dominio/cara_del_carril.dart | 13 | sí | Enum de caras con valor API |
+| apps/movil/lib/pantallas/identidad/dominio/carnet_de_prueba.dart | 113 | sí | Carnet sintético solo !kReleaseMode (no usado en lib) |
+| apps/movil/lib/pantallas/identidad/dominio/ciclo_de_pose.dart | 143 | sí | Reloj de pose: respiro, cuenta atrás, tomar ahora |
+| apps/movil/lib/pantallas/identidad/dominio/comportamiento_de_pantalla_del_alta.dart | 74 | sí | Mixin: FLAG_SECURE por fase y scroll al error |
+| apps/movil/lib/pantallas/identidad/dominio/consultar_estado_de_cuenta.dart | 50 | sí | Consulta estado de cuenta y renueva acceso si verificada |
+| apps/movil/lib/pantallas/identidad/dominio/contratos_vigentes.dart | 68 | sí | GET /cumplimiento/contratos/vigentes y tipos del alta |
+| apps/movil/lib/pantallas/identidad/dominio/cu01_registrar.dart | 139 | sí | POST /usuarios por Dio crudo con Idempotency-Key |
+| apps/movil/lib/pantallas/identidad/dominio/cu02_actualizar_fecha_expiracion.dart | 36 | sí | PUT fecha de vencimiento por Dio crudo, sin manejo de error |
+| apps/movil/lib/pantallas/identidad/dominio/cu02_consultar_verificacion.dart | 32 | sí | GET estado de verificación con Token-De-Alta |
+| apps/movil/lib/pantallas/identidad/dominio/cu02_subir_foto.dart | 110 | sí | POST multipart de foto con Idempotency-Key y Token-De-Alta |
+| apps/movil/lib/pantallas/identidad/dominio/cu04_autenticar.dart | 115 | sí | POST /sesiones con MFA decidido por servidor; guarda tokens |
+| apps/movil/lib/pantallas/identidad/dominio/datos_del_alta.dart | 104 | sí | DatosPersonales y DatosLeidosDelDocumento |
+| apps/movil/lib/pantallas/identidad/dominio/envio_del_alta.dart | 98 | sí | Arma y envía el alta, mapea error por campo |
+| apps/movil/lib/pantallas/identidad/dominio/estado_alta.dart | 2 | sí | Barrel del estado del alta |
+| apps/movil/lib/pantallas/identidad/dominio/estado_contrato.dart | 101 | sí | Estado de los tres consentimientos y ids vigentes |
+| apps/movil/lib/pantallas/identidad/dominio/estado_cuenta.dart | 156 | sí | Correo de perfil, PEP local, contraseña/baja que lanzan UnimplementedError |
+| apps/movil/lib/pantallas/identidad/dominio/estado_de_verificacion.dart | 114 | sí | Sondeo 2 s × 20 del estado KYC |
+| apps/movil/lib/pantallas/identidad/dominio/estado_sesion.dart | 183 | sí | Notifier del ingreso (credenciales, MFA, confianza local) |
+| apps/movil/lib/pantallas/identidad/dominio/foto_de_perfil.dart | 81 | sí | GET/PUT foto de perfil y nombre |
+| apps/movil/lib/pantallas/identidad/dominio/juez_de_pose.dart | 111 | sí | Umbrales de pose (no medidos) |
+| apps/movil/lib/pantallas/identidad/dominio/kyc_del_titular.dart | 52 | sí | Providers KYC de sesión, faltantes y etiquetas («En revisión humana») |
+| apps/movil/lib/pantallas/identidad/dominio/lectura_de_rostro.dart | 20 | sí | DTO normalizado del detector |
+| apps/movil/lib/pantallas/identidad/dominio/modelo_alta.dart | 193 | sí | EstadoAlta vigente (monto double) |
+| apps/movil/lib/pantallas/identidad/dominio/modelo_del_alta.dart | 126 | sí | Copia muerta y divergente de EstadoAlta/PasoAlta |
+| apps/movil/lib/pantallas/identidad/dominio/notifier_alta.dart | 190 | sí | AltaNotifier: pasos, código de correo, borrador, envío |
+| apps/movil/lib/pantallas/identidad/dominio/pautas_de_fotos.dart | 98 | sí | Catálogo de consejos de fotos |
+| apps/movil/lib/pantallas/identidad/dominio/primer_bloqueo.dart | 8 | sí | Primer requisito pendiente |
+| apps/movil/lib/pantallas/identidad/dominio/seguimiento_del_alta.dart | 84 | sí | usuarioId+tokenDeAlta+capturas tras el alta (memoria) |
+| apps/movil/lib/pantallas/identidad/dominio/subida_del_expediente.dart | 196 | sí | Subida en lote de 5 fotos con estados y cancelación |
+| apps/movil/lib/pantallas/identidad/dominio/validaciones.dart | 179 | sí | Validaciones de ayuda (edad, CI, contraseña, correo) |
+| apps/movil/lib/pantallas/identidad/dominio/verificacion_correo.dart | 200 | sí | Código de correo, rescate en almacén seguro, borrador (catch mudo) |
+| apps/movil/lib/pantallas/identidad/dominio/verificacion_correo_guardada.dart | 78 | sí | Serialización de la verificación guardada |
+| apps/movil/lib/pantallas/identidad/dominio/verificacion_diferida.dart | 87 | sí | EstadoDeCuenta desde /usuarios/yo/perfil e iniciar verificación |
+| apps/movil/lib/pantallas/identidad/fila_de_accion_de_perfil.dart | 117 | sí | Fila de ajustes con semántica de botón |
+| apps/movil/lib/pantallas/identidad/fila_de_subida.dart | 108 | sí | Fila de estado de subida por cara |
+| apps/movil/lib/pantallas/identidad/foto_de_perfil_editable.dart | 172 | sí | Cabecera del perfil y cambio de foto |
+| apps/movil/lib/pantallas/identidad/foto_pendiente_kyc.dart | 96 | sí | Tarjeta de perfiles faltantes del KYC |
+| apps/movil/lib/pantallas/identidad/garantias_de_portada.dart | 86 | sí | Tres garantías de la portada |
+| apps/movil/lib/pantallas/identidad/ilustraciones/accesorios_de_persona.dart | 64 | sí | Dibujo: lentes y gorra |
+| apps/movil/lib/pantallas/identidad/ilustraciones/carnet_de_ejemplo.dart | 161 | sí | Dibujo del carnet genérico |
+| apps/movil/lib/pantallas/identidad/ilustraciones/detalles_del_carnet.dart | 156 | sí | Dibujo de detalles del carnet |
+| apps/movil/lib/pantallas/identidad/ilustraciones/escena_de_rostro.dart | 101 | sí | Dibujo de escenas de rostro |
+| apps/movil/lib/pantallas/identidad/ilustraciones/ilustracion_de_pauta.dart | 154 | sí | CustomPainter de pautas (excluido de semántica) |
+| apps/movil/lib/pantallas/identidad/ilustraciones/persona_de_ejemplo.dart | 133 | sí | Dibujo de la persona de ejemplo |
+| apps/movil/lib/pantallas/identidad/ilustraciones/rasgos_de_persona.dart | 95 | sí | Dibujo de rasgos y pelo |
+| apps/movil/lib/pantallas/identidad/lamina_del_tour.dart | 101 | sí | Lámina del tour con paralaje (respeta movimiento reducido) |
+| apps/movil/lib/pantallas/identidad/laminas_del_tour.dart | 51 | sí | Las 4 láminas; la 4.ª promete cobertura del fondo de garantía |
+| apps/movil/lib/pantallas/identidad/lo_que_necesitas.dart | 75 | sí | Qué pide el alta |
+| apps/movil/lib/pantallas/identidad/mostrar_celebracion_de_alta.dart | 14 | sí | Diálogo de celebración |
+| apps/movil/lib/pantallas/identidad/pagina_con_transicion_de_marca.dart | 12 | sí | Transición de página de marca |
+| apps/movil/lib/pantallas/identidad/panel_de_aceptacion.dart | 68 | sí | Casillas de consentimientos y botón aceptar |
+| apps/movil/lib/pantallas/identidad/pantalla_baja.dart | 76 | sí | Baja: «Confirmar baja» solo cierra la hoja |
+| apps/movil/lib/pantallas/identidad/pantalla_bienvenida.dart | 76 | sí | Bienvenida post-alta con moneda 'BOB' literal |
+| apps/movil/lib/pantallas/identidad/pantalla_camara.dart | 200 | sí | Cámara en vivo del carnet (sin try en tomar foto) |
+| apps/movil/lib/pantallas/identidad/pantalla_completar_kyc.dart | 200 | sí | Completar perfiles y fecha de vencimiento desde perfil |
+| apps/movil/lib/pantallas/identidad/pantalla_completar_kyc_de_sesion.dart | 37 | sí | Resuelve usuarioId desde token y abre completar KYC |
+| apps/movil/lib/pantallas/identidad/pantalla_contrasena.dart | 111 | sí | Cambio de contraseña que no llama al servidor |
+| apps/movil/lib/pantallas/identidad/pantalla_contrato.dart | 151 | sí | Contrato local + ids vigentes del servidor |
+| apps/movil/lib/pantallas/identidad/pantalla_dispositivos.dart | 66 | sí | Casilla «confiar en dispositivo» no enviada |
+| apps/movil/lib/pantallas/identidad/pantalla_estado_de_verificacion.dart | 150 | sí | Estado KYC (pendiente/revisión humana/aprobada/rechazada) |
+| apps/movil/lib/pantallas/identidad/pantalla_identidad_requerida.dart | 159 | sí | Compuerta antes de dinero/pasanaku según estado KYC |
+| apps/movil/lib/pantallas/identidad/pantalla_mfa.dart | 137 | sí | Ingreso del segundo factor |
+| apps/movil/lib/pantallas/identidad/pantalla_pautas_de_fotos.dart | 185 | sí | Pautas con ejemplos correcto/incorrecto |
+| apps/movil/lib/pantallas/identidad/pantalla_perfil.dart | 153 | sí | Perfil: KYC, correo, seguridad, cerrar sesión, baja |
+| apps/movil/lib/pantallas/identidad/pantalla_portada.dart | 149 | sí | Portada de bienvenida |
+| apps/movil/lib/pantallas/identidad/pantalla_prueba_de_vida.dart | 196 | sí | Pantalla de prueba de vida |
+| apps/movil/lib/pantallas/identidad/pantalla_registro.dart | 200 | sí | Asistente del alta y cierre (celebración, subida) |
+| apps/movil/lib/pantallas/identidad/pantalla_sesion.dart | 189 | sí | Pantalla de ingreso |
+| apps/movil/lib/pantallas/identidad/pantalla_subida_del_expediente.dart | 186 | sí | Subida del expediente; borra capturas al salir |
+| apps/movil/lib/pantallas/identidad/pantalla_tour.dart | 194 | sí | Tour de 4 láminas |
+| apps/movil/lib/pantallas/identidad/pantalla_verificacion_profunda.dart | 123 | sí | Declaración PEP que no se envía |
+| apps/movil/lib/pantallas/identidad/pantalla_verificar_identidad.dart | 174 | sí | Verificación diferida: envía solo el documento |
+| apps/movil/lib/pantallas/identidad/paso_contrato_de_alta.dart | 42 | sí | Paso que lleva al contrato |
+| apps/movil/lib/pantallas/identidad/pasos_alta/aviso_de_permiso_camara.dart | 97 | sí | Aviso de permiso de cámara |
+| apps/movil/lib/pantallas/identidad/pasos_alta/barra_superior_de_vida.dart | 61 | sí | Barra de la prueba de vida |
+| apps/movil/lib/pantallas/identidad/pasos_alta/bloque_clave_de_cuenta.dart | 86 | sí | Bloque de contraseña del alta |
+| apps/movil/lib/pantallas/identidad/pasos_alta/bloque_contacto_de_cuenta.dart | 75 | sí | Celular +591 y correo |
+| apps/movil/lib/pantallas/identidad/pasos_alta/bloque_de_formulario.dart | 51 | sí | Encabezado de bloque (ícono 14 literal) |
+| apps/movil/lib/pantallas/identidad/pasos_alta/cabecera_de_camara.dart | 51 | sí | Cabecera de cámara; IconButton sin tooltip |
+| apps/movil/lib/pantallas/identidad/pasos_alta/cabecera_de_fase.dart | 54 | sí | Progreso de fase |
+| apps/movil/lib/pantallas/identidad/pasos_alta/campo_de_actividad.dart | 60 | sí | Selector CIIU + «¿Cuál?» |
+| apps/movil/lib/pantallas/identidad/pasos_alta/campo_de_detalle.dart | 39 | sí | Campo de detalle de «Otro» |
+| apps/movil/lib/pantallas/identidad/pasos_alta/campos_de_nombre.dart | 107 | sí | Cuatro campos de nombre |
+| apps/movil/lib/pantallas/identidad/pasos_alta/campos_del_carnet.dart | 38 | sí | Layout número/expedición |
+| apps/movil/lib/pantallas/identidad/pasos_alta/canal_de_verificacion.dart | 59 | sí | Muestra canal único (textos fijos) |
+| apps/movil/lib/pantallas/identidad/pasos_alta/catalogo_del_perfil.dart | 83 | sí | Catálogos origen de fondos y actividad |
+| apps/movil/lib/pantallas/identidad/pasos_alta/consejos_para_la_foto.dart | 81 | sí | Acordeón de consejos |
+| apps/movil/lib/pantallas/identidad/pasos_alta/cuenta_atras_grande.dart | 34 | sí | Cuenta atrás con movimiento reducido |
+| apps/movil/lib/pantallas/identidad/pasos_alta/departamentos.dart | 13 | sí | Nueve departamentos |
+| apps/movil/lib/pantallas/identidad/pasos_alta/elegir_captura_de_galeria.dart | 22 | sí | Elegir foto de galería y evaluarla |
+| apps/movil/lib/pantallas/identidad/pasos_alta/encabezado_y_consejos_de_camara.dart | 36 | sí | Cabecera + consejos |
+| apps/movil/lib/pantallas/identidad/pasos_alta/errores_paso_datos.dart | 44 | sí | Mapa de errores del paso datos (no usado por PasoDatos) |
+| apps/movil/lib/pantallas/identidad/pasos_alta/formateadores_del_alta.dart | 6 | sí | Formateador de CI |
+| apps/movil/lib/pantallas/identidad/pasos_alta/guia_de_encuadre.dart | 193 | sí | Marco de encuadre carnet/óvalo |
+| apps/movil/lib/pantallas/identidad/pasos_alta/hoja_antes_de_escanear.dart | 62 | sí | Hoja «Antes de escanear» (textos fijos) |
+| apps/movil/lib/pantallas/identidad/pasos_alta/miniaturas_de_vida.dart | 124 | sí | Miniaturas de las 3 poses |
+| apps/movil/lib/pantallas/identidad/pasos_alta/opciones_de_captura_rechazada.dart | 58 | sí | Repetir / usar igual |
+| apps/movil/lib/pantallas/identidad/pasos_alta/paso_capturas.dart | 193 | sí | Carrusel de 5 capturas |
+| apps/movil/lib/pantallas/identidad/pasos_alta/paso_correo.dart | 106 | sí | Confirmar código de correo |
+| apps/movil/lib/pantallas/identidad/pasos_alta/paso_cotejo.dart | 69 | sí | Cotejo declarado vs «leído» (mismo dato) |
+| apps/movil/lib/pantallas/identidad/pasos_alta/paso_cuenta.dart | 197 | sí | Contacto + contraseña; reglas de clave reimplementadas |
+| apps/movil/lib/pantallas/identidad/pasos_alta/paso_datos.dart | 162 | sí | Nombres y fecha de nacimiento |
+| apps/movil/lib/pantallas/identidad/pasos_alta/paso_documento.dart | 191 | sí | Capturas + datos del carnet (solo CI) |
+| apps/movil/lib/pantallas/identidad/pasos_alta/paso_perfil_transaccional.dart | 195 | sí | Origen, actividad y monto (double, 'Bs') |
+| apps/movil/lib/pantallas/identidad/pasos_alta/pie_de_capturas.dart | 58 | sí | Botón enviar y motivo de bloqueo |
+| apps/movil/lib/pantallas/identidad/pasos_alta/pie_de_prueba_de_vida.dart | 124 | sí | Pie con «Tomar ahora» siempre disponible |
+| apps/movil/lib/pantallas/identidad/pasos_alta/pie_del_paso_datos.dart | 35 | sí | Pie del paso datos |
+| apps/movil/lib/pantallas/identidad/pasos_alta/riel_de_capturas.dart | 137 | sí | Riel de 5 caras accesible |
+| apps/movil/lib/pantallas/identidad/pasos_alta/sacar_captura.dart | 101 | sí | Escáner/cámara/prueba de vida según cara |
+| apps/movil/lib/pantallas/identidad/pasos_alta/saltar_verificacion.dart | 46 | sí | «Saltar por ahora» |
+| apps/movil/lib/pantallas/identidad/pasos_alta/silueta_de_cara.dart | 143 | sí | Silueta de la prueba de vida |
+| apps/movil/lib/pantallas/identidad/pasos_alta/tarjeta_de_captura.dart | 166 | sí | Tarjeta de captura del carrusel |
+| apps/movil/lib/pantallas/identidad/pasos_alta/tarjeta_de_confianza.dart | 36 | sí | Mensaje de privacidad (ícono 18 literal) |
+| apps/movil/lib/pantallas/identidad/pasos_alta/transicion_de_paso_alta.dart | 36 | sí | Transición entre pasos con movimiento reducido |
+| apps/movil/lib/pantallas/identidad/pasos_alta/trazos_de_cara.dart | 25 | sí | Geometría del óvalo |
+| apps/movil/lib/pantallas/identidad/pasos_alta/visor_ampliado_de_captura.dart | 86 | sí | Visor ampliado con tooltip |
+| apps/movil/lib/pantallas/identidad/rutas.dart | 73 | sí | Rutas dentro del shell |
+| apps/movil/lib/pantallas/identidad/rutas_de_entrada.dart | 139 | sí | Rutas de entrada con extra!/query! sin validar |
+| apps/movil/lib/pantallas/identidad/sacudida_de_credenciales.dart | 49 | sí | Sacudida con movimiento reducido |
+| apps/movil/lib/pantallas/identidad/seccion_verificacion_kyc.dart | 136 | sí | Tarjeta KYC del perfil (4 estados) |
+| apps/movil/lib/pantallas/identidad/sesion_pie.dart | 57 | sí | «Olvidé contraseña» sin flujo (snackbar) |
+| apps/movil/lib/pantallas/identidad/texto_completar_kyc.dart | 34 | sí | Textos de completar KYC («una persona revisa») |
+| apps/movil/lib/pantallas/identidad/texto_del_contrato.dart | 261 | sí | Contrato y tarifario hardcodeados en el cliente |
+| apps/movil/lib/pantallas/identidad/textos.dart | 197 | sí | Textos de identidad (tour 4: cobertura del fondo) |
+| apps/movil/lib/pantallas/identidad/textos_de_captura.dart | 99 | sí | Textos de captura |
+| apps/movil/lib/pantallas/identidad/textos_de_portada.dart | 17 | sí | Textos de portada |
+| apps/movil/lib/pantallas/identidad/textos_de_subida.dart | 36 | sí | Textos de subida |
+| apps/movil/lib/pantallas/identidad/textos_de_tramites.dart | 37 | sí | Textos de trámites (contraseña, baja, PEP) |
+| apps/movil/lib/pantallas/identidad/textos_de_verificacion.dart | 101 | sí | Textos de estados KYC y motivos de rechazo |
+| apps/movil/lib/pantallas/identidad/textos_del_alta.dart | 81 | sí | Textos del alta |
+| apps/movil/lib/pantallas/identidad/textos_del_perfil.dart | 49 | sí | Textos del perfil |
+| apps/movil/lib/proveedores/sesion.dart | 196 | sí | Tokens acceso/refresco en almacén seguro, tope 8 h, reclamos del token |
+| apps/movil/lib/infraestructura/android/almacen_seguro_android.dart | 22 | sí | flutter_secure_storage con AndroidOptions() por defecto |
+| apps/movil/lib/infraestructura/ios/almacen_seguro_ios.dart | 28 | sí | Keychain `unlocked_this_device` |
+| apps/movil/lib/dominio/renovar_acceso.dart | 18 | sí | Refresco «activar cuenta» con Dio nuevo sin timeouts |
+| apps/movil/lib/dominio/cliente.dart | ~100 | no (solo 66-100) | Dio global (connect 8 s / receive 12 s) e interceptores |
+| apps/movil/lib/dominio/cierre_de_sesion.dart | ~72 | no (grep) | Logout local + revocación `DELETE /sesion` |
+| apps/movil/android/app/src/main/AndroidManifest.xml | — | no (grep allowBackup) | Sin `allowBackup`/`dataExtractionRules` |
+| servicios/identidad/.../openapi/identidad.yaml | 1631 | no (paths + 8 schemas) | Contrato de identidad usado para contrastar |
+| apps/movil/test/** (112 archivos importan identidad, 14 999 líneas) | — | no (grep dirigido + `pantalla_baja_test.dart` y `estado_alta_test.dart:135-175` leídos) | Tests de identidad |
+
+### backoffice y web
+
+
+Archivos de implementación: leídos completos (sí). Specs: leídos sus títulos (`describe`/`it`) en todos y el cuerpo por
+muestreo (ver Límites).
+
+| ruta (relativa a `apps/backoffice/src/app/rutas/` salvo indicación) | líneas | leído completo | qué hace |
+|---|---|---|---|
+| cumplimiento/cumplimiento.routes.ts | 122 | sí | rutas de la sección; `canMatch` solo en bandejas, no en detalles |
+| cumplimiento/compartido/acceso.ts | 23 | sí | `tieneAlguno`/`requiereAlguno`: rol o permiso, espejo de GuardiaDePermiso |
+| cumplimiento/compartido/bandeja-por-cursor.ts | 135 | sí | estado de bandeja paginada por cursor (4 estados + denegado) |
+| cumplimiento/compartido/campos.ts | 42 | sí | `ap-fecha-y-hora` + reexportes |
+| cumplimiento/compartido/errores-de-cumplimiento.ts | 45 | sí | catálogo local de mensajes por código AP-CU4x |
+| cumplimiento/compartido/indisponible.ts | 46 | sí | pantalla de "consulta no disponible" |
+| cumplimiento/compartido/listado-de-bandeja.ts | 123 | sí | listado por cursor con export gated por permiso |
+| cumplimiento/compartido/marco.ts | 39 | sí | marco visual de bandejas |
+| cumplimiento/compartido/navegacion.ts | 42 | sí | `ENTRADAS_DE_CUMPLIMIENTO` (usada) + componente de navegación (no usado) |
+| cumplimiento/compartido/pruebas.apoyo.ts | 73 | sí | montaje de tests con HttpTestingController |
+| cumplimiento/dominio/validacion.ts | 20 | sí | UUID, período, fecha La Paz |
+| cumplimiento/dominio/paginas.ts | 57 | sí | `pedirPagina` genérico por cursor |
+| cumplimiento/dominio/colas-de-lectura.ts | 33 | sí | cargadores CU-54/55/94 |
+| cumplimiento/dominio/cu02-expedientes.ts | 167 | sí | HTTP de identidad: cola KYC, fotos, decisión |
+| cumplimiento/dominio/cu02-presentacion.ts | 126 | sí | presentación de expediente KYC |
+| cumplimiento/dominio/cu43-reportes.ts | 102 | sí | UIF reportes: generar / aprobar-y-enviar |
+| cumplimiento/dominio/cu44-bandejas.ts | 50 | sí | alertas/casos LFT: listar, abrir, decidir |
+| cumplimiento/dominio/cu44-caso.ts | 51 | sí | tipo de caso y catálogo de causales escritos a mano |
+| cumplimiento/dominio/cu44-validacion.ts | 56 | sí | validación de apertura/decisión de caso |
+| cumplimiento/dominio/cu45-requerimientos.ts | 89 | sí | requerimientos de autoridad |
+| cumplimiento/dominio/cu52-reclamo.ts | 22 | sí | tipo de reclamo (sin uso real) |
+| cumplimiento/dominio/cu56-continuidad.ts | 86 | sí | pruebas de continuidad |
+| cumplimiento/dominio/cu90-habilitacion.ts | 40 | sí | consulta/habilitación de organizador |
+| cumplimiento/dominio/cu94-acta.ts | 46 | sí | reglas de quórum (sin contrato) |
+| cumplimiento/dominio/cu97-alertas.ts | 40 | sí | alerta temprana (sin contrato) |
+| cumplimiento/verificaciones/pantalla-de-expedientes.ts | 170 | sí | bandeja KYC |
+| cumplimiento/verificaciones/ficha-de-expediente.ts | 112 | sí | ficha KYC con pestañas |
+| cumplimiento/verificaciones/decision-de-expediente.ts | 89 | sí | botones aprobar/rechazar KYC |
+| cumplimiento/verificaciones/vista-decision-del-expediente.ts | 84 | sí | pestaña decisión KYC (POST) |
+| cumplimiento/verificaciones/vista-resumen-del-expediente.ts | 79 | sí | pestaña resumen |
+| cumplimiento/verificaciones/vista-fotos-del-expediente.ts | 57 | sí | pestaña fotos |
+| cumplimiento/verificaciones/tira-de-fotos.ts | 126 | sí | descarga fotos como blob |
+| cumplimiento/verificaciones/vencimiento-del-documento.ts | 38 | sí | componente no usado |
+| cumplimiento/verificaciones/vista-como-funciona.ts | 59 | sí | explicación |
+| cumplimiento/verificaciones/textos-verificaciones.ts | 103 | sí | textos |
+| cumplimiento/verificaciones/textos-como-funciona.ts | 67 | sí | textos (declaran aprobación humana KYC) |
+| cumplimiento/alertas/bandeja-de-alertas.ts | 124 | sí | bandeja LFT + abrir caso |
+| cumplimiento/alertas/abrir-caso.ts | 78 | sí | diálogo `abrirCasoLft` |
+| cumplimiento/alertas/contenedor-de-alerta.ts | 21 | sí | indisponible CU-97 |
+| cumplimiento/alertas/pantalla-de-alertas.ts | 45 | sí | componente no enrutado |
+| cumplimiento/casos/bandeja-de-casos.ts | 118 | sí | bandeja de casos + decidir |
+| cumplimiento/casos/decidir-caso.ts | 103 | sí | diálogo `decidirCasoLft` |
+| cumplimiento/casos/pantalla-de-caso.ts | 142 | sí | ficha de caso con datos demo + borrador |
+| cumplimiento/casos/formulario-de-caso.ts | 70 | sí | presentación causal/narrativa |
+| cumplimiento/uif/bandeja-de-reportes.ts | 128 | sí | bandeja CU-43 |
+| cumplimiento/uif/preparar-reporte.ts | 63 | sí | generar reporte |
+| cumplimiento/uif/aprobar-y-enviar.ts | 91 | sí | aprobar + registrar envío (2.ª persona) |
+| cumplimiento/uif/bandeja-de-requerimientos.ts | 119 | sí | bandeja CU-45 |
+| cumplimiento/uif/registrar-requerimiento.ts | 79 | sí | alta de oficio |
+| cumplimiento/uif/responder-requerimiento.ts | 60 | sí | respuesta de oficio |
+| cumplimiento/colas/cola-de-lectura.ts | 79 | sí | cola genérica de lectura |
+| cumplimiento/colas/pantalla-de-continuidad.ts | 68 | sí | CU-56 |
+| cumplimiento/colas/registrar-prueba.ts | 79 | sí | alta prueba CU-56 |
+| cumplimiento/colas/pantalla-de-eventos.ts | 54 | sí | CU-54 |
+| cumplimiento/colas/pantalla-de-incidentes.ts | 51 | sí | CU-55 |
+| cumplimiento/colas/pantalla-de-actas.ts | 45 | sí | CU-94 lista |
+| cumplimiento/actas/contenedor-de-acta.ts | 20 | sí | indisponible |
+| cumplimiento/actas/pantalla-de-acta.ts | 71 | sí | componente no enrutado; "cerrar" sin HTTP |
+| cumplimiento/reclamos/contenedor-de-reclamo.ts | 21 | sí | redirige a operación |
+| cumplimiento/reclamos/pantalla-de-reclamo.ts | 59 | sí | componente no enrutado; "enviar" sin HTTP |
+| cumplimiento/organizadores/pantalla-de-habilitacion.ts | 96 | sí | CU-90 habilitar organizador |
+| cumplimiento/textos.ts, textos-uif.ts, textos-lft.ts, textos-colas.ts | 100/88/64/63 | sí | textos |
+| cumplimiento/**/*.spec.ts (36 archivos) | 2882 | títulos sí; cuerpo por muestreo | unitarias/a11y con HttpTestingController |
+| sistemas/accesos/pantalla-accesos.ts | 69 | sí | revisión de accesos (persona×rol) |
+| sistemas/usuarios-internos/pantalla-usuarios-internos.ts | 198 | sí | listado + menú de acciones |
+| sistemas/usuarios-internos/gestor-de-usuario-interno.ts | 134 | sí | editar/suspender/desbloquear |
+| sistemas/usuarios-internos/modal-asignar-roles.ts | 89 | sí | PUT roles |
+| sistemas/usuarios-internos/modal-alta-usuario-interno.ts | 99 | sí | POST alta |
+| sistemas/usuarios-internos/pantalla-usuario-interno-detalle.ts | 113 | sí | ficha |
+| sistemas/roles-internos/pantalla-roles-internos.ts | 123 | sí | catálogo roles |
+| sistemas/permisos-internos/pantalla-permisos-internos.ts | 108 | sí | catálogo permisos |
+| sistemas/dominio/usuarios-internos.ts (soporte, fuera de lote) | 122 | sí | HTTP de usuarios internos |
+| sistemas/dominio/accesos.ts (soporte) | 60 primeras | parcial | puerto real de accesos |
+| sistemas/** specs del lote (11) | 809 | títulos sí; cuerpo por muestreo | |
+| ingreso/pantalla-de-ingreso.ts | 194 | sí | login 2 pasos (CU-04) |
+| ingreso/dominio/cu04-autenticar.ts | 37 | sí | POST /sesiones, huella por pestaña |
+| ingreso/dominio/identificador.ts | 30 | sí | correo o teléfono |
+| ingreso/panel-de-marca.ts | 88 | sí | panel decorativo |
+| ingreso/*.spec.ts (2) | 144 | títulos sí | |
+| operacion/retiros/pantalla-de-aprobacion-de-retiro.ts | 198 | sí | segunda firma de retiro |
+| operacion/retiros/bandeja-de-retiros.ts | 103 | sí | bandeja de retiros en revisión |
+| operacion/retiros/dominio/cu11-aprobacion-de-retiro.ts | 32 | sí | POST aprobación (tipos a mano) |
+| operacion/retiros/dominio/cu11-retiros-en-revision.ts | 33 | sí | GET bandeja |
+| operacion/retiros/textos.ts | 51 | sí | textos |
+| operacion/retiros/*.spec.ts (3) | 365 | títulos sí | |
+| `apps/web/src/app/paginas/invitacion/invitacion.ts` | 111 | sí | puerta del enlace de invitación |
+| `apps/web/src/app/paginas/invitacion/token-de-invitacion.ts` | 61 | sí | lee/retira secreto; lo guarda en memoria |
+| `apps/web/src/app/app.routes.server.ts` | 40 | sí | modo de render por ruta |
+| `apps/web` resto (grep identidad/registro/kyc/invitación/uif) | — | grep | sin otras pantallas de identidad/KYC; no hay registro web |
+
+Contratos contrastados: `servicios/identidad/.../identidad.yaml` (146-177, 271-382, 830-990, 1303-1360, 1522-1595),
+`servicios/cumplimiento/.../cumplimiento.yaml` (570-1000, 1341-1720), `servicios/organizador/.../organizador.yaml`
+(266-332, 689-707), `servicios/nucleo-financiero/.../nucleo-financiero.yaml` (457-560).
