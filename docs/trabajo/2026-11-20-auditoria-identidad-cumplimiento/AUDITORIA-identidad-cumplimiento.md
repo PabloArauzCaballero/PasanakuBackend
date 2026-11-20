@@ -1,7 +1,7 @@
 # AUDITORÍA — identidad-cumplimiento (lote L4)
 
-> Estado del documento: **EN CONSTRUCCIÓN**. Se escribe por tandas y cada tanda se sube a la rama
-> `auditoria/identidad-cumplimiento-2026-11-20`. Las secciones marcadas «pendiente» todavía no se cerraron.
+> Estado del documento: **cerrado** el 2026-11-20 sobre `origin/test` `07fc6971`. Auditoría de solo lectura; peldaño `DISCOVERED` (regla 30).
+> Prefijo de identificadores: `IDCU-<CLASE>-<NNN>`.
 
 ## 1. Ficha
 
@@ -13,11 +13,61 @@
 | Commit auditado `origin/test` | `07fc69719287b0dadd152d0293a054948df69ead` |
 | Commit `origin/dev` | `850e0f51192d03094304630a61e44e5bd2a97efe` — `git diff --stat origin/test origin/dev` vacío: **mismo árbol** |
 | Historial | completo (`git fetch --unshallow`; `git rev-parse --is-shallow-repository` → `false`; 1878 commits en `origin/test`) |
-| Archivos / líneas cubiertos | pendiente (anexo §12) |
+| Archivos / líneas cubiertos | 566 filas en el anexo §12. Leídos completos: main de `servicios/identidad` (108 archivos) y `servicios/cumplimiento` (98), ≈ 33 000 líneas Java de main; `apps/movil/lib/pantallas/identidad` (154 archivos, 15 288 líneas Dart); tablas del módulo en `sql/10_tablas/01_identidad_usuarios` y `12_cumplimiento_asfi`; pantallas de backoffice y web del alcance (~9 700 líneas TS). Pruebas (~13 000 líneas Java, 112 archivos Dart, specs TS) leídas parcialmente; cada anexo declara el motivo |
 
 ## 2. Resumen
 
-Pendiente de cierre. Tabla de severidades y diez más graves se completan al terminar la lectura.
+**Estado del módulo.** Identidad y cumplimiento **no están en condiciones de operar con dinero de terceros**. Tres defectos saltan controles de acceso: una cuenta suspendida o dada de baja vuelve a entrar porque el login no mira `usuario.estado` (IDCU-SEG-075); el segundo factor de los operadores no está implementado y en TEST cualquier factor es `000000` (IDCU-HUECO-077, IDCU-SEG-004); y los «cuatro ojos» de la diligencia PEP los declara el propio cliente HTTP (IDCU-SEG-119). Varios mecanismos existen en el esquema o en el código pero no corren: los reportes mensuales a la UIF salen en cero porque nada dispara la detección (IDCU-FLUJO-FALTANTE-117), una orden de bloqueo de la autoridad no bloquea nada (IDCU-FLUJO-FALTANTE-118), ninguno de los ~30 eventos de cumplimiento tiene consumidor (IDCU-FLUJO-FALTANTE-123), un retiro autorizado nunca se instruye al proveedor (IDCU-FLUJO-FALTANTE-036), y la app pide la declaración PEP y el perfil transaccional y los descarta (IDCU-HUECO-009, -010). En el esquema, las políticas de fila dan escritura al titular sobre sus propios roles, KYC y PEP (IDCU-SEG-038). Respecto del flujo nuevo: el módulo **no pone dinero de la empresa por nadie** (identidad y cumplimiento no escriben el mayor), pero la app promete en el tour que «un fondo de garantía cubre la cuota» (IDCU-RESPALDO-007). Las aprobaciones humanas del módulo (KYC manual, doble aprobación de retiros, habilitación de organizador) quedan como **DECISIÓN REQUERIDA** (A-1). Las de la vía del sospechoso UIF y de la diligencia reforzada tienen respaldo normativo en el propio repo (`docs/Cumplimiento.md:183-185`, §2.3).
+
+**Hallazgos por clase y severidad** (176 fichas):
+
+| Clase | S1 | S2 | S3 | S4 | Total |
+|---|---|---|---|---|---|
+| ACOPLE | 0 | 0 | 1 | 1 | 2 |
+| APROB | 0 | 2 | 2 | 0 | 4 |
+| ARQ | 0 | 0 | 2 | 0 | 2 |
+| CLEAN | 0 | 0 | 1 | 4 | 5 |
+| COHERENCIA | 0 | 2 | 4 | 0 | 6 |
+| CONFIG | 0 | 0 | 1 | 1 | 2 |
+| CONTRATO | 0 | 0 | 9 | 1 | 10 |
+| DATOS | 0 | 7 | 5 | 1 | 13 |
+| DEBIDO-PROCESO | 0 | 0 | 2 | 0 | 2 |
+| DEFECTO | 0 | 7 | 6 | 1 | 14 |
+| DINERO | 0 | 3 | 4 | 0 | 7 |
+| DOC | 0 | 0 | 2 | 3 | 5 |
+| DUP-INT | 0 | 0 | 3 | 2 | 5 |
+| FLUJO-FALTANTE | 0 | 6 | 0 | 0 | 6 |
+| FRAGIL | 0 | 0 | 7 | 1 | 8 |
+| HUECO | 1 | 11 | 4 | 0 | 16 |
+| OBSERV | 0 | 0 | 0 | 2 | 2 |
+| OTRO | 0 | 0 | 0 | 1 | 1 |
+| PRUEBAS | 0 | 1 | 4 | 2 | 7 |
+| REESCRITURA | 0 | 1 | 0 | 0 | 1 |
+| REG | 0 | 2 | 1 | 1 | 4 |
+| RENDIMIENTO | 0 | 0 | 1 | 3 | 4 |
+| RESILIENCIA | 0 | 1 | 3 | 0 | 4 |
+| RESPALDO | 0 | 1 | 0 | 0 | 1 |
+| SEG | 2 | 16 | 13 | 2 | 33 |
+| TRAZA | 0 | 1 | 2 | 1 | 4 |
+| UX-A11Y | 0 | 0 | 4 | 4 | 8 |
+| **Total** | **3** | **61** | **81** | **31** | **176** |
+
+**Los diez más graves**
+
+1. IDCU-SEG-075 (S1) — Suspender, bloquear o dar de baja una cuenta no impide volver a entrar: el login y el refresco no leen `usuario.estado`.
+2. IDCU-SEG-119 (S1) — Los cuatro ojos de la diligencia PEP vienen del cuerpo de la petición: un solo analista eleva el nivel y los topes.
+3. IDCU-HUECO-077 (S1) — No hay TOTP ni enrolamiento de segundo factor; en TEST (`PERFIL_SPRING=local`) `000000` sirve para cualquier factor, incluida la evidencia de retiro.
+4. IDCU-SEG-038 (S2) — RLS: el titular puede escribir `asignacion_rol`, `verificacion_kyc`, `reputacion_usuario`, `perfil_financiero` y su `usuario`; solo lo frena Java.
+5. IDCU-FLUJO-FALTANTE-117 (S2) — La detección PCC-01/ROG no tiene disparador: los reportes mensuales a la UIF se aprueban en cero.
+6. IDCU-FLUJO-FALTANTE-118 (S2) — Un oficio con orden de bloqueo nunca bloquea saldo y el acceso por oficio no queda en bitácora.
+7. IDCU-DINERO-037 (S2) — El titular puede liberar la retención de un retiro vivo (pasa a S1 el día que se cablee el pago al proveedor).
+8. IDCU-FLUJO-FALTANTE-036 (S2) — Un retiro AUTORIZADO nunca se instruye al proveedor: el saldo queda retenido sin salida (H8-01, decisión A9 pendiente).
+9. IDCU-SEG-076 (S2) — `PATCH /usuarios-internos/{id}` activa a cualquier participante sin KYC y asigna cualquier rol.
+10. IDCU-RESPALDO-007 (S2) — El tour de la app promete que un fondo de garantía cubre la cuota de quien no paga: contradice R-NUEVA-2 y ADR-051.
+
+**Peldaño de evidencia por área (regla 30):** servicio identidad `DISCOVERED`; servicio cumplimiento `DISCOVERED`; esquema y semillas `DISCOVERED`; retiros con doble aprobación `DISCOVERED`; app móvil `DISCOVERED`; backoffice y web `DISCOVERED`. Lo único ejecutado son los verificadores estáticos de `scripts/` (salidas en `evidencia/`). Gradle, yarn y Flutter no corrieron (§11), así que ninguna prueba del módulo está en `TESTED`.
+
+**Fase 7 (refutación):** los 3 S1 y los S2 de las tandas 1–6 marcados con «Re-verificación» o «Nota del orquestador» los re-abrió el orquestador; los 33 S2 restantes los re-abrieron dos verificadores independientes (`evidencia/fase7-verificador-A.md`, `-B.md`): ninguno cayó, 14 llevan corrección en su ficha y uno bajó a S3. Un chequeo mecánico de las 677 referencias `ruta:línea` (`evidencia/chequear_lineas.py`) encontró 39 citas con números de línea inexistentes, concentradas en las tandas 3 y 5. Las 39 se relocalizaron con fragmento (`evidencia/fase7-relocalizacion.md`) y ninguna afirmación central cayó. Resultado final: 0 referencias fuera de rango (`evidencia/fase7-chequeo-de-lineas.txt`). Severidades ajustadas por el orquestador: 7 S1 propuestos bajaron a S2 y uno de recarga se movió a §10; cada ajuste tiene su «Nota del orquestador».
 
 ## 3. Huella y mapa de conexiones
 
@@ -665,7 +715,7 @@ Peldaño: DISCOVERED (nada se ejecutó contra una base). Fichas del subagente; S
 - Clase / Severidad / Confianza: HUECO / REG / S2 / confirmado (grep repo-wide `.sql/.java/.kt`)
 - Ubicaciones: `sql/40_reglas/restricciones.sql:1089-1100` (`fn_uif_exigir_ddd`), `:1197-1210` (`fn_con_exigir_contrato`); sólo llamadas en `servicios/cumplimiento/src/test/.../CU02Test.java:97`, `CU05Test.java:104`, `CU06Test.java:118`
 - Re-verificación del orquestador: ubicaciones re-abiertas y confirmadas (lectura de `sql/40_reglas/restricciones.sql` / `application.yml` / grep).
-- Impacto: se opera sin debida diligencia ni contrato de adhesión vigentes aunque el modelo diga "denegar"; además los contratos sembrados están en `BORRADOR` (`11-contratos-de-adhesion.sql:62-67`), así que si se cableara hoy nadie podría operar.
+- Impacto: se opera sin debida diligencia ni contrato de adhesión vigentes aunque el modelo diga "denegar"; además los contratos sembrados están en `BORRADOR` (`11-contratos-de-adhesion.sql:5-8`), así que si se cableara hoy nadie podría operar.
 - Solución de fondo: invocarlas desde los triggers de las operaciones de dinero (o desde `fn_lim_evaluar`) y sembrar contratos reales.
 - Relación con el flujo nuevo: ninguna
 - Regla: 91.2 (invariante en la base)
@@ -674,6 +724,7 @@ Peldaño: DISCOVERED (nada se ejecutó contra una base). Fichas del subagente; S
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Estándares y normas: ver evidencia y ubicaciones.
 - Cómo se comprobó: ver evidencia y ubicaciones.
+- Línea corregida (fase 7): `11-contratos-de-adhesion.sql:62-67` no existía en el commit auditado; el contenido está en `11-contratos-de-adhesion.sql:5-8` (5-8).
 
 ### IDCU-DEFECTO-041 — El trigger de encaje bloquea también el pago de órdenes ya en curso y no filtra por moneda
 - Clase / Severidad / Confianza: DEFECTO / DINERO / S2 / confirmado (lectura)
@@ -752,7 +803,7 @@ Peldaño: DISCOVERED (nada se ejecutó contra una base). Fichas del subagente; S
 
 ### IDCU-REG-046 — Parámetros regulatorios y de riesgo activos sin confirmación ni procedencia completa
 - Clase / Severidad / Confianza: REG / DATOS / S2 / confirmado
-- Ubicaciones: `sql/60_semillas/06-umbrales-uif.sql:5-28` (+ `seeders/minimos/06-umbrales-uif.json`: `"estado": "confirmar vigencia con legal"`); `07-reportes-regulatorios.sql:4-15` (`"confirmar plazos con legal"`); `08-gobierno-y-licencia.sql:42-58` (matriz y tipologías `activa TRUE`, `aprobada_por` NULL, `vigente_desde current_date`); `19-reportes-y-retencion.sql:56-68` (`PEP ... >= 5000`)
+- Ubicaciones: `sql/60_semillas/06-umbrales-uif.sql:5-28` (+ `seeders/minimos/06-umbrales-uif.json`: `"estado": "confirmar vigencia con legal"`); `07-reportes-regulatorios.sql:4-15` (`"confirmar plazos con legal"`); `08-gobierno-y-licencia.sql:27-34,37-43` (matriz y tipologías `activa TRUE`, `aprobada_por` NULL, `vigente_desde current_date`); `19-reportes-y-retencion.sql:56-68` (`PEP ... >= 5000`)
 - Evidencia: `base_normativa 'Instructivo EIF ...'` (instructivo para Entidades de Intermediación Financiera; aplicabilidad a una ETF no confirmada); `vigente_desde = current_date` (fecha de siembra presentada como vigencia de la norma); ponderaciones de matriz y umbrales de tipologías sin fuente.
 - Impacto: 97.5.4 prohíbe inferir parámetros financieros; el sistema ya registra PCC-01/ROG con estos números (`fn_uif_registrar_operacion`). README de seeders marca 08 como "listo".
 - Solución de fondo: procedencia (URL, fecha de obtención, responsable) por fila, confirmación de cumplimiento, fechas de vigencia reales, `activa=FALSE` hasta aprobación.
@@ -764,6 +815,7 @@ Peldaño: DISCOVERED (nada se ejecutó contra una base). Fichas del subagente; S
 - Estándares y normas: ver evidencia y ubicaciones.
 - Cómo se comprobó: ver evidencia y ubicaciones.
 - Refutación (fase 7, verificador independiente A): **CONFIRMA CON CORRECCIÓN**. Evidencia: `06-umbrales-uif.sql:5-28` usa `base_normativa 'Instructivo EIF …'`, `current_date` y `TRUE`. El JSON dice `"estado": "confirmar vigencia con legal"` (`:4`) y el de 07, `"confirmar plazos con legal"`. `19-reportes-y-retencion.sql:67` contiene `PEP … >= 5000 … TRUE`. `seeders/README.md:48` marca 08 como «listo». Corrección: Las líneas de `08-gobierno-y-licencia.sql` están mal: el archivo tiene 43 líneas; la matriz está en `:27-35` y las tipologías en `:37-41`. `matriz_riesgo_lft` **no tiene columna `activa`** (`10_tablas/12_cumplimiento_asfi/matriz_riesgo_lft.sql:5-17`): usa `vigente_desde current_date` y `aprobada_por` NULL implícito. Las tipologías (`regla_monitoreo_lft`) sí usan `activa TRUE`, pero con `vigente_desde now()`, no `current_date`. La severidad no cambia.
+- Línea corregida (fase 7): `08-gobierno-y-licencia.sql:42-58` no existía en el commit auditado; el contenido está en `08-gobierno-y-licencia.sql:27-34,37-43` (27-34 (matriz) y 37-43 (tipologías)).
 
 ### IDCU-DATOS-047 — Bitácoras y evidencias de identidad/cumplimiento no son append-only
 - Clase / Severidad / Confianza: DATOS / S2 / confirmado
@@ -927,7 +979,7 @@ Peldaño: DISCOVERED (nada se ejecutó contra una base). Fichas del subagente; S
 
 ### IDCU-SEG-059 — La evidencia step-up no está ligada al retiro concreto
 - Clase / Severidad / Confianza: SEG / S3 / probable
-- Ubicaciones: `.../infraestructura/SegundoFactorStepUp.java:139-169`; `.../dominio/CondicionesDeRetiro.java:55-56` (mensaje "o no es para este retiro")
+- Ubicaciones: `.../infraestructura/SegundoFactorStepUp.java:85-122`; `.../dominio/CondicionesDeRetiro.java:55-56` (mensaje "o no es para este retiro")
 - Evidencia: valida `iss/aud/sub/proposito=RETIRO/acr/jti`; no compara monto, destino ni clave de idempotencia.
 - Impacto: un JWT step-up obtenido para un retiro chico autoriza otro de otro monto o destino dentro de su vigencia.
 - Solución de fondo: claim con hash de (cuenta, destino, monto, clave) verificado al solicitar.
@@ -937,10 +989,11 @@ Peldaño: DISCOVERED (nada se ejecutó contra una base). Fichas del subagente; S
 - Estándares y normas: ver evidencia y ubicaciones.
 - Relación con el flujo nuevo: ver evidencia y ubicaciones.
 - Cómo se comprobó: ver evidencia y ubicaciones.
+- Línea corregida (fase 7): `SegundoFactorStepUp.java:139-169` no existía en el commit auditado; el contenido está en `SegundoFactorStepUp.java:85-122` (85-122).
 
 ### IDCU-APROB-060 — La bandeja no da información para decidir
 - Clase / Severidad / Confianza: APROB / S3 / probable
-- Ubicaciones: `.../infraestructura/BandejaDeRetirosRepositorio.java:138-148`; `nucleo-financiero.yaml:464-466` ("se ven en la ficha de la orden" — no hay operación de ficha entre las de retiro)
+- Ubicaciones: `.../infraestructura/BandejaDeRetirosRepositorio.java:33-43,63-73`; `nucleo-financiero.yaml:464-466` ("se ven en la ficha de la orden" — no hay operación de ficha entre las de retiro)
 - Impacto: el aprobador ve importes y fechas, no destino, KYC ni historial: la segunda firma es ceremonial; tampoco hay bitácora de lectura (90.2.7).
 - Relación con el flujo nuevo: APROB (argumento para A-1)
 - Esfuerzo estimado: medio
@@ -949,6 +1002,7 @@ Peldaño: DISCOVERED (nada se ejecutó contra una base). Fichas del subagente; S
 - Estándares y normas: ver evidencia y ubicaciones.
 - Cómo se comprobó: ver evidencia y ubicaciones.
 - Solución de fondo: ver evidencia y ubicaciones.
+- Línea corregida (fase 7): `BandejaDeRetirosRepositorio.java:138-148` no existía en el commit auditado; el contenido está en `BandejaDeRetirosRepositorio.java:33-43,63-73` (33-43 (select) y 63-73 (record `EnRevision`)).
 
 ### IDCU-DEFECTO-061 — Rechazar una orden le pone fecha de pago
 - Clase / Severidad / Confianza: DEFECTO / S3 / confirmado
@@ -978,7 +1032,7 @@ Peldaño: DISCOVERED (nada se ejecutó contra una base). Fichas del subagente; S
 
 ### IDCU-DUP-INT-063 — Catálogos paralelos de umbrales y reglas de monitoreo
 - Clase / Severidad / Confianza: DUP-INT / S3 / confirmado
-- Ubicaciones: `08-gobierno-y-licencia.sql:52-58` (`regla_monitoreo_lft`, `ENTRADA_SALIDA_INMEDIATA` 500 / 120 min); `19-reportes-y-retencion.sql:56-68` (`regla_cumplimiento`, misma tipología con otros parámetros, umbral 10000.0 literal en vez de referir `umbral_reporte_uif`); `19:70-80` (`umbral_operativo` vs `limite_operativo_billetera`, el propio comentario admite que pueden divergir)
+- Ubicaciones: `08-gobierno-y-licencia.sql:39` (`regla_monitoreo_lft`, `ENTRADA_SALIDA_INMEDIATA` 500 / 120 min); `19-reportes-y-retencion.sql:56-68` (`regla_cumplimiento`, misma tipología con otros parámetros, umbral 10000.0 literal en vez de referir `umbral_reporte_uif`); `19:70-80` (`umbral_operativo` vs `limite_operativo_billetera`, el propio comentario admite que pueden divergir)
 - Regla: 97.4.6
 - Esfuerzo estimado: medio
 - Causa de fondo: ver evidencia y ubicaciones.
@@ -988,6 +1042,7 @@ Peldaño: DISCOVERED (nada se ejecutó contra una base). Fichas del subagente; S
 - Cómo se comprobó: ver evidencia y ubicaciones.
 - Impacto: ver evidencia y ubicaciones.
 - Solución de fondo: ver evidencia y ubicaciones.
+- Línea corregida (fase 7): `08-gobierno-y-licencia.sql:52-58` no existía en el commit auditado; el contenido está en `08-gobierno-y-licencia.sql:39` (39).
 
 ### IDCU-FRAGIL-064 — Retención del retiro con motivo y vencimiento contrarios a CU-11
 - Clase / Severidad / Confianza: FRAGIL / S3 / probable
@@ -1015,7 +1070,7 @@ Peldaño: DISCOVERED (nada se ejecutó contra una base). Fichas del subagente; S
 
 ### IDCU-DEBIDO-PROCESO-066 — Bloqueos y retenciones automáticas sin expediente
 - Clase / Severidad / Confianza: DEBIDO-PROCESO / S3 / confirmado (en datos); decisión regulatoria pendiente
-- Ubicaciones: `cumplimiento/regla_monitoreo_lft.sql:22`; `08-gobierno-y-licencia.sql:54`; `19-reportes-y-retencion.sql:61-64`; `CU-44 ...md:38,57`
+- Ubicaciones: `cumplimiento/regla_monitoreo_lft.sql:22`; `08-gobierno-y-licencia.sql:39`; `19-reportes-y-retencion.sql:61-64`; `CU-44 ...md:38,57`
 - Impacto: `RETENER_OPERACION`/`BLOQUEAR_USUARIO`/`BLOQUEAR_CUENTA` sin plazo de descargo (91.4); puede ser exigencia LGI/FT, pero la excepción no está registrada como decisión.
 - Esfuerzo estimado: chico (registro) / medio (implementación)
 - Causa de fondo: ver evidencia y ubicaciones.
@@ -1024,6 +1079,7 @@ Peldaño: DISCOVERED (nada se ejecutó contra una base). Fichas del subagente; S
 - Relación con el flujo nuevo: ver evidencia y ubicaciones.
 - Cómo se comprobó: ver evidencia y ubicaciones.
 - Solución de fondo: ver evidencia y ubicaciones.
+- Línea corregida (fase 7): `08-gobierno-y-licencia.sql:54` no existía en el commit auditado; el contenido está en `08-gobierno-y-licencia.sql:39` (39).
 
 ### IDCU-SEG-067 — ADMIN_PLATAFORMA concentra funciones incompatibles
 - Clase / Severidad / Confianza: SEG / S3 / confirmado
@@ -1090,7 +1146,7 @@ Peldaño: DISCOVERED (nada se ejecutó contra una base). Fichas del subagente; S
 
 ### IDCU-DATOS-072 — Contratos de adhesión y políticas de token con valores de relleno o ambiguos
 - Clase / Severidad / Confianza: DATOS / S4 / confirmado
-- Ubicaciones: `11-contratos-de-adhesion.sql:62-67` (`repeat('0', 64)`, URL de dominio propio sin documento); `13-politicas-de-token.sql:72-74,89-90` (dos políticas `VERIFICACION_CORREO`, OTP y ENLACE, para el mismo propósito)
+- Ubicaciones: `11-contratos-de-adhesion.sql:5-8` (`repeat('0', 64)`, URL de dominio propio sin documento); `13-politicas-de-token.sql:6,23` (dos políticas `VERIFICACION_CORREO`, OTP y ENLACE, para el mismo propósito)
 - Esfuerzo estimado: chico
 - Causa de fondo: ver evidencia y ubicaciones.
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
@@ -1099,6 +1155,8 @@ Peldaño: DISCOVERED (nada se ejecutó contra una base). Fichas del subagente; S
 - Cómo se comprobó: ver evidencia y ubicaciones.
 - Impacto: ver evidencia y ubicaciones.
 - Solución de fondo: ver evidencia y ubicaciones.
+- Línea corregida (fase 7): `11-contratos-de-adhesion.sql:62-67` no existía en el commit auditado; el contenido está en `11-contratos-de-adhesion.sql:5-8` (5-8).
+- Línea corregida (fase 7): `13-politicas-de-token.sql:72-74,89-90` no existía en el commit auditado; el contenido está en `13-politicas-de-token.sql:6,23` (6 y 23).
 
 ### IDCU-PRUEBAS-073 — Matriz negativa incompleta en la aprobación de retiro
 - Clase / Severidad / Confianza: PRUEBAS / S4 / confirmado
@@ -1296,7 +1354,7 @@ Rutas sin prefijo: relativas a `servicios/identidad/src/main/java/bo/aportaya/id
 
 ### IDCU-SEG-086 — Las fotos del expediente se pueden reemplazar después de aprobado (evidencia legal sobrescrita)
 - Clase / Severidad / Confianza: SEG / S2 / confirmado
-- Ubicaciones: `infraestructura/ExpedienteRepositorio.java:47-75`; `aplicacion/AnotarFotoEnExpediente.java:91-106`; `web/ExpedienteController.java:89-111`
+- Ubicaciones: `infraestructura/ExpedienteRepositorio.java:47-75`; `aplicacion/AnotarFotoEnExpediente.java:32-47`; `web/ExpedienteController.java:89-111`
 - Evidencia: `dsl.update(VERIFICACION_KYC).set(columna, ...).where(VERIFICACION_KYC.USUARIO_ID.eq(usuarioId))` — sin condición de estado ni de verificación vigente; idem `DOCUMENTO_IDENTIDAD`.
 - Cómo se comprobó: lectura.
 - Impacto: el titular (con su sesión) cambia anverso/selfie de un expediente APROBADO; la clave anterior se pierde (no hay historial) y el expediente aprobado ya no muestra lo que se aprobó. Actualiza además todas las verificaciones del usuario.
@@ -1308,6 +1366,7 @@ Rutas sin prefijo: relativas a `servicios/identidad/src/main/java/bo/aportaya/id
 - Esfuerzo estimado: chico
 - Estándares y normas: ver evidencia y ubicaciones.
 - Refutación (fase 7, verificador independiente A): **CONFIRMA CON CORRECCIÓN**. Evidencia: `ExpedienteRepositorio.java:47-75` hace `update(...).where(USUARIO_ID.eq(usuarioId))`, sin condición de estado. `TitularDelExpediente.java:32-37` acepta el token de alta o la sesión propia, sin mirar el estado. `CU02GuardarFotoDelExpediente.java:42-48` tampoco valida el estado. No hay trigger ni restricción en sql/ sobre `verificacion_kyc` o `documento_identidad` que lo impida. Corrección: La ubicación `AnotarFotoEnExpediente.java:91-106` no existe: el archivo tiene 48 líneas y lo relevante está en `:32-47`. La ruta del controlador está bien (`ExpedienteController.java:87-110`). La severidad no cambia.
+- Línea corregida (fase 7): `AnotarFotoEnExpediente.java:91-106` no existía en el commit auditado; el contenido está en `AnotarFotoEnExpediente.java:32-47` (32-47).
 
 ### IDCU-TRAZA-087 — Roles otorgados a nombre del revisor KYC que no los decidió, y con ámbito GLOBAL para roles de GRUPO
 - Clase / Severidad / Confianza: TRAZA / S2 / confirmado
@@ -1401,7 +1460,7 @@ Rutas sin prefijo: relativas a `servicios/identidad/src/main/java/bo/aportaya/id
 
 ### IDCU-SEG-093 — `GRUPO_ADMINISTRAR` (autoconcedido vía CU-90) permite enumerar teléfonos sin tope e invitar a grupos ajenos
 - Clase / Severidad / Confianza: SEG/ACOPLE / S2 / probable
-- Ubicaciones: `aplicacion/BuscarPorTelefono.java:35-38` (contexto `deSistema`); `web/UsuariosController.java:155-169` (sin límite); `aplicacion/EmitirTokenDeInvitacion.java:44-236` (no verifica que `ctx` administre `grupoId`); `infraestructura/FirmaDeOrganizadorRepositorio.java:104-126` (ORGANIZADOR GLOBAL)
+- Ubicaciones: `aplicacion/BuscarPorTelefono.java:35-38` (contexto `deSistema`); `web/UsuariosController.java:155-169` (sin límite); `aplicacion/EmitirTokenDeInvitacion.java:44-148` (no verifica que `ctx` administre `grupoId`); `infraestructura/FirmaDeOrganizadorRepositorio.java:104-126` (ORGANIZADOR GLOBAL)
 - Evidencia: rol ORGANIZADOR se obtiene en autoservicio tras KYC (A3); la búsqueda devuelve `existe` + UUID por teléfono.
 - Cómo se comprobó: lectura; la propiedad del grupo vive en `grupos` (que llama con el token del usuario), pero la ruta de identidad está publicada en el gateway (`rutas.yml:32-42`).
 - Impacto: cualquier organizador puede barrer +591XXXXXXXX y mapear clientes (5/s por IP); puede emitir tokens de invitación para `grupoId` ajenos directamente contra identidad.
@@ -1413,6 +1472,7 @@ Rutas sin prefijo: relativas a `servicios/identidad/src/main/java/bo/aportaya/id
 - Esfuerzo estimado: medio
 - Estándares y normas: ver evidencia y ubicaciones.
 - Refutación (fase 7, verificador independiente B): **CONFIRMA CON CORRECCIÓN**. Evidencia: `I/aplicacion/BuscarPorTelefono.java:35-38` usa `ContextoSesion.deSistema`; `I/web/UsuariosController.java:151-170` sin `LimiteDeConsultas` (solo titularidad lo tiene, :218); `I/aplicacion/EmitirTokenDeInvitacion.java:44-147` no consulta a grupos ni verifica propiedad de `grupoId`; además `revocarVivas` (:150-160) revoca tokens vivos del grupo ajeno + teléfono. ORGANIZADOR tiene `GRUPO_ADMINISTRAR` (`sql/60_semillas/10-roles-y-permisos.sql:152`) y se autoconcede GLOBAL (`FirmaDeOrganizadorRepositorio.java:104-126`). Corrección: Rango erróneo: `EmitirTokenDeInvitacion.java` tiene 175 líneas → citar `44-167`. El tope del gateway (`rutas.yml:32-42`) es 5/s con clave **IP+usuario** (`LimitadorDeTasa.java:28`), no "por IP". Agregar impacto: puede revocar invitaciones vigentes de un grupo ajeno. Severidad S2 se mantiene.
+- Línea corregida (fase 7): `EmitirTokenDeInvitacion.java:44-236` no existía en el commit auditado; el contenido está en `EmitirTokenDeInvitacion.java:44-148` (44-148 (`ejecutar`)).
 
 ### IDCU-RESILIENCIA-094 — Estado de seguridad en memoria con 4 réplicas mínimas
 - Clase / Severidad / Confianza: RESILIENCIA / S2 / confirmado (lectura + descriptor)
@@ -1538,7 +1598,7 @@ Rutas sin prefijo: relativas a `servicios/identidad/src/main/java/bo/aportaya/id
 
 ### IDCU-DUP-INT-103 — Dos implementaciones de asignación de roles divergentes
 - Clase / Severidad / Confianza: DUP-INT / S3 / confirmado
-- Ubicaciones: `aplicacion/CU08AsignarRol.java:248-300` (valida ámbito, permisos resultantes con los vigentes, MFA) vs `infraestructura/RotacionDeRolesInternos.java:36-82` (sin validar ámbito, SoD solo sobre los nuevos, siempre GLOBAL, revoca todo)
+- Ubicaciones: `aplicacion/CU08AsignarRol.java:51-102` (valida ámbito, permisos resultantes con los vigentes, MFA) vs `infraestructura/RotacionDeRolesInternos.java:36-82` (sin validar ámbito, SoD solo sobre los nuevos, siempre GLOBAL, revoca todo)
 - Impacto: la ruta expuesta es la débil; la probada (CU08Test) no está expuesta.
 - Solución de fondo: una sola.
 - Esfuerzo estimado: chico
@@ -1547,10 +1607,11 @@ Rutas sin prefijo: relativas a `servicios/identidad/src/main/java/bo/aportaya/id
 - Relación con el flujo nuevo: ver evidencia y ubicaciones.
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Estándares y normas: ver evidencia y ubicaciones.
+- Línea corregida (fase 7): `CU08AsignarRol.java:248-300` no existía en el commit auditado; el contenido está en `CU08AsignarRol.java:51-102` (51-102).
 
 ### IDCU-RENDIMIENTO-104 — Listados sin paginación, N+1 y relectura total tras decidir
 - Clase / Severidad / Confianza: RENDIMIENTO / S3 / confirmado
-- Ubicaciones: `RevisionRepositorio.java:23-54`; `UsuariosInternosRepositorio.java:48-97` (2 consultas por fila); `AccesosRepositorio.java:39-56`; `RolesYPermisosRepositorio.java:177-201`; `VerificacionesController.java:100-104` (`revision.cola(null, ...)...orElseThrow()` → `NoSuchElementException` 500 si no aparece)
+- Ubicaciones: `RevisionRepositorio.java:23-54`; `UsuariosInternosRepositorio.java:48-97` (2 consultas por fila); `AccesosRepositorio.java:39-56`; `RolesYPermisosRepositorio.java:28-52,54-82`; `VerificacionesController.java:100-104` (`revision.cola(null, ...)...orElseThrow()` → `NoSuchElementException` 500 si no aparece)
 - Regla de la casa: 96.6.1
 - Esfuerzo estimado: chico
 - Cómo se comprobó: ver evidencia y ubicaciones.
@@ -1560,6 +1621,7 @@ Rutas sin prefijo: relativas a `servicios/identidad/src/main/java/bo/aportaya/id
 - Relación con el flujo nuevo: ver evidencia y ubicaciones.
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Estándares y normas: ver evidencia y ubicaciones.
+- Línea corregida (fase 7): `RolesYPermisosRepositorio.java:177-201` no existía en el commit auditado; el contenido está en `RolesYPermisosRepositorio.java:28-52,54-82` (28-52 (y 54-82)).
 
 ### IDCU-COHERENCIA-105 — Tres nombres para el carné de extranjería y conversiones que tragan errores
 - Clase / Severidad / Confianza: COHERENCIA / S3 / confirmado
@@ -1719,7 +1781,7 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 
 ### IDCU-FLUJO-FALTANTE-117 — La detección UIF (PCC-01 y ROG, CU-41/CU-42) no tiene ningún disparador: los reportes mensuales a la UIF salen siempre "en cero"
 - Clase / Severidad / Confianza: FLUJO-FALTANTE / S2 / confirmado (por lectura y grep)
-- Ubicaciones: `aplicacion/CU41RegistrarPcc01.java:56-172`, `aplicacion/CU42RegistrarRog.java:322-407`, `aplicacion/CU43RemitirReportes.java:86-89`, `README.md:28-30,83-87`, `src/main/resources/openapi/cumplimiento.yaml:9-10`
+- Ubicaciones: `aplicacion/CU41RegistrarPcc01.java:56-172`, `aplicacion/CU42RegistrarRog.java:33-137,51`, `aplicacion/CU43RemitirReportes.java:86-89`, `README.md:28-30,83-87`, `src/main/resources/openapi/cumplimiento.yaml:9-10`
 - Evidencia: grep de referencias a `CU41RegistrarPcc01` en main → solo `CU42RegistrarRog.java` (tipos de record); `CU42RegistrarRog` → ninguna; no hay `@KafkaListener` ni consumidor en el servicio; README "Eventos que consume | | |". CU-43 arma el reporte con `operaciones.pendientesDelPeriodo(...)` sobre `registro_operacion_relevante`, que en producción nunca recibe filas.
 - Cómo se comprobó: grep cruzado de cada CU contra `web/`, `trabajos/` y consumidores; lectura de CU-43.
 - Nota del orquestador: re-verificado: `grep -rln CU42RegistrarRog servicios/cumplimiento/src/main` → solo su propio archivo; `CU41RegistrarPcc01` solo lo usa `CU42RegistrarRog`; ningún controlador, consumidor ni trabajo los invoca. Propuesto S1; se clasifica S2 (REG alto) porque no mueve ni expone dinero: el criterio S1 del metaprompt no cubre el reporte regulatorio, pero el riesgo ante la UIF es grave y lo determina Cumplimiento.
@@ -1730,10 +1792,11 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Conexiones y módulos afectados: nucleo_financiero/aportes → cumplimiento; UIF.
 - Estándares y normas: 98.3.4, 98.4.3, 30 (afirmación "Implementado" sin evidencia), docs/Cumplimiento.md §2.1-2.2.
 - Esfuerzo estimado: grande
+- Línea corregida (fase 7): `CU42RegistrarRog.java:322-407` no existía en el commit auditado; el contenido está en `CU42RegistrarRog.java:33-137,51` (33-137 (clase; `registrar` :51)).
 
 ### IDCU-FLUJO-FALTANTE-118 — Un oficio de autoridad con orden de bloqueo nunca bloquea nada y el acceso por oficio no queda en bitácora
 - Clase / Severidad / Confianza: FLUJO-FALTANTE / S2 / confirmado
-- Ubicaciones: `aplicacion/CU45AtenderRequerimiento.java:370-385,391-400`, `web/AccionesDeCumplimientoWeb.java:60-74`
+- Ubicaciones: `aplicacion/CU45AtenderRequerimiento.java:104-120,128-137`, `web/AccionesDeCumplimientoWeb.java:60-74`
 - Evidencia: el evento `cumplimiento.requerimiento_recibido` lleva `exigeBloqueo` y `justificacionDeAcceso` pero **no** `usuarioAfectadoId`; `anotarBloqueo` no tiene llamador en main; ningún servicio consume el evento (grep).
 - Cómo se comprobó: lectura del payload y grep de consumidores y de `anotarBloqueo`.
 - Nota del orquestador: re-verificado: `anotarBloqueo` (`CU45AtenderRequerimiento.java:128`) no tiene llamador fuera de su repositorio. Propuesto S1; S2 por el mismo criterio que el anterior.
@@ -1744,24 +1807,27 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Conexiones y módulos afectados: cumplimiento → nucleo_financiero, auditoria.
 - Estándares y normas: 90.2.7, 98.3.2, 96.7.2.
 - Esfuerzo estimado: medio
+- Línea corregida (fase 7): `CU45AtenderRequerimiento.java:370-385,391-400` no existía en el commit auditado; el contenido está en `CU45AtenderRequerimiento.java:104-120,128-137` (104-120 y 128-137).
 
 ### IDCU-SEG-119 — Los "cuatro ojos" de la diligencia PEP (CU-02) los declara el cliente HTTP: un solo analista eleva el nivel con dos UUID cualesquiera
 - Clase / Severidad / Confianza: SEG/APROB / **S1** / confirmado
-- Ubicaciones: `web/AdhesionController.java:155-166`, `aplicacion/CU02ElevarDiligencia.java:258-266,278`, `infraestructura/DiligenciaRepositorio.java:79-92`, `sql/40_reglas/restricciones.sql:1111-1116`, `openapi/cumplimiento.yaml:1220-1234`
+- Ubicaciones: `web/AdhesionController.java:155-166`, `aplicacion/CU02ElevarDiligencia.java:124-133,145`, `infraestructura/DiligenciaRepositorio.java:79-92`, `sql/40_reglas/restricciones.sql:1111-1116`, `openapi/cumplimiento.yaml:1220-1234`
 - Evidencia: `cuerpo.getAprobadaPor(), Optional.ofNullable(cuerpo.getSegundaRevisionPor())`; el trigger solo exige `segunda_revision_por <> aprobada_por`. Ninguna comprobación de que el llamador sea uno de los dos, de que existan, de que tengan rol, ni de que el segundo haya actuado.
 - Cómo se comprobó: lectura del controlador, del CU y de `fn_uif_validar_pep`.
 - Nota del orquestador: re-verificado `web/AdhesionController.java:158-165` (`cuerpo.getAprobadaPor()`, `cuerpo.getSegundaRevisionPor()`) y `aplicacion/CU02ElevarDiligencia.java:125-133` (solo exige que la segunda exista si es PEP; no la compara con la sesión ni con `aprobadaPor`). Se sostiene S1: salta el control de cuatro ojos y sube topes de operación.
-- Impacto: un ANALISTA_CUMPLIMIENTO (o un token robado con ese permiso) eleva a REFORZADA/AMPLIADA a un PEP sin segunda revisión real; el nivel nuevo desbloquea topes mayores (`CU02ElevarDiligencia.java:282-287`). Firma por otro (90.1.2). El comentario de `AccionesDeCumplimiento.java:23-27` afirma que "el actor sale de la sesión" — no se aplicó aquí.
+- Impacto: un ANALISTA_CUMPLIMIENTO (o un token robado con ese permiso) eleva a REFORZADA/AMPLIADA a un PEP sin segunda revisión real; el nivel nuevo desbloquea topes mayores (`CU02ElevarDiligencia.java:149-154`). Firma por otro (90.1.2). El comentario de `AccionesDeCumplimiento.java:23-27` afirma que "el actor sale de la sesión" — no se aplicó aquí.
 - Causa de fondo: aprobación modelada como dato de entrada y no como dos actos de dos sesiones.
 - Solución de fondo: dos operaciones (aprobar / segunda revisión) cuyo actor es `ctx.usuarioId()`, con estado intermedio `PENDIENTE_SEGUNDA_REVISION` y CHECK de distinto actor; rechazar `aprobadaPor` en el cuerpo (como ya se hace en CU-43, test `web/AccionesDeCumplimientoWebTest.java:129-139`).
 - Relación con el flujo nuevo: APROB (A-1: ¿KYC queda bajo R-NUEVA-1? DECISIÓN REQUERIDA; la norma citada en docs exige la doble revisión)
 - Conexiones y módulos afectados: catalogo.limite_operativo_billetera (topes).
 - Estándares y normas: 90.1.2, 96.5.2, R-UIF-10.
 - Esfuerzo estimado: medio
+- Línea corregida (fase 7): `CU02ElevarDiligencia.java:258-266,278` no existía en el commit auditado; el contenido está en `CU02ElevarDiligencia.java:124-133,145` (124-133 y 145).
+- Línea corregida (fase 7): `CU02ElevarDiligencia.java:282-287` no existía en el commit auditado; el contenido está en `CU02ElevarDiligencia.java:149-154` (149-154).
 
 ### IDCU-SEG-120 — La separación "quien investiga no decide" es nominal: el analista es un UUID libre del cuerpo y abrir y decidir usan el mismo permiso
 - Clase / Severidad / Confianza: SEG/DEBIDO-PROCESO / **S2** / confirmado
-- Ubicaciones: `web/CumplimientoController.java:78-85,94-105`, `aplicacion/CU44InvestigarYReportar.java:108-116`, `aplicacion/CU44DecidirComoRevisor.java:347-350`, `openapi/cumplimiento.yaml:1344-1351,692`
+- Ubicaciones: `web/CumplimientoController.java:78-85,94-105`, `aplicacion/CU44InvestigarYReportar.java:108-116`, `aplicacion/CU44DecidirComoRevisor.java:75-77`, `openapi/cumplimiento.yaml:1344-1351,692`
 - Evidencia: `cuerpo.getAnalistaId()` sin validar existencia, rol ni que difiera del llamador; decidir solo exige `ctx.usuarioId() != caso.analistaId()`; ambos `@Permiso("CUMPLIMIENTO_CASOS")` ("solo OFICIAL_CUMPLIMIENTO lo tiene sembrado", yaml:692). No existe paso donde el analista registre su análisis: la conclusión la escribe el revisor.
 - Cómo se comprobó: lectura; `web/LftAccionesWebTest.java:88-145` usa el mismo `OFICIAL_CUMPLIMIENTO` para abrir y decidir y ninguna prueba exige que quien abre no decida.
 - Re-verificación del orquestador: ubicaciones re-abiertas y confirmadas (lectura/grep).
@@ -1772,6 +1838,7 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Conexiones y módulos afectados: auditoria (ROS), identidad (roles).
 - Estándares y normas: 90.1.4, R-SEG-04, regla 91.4 (debido proceso).
 - Esfuerzo estimado: medio
+- Línea corregida (fase 7): `CU44DecidirComoRevisor.java:347-350` no existía en el commit auditado; el contenido está en `CU44DecidirComoRevisor.java:75-77` (75-77).
 
 ### IDCU-DEFECTO-121 — Declarar PEP (CU-03, endpoint expuesto) borra beneficiarios con DELETE sin privilegio y escribe tablas que la RLS no deja escribir al titular
 - Clase / Severidad / Confianza: DEFECTO/DATOS / **S2** / confirmado (GRANT) · probable (RLS, no ejecutado)
@@ -1803,8 +1870,8 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 
 ### IDCU-FLUJO-FALTANTE-123 — Ninguno de los ~30 eventos que publica cumplimiento tiene consumidor: consentimientos, limitación de cuentas, nivel de diligencia y casos LFT se pierden
 - Clase / Severidad / Confianza: FLUJO-FALTANTE / **S2** / confirmado (grep)
-- Ubicaciones: `aplicacion/CU05AceptarContrato.java:120-131`, `CU06RevisarConocimiento.java:403-421`, `CU02ElevarDiligencia.java:289-299`, `CU03DeclararPep.java:492-529`, `README.md:72-87`
-- Evidencia: grep de cada tipo en `servicios/` y `plataforma/` fuera de cumplimiento → "(nadie)". `revision_vencida` lleva solo `cantidad` y usa la traza como `agregado_id` (`CU06RevisarConocimiento.java:415-416`): aun con consumidor no se puede saber qué cuenta limitar. `alConfirmarseCoincidencia` no se invoca (coincidencias de listas nunca abren caso).
+- Ubicaciones: `aplicacion/CU05AceptarContrato.java:120-131`, `CU06RevisarConocimiento.java:184-200`, `CU02ElevarDiligencia.java:156-166`, `CU03DeclararPep.java:146-156,171-201`, `README.md:72-87`
+- Evidencia: grep de cada tipo en `servicios/` y `plataforma/` fuera de cumplimiento → "(nadie)". `revision_vencida` lleva solo `cantidad` y usa la traza como `agregado_id` (`CU06RevisarConocimiento.java:195-196`): aun con consumidor no se puede saber qué cuenta limitar. `alConfirmarseCoincidencia` no se invoca (coincidencias de listas nunca abren caso).
 - Cómo se comprobó: grep.
 - Impacto: los consentimientos por finalidad aceptados al alta nunca se guardan en `identidad.consentimiento` (prueba de consentimiento inexistente); revisiones KYC vencidas no limitan cuentas (R-UIF-09); coincidencias de listas restrictivas no generan investigación.
 - Causa de fondo: integración "por evento" declarada sin consumidor ni prueba de contrato.
@@ -1814,6 +1881,10 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Estándares y normas: 98.1.4, 98.8.2, 96.7.
 - Esfuerzo estimado: grande
 - Refutación (fase 7, verificador independiente B): **CONFIRMA CON CORRECCIÓN**. Evidencia: 35 tipos `cumplimiento.*` emitidos; `grep` de esos tipos y de `aportaya.cumplimiento` fuera de `servicios/cumplimiento/src/main` → 0; único `topicPattern` es `indicador_calculado` (auditoría). `README.md:80-84` "Eventos que consume" vacío. `alConfirmarseCoincidencia` (`CU03DeclararPep.java:172`) solo se invoca desde `CU03Test`. `revision_vencida` lleva `agregado_id = traza` y solo `cantidad` (`CU06RevisarConocimiento.java:190-197`). Corrección: Líneas erróneas: CU06 tiene 212 líneas (citar `184-200`, no 403-421/415-416); CU02ElevarDiligencia tiene 194 (citar `110`, `156`, no 289-299); CU03DeclararPep tiene 219 (citar `146`, `192`, no 492-529). Impacto exagerado en consentimientos: identidad **sí** guarda `TERMINOS`, `PRIVACIDAD`, `TRATAMIENTO_DATOS` en el alta (`I/aplicacion/CU01RegistrarUsuario.java:68,229` → `RegistroRepositorio.java:200-222`, aunque con `hash_documento` de 64 ceros); lo que se pierde son las finalidades emitidas por CU-05. Además `vencerYPedirLimitacion` no tiene llamador en main, así que `revision_vencida` ni se emite. S2 se mantiene.
+- Línea corregida (fase 7): `CU06RevisarConocimiento.java:403-421` no existía en el commit auditado; el contenido está en `CU06RevisarConocimiento.java:184-200` (184-200).
+- Línea corregida (fase 7): `CU02ElevarDiligencia.java:289-299` no existía en el commit auditado; el contenido está en `CU02ElevarDiligencia.java:156-166` (156-166).
+- Línea corregida (fase 7): `CU03DeclararPep.java:492-529` no existía en el commit auditado; el contenido está en `CU03DeclararPep.java:146-156,171-201` (146-156 y 171-201).
+- Línea corregida (fase 7): `CU06RevisarConocimiento.java:415-416` no existía en el commit auditado; el contenido está en `CU06RevisarConocimiento.java:195-196` (195-196).
 
 ### IDCU-HUECO-124 — El "archivo" del reporte regulatorio no existe y el "envío" es una declaración manual del operador
 - Clase / Severidad / Confianza: HUECO/REG / **S2** / confirmado
@@ -1845,7 +1916,7 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 
 ### IDCU-DEFECTO-126 — `abrirHallazgo` compara solo hallazgos abiertos pero el índice UNIQUE es global, con códigos truncados que colisionan: el envío tardío o la respuesta tardía revientan con 500 y se revierten
 - Clase / Severidad / Confianza: DEFECTO / **S2** / confirmado (lectura; no ejecutado)
-- Ubicaciones: `infraestructura/GobiernoRepositorio.java:216-246`, `sql/30_indices/12_cumplimiento_asfi.sql:262-263`, `aplicacion/CU43RemitirReportes.java:236-240`, `CU45AtenderRequerimiento.java:416-423`, `CU56EjecutarPruebaDeContinuidad.java:97-106`, `CU52AtenderReclamo.java:213-215`
+- Ubicaciones: `infraestructura/GobiernoRepositorio.java:216-246`, `sql/30_indices/12_cumplimiento_asfi.sql:262-263`, `aplicacion/CU43RemitirReportes.java:236-240`, `CU45AtenderRequerimiento.java:149-165`, `CU56EjecutarPruebaDeContinuidad.java:97-106`, `CU52AtenderReclamo.java:213-215`
 - Evidencia: `.in("ABIERTO", "EN_REMEDIACION")` antes del INSERT vs `CREATE UNIQUE INDEX uq_hallazgo_auditoria_codigo ON ... (codigo)`. Códigos: `"REP-"+periodo+"-"+8 chars` (`RECLAMOS-M` y `RECLAMOS-A` → `RECLAMOS`), `"OFI-"+16 chars del oficio`, `"BCP-"+procesoCritico` (sin truncar a 20; un proceso de >16 chars excede VARCHAR(20)), uno por proceso para siempre.
 - Cómo se comprobó: lectura del índice y de los generadores de código.
 - Impacto: el segundo vencimiento de un mismo código (o un hallazgo anterior ya cerrado) produce violación de unicidad → 500 → rollback del envío del reporte / de la respuesta al oficio / del registro de la prueba. El CU dice "fuera de plazo se envía igual": no se puede.
@@ -1856,10 +1927,11 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Esfuerzo estimado: chico
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Refutación (fase 7, verificador independiente B): **CONFIRMA CON CORRECCIÓN**. Evidencia: `GobiernoRepositorio.java:216-246` precheck solo `ABIERTO/EN_REMEDIACION`; `sql/30_indices/12_cumplimiento_asfi.sql:262-263` UNIQUE global; `codigo VARCHAR(20)`; semillas `RECLAMOS-M`/`RECLAMOS-A` colisionan al truncar (`CU43:236-240`); `BCP-`+`proceso_critico VARCHAR(80)` sin truncar (`CU56:97-106`); `REC-`+8 (`CU52:213-215`). Corrección: (1) Línea errónea: el hallazgo de CU45 está en `CU45AtenderRequerimiento.java:149-165` (el archivo tiene 196 líneas). (2) **No es 500**: `ManejadorGlobalDeErrores.java:134` + `FallaDeLaBase.java:24` traducen 23505 a **409 AP-BD-01**, y el desborde de VARCHAR a 422 AP-BD-03; el rollback de la operación sí ocurre. Severidad S2 se mantiene (el envío tardío sigue siendo imposible).
+- Línea corregida (fase 7): `CU45AtenderRequerimiento.java:416-423` no existía en el commit auditado; el contenido está en `CU45AtenderRequerimiento.java:149-165` (149-165).
 
 ### IDCU-DATOS-127 — Parámetros normativos sin procedencia en código y configuración (plazos LFT, plazos de incidente, periodicidades, desvío, requisitos por nivel, roles incompatibles)
 - Clase / Severidad / Confianza: DATOS/REG / **S2** / confirmado
-- Ubicaciones: `ConfiguracionDeCumplimiento.java:38-107`, `application.yml` (claves `aportaya.desvio.*`, `aportaya.oficial.*`, `aportaya.reglas.techo-de-trafico`, `cumplimiento.revision.meses-riesgo-alto`, `cumplimiento.caso-lft.dias-plazo`), `aplicacion/CU54EscalarPlanesVencidos.java:116-135`, `CU43RemitirReportes.java:196`, `CU45AtenderRequerimiento.java:430`, `CU52AtenderReclamo.java:221`, `CU54RegistrarRiesgoOperativo.java:199-200`, `README.md:67-70`
+- Ubicaciones: `ConfiguracionDeCumplimiento.java:34-101`, `application.yml` (claves `aportaya.desvio.*`, `aportaya.oficial.*`, `aportaya.reglas.techo-de-trafico`, `cumplimiento.revision.meses-riesgo-alto`, `cumplimiento.caso-lft.dias-plazo`), `aplicacion/CU54EscalarPlanesVencidos.java:116-135`, `CU43RemitirReportes.java:196`, `CU45AtenderRequerimiento.java:165`, `CU52AtenderReclamo.java:221`, `CU54RegistrarRiesgoOperativo.java:199-200`, `README.md:67-70`
 - Evidencia: `"CRITICA", Duration.ofDays(5) ... "BAJA", Duration.ofDays(45)` (R-UIF-08), incidentes 24/48/72/120 h y 72 h a titulares, `PeriodicidadDeRevision(6, 12, 24)`, umbrales 100/200/500 %, `Escala(15, 8)`, `Set.of("TESORERIA", "OPERACIONES", "COMERCIAL")`; el javadoc dice "con su fuente escrita al lado" y no hay fuente. `cortesDeSeveridad = {7, 30, 90}` con comentario "viven en configuración" (falso). Plazos de hallazgo `plusDays(30)`/`plusDays(15)` literales. README admite que los plazos de incidente son "deliberadamente cortos" sin política declarada.
 - Cómo se comprobó: lectura; búsqueda de procedencia en docs/Cumplimiento.md (solo los umbrales UIF tienen fuente: §2.1-2.2 y :507).
 - Impacto: plazos regulatorios inventados; un incidente "en plazo" o un caso "vencido" se decide con números sin respaldo.
@@ -1870,6 +1942,8 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Esfuerzo estimado: medio
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Refutación (fase 7, verificador independiente B): **CONFIRMA CON CORRECCIÓN**. Evidencia: `ConfiguracionDeCumplimiento.java:47-101` literales (6/12/24, 5/15/30/45 d, 24/48/72/120 h, Escala(15,8), Set roles); javadoc :24 "con su fuente escrita al lado" sin fuente; `CU54EscalarPlanesVencidos.java:117,135` `{7,30,90}` con comentario "viven en configuración"; `application.yml:40-58,84-87` sin procedencia; `CU43:196`, `CU52:221` `plusDays(30)`; `CU54RegistrarRiesgoOperativo.java:200` `DIAS_POR_OMISION=30`. Corrección: Línea errónea: `CU45AtenderRequerimiento.java:430` no existe (196 líneas) → el literal `plusDays(15)` está en `:165`. Nota: `reclamos.dias-habiles-de-respuesta` sí cita fuente (ASFI Libro 4), no está en la lista y está bien excluido.
+- Línea corregida (fase 7): `ConfiguracionDeCumplimiento.java:38-107` no existía en el commit auditado; el contenido está en `ConfiguracionDeCumplimiento.java:34-101` (34-101).
+- Línea corregida (fase 7): `CU45AtenderRequerimiento.java:430` no existía en el commit auditado; el contenido está en `CU45AtenderRequerimiento.java:165` (165).
 
 ### IDCU-DATOS-128 — Semilla de umbrales UIF con `vigente_desde = current_date`: la vigencia depende del día en que se sembró, no de la norma
 - Clase / Severidad / Confianza: DATOS / **S3** / confirmado
@@ -1886,7 +1960,7 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 
 ### IDCU-HUECO-129 — Controles de vencimiento escritos como consultas y nunca disparados
 - Clase / Severidad / Confianza: HUECO / **S2** / confirmado
-- Ubicaciones: `ReporteRegulatorioRepositorio.java:154-175` (`vencidosSinEnviar`), `RequerimientoRepositorio.java:82-99`, `ReclamoRepositorio.java:195-224`, `MonitoreoLftRepositorio.java:187-208` (`abiertasSinAnalista`), `ContinuidadRepositorio.java:80-119`, `CU06RevisarConocimiento.java:403-421`, `trabajos/` (solo 2 trabajos)
+- Ubicaciones: `ReporteRegulatorioRepositorio.java:154-175` (`vencidosSinEnviar`), `RequerimientoRepositorio.java:82-99`, `ReclamoRepositorio.java:195-224`, `MonitoreoLftRepositorio.java:187-208` (`abiertasSinAnalista`), `ContinuidadRepositorio.java:80-119`, `CU06RevisarConocimiento.java:184-200`, `trabajos/` (solo 2 trabajos)
 - Evidencia: grep: ninguno de estos métodos tiene llamador en main.
 - Impacto: un reporte UIF no enviado, un oficio sin responder, un reclamo vencido o una alerta sin analista no generan hallazgo ni aviso; solo se detecta un envío tardío cuando alguien lo envía. `CU43Test.java:135-159` se titula "Cuando corre el control diario" pero ejercita el envío tardío.
 - Solución de fondo: trabajos programados idempotentes (como CU-54/55) con visibilidad de última ejecución (96.7.4).
@@ -1897,6 +1971,7 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Estándares y normas: ver evidencia y ubicaciones.
 - Refutación (fase 7, verificador independiente B): **CONFIRMA CON CORRECCIÓN**. Evidencia: Sin llamador en main: `vencidosSinEnviar` (`ReporteRegulatorioRepositorio.java:155`), `vencidosSinResponder` (Requerimiento y Reclamo), `abiertasSinAnalista` (`MonitoreoLftRepositorio.java:188`), `conPruebaVencida` (Continuidad), `vencerYPedirLimitacion` (solo `CU06Test`). `trabajos/` solo `ControlDeIncidentesVencidos` y `ControlDePlanesVencidos`. Corrección: Línea errónea: CU06 citar `184-200`, no 403-421.
+- Línea corregida (fase 7): `CU06RevisarConocimiento.java:403-421` no existía en el commit auditado; el contenido está en `CU06RevisarConocimiento.java:184-200` (184-200).
 
 ### IDCU-SEG-130 — No hay bitácora de lectura de datos personales/financieros
 - Clase / Severidad / Confianza: SEG/TRAZA / **S2** / confirmado
@@ -1914,7 +1989,7 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 
 ### IDCU-DEFECTO-131 — `DiligenciaRepositorio.elevarTipo` actualiza TODAS las diligencias del usuario, incluidas las históricas
 - Clase / Severidad / Confianza: DEFECTO / **S3** / confirmado
-- Ubicaciones: `infraestructura/DiligenciaRepositorio.java:65-70`, llamado en `CU02ElevarDiligencia.java:309`, `CU03DeclararPep.java:459-460`
+- Ubicaciones: `infraestructura/DiligenciaRepositorio.java:65-70`, llamado en `CU02ElevarDiligencia.java:176`, `CU03DeclararPep.java:132-133`
 - Evidencia: `.where(DSL.field("usuario_id", UUID.class).eq(usuarioId))` sin `id`.
 - Impacto: reescribe el tipo de diligencias pasadas (pérdida de historia probatoria); y `vigenteDe` toma la más reciente por `iniciada_en` sin mirar estado.
 - Solución: filtrar por id; nunca editar diligencias cerradas.
@@ -1925,10 +2000,12 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Relación con el flujo nuevo: ver evidencia y ubicaciones.
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Estándares y normas: ver evidencia y ubicaciones.
+- Línea corregida (fase 7): `CU02ElevarDiligencia.java:309` no existía en el commit auditado; el contenido está en `CU02ElevarDiligencia.java:176` (176).
+- Línea corregida (fase 7): `CU03DeclararPep.java:459-460` no existía en el commit auditado; el contenido está en `CU03DeclararPep.java:132-133` (132-133).
 
 ### IDCU-CONTRATO-132 — `Idempotency-Key` es obligatoria en el contrato y ningún endpoint la usa
 - Clase / Severidad / Confianza: CONTRATO/DEFECTO / **S3** / confirmado
-- Ubicaciones: `openapi/cumplimiento.yaml:1026-1033`, todos los métodos con `UUID idempotencyKey` en `web/*Controller.java`; `CU02ElevarDiligencia.java:315-321` recibe `ClaveIdempotencia` y no la usa; `CU54RegistrarRiesgoOperativo.java:134-147`; `AceptacionRepositorio.java:22-58`; `CU52AtenderReclamo.java:76-126`
+- Ubicaciones: `openapi/cumplimiento.yaml:1026-1033`, todos los métodos con `UUID idempotencyKey` en `web/*Controller.java`; `CU02ElevarDiligencia.java:182-188` recibe `ClaveIdempotencia` y no la usa; `CU54RegistrarRiesgoOperativo.java:134-147`; `AceptacionRepositorio.java:22-58`; `CU52AtenderReclamo.java:76-126`
 - Evidencia: el parámetro se recibe y se descarta; `plataforma/comun-web/.../idempotencia/Idempotencia.java` existe y no se invoca.
 - Impacto: reintento de CU-02 → 422 AP-CU02-04 (ya no es "superior"); de CU-54 → violación de `uq_evento_riesgo_operativo_codigo` sin captura (500 probable); de aceptación de contrato → dos filas append-only; `reportarIncidente`/`notificarTitulares` repetidos reescriben la fecha y re-emiten el evento (`IncidenteSeguridadRepositorio.java:124-136` sin guarda).
 - Solución: usar `Idempotencia` de plataforma con `respuesta_idempotente` o guardas de estado en la escritura.
@@ -1939,6 +2016,7 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Solución de fondo: ver evidencia y ubicaciones.
 - Relación con el flujo nuevo: ver evidencia y ubicaciones.
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Línea corregida (fase 7): `CU02ElevarDiligencia.java:315-321` no existía en el commit auditado; el contenido está en `CU02ElevarDiligencia.java:182-188` (182-188).
 
 ### IDCU-CLEAN-133 — La versión insegura de la decisión LFT (`CU44InvestigarYReportar.decidir`) sigue viva
 - Clase / Severidad / Confianza: CLEAN/SEG / **S3** / confirmado
@@ -1968,7 +2046,7 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 
 ### IDCU-DINERO-135 — Importes sin moneda y tipo de cambio sin fuente
 - Clase / Severidad / Confianza: DINERO / **S3** / confirmado
-- Ubicaciones: `CU40EvaluarLimites.java:529` (`EntradaLimite` sin moneda; evento `monto` sin moneda :511), `dominio/EvaluacionDeLimites.java:24-49`, `CU52AtenderReclamo.java:251-258` (monto reclamado; declarado A-7 en `ConsultarBandejaDeReclamos.java:95`), `CU53ElevarReclamo.java:162-163` (`montoResarcido`), `CU56EjecutarPruebaDeContinuidad.java:133` (`perdidaBruta` en el evento sin moneda), `ConsultarTableroDeCumplimiento.java:55` (`montoTotal`), `CU41RegistrarPcc01.java:64-74,257`
+- Ubicaciones: `CU40EvaluarLimites.java:97` (`EntradaLimite` sin moneda; evento `monto` sin moneda :511), `dominio/EvaluacionDeLimites.java:24-49`, `CU52AtenderReclamo.java:251-258` (monto reclamado; declarado A-7 en `ConsultarBandejaDeReclamos.java:95`), `CU53ElevarReclamo.java:162-163` (`montoResarcido`), `CU56EjecutarPruebaDeContinuidad.java:133` (`perdidaBruta` en el evento sin moneda), `ConsultarTableroDeCumplimiento.java:55` (`montoTotal`), `CU41RegistrarPcc01.java:64-74,257`
 - Evidencia: `tipoDeCambio` llega en la entrada del llamador y se multiplica (`monto.multiply(tipoDeCambio)`) sin catálogo ni fecha; la semántica (USD por unidad vs unidades por USD) no está declarada.
 - Impacto: un tipo de cambio invertido (6,96 vs 0,1437) desplaza el umbral ×48; reproducibilidad R-UIF-04 solo aparente.
 - Estándares y normas: 91.1.2, 97.5.4.
@@ -1978,6 +2056,8 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Solución de fondo: ver evidencia y ubicaciones.
 - Relación con el flujo nuevo: ver evidencia y ubicaciones.
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Línea corregida (fase 7): `CU40EvaluarLimites.java:529` no existía en el commit auditado; el contenido está en `CU40EvaluarLimites.java:97` (97).
+- Línea corregida (fase 7): `CU40EvaluarLimites.java:511` no existía en el commit auditado; el contenido está en `CU40EvaluarLimites.java:79` (79).
 
 ### IDCU-SEG-136 — Controles regulatorios que aceptan autodeclaraciones booleanas (hoy sin entrada HTTP)
 - Clase / Severidad / Confianza: SEG / **S3** / confirmado
@@ -2033,7 +2113,7 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 
 ### IDCU-DEBIDO-PROCESO-140 — Pequeñas fugas hacia el titular o fuera del equipo LFT
 - Clase / Severidad / Confianza: DEBIDO-PROCESO/UX / **S3** / confirmado
-- Ubicaciones: `web/AdhesionController.java:150-151` (devuelve `nivelRiesgo` ALTO/MEDIO/BAJO al participante), `CU02ElevarDiligencia.java:233-237` (mensaje "Hay una coincidencia de lista sin resolver" al analista de KYC), `CU03DeclararPep.java:509-526` (resumen del caso con `nombreCoincidente` y evento `caso_lft_abierto` con `usuarioId`, en contra del criterio de `CU44InvestigarYReportar.java:136-137`)
+- Ubicaciones: `web/AdhesionController.java:150-151` (devuelve `nivelRiesgo` ALTO/MEDIO/BAJO al participante), `CU02ElevarDiligencia.java:100-103` (mensaje "Hay una coincidencia de lista sin resolver" al analista de KYC), `CU03DeclararPep.java:182-199` (resumen del caso con `nombreCoincidente` y evento `caso_lft_abierto` con `usuarioId`, en contra del criterio de `CU44InvestigarYReportar.java:136-137`)
 - Impacto: riesgo de revelar a la persona su calificación y la existencia de investigación (deber de reserva).
 - Esfuerzo estimado: chico
 - Cómo se comprobó: ver evidencia y ubicaciones.
@@ -2042,6 +2122,8 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Relación con el flujo nuevo: ver evidencia y ubicaciones.
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Estándares y normas: ver evidencia y ubicaciones.
+- Línea corregida (fase 7): `CU02ElevarDiligencia.java:233-237` no existía en el commit auditado; el contenido está en `CU02ElevarDiligencia.java:100-103` (100-103).
+- Línea corregida (fase 7): `CU03DeclararPep.java:509-526` no existía en el commit auditado; el contenido está en `CU03DeclararPep.java:182-199` (182-199).
 
 ### IDCU-PRUEBAS-141 — Pruebas plantilla con nombres que no corresponden y afirmaciones que no se verifican; integración sin el rol de producción
 - Clase / Severidad / Confianza: PRUEBAS / **S2** / confirmado
@@ -2071,7 +2153,7 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 
 ### IDCU-RENDIMIENTO-143 — Listados sin límite y alertas no idempotentes
 - Clase / Severidad / Confianza: RENDIMIENTO/DATOS / **S4** / confirmado
-- Ubicaciones: `ReclamoRepositorio.java:231-258` (`casosDelUsuario` sin paginación, 96.6.1); `CU06RevisarConocimiento.java:336-346` (cada corrida abre una alerta nueva aunque el desvío del mes sea upsert); `dominio/DesvioDePerfil.java:44-46` y `RiesgoDelProducto.java:102-105` (`IllegalArgumentException` → 500 en vez de error de contrato); `CU54RegistrarRiesgoOperativo.java:168-177` y `CU55GestionarIncidente.java:226-238` (huella de 24 bits como clave de unicidad: colisión rechaza un hecho legítimo).
+- Ubicaciones: `ReclamoRepositorio.java:231-258` (`casosDelUsuario` sin paginación, 96.6.1); `CU06RevisarConocimiento.java:116-127` (cada corrida abre una alerta nueva aunque el desvío del mes sea upsert); `dominio/DesvioDePerfil.java:44-46` y `RiesgoDelProducto.java:102-105` (`IllegalArgumentException` → 500 en vez de error de contrato); `CU54RegistrarRiesgoOperativo.java:168-177` y `CU55GestionarIncidente.java:226-238` (huella de 24 bits como clave de unicidad: colisión rechaza un hecho legítimo).
 - Esfuerzo estimado: chico
 - Cómo se comprobó: ver evidencia y ubicaciones.
 - Impacto: ver evidencia y ubicaciones.
@@ -2080,6 +2162,7 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Relación con el flujo nuevo: ver evidencia y ubicaciones.
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Estándares y normas: ver evidencia y ubicaciones.
+- Línea corregida (fase 7): `CU06RevisarConocimiento.java:336-346` no existía en el commit auditado; el contenido está en `CU06RevisarConocimiento.java:116-127` (116-127).
 
 #### Tanda 6 — backoffice (cumplimiento, accesos, retiros) y web (lote 5)
 
@@ -2087,11 +2170,11 @@ Rutas sin prefijo: relativas a `apps/backoffice/src/app/rutas/`. Peldaño: DISCO
 
 ### IDCU-DATOS-144 — Ficha de caso LFT enrutada con datos de ejemplo, catálogo de causales inventado y "debido proceso" con notificación al titular
 - Clase / Severidad / Confianza: DATOS / S2 / confirmado
-- Ubicaciones: `cumplimiento/casos/pantalla-de-caso.ts:37,79-91,93,125-129`; `cumplimiento/dominio/cu44-caso.ts:10-15,17-33,35-46`; `cumplimiento/cumplimiento.routes.ts:64-68`; `cumplimiento/textos.ts:163`
+- Ubicaciones: `cumplimiento/casos/pantalla-de-caso.ts:37,79-91,93,125-129`; `cumplimiento/dominio/cu44-caso.ts:10-15,17-33,35-46`; `cumplimiento/cumplimiento.routes.ts:64-68`; `cumplimiento/textos.ts:60`
 - Evidencia: `this.caso() ?? { id: 'demo', causal: null, ...}`; `CATALOGO_DE_CAUSALES ... 'PATRON_FRACCIONAMIENTO' ...`; etapa `'Notificación' ... 'Probada con el acuse del canal'`, `'Descargo'`, `'Apelación'`
 - Cómo se comprobó: lectura; `casos/:casoId` carga `PantallaDeCaso` (routes:64-68); el contrato no tiene GET de caso, así que `caso` siempre es `undefined` y se usa el objeto `demo`. El catálogo de causales no existe en `cumplimiento.yaml` (EntradaDecisionCasoLft solo tiene decision/conclusion/reporteSospechosoId). La conclusión enviada al servidor se pre-rellena con `Causal: <texto inventado>` (pantalla-de-caso.ts:126-129).
 - Nota del orquestador: re-verificado `cumplimiento/casos/pantalla-de-caso.ts:79-91` (caso por omisión `id: 'demo'`) y `cumplimiento/cumplimiento.routes.ts:64-68` (ruta `casos/:casoId` sin `canMatch`, mientras la bandeja tiene `canMatch: [guardiaDe('casos')]`).
-- Impacto: pantalla real del build final que muestra una escalera de etapas ficticia; en un caso LFT/ROS la "notificación", "descargo" y "apelación" al titular contradicen el deber de reserva que la misma sección declara (`textos-lft.ts:111,148`, `decidir-caso.ts:25-26`). Causales sin procedencia (regla 97.4.1/00.2.1) terminan dentro de la conclusión registrada.
+- Impacto: pantalla real del build final que muestra una escalera de etapas ficticia; en un caso LFT/ROS la "notificación", "descargo" y "apelación" al titular contradicen el deber de reserva que la misma sección declara (`textos-lft.ts:23,60`, `decidir-caso.ts:25-26`). Causales sin procedencia (regla 97.4.1/00.2.1) terminan dentro de la conclusión registrada.
 - Causa de fondo: se mezcló el patrón `debido-proceso` (sanciones) con el caso LFT, y se dejó un tipo de dominio "listo para conectarse" a un contrato que ya cambió.
 - Solución de fondo: eliminar `CasoDeCumplimiento`/`CATALOGO_DE_CAUSALES`/`etapasDelCaso` o reemplazarlos por un `GET /cumplimiento/casos/{id}` real (sin persona) en el contrato; la ficha sin contrato debe ser `ap-indisponible` como alertas/actas; si las causales son necesarias, catálogo codificado en el servidor con procedencia.
 - Relación con el flujo nuevo: APROB
@@ -2099,6 +2182,8 @@ Rutas sin prefijo: relativas a `apps/backoffice/src/app/rutas/`. Peldaño: DISCO
 - Regla: 97.4.1, 00.2.1, 95 (datos simulados), aml deber de reserva
 - Esfuerzo estimado: medio
 - Estándares y normas: ver evidencia y ubicaciones.
+- Línea corregida (fase 7): `textos.ts:163` no existía en el commit auditado; el contenido está en `textos.ts:60` (60).
+- Línea corregida (fase 7): `textos-lft.ts:111,148` no existía en el commit auditado; el contenido está en `textos-lft.ts:23,60` (23 y 60).
 
 ### IDCU-SEG-145 — Narrativa del caso LFT persistida en IndexedDB del navegador, por caso y no por usuario, sin purga al salir, en ruta sin guardia
 - Clase / Severidad / Confianza: SEG / S2 / probable
@@ -2176,7 +2261,7 @@ Rutas sin prefijo: relativas a `apps/backoffice/src/app/rutas/`. Peldaño: DISCO
 - Estándares y normas: ver evidencia y ubicaciones.
 
 ### IDCU-DINERO-150 — Importes sin moneda en contratos consumidos por el lote
-- Clase / Severidad / Confianza: DINERO / S2 / confirmado
+- Clase / Severidad / Confianza: DINERO / S3 (bajada en fase 7: el único consumidor afectado es de presentación; el defecto queda en el contrato) / confirmado
 - Ubicaciones: `cumplimiento.yaml:1525` (`montoTotal` string sin moneda) → `cumplimiento/uif/bandeja-de-reportes.ts:29,40,65`; `organizador.yaml:697` (`limiteDeMonto`) → `cumplimiento/organizadores/pantalla-de-habilitacion.ts:75`; `cumplimiento.yaml:1720` (`perdidaCuantificada`) → `cu56-continuidad.ts:23-24`
 - Evidencia: `montoTotal: { type: string, pattern: '^-?\d+\.\d{2}$' }`; `{ nombre: this.t.limiteDeMonto, valor: h.limiteDeMonto }`
 - Cómo se comprobó: contraste UI ↔ OpenAPI. La bandeja UIF lo declara ("moneda sin especificar"); la habilitación del organizador muestra el número pelado.
@@ -2261,7 +2346,7 @@ Rutas sin prefijo: relativas a `apps/backoffice/src/app/rutas/`. Peldaño: DISCO
 
 ### IDCU-HUECO-156 — Abrir caso: "marcá alertas de un mismo titular" pero la fila no trae titular; el analista se pega como UUID
 - Clase / Severidad / Confianza: HUECO / S3 / confirmado
-- Ubicaciones: `cumplimiento/alertas/bandeja-de-alertas.ts:61`; `textos-lft.ts:100,112-113`; `alertas/abrir-caso.ts:29`; `cumplimiento.yaml:1393-1406`
+- Ubicaciones: `cumplimiento/alertas/bandeja-de-alertas.ts:61`; `textos-lft.ts:12,24-25`; `alertas/abrir-caso.ts:29`; `cumplimiento.yaml:1393-1406`
 - Evidencia: `elegirAlertas: 'Marcá las alertas de un mismo titular...'`; `AlertaEnBandeja` no tiene titular; `analistaId` campo de texto UUID
 - Impacto: el operador agrupa a ciegas y se entera por AP-CU44-08; pegar UUIDs a mano es frágil y no muestra quién es el analista.
 - Solución de fondo: identificador opaco de titular (seudónimo) en la fila o agrupación asistida por servidor; selector de analistas con `CUMPLIMIENTO_ALERTAS`.
@@ -2272,6 +2357,7 @@ Rutas sin prefijo: relativas a `apps/backoffice/src/app/rutas/`. Peldaño: DISCO
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Estándares y normas: ver evidencia y ubicaciones.
 - Esfuerzo estimado: ver evidencia y ubicaciones.
+- Línea corregida (fase 7): `textos-lft.ts:100,112-113` no existía en el commit auditado; el contenido está en `textos-lft.ts:12,24-25` (12 y 24-25).
 
 ### IDCU-REG-157 — Asignación de roles privilegiados sin doble control
 - Clase / Severidad / Confianza: REG / S3 / sospecha
@@ -2332,7 +2418,7 @@ Rutas sin prefijo: relativas a `apps/backoffice/src/app/rutas/`. Peldaño: DISCO
 
 ### IDCU-CLEAN-161 — Código muerto (componentes y funciones sin uso) cubierto por tests que inflan la cobertura
 - Clase / Severidad / Confianza: CLEAN / S4 / confirmado (grep de usos)
-- Ubicaciones: `alertas/pantalla-de-alertas.ts` (todo), `actas/pantalla-de-acta.ts` (todo; `cerrar()` solo pone `this.cerrada = true`, 67-70), `reclamos/pantalla-de-reclamo.ts` (todo; `enviar()` solo borra el borrador, 56-58), `verificaciones/vencimiento-del-documento.ts`, `compartido/navegacion.ts:19-42` (componente), `dominio/cu02-expedientes.ts:96,99-111,127-132` (`colaVacia`, `coincideConBusqueda`, `crearPedirFoto`), `dominio/cu97-alertas.ts:29-32`, `textos.ts:124-125`
+- Ubicaciones: `alertas/pantalla-de-alertas.ts` (todo), `actas/pantalla-de-acta.ts` (todo; `cerrar()` solo pone `this.cerrada = true`, 67-70), `reclamos/pantalla-de-reclamo.ts` (todo; `enviar()` solo borra el borrador, 56-58), `verificaciones/vencimiento-del-documento.ts`, `compartido/navegacion.ts:19-42` (componente), `dominio/cu02-expedientes.ts:96,99-111,127-132` (`colaVacia`, `coincideConBusqueda`, `crearPedirFoto`), `dominio/cu97-alertas.ts:29-32`, `textos.ts:21-22`
 - Impacto: botones que "no hacen nada" listos para volver a enrutarse; tests (`pantalla-de-acta.spec.ts`, `pantalla-de-reclamo.spec.ts`, `pantalla-de-alertas.spec.ts`) verifican componentes que el producto no usa (PRUEBAS).
 - Solución: borrar o mover a un paquete de prototipos excluido del build. · Esfuerzo: chico
 - Cómo se comprobó: ver evidencia y ubicaciones.
@@ -2342,6 +2428,7 @@ Rutas sin prefijo: relativas a `apps/backoffice/src/app/rutas/`. Peldaño: DISCO
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Estándares y normas: ver evidencia y ubicaciones.
 - Esfuerzo estimado: ver evidencia y ubicaciones.
+- Línea corregida (fase 7): `textos.ts:124-125` no existía en el commit auditado; el contenido está en `textos.ts:21-22` (21-22).
 
 ### IDCU-DOC-162 — Comentarios que contradicen el contrato actual
 - Clase / Severidad / Confianza: DOC / S4 / confirmado
@@ -2372,7 +2459,7 @@ Rutas sin prefijo: relativas a `apps/backoffice/src/app/rutas/`. Peldaño: DISCO
 
 ### IDCU-DUP-INT-164 — Diccionarios de estados/enums copiados a mano en varios lugares
 - Clase / Severidad / Confianza: DUP-INT / S4 / confirmado
-- Ubicaciones: `textos-uif.ts:16-26,65-66` vs enums generados usados en `cu43-reportes.ts:52-53` y `cu45-requerimientos.ts:44`; `textos-lft.ts:105-106,131-138`; `dominio/cu02-presentacion.ts:13-30` vs `textos.ts:124-125`; `sistemas/dominio/accesos.ts:10-19` vs `pantalla-usuarios-internos.ts:24`; `errores-de-cumplimiento.ts` vs `nucleo/errores.ts`
+- Ubicaciones: `textos-uif.ts:16-26,65-66` vs enums generados usados en `cu43-reportes.ts:52-53` y `cu45-requerimientos.ts:44`; `textos-lft.ts:17-18,43-50`; `dominio/cu02-presentacion.ts:13-30` vs `textos.ts:21-22`; `sistemas/dominio/accesos.ts:10-19` vs `pantalla-usuarios-internos.ts:24`; `errores-de-cumplimiento.ts` vs `nucleo/errores.ts`
 - Impacto: un valor nuevo del contrato aparece en el filtro sólo si alguien edita el texto.
 - Solución: derivar opciones de los enums generados y mapear solo etiquetas. · Esfuerzo: chico
 - Cómo se comprobó: ver evidencia y ubicaciones.
@@ -2382,6 +2469,8 @@ Rutas sin prefijo: relativas a `apps/backoffice/src/app/rutas/`. Peldaño: DISCO
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Estándares y normas: ver evidencia y ubicaciones.
 - Esfuerzo estimado: ver evidencia y ubicaciones.
+- Línea corregida (fase 7): `textos-lft.ts:105-106,131-138` no existía en el commit auditado; el contenido está en `textos-lft.ts:17-18,43-50` (17-18 y 43-50).
+- Línea corregida (fase 7): `textos.ts:124-125` no existía en el commit auditado; el contenido está en `textos.ts:21-22` (21-22).
 
 ### IDCU-UX-A11Y-165 — Menú «Más» de usuarios internos hecho a mano
 - Clase / Severidad / Confianza: UX-A11Y / S3 / probable

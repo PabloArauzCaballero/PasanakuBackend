@@ -26,14 +26,14 @@ hallazgo tiene ficha completa, los inventarios y la matriz existen, y los límit
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
 | H1.M0 | Fase 0 — preparación (rama, commit, lecturas base) | commit anotado en el informe | `git rev-parse origin/test` → 07fc6971… | HECHO |
-| H1.M1 | Fase 1 — huella y mapa de conexiones | sección 3 escrita | `grep -c '^## 3' AUDITORIA-*.md` → 1 | TODO |
-| H1.M2 | Fase 2 — lectura completa con anexo de cobertura | anexo con una fila por archivo | `grep -c '^| ' ` del anexo > 0 | TODO |
-| H1.M3 | Fase 3 — inventarios de aprobación y respaldo | sección 4 a/b/c escrita | `grep -c 'APR-' AUDITORIA-*.md` > 0 | TODO |
-| H1.M4 | Fase 4 — vista de conjunto | hallazgos DUP/REESCRITURA/FRAGIL evaluados | fila en cobertura por clase | TODO |
-| H1.M5 | Fase 5 — conexiones, contratos y verificadores | matriz + salidas de verificadores en `evidencia/` | `ls evidencia/` | TODO |
-| H1.M6 | Fase 6 — estándares y normativa | cada hallazgo con estándares | revisión del archivo | TODO |
-| H1.M7 | Fase 7 — refutación | S1/S2 re-abiertos | sección de refutación en REPORTE | TODO |
-| H1.M8 | Entrega — REPORTE, commit y push | push OK | `git push -u origin auditoria/identidad-cumplimiento-2026-11-20` | TODO |
+| H1.M1 | Fase 1 — huella y mapa de conexiones | sección 3 escrita | `grep -c '^## 3' AUDITORIA-*.md` → 1 (`evidencia/dod-plan.txt`) | HECHO |
+| H1.M2 | Fase 2 — lectura completa con anexo de cobertura | anexo con una fila por archivo | filas del anexo §12 → 566 (`evidencia/dod-plan.txt`) | HECHO |
+| H1.M3 | Fase 3 — inventarios de aprobación y respaldo | sección 4 a/b/c escrita | `grep -c '^| APR-'` → 17; `^| RSP-` → 3 | HECHO |
+| H1.M4 | Fase 4 — vista de conjunto | hallazgos DUP/REESCRITURA/FRAGIL evaluados | §8 con 32 clases, ninguna vacía | HECHO |
+| H1.M5 | Fase 5 — conexiones, contratos y verificadores | matriz + salidas de verificadores en `evidencia/` | `ls evidencia/` → 23 archivos; Gradle y yarn NO COMPROBADO por entorno (§11) | HECHO |
+| H1.M6 | Fase 6 — estándares y normativa | cada hallazgo con estándares | `grep -c '^- Estándares y normas:'` → 176 de 176 fichas | HECHO |
+| H1.M7 | Fase 7 — refutación | S1/S2 re-abiertos | 33 «Refutación (fase 7)» + 39 «Línea corregida»; chequeo de 677 referencias → 0 fuera de rango | HECHO |
+| H1.M8 | Entrega — REPORTE, commit y push | push OK | `git push -u origin auditoria/identidad-cumplimiento-2026-11-20` | EN CURSO — falta el push final |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |

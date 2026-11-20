@@ -68,6 +68,8 @@ for linea in seccion.split('\n'):
     m = re.match(r'### (IDCU-[A-Z0-9-]+-\d{3})', linea)
     if m:
         actual = m.group(1)
+    if linea.startswith('- Línea corregida (fase 7)') or linea.startswith('- Refutación (fase 7'):
+        continue
     for ref, nums in patron.findall(linea):
         numeros = [int(n) for n in re.findall(r'\d+', nums)]
         if not numeros:

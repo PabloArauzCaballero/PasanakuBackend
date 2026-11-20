@@ -1,0 +1,43 @@
+$ git rev-parse origin/test
+07fc69719287b0dadd152d0293a054948df69ead
+$ grep -c "^## 3" AUDITORIA
+1
+$ filas del anexo §12
+566
+$ grep -c "^| APR-" / "^| RSP-"
+17
+3
+$ filas de cobertura por clase
+33
+$ ls evidencia
+auditar_backend.txt
+chequear_lineas.py
+cobertura.txt
+commit-auditado.txt
+dod-plan.txt
+fase7-chequeo-de-lineas.txt
+fase7-relocalizacion.md
+fase7-verificador-A.md
+fase7-verificador-B.md
+gradle-identidad-testBarrido.txt
+idempotencia.txt
+inventario_endpoints.txt
+listar_topicos.txt
+validar_flujos.txt
+verificar_boveda.txt
+verificar_carriles.txt
+verificar_contratos_limites.txt
+verificar_criterios.txt
+verificar_frontend.txt
+verificar_pruebas_web.txt
+verificar_rutas_frontend.txt
+verificar_seguridad.txt
+yarn-backoffice-typecheck.txt
+$ fichas con «Estándares y normas»
+176
+$ fichas
+176
+$ refutación fase 7
+33
+39
+referencias revisadas: 677 · fuera de rango o sin resolver: 7
