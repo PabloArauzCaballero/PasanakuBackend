@@ -509,6 +509,528 @@ Rutas sin prefijo: relativas a `apps/movil/lib/pantallas/identidad/`. Peldaño: 
 - Estándares y normas: ISO/IEC 25010 Mantenibilidad.
 - Esfuerzo estimado: chico
 
+#### Tanda 3 — esquema, contratos, catálogos y retiros con doble aprobación (lote 3)
+
+Peldaño: DISCOVERED (nada se ejecutó contra una base). Fichas del subagente; S1/S2 re-abiertos por el orquestador donde se indica.
+
+### IDCU-FLUJO-FALTANTE-036 — Un retiro AUTORIZADO nunca se instruye al proveedor en producción
+- Clase / Severidad / Confianza: FLUJO-FALTANTE / S2 / confirmado (grep sin llamadores en main)
+- Ubicaciones: `servicios/nucleo-financiero/.../aplicacion/CU11RetirarSaldo.java:107-136`; `.../aplicacion/RetirosConProveedor.java:66,92`; `.../aplicacion/CU11InstruirRetiro.java:38-67`; `docs/catalogo-de-flujos/recarga-y-retiro.yaml:64-73`
+- Evidencia: catálogo: "H8-01 · Ningún trabajo, endpoint ni consumidor llama a RetirosConProveedor.despachar ni a CU11RetirarSaldo.instruirPago en producción".
+- Cómo se comprobó: `grep -rn "\.despachar(|instruirPago|retiro_autorizado"` en `src/main`: sólo definiciones y tests.
+- Nota del orquestador: propuesto S1; se baja a S2 porque no crea, pierde ni duplica dinero: lo deja retenido sin salida (fallo funcional en un flujo en uso). Ya registrado por el propio repo como H8-01 con decisión pendiente A9 (`python3 scripts/validar_flujos.py` → «AVISO · recarga-y-retiro.yaml: paso `instruir-pago` SIN CABLEAR», `evidencia/validar_flujos.txt`). Re-verificado: `grep -rn "instruirPago\|\.despachar(" servicios --include=*.java | grep -v /test/` → solo la definición `CU11RetirarSaldo.java:107` y comentarios.
+- Impacto: la orden queda `AUTORIZADA` con el saldo retenido indefinidamente; la persona no recibe su plata. Con la regla R-NUEVA-1 el despacho tampoco puede depender de un operador.
+- Causa de fondo: dos implementaciones del despacho, ninguna cableada a un disparador.
+- Solución de fondo: un único despacho (`CU11InstruirRetiro` + `RetirosConProveedor`) disparado por el consumidor de `retiro_autorizado` (outbox) o un job con ShedLock; borrar `instruirPago`.
+- Relación con el flujo nuevo: FLUJO-QR (salida de dinero sin humano)
+- Conexiones y módulos afectados: outbox nucleo_financiero, proveedor de retiros
+- Regla: 91.3, 98.3.2
+- Esfuerzo estimado: medio
+- Estándares y normas: ver evidencia y ubicaciones.
+
+### IDCU-DINERO-037 — El titular puede liberar la retención de su propio retiro mientras la orden sigue viva
+- Clase / Severidad / Confianza: DINERO / S2 / probable (falta una prueba de integración que libere la retención de una orden AUTORIZADA y luego confirme el pago)
+- Ubicaciones: `.../web/BilleteraController.java:186-200` (`cerrarRetencion`, `@Permiso("BILLETERA_OPERAR")`); `.../aplicacion/CU13RetenerSaldo.java:180-245`; `.../aplicacion/SolicitudDeRetiro.java:126-136` (retención con `referenciaTipo ORDEN_RETIRO`)
+- Evidencia: `cerrar(...)` sólo hace `exigirTitular(...)` y `cerrarDentroDe(...)`; no mira `referencia_tipo`.
+- Cómo se comprobó: lectura del camino `cerrarRetencion → cu13.liberar → cerrar`.
+- Nota del orquestador: re-verificado `CU13RetenerSaldo.java:179-214`: `liberar` → `cerrar` solo exige titularidad (`exigirTitular`) y estado abierto; no mira a qué orden pertenece la retención. Se baja de S1 a S2 porque hoy el pago al proveedor no está cableado (IDCU-FLUJO-FALTANTE-036): el doble gasto requiere ese camino. Pasa a S1 el día que se cablee.
+- Impacto: con la orden `EN_REVISION`/`AUTORIZADA`/`EN_PROCESO`, liberar devuelve el importe al disponible; si el proveedor luego paga, `confirmarPago` falla en `ejecutarDentroDe` (retención ya cerrada) y el libro no registra la salida: dinero fuera de custodia y saldo gastable dos veces.
+- Causa de fondo: el endpoint genérico de retenciones no distingue retenciones gobernadas por otro agregado.
+- Solución de fondo: prohibir cerrar por API una retención con `referencia_tipo` (sólo el dueño del agregado la cierra); CHECK/trigger en `retencion_saldo` que impida LIBERADA mientras la orden referida no esté `RECHAZADA`.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: retencion_saldo, orden_retiro
+- Regla: 91.1, 96.3.2
+- Esfuerzo estimado: chico
+- Estándares y normas: ver evidencia y ubicaciones.
+
+### IDCU-SEG-038 — Las políticas de fila dan ESCRITURA al titular sobre sus roles, su KYC, su reputación, su PEP y su usuario
+- Clase / Severidad / Confianza: SEG / S2 / confirmado (lectura del generador de políticas)
+- Ubicaciones: `sql/40_reglas/restricciones.sql:1362-1395` (`visibles_por_titular` incluye `asignacion_rol`, `verificacion_kyc`, `reputacion_usuario`, `perfil_financiero`, `credencial_acceso`, `factor_mfa`, `consentimiento`, `token_verificacion`, `declaracion_origen_fondos`, `aceptacion_contrato`), `:1446-1453` (`cond_escritura := cond` salvo `lectura_por_titular`), `:1468-1474` (`pol_usuario_titular` WITH CHECK `id = fn_seg_usuario_actual()`)
+- Evidencia: comentario `'asignacion_rol', -- ... Se leen, no se escriben`, pero sólo `organizador, participante, movimiento_billetera, solicitud_ingreso` quedan de sólo lectura.
+- Cómo se comprobó: lectura de `fn_seg_aplicar_rls`.
+- Re-verificación del orquestador: ubicaciones re-abiertas y confirmadas (lectura de `sql/40_reglas/restricciones.sql` / `application.yml` / grep).
+- Impacto: la base, que ADR-021 declara última barrera, permite a una sesión PARTICIPANTE insertarse una `asignacion_rol` propia (sólo la frena `ck_asignacion_no_autoasignada` si `otorgada_por` = él mismo; con otro `otorgada_por` pasa), aprobarse su `verificacion_kyc`, subir su `reputacion_usuario`, cambiar `es_pep`, o editar `usuario.nivel_kyc/estado`. Hoy lo impide sólo el código Java.
+- Causa de fondo: el régimen se decide por lista de visibilidad, no por operación.
+- Solución de fondo: separar políticas `FOR SELECT` y `FOR INSERT/UPDATE`; mover a `lectura_por_titular` todo lo que el titular no debe escribir; columnas sensibles de `usuario` con `GRANT UPDATE (col)` restringido.
+- Relación con el flujo nuevo: APROB (KYC autoaprobado sería el atajo si se elimina la revisión)
+- Regla: 90.1.2, 90.1.7, 96.5
+- Esfuerzo estimado: medio
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+
+### IDCU-DEFECTO-039 — `ck_reporte_segregacion` se salta con `generado_por` NULL y no exige `revisado_por`
+- Clase / Severidad / Confianza: DEFECTO / S2 / confirmado (semántica SQL: CHECK que evalúa NULL se acepta)
+- Ubicaciones: `sql/40_reglas/restricciones.sql:1512-1516`; `sql/20_claves/12_cumplimiento_asfi.sql:485` (`generado_por ... ON DELETE SET NULL`); `docs/CasosDeUso/CU-43 ...md:40-41`
+- Evidencia: `estado <> 'ENVIADO' OR (aprobado_por IS NOT NULL AND aprobado_por <> generado_por)`; el mismo archivo documenta el problema en R-SEG-02 ("un CHECK que evalúa a NULL se acepta").
+- Re-verificación del orquestador: ubicaciones re-abiertas y confirmadas (lectura de `sql/40_reglas/restricciones.sql` / `application.yml` / grep).
+- Impacto: un reporte UIF generado por proceso (sin `generado_por`) se envía con un solo par de ojos; CU-43 exige revisado y aprobado distintos del generador.
+- Solución de fondo: `generado_por IS NOT NULL` o `aprobado_por IS DISTINCT FROM generado_por`, y la misma regla para `revisado_por`.
+- Relación con el flujo nuevo: APROB (A-1)
+- Regla: 91.2, 90.5
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+
+### IDCU-HUECO-040 — R-UIF-09 (diligencia vigente) y R-CON-06 (contrato aceptado) no los invoca ninguna operación
+- Clase / Severidad / Confianza: HUECO / REG / S2 / confirmado (grep repo-wide `.sql/.java/.kt`)
+- Ubicaciones: `sql/40_reglas/restricciones.sql:1089-1100` (`fn_uif_exigir_ddd`), `:1197-1210` (`fn_con_exigir_contrato`); sólo llamadas en `servicios/cumplimiento/src/test/.../CU02Test.java:97`, `CU05Test.java:104`, `CU06Test.java:118`
+- Re-verificación del orquestador: ubicaciones re-abiertas y confirmadas (lectura de `sql/40_reglas/restricciones.sql` / `application.yml` / grep).
+- Impacto: se opera sin debida diligencia ni contrato de adhesión vigentes aunque el modelo diga "denegar"; además los contratos sembrados están en `BORRADOR` (`11-contratos-de-adhesion.sql:62-67`), así que si se cableara hoy nadie podría operar.
+- Solución de fondo: invocarlas desde los triggers de las operaciones de dinero (o desde `fn_lim_evaluar`) y sembrar contratos reales.
+- Relación con el flujo nuevo: ninguna
+- Regla: 91.2 (invariante en la base)
+- Esfuerzo estimado: medio
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+
+### IDCU-DEFECTO-041 — El trigger de encaje bloquea también el pago de órdenes ya en curso y no filtra por moneda
+- Clase / Severidad / Confianza: DEFECTO / DINERO / S2 / confirmado (lectura)
+- Ubicaciones: `sql/40_reglas/restricciones.sql:530-555`; `.../infraestructura/OrdenRetiroRepositorio.java:264-278`
+- Evidencia: comentario "Las órdenes ya autorizadas siguen su curso", pero `tg_retiro_encaje BEFORE INSERT OR UPDATE OF estado` sólo exceptúa `BORRADOR`/`RECHAZADA`; la consulta mira todas las custodias, mientras Java filtra `WHERE cc.moneda = ?`.
+- Impacto: con encaje roto en cualquier moneda, `EN_PROCESO→PAGADA` falla aunque el proveedor ya pagó: el libro no refleja la salida (descuadre custodia vs mayor) y la retención queda abierta; Java y base dan veredictos distintos.
+- Solución de fondo: aplicar sólo a `INSERT` y a la transición hacia `AUTORIZADA`, y filtrar por la moneda de la orden.
+- Relación con el flujo nuevo: ninguna
+- Regla: 91.2, COHERENCIA
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+
+### IDCU-DINERO-042 — El pago del retiro no registra la línea del costo
+- Clase / Severidad / Confianza: DINERO / S2 / probable
+- Ubicaciones: `.../aplicacion/ResolucionDeRetiro.java:103-115`; `.../aplicacion/SolicitudDeRetiro.java:116`; `docs/CasosDeUso/CU-11 Retirar saldo.md:47-53`
+- Evidencia: dos patas `Pata.debito(cuenta, orden.solicitado())` / `Pata.credito(cuentaPuente, orden.solicitado())`; neto = monto − costo, pero el costo no va a ninguna cuenta de ingreso; CU-11 exige `cargo_comision` y asiento.
+- Impacto: el puente de custodia recibe el bruto y paga el neto; la diferencia no tiene línea (91.3.4), la conciliación de custodia acumula un residuo inexplicado.
+- Solución de fondo: tres patas (usuario→puente por neto, usuario→ingreso por costo) o asiento de comisión en la misma transacción.
+- Relación con el flujo nuevo: ninguna
+- Regla: 91.3.4, 91.1.5
+- Esfuerzo estimado: medio
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+
+### IDCU-APROB-043 — Umbral de doble aprobación sin moneda, sin procedencia, por operación y decidido por el controlador
+- Clase / Severidad / Confianza: APROB / S2 / confirmado
+- Ubicaciones: `servicios/nucleo-financiero/src/main/resources/application.yml:58-61`; `.../web/FondeoDeLaBilletera.java:71,182`; `sql/40_reglas/restricciones.sql:1529-1535`; `ADR-049:56`
+- Evidencia: `doble-aprobacion-desde: 5000.00` ("el número se mueve sin desplegar" — falso: es propiedad Spring); `monto.monto().compareTo(desdeCuandoSonDosFirmas) >= 0` sin mirar la moneda.
+- Re-verificación del orquestador: ubicaciones re-abiertas y confirmadas (lectura de `sql/40_reglas/restricciones.sql` / `application.yml` / grep).
+- Impacto: 5000 BOB y 5000 USD son lo mismo; fraccionar en retiros < 5000 evita la segunda firma; el CHECK de la base sólo actúa si la app puso `requiere_doble_aprobacion=TRUE`, así que no es una "segunda capa independiente" para el umbral. Parámetro financiero sin fuente (97.5.4).
+- Solución de fondo: umbral en catálogo versionado con moneda y procedencia; regla acumulada por ventana; que la base derive el flag (trigger) del catálogo. Si A-1 elimina la aprobación, reemplazar por límites por ventana + enfriamiento + step-up ligado a la operación.
+- Relación con el flujo nuevo: APROB (A-1 decisión requerida)
+- Regla: 91.1.2, 97.5.4
+- Esfuerzo estimado: medio
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+
+### IDCU-SEG-044 — `borrador_onboarding` guarda el número de documento en claro y el monto como texto
+- Clase / Severidad / Confianza: SEG / DATOS / S2 / confirmado
+- Ubicaciones: `sql/15_infra/borradores.sql:5-24`; `servicios/identidad/.../BorradorOnboardingRepositorio.java:44,103,113,177`; `scripts/generar_ddl.py:1195-1236`
+- Evidencia: `numero_documento VARCHAR(30)`, `correo VARCHAR(150) PRIMARY KEY`, `monto_mensual_estimado TEXT` sin moneda.
+- Impacto: el número que `documento_identidad` cifra y hashea con pimienta queda en claro por hasta 7 días en otra tabla (R-SEG-01); PII como PK; importe sin tipo ni moneda. Además la tabla no está en el `.puml` (segunda fuente de verdad, 97.1.1).
+- Solución de fondo: cifrar con la misma llave versionada o no persistir el número en el borrador; PK UUID; monto DECIMAL + moneda; modelar en el `.puml`.
+- Relación con el flujo nuevo: ninguna
+- Regla: 90.2, 91.1.1-2, 97.1.1
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+
+### IDCU-DATOS-045 — Seeds de desarrollo con datos personales de apariencia real
+- Clase / Severidad / Confianza: DATOS / S2 / probable (no se puede verificar identidad; no se reproducen los valores)
+- Ubicaciones: `sql/61_dev/15-usuarios-dev.sql:7-9,52,54` (y su fuente `seeders/dev/15-usuarios-dev.json`)
+- Evidencia: nombre y apellido, fecha de nacimiento, teléfono y dos correos (uno institucional de estudiante, uno personal) que no son sintéticos ni `.invalid`. Valores omitidos a propósito.
+- Impacto: viola 97.6.1 / 00.2.3; queda en el historial de git y en cualquier base dev.
+- Solución de fondo: reemplazar por datos sintéticos (`*.invalid`, `+5917000xxxx`) y purgar del historial si se decide.
+- Relación con el flujo nuevo: ninguna
+- Regla: 97.6.1, 90.2.3
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+
+### IDCU-REG-046 — Parámetros regulatorios y de riesgo activos sin confirmación ni procedencia completa
+- Clase / Severidad / Confianza: REG / DATOS / S2 / confirmado
+- Ubicaciones: `sql/60_semillas/06-umbrales-uif.sql:5-28` (+ `seeders/minimos/06-umbrales-uif.json`: `"estado": "confirmar vigencia con legal"`); `07-reportes-regulatorios.sql:4-15` (`"confirmar plazos con legal"`); `08-gobierno-y-licencia.sql:42-58` (matriz y tipologías `activa TRUE`, `aprobada_por` NULL, `vigente_desde current_date`); `19-reportes-y-retencion.sql:56-68` (`PEP ... >= 5000`)
+- Evidencia: `base_normativa 'Instructivo EIF ...'` (instructivo para Entidades de Intermediación Financiera; aplicabilidad a una ETF no confirmada); `vigente_desde = current_date` (fecha de siembra presentada como vigencia de la norma); ponderaciones de matriz y umbrales de tipologías sin fuente.
+- Impacto: 97.5.4 prohíbe inferir parámetros financieros; el sistema ya registra PCC-01/ROG con estos números (`fn_uif_registrar_operacion`). README de seeders marca 08 como "listo".
+- Solución de fondo: procedencia (URL, fecha de obtención, responsable) por fila, confirmación de cumplimiento, fechas de vigencia reales, `activa=FALSE` hasta aprobación.
+- Relación con el flujo nuevo: ninguna
+- Regla: 97.4.2, 97.5.4, 00.2.1
+- Esfuerzo estimado: medio
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+
+### IDCU-DATOS-047 — Bitácoras y evidencias de identidad/cumplimiento no son append-only
+- Clase / Severidad / Confianza: DATOS / S2 / confirmado
+- Ubicaciones: `sql/00_base/03_permisos.sql:17,42` (`GRANT SELECT, INSERT, UPDATE` a `svc_cumplimiento`/`svc_identidad`); `sql/35_append_only/append_only.sql` (sólo `acta_comite`, `evento_riesgo_operativo`, `registro_operacion_relevante` de mis esquemas)
+- Evidencia: sin REVOKE ni trigger para `intento_autenticacion`, `intento_validacion_token`, `consentimiento`, `historial_credencial`, `aceptacion_contrato`, `envio_regulatorio`, `reporte_regulatorio` (post-ENVIADO), `alerta_monitoreo_lft`, `caso_investigacion_lft`.
+- Impacto: la evidencia de consentimiento, de aceptación de contrato y del envío regulatorio se puede reescribir con el rol del servicio (91.1.3, 91.2.5). Los triggers son `FOR EACH ROW` y no frenan `TRUNCATE` (el rol no lo tiene, pero `rol_migracion` sí).
+- Solución de fondo: agregarlas a la lista APPEND_ONLY del modelo; estados terminales sellados por trigger.
+- Relación con el flujo nuevo: ninguna
+- Regla: 91.1.3, 91.2.5, 90.2.7
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+
+### IDCU-TRAZA-048 — La aprobación de retiro no deja registro propio y el motivo de rechazo se pierde
+- Clase / Severidad / Confianza: TRAZA / HUECO / S3 / confirmado
+- Ubicaciones: `.../infraestructura/AprobacionDeRetiroRepositorio.java:34-43`; `.../aplicacion/ResolucionDeRetiro.java:204-219,271-281`; `sql/10_tablas/10_billetera_custodia/orden_retiro.sql` (sin `aprobada_en`, sin `motivo_rechazo`)
+- Evidencia: el rechazo escribe al rechazador en `aprobada_por`; `motivo` sólo entra en `HuellaDePeticion`, no se persiste ni viaja en el evento.
+- Impacto: no hay "quién, cuándo y por qué" auditable de la decisión; el cliente no puede explicar el rechazo. No existe "tabla de aprobación de retiro" (el pedido la suponía).
+- Solución de fondo: tabla append-only `decision_retiro(orden_id, decisor, desenlace, motivo, decidida_en)` o columnas `decidida_en`, `rechazada_por`, `motivo_rechazo`.
+- Relación con el flujo nuevo: APROB
+- Regla: 90.2.7, 96.8.3
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+
+### IDCU-CONTRATO-049 — `nucleo_financiero.retiro_rechazado` sale con dos formas distintas
+- Clase / Severidad / Confianza: CONTRATO / S3 / confirmado
+- Ubicaciones: `.../ResolucionDeRetiro.java:162-169` (`cuentaBilleteraId`, `motivo`) vs `:271-281` (`cuentaBilleteraId`, `aprobadaPor`, `solicitadaPor`)
+- Impacto: consumidores (notificaciones, auditoría) reciben payloads incompatibles bajo el mismo tipo.
+- Solución de fondo: un esquema único versionado del evento.
+- Regla: 98.1.3-5
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+
+### IDCU-PRUEBAS-050 — `debe_fallar` acepta cualquier excepción; dos pruebas de R-UIF fallan por otra causa
+- Clase / Severidad / Confianza: PRUEBAS / S3 / confirmado (R-UIF-07) / probable (R-UIF-06)
+- Ubicaciones: `sql/50_verificacion/prueba_humo.sql:25-33`, `:260-270` (R-UIF-06 inserta `codigo 'PCC-01'`, ya sembrado con UNIQUE), `:273-277` (R-UIF-07 con `regla_monitoreo_id NULL, usuario_id NULL` NOT NULL)
+- Evidencia: `EXCEPTION WHEN others THEN RETURN 'OK ...'`.
+- Impacto: la prueba pasa aunque el CHECK que dice probar no exista.
+- Solución de fondo: `debe_fallar` con SQLSTATE/constraint esperado; datos válidos salvo la condición bajo prueba.
+- Regla: 80.5.4
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+
+### IDCU-COHERENCIA-051 — Tres vocabularios para el carnet de extranjería y dos para el nivel KYC
+- Clase / Severidad / Confianza: COHERENCIA / S3 / confirmado
+- Ubicaciones: `identidad.yaml:1397` (`CEX`), `identidad.yaml:1047` y `sql/15_infra/borradores.sql:23` (`CARNET_EXTRANJERO`), `identidad/documento_identidad.sql:22` (`CARNET_EXTRANJERIA`), `servicios/identidad/.../web/MapeoDelAlta.java:64-66`; `identidad/usuario.sql:26` (`COMPLETO`) vs `identidad/verificacion_kyc.sql:23` (`AVANZADO`); `identidad.yaml:1314` (4 estados) vs `verificacion_kyc.sql:24` (6)
+- Impacto: un borrador retomado devuelve `CARNET_EXTRANJERO` que `registrarUsuario` no acepta; filas `VENCIDA`/`NO_INICIADA` no caben en el enum del contrato.
+- Solución de fondo: un único catálogo codificado (97.4.7) usado por contrato, borrador y tabla.
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+
+### IDCU-DATOS-052 — Importes sin moneda en identidad y cumplimiento; tipo de cambio sin fecha
+- Clase / Severidad / Confianza: DATOS / S3 / confirmado
+- Ubicaciones: `identidad/perfil_financiero.sql:9-10`; `identidad/restriccion_usuario.sql:11`; `cumplimiento/alerta_monitoreo_lft.sql:13`; `desvio_perfil.sql:11-12`; `reporte_regulatorio.sql:16`; `reclamo_cliente.sql:15`; `instancia_reclamo.sql:14`; `observacion_regulatoria.sql:13`; `licencia_regulatoria.sql:16`; `entorno_prueba_regulado.sql:11-12`; `regla_monitoreo_lft.sql:12`; `registro_operacion_relevante.sql:22` (sin fecha del tipo de cambio)
+- Regla: 91.1.2
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Impacto: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+
+### IDCU-DATOS-053 — Idempotencia y catálogos cerrados faltantes en `token_verificacion`; FK e índices
+- Clase / Severidad / Confianza: DATOS / S3 / confirmado
+- Ubicaciones: `identidad/token_verificacion.sql:11,14,16,29` (sin CHECK de `estado`, `proposito`, `canal_entrega`; `clave_idempotencia NOT NULL` sin UNIQUE en `30_indices/01`); `30_indices/01_identidad_usuarios.sql` (`uq_usuario_telefono_e164` + `ix_usuario_telefono_e164` duplicado); `20_claves/01` (sin FK para `alcance_invitacion.emisor_id/consumidor_id/grupo_destino_id`, `sesion.refresco_familia_id`)
+- Impacto: emisión de OTP duplicable ante reintento; estados libres; índice redundante.
+- Regla: 91.2.4, 97.4.7, 97.5.1
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+
+### IDCU-SEG-054 — El hash de búsqueda del documento no usa el único camino que la regla declara
+- Clase / Severidad / Confianza: SEG / DOC / S3 / confirmado
+- Ubicaciones: `servicios/identidad/.../dominio/DocumentoDeIdentidad.java:63,76-81`; `sql/40_reglas/restricciones.sql:1222-1250`
+- Evidencia: `MessageDigest.getInstance("SHA-256").digest(numero + pimienta)` vs R-SEG-01 "el hash de búsqueda es SIEMPRE un HMAC ... `fn_seg_hash_busqueda` es el único camino permitido".
+- Impacto: dos implementaciones de la misma protección; la base no puede verificar cuál se usó (sólo `length = 64`).
+- Solución de fondo: HMAC-SHA256 en un único componente compartido.
+- Regla: 90.2.9
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+
+### IDCU-CONTRATO-055 — OpenAPI de identidad y cumplimiento sin esquema de seguridad
+- Clase / Severidad / Confianza: CONTRATO / S3 / confirmado
+- Ubicaciones: `servicios/identidad/src/main/resources/openapi/identidad.yaml:216,445,516` (`bearerAuth` referenciado; no hay `components.securitySchemes`); `cumplimiento.yaml` (ninguna operación declara seguridad)
+- Impacto: spec inválido según OpenAPI; el contrato no documenta qué operaciones exigen token, ni el "token de alta" de `@Publico subirDocumento` (`ExpedienteController.java:88`).
+- Regla: 96.4.2, 98.1.3
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+
+### IDCU-CONTRATO-056 — `buscarPorTelefono` deprecado sigue publicado con el teléfono en la URL
+- Clase / Severidad / Confianza: CONTRATO / S3 / confirmado
+- Ubicaciones: `identidad.yaml:682-701`; `postman/coleccion/identidad...json` (GET por-telefono); `packages/simulado/ejemplos/identidad/buscarPorTelefono.json`
+- Impacto: PII en query (90.2.2); sin fecha de retiro (98.1.3).
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+
+### IDCU-CONTRATO-057 — `aprobarRetiro` declara 404 y 409 pero el código devuelve 422
+- Clase / Severidad / Confianza: CONTRATO / S3 / confirmado
+- Ubicaciones: `servicios/nucleo-financiero/src/main/resources/openapi/nucleo-financiero.yaml:519-560`; `.../ResolucionDeRetiro.java:247-263`; `recarga-y-retiro.yaml:57-59`
+- Evidencia: el propio yaml anota "hoy sale 422, no el 409 de abajo ... ambigüedad A-5".
+- Regla: 96.4.4
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Impacto: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+
+### IDCU-PRUEBAS-058 — Pacto identidad→grupos sin verificación de productor ni casos de error
+- Clase / Severidad / Confianza: PRUEBAS / CONTRATO / S3 / confirmado
+- Ubicaciones: `contratos/pactos/identidad-grupos-pertenencia.json:5,9-44`
+- Evidencia: "NO existe todavia una prueba contra el proceso real de grupos"; sólo dos 200.
+- Impacto: 98.1.4; tres niveles (65) sin límite ni inválido. No hay pactos para quienes consumen identidad (nivel KYC, step-up) ni cumplimiento (alcance de licencia).
+- Esfuerzo estimado: medio
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+
+### IDCU-SEG-059 — La evidencia step-up no está ligada al retiro concreto
+- Clase / Severidad / Confianza: SEG / S3 / probable
+- Ubicaciones: `.../infraestructura/SegundoFactorStepUp.java:139-169`; `.../dominio/CondicionesDeRetiro.java:55-56` (mensaje "o no es para este retiro")
+- Evidencia: valida `iss/aud/sub/proposito=RETIRO/acr/jti`; no compara monto, destino ni clave de idempotencia.
+- Impacto: un JWT step-up obtenido para un retiro chico autoriza otro de otro monto o destino dentro de su vigencia.
+- Solución de fondo: claim con hash de (cuenta, destino, monto, clave) verificado al solicitar.
+- Esfuerzo estimado: medio
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+
+### IDCU-APROB-060 — La bandeja no da información para decidir
+- Clase / Severidad / Confianza: APROB / S3 / probable
+- Ubicaciones: `.../infraestructura/BandejaDeRetirosRepositorio.java:138-148`; `nucleo-financiero.yaml:464-466` ("se ven en la ficha de la orden" — no hay operación de ficha entre las de retiro)
+- Impacto: el aprobador ve importes y fechas, no destino, KYC ni historial: la segunda firma es ceremonial; tampoco hay bitácora de lectura (90.2.7).
+- Relación con el flujo nuevo: APROB (argumento para A-1)
+- Esfuerzo estimado: medio
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+
+### IDCU-DEFECTO-061 — Rechazar una orden le pone fecha de pago
+- Clase / Severidad / Confianza: DEFECTO / S3 / confirmado
+- Ubicaciones: `.../OrdenRetiroRepositorio.java:171-185`; `.../ResolucionDeRetiro.java:154-155`
+- Evidencia: `pasarA` siempre hace `.set(pagada_en, pagadaEn)`; `rechazar` la llama con `ahora`. El propio repo (`:208-210`) dice que una fecha de pago sin pago "seria mentir".
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Impacto: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+
+### IDCU-RESILIENCIA-062 — Dos despachos al proveedor; `instruirPago` no puede correr bien
+- Clase / Severidad / Confianza: RESILIENCIA / DUP-INT / S3 / confirmado
+- Ubicaciones: `.../CU11RetirarSaldo.java:107-136`; `plataforma/comun-datos/.../Datos.java:43-48`; `.../CU11InstruirRetiro.java`, `RetirosConProveedor.java`; tests `CU11Test.java:95`, `CU11ProveedorTest.java:49`
+- Evidencia: `instruirPago` sin `@Transactional` llama `datos.conContexto` (lanza `SinTransaccion` sin transacción) y se auto-invoca `rechazar` (el proxy `@Transactional` no actúa). Los tests lo envuelven en `transaccion.execute`, metiendo la llamada al proveedor dentro de la transacción que el comentario dice evitar.
+- Solución de fondo: borrar `instruirPago` y dejar un solo despacho.
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Impacto: ver evidencia y ubicaciones.
+
+### IDCU-DUP-INT-063 — Catálogos paralelos de umbrales y reglas de monitoreo
+- Clase / Severidad / Confianza: DUP-INT / S3 / confirmado
+- Ubicaciones: `08-gobierno-y-licencia.sql:52-58` (`regla_monitoreo_lft`, `ENTRADA_SALIDA_INMEDIATA` 500 / 120 min); `19-reportes-y-retencion.sql:56-68` (`regla_cumplimiento`, misma tipología con otros parámetros, umbral 10000.0 literal en vez de referir `umbral_reporte_uif`); `19:70-80` (`umbral_operativo` vs `limite_operativo_billetera`, el propio comentario admite que pueden divergir)
+- Regla: 97.4.6
+- Esfuerzo estimado: medio
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Impacto: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+
+### IDCU-FRAGIL-064 — Retención del retiro con motivo y vencimiento contrarios a CU-11
+- Clase / Severidad / Confianza: FRAGIL / S3 / probable
+- Ubicaciones: `.../SolicitudDeRetiro.java:34,126-136` (`COMISION_PENDIENTE`, vence a los días de política); `.../CU13RetenerSaldo.java:258-263` (`vencerCaducadas`, hoy sin llamador); `docs/CasosDeUso/CU-11 Retirar saldo.md:42,64`
+- Impacto: CU-11 dice `ENTREGA_EN_CURSO` y "la retención vence y se libera" en timeout; si se cablea el vencimiento, una orden `EN_PROCESO` pierde su retención y el saldo se puede gastar dos veces.
+- Solución de fondo: retención de retiro indefinida mientras la orden esté viva; el cierre lo decide sólo la orden.
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+
+### IDCU-COHERENCIA-065 — CU-11 promete cosas que el código no hace
+- Clase / Severidad / Confianza: COHERENCIA / DOC / S3 / confirmado
+- Ubicaciones: `CU-11 ...md:30` (disponible ≥ monto + costo) vs `CondicionesDeRetiro.java:60` (monto ≤ disponible; costo se descuenta); `CU-11:36-37,61-62` (antifraude `REVISAR/RECHAZAR`) sin llamada en `SolicitudDeRetiro`; `CU-11:81` (`factorMfa` min 6 max 8) vs JWT step-up.
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Impacto: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+
+### IDCU-DEBIDO-PROCESO-066 — Bloqueos y retenciones automáticas sin expediente
+- Clase / Severidad / Confianza: DEBIDO-PROCESO / S3 / confirmado (en datos); decisión regulatoria pendiente
+- Ubicaciones: `cumplimiento/regla_monitoreo_lft.sql:22`; `08-gobierno-y-licencia.sql:54`; `19-reportes-y-retencion.sql:61-64`; `CU-44 ...md:38,57`
+- Impacto: `RETENER_OPERACION`/`BLOQUEAR_USUARIO`/`BLOQUEAR_CUENTA` sin plazo de descargo (91.4); puede ser exigencia LGI/FT, pero la excepción no está registrada como decisión.
+- Esfuerzo estimado: chico (registro) / medio (implementación)
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+
+### IDCU-SEG-067 — ADMIN_PLATAFORMA concentra funciones incompatibles
+- Clase / Severidad / Confianza: SEG / S3 / confirmado
+- Ubicaciones: `sql/60_semillas/10-roles-y-permisos.sql:36-40,59-60,92,100,145-195,241`
+- Evidencia: mismo rol con `ACCESOS_ADMINISTRAR`, `VERIFICACION_RESOLVER`, `SEGURIDAD_ACCESO_RESTABLECER`, `SEGURIDAD_FACTOR_REINSCRIBIR`, `FONDO_ADMINISTRAR`, `TARIFARIO_PUBLICAR`, `CATALOGO_EDITAR`.
+- Impacto: contradice la segregación que CU-08 3a dice exigir (`INCOMPATIBILIDAD_DE_FUNCIONES`).
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+
+### IDCU-HUECO-068 — R-UIF-10 deja pasar PEP COMPLETA sin `aprobada_por`
+- Clase / Severidad / Confianza: HUECO / S3 / confirmado (semántica SQL)
+- Ubicaciones: `sql/40_reglas/restricciones.sql:1110-1116`
+- Evidencia: `NEW.segunda_revision_por IS NULL OR NEW.segunda_revision_por = NEW.aprobada_por` es NULL si `aprobada_por` es NULL → no lanza.
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Impacto: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+
+### IDCU-DATOS-069 — PII en claro en cumplimiento e identidad
+- Clase / Severidad / Confianza: DATOS / S3 / confirmado
+- Ubicaciones: `cumplimiento/beneficiario_final.sql:9` (`documento VARCHAR(30)`); `identidad/intento_autenticacion.sql:8` (`identificador_usado` teléfono/correo, indexado `30_indices/01`); `identidad/alcance_invitacion.sql:9`, `referencia_personal.sql:9`
+- Regla: 90.2.1
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Impacto: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+
+### IDCU-ARQ-070 — ADR-032 incompleto: no hay `sql/migraciones/` ni verificación de deriva
+- Clase / Severidad / Confianza: ARQ / CONFIG / S3 / confirmado
+- Ubicaciones: `docs/Arquitectura/ADR-032 Aplicación del esquema.md` (punto 2); `ls sql/migraciones` → no existe; `sql/50_verificacion/verificaciones.sql` (sin chequeo modelo↔base↔jOOQ); `sql/20_claves/*.sql:6-10` (DROP/ADD de cada FK en cada aplicación); `30_indices` sin `CONCURRENTLY`; `15_infra/nulabilidad.sql:13-17` (advierte ACCESS EXCLUSIVE)
+- Impacto: no hay camino de cambio de esquema a producción ni gate de deriva (97.2); reaplicar valida todas las FK con bloqueo (97.3.3).
+- Esfuerzo estimado: grande
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+
+### IDCU-DOC-071 — Documentación generada desactualizada
+- Clase / Severidad / Confianza: DOC / S4 / confirmado
+- Ubicaciones: `seeders/README.md` ("15 roles, 29 permisos"; el seed tiene 31 roles); `docs/catalogo-de-flujos/matriz.md:17,187-222` (36 endpoints de identidad; el contrato tiene 38, faltan los de foto de perfil); `cumplimiento/catalogo_reporte_regulatorio.sql` y `reporte_regulatorio.sql` (mismo COMMENT ON TABLE); `identidad/verificacion_kyc.sql:42` (comentario de versionado aplicado a un vencimiento de KYC); matriz: ningún flujo de identidad/cumplimiento en el catálogo (KYC, UIF sin flujo).
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Impacto: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+
+### IDCU-DATOS-072 — Contratos de adhesión y políticas de token con valores de relleno o ambiguos
+- Clase / Severidad / Confianza: DATOS / S4 / confirmado
+- Ubicaciones: `11-contratos-de-adhesion.sql:62-67` (`repeat('0', 64)`, URL de dominio propio sin documento); `13-politicas-de-token.sql:72-74,89-90` (dos políticas `VERIFICACION_CORREO`, OTP y ENLACE, para el mismo propósito)
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Impacto: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+
+### IDCU-PRUEBAS-073 — Matriz negativa incompleta en la aprobación de retiro
+- Clase / Severidad / Confianza: PRUEBAS / S4 / confirmado
+- Ubicaciones: `BilleteraAprobacionWebTest.java:136-229` (sin 401, sin falta de `Idempotency-Key`; `cu11` mockeado); la bandeja sí tiene 401 (`BilleteraBandejaWebTest.java:190`)
+- Regla: 80.2.3
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Impacto: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+
+### IDCU-CONFIG-074 — Barrel Dart versionado con `src/` ignorado
+- Clase / Severidad / Confianza: CONFIG / S4 / confirmado
+- Ubicaciones: `.gitignore:51` (`clientes/dart/`); `git ls-files clientes/dart/identidad` (barrel + pubspec trackeados); `apps/movil/pubspec.yaml:28,50`
+- Impacto: el checkout trae un barrel que exporta archivos inexistentes hasta que se genera. Comparación automática barrel↔OpenAPI: identidad 50/50 esquemas; cumplimiento 49 + 4 `*_inner` del generador (sin deriva).
+- Esfuerzo estimado: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+
 ## 6. Matriz de contratos
 
 Pendiente.
@@ -529,6 +1051,8 @@ Pendiente.
 ## 10. Observado fuera de alcance
 
 - `servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/aplicacion/CU40EvaluarLimites.java:80,132` — `reloj.ahora().atOffset(ZoneOffset.UTC)` para la vigencia de límites (mismo patrón que IDCU-DEFECTO-003; lote L1).
+
+- **nucleo-financiero / recarga (lote L1)** — La recarga la acredita TESORERIA a mano; el catálogo dice que la acredita el proveedor con firma: `servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/web/BilleteraController.java:141-148`. Acredita saldo por acción de TESORERÍA y no por webhook firmado; choca con 91.3.1 y R-NUEVA-1. Propuesto S1 por el subagente; no es de este módulo.
 
 ## 11. Límites de esta auditoría
 
