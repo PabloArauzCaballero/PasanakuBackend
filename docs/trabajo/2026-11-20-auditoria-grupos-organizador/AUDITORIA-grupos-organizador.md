@@ -31,9 +31,10 @@
 |---|---|---|---|---|---|
 | APR-01 | `servicios/grupos/src/main/resources/application.yml:73-78`; `servicios/grupos/src/main/java/bo/aportaya/grupos/web/RutasDeSolicitudes.java:141-150`; `.../web/InvitacionesWeb.java:127-133`; `.../web/RutasDeAdmision.java:25-37` | Ingreso de un integrante: el organizador **propone** y backoffice (`ADMIN_PLATAFORMA`) **resuelve** | Solicitud `PENDIENTE` → decisión `PROPUESTA` → `RESOLUCION`; `POST /grupos/solicitudes/{id}/propuestas` (`GRUPO_ADMINISTRAR`), `POST /grupos/solicitudes/{id}/resoluciones` (`ADMIN_PLATAFORMA`); pantallas backoffice `rutas/admisiones`, `rutas/operacion/solicitudes-escaladas`; eventos `aportaya.grupos.admision_propuesta`, `aportaya.grupos.admision_resuelta` | ELIMINABLE desde producto (el propio `application.yml:74` la declara «DECISION PENDIENTE (negocio y cumplimiento)»); queda DECISIÓN REQUERIDA solo si Cumplimiento la exige (A-1) | Las puertas «aceptar por enlace» y «decisión directa del organizador» hoy devuelven 422 (`CodigoError 69-10` y `68-15`) con el interruptor encendido; apagarlo reabre esos caminos, que crean participante sin expediente; la bandeja de backoffice y sus pruebas quedan sin uso |
 | APR-02 | `servicios/grupos/src/main/java/bo/aportaya/grupos/web/RutasDelGrupo.java:94-95`; `.../aplicacion/CU69IniciarGrupo.java:89-91`; `.../web/GruposController.java:164-173` | Inicio del grupo y compromiso/revelación del sorteo: los dispara el administrador del grupo | `ABIERTO_A_INSCRIPCION → CONFORMADO`; `POST /grupos/{id}/inicio`, `POST /grupos/{id}/sorteo`, `POST /grupos/{id}/sorteo/revelacion`, todos `GRUPO_ADMINISTRAR`; app `inicio_del_grupo.dart`, `pantalla_sorteo_*`; eventos `grupo_iniciado`, `sorteo_comprometido`, `sorteo_revelado` | ELIMINABLE (ADR-054 D3 ya decidió que sean automáticos) | Sin el disparo manual hoy no hay ningún otro camino (0 `@Scheduled`): quitarlo sin el trabajo programado deja todo grupo detenido |
-| APR-03 | `servicios/organizador/src/main/java/bo/aportaya/organizador/web/OrganizadoresController.java:116-129`; `.../web/RutasDeHabilitacion.java:106-129`; backoffice `apps/backoffice/src/app/rutas/postulaciones/`, `apps/backoffice/src/app/rutas/cumplimiento/organizadores/pantalla-de-habilitacion.ts` | Habilitación del organizador «profesional»: backoffice aprueba o rechaza la postulación, la confirma o revoca y habilita tras capacitación | `POST /organizadores/postulaciones/{id}/aprobacion`, `.../resolucion`, `.../revision`, `POST /organizadores/{id}/habilitacion`, todos `ADMIN_PLATAFORMA`; eventos `organizador.postulacion_aprobada`, `habilitacion_resuelta`, `habilitado` | DECISIÓN REQUERIDA (A-1): ADR-054 D6 la deja fuera del camino principal, pero sigue siendo puerta para organizar si no existe el grupo autogestionado (COHERENCIA-002) | Nadie llega a organizador profesional; la vía básica (APR-05) sigue |
+| APR-03 | `servicios/organizador/src/main/java/bo/aportaya/organizador/web/OrganizadoresController.java:116-129`; `.../web/RutasDeHabilitacion.java:106-129`; backoffice `apps/backoffice/src/app/rutas/postulaciones/`, `apps/backoffice/src/app/rutas/cumplimiento/organizadores/pantalla-de-habilitacion.ts` | Habilitación del organizador «profesional»: backoffice aprueba o rechaza la postulación, la confirma o revoca y habilita tras capacitación | `POST /organizadores/postulaciones/{id}/aprobacion` (vía heredada), `.../resolucion`, `.../revision`, `POST /organizadores/{id}/habilitacion`, todos `ADMIN_PLATAFORMA`; eventos `organizador.postulacion_aprobada`, `habilitacion_resuelta`, `habilitado` | DECISIÓN REQUERIDA (A-1): ADR-054 D6 la deja fuera del camino principal, pero sigue siendo puerta para organizar si no existe el grupo autogestionado (COHERENCIA-002) | Nadie llega a organizador profesional; la vía básica (APR-05) sigue |
 | APR-04 | `servicios/organizador/src/main/java/bo/aportaya/organizador/web/AutomatizacionController.java:89-93`; `.../aplicacion/CU96EjecutarTarea.java:30-31,79-80,108-124` | Tarea automatizada «sensible»: nace en `REQUIERE_APROBACION` y la confirma una persona con rol `ORGANIZADOR` | `REQUIERE_APROBACION → PROGRAMADA`; `POST /automatizacion/tareas/{id}/aprobacion`; evento `organizador.tarea_aprobada` | CONSERVAR POR NORMA interna: R-ORG-06 «Las acciones sensibles exigen confirmación humana» (`docs/Restricciones.md:2667`) y regla 91.4 (sanciones). Confirmar con Pablo que R-NUEVA-1 no la alcanza | Una regla configurada que sanciona o mueve dinero se ejecutaría sin confirmación humana |
 | APR-05 | `servicios/organizador/src/main/java/bo/aportaya/organizador/aplicacion/CU90HabilitacionBasica.java:28-43`; app `contrato_de_organizador.dart` | Habilitación «Aprendiz»: el propio participante acepta y firma el contrato; **no** aprueba nadie | `POST /organizadores/yo/habilitacion-basica` (`PARTICIPANTE`) | No es aprobación de un tercero; queda como puerta previa al alta mientras exista COHERENCIA-002 | Sin ella, hoy nadie puede crear un grupo (`AP-CU20-02`) |
+| APR-06 | `servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU65Retirarse.java:80-99` | Retiro de un participante del grupo: la solicitud nace `PENDIENTE` y espera una aprobación | `PENDIENTE → APROBADA`; ningún endpoint, consumidor ni trabajo llama a `aprobar` (HUECO-004) | ELIMINABLE o DECISIÓN REQUERIDA (A-4: qué pasa con lo aportado y la deuda al retirarse) | Hoy nada: la aprobación nunca ocurre |
 
 ### 4b. Inventario de respaldo y cobertura
 
@@ -277,6 +278,169 @@
 - Conexiones y módulos afectados: backoffice.
 - Estándares y normas: ISO/IEC 25010 mantenibilidad (modificabilidad); reglas 96.4.1, 98.1.3.
 - Esfuerzo estimado: chico
+
+### grupos-organizador-SEG-001 — Pedir el retiro de un grupo no comprueba que el participante sea quien llama; el creador del grupo puede retirar a otro
+- Clase / Severidad / Confianza: SEG / S1 / probable (falta ejecutar la petición con la sesión del creador contra una base con RLS)
+- Ubicaciones: `servicios/grupos/src/main/java/bo/aportaya/grupos/web/GruposController.java:179-196`; `servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU65Retirarse.java:48-78`; `servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/RetiroRepositorio.java:17-43`; `sql/40_reglas/restricciones.sql:1399,1409-1418,1423-1425`; `sql/10_tablas/02_grupos_turnos/solicitud_retiro.sql:7`
+- Evidencia:
+  ```java
+  @Permiso("PARTICIPANTE")
+  public ResponseEntity<SalidaRetiro> solicitarRetiro(UUID grupoId, UUID idempotencyKey, EntradaRetiro cuerpo) {
+      ... cu65.solicitar(MapeoDeGrupos.entradaDeRetiro(cuerpo,
+              afuera.estadoDePagos(cuerpo.getParticipanteId()), ...
+  ```
+  ```sql
+  IF r.esq = 'grupos' AND r.t = 'participante' THEN
+    cond := 'usuario_id = fn_seg_usuario_actual() OR ... OR EXISTS (SELECT 1 FROM grupos.alta_grupo ag
+             WHERE ag.grupo_id=participante.grupo_id AND ag.creador_id=fn_seg_usuario_actual())';
+  ```
+- Cómo se comprobó: lectura. `participanteId` viene del cuerpo; ni el controlador ni `CU65Retirarse.solicitar` lo comparan con `ctx.usuarioId()`; `grupoId` e `idempotencyKey` no llegan al caso de uso. **Refutación por RLS**: la política de `grupos.participante` deja leer la fila al propio titular **y al creador del grupo**; `solicitud_retiro` no tiene `usuario_id` ni `cuenta_billetera_id`, así que el bucle de `fn_seg_aplicar_rls` (`restricciones.sql:1409-1418`) no le pone política. Un participante cualquiera recibe `AP-CU65-01` (RLS lo frena); el **creador** del grupo pasa la lectura y puede insertar el retiro de otro. El subagente de pruebas informó que `BaseDeCU65:56-81` retira con un actor ajeno y pasa.
+- Impacto: el creador del grupo puede dejar una solicitud de retiro a nombre de otro integrante y conocer su posición (acreedora/deudora), que sale de su estado de pagos. Si alguien aprueba esa solicitud, saca al participante de su cupo. Para el participante: pérdida de su lugar sin haberlo pedido.
+- Causa de fondo: autorización por objeto confiada a RLS, y una tabla sin columna de titular queda fuera del recorrido de RLS.
+- Solución de fondo: el caso de uso deriva el participante del `ctx.usuarioId()` y del `grupoId` de la ruta (nunca del cuerpo), y usa la `Idempotency-Key`. Prueba web negativa «otro usuario» y «creador del grupo sobre otro integrante».
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: `aportes`/`garantia` vía `afuera.estadoDePagos`.
+- Estándares y normas: ISO/IEC 25010 seguridad (confidencialidad, autenticidad); OWASP API Security Top 10 API1 (BOLA); CWE-639; reglas 90.1.3, 96.5.2, 80.2.3.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-HUECO-004 — La solicitud de retiro nace `PENDIENTE` y nada la resuelve: `CU65Retirarse.aprobar` no tiene quien la llame
+- Clase / Severidad / Confianza: HUECO / S2 / confirmado
+- Ubicaciones: `servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU65Retirarse.java:80-99`; `servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/RetiroRepositorio.java:36,45-50`
+- Evidencia: `.set(SOLICITUD_RETIRO.ESTADO, "PENDIENTE")` al pedir; `public void aprobar(...)` que pasa a `APROBADA`.
+- Cómo se comprobó: `grep -rn 'cu65\.aprobar\|\.aprobar(' servicios/grupos/src/main` → solo la llamada interna `retiros.aprobar` dentro del propio método; ningún controlador, consumidor ni trabajo llama a `CU65Retirarse.aprobar`.
+- Impacto: un participante que pide retirarse queda `PENDIENTE` sin plazo; su cupo y sus obligaciones siguen. Hay además una aprobación diseñada (APR-06) que contradice R-NUEVA-1.
+- Causa de fondo: caso de uso de dos pasos con solo el primero cableado.
+- Solución de fondo: decidir (A-1/A-4) si el retiro necesita aprobación. Si no la necesita, el retiro se ejecuta en el mismo caso de uso con su liquidación. Si la necesita, se cablea quién la da y con qué plazo.
+- Relación con el flujo nuevo: APROB
+- Conexiones y módulos afectados: app (`pantalla_retiro`, fuera de este lote), `garantia` (plan de regularización).
+- Estándares y normas: ISO/IEC 25010 completitud funcional; regla 00 §5.4.
+- Esfuerzo estimado: medio
+
+### grupos-organizador-DEBIDO-PROCESO-001 — La sanción al organizador se ejecuta en el acto; el descargo y la apelación llegan después
+- Clase / Severidad / Confianza: DEBIDO-PROCESO / S2 / confirmado
+- Ubicaciones: `servicios/organizador/src/main/java/bo/aportaya/organizador/aplicacion/CU93SancionarOrganizador.java:59-118`
+- Evidencia:
+  ```java
+  UUID sancionId = desempenos.sancionar(dsl, organizador.id(), ...);
+  String estadoNuevo = switch (entrada.tipo()) {
+      case "SUSPENSION" -> "SUSPENDIDO"; case "INHABILITACION" -> "DESHABILITADO"; ...
+  if (estadoNuevo != null) { organizadores.cambiarEstado(dsl, organizador.id(), estadoNuevo, ...); }
+  var proceso = new DebidoProceso(ahora, plazoParaApelar);
+  ```
+- Cómo se comprobó: lectura completa del método; no hay estado `PROPUESTA` ni `FIRME`: el cambio de estado del organizador ocurre en la misma transacción que crea la sanción, y el plazo de apelación empieza a correr después.
+- Impacto: una persona queda suspendida o inhabilitada sin haber podido defenderse. Regla 91.4.1: «Estado, evidencia, plazo de descargo y estado `FIRME` **antes** de ejecutar».
+- Causa de fondo: máquina de estados de la sanción sin fase previa a la firmeza.
+- Solución de fondo: `PROPUESTA → (descargo) → FIRME → ejecutada`, con la ejecución en un paso separado y verificable; la apelación solo después de `FIRME`.
+- Relación con el flujo nuevo: ninguna (R-NUEVA-1 no elimina el debido proceso)
+- Conexiones y módulos afectados: `grupos` (sustitución del administrador consume `habilitacion_revocada`, no `sancionado`: ver HUECO-006).
+- Estándares y normas: ISO/IEC 25010 adecuación funcional; regla 91.4.1 y 91.4.4.
+- Esfuerzo estimado: medio
+
+### grupos-organizador-DEBIDO-PROCESO-002 — La apelación guarda el argumento que escribe quien resuelve, no el del apelante
+- Clase / Severidad / Confianza: DEBIDO-PROCESO / S2 / confirmado
+- Ubicaciones: `servicios/organizador/src/main/java/bo/aportaya/organizador/aplicacion/CU93SancionarOrganizador.java:129-176,204-212`; `servicios/organizador/src/main/java/bo/aportaya/organizador/web/OrganizadoresController.java:255-264`
+- Evidencia:
+  ```java
+  // apelar(): el argumento viaja solo en el evento
+  "argumento", entrada.argumento(),
+  // resolver(): la fila se escribe con lo que manda el resolutor
+  UUID apelacionId = desempenos.registrarApelacionResuelta(dsl, sancion.id(),
+          entrada.argumento(), entrada.evidenciasJson(), estadoDeLaApelacion, ctx.usuarioId(), ...);
+  ```
+- Cómo se comprobó: lectura de ambos métodos y del controlador: `resolverApelacion` arma `EntradaResolucion` con `cuerpo.getArgumento()` del cuerpo de la petición del resolutor.
+- Impacto: el expediente de apelación no conserva lo que dijo el sancionado; quien resuelve puede escribir cualquier argumento a su nombre. El rastro de debido proceso es falsificable.
+- Causa de fondo: la fila de apelación se escribe entera al resolver (`DesempenoRepositorio`), por una restricción de la base que impide la fila «a medias» (comentario de `:129-133`).
+- Solución de fondo: persistir la apelación al presentarla (con su estado `ABIERTA`) y que la resolución sea otra fila o un cambio de estado que no reescriba el argumento.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: ninguno.
+- Estándares y normas: ISO/IEC 25010 seguridad (no repudio, responsabilidad); reglas 91.4.3, 90.2.7.
+- Esfuerzo estimado: medio
+
+### grupos-organizador-DEFECTO-001 — Aceptar una apelación rehabilita al organizador aunque tenga otra sanción vigente
+- Clase / Severidad / Confianza: DEFECTO / S2 / confirmado
+- Ubicaciones: `servicios/organizador/src/main/java/bo/aportaya/organizador/aplicacion/CU93SancionarOrganizador.java:216-223`
+- Evidencia:
+  ```java
+  if (entrada.aceptada()) {
+      var organizador = organizadores.bloquear(dsl, sancion.organizadorId()).orElseThrow();
+      organizadores.cambiarEstado(dsl, organizador.id(), "HABILITADO", organizador.version(), ahora);
+  ```
+- Cómo se comprobó: lectura; no se consulta si hay otras sanciones `VIGENTE` del mismo organizador, y el resultado de `cambiarEstado` no se mira.
+- Impacto: un organizador con una inhabilitación firme y una advertencia apelada vuelve a `HABILITADO` al ganar la apelación menor.
+- Causa de fondo: el estado del organizador se escribe como campo en vez de derivarse de las sanciones vigentes (regla 91.4.2: la reputación es consecuencia del expediente).
+- Solución de fondo: derivar el estado de las sanciones vigentes al cerrar cualquier apelación.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: `grupos` (`organizadorHabilitado` lee ese estado).
+- Estándares y normas: ISO/IEC 25010 corrección funcional; regla 91.4.2.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-HUECO-005 — Una suspensión con plazo nunca vence: `vigente_hasta` se escribe y nadie lo lee
+- Clase / Severidad / Confianza: HUECO / S3 / confirmado
+- Ubicaciones: `servicios/organizador/src/main/java/bo/aportaya/organizador/infraestructura/DesempenoRepositorio.java:100`; `servicios/organizador/src/main/java/bo/aportaya/organizador/aplicacion/CU93SancionarOrganizador.java:77`
+- Evidencia: `OffsetDateTime hasta = entrada.duracion().map(ahora::plus).orElse(null);` → `.set(DSL.field("vigente_hasta", ...), hasta)`.
+- Cómo se comprobó: `grep -rn 'vigente_hasta' servicios/organizador/src/main` → los otros usos son de `capacitacion_organizador` y `contrato_organizador`, no de `sancion_organizador`; `grep -rn '@Scheduled' servicios/organizador` → 0; `servicios/organizador/src/main/java/bo/aportaya/organizador/trabajos/` solo tiene `.gitkeep`.
+- Impacto: una suspensión temporal se vuelve permanente hasta que alguien la apele y gane.
+- Causa de fondo: falta el trabajo programado que levante sanciones vencidas.
+- Solución de fondo: trabajo con lock que pase a `CUMPLIDA` las sanciones vencidas y recalcule el estado del organizador.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: `grupos`.
+- Estándares y normas: ISO/IEC 25010 completitud funcional; regla 91.4.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-RESILIENCIA-001 — Sancionar, apelar, evaluar, habilitar, emitir contrato y las operaciones de tareas no tienen clave de idempotencia
+- Clase / Severidad / Confianza: RESILIENCIA / S3 / confirmado
+- Ubicaciones: `servicios/organizador/src/main/java/bo/aportaya/organizador/aplicacion/CU93SancionarOrganizador.java:59-60` (firma sin clave); `servicios/organizador/src/main/java/bo/aportaya/organizador/web/OrganizadoresController.java:127-264`; `servicios/organizador/src/main/java/bo/aportaya/organizador/web/AutomatizacionController.java:104-117`
+- Evidencia: `public SalidaSancion sancionar(EntradaSancion entrada, ContextoSesion ctx)`, sin `Idempotency-Key` ni deduplicación.
+- Cómo se comprobó: lectura de las firmas; el subagente de organizador listó las operaciones sin clave y se abrieron `sancionar` y `anotarEjecucion`.
+- Impacto: un reintento del cliente crea una segunda sanción `VIGENTE` y un segundo evento; `anotarEjecucion` suma intentos de más.
+- Causa de fondo: la idempotencia se aplicó caso a caso (sí en `CU90ResolverHabilitacion`), no como regla del controlador.
+- Solución de fondo: `Idempotency-Key` obligatoria en toda mutación del contrato y deduplicación por índice `UNIQUE`.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: backoffice (formularios de sanción y habilitación).
+- Estándares y normas: ISO/IEC 25010 fiabilidad; reglas 96.3.3, 90.1.10.
+- Esfuerzo estimado: medio
+
+### grupos-organizador-FRAGIL-003 — La vía básica deja al organizador `HABILITADO` antes de firmar, y `grupos` lo cree habilitado hasta que un disparador de la base lo rechaza
+- Clase / Severidad / Confianza: FRAGIL / S2 / confirmado (organizador); probable (el 500 en `grupos`)
+- Ubicaciones: `servicios/organizador/src/main/java/bo/aportaya/organizador/aplicacion/CU90HabilitacionBasica.java:133-141`; `servicios/organizador/src/main/java/bo/aportaya/organizador/aplicacion/ConsultarHabilitacion.java:40-46,69-70`; `servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/clientes/HechosPorHttp.java:123-146`; `sql/40_reglas/restricciones.sql:2686-2701`
+- Evidencia:
+  ```java
+  organizadorId = organizadores.crear(dsl, usuarioId, ESTADO_HABILITADO, NivelDeOrganizador.APRENDIZ.name(), ...);
+  ...
+  "HABILITADO".equals(fila.get("estado", String.class)));   // ConsultarHabilitacion: no mira el contrato
+  ```
+  ```sql
+  RAISE EXCEPTION 'R-ORG-02: el organizador % no tiene contrato firmado y vigente', NEW.organizador_id;
+  ```
+- Cómo se comprobó: lectura de las cuatro ubicaciones.
+- Impacto: quien aceptó el contrato y no lo firmó pasa las validaciones de `CU20CrearGrupo` y el alta termina en una excepción de la base, probablemente un 500 sin código de negocio. La regla «habilitado = estado + contrato firmado vigente» está escrita dos veces de forma distinta (`CU90HabilitacionBasica.estadoDe:240` sí mira el contrato).
+- Causa de fondo: regla de negocio duplicada con dos respuestas (DUP-INT divergente).
+- Solución de fondo: una sola definición de «habilitado» en `organizador`, que exija el contrato vigente, y la usen las dos consultas.
+- Relación con el flujo nuevo: ninguna (puerta previa al alta)
+- Conexiones y módulos afectados: `grupos` (alta), app (`contrato_de_organizador.dart`).
+- Estándares y normas: ISO/IEC 25010 fiabilidad; reglas 96.4.4, 98.1.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-DINERO-001 — La evaluación de desempeño fija el límite de dinero que administra un organizador con números que manda el cliente
+- Clase / Severidad / Confianza: DINERO / S2 / confirmado
+- Ubicaciones: `servicios/organizador/src/main/java/bo/aportaya/organizador/aplicacion/CU92EvaluarDesempeno.java:106-117`; `servicios/organizador/src/main/java/bo/aportaya/organizador/web/MapeoDeOrganizador.java:41-60`; `servicios/organizador/src/main/resources/application.yml:35-40`
+- Evidencia:
+  ```java
+  seAplico = organizadores.cambiarNivel(dsl, organizador.id(), nivelSugerido.name(),
+          entrada.limiteDeGruposDelNivel(), entrada.limiteDeMontoDelNivel(), organizador.version());
+  ```
+  ```yaml
+  limite-inicial-de-monto: 30000.00     # sin moneda ni procedencia
+  umbral-de-ascenso: 85.00
+  ```
+- Cómo se comprobó: lectura; los límites del nivel y las métricas llegan en el cuerpo de `POST /organizadores/{id}/evaluaciones` (`ADMIN_PLATAFORMA`), no de un catálogo. `limiteDeMonto` no lleva moneda en el contrato. El subagente informó, y se confirmó con `grep`, que `monto_administrado_actual` nunca se actualiza: el límite de monto no se hace cumplir en ningún lado.
+- Impacto: el tope de dinero de terceros que administra una persona depende de lo que tipee un operador; además es un parámetro financiero sin moneda ni fuente (regla 97.5.4) y no se aplica. El descenso de nivel se aplica solo, sin expediente (91.4).
+- Causa de fondo: parámetros financieros como entrada libre y configuración literal.
+- Solución de fondo: catálogo de niveles con procedencia y moneda; la evaluación calcula métricas desde datos propios; el límite se aplica en el alta.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: `grupos` (solo lee `limiteDeGrupos`).
+- Estándares y normas: ISO/IEC 25010 corrección funcional; ISO 4217; reglas 91.1.2, 97.5.4, 91.4.
+- Esfuerzo estimado: medio
 
 ## 6. Matriz de contratos
 
