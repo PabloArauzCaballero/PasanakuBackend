@@ -2048,11 +2048,124 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 
 ## 6. Matriz de contratos
 
-Pendiente.
+Las columnas «pacto», «cliente generado», «modelo del front» y «esquema» se resumen en 6.3, porque para la gran mayoría de filas el valor es el mismo (sin pacto; cliente Dart generado desde el mismo OpenAPI; tabla del propio esquema). Las referencias «F0x» dentro de las tablas son números de trabajo del lote; su ficha está en §5 (tanda 4 para identidad, tanda 5 para cumplimiento).
+
+### 6.1 Operaciones HTTP de `identidad` (39)
+Permiso = anotación en el controlador, aplicada por `plataforma/comun-web/.../GuardiaDePermiso.java:52-82` (rol del token == código, o código ∈ `permisos` del token). `@Publico` = sin guardia.
+
+| # | Método y ruta | controlador:línea | permiso exigido | DTO entrada → salida | códigos (contrato) | Idempotencia | Observaciones / divergencias |
+|---|---|---|---|---|---|---|---|
+| 1 | POST /usuarios/verificaciones/correo | UsuariosController:251 | @Publico | SolicitudVerificacionCorreo → VerificacionCorreoSolicitada | 202, 422 | Key obligatoria, **usada** | Enumera correos (F17) |
+| 2 | POST /usuarios/verificaciones/correo/{id}/confirmacion | UsuariosController:262 | @Publico | ConfirmacionVerificacionCorreo → VerificacionCorreoConfirmada | 200, 422 | n/a | Reconsulta ilimitada sobre token CONSUMIDO devuelve borrador con PII (F07) |
+| 3 | PUT /usuarios/verificaciones/correo/{id}/borrador | UsuariosController:277 | @Publico | BorradorOnboarding ↔ | 200, 422 | n/a | Sin vencimiento del token para escribir; CI en claro (F08) |
+| 4 | POST /usuarios | UsuariosController:236 | @Publico | EntradaRegistro → SalidaRegistro | 202, 422 (+409 descrito) | Key obligatoria, **ignorada** (F21) | Contrato describe "una transacción con billetera" (F34) |
+| 5 | POST /sesiones | SesionesController:94 | @Publico | EntradaAutenticacion → SalidaAutenticacion | 200, 422 (+400) | sin Key (declarado) | No verifica estado de cuenta (F01); rate limit en gateway |
+| 6 | POST /sesion/refrescar | SesionController:61 | @Publico | EntradaRenovacion → SalidaRenovacion | 200, 401, 422 | n/a | Sin rate limit en gateway; no verifica estado (F01) |
+| 7 | DELETE /sesion | SesionController:104 | PARTICIPANTE \| BACKOFFICE | – → 204 | 204, 401 | idempotente | JWT sigue válido 15 min (F24) |
+| 8 | POST /sesiones/desafios | SesionesController:129 | PARTICIPANTE | EntradaDesafioDeStepUp → SalidaDesafioDeStepUp | 201, 422 | Key obligatoria, **ignorada** | Estado en memoria (F04). Un operador sin rol PARTICIPANTE no puede |
+| 9 | POST /sesiones/desafios/{id}/verificacion | SesionesController:142 | PARTICIPANTE | EntradaVerificacionDeStepUp → SalidaEvidenciaDeStepUp | 200, 422 | un solo uso | `factor.tipo` ignorado |
+| 10 | GET /identidad/verificaciones | VerificacionesController:48 | VERIFICACION_RESOLVER | ?estado → [ExpedienteEnRevision] | 200 | n/a | Sin paginación; sin bitácora de lectura (F16, F29) |
+| 11 | GET /identidad/verificaciones/{id}/fotos/{cara} | VerificacionesController:61 | VERIFICACION_RESOLVER | → EnlaceDeFoto | 200, 422 | n/a | Contrato promete registro de lectura: no existe (F16) |
+| 12 | GET /identidad/verificaciones/{id}/fotos/{cara}/contenido | VerificacionesController:80 | VERIFICACION_RESOLVER | → binario | 200, 422 | n/a | Ídem |
+| 13 | POST /identidad/verificaciones/{id}/decision | VerificacionesController:97 | VERIFICACION_RESOLVER | DecisionDeVerificacion → ExpedienteEnRevision | 200, 422 | Key obligatoria, **ignorada** | APROBACIÓN HUMANA; relee toda la cola (F29); sin evento (F11) |
+| 14 | POST /usuarios/{id}/documentos | ExpedienteController:89 | @Publico + Token-De-Alta o sesión propia | multipart → ArchivoDelExpediente | 201, 403, 422 | Key obligatoria, **ignorada** | Sobrescribe tras APROBADA (F12) |
+| 15 | PUT /usuarios/{id}/documento/fecha-expiracion | ExpedienteController:143 | @Publico (pero exige sesión propia en código) | FechaExpiracionDocumento → 204 | 204, 401, 403, 422 | n/a | Contrato dice bearerAuth; código @Publico (F38) |
+| 16 | GET /usuarios/{id}/verificacion | ExpedienteController:125 | @Publico + Token-De-Alta o sesión propia | → EstadoDeVerificacion | 200, 403, 422 | n/a | OK (BOLA controlado) |
+| 17 | POST /usuarios/{id}/verificacion | ExpedienteController:157 | PARTICIPANTE + sesión propia | Documento → EstadoDeVerificacion | 202, 401, 403, 422 | sin Key | No emite evento (F11); tras RECHAZADA no hay reintento (F14) |
+| 18 | POST /usuarios/{id}/titularidad/verificacion | UsuariosController:216 | DATOS_SENSIBLES_LEER \| SERVICIO_ENTREGAS | EntradaTitularidad → SalidaTitularidad | 200, 422, 429 | n/a | No exige KYC aprobado (F18); tope por réplica |
+| 19 | POST /usuarios/tokens/invitacion | UsuariosController:173 | GRUPO_ADMINISTRAR | EntradaTokenDeInvitacion → SalidaTokenDeInvitacion | 201, 422 | Key usada (huella) | Sin propiedad sobre `grupoId` (F19) |
+| 20 | POST /usuarios/tokens/invitacion/validar | UsuariosController:196 | PARTICIPANTE | EntradaValidacionInvitacion → SalidaValidacionInvitacion | 200 | n/a | Contexto sistema con usuario de sesión (F27) |
+| 21 | POST /usuarios/tokens/invitacion/{id}/consumos | InvitacionesController:29 | PARTICIPANTE | CanjeInvitacion → ConsumoInvitacion | 200, 422 | Key usada (`clave_consumo`) | `ConsumoInvitacion` sin `additionalProperties:false` |
+| 22 | POST /usuarios/tokens/invitacion/{id}/revocacion | InvitacionesController:47 | GRUPO_ADMINISTRAR | – → 204 | 204, 422 | idempotente | Propiedad por `emisor_id` OK |
+| 23 | POST /usuarios/busquedas/por-telefono | UsuariosController:167 | GRUPO_ADMINISTRAR | EntradaBusquedaPorTelefono → UsuarioEncontrado | 200 | n/a | Sin tope; GRUPO_ADMINISTRAR autoconcedible (F19) |
+| 24 | GET /usuarios/por-telefono (deprecado) | UsuariosController:155 | GRUPO_ADMINISTRAR | ?telefono → UsuarioEncontrado | 200 | n/a | Teléfono en URL; grupos ya migró (F36) |
+| 25 | POST /usuarios/{id}/roles/organizador | UsuariosController:135 | PARTICIPANTE + id==sesión | EntradaRolOrganizador → RolOrganizadorActivado | 200, 422 | idempotente por contrato | Sin Key; HTTP sin compensación (F33) |
+| 26 | GET /usuarios/yo/perfil | ExpedienteController:173 | PARTICIPANTE | → MiPerfil | 200 | n/a | OK |
+| 27 | PUT /usuarios/yo/foto-de-perfil | ExpedienteController:198 | PARTICIPANTE | multipart → 204 | 204, 401, 422 | sin Key (declarado) | OK |
+| 28 | GET /usuarios/yo/foto-de-perfil | ExpedienteController:213 | PARTICIPANTE | → binario | 200, 401, 404 | n/a | OK |
+| 29 | GET /identidad/contactos/grupos/{g}/integrantes/{u} | RutasDeContactoEnGrupo:29 | PARTICIPANTE + grupos confirma | → ContactoEnGrupo | 200, 403 | n/a | Lectura de PII sin bitácora (F16) |
+| 30 | GET /usuarios/{id}/kyc | UsuariosController:228 | PARTICIPANTE + (propio o rol BACKOFFICE/ADMIN_PLATAFORMA/sistema) | → NivelKyc | 200, 403 | n/a | Autoriza por string de rol (F06, F39) |
+| 31 | GET /usuarios-internos | UsuariosInternosController:35 | USUARIOS_INTERNOS_LEER \| ACCESOS_ADMINISTRAR | ?estado,rol,busqueda → [UsuarioInternoResumen] | 200, 401, 403 | n/a | Sin paginación; N+1 (F29); 403 referencia `ReglaDeNegocio` |
+| 32 | POST /usuarios-internos | UsuariosInternosController:44 | USUARIOS_INTERNOS_GESTIONAR \| ACCESOS_ADMINISTRAR | EntradaAltaUsuarioInterno → UsuarioInternoDetalle | 201, 422 | Key obligatoria, **ignorada** | Cualquier `rolCodigo` sin SoD; clave provisional nunca entregada (F02, F15) |
+| 33 | GET /usuarios-internos/{id} | UsuariosInternosController:54 | USUARIOS_INTERNOS_LEER \| ACCESOS_ADMINISTRAR | → UsuarioInternoDetalle | 200, 404 | n/a | `actualizadoEn` ficticio (F31) |
+| 34 | PATCH /usuarios-internos/{id} | UsuariosInternosController:63 | USUARIOS_INTERNOS_GESTIONAR \| ACCESOS_ADMINISTRAR | EntradaActualizarUsuarioInterno → UsuarioInternoDetalle | 200, 422 | sin Key | Aplica a **cualquier** usuario; ACTIVO salta KYC (F02) |
+| 35 | PUT /usuarios-internos/{id}/roles | UsuariosInternosController:72 | ídem | EntradaAsignarRolesUsuarioInterno → UsuarioInternoDetalle | 200, 422 | sin Key | SoD inerte (F05); cualquier rol a cualquier usuario (F02) |
+| 36 | POST /usuarios-internos/{id}/desbloquear | UsuariosInternosController:81 | ídem | EntradaDesbloqueoUsuarioInterno → UsuarioInternoDetalle | 200, 422 | sin Key | Sin efecto (F15); motivo no persistido |
+| 37 | GET /roles | RolesController:28 | ROLES_INTERNOS_LEER \| ACCESOS_ADMINISTRAR | → [RolCatalogo] | 200 | n/a | N+1 |
+| 38 | GET /permisos | PermisosController:28 | PERMISOS_INTERNOS_LEER \| ACCESOS_ADMINISTRAR | → [PermisoCatalogo] | 200 | n/a | OK |
+| 39 | GET /.well-known/jwks.json | JwksController:34 | público (permitAll) | → JWKS | 200 | n/a | Fuera del OpenAPI a propósito (declarado) |
+| — | CU-08 asignar/revocar, CU-09 cambio de credencial, baja, recuperación, enrolamiento MFA | — | — | — | — | — | **No existen en el contrato ni en controladores** (F14) |
+
+Todas las operaciones del OpenAPI tienen implementación; ninguna implementación (salvo JWKS) está fuera del contrato.
+
+
+### 6.2 Operaciones HTTP de `cumplimiento` (27)
+| método ruta | operationId (yaml:línea) | controlador:línea | permiso código | DTO entrada | errores contrato/código | Observación |
+|---|---|---|---|---|---|---|
+| POST /cumplimiento/usuarios/{usuarioId}/diligencia | elevarDiligencia (128) | CumplimientoController:173 → AdhesionController:155 | ANALISTA_CUMPLIMIENTO | EntradaDiligencia (`aprobadaPor`, `segundaRevisionPor` del cuerpo, yaml:1220-1234) | AP-CU02-01..04 | Aprobadores no salen de la sesión; Idempotency-Key ignorada |
+| POST /cumplimiento/usuarios/{usuarioId}/pep | declararPep (158) | CumplimientoController:166 → AdhesionController:127 | PARTICIPANTE + soloElPropio | EntradaPep | AP-CU03-01/02 | DELETE sin GRANT; RLS de `declaracion_pep` no admite titular |
+| GET /cumplimiento/contratos/vigentes | listarContratosVigentes (186) | CumplimientoController:149 | @Publico | — | — | OK |
+| POST /cumplimiento/contratos/{contratoId}/aceptaciones | aceptarContrato (207) | CumplimientoController:157 → AdhesionController:103 | PARTICIPANTE + soloElPropio(cuerpo.usuarioId) | EntradaAceptacion | AP-CU05-01..03 | IP = `getRemoteAddr` (gateway); sin idempotencia (duplica aceptación) |
+| GET /cumplimiento/riesgos/eventos | listarEventosDeRiesgo (238) | ColasDeCumplimientoWeb:46 | RESPONSABLE_RIESGOS / AUDITORIA_LEER | query | AP-CU54-04 | OK |
+| POST /cumplimiento/riesgos/eventos | registrarRiesgoOperativo (268) | CumplimientoController:187 | RESPONSABLE_RIESGOS | EntradaRiesgoOperativo | AP-CU54-01..03 | Reintento choca UNIQUE sin captura |
+| GET/POST /cumplimiento/seguridad/incidentes | listarIncidentes (313) / registrarIncidente (343) | ColasDeCumplimientoWeb:54 / CumplimientoController:220 | RESPONSABLE_SEGURIDAD (+AUDITORIA_LEER en GET) | EntradaIncidente | AP-CU55-01..04 | — |
+| POST .../incidentes/{id}/reportes | reportarIncidente (389) | CumplimientoController:253 | RESPONSABLE_SEGURIDAD | — | AP-CU55-02 | Repetible: reescribe fecha y re-emite |
+| POST .../incidentes/{id}/notificaciones | notificarTitulares (411) | CumplimientoController:261 | RESPONSABLE_SEGURIDAD | — | AP-CU55-03 | Idem |
+| GET /reclamos/usuarios/{usuarioId}/efecto | consultarEfectoDeReclamos (436) | ReclamosController:93 | RECLAMO_VER | query producto | 401/403 | Consumidores reales probablemente sin ese permiso |
+| GET /reclamos | listarBandejaDeReclamos (469) | ReclamosController:53 | RECLAMO_VER | query | AP-CU52-07 | — |
+| GET /reclamos/{reclamoId} | consultarReclamo (513) | ReclamosController:67 | RECLAMO_ATENDER | — | AP-CU52-05 | Lectura de texto personal sin bitácora de lectura |
+| POST /reclamos/{reclamoId}/respuesta | responderReclamo (537) | ReclamosController:74 | RECLAMO_ATENDER | EntradaRespuestaReclamo | AP-CU52-03/05/06 | — |
+| GET /cumplimiento/alertas | listarBandejaDeAlertas (571) | CumplimientoController:116 | CUMPLIMIENTO_ALERTAS | query | AP-CU44-05 | — |
+| GET /cumplimiento/casos | listarBandejaDeCasos (619) | CumplimientoController:135 | CUMPLIMIENTO_CASOS | query | AP-CU44-05 | — |
+| POST /cumplimiento/casos | abrirCasoLft (654) | CumplimientoController:77 | CUMPLIMIENTO_CASOS | EntradaCasoLft (`analistaId` del cuerpo, yaml:1344-1351) | AP-CU44-08 | analista arbitrario |
+| POST /cumplimiento/casos/{casoId}/decision | decidirCasoLft (683) | CumplimientoController:93 | CUMPLIMIENTO_CASOS | EntradaDecisionCasoLft | AP-CU44-01/02/03/06/07 | mismo permiso que abrir |
+| GET/POST /uif/reportes | listarReportes (717) / generarReporte (748) | UifController:65 / 36 | CUMPLIMIENTO_REPORTAR (+AUDITORIA_LEER GET) | EntradaGeneracionReporte (`catalogoCodigo` y `formulario` independientes, yaml:1659) | AP-CU43-01/05 | catálogo y formulario pueden no coincidir |
+| GET/POST /uif/requerimientos | listar (780) / registrar (811) | UifController:74 / 51 | OFICIAL_CUMPLIMIENTO (+AUDITORIA_LEER GET) | EntradaRequerimientoDeAutoridad | AP-CU45-01..03/05 | — |
+| GET/POST /cumplimiento/continuidad/pruebas | listar (843) / registrar (866) | ColasDeCumplimientoWeb:62 / 38 | RESPONSABLE_RIESGOS | EntradaPruebaDeContinuidad | AP-CU56-01..04 | `ejecutadaPor` del cuerpo (declarado) |
+| GET /cumplimiento/comites/actas | listarActasDeComite (898) | ColasDeCumplimientoWeb:70 | OFICIAL_CUMPLIMIENTO / AUDITORIA_LEER | query | AP-CU94-07 | — |
+| POST /uif/reportes/envios | aprobarYEnviarReporte (922) | UifController:43 | CUMPLIMIENTO_REPORTAR | EntradaEnvioReporte (`aceptadoPorElOrganismo`, `numeroConstancia` del operador) | AP-CU43-01..04 | "Envío" sin integración |
+| POST /uif/requerimientos/{id}/respuesta | responderRequerimiento (955) | UifController:58 | OFICIAL_CUMPLIMIENTO | EntradaRespuestaRequerimiento | AP-CU45-01/04 | — |
+| GET /licencia/alcance | verificarAlcance (992) | LicenciaController:38 | PARTICIPANTE | query servicio, usuarioId | AP-CU46-* | GET con escritura; `usuarioId` arbitrario |
+
+Cobertura contrato↔código: las 27 operaciones del yaml tienen implementación y `@Permiso`/`@Publico` (verificado por `SabanaDeSeguridadWeb` heredada en `web/SeguridadWebTest.java:29-30`). El yaml no declara el permiso en un campo máquina-legible (`x-permiso`): solo en `description`. No hay ruta para CU-06, 40, 41, 42, 47, 48, 49, 53, 94 (declarado en el yaml:9-10 y :1020-1023).
+
+
+Nota del orquestador: `scripts/auditar_backend.py` informa cinco operaciones de cumplimiento «declaradas sin implementar» (`listarEventosDeRiesgo`, `listarIncidentesDeSeguridad`, `listarPruebasDeContinuidad`, `registrarPruebaDeContinuidad`, `listarActasDeComite`; `evidencia/auditar_backend.txt`). Es un **falso positivo** del verificador: están implementadas en la clase abstracta `servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/web/ColasDeCumplimientoWeb.java:28,49,73` (`abstract class ColasDeCumplimientoWeb implements CumplimientoApi`), que hereda el controlador. Se registra en §10.
+
+### 6.3 Capas cruzadas y eventos
+
+| Operación / evento | Pacto (`contratos/pactos/`) | Cliente generado | Modelo app / front | Esquema `sql/` | Discrepancias |
+|---|---|---|---|---|---|
+| identidad → grupos `GET /grupos/{g}/integrantes/{u}/comparte` | `identidad-grupos-pertenencia.json:14` (consumidor) | n/a | n/a | n/a | sin prueba del lado productor ni casos 4xx/5xx/timeout (98.1.4) — ficha en tanda 3 |
+| `POST /usuarios` (alta) | no | `clientes/dart/identidad` (`entrada_registro`) | la app usa Dio crudo con comentario obsoleto (IDCU-CONTRATO-017) | `usuario`, `documento_identidad`, `verificacion_kyc` | `Idempotency-Key` obligatoria e ignorada; perfil transaccional ausente (IDCU-HUECO-009) |
+| `Documento.tipo` | — | `[CI, CEX, PASAPORTE]` | coerción silenciosa a `CI` (IDCU-COHERENCIA-018) | catálogo distinto (tanda 3) | tres vocabularios para el mismo concepto |
+| `POST /cumplimiento/usuarios/{id}/pep` | no | `clientes/dart/cumplimiento` | **la app nunca lo llama** (IDCU-HUECO-010) | `declaracion_pep`, `beneficiario_final` | DELETE sin privilegio y RLS del titular (tanda 5) |
+| `GET /cumplimiento/contratos/vigentes` | no | sí | texto del contrato fijo en la app (IDCU-COHERENCIA-013) | `contrato_adhesion` | versión/hash no comparados |
+| `GET /reclamos/usuarios/{id}/efecto` | no | n/a | n/a (consumido por garantía/organizador) | `reclamo_cliente` | permiso exigido que el llamador no tiene (tanda 5) |
+| `POST /billetera/retiros/{id}/aprobacion` | no | `clientes/angular/nucleo-financiero` | tipos escritos a mano en el backoffice (IDCU-DOC-006) | `orden_retiro` | el contrato declara 404/409 y el código devuelve 422 (tanda 3) |
+| `GET /usuarios/por-telefono` (deprecado) | no | sí | grupos ya migró | — | teléfono en la URL (90.2.2), sigue publicado |
+| OpenAPI identidad y cumplimiento | — | — | — | — | sin `components.securitySchemes` aunque identidad referencia `bearerAuth` (tanda 3) |
+| Eventos `identidad.*` (10) | no | — | — | outbox | la decisión KYC no publica evento; cumplimiento no consume `usuario_registrado` |
+| Eventos `cumplimiento.*` (~30) | no | — | — | outbox | **ninguno con consumidor** (tanda 5); `limites_evaluados` lleva `monto` |
+| Evento `nucleo_financiero.retiro_autorizado` | no | — | — | outbox | sin consumidor (IDCU-FLUJO-FALTANTE-036); `retiro_rechazado` con dos formas (tanda 3) |
+
+Operaciones que alguien llama y no existen: progreso de tutoriales `/identidad/tutoriales/progreso` (GET/PUT/DELETE) desde el frontend, sin operación en `identidad.yaml` (declarada «conocida», `evidencia/verificar_rutas_frontend.txt`); cambio de contraseña, baja, recuperación de acceso y enrolamiento MFA: la app ofrece las pantallas y no hay operación (IDCU-HUECO-011, -012, -025). Operaciones que existen y nadie llama: `declararPep` desde la app; CU-40 de cumplimiento (sin ruta, IDCU-REESCRITURA-001).
 
 ## 7. Evidencia obligatoria del módulo
 
-Pendiente.
+| Evidencia (91.6 / 98.8 / 90.6) | Estado | Detalle |
+|---|---|---|
+| Asientos por operación de dinero | NO APLICA / NO COMPROBADO | identidad y cumplimiento no escriben el mayor (GRANTs `sql/00_base/03_permisos.sql:17-21`, tanda 5). El asiento del pago del retiro no tiene línea de costo (tanda 3): leído, no ejecutado |
+| Idempotencia ejercitada | NO COMPROBADO | no se ejecutó nada contra una base; `python3 scripts/idempotencia.py` → exit 0 sin salida (`evidencia/idempotencia.txt`) |
+| Cuadre del mayor | NO APLICA | — |
+| Caso de reversa | NO COMPROBADO | — |
+| Redondeo declarado | NO COMPROBADO | importes de cumplimiento sin moneda (tanda 5) |
+| Prueba de contrato | NO COMPROBADO | pacto identidad→grupos sin verificación de productor; Gradle no corrió |
+| Prueba de duplicado de mensaje | NO COMPROBADO | ni identidad ni cumplimiento consumen eventos |
+| Servicio dependido apagado | NO COMPROBADO | por lectura: identidad→grupos falla cerrado; garantía/organizador→cumplimiento traducen el error a «FRENA» |
+| Traza con `correlationId` | NO COMPROBADO | — |
+| Matriz de autorización negativa | PASS de existencia, NO COMPROBADO de ejecución | `python3 scripts/verificar_pruebas_web.py` → «controladores: 42 · con matriz propia: 42 · en deuda: 0» (`evidencia/verificar_pruebas_web.txt`); `scripts/auditar_backend.py` → «0/393 clases de prueba corrieron y pasaron» |
+| Verificadores estáticos | ver detalle | `verificar_seguridad.py` exit 0; `verificar_boveda.py` exit 0 «Sin divergencias»; `inventario_endpoints.py --check` exit 0 «alineado»; `verificar_rutas_frontend.py` **exit 1** (falla ajena: `GET /grupos/solicitudes-escaladas` ya tiene contrato); `verificar_criterios.py` → «pendientes de implementar (3): CU-05 (identidad), …»; `validar_flujos.py` → AVISO H8-01 retiro sin cablear; `verificar_contratos_limites.py` → 9 campos de cumplimiento y 3 de identidad sin `maxLength`/`maximum`/`maxItems` |
 
 ## 8. Cobertura por clase
 
