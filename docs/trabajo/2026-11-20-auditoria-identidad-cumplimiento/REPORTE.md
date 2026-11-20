@@ -1,6 +1,6 @@
 # Reporte — Auditoría de solo lectura: identidad-cumplimiento (L4)
 
-> **AVANCE: 8 / 9 — 88,9 %.**
+> **AVANCE: 9 / 9 — 100,0 %.** (auditoría de solo lectura: los hallazgos están en peldaño DISCOVERED; ninguna prueba del módulo corrió)
 
 - Fecha: 2026-11-20 · Plan: [PLAN.md](./PLAN.md) · Rama: `auditoria/identidad-cumplimiento-2026-11-20` (creada desde `origin/test`)
 - Entregable: [AUDITORIA-identidad-cumplimiento.md](./AUDITORIA-identidad-cumplimiento.md)
@@ -18,15 +18,12 @@
 | H1.M4 | Vista de conjunto y cobertura por clase (§8, 32 clases, ninguna vacía) | conteo de filas de §8 | PASS |
 | H1.M5 | Matriz de contratos (§6) y verificadores ejecutados | `ls evidencia/` | PASS → 23 archivos; Gradle/yarn como BLOCKED de entorno |
 | H1.M6 | Estándares en cada ficha | `grep -c '^- Estándares y normas:'` | PASS → 176 de 176 |
+| H1.M8 | Entrega: commit y push a la rama de entrega, sin PR ni merge | `git push` | PASS → `b7218c97..59987f2b  auditoria/identidad-cumplimiento-2026-11-20 -> auditoria/identidad-cumplimiento-2026-11-20` |
 | H1.M7 | Refutación de S1 y S2 | ver «Evidencia» | PASS → 0 hallazgos caídos; 14 corregidos; 1 bajado a S3; 39 líneas relocalizadas |
 
 ## A medias
 
-### H1.M8 — Entrega (commit y push final)
-- Qué anda: todas las tandas anteriores están subidas a la rama (último push previo `b7218c97`).
-- Qué no anda: el commit de cierre todavía no está subido cuando se escribe este reporte.
-- Qué falta exactamente: `git add` de esta carpeta, commit y `git push`; después actualizar la primera línea a 9/9 con la salida del push.
-- Dónde quedó: `docs/trabajo/2026-11-20-auditoria-identidad-cumplimiento/`, rama `auditoria/identidad-cumplimiento-2026-11-20`.
+ninguna
 
 ## Pendiente
 

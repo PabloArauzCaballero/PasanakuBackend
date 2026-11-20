@@ -21,7 +21,7 @@
 **CA:** Dado el commit auditado de `origin/test`, cuando una persona lee el informe, entonces cada
 hallazgo tiene ficha completa, los inventarios y la matriz existen, y los límites están declarados.
 **DoD:** `git status --short` solo muestra esta carpeta · commit subido a la rama de entrega.
-**Estado:** EN CURSO
+**Estado:** HECHO (entregable escrito y subido; el peldaño de evidencia de los hallazgos es DISCOVERED, ver REPORTE)
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
@@ -33,7 +33,7 @@ hallazgo tiene ficha completa, los inventarios y la matriz existen, y los límit
 | H1.M5 | Fase 5 — conexiones, contratos y verificadores | matriz + salidas de verificadores en `evidencia/` | `ls evidencia/` → 23 archivos; Gradle y yarn NO COMPROBADO por entorno (§11) | HECHO |
 | H1.M6 | Fase 6 — estándares y normativa | cada hallazgo con estándares | `grep -c '^- Estándares y normas:'` → 176 de 176 fichas | HECHO |
 | H1.M7 | Fase 7 — refutación | S1/S2 re-abiertos | 33 «Refutación (fase 7)» + 39 «Línea corregida»; chequeo de 677 referencias → 0 fuera de rango | HECHO |
-| H1.M8 | Entrega — REPORTE, commit y push | push OK | `git push -u origin auditoria/identidad-cumplimiento-2026-11-20` | EN CURSO — falta el push final |
+| H1.M8 | Entrega — REPORTE, commit y push | push OK | `git push -u origin auditoria/identidad-cumplimiento-2026-11-20` → `b7218c97..59987f2b  auditoria/identidad-cumplimiento-2026-11-20 -> auditoria/identidad-cumplimiento-2026-11-20` | HECHO |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
