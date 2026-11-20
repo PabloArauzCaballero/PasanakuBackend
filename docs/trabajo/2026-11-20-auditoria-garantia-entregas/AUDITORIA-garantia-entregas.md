@@ -147,7 +147,7 @@ sección: `DISCOVERED` (lectura), salvo que se diga otra cosa: no se ejecutó la
 ### garantia-entregas-RESPALDO-001 — Cada fondeo con faltante dispara automáticamente la cobertura con dinero de la empresa
 - Clase / Severidad / Confianza: RESPALDO (y DINERO) / S1 / confirmado
 - Ubicaciones: `servicios/entregas/src/main/java/bo/aportaya/entregas/aplicacion/CU22EntregarPozoCompleto.java:67-85,100`; `servicios/entregas/src/main/java/bo/aportaya/entregas/infraestructura/RespaldoPorHttp.java:56`; `servicios/entregas/src/main/java/bo/aportaya/entregas/web/EntregasController.java:128-129`; `servicios/garantia/src/main/java/bo/aportaya/garantia/web/GarantiaController.java:172-175`; `servicios/garantia/src/main/java/bo/aportaya/garantia/aplicacion/CU23CubrirConRespaldo.java:215`; `servicios/garantia/src/main/java/bo/aportaya/garantia/dominio/AsientoPropuesto.java:47-48`; consumidor `servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/consumo/ConsumidorDeAsientosKafka.java` (tópico `aportaya.garantia.cobertura_empresarial_aplicada`)
-- Evidencia: `var cobertura = respaldo.cubrir(e.grupoId(), e.periodoId(), e.turnoId(), faltante)` … `cubiertoEmpresa = cobertura.cubierto();` → `RespaldoPorHttp` hace POST a `"/garantia/respaldo/coberturas"` → `AsientoPropuesto.aplicacion(...)` = `par("COBERTURA", coberturaId, Cuenta.POZO_GRUPO, Cuenta.RESERVA_RESPALDO, monto)`; nucleo-financiero escucha ese tópico y registra el asiento.
+- Evidencia (refutación hecha: no hay bandera que lo desactive, `servicios/entregas/src/main/resources/application.yml:46` «cubre el faltante con la reserva empresarial»; ninguna pantalla llama `fondearPozo`, lo invoca un operador con `ENTREGA_EJECUTAR` por API): `var cobertura = respaldo.cubrir(e.grupoId(), e.periodoId(), e.turnoId(), faltante)` … `cubiertoEmpresa = cobertura.cubierto();` → `RespaldoPorHttp` hace POST a `"/garantia/respaldo/coberturas"` → `AsientoPropuesto.aplicacion(...)` = `par("COBERTURA", coberturaId, Cuenta.POZO_GRUPO, Cuenta.RESERVA_RESPALDO, monto)`; nucleo-financiero escucha ese tópico y registra el asiento.
 - Cómo se comprobó: lectura de los cinco archivos; `grep -rhoE 'aportaya\.garantia\.[a-z_]+'` muestra que el tópico tiene consumidor en nucleo-financiero.
 - Impacto: la empresa paga al beneficiario lo que no pagaron otros participantes. Es exactamente lo que R-NUEVA-2 prohíbe, en el camino vivo `POST /entregas/pozo-completo`.
 - Causa de fondo: ADR-051 (D-02/D-03/D-15, «pozo completo con respaldo empresarial») implementado en entregas, garantía y nucleo-financiero; nadie lo retiró al cambiar la regla.
@@ -351,7 +351,7 @@ sección: `DISCOVERED` (lectura), salvo que se diga otra cosa: no se ejecutó la
 - Estándares y normas: ISO/IEC 25010 corrección; reglas 91.1.5, 98.3.
 - Esfuerzo estimado: grande
 
-### garantia-entregas-DATOS-001 — RLS de `registro_incumplimiento`/`deuda_participante` deja al imputado y al organizador sin ver el expediente; las pruebas corren con el rol dueño
+### garantia-entregas-DEFECTO-002 — RLS de `registro_incumplimiento`/`deuda_participante` deja al imputado y al organizador sin ver el expediente; las pruebas corren con el rol dueño
 - Clase / Severidad / Confianza: DEFECTO (y SEG, DEBIDO-PROCESO) / S2 / probable
 - Ubicaciones: `sql/40_reglas/restricciones.sql:1437-1438` (`cond := 'fn_seg_rol_privilegiado() OR fn_seg_es_sistema()'` para tablas con `usuario_id` fuera de `visibles_por_titular`); `servicios/garantia/src/main/java/bo/aportaya/garantia/aplicacion/CU25DeclararIncumplimiento.java:157-163`; `servicios/garantia/src/test/java/bo/aportaya/garantia/BaseDeGarantia.java:73-75`
 - Evidencia: rama «denegar por omisión» del recorrido RLS; el descargo busca el expediente con el contexto del imputado.
@@ -394,12 +394,12 @@ sección: `DISCOVERED` (lectura), salvo que se diga otra cosa: no se ejecutó la
 
 ### garantia-entregas-SEG-009 — Las llamadas entre servicios propagan el token del usuario final (cobertura empresarial ejecutada con la identidad de Tesorería)
 - Clase / Severidad / Confianza: SEG / S2 / probable
-- Ubicaciones: `servicios/garantia/src/main/java/bo/aportaya/garantia/infraestructura/ClienteConCircuito.java:72,81`; `servicios/entregas/src/main/java/bo/aportaya/entregas/infraestructura/ClienteConCircuito.java:81` (clon, ver DUP-INT-001)
+- Ubicaciones: `servicios/garantia/src/main/java/bo/aportaya/garantia/infraestructura/ClienteConCircuito.java:72,81`; `servicios/entregas/src/main/java/bo/aportaya/entregas/infraestructura/ClienteConCircuito.java:81` (clon, ver DUP-X-001)
 - Evidencia: propagación del `Authorization` entrante; solo algunos adaptadores de entregas usan la credencial `SERVICIO_ENTREGAS`.
 - Impacto: viola 98.6.3; el permiso que exige el servicio llamado es el del humano (`ENTREGA_EJECUTAR`), no uno de servicio con alcance; con cumplimiento, el ORGANIZADOR recibe 403 y el aval/restricción se frena.
 - Solución de fondo: token de servicio con alcance acotado por operación. · Conexiones: aportes, cumplimiento, garantía · Estándares: OWASP API2:2023; regla 98.6 · Esfuerzo: medio
 
-### garantia-entregas-DUP-INT-001 — `ClienteConCircuito` y `ConfiguracionDeCircuito` copiados en garantía y entregas
+### garantia-entregas-DUP-X-001 — `ClienteConCircuito` y `ConfiguracionDeCircuito` copiados en garantía y entregas
 - Clase / Severidad / Confianza: DUP-X / S3 / confirmado (mismo nombre y tamaño: 128 y 28 líneas en ambos)
 - Ubicaciones: `servicios/garantia/src/main/java/bo/aportaya/garantia/infraestructura/ClienteConCircuito.java`, `servicios/entregas/src/main/java/bo/aportaya/entregas/infraestructura/ClienteConCircuito.java`, y las dos `ConfiguracionDeCircuito.java`
 - Evidencia: `wc -l` 128/128 y 28/28.
@@ -571,3 +571,86 @@ sección: `DISCOVERED` (lectura), salvo que se diga otra cosa: no se ejecutó la
 - Ubicaciones: `sql/35_append_only/append_only.sql` (ninguna tabla de entregas); `servicios/entregas/.../infraestructura/FondeoRepositorio.java` (UPDATE del fondeo)
 - Impacto: la explicación línea a línea de una entrega (91.3.4) puede reescribirse sin historial.
 - Solución de fondo: append-only o historial versionado. · Estándares: 91.1.3, 90.2.7 · Esfuerzo: medio
+
+<!-- TANDA 4: pasada inversa de la Fase 7 sobre clases sin hallazgos -->
+
+### garantia-entregas-FLUJO-QR-001 — El cobro QR confirmado no mueve nada en entregas: el servicio no consume ningún evento y el fondeo lo dispara un operador
+- Clase / Severidad / Confianza: FLUJO-QR (y APROB) / S2 / confirmado
+- Ubicaciones: `servicios/entregas/src/main/java` (sin `@KafkaListener`); `servicios/entregas/src/main/java/bo/aportaya/entregas/web/EntregasController.java:128-129`; `servicios/entregas/src/main/java/bo/aportaya/entregas/infraestructura/RecaudoPorHttp.java`; garantía solo consume `aporte_aplicado` y `transaccion_reversada` (`servicios/garantia/src/main/java/bo/aportaya/garantia/consumo/*.java`) para recargos, no para levantar restricciones ni cerrar expedientes
+- Evidencia: `grep -rln KafkaListener servicios/entregas/src/main` → sin resultados. El fondeo pregunta a aportes por HTTP (lo confirmado es lo que afirma aportes) cuando un humano llama `POST /entregas/pozo-completo`.
+- Cómo se comprobó: búsqueda de consumidores; lectura del controlador.
+- Impacto: con R-NUEVA-1 lo único que debe mover el flujo es el pago confirmado por webhook. Hoy, aunque el último aporte del turno se confirme, la entrega no avanza hasta que alguien la fondee, autorice, emita y anote (APROB-001). La restricción del deudor tampoco se levanta al pagar (UX-A11Y-010).
+- Causa de fondo: entregas diseñado como orquestación invocada por Tesorería.
+- Solución de fondo: consumir el evento de periodo/turno cobrado (de aportes o nucleo-financiero, con pacto) y avanzar la entrega con estado persistido (saga), idempotente por `message_id`.
+- Relación con el flujo nuevo: FLUJO-QR
+- Conexiones y módulos afectados: aportes (`CU100RecibirWebhookPasarela`, lote L1), nucleo-financiero.
+- Estándares y normas: ISO/IEC 25010 adecuación funcional; reglas 98.3, 96.7.3; R-NUEVA-1.
+- Esfuerzo estimado: grande
+
+### garantia-entregas-FLUJO-FALTANTE-001 — Con faltante y sin respaldo la entrega queda BLOQUEADA con el pozo completo como principal y la deuda pendiente sin dueño
+- Clase / Severidad / Confianza: FLUJO-FALTANTE (y HUECO) / S2 / probable
+- Ubicaciones: `servicios/entregas/src/main/java/bo/aportaya/entregas/aplicacion/RegistroDelFondeo.java` (ramas CON_PENDIENTE / BLOQUEADA_POR_FONDO_INCOMPLETO / incidencia FONDO_INCOMPLETO); `servicios/entregas/src/main/resources/application.yml:60-63` (SLA sintético PT24H); `docs/catalogo-de-flujos/entrega-del-turno.yaml:38-39`; ADR-051:113
+- Evidencia: tabla de ramas en la sección 4.d; `monto_pendiente` se guarda en el fondeo sin participante deudor asociado; `reportada_por` de la incidencia es el operador.
+- Cómo se comprobó: lectura del subagente de `RegistroDelFondeo` y reapertura del `application.yml` por el agente principal; las ramas no se ejecutaron.
+- Impacto: con R-NUEVA-2 la rama A3 pasa a ser la regla de todos los faltantes: el beneficiario espera sin plazo definido por negocio, y la deuda «conservada» no se imputa a quien no pagó dentro de entregas.
+- Causa de fondo: A-2 sin decidir.
+- Solución de fondo: DECISIÓN REQUERIDA (A-2) — no se propone una regla. Lo técnico, cualquiera sea la decisión: imputar el pendiente a la obligación del participante (aportes/garantía) y que el estado se resuelva por evento de pago.
+- Relación con el flujo nuevo: RESPALDO / FLUJO-QR
+- Conexiones y módulos afectados: aportes, garantía.
+- Estándares y normas: ISO/IEC 25010 completitud; regla 91.3.4.
+- Esfuerzo estimado: medio (tras la decisión)
+
+### garantia-entregas-REESCRITURA-001 — Tres mecanismos para ceder el turno: mercado de ofertas (muerto en la práctica), subasta y traspaso por votación
+- Clase / Severidad / Confianza: REESCRITURA (y HUECO) / S3 / confirmado
+- Ubicaciones: `servicios/entregas/src/main/java/bo/aportaya/entregas/infraestructura/HechosDeGruposPorHttp.java:45-46`; `GestionDeOfertas.java`/`RegistroDeOfertas.java`/`ComprarOfertaDeTurno.java` (mercado, CU-130); `SubastaDelCupo.java` (CU-136/64); `apps/movil/lib/pantallas/pasanaku/rutas_operacion.dart:14-22` (traspaso)
+- Evidencia: `public Optional<Turno> turno(UUID turnoId) { return Optional.empty(); }` → publicar oferta siempre se deniega; ninguna pantalla llama las operaciones del mercado (sección 6).
+- Cómo se comprobó: lectura del adaptador; matriz de contratos del lote de frontends.
+- Impacto: código, pruebas, mocks y contratos mantenidos para una función que no puede operar; tres reglas distintas para la misma intención.
+- Solución de fondo: decidir cuál queda (Pablo) y retirar las otras con versión.
+- Relación con el flujo nuevo: APROB (el traspaso por votación) · Conexiones: grupos, nucleo-financiero · Estándares: ISO/IEC 25010 mantenibilidad · Esfuerzo: medio
+
+### garantia-entregas-PISADA-001 — Historial de CU-22 con revert y reaplicación sobre `test`
+- Clase / Severidad / Confianza: PISADA / S4 / sospecha
+- Ubicaciones: `git log origin/test -- servicios/entregas/src/main/java/bo/aportaya/entregas/aplicacion/CU22*.java`
+- Evidencia: `0c2e1488 revert: volver test a 59370bbd mientras se diagnostica el despliegue` seguido de `60f9fd1e Subida a TEST desde justin/feature/cierre-endurecimiento-2026-10-08 … endurecimiento integral` y `d8e103ec feat: endurecimiento integral …`.
+- Cómo se comprobó: `git log --oneline` (historial completo tras `--deepen=300`).
+- Impacto: indica que el módulo se revirtió y reaplicó en bloque; junto con DINERO-003 (legacy vivo) y DATOS-003 (dos diseños del expediente) sugiere soluciones conviviendo. No se diffearon los commits.
+- Solución de fondo: revisar con el dueño qué quedó de cada lado. · Estándares: — · Esfuerzo: chico
+
+### garantia-entregas-PARCHE-001 — Parámetros «SINTETICOS» y un factor fijo «SOLO TEST» en la configuración principal del servicio
+- Clase / Severidad / Confianza: PARCHE (y CONFIG) / S3 / confirmado
+- Ubicaciones: `servicios/entregas/src/main/resources/application.yml:28,60-63,73-82`; `servicios/garantia/src/main/resources/application.yml:28`
+- Evidencia: `# SINTETICO (ambiguedad del carril C): plazo para resolver un faltante extraordinario de caja … sla: PT24H`; `factor-fijo: ${ENTREGAS_SERVICIO_FACTOR_FIJO:}   # SOLO TEST`; `credencial-servicio: ${ENTREGAS_LIBRO_CREDENCIAL_SERVICIO:}` (valor por defecto vacío); circuit breaker con «Valores SINTETICOS».
+- Cómo se comprobó: lectura (no se leyó la clase de validación de arranque; el comentario afirma «Config a medias = no arranca», no verificado).
+- Impacto: decisiones de negocio y de resiliencia pendientes viajan como valores por defecto en producción; el servicio se autentica con una cuenta de usuario (teléfono, clave, TOTP) en lugar de una identidad de servicio.
+- Solución de fondo: parámetros con procedencia (97.5.4); identidad de servicio emitida por plataforma (98.6.3); valores de prueba solo en perfil de prueba.
+- Relación con el flujo nuevo: FLUJO-FALTANTE (SLA) · Estándares: reglas 90.3.4, 97.5.4, 98.6.3 · Esfuerzo: medio
+
+### garantia-entregas-TRAZA-001 — Sin bitácora de lectura de datos financieros en garantía y entregas
+- Clase / Severidad / Confianza: TRAZA / S2 / probable
+- Ubicaciones: `servicios/garantia/src/main/java`, `servicios/entregas/src/main/java` (sin referencias a `registro_acceso_datos` ni equivalente); endpoints de lectura `GET /cobranza/restricciones/vigentes/{usuarioId}`, `GET /desembolsos`, `GET /cuentas-bancarias/{id}/disponibilidad`
+- Evidencia: `grep -rlnE 'registro_acceso|RegistroDeLectura|AccesoADatos'` sobre ambos servicios → vacío; la tabla `registro_acceso_datos` existe y la usa `servicios/auditoria`.
+- Comprobación pendiente: confirmar que ningún filtro transversal de plataforma registra estas lecturas (no se encontró por búsqueda).
+- Impacto: la regla 90.2.7 exige rastro auditable de toda lectura de datos financieros de una persona (deuda, restricción, cuentas de cobro, desembolsos).
+- Solución de fondo: registro de lectura transversal (plataforma) por endpoint marcado como sensible. · Estándares: regla 90.2.7; OWASP ASVS (registro de seguridad) · Esfuerzo: medio
+
+### garantia-entregas-REG-001 — Segregación de entrega (R-SEG-04), verificación de cuenta y KYC del beneficiario: posibles obligaciones sin fuente normativa en el repo
+- Clase / Severidad / Confianza: REG / S3 / sospecha
+- Ubicaciones: `sql/40_reglas/restricciones.sql` (`ck_entrega_segregacion`, «R-SEG-04 · cuatro ojos donde importa»); `servicios/entregas/src/main/resources/openapi/entregas.yaml:211`; SEG-008; dossier `docs/trabajo/2026-10-08-endurecimiento-integral/evidencia/carril-F/H15-dossier-habilitacion-real.md` (habilitación de dinero real condicionada, según el metaprompt)
+- Evidencia: el código y la base imponen cuatro ojos en la entrega; no se encontró en `servicios/garantia`/`servicios/entregas` cita a una norma ASFI/UIF que lo exija.
+- Impacto: quitar la aprobación (R-NUEVA-1) puede eliminar un control que Cumplimiento considere obligatorio; dejarla contradice R-NUEVA-1. Norma a identificar por Cumplimiento.
+- Solución de fondo: que Cumplimiento identifique la norma y se registre en `docs/Cumplimiento.md`; decidir A-1. · Esfuerzo: chico (documental)
+
+### garantia-entregas-FRAGIL-001 — Estados de la entrega y del expediente como cadenas literales repetidas en Java, SQL y front
+- Clase / Severidad / Confianza: FRAGIL (y DDD) / S3 / confirmado
+- Ubicaciones: `servicios/entregas/src/main/java` (`"AUTORIZADA"` 5 veces; `List.of("AUTORIZADA", "EN_PROCESO_DESEMBOLSO")` en `CU28EmitirDesembolso.java:176` y `EntregaRepositorio.java:139`); CHECKs de `sql/10_tablas/04_entregas_fondo/entrega_fondo.sql`; `servicios/garantia/src/main/java/bo/aportaya/garantia/dominio/EstadoDelExpediente.java` (constantes `String`)
+- Evidencia: `grep -rn '"AUTORIZADA"' servicios/entregas/src/main --include=*.java | wc -l` → 5.
+- Impacto: si se renombra o agrega un estado (p. ej. al quitar AUTORIZADA por R-NUEVA-1), se rompe en el repositorio, el caso de uso, el CHECK y el front sin que el compilador avise; ninguna prueba cruza las tres capas.
+- Solución de fondo: enum de dominio con mapeo único a la base y al contrato. · Estándares: ISO/IEC 25010 mantenibilidad (modificabilidad) · Esfuerzo: medio
+
+### garantia-entregas-CLEAN-001 — Código y textos muertos
+- Clase / Severidad / Confianza: CLEAN / S4 / confirmado
+- Ubicaciones: `servicios/garantia/src/main/java/bo/aportaya/garantia/dominio/EstadoDelExpediente.java:58` (`admiteTransicion`, sin referencias); `apps/movil/lib/pantallas/pasanaku/textos.dart:113-116` (`tituloEntrega`, `solicitarEntrega`, `entregaEnCurso`, sin uso)
+- Evidencia: `grep -rn admiteTransicion servicios/garantia/src` → solo la declaración; `grep` de los textos → solo su definición.
+- Impacto: una regla de transición escrita y no aplicada; la persona participante no tiene pantalla de entrega ni de deducciones (91.3.4 sin superficie para quien cobra).
+- Solución de fondo: usar `admiteTransicion` en la escritura o borrarlo; decidir la pantalla de entrega. · Estándares: ISO/IEC 25010 mantenibilidad · Esfuerzo: chico
