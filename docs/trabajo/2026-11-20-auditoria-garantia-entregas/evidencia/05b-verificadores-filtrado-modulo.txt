@@ -1,0 +1,37 @@
+== verificar_contratos_limites: 103 lineas; módulo:
+  - entregas · openapi/*.yaml#/components/schemas/EntradaLiquidacion/deducciones: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - entregas · openapi/*.yaml#/components/schemas/EntradaRegistroCuenta/numeroCifrado: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - entregas · openapi/*.yaml#/components/schemas/EntradaRespuestaDesembolso/referenciaProveedor: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - entregas · openapi/*.yaml#/components/schemas/EntradaRespuestaDesembolso/codigoError: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - garantia · openapi/*.yaml#/components/schemas/EntradaCobertura/diasMora: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - garantia · openapi/*.yaml#/components/schemas/EntradaDeclaracion/diasMora: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - garantia · openapi/*.yaml#/components/schemas/EntradaDeclaracion/urlDeLaEvidencia: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - garantia · openapi/*.yaml#/components/schemas/EntradaDescargo/argumento: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - garantia · openapi/*.yaml#/components/schemas/EntradaDescargo/evidenciasJson: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - garantia · openapi/*.yaml#/components/schemas/EntradaDevolucionFondo/deudasVivas: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - garantia · openapi/*.yaml#/components/schemas/EntradaDisolucion/posiciones: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - garantia · openapi/*.yaml#/components/schemas/EntradaReservaRespaldo/ciclo: sin limite (`maxLength`/`maximum`/`maxItems`)
+== validar_flujos: 6 lineas; módulo:
+  OK    · aporte-mora-cobertura.yaml: 12 pasos, 6 validos, 7 limite, 7 invalidos
+== verificar_criterios: 3 lineas; módulo:
+== verificar_seguridad: 52 lineas; módulo:
+  AVISO · servicios/entregas/src/main/java/bo/aportaya/entregas/infraestructura/SubastaRepositorio.java:45 — DSL.field(variable) — nombre de columna dinámico (fuera del alcance de este carril; dueño del servicio)
+  AVISO · servicios/entregas/src/main/java/bo/aportaya/entregas/infraestructura/PujaRepositorio.java:34 — DSL.field(variable) — nombre de columna dinámico (fuera del alcance de este carril; dueño del servicio)
+== idempotencia: 0 lineas; módulo:
+== cobertura: 2 lineas; módulo:
+== auditar_backend: 94 lineas; módulo:
+== listar_topicos: 269 lineas; módulo:
+aportaya.entregas.cesion_fallida
+aportaya.entregas.cuenta_destino_registrada
+aportaya.entregas.cuenta_destino_verificada
+aportaya.entregas.derecho_cedido
+aportaya.entregas.desembolso_acreditado
+aportaya.entregas.desembolso_ordenado
+aportaya.entregas.desembolso_rechazado
+aportaya.entregas.entrega_autorizada
+aportaya.entregas.entrega_ejecutada
+aportaya.entregas.entrega_liquidada
+aportaya.entregas.indicador_calculado
+aportaya.entregas.oferta_cancelada
+== verificar_rutas_frontend: 10 lineas; módulo:
+== verificar_pruebas_web: 4 lineas; módulo:

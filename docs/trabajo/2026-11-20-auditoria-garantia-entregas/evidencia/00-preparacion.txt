@@ -1,0 +1,7 @@
+## Fase 0
+Fri Nov 20 23:14:03 UTC 2026
+HEAD(origin/test)=07fc69719287b0dadd152d0293a054948df69ead
+origin/dev=850e0f51192d03094304630a61e44e5bd2a97efe
+shallow tras --deepen=300: false
+diff test..dev en el módulo:
+(fin diff)

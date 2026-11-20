@@ -1,0 +1,248 @@
+===== python3 scripts/verificar_contratos_limites.py
+  - transparencia · openapi/*.yaml#/components/schemas/EntradaResena/resenasPreviasDelAutor: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/EntradaSellado/hechos: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/EntradaSellado/excepcionesDeConciliacionAbiertas: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/HechosDelUsuario/ciclosCompletados: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/HechosDelUsuario/ciclosCompletadosSinCobertura: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/HechosDelUsuario/aportesPuntualesConsecutivos: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/HechosDelUsuario/diasCorridosSinMora: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/HechosDelUsuario/regularizacionesCumplidasEnPlazo: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/HechosDelUsuario/gruposCerradosComoOrganizador: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/HechosDelUsuario/sancionesFirmesComoOrganizador: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/HechosDelUsuario/entregasFueraDePlazoComoOrganizador: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/HechosDelUsuario/desempenoComoOrganizador: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/HechosDelUsuario/invitadosQueCompletaronUnCiclo: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/HechosDelUsuario/mesesDeAntiguedad: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/Indicadores/puntualidad: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/Indicadores/incumplimiento: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/Indicadores/gruposCompletados: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/Indicadores/gruposAbandonados: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/Indicadores/incumplimientosAbiertos: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/Indicadores/antiguedadMeses: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/Medicion/valorCrudo: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/Medicion/valorNormalizado: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/MetricaDeRiesgo/valor: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/MetricaDeRiesgo/umbral: sin limite (`maxLength`/`maximum`/`maxItems`)
+Los contratos de request en el alcance de este gate declaran limites y additionalProperties: false.
+exit=0
+===== python3 scripts/validar_flujos.py
+  OK    · aporte-mora-cobertura.yaml: 12 pasos, 6 validos, 7 limite, 7 invalidos
+  OK    · entrega-del-turno.yaml: 7 pasos, 4 validos, 5 limite, 6 invalidos
+  OK    · recarga-y-retiro.yaml: 6 pasos, 3 validos, 5 limite, 6 invalidos
+  AVISO · recarga-y-retiro.yaml: paso `instruir-pago` SIN CABLEAR — H8-01 · Ningún trabajo, endpoint ni consumidor llama a RetirosConProveedor.despachar ni a CU11RetirarSaldo.instruirPago en producción; el evento nucleo_financiero.retiro_autorizado se publica y nadie lo consume. Una orden AUTORIZADA queda retenida sin instruirse. Decisión pendiente (A9): instrucción automática o de un operador.
+
+Sin fallas.
+exit=0
+===== python3 scripts/verificar_criterios.py
+casos de uso implementados y verificados: 108
+pendientes de implementar (3): CU-05 (identidad), CU-51 (aportes), CU-57 (nucleo-financiero)
+Sin divergencias entre la boveda y el codigo.
+exit=0
+===== python3 scripts/verificar_seguridad.py
+  OK    · ningún secreto versionado
+  OK    · ningún archivo .env en el árbol de trabajo
+  OK    · .gitignore excluye los archivos de entorno
+
+=== 5 · EL CICLO ESTÁ CABLEADO ===
+  OK    · la skill seguridad-aplicacion existe
+  OK    · la skill está en el índice de skills
+  OK    · el contrato de implementación exige este gate
+  OK    · el contrato de implementación remite al estándar de seguridad
+  OK    · el CI ejecuta el gate de seguridad
+
+=== 6 · CATÁLOGO COHERENTE CON LA ESPECIFICACIÓN ===
+  OK    · los 59 códigos que los CU exigen existen en el catálogo
+  AVISO · S-9 · 5 propósitos de token sin canal activo (INICIO_SESION_SIN_CONTRASENA, VERIFICACION_TELEFONO, CAMBIO_CORREO, REFRESCO_SESION, FIRMA_CONTRATO): un flujo trabado invita a encender SMS
+
+=== 7 · SQL CON ENTRADA DINÁMICA (SQL-SEGURO) ===
+  AVISO · servicios/inversiones/src/main/java/bo/aportaya/inversiones/infraestructura/Sql.java:20 — DSL.field(variable) — nombre de columna dinámico (fuera del alcance de este carril; dueño del servicio)
+  AVISO · servicios/entregas/src/main/java/bo/aportaya/entregas/infraestructura/SubastaRepositorio.java:45 — DSL.field(variable) — nombre de columna dinámico (fuera del alcance de este carril; dueño del servicio)
+  AVISO · servicios/entregas/src/main/java/bo/aportaya/entregas/infraestructura/PujaRepositorio.java:34 — DSL.field(variable) — nombre de columna dinámico (fuera del alcance de este carril; dueño del servicio)
+  AVISO · servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/infraestructura/ReversoRepositorio.java:73 — DSL.field(variable) — nombre de columna dinámico (fuera del alcance de este carril; dueño del servicio)
+  AVISO · servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/infraestructura/DestinoRepositorio.java:48 — DSL.field(variable) — nombre de columna dinámico (fuera del alcance de este carril; dueño del servicio)
+  AVISO · servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/infraestructura/DestinoRepositorio.java:62 — DSL.field(variable) — nombre de columna dinámico (fuera del alcance de este carril; dueño del servicio)
+  (1045 archivos revisados; 0 bloquean, 6 son aviso)
+
+TODO OK · 7 aviso(s)
+exit=0
+===== python3 scripts/idempotencia.py
+exit=0
+===== python3 scripts/cobertura.py
+Sin informes. Corré primero:
+  ./gradlew test webTest integrationTest && ./gradlew jacocoTestReport
+exit=0
+===== python3 scripts/verificar_boveda.py
+
+=== ESQUEMAS POR SERVICIO ===
+  OK    · 347 tablas con esquema asignado (modelo: 347)
+  OK    · todo esquema es uno de los declarados 
+  OK    · el libro contable entero en nucleo_financiero 
+  OK    · movimiento_billetera con el libro: partida doble en una transaccion
+  OK    · bitacoras en el esquema comun 
+  OK    · el outbox salio de comun (ADR-027)
+  OK    · outbox por esquema en 15_infra 
+  OK    · estado_saga en los esquemas orquestadores 
+  OK    · el esquema de cada tabla coincide con su modulo 
+  OK    · 361 claves foraneas cruzan esquemas y las verifica el motor
+  OK    · 15 roles de servicio creados
+  OK    · cada rol con permiso sobre su esquema 
+  OK    · ningun servicio LEE el rastro ajeno 
+
+=== ENLACES ===
+  OK    · ningún wikilink roto en la bóveda 
+  OK    · ningún wikilink roto en las skills 
+
+=== CIFRAS CITADAS ===
+  OK    · ninguna cifra desfasada en los planes 
+          cifras vigentes: 111 casos de uso · 347 tablas · 328 entidades · 175 restricciones · 52 ADR
+
+TODO OK
+exit=0
+===== python3 scripts/verificar_carriles.py
+     T6      5    4    5    5    2   2.5x     5/5
+  !! T7      5    0    8    5    2   4.0x     4/5
+     T8      3    4    0    5    0   1.7x     3/5
+     T9      0    0    2    2    0   1.0x     2/5
+     T10     0    0    0    2    0   1.0x     1/5
+
+  concurrencia por puesto y tramo:
+    OK    · ningún puesto con dos carriles a la vez sin declararlo en serie
+
+  acumulado del proyecto: 116 unidades · media 23.2 por puesto
+  !! P1:  33 unidades   +42%
+  !! P2:  12 unidades   -48%
+     P3:  26 unidades   +12%
+     P4:  28 unidades   +21%
+     P5:  17 unidades   -27%
+
+  AVISO · tramos con un puesto cargando 4x o más que otro: T5 4x, T7 4x. Se corrige moviendo una deuda declarada, no partiendo un carril (planes/19 §11)
+  NOTA  · acumulado fuera de ±35%: P1 +42%, P2 -48% — es estructural, no reasignable (planes/19 §11)
+
+=== SERVICIOS Y SUS DUEÑOS ===
+  OK    · los 15 servicios tienen descriptor, nivel y carril dueño
+
+AVISO · tramos con un puesto cargando 4x o más que otro: T5 4x, T7 4x. Se corrige moviendo una deuda declarada, no partiendo un carril (planes/19 §11)
+AVISO · servicio sin ficha de carril: inversiones — M18 Inversion no tiene ficha en planes/18 ni en planes/21; dueno del codigo: @PabloArauzCaballero (.github/CODEOWNERS)
+TODO OK (con avisos)
+exit=0
+===== python3 scripts/verificar_frontend.py
+  OK    · sin formato de dinero 
+  OK    · sin plataforma en vista 
+  OK    · sin print 
+  OK    · selects y fechas solo con el sistema de diseño 
+  OK    · selects con hoja también en diseno_flutter 
+  OK    · ningún archivo de más de 200 líneas (texto_del_contrato.dart es dato y queda fuera) 
+  OK    · el shell tiene navegacion/rutas.dart
+  OK    · el shell tiene dominio/cliente.dart
+  OK    · el shell tiene proveedores/sesion.dart
+=== apps/backoffice (Angular) ===
+  OK    · sin red en vista 
+  OK    · sin literal de diseño 
+  OK    · sin formato de dinero 
+  OK    · sin console 
+  OK    · ningún archivo de más de 200 líneas 
+  OK    · sin literal de diseño en @aportaya/ui 
+=== apps/web (Angular) ===
+  OK    · sin red en vista 
+  OK    · sin literal de diseño 
+  OK    · sin formato de dinero 
+  OK    · sin console 
+  OK    · ningún archivo de más de 200 líneas 
+  OK    · sin literal de diseño en @aportaya/ui 
+
+TODO OK
+exit=0
+===== python3 scripts/verificar_rutas_frontend.py
+rutas distintas que usa el frontend: 104 · con contrato: 98 · sin contrato: 6
+  [conocida] DELETE /identidad/tutoriales/progreso/{x}  (progreso de tutoriales en servidor: sin operación en identidad.yaml (ADR-045))
+  [conocida] GET /identidad/tutoriales/progreso  (progreso de tutoriales en servidor: sin operación en identidad.yaml (ADR-045))
+  [conocida] GET /publicidad/socios-comerciales/{x}  (consulta de un socio: publicidad.yaml solo publica postular y verificar)
+  [conocida] POST /extraccion/accesos  (registro de lecturas del backoffice: sin servicio `extraccion` en este repositorio)
+  [conocida] POST /extraccion/exportaciones  (exportaciones: sin servicio `extraccion` en este repositorio)
+  [conocida] PUT /identidad/tutoriales/progreso/{x}  (progreso de tutoriales en servidor: sin operación en identidad.yaml (ADR-045))
+FALLA · la lista de conocidas se pudrió: estas rutas YA tienen contrato (sacalas de CONOCIDAS_SIN_CONTRATO):
+   - GET /grupos/solicitudes-escaladas
+FALLAS
+exit=1
+===== python3 scripts/verificar_pruebas_web.py
+controladores: 42 · con matriz propia: 42 · en deuda: 0
+operaciones con el estado HTTP fuera de su contrato: 25
+servicios con sabana de seguridad: 15
+La capa web esta cubierta segun ADR-043.
+exit=0
+===== python3 scripts/auditar_backend.py
+    - servicios/erp/src/main/java/bo/aportaya/erp/infraestructura/PeriodoRepositorio.java:150: tabla del esquema `nucleo_financiero` (invariante 11)
+    - servicios/erp/src/main/java/bo/aportaya/erp/infraestructura/PresupuestoRepositorio.java:113: tabla del esquema `nucleo_financiero` (invariante 11)
+    - servicios/erp/src/main/java/bo/aportaya/erp/infraestructura/PresupuestoRepositorio.java:114: tabla del esquema `nucleo_financiero` (invariante 11)
+    - servicios/erp/src/main/java/bo/aportaya/erp/infraestructura/PresupuestoRepositorio.java:115: tabla del esquema `nucleo_financiero` (invariante 11)
+    - servicios/erp/src/main/java/bo/aportaya/erp/infraestructura/PresupuestoRepositorio.java:172: tabla del esquema `nucleo_financiero` (invariante 11)
+    - servicios/publicidad/src/main/java/bo/aportaya/publicidad/infraestructura/CreativaRepositorio.java:89: tabla del esquema `organizador` (invariante 11)
+    - servicios/publicidad/src/main/java/bo/aportaya/publicidad/aplicacion/CU110AltaDeAnunciante.java:158: SQL contra el esquema `organizador` (invariante 11)
+
+EVIDENCIA DE EJECUCION  ·  0/393 clases de prueba corrieron y pasaron
+  Existir no es pasar. La nota de «Pruebas» cuenta archivos; esto cuenta corridas.
+  Sin evidencia en build/test-results (393):
+    - aportes: CU132RecaudoTest
+    - aportes: CU99RechazosTest
+    - aportes: CU21RechazosTest
+    - aportes: CU21ReintentoConcurrenteTest
+    - aportes: CU21PrimeraCuotaTest
+    - aportes: CUIndicadoresComercialesDeAportesTest
+    - aportes: CU19Test
+    - aportes: CU21RecargosDiariosTest
+    - aportes: CU21ZonaHorariaTest
+    - aportes: CU100WebhookTest
+    … y 383 mas
+
+==============================================================================
+NOTA GLOBAL: 9.64/10   ·   con 0/393 pruebas verificadas
+exit=0
+===== python3 scripts/listar_topicos.py
+aportaya.tarifas.factura_emitida
+aportaya.tarifas.liquidacion_cerrada
+aportaya.tarifas.liquidacion_descuadrada
+aportaya.tarifas.riesgo_operativo_detectado
+aportaya.tarifas.segmento_publicado
+aportaya.tarifas.tarifa_congelada
+aportaya.tarifas.tarifario_en_preaviso
+aportaya.tarifas.tarifario_vigente
+aportaya.transparencia.alerta_temprana_cerrada
+aportaya.transparencia.alerta_temprana_generada
+aportaya.transparencia.bloque_sellado
+aportaya.transparencia.cadena_rota
+aportaya.transparencia.cadena_verificada
+aportaya.transparencia.certificado_emitido
+aportaya.transparencia.certificado_revocado
+aportaya.transparencia.evento_reputacion_compensado
+aportaya.transparencia.evento_reputacion_registrado
+aportaya.transparencia.insignia_otorgada
+aportaya.transparencia.insignia_revocada
+aportaya.transparencia.puntaje_recalculado
+aportaya.transparencia.resena_creada
+aportaya.transparencia.resena_publicada
+aportaya.transparencia.resena_rechazada
+aportaya.transparencia.sorteo_verificacion_fallida
+aportaya.transparencia.sorteo_verificado
+exit=0
+===== python3 scripts/inventario_endpoints.py --check
+endpoints relevados: 350 · hallazgos: 0
+El inventario esta alineado: todo lo implementado tiene contrato y viceversa.
+===== python3 scripts/matriz_de_pruebas.py --servicio garantia
+| Servicio | Endpoints | Con prueba web | Con CU | CU con prueba de integración | En algún flujo |
+|---|---:|---:|---:|---:|---:|
+| garantia | 20 | 20 | 14 | 13 | 5 |
+| **Total** | 20 | 20 | 14 | 13 | 5 |
+
+Sin prueba web (0):
+===== python3 scripts/matriz_de_pruebas.py --servicio entregas
+| Servicio | Endpoints | Con prueba web | Con CU | CU con prueba de integración | En algún flujo |
+|---|---:|---:|---:|---:|---:|
+| entregas | 21 | 16 | 11 | 11 | 5 |
+| **Total** | 21 | 16 | 11 | 11 | 5 |
+
+Sin prueba web (5):
+  GET /entregas/subastas  (listarSubastasDeCupo)
+  POST /entregas/subastas  (abrirSubastaDeCupo)
+  GET /entregas/subastas/{subastaId}  (consultarSubastaDeCupo)
+  POST /entregas/subastas/{subastaId}/cancelacion  (cancelarSubastaDeCupo)
+  POST /entregas/subastas/{subastaId}/pujas  (pujarEnSubasta)
