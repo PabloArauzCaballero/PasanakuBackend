@@ -1,0 +1,43 @@
+referencias revisadas: 677 · fuera de rango o sin resolver: 42
+IDCU-REESCRITURA-001 | LimiteRepositorio.java | 49-52 | archivo no resuelto
+IDCU-REESCRITURA-001 | LimiteRepositorio.java | 59-71 | archivo no resuelto
+IDCU-HUECO-040 | sql/60_semillas/11-contratos-de-adhesion.sql | 62-67 | el archivo tiene 10 líneas
+IDCU-REG-046 | sql/60_semillas/08-gobierno-y-licencia.sql | 42-58 | el archivo tiene 44 líneas
+IDCU-SEG-059 | servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/infraestructura/SegundoFactorStepUp.java | 139-169 | el archivo tiene 125 líneas
+IDCU-APROB-060 | servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/infraestructura/BandejaDeRetirosRepositorio.java | 138-148 | el archivo tiene 75 líneas
+IDCU-DUP-INT-063 | sql/60_semillas/08-gobierno-y-licencia.sql | 52-58 | el archivo tiene 44 líneas
+IDCU-DEBIDO-PROCESO-066 | sql/60_semillas/08-gobierno-y-licencia.sql | 54 | el archivo tiene 44 líneas
+IDCU-DATOS-072 | sql/60_semillas/11-contratos-de-adhesion.sql | 62-67 | el archivo tiene 10 líneas
+IDCU-DATOS-072 | sql/60_semillas/13-politicas-de-token.sql | 72-74,89-90 | el archivo tiene 40 líneas
+IDCU-SEG-086 | servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/AnotarFotoEnExpediente.java | 91-106 | el archivo tiene 49 líneas
+IDCU-SEG-093 | servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/EmitirTokenDeInvitacion.java | 44-236 | el archivo tiene 176 líneas
+IDCU-DUP-INT-103 | servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/CU08AsignarRol.java | 248-300 | el archivo tiene 119 líneas
+IDCU-RENDIMIENTO-104 | servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/RolesYPermisosRepositorio.java | 177-201 | el archivo tiene 84 líneas
+IDCU-FLUJO-FALTANTE-117 | servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU42RegistrarRog.java | 322-407 | el archivo tiene 139 líneas
+IDCU-FLUJO-FALTANTE-118 | servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU45AtenderRequerimiento.java | 370-385,391-400 | el archivo tiene 197 líneas
+IDCU-SEG-119 | servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU02ElevarDiligencia.java | 258-266,278 | el archivo tiene 195 líneas
+IDCU-SEG-119 | servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU02ElevarDiligencia.java | 282-287 | el archivo tiene 195 líneas
+IDCU-SEG-120 | servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU44DecidirComoRevisor.java | 347-350 | el archivo tiene 159 líneas
+IDCU-FLUJO-FALTANTE-123 | servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU06RevisarConocimiento.java | 403-421 | el archivo tiene 213 líneas
+IDCU-FLUJO-FALTANTE-123 | servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU02ElevarDiligencia.java | 289-299 | el archivo tiene 195 líneas
+IDCU-FLUJO-FALTANTE-123 | servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU03DeclararPep.java | 492-529 | el archivo tiene 220 líneas
+IDCU-FLUJO-FALTANTE-123 | servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU06RevisarConocimiento.java | 415-416 | el archivo tiene 213 líneas
+IDCU-HUECO-124 | application.yml | 34 | archivo no resuelto
+IDCU-DEFECTO-126 | servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU45AtenderRequerimiento.java | 416-423 | el archivo tiene 197 líneas
+IDCU-DATOS-127 | servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/ConfiguracionDeCumplimiento.java | 38-107 | el archivo tiene 104 líneas
+IDCU-DATOS-127 | servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU45AtenderRequerimiento.java | 430 | el archivo tiene 197 líneas
+IDCU-HUECO-129 | servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU06RevisarConocimiento.java | 403-421 | el archivo tiene 213 líneas
+IDCU-DEFECTO-131 | servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU02ElevarDiligencia.java | 309 | el archivo tiene 195 líneas
+IDCU-DEFECTO-131 | servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU03DeclararPep.java | 459-460 | el archivo tiene 220 líneas
+IDCU-CONTRATO-132 | servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU02ElevarDiligencia.java | 315-321 | el archivo tiene 195 líneas
+IDCU-DINERO-135 | CU40EvaluarLimites.java | 529 | archivo no resuelto
+IDCU-DEBIDO-PROCESO-140 | servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU02ElevarDiligencia.java | 233-237 | el archivo tiene 195 líneas
+IDCU-DEBIDO-PROCESO-140 | servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU03DeclararPep.java | 509-526 | el archivo tiene 220 líneas
+IDCU-RENDIMIENTO-143 | servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/aplicacion/CU06RevisarConocimiento.java | 336-346 | el archivo tiene 213 líneas
+IDCU-DATOS-144 | apps/backoffice/src/app/rutas/cumplimiento/textos.ts | 163 | el archivo tiene 101 líneas
+IDCU-DATOS-144 | apps/backoffice/src/app/rutas/cumplimiento/textos-lft.ts | 111,148 | el archivo tiene 65 líneas
+IDCU-HUECO-156 | apps/backoffice/src/app/rutas/cumplimiento/textos-lft.ts | 100,112-113 | el archivo tiene 65 líneas
+IDCU-CLEAN-161 | textos.ts | 124-125 | archivo no resuelto
+IDCU-DUP-INT-164 | apps/backoffice/src/app/rutas/cumplimiento/textos-lft.ts | 105-106,131-138 | el archivo tiene 65 líneas
+IDCU-DUP-INT-164 | textos.ts | 124-125 | archivo no resuelto
+IDCU-PRUEBAS-175 | compartido/pruebas.apoyo.ts | 14-18 | archivo no resuelto

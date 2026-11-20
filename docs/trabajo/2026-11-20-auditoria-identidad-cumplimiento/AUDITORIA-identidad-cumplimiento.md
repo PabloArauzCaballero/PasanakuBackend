@@ -317,6 +317,7 @@ Rutas sin prefijo: relativas a `apps/movil/lib/pantallas/identidad/`. Peldaño: 
 - Conexiones y módulos afectados: `POST /usuarios/{id}/documentos`.
 - Estándares y normas: 95.2.3.
 - Esfuerzo estimado: chico
+- Refutación (fase 7, verificador independiente A): **CONFIRMA**. Evidencia: `pantalla_subida_del_expediente.dart:101-110` dispose→`liberarCapturas()`; `seguimiento_del_alta.dart:62-71` vacía las capturas y llama `eliminarArchivosLocales()`; `:157-175` «Continuar» solo se deshabilita con `subiendoAlguna`; `kyc_del_titular.dart:28-39` `pendientesDeKyc` solo pide los perfiles y la fecha; `pantalla_completar_kyc.dart:127-153` solo ofrece los perfiles. Búsqueda de un camino alternativo: `/registro/subida` solo se alcanza desde el alta (`pantalla_registro.dart:113`) o desde `PantallaVerificarIdentidad` (`:87`), que es para quien todavía no tiene verificación (`aviso_de_verificacion.dart:70-73`, con `sinVerificar`). `pantalla_estado_de_verificacion.dart` no tiene ninguna acción para volver a subir. Corrección: Ninguna. S2/probable es razonable.
 
 ### IDCU-SEG-015 — Prueba de vida y cotejo son escenografía en el cliente
 - Clase / Severidad / Confianza: SEG / DATOS / S2 / confirmado (en cliente); lo que hace el servidor no se verificó
@@ -687,6 +688,7 @@ Peldaño: DISCOVERED (nada se ejecutó contra una base). Fichas del subagente; S
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Estándares y normas: ver evidencia y ubicaciones.
 - Cómo se comprobó: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente A): **CONFIRMA**. Evidencia: `sql/40_reglas/restricciones.sql:528-529` dice «Las órdenes ya autorizadas siguen su curso», pero `:532-534` solo exceptúa `BORRADOR`/`RECHAZADA` y `:552-554` `BEFORE INSERT OR UPDATE OF estado`. La subconsulta de `:535-539` no filtra por moneda. Java filtra `WHERE cc.moneda = ?` (`OrdenRetiroRepositorio.java:264-278`). No hay otra definición de la función (grep en sql/ y servicios/). Corrección: Además quedan bloqueadas `EN_PROCESO→REVERSADA` y la transición a `PAGADA`. `CU11InstruirRetiro.java:63` también chequea por moneda, lo que confirma la incoherencia.
 
 ### IDCU-DINERO-042 — El pago del retiro no registra la línea del costo
 - Clase / Severidad / Confianza: DINERO / S2 / probable
@@ -701,6 +703,7 @@ Peldaño: DISCOVERED (nada se ejecutó contra una base). Fichas del subagente; S
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Estándares y normas: ver evidencia y ubicaciones.
 - Cómo se comprobó: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente A): **CONFIRMA**. Evidencia: `ResolucionDeRetiro.java:101-114` tiene dos patas por `orden.solicitado()`. Al proveedor se le instruye `envio.neto()` (`RetirosConProveedor.java:77`). Ningún código de `servicios/*/src/main` inserta en `cargo_comision` (grep: solo DDL y `sql/62_volumen`). El evento `retiro_pagado` no lleva el costo y no tiene consumidores fuera del emisor. CU-11 (`:47-53`) exige `cargo_comision`. Corrección: Ninguna. Se puede subir la confianza a «confirmado (lectura)».
 
 ### IDCU-APROB-043 — Umbral de doble aprobación sin moneda, sin procedencia, por operación y decidido por el controlador
 - Clase / Severidad / Confianza: APROB / S2 / confirmado
@@ -730,6 +733,7 @@ Peldaño: DISCOVERED (nada se ejecutó contra una base). Fichas del subagente; S
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Estándares y normas: ver evidencia y ubicaciones.
 - Cómo se comprobó: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente A): **CONFIRMA**. Evidencia: `sql/15_infra/borradores.sql:6` `correo VARCHAR(150) PRIMARY KEY`, `:12` `numero_documento VARCHAR(30)`, `:19` `monto_mensual_estimado TEXT`. El repositorio, en `:44,103,113,177`, enlaza `numeroDocumento()` sin transformarlo (`:131`). Corrección: Matiz: `scripts/generar_ddl.py:1195` declara a propósito «No es una entidad del modelo». La parte de la «segunda fuente de verdad» (97.1.1) es una decisión documentada, no una omisión. Hay que reformularla como divergencia declarada. Se solapa con DATOS-082.
 
 ### IDCU-DATOS-045 — Seeds de desarrollo con datos personales de apariencia real
 - Clase / Severidad / Confianza: DATOS / S2 / probable (no se puede verificar identidad; no se reproducen los valores)
@@ -744,6 +748,7 @@ Peldaño: DISCOVERED (nada se ejecutó contra una base). Fichas del subagente; S
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Estándares y normas: ver evidencia y ubicaciones.
 - Cómo se comprobó: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente A): **CONFIRMA**. Evidencia: `sql/61_dev/15-usuarios-dev.sql:7-9` tiene nombre, apellidos, fecha de nacimiento, teléfono y correo con aspecto real (valores no reproducidos). `:52,54` repiten los correos en `canal_vinculado`. El JSON fuente solo trae `descripcion/nota/advertencia` («SOLO DEV»), sin declarar que los datos son sintéticos ni que hubo consentimiento. Corrección: Las cuentas parecen ser del propio responsable del proyecto. Eso podría bajar el impacto, pero no exime de 97.6.1. Mantener S2/probable.
 
 ### IDCU-REG-046 — Parámetros regulatorios y de riesgo activos sin confirmación ni procedencia completa
 - Clase / Severidad / Confianza: REG / DATOS / S2 / confirmado
@@ -758,6 +763,7 @@ Peldaño: DISCOVERED (nada se ejecutó contra una base). Fichas del subagente; S
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Estándares y normas: ver evidencia y ubicaciones.
 - Cómo se comprobó: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente A): **CONFIRMA CON CORRECCIÓN**. Evidencia: `06-umbrales-uif.sql:5-28` usa `base_normativa 'Instructivo EIF …'`, `current_date` y `TRUE`. El JSON dice `"estado": "confirmar vigencia con legal"` (`:4`) y el de 07, `"confirmar plazos con legal"`. `19-reportes-y-retencion.sql:67` contiene `PEP … >= 5000 … TRUE`. `seeders/README.md:48` marca 08 como «listo». Corrección: Las líneas de `08-gobierno-y-licencia.sql` están mal: el archivo tiene 43 líneas; la matriz está en `:27-35` y las tipologías en `:37-41`. `matriz_riesgo_lft` **no tiene columna `activa`** (`10_tablas/12_cumplimiento_asfi/matriz_riesgo_lft.sql:5-17`): usa `vigente_desde current_date` y `aprobada_por` NULL implícito. Las tipologías (`regla_monitoreo_lft`) sí usan `activa TRUE`, pero con `vigente_desde now()`, no `current_date`. La severidad no cambia.
 
 ### IDCU-DATOS-047 — Bitácoras y evidencias de identidad/cumplimiento no son append-only
 - Clase / Severidad / Confianza: DATOS / S2 / confirmado
@@ -772,6 +778,7 @@ Peldaño: DISCOVERED (nada se ejecutó contra una base). Fichas del subagente; S
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Estándares y normas: ver evidencia y ubicaciones.
 - Cómo se comprobó: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente A): **CONFIRMA CON CORRECCIÓN**. Evidencia: `sql/00_base/03_permisos.sql:17,42` dan `GRANT SELECT, INSERT, UPDATE` sobre todo el esquema. Los únicos REVOKE en esos esquemas son para `acta_comite`, `evento_riesgo_operativo`, `registro_operacion_relevante`, `bitacora_evento` y `registro_acceso_datos` (`:108-174`). No hay ningún trigger sobre las 9 tablas citadas (grep de TRIGGER en sql/). Corrección: Hay que acotar la lista. `alerta_monitoreo_lft` y `caso_investigacion_lft` tienen una columna `estado` con flujo de trabajo, y `consentimiento` tiene `revocado_en` (`consentimiento.sql:15`), así que el UPDATE es legítimo por diseño. Ahí la solución es sellar columnas o estados terminales con un trigger, no el REVOKE de UPDATE. Para `intento_*`, `historial_credencial`, `aceptacion_contrato` y `envio_regulatorio` el hallazgo queda en pie.
 
 ### IDCU-TRAZA-048 — La aprobación de retiro no deja registro propio y el motivo de rechazo se pierde
 - Clase / Severidad / Confianza: TRAZA / HUECO / S3 / confirmado
@@ -1225,6 +1232,7 @@ Rutas sin prefijo: relativas a `servicios/identidad/src/main/java/bo/aportaya/id
 - Regla de la casa: 90.1.14, 90.2.9
 - Esfuerzo estimado: chico
 - Estándares y normas: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente A): **CONFIRMA**. Evidencia: `VerificacionCorreoRepositorio.java:183-186`: `if ("CONSUMIDO"…) { if (coincide) return borradores.resolverResultado(…); throw …}`, sin `intento(...)` ni incremento. En esa rama tampoco se controla `expira_en`. La ruta es `@Publico` (`UsuariosController.java:261-262`). El límite está solo en el gateway: `rutas.yml:38-41`, 5/s con ráfaga de 10. Corrección: Para encontrar el token hace falta el `verificacionId` y que la huella del correo coincida (`:176-181`). Mencionarlo como precondición.
 
 ### IDCU-DATOS-082 — El número de documento y el origen de fondos del borrador se guardan en texto plano 7 días
 - Clase / Severidad / Confianza: DATOS/SEG / S2 / confirmado
@@ -1239,6 +1247,7 @@ Rutas sin prefijo: relativas a `servicios/identidad/src/main/java/bo/aportaya/id
 - Regla de la casa: 90.2, 00.2.3
 - Esfuerzo estimado: chico
 - Estándares y normas: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente A): **CONFIRMA**. Evidencia: `BorradorOnboardingRepositorio.java:100-141` inserta `numero_documento`, `origen_de_fondos` y `monto_mensual_estimado` tal como llegan. El javadoc de `DocumentoDeIdentidad.java:13` dice «El numero nunca viaja ni se guarda en claro». Corrección: Es un duplicado sustancial de SEG-044 (misma tabla, misma causa). Conviene fusionarlos o enlazarlos para no contar dos veces.
 
 ### IDCU-DATOS-083 — `numero_cifrado` no está cifrado: guarda el hash con un prefijo, el número es irrecuperable
 - Clase / Severidad / Confianza: DATOS/REG / S2 / confirmado
@@ -1253,6 +1262,7 @@ Rutas sin prefijo: relativas a `servicios/identidad/src/main/java/bo/aportaya/id
 - Regla de la casa: 97.4.1, 90.2
 - Esfuerzo estimado: medio
 - Estándares y normas: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente A): **CONFIRMA**. Evidencia: `MapeoDelAlta.java:59-62` devuelve `"cifrado:" + documento.hashNumero()`. `RegistroRepositorio.java:158-171` hace `.set(NUMERO_CIFRADO, numeroCifrado)` y `VERSION_LLAVE (short) 1`. `DocumentoDeIdentidad.java:63,75-90` aplica SHA-256 a `numero + pimienta`. Todos los usos de `numeroCifradoDe` (`MapeoDelAlta:32`, `ExpedienteController:163`) pasan el mismo valor; no hay ningún adaptador de cifrado.
 
 ### IDCU-REG-084 — Consentimientos con versión y hash de documento inventados; los contratos aceptados no se registran
 - Clase / Severidad / Confianza: REG/DATOS / S2 / confirmado
@@ -1267,6 +1277,7 @@ Rutas sin prefijo: relativas a `servicios/identidad/src/main/java/bo/aportaya/id
 - Regla de la casa: 97.4.1, 00.2.1
 - Esfuerzo estimado: medio
 - Estándares y normas: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente A): **CONFIRMA**. Evidencia: `RegistroRepositorio.java:198-224` usa `DSL.val("1")` y `DSL.val("0".repeat(64))`. `aceptaContratos` solo se usa en `CU01RegistrarUsuario.java:150` (`isEmpty`). `MapeoDelAlta.java:37` pasa `true` literal para `licenciaHabilitaBilletera`. En la app, `panel_de_aceptacion.dart:57-61` dice: «Cuando exista el cliente de cumplimiento… llama a POST /contratos/{id}/aceptaciones». `CU05AceptarContrato` existe en cumplimiento, pero no se invoca en el alta. Corrección: El `true` literal está en `:37`, no en `:38` (diferencia menor).
 
 ### IDCU-FLUJO-FALTANTE-085 — La decisión KYC no emite evento; la coreografía del alta está incompleta
 - Clase / Severidad / Confianza: FLUJO-FALTANTE/CONTRATO / S2 / confirmado (búsqueda de consumidores en `servicios/`)
@@ -1281,6 +1292,7 @@ Rutas sin prefijo: relativas a `servicios/identidad/src/main/java/bo/aportaya/id
 - Regla de la casa: 98.3.3, 96.7.2
 - Esfuerzo estimado: medio
 - Estándares y normas: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente A): **CONFIRMA**. Evidencia: `RevisionRepositorio.java:174-235` no tiene outbox ni EventoDominio. Los `new EventoDominio` de identidad están solo en CU01, CU04, CU08, CU09 y GestionarUsuariosInternos (grep); no existen `kyc_*` ni `verificacion_*`. No hay trigger en `sql/40_reglas` sobre `verificacion_kyc` que emita eventos. El único consumidor de `usuario_registrado` es `ConsumidorDeUsuariosKafka.java:33` (@KafkaListener).
 
 ### IDCU-SEG-086 — Las fotos del expediente se pueden reemplazar después de aprobado (evidencia legal sobrescrita)
 - Clase / Severidad / Confianza: SEG / S2 / confirmado
@@ -1295,6 +1307,7 @@ Rutas sin prefijo: relativas a `servicios/identidad/src/main/java/bo/aportaya/id
 - Regla de la casa: 96.3.2, 91.1.3 (espíritu append-only)
 - Esfuerzo estimado: chico
 - Estándares y normas: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente A): **CONFIRMA CON CORRECCIÓN**. Evidencia: `ExpedienteRepositorio.java:47-75` hace `update(...).where(USUARIO_ID.eq(usuarioId))`, sin condición de estado. `TitularDelExpediente.java:32-37` acepta el token de alta o la sesión propia, sin mirar el estado. `CU02GuardarFotoDelExpediente.java:42-48` tampoco valida el estado. No hay trigger ni restricción en sql/ sobre `verificacion_kyc` o `documento_identidad` que lo impida. Corrección: La ubicación `AnotarFotoEnExpediente.java:91-106` no existe: el archivo tiene 48 líneas y lo relevante está en `:32-47`. La ruta del controlador está bien (`ExpedienteController.java:87-110`). La severidad no cambia.
 
 ### IDCU-TRAZA-087 — Roles otorgados a nombre del revisor KYC que no los decidió, y con ámbito GLOBAL para roles de GRUPO
 - Clase / Severidad / Confianza: TRAZA / S2 / confirmado
@@ -1309,6 +1322,7 @@ Rutas sin prefijo: relativas a `servicios/identidad/src/main/java/bo/aportaya/id
 - Regla de la casa: 90.2.7, 96.8.3
 - Esfuerzo estimado: chico
 - Estándares y normas: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente A): **CONFIRMA CON CORRECCIÓN**. Evidencia: `RevisionRepositorio.java:216-235` inserta `'GLOBAL', NULL` con `otorgada_por = revisor`. `FirmaDeOrganizadorRepositorio.java:37-53` usa como otorgante del ORGANIZADOR a quien aprobó el KYC, y `:104-126` asigna `'GLOBAL', NULL`. La semilla `10-roles-y-permisos.sql:18-19` declara ORGANIZADOR y PARTICIPANTE con ámbito `GRUPO`. `ck_asignacion_ambito_completo` (`restricciones.sql:1621-1623`) no cruza `rol.ambito` con `asignacion.ambito`, así que la base lo acepta. Corrección: Para PARTICIPANTE, que el revisor figure como otorgante es una decisión documentada (javadoc `:216-217` «El revisor queda como otorgante») y además lo fuerza `ck_asignacion_no_autoasignada` (`:1620`). La parte «a nombre de quien no lo decidió» vale de lleno solo para ORGANIZADOR. El núcleo sólido del hallazgo es el ámbito GLOBAL.
 
 ### IDCU-HUECO-088 — CU-08 y CU-09 sin endpoint; no existe recuperación, cambio de clave, baja ni enrolamiento MFA
 - Clase / Severidad / Confianza: HUECO / S2 / confirmado
@@ -1323,6 +1337,7 @@ Rutas sin prefijo: relativas a `servicios/identidad/src/main/java/bo/aportaya/id
 - Regla de la casa: 00.6.2, 30
 - Esfuerzo estimado: grande
 - Estándares y normas: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente A): **CONFIRMA CON CORRECCIÓN**. Evidencia: Las clases `CU08AsignarRol`, `CU08RevocarRol`, `CU09CambiarCredencial` y `CU09SolicitarBaja` solo se referencian a sí mismas (grep en src/main). En los openapi de todos los servicios no hay rutas de credencial, baja, recuperación ni enrolamiento MFA. `README.md:21-24` marca CU-08 y CU-09 como «Implementado». Los mensajes «Podés recuperar el acceso» están en `CU01RegistrarUsuario.java:128,139,147`. Corrección: CU-08 para operadores **sí tiene endpoint**: `PUT /usuarios-internos/{id}/roles` (`identidad.yaml:914-934`, «CU-08»), que llega a `GestionarUsuariosInternos.asignarRoles` (`:103`). Lo que falta son las clases CU08 (código muerto) y la revocación como operación propia. Hay que reformularlo así: «CU-09, recuperación, baja y MFA sin endpoint; CU-08 expuesto por otra vía; clases CU08/CU09 sin uso».
 
 ### IDCU-SEG-089 — Desbloquear un interno no desbloquea; la clave provisional del alta nunca se entrega
 - Clase / Severidad / Confianza: SEG / S2 / confirmado
@@ -1337,6 +1352,7 @@ Rutas sin prefijo: relativas a `servicios/identidad/src/main/java/bo/aportaya/id
 - Regla de la casa: 90.1.11
 - Esfuerzo estimado: medio
 - Estándares y normas: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente A): **CONFIRMA**. Evidencia: `UsuariosInternosRepositorio.java:257-268` solo limpia `usuario_interno.bloqueado_hasta` y `motivo_bloqueo`. El login consulta `bloqueo_cuenta` (`UsuarioRepositorio.java:78-83`, que usa `CU04Autenticar.java:103`) y ese bloqueo lo crea `AccesoRepositorio.java:158-164`. En `:181-193`, `provisional` se hashea y no se devuelve, ni se envía, ni se vuelve a usar (grep de `provisional`). Corrección: Precisión: el bloqueo por intentos tiene `desbloquea_en` y vence solo. El impacto real es que el operador no puede levantarlo antes de tiempo, no un bloqueo eterno.
 
 ### IDCU-SEG-090 — Lecturas de datos sensibles sin bitácora de lectura, aunque el contrato lo promete
 - Clase / Severidad / Confianza: SEG / S2 / confirmado (no hay escritura a `registro_acceso_datos` ni evento)
@@ -1351,6 +1367,7 @@ Rutas sin prefijo: relativas a `servicios/identidad/src/main/java/bo/aportaya/id
 - Regla de la casa: 90.2.7
 - Esfuerzo estimado: medio
 - Estándares y normas: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente B): **CONFIRMA**. Evidencia: `I/web/VerificacionesController.java:59-95` (`verFotoDelExpediente`/`verContenidoDeFoto`) solo `@Permiso` + `revision.foto/contenido`; `I/aplicacion/CU02RevisarExpediente.java:68-80` lee del almacén sin registrar nada; `identidad.yaml:278,299,331` promete "queda registrada"; `I/infraestructura/ExpedienteRepositorio.java:17` repite la promesa en javadoc. `grep -rni "acceso_datos\ Corrección: registrarLectura" I/ plataforma/` → 0 en main (solo tests). No hay filtro/interceptor en `plataforma/comun-web` que lo haga.
 
 ### IDCU-SEG-091 — Enumeración de cuentas en rutas públicas y por tiempo de respuesta del login
 - Clase / Severidad / Confianza: SEG / S2 / confirmado (lectura; tiempo no medido)
@@ -1365,6 +1382,7 @@ Rutas sin prefijo: relativas a `servicios/identidad/src/main/java/bo/aportaya/id
 - Esfuerzo estimado: chico
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Estándares y normas: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente B): **CONFIRMA**. Evidencia: `I/aplicacion/SolicitarVerificacionCorreo.java:40-48` → `ErrorDeNegocio(1,3,…, campo=correo)`; `I/aplicacion/CU01RegistrarUsuario.java:125-149` → tres rechazos con `campo` telefono/documento/correo; `I/aplicacion/CU04Autenticar.java:96-101` → `usuarioId.isEmpty()` retorna antes de cualquier hash (sin hash señuelo). Corrección: Ninguna (confianza "lectura; tiempo no medido" es correcta).
 
 ### IDCU-SEG-092 — `VerificarTitularidad` responde "coincide" sin KYC aprobado y puede devolver 500
 - Clase / Severidad / Confianza: SEG / S2 / probable
@@ -1379,6 +1397,7 @@ Rutas sin prefijo: relativas a `servicios/identidad/src/main/java/bo/aportaya/id
 - Regla de la casa: 91.3.3
 - Esfuerzo estimado: chico
 - Estándares y normas: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente B): **CONFIRMA**. Evidencia: `I/aplicacion/VerificarTitularidad.java:62-74` solo exige `d.hash_numero` no nulo; `I/infraestructura/RegistroRepositorio.java:158-170` inserta el documento con `estado='EN_REVISION'` ya en el alta (CU01:226) → el cotejo da `true` sin KYC aprobado. Sin UNIQUE en `documento_identidad(usuario_id)` (`sql/30_indices/01_identidad_usuarios.sql:85-89` solo índice simple) y hay dos caminos de inserción (CU01:226, CU02IniciarVerificacion:69) → `fetchOne()` puede lanzar `TooManyRowsException`; el manejador (`ManejadorGlobalDeErrores.java:134-160`) solo traduce si hay SQLSTATE, si no cae al genérico 500. CU18 de entregas no comprueba KYC por su cuenta (`CU18RegistrarCuentaDestino.java:76-81` confía en el cotejo). Corrección: Ninguna; confianza "probable" adecuada para el 500.
 
 ### IDCU-SEG-093 — `GRUPO_ADMINISTRAR` (autoconcedido vía CU-90) permite enumerar teléfonos sin tope e invitar a grupos ajenos
 - Clase / Severidad / Confianza: SEG/ACOPLE / S2 / probable
@@ -1393,6 +1412,7 @@ Rutas sin prefijo: relativas a `servicios/identidad/src/main/java/bo/aportaya/id
 - Regla de la casa: 90.1.2-90.1.3, 90.1.14
 - Esfuerzo estimado: medio
 - Estándares y normas: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente B): **CONFIRMA CON CORRECCIÓN**. Evidencia: `I/aplicacion/BuscarPorTelefono.java:35-38` usa `ContextoSesion.deSistema`; `I/web/UsuariosController.java:151-170` sin `LimiteDeConsultas` (solo titularidad lo tiene, :218); `I/aplicacion/EmitirTokenDeInvitacion.java:44-147` no consulta a grupos ni verifica propiedad de `grupoId`; además `revocarVivas` (:150-160) revoca tokens vivos del grupo ajeno + teléfono. ORGANIZADOR tiene `GRUPO_ADMINISTRAR` (`sql/60_semillas/10-roles-y-permisos.sql:152`) y se autoconcede GLOBAL (`FirmaDeOrganizadorRepositorio.java:104-126`). Corrección: Rango erróneo: `EmitirTokenDeInvitacion.java` tiene 175 líneas → citar `44-167`. El tope del gateway (`rutas.yml:32-42`) es 5/s con clave **IP+usuario** (`LimitadorDeTasa.java:28`), no "por IP". Agregar impacto: puede revocar invitaciones vigentes de un grupo ajeno. Severidad S2 se mantiene.
 
 ### IDCU-RESILIENCIA-094 — Estado de seguridad en memoria con 4 réplicas mínimas
 - Clase / Severidad / Confianza: RESILIENCIA / S2 / confirmado (lectura + descriptor)
@@ -1407,6 +1427,7 @@ Rutas sin prefijo: relativas a `servicios/identidad/src/main/java/bo/aportaya/id
 - Esfuerzo estimado: medio
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Estándares y normas: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente B): **CONFIRMA**. Evidencia: `I/infraestructura/DesafioLocal.java:39-40` `ConcurrentHashMap`; `I/aplicacion/CU04StepUp.java:42` `abiertos` en memoria; `I/web/LimiteDeConsultas.java:32` `porActor` en memoria; `servicios/identidad/descriptor.yml:12-14` `min: 4`. Única alternativa `DesafioDeDesarrollo` es `@Profile("local")`. Sin afinidad de sesión en gateway (grep `sticky Corrección: affinity` → 0).
 
 ### IDCU-CONTRATO-095 — Códigos de error reutilizados con significados distintos y fuera del patrón declarado
 - Clase / Severidad / Confianza: CONTRATO / S3 / confirmado
@@ -1764,6 +1785,7 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Conexiones y módulos afectados: app participante (alta).
 - Estándares y normas: 91.1.3 (append-only en registros probatorios), 97.1.5, 80.2.4.
 - Esfuerzo estimado: medio
+- Refutación (fase 7, verificador independiente B): **CONFIRMA**. Evidencia: `C/infraestructura/DeclaracionPepRepositorio.java:46-49` `deleteFrom(beneficiario_final)`; `sql/00_base/03_permisos.sql:17` y `02_esquemas.sql:134-135` solo `SELECT, INSERT, UPDATE` (DELETE nunca concedido; en Postgres el DELETE falla aunque no haya filas). `beneficiario_final`/`declaracion_pep` fuera de `visibles_por_titular` (`restricciones.sql:1370-1392`) → rama "denegar por omisión" (`:1437-1438`). Endpoint `@Permiso("PARTICIPANTE")` (`C/web/CumplimientoController.java:167-170`), CU03 usa `conContexto(ctx)` sin `comoSistema` (:104-113). Pruebas conectan como dueño del contenedor (`BaseDeCumplimiento.java:131-135`).
 
 ### IDCU-COHERENCIA-122 — `garantia` y `organizador` consultan el efecto de reclamos con el token del usuario, pero la ruta exige `RECLAMO_VER`: la respuesta es 403 y el consumidor lo traduce a "FRENA" siempre
 - Clase / Severidad / Confianza: COHERENCIA/CONTRATO / **S2** / probable (depende de qué token llega en cada invocación; no ejecutado)
@@ -1777,6 +1799,7 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Conexiones y módulos afectados: garantia, organizador, grupos.
 - Estándares y normas: 98.6.3, 98.1.4.
 - Esfuerzo estimado: chico
+- Refutación (fase 7, verificador independiente B): **CONFIRMA CON CORRECCIÓN**. Evidencia: `C/web/ReclamosController.java:93-95` `@Permiso("RECLAMO_VER")`; web test `:165-191` da 403 a ORGANIZADOR y SERVICIO_*. Garantía llama desde `IncumplimientosController.java:169-194` con `@Permiso("GRUPO_ADMINISTRAR")` y propaga el token del usuario (`ClienteDeServicio.propagarElToken`); ORGANIZADOR no tiene `RECLAMO_VER` (semillas :174-216 solo soporte/cumplimiento/collections/admin) → 403 → `orElse(FRENA)` (`EfectoDeReclamosPorHttp.java:49-57`). Organizador idéntico (:47-55). Corrección: El **análogo de grupos no resiste**: `FirmaDeOrganizadorRepositorio.java:46` exige rol PARTICIPANTE antes de conceder ORGANIZADOR, así que el organizador siempre trae PARTICIPANTE y `LicenciaController.java:39` no le da 403. Quitar ese análogo y la frase de impacto "grupos no podría crear grupos". Matiz: un usuario con GRUPO_ADMINISTRAR **y** RECLAMO_VER (p. ej. ADMIN_PLATAFORMA) sí pasa. S2 se mantiene.
 
 ### IDCU-FLUJO-FALTANTE-123 — Ninguno de los ~30 eventos que publica cumplimiento tiene consumidor: consentimientos, limitación de cuentas, nivel de diligencia y casos LFT se pierden
 - Clase / Severidad / Confianza: FLUJO-FALTANTE / **S2** / confirmado (grep)
@@ -1790,6 +1813,7 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Conexiones y módulos afectados: identidad, nucleo_financiero, auditoria.
 - Estándares y normas: 98.1.4, 98.8.2, 96.7.
 - Esfuerzo estimado: grande
+- Refutación (fase 7, verificador independiente B): **CONFIRMA CON CORRECCIÓN**. Evidencia: 35 tipos `cumplimiento.*` emitidos; `grep` de esos tipos y de `aportaya.cumplimiento` fuera de `servicios/cumplimiento/src/main` → 0; único `topicPattern` es `indicador_calculado` (auditoría). `README.md:80-84` "Eventos que consume" vacío. `alConfirmarseCoincidencia` (`CU03DeclararPep.java:172`) solo se invoca desde `CU03Test`. `revision_vencida` lleva `agregado_id = traza` y solo `cantidad` (`CU06RevisarConocimiento.java:190-197`). Corrección: Líneas erróneas: CU06 tiene 212 líneas (citar `184-200`, no 403-421/415-416); CU02ElevarDiligencia tiene 194 (citar `110`, `156`, no 289-299); CU03DeclararPep tiene 219 (citar `146`, `192`, no 492-529). Impacto exagerado en consentimientos: identidad **sí** guarda `TERMINOS`, `PRIVACIDAD`, `TRATAMIENTO_DATOS` en el alta (`I/aplicacion/CU01RegistrarUsuario.java:68,229` → `RegistroRepositorio.java:200-222`, aunque con `hash_documento` de 64 ceros); lo que se pierde son las finalidades emitidas por CU-05. Además `vencerYPedirLimitacion` no tiene llamador en main, así que `revision_vencida` ni se emite. S2 se mantiene.
 
 ### IDCU-HUECO-124 — El "archivo" del reporte regulatorio no existe y el "envío" es una declaración manual del operador
 - Clase / Severidad / Confianza: HUECO/REG / **S2** / confirmado
@@ -1803,6 +1827,7 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Conexiones y módulos afectados: UIF.
 - Estándares y normas: 90.2.4, 97.4.1 (dato presentado como real), regla 65 (declarar doble).
 - Esfuerzo estimado: grande
+- Refutación (fase 7, verificador independiente B): **CONFIRMA**. Evidencia: `C/aplicacion/CU43RemitirReportes.java:97-102` arma el contenido solo para `hashDe`; `:242-248` URL = `baseUrlDeArchivos + "/reportes/"…`; `application.yml:34` `base-url: ${BASE_URL_PUBLICA:https://aportaya.bo}`; `:168-179` `ACEPTADO`/`numeroConstancia` salen de la entrada del operador (`AccionesDeCumplimientoWeb.java:47-57`). Sin almacén en CU43 (grep `almacen` → 0).
 
 ### IDCU-DEFECTO-125 — Generar un reporte acepta `catalogoCodigo` y `formulario` independientes: se puede generar (y bloquear para siempre) el PCC-01 de un mes con registros ROG
 - Clase / Severidad / Confianza: DEFECTO / **S2** / confirmado
@@ -1816,6 +1841,7 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Conexiones y módulos afectados: UIF.
 - Estándares y normas: 96.2, 96.4.
 - Esfuerzo estimado: chico
+- Refutación (fase 7, verificador independiente B): **CONFIRMA**. Evidencia: `AccionesDeCumplimientoWeb.java:37-45` pasa `catalogoCodigo` y `formulario` independientes; `AccionesDeCumplimiento.java:58-64` no los relaciona; `CU43RemitirReportes.java:74-84` devuelve el existente; `OperacionRelevanteRepositorio.java:115-129` `formulario LIKE ?`; `cumplimiento.yaml:1659` enum libre.
 
 ### IDCU-DEFECTO-126 — `abrirHallazgo` compara solo hallazgos abiertos pero el índice UNIQUE es global, con códigos truncados que colisionan: el envío tardío o la respuesta tardía revientan con 500 y se revierten
 - Clase / Severidad / Confianza: DEFECTO / **S2** / confirmado (lectura; no ejecutado)
@@ -1829,6 +1855,7 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Estándares y normas: 91.2.4, 96.3.2.
 - Esfuerzo estimado: chico
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente B): **CONFIRMA CON CORRECCIÓN**. Evidencia: `GobiernoRepositorio.java:216-246` precheck solo `ABIERTO/EN_REMEDIACION`; `sql/30_indices/12_cumplimiento_asfi.sql:262-263` UNIQUE global; `codigo VARCHAR(20)`; semillas `RECLAMOS-M`/`RECLAMOS-A` colisionan al truncar (`CU43:236-240`); `BCP-`+`proceso_critico VARCHAR(80)` sin truncar (`CU56:97-106`); `REC-`+8 (`CU52:213-215`). Corrección: (1) Línea errónea: el hallazgo de CU45 está en `CU45AtenderRequerimiento.java:149-165` (el archivo tiene 196 líneas). (2) **No es 500**: `ManejadorGlobalDeErrores.java:134` + `FallaDeLaBase.java:24` traducen 23505 a **409 AP-BD-01**, y el desborde de VARCHAR a 422 AP-BD-03; el rollback de la operación sí ocurre. Severidad S2 se mantiene (el envío tardío sigue siendo imposible).
 
 ### IDCU-DATOS-127 — Parámetros normativos sin procedencia en código y configuración (plazos LFT, plazos de incidente, periodicidades, desvío, requisitos por nivel, roles incompatibles)
 - Clase / Severidad / Confianza: DATOS/REG / **S2** / confirmado
@@ -1842,6 +1869,7 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Estándares y normas: 97.5.4, 00 §2.1.
 - Esfuerzo estimado: medio
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente B): **CONFIRMA CON CORRECCIÓN**. Evidencia: `ConfiguracionDeCumplimiento.java:47-101` literales (6/12/24, 5/15/30/45 d, 24/48/72/120 h, Escala(15,8), Set roles); javadoc :24 "con su fuente escrita al lado" sin fuente; `CU54EscalarPlanesVencidos.java:117,135` `{7,30,90}` con comentario "viven en configuración"; `application.yml:40-58,84-87` sin procedencia; `CU43:196`, `CU52:221` `plusDays(30)`; `CU54RegistrarRiesgoOperativo.java:200` `DIAS_POR_OMISION=30`. Corrección: Línea errónea: `CU45AtenderRequerimiento.java:430` no existe (196 líneas) → el literal `plusDays(15)` está en `:165`. Nota: `reclamos.dias-habiles-de-respuesta` sí cita fuente (ASFI Libro 4), no está en la lista y está bien excluido.
 
 ### IDCU-DATOS-128 — Semilla de umbrales UIF con `vigente_desde = current_date`: la vigencia depende del día en que se sembró, no de la norma
 - Clase / Severidad / Confianza: DATOS / **S3** / confirmado
@@ -1868,6 +1896,7 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Causa de fondo: ver evidencia y ubicaciones.
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Estándares y normas: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente B): **CONFIRMA CON CORRECCIÓN**. Evidencia: Sin llamador en main: `vencidosSinEnviar` (`ReporteRegulatorioRepositorio.java:155`), `vencidosSinResponder` (Requerimiento y Reclamo), `abiertasSinAnalista` (`MonitoreoLftRepositorio.java:188`), `conPruebaVencida` (Continuidad), `vencerYPedirLimitacion` (solo `CU06Test`). `trabajos/` solo `ControlDeIncidentesVencidos` y `ControlDePlanesVencidos`. Corrección: Línea errónea: CU06 citar `184-200`, no 403-421.
 
 ### IDCU-SEG-130 — No hay bitácora de lectura de datos personales/financieros
 - Clase / Severidad / Confianza: SEG/TRAZA / **S2** / confirmado
@@ -1881,6 +1910,7 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Relación con el flujo nuevo: ver evidencia y ubicaciones.
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Estándares y normas: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente B): **CONFIRMA CON CORRECCIÓN**. Evidencia: `C/web/ReclamosController.java:66-72,93-98`, `UifController.java:73-80`, `CumplimientoController.java:116-147`: solo `@Permiso` + `Traza.marcarCasoDeUso`. `grep registro_acceso_datos C/` → **0** coincidencias. Corrección: Evidencia imprecisa: el "comentario" está en `CU45AtenderRequerimiento.java:116-118` y no nombra la tabla; dice que la escribe auditoría a partir del evento `requerimiento_recibido`, evento que nadie consume (ver 123). Agregar esa cadena rota como evidencia.
 
 ### IDCU-DEFECTO-131 — `DiligenciaRepositorio.elevarTipo` actualiza TODAS las diligencias del usuario, incluidas las históricas
 - Clase / Severidad / Confianza: DEFECTO / **S3** / confirmado
@@ -2025,6 +2055,7 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Solución de fondo: ver evidencia y ubicaciones.
 - Relación con el flujo nuevo: ver evidencia y ubicaciones.
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente B): **CONFIRMA**. Evidencia: `grep -rl` de "cuadre: la suma de debitos…" → 18 archivos; de "la misma clave de idempotencia" → 18. `CU44Test.java:129-150` no usa clave; `:184-200` "cuadre" cuenta alertas. `CU06Test.java:89-111` solo cuenta `evento_dominio`; `CU43Test.java:135-142` "control diario" ejercita `generar`; `CU41Test.java:103-118` el test pasa acumulado 0; `CU02Test.java:89-100` solo prueba la función de base; `BaseDeCumplimiento.java:131-135` conecta como dueño.
 
 ### IDCU-DOC-142 — README y descriptor afirman más de lo que existe
 - Clase / Severidad / Confianza: DOC / **S3** / confirmado
@@ -2157,6 +2188,7 @@ Rutas sin prefijo: relativas a `apps/backoffice/src/app/rutas/`. Peldaño: DISCO
 - Regla: 91.1.2
 - Esfuerzo estimado: medio
 - Estándares y normas: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente B): **CONFIRMA CON CORRECCIÓN**. Evidencia: `cumplimiento.yaml:1525` `montoTotal` string sin moneda; `:1720` `perdidaCuantificada` sin moneda; `organizador.yaml:697` `limiteDeMonto` sin moneda; `bandeja-de-reportes.ts:29,40,65` y `pantalla-de-habilitacion.ts:75` lo pintan sin moneda. Corrección: `cu56-continuidad.ts:23-24` **no consume** `perdidaCuantificada`: lo excluye a propósito y lo registra como ambigüedad. Ese consumidor no aplica; el defecto queda en el contrato. Matiz: `bandeja-de-reportes.ts:40` ya rotula la columna exportada como "sin moneda" (regla 91.1.2). S2→S3 si el único impacto es de presentación.
 
 ### IDCU-SEG-151 — Revisión de accesos exportable sin permiso de exportación (lista de quién no tiene segundo factor)
 - Clase / Severidad / Confianza: SEG / S3 / confirmado
@@ -2480,6 +2512,7 @@ Rutas sin prefijo: relativas a `apps/backoffice/src/app/rutas/`. Peldaño: DISCO
 - Cómo se comprobó: ver evidencia y ubicaciones.
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Estándares y normas: ver evidencia y ubicaciones.
+- Refutación (fase 7, verificador independiente B): **CONFIRMA**. Evidencia: `apps/web/src/app/paginas/invitacion/token-de-invitacion.ts:44-60` guarda/`tomar()`; `invitacion.ts:101-109` retira de la URL y `guardar()`; `grep "\.tomar()\ Corrección: \.hay()"` en `apps/web/src` sin spec → 0 llamadores; `layout/enlace-a-la-app.ts:27-32` arma el enlace solo desde `<meta>`, sin token.
 
 ### IDCU-PRUEBAS-175 — Espera fija y dobles declarados
 - Clase / Severidad / Confianza: PRUEBAS / S4 / confirmado
