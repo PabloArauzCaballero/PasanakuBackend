@@ -41,3 +41,10 @@ $ git status --short
 # Re-ejecución tras normalizar la etiqueta (2026-11-20)
 $ grep -c 'Estándares y normas' AUDITORIA-garantia-entregas.md
 68
+
+# DoD de M9
+$ git fetch origin auditoria/garantia-entregas-2026-11-20 && git log --oneline -1 origin/auditoria/garantia-entregas-2026-11-20
+ada42817 docs: auditoria de garantia-entregas (solo lectura)
+$ git -C /home/user/PasanakuBackend diff --name-only origin/test..HEAD | sed "s|/[^/]*$||" | sort -u
+docs/trabajo/2026-11-20-auditoria-garantia-entregas
+docs/trabajo/2026-11-20-auditoria-garantia-entregas/evidencia

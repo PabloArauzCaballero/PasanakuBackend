@@ -1,6 +1,6 @@
 # Reporte — Auditoría de solo lectura del módulo garantia-entregas
 
-> **AVANCE: 8 / 9 — 88,9 %.** (M9, la entrega, se cierra al verificar el push; ver «A medias».)
+> **AVANCE: 9 / 9 — 100,0 %.** (microtareas del plan de auditoría; los hallazgos quedan en peldaño `DISCOVERED`: nada se ejecutó contra el servicio.)
 
 - Fecha: 2026-11-20 · Plan: [PLAN.md](./PLAN.md) · Rama: `auditoria/garantia-entregas-2026-11-20` (desde `origin/test`)
 - Entregable: [AUDITORIA-garantia-entregas.md](./AUDITORIA-garantia-entregas.md)
@@ -24,17 +24,11 @@ R-NUEVA-1. Además hay defectos graves de seguridad y dinero que no dependen del
 | H1.S1.M6 | Matriz de contratos de 41 operaciones y de los eventos; verificadores del repo ejecutados | `ls evidencia/` → `05-verificadores.txt`, `05b-…`, `05c-gradle-…` | PASS. Gradle `BLOCKED` (ver Evidencia) |
 | H1.S1.M7 | Cada hallazgo con característica ISO/IEC 25010, estándares y regla | `grep -c 'Estándares y normas' AUDITORIA-…md` → 68 | PASS — `evidencia/09-dod.txt` |
 | H1.S1.M8 | Refutación: los 13 S1 y los S2 reabiertos por el agente principal; 4 bajas de severidad y 2 renombres | `evidencia/07-refutacion.md` | PASS |
+| H1.S1.M9 | Informe, plan, evidencia y reporte commiteados y pusheados; el diff contra `origin/test` solo toca esta carpeta | `git log --oneline -1 origin/auditoria/garantia-entregas-2026-11-20` → `ada42817` · `git diff --name-only origin/test..HEAD` → solo `docs/trabajo/2026-11-20-auditoria-garantia-entregas[/evidencia]` | PASS — `evidencia/09-dod.txt` (este cierre se sube en un commit posterior que solo actualiza PLAN, REPORTE y evidencia) |
 
 ## A medias
 
-### H1.S1.M9 — Entrega (commit y push)
-- **Qué anda:** el informe, el plan, la evidencia y este reporte están escritos. Hay cuatro commits intermedios ya
-  pusheados a `origin/auditoria/garantia-entregas-2026-11-20`, uno por tanda de hallazgos.
-- **Qué no anda:** al escribir este reporte, el commit final todavía no estaba verificado en el remoto.
-- **Qué falta exactamente:** `git push` del commit final y `git log origin/auditoria/garantia-entregas-2026-11-20 -1`
-  mostrando ese commit. Después, pasar M9 a `HECHO` en `PLAN.md` y en este reporte.
-- **Dónde quedó:** rama `auditoria/garantia-entregas-2026-11-20`. Solo se tocaron archivos en
-  `docs/trabajo/2026-11-20-auditoria-garantia-entregas/`.
+ninguna
 
 ## Pendiente
 

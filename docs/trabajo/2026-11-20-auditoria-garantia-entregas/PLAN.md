@@ -12,7 +12,7 @@
 ## H1 — Informe de auditoría del módulo garantia-entregas
 **CA:** Dado el commit de `origin/test`, cuando una persona abre el informe, entonces encuentra las 12 secciones de la §9 del metaprompt, cada hallazgo con ficha completa, y ningún dato personal ni secreto.
 **DoD:** `grep -c '^### garantia-entregas-' AUDITORIA-garantia-entregas.md` coincide con la tabla del resumen · `git status --short` solo muestra esta carpeta · commit pusheado a `auditoria/garantia-entregas-2026-11-20`.
-**Estado:** EN CURSO (falta M9)
+**Estado:** HECHO a nivel de entregable (peldaño de los hallazgos: `DISCOVERED`; ver REPORTE)
 
 ### H1.S1 — Fases 0 a 7 del método
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
@@ -25,7 +25,7 @@
 | H1.S1.M6 | Fase 5: conexiones, contratos y verificadores | matriz de contratos + salida de verificadores en `evidencia/` | `ls evidencia/` | HECHO — §6 + `evidencia/05*.txt` (Gradle BLOCKED por entorno: `05c`) |
 | H1.S1.M7 | Fase 6: estándares y normativa | cada hallazgo con ISO 25010 y regla | `grep -c 'Estándares y normas' AUDITORIA-*.md` = nº hallazgos | HECHO — 68/68 (`evidencia/09-dod.txt`, re-ejecución) |
 | H1.S1.M8 | Fase 7: refutación de S1/S2 | cada S1/S2 re-abierto y confirmado o bajado | sección de refutación en evidencia | HECHO — `evidencia/07-refutacion.md` |
-| H1.S1.M9 | Entrega: REPORTE.md, commit y push | rama remota con el commit | `git log origin/auditoria/garantia-entregas-2026-11-20 -1` | EN CURSO — falta push y verificación del remoto |
+| H1.S1.M9 | Entrega: REPORTE.md, commit y push | rama remota con el commit | `git log origin/auditoria/garantia-entregas-2026-11-20 -1` | HECHO — `git log --oneline -1 origin/auditoria/garantia-entregas-2026-11-20` → `ada42817` (`evidencia/09-dod.txt`) |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
