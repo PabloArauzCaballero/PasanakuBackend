@@ -464,3 +464,110 @@ sección: `DISCOVERED` (lectura), salvo que se diga otra cosa: no se ejecutó la
 - Clase / Severidad / Confianza: DOC / S4 / probable
 - Ubicaciones: `servicios/garantia/README.md:70`; `servicios/garantia/src/test/java/bo/aportaya/garantia/MayorDeDoble.java`; `servicios/entregas/src/test/java/bo/aportaya/entregas/CU133EntregaConsistenteTest.java`
 - Impacto/Solución: lector engañado sobre el efecto en el mayor / corregir. · Esfuerzo: chico
+
+<!-- TANDA 3: esquema sql/, semillas, pactos y documentos (reabiertos por el agente principal) -->
+
+### garantia-entregas-RESPALDO-003 — El esquema modela el respaldo empresarial como fuente del pozo (seis tablas, reglas R-GAR-08..13 y `fondeo_entrega.monto_cubierto_empresa`)
+- Clase / Severidad / Confianza: RESPALDO (y DATOS) / S1 / confirmado
+- Ubicaciones: `sql/10_tablas/08_garantia_incumplimiento/{capacidad_respaldo,reserva_respaldo,movimiento_reserva,cobertura_respaldo,cobertura_respaldo_linea,recuperacion_respaldo}.sql`; `sql/10_tablas/04_entregas_fondo/fondeo_entrega.sql:13,15,26`; `sql/40_reglas/restricciones.sql:2585-2589` (R-DES-03) y `:2410-2530` (R-GAR-08..13); `sql/60_semillas/22-cuentas-de-sistema.sql:16-20` (cuentas «Caja de la empresa» y «Reserva de respaldo», declaradas sintéticas)
+- Evidencia: `monto_cubierto_empresa NUMERIC(14,2) DEFAULT 0 NOT NULL`; `ck_fondeo_entrega_pendiente CHECK (monto_cubierto_empresa <= monto_faltante AND monto_pendiente = monto_faltante - monto_cubierto_empresa)`; `cobertura_respaldo_id UUID` sin FK.
+- Cómo se comprobó: lectura de los DDL y de la regla.
+- Impacto: la base exige que la ecuación del pozo tenga un término «empresa»; mientras exista, el código seguirá teniendo dónde poner el dinero de la empresa.
+- Causa de fondo: ADR-051. La fuente de verdad del esquema es `docs/entidades/*.puml` + `docs/Restricciones.md` (ver `sql/README.md:3-6`): el SQL es generado.
+- Solución de fondo: cambio en el modelo y en `docs/Restricciones.md`, expandir/contraer (97.3.5); conservar el histórico append-only (A-3). Ninguna semilla siembra `capacidad_respaldo`/`reserva_respaldo`: retirarlo no exige limpiar datos sembrados.
+- Relación con el flujo nuevo: RESPALDO
+- Conexiones y módulos afectados: entregas, garantía, nucleo-financiero (cuentas 9.1.01/9.1.02).
+- Estándares y normas: ISO/IEC 25010 corrección; reglas 97.1, 91; R-NUEVA-2.
+- Esfuerzo estimado: grande
+
+### garantia-entregas-APROB-003 — R-ORG-06 obliga en la base a confirmación humana para PROPONER_ENTREGA / PROPONER_COBERTURA / PROPONER_COBRO / PROPONER_SANCION
+- Clase / Severidad / Confianza: APROB (y COHERENCIA) / S2 / confirmado
+- Ubicaciones: `sql/40_reglas/restricciones.sql:2771-2778`; `docs/Arquitectura/ADR-054 Grupos sin organizador humano.md:25-26,92-97`
+- Evidencia: `CHECK (accion NOT IN ('PROPONER_COBRO','PROPONER_ENTREGA','PROPONER_SANCION','PROPONER_COBERTURA') OR requiere_confirmacion_humana)`; ADR-054: «R-ORG-06 … **Pendiente de ratificación de Cumplimiento.**»
+- Impacto: ninguna regla de automatización puede proponer una entrega sin humano; contradice R-NUEVA-1. Para sanciones, la confirmación humana puede ser exigencia del debido proceso (91.4).
+- Solución de fondo: decisión de Pablo + Cumplimiento por acción (A-1): entrega/cobro sin humano; sanción con expediente. Luego cambio en `docs/Restricciones.md`.
+- Relación con el flujo nuevo: APROB · Conexiones: organizador (L3) · Estándares: regla 91.4, R-NUEVA-1 · Esfuerzo: chico (tras decisión)
+
+### garantia-entregas-ACOPLE-001 — Claves foráneas entre esquemas desde garantía (76) y entregas (25) contra grupos, identidad, aportes y nucleo_financiero
+- Clase / Severidad / Confianza: ACOPLE (y COHERENCIA) / S2 / confirmado
+- Ubicaciones: `sql/20_claves/08_garantia_incumplimiento.sql`, `sql/20_claves/04_entregas_fondo.sql`; justificación en `sql/00_base/02_esquemas.sql:4-5`; trigger que lee `cuenta_billetera` desde garantía (`sql/40_reglas/restricciones.sql:1955-1970`, `fn_grp_validar_disolucion`)
+- Evidencia: `grep -c 'REFERENCES grupos\.\|REFERENCES identidad\.\|REFERENCES aportes\.\|REFERENCES nucleo_financiero\.'` → 76 y 25. Cabecera: «ADR-017: se parte el DESPLIEGUE, no el modelo. Las claves foraneas entre esquemas se conservan».
+- Cómo se comprobó: conteo; lectura de la cabecera. El código Java de producción no lee esquemas ajenos (los `DSL.name("garantia", …)`/`("entregas", …)` son propios); las fixturas de prueba de entregas sí escriben en `identidad`, `grupos` y `aportes`.
+- Impacto: contradicción directa entre ADR-017 y la regla 98.1.1-2; no se puede separar la base de un servicio sin romper el resto. El trigger de disolución (sin esquema calificado) podría fallar con el rol `svc_garantia` (sospecha, kill-test: `SET ROLE svc_garantia; UPDATE … SET estado='CERRADA'`).
+- Solución de fondo: decisión de arquitectura registrada (ADR) sobre cuál manda; si manda 98.1, reemplazar FK cruzadas por referencias lógicas y validación por API/evento.
+- Relación con el flujo nuevo: ninguna · Estándares: regla 98.1.1-2; ISO/IEC 25010 modularidad · Esfuerzo: grande
+
+### garantia-entregas-CONTRATO-002 — Sin pacto para las llamadas HTTP que mueven dinero (entregas→garantía, garantía→aportes, entregas→aportes, garantía→cumplimiento)
+- Clase / Severidad / Confianza: CONTRATO / S2 / confirmado
+- Ubicaciones: `contratos/pactos/` (10 pactos; ninguno entregas↔garantía ni garantía→aportes); `servicios/entregas/.../RespaldoPorHttp.java:56`, `servicios/entregas/.../RecaudoPorHttp.java`, `servicios/garantia/.../RecaudoPorHttp.java`, `servicios/garantia/.../EfectoDeReclamosPorHttp.java`; afirmación contraria en `docs/catalogo-de-flujos/aporte-mora-cobertura.yaml:4`
+- Evidencia: `ls contratos/pactos/` lista solo `nucleo-financiero-entregas.json`, `nucleo-financiero-garantia-aporte-aplicado.json`, `nucleo-financiero-garantia-transaccion-reversada.json` como relacionados.
+- Impacto: un cambio en `/aportes/periodos/{id}/recaudo` o en `/garantia/respaldo/coberturas` rompe el fondeo sin que CI lo avise (98.1.4).
+- Solución de fondo: pactos consumer-driven por cada salto con verificación del lado productor.
+- Relación con el flujo nuevo: FLUJO-QR (el recaudo es lo que afirma el cobro) · Estándares: regla 98.1.4 · Esfuerzo: medio
+
+### garantia-entregas-CONTRATO-003 — Pacto `nucleo-financiero-entregas.json` sin verificación del lado productor (entregas)
+- Clase / Severidad / Confianza: CONTRATO / S3 / probable
+- Ubicaciones: `contratos/pactos/nucleo-financiero-entregas.json`; consumidor `PactoConEntregasContratoTest.java:31` («Lo que NO está cubierto: el proceso real de entregas respondiendo»)
+- Evidencia: búsqueda del nombre del pacto en `servicios/entregas/src/test`: sin resultados (subagente; no re-ejecutada por el agente principal).
+- Impacto/Solución: contrato de oferta reservada sin garantía del productor / test de verificación en entregas. · Estándares: 98.1.4 · Esfuerzo: chico
+
+### garantia-entregas-DEBIDO-PROCESO-003 — Semilla de `matriz_sancion` con afectación de reputación automática y sin revisión humana
+- Clase / Severidad / Confianza: DEBIDO-PROCESO (y DATOS) / S2 / confirmado
+- Ubicaciones: `sql/60_semillas/18-sanciones-y-cobranza.sql:16`
+- Evidencia: `('APORTE_ATRASADO', 'LEVE', 2, 'AFECTACION_REPUTACION', 25.0, NULL, TRUE, FALSE)` (`es_automatica=TRUE`, `requiere_revision_humana=FALSE`).
+- Impacto: reputación afectada sin expediente FIRME (91.4.2, 91.4.4). Tensión con R-NUEVA-1 que no se resuelve acá: DECISIÓN REQUERIDA.
+- Solución de fondo: que la reputación sea consecuencia del expediente firme; decidir con Pablo qué automatiza R-NUEVA-1 en sanciones. · Estándares: regla 91.4 · Esfuerzo: chico
+
+### garantia-entregas-DATOS-002 — Parámetros financieros sembrados sin procedencia ni moneda
+- Clase / Severidad / Confianza: DATOS / S2 / confirmado
+- Ubicaciones: `sql/60_semillas/02-politicas.sql:24-30` (desde `seeders/minimos/02-politicas.json:4`); `sql/60_semillas/18-sanciones-y-cobranza.sql:49-56` (quitas 20/40/70 %)
+- Evidencia: `(5.0, 5, 100.0, 3000.0, 10000.0, 3, 2000.0, 90, 1.5, now(), FALSE)`; procedencia: `"revisar_con": "área de riesgos"`.
+- Impacto: topes, umbral de aprobación, recargo y plazos inferidos (97.5.4) y sin moneda; las semillas sí son idempotentes (`IF NOT EXISTS`).
+- Solución de fondo: fuente con fecha y responsable de negocio, o declararlos explícitamente sintéticos. · Estándares: regla 97.4.2, 97.5.4 · Esfuerzo: chico
+
+### garantia-entregas-DINERO-009 — Sin `CHECK >= 0` y sin `clave_idempotencia UNIQUE` en la mayoría de los importes de garantía
+- Clase / Severidad / Confianza: DINERO (y DATOS) / S2 / confirmado (muestreo del agente principal) · matriz completa del subagente en sección 6-bis
+- Ubicaciones: `sql/10_tablas/08_garantia_incumplimiento/` — sin `>= 0`: `cobertura_incumplimiento`, `acuerdo_quita`, `castigo_deuda`, `deuda_participante` (salvo saldo), `aval_participante`, `promesa_pago`, `gestion_cobranza`, `abono_recuperacion.aplicado_*`, `subrogacion`, `movimiento_fondo` (sin indicar si el signo va en el número o en el tipo); sin clave de idempotencia: `movimiento_fondo`, `abono_recuperacion`, `castigo_deuda`, `acuerdo_quita`, `devolucion_fondo`, `ejecucion_aval`; `accion_cobranza.costo NUMERIC(10,2)`
+- Impacto: viola 91.2.2 y 91.1.4/91.2.4; un reintento puede duplicar un movimiento del fondo.
+- Solución de fondo: en el modelo + `docs/Restricciones.md`. · Estándares: regla 91.1.4, 91.2 · Esfuerzo: medio
+
+### garantia-entregas-DATOS-003 — `registro_incumplimiento` es append-only pero declara columnas que la lógica necesita mutar
+- Clase / Severidad / Confianza: DATOS (y PISADA) / S3 / confirmado
+- Ubicaciones: `sql/10_tablas/08_garantia_incumplimiento/registro_incumplimiento.sql:19,40` (`estado`, `version`, `cerrado_en`, `monto_recuperado`); `sql/00_base/03_permisos.sql:173`; `sql/35_append_only/append_only.sql:201-203`; `servicios/garantia/.../dominio/EstadoDelExpediente.java`
+- Evidencia: `REVOKE UPDATE, DELETE ON garantia.registro_incumplimiento FROM svc_garantia;` + trigger; el código deriva el estado del historial.
+- Impacto: columnas muertas o engañosas (el `estado` de la fila nunca cambia); la regla de cierre motivado no se puede cumplir tras el INSERT. Dos diseños conviviendo.
+- Solución de fondo: quitar del modelo las columnas mutables o exponerlas como vista calculada. · Estándares: regla 97.2 · Esfuerzo: chico
+
+### garantia-entregas-COHERENCIA-001 — Estados de `ejecucion_aval` distintos entre DDL, caso de uso y regla R-GAR-04
+- Clase / Severidad / Confianza: COHERENCIA (y DEFECTO) / S3 / confirmado
+- Ubicaciones: `sql/10_tablas/08_garantia_incumplimiento/ejecucion_aval.sql:17`; `sql/40_reglas/restricciones.sql:2351`; `docs/CasosDeUso` CU-26
+- Evidencia: CHECK `('ACEPTADA','EN_DISPUTA','NOTIFICADA','PAGADA','RECHAZADA')`; R-GAR-04 filtra `estado <> 'ANULADA'` (valor imposible); CU-26 usa `PARCIAL`, `ANULADA`, `INNECESARIA`, `EN_COBRANZA`.
+- Impacto: el aval parcial y la anulación del caso de uso no se pueden representar.
+- Solución de fondo: un catálogo de estados único en el modelo. · Estándares: 97.4.7 · Esfuerzo: chico
+
+### garantia-entregas-DINERO-012 — `deuda_participante.acreedor` admite PLATAFORMA y no AVALISTA
+- Clase / Severidad / Confianza: DINERO (y RESPALDO) / S3 / confirmado
+- Ubicaciones: `sql/10_tablas/08_garantia_incumplimiento/deuda_participante.sql:25`; contraste con `CU26EjecutarAval.java:105` (subroga a `"AVALISTA"`)
+- Evidencia: `CHECK (acreedor IN ('FONDO_GARANTIA','GRUPO','PLATAFORMA'))`.
+- Impacto: la empresa como acreedora es el reflejo contable del respaldo (R-NUEVA-2); el avalista subrogado no tiene valor válido en la deuda.
+- Solución de fondo: decidir A-3/A-4; agregar AVALISTA. · Estándares: 91 · Esfuerzo: chico
+
+### garantia-entregas-DOC-002 — ADR-051, CU-22/23/24, catálogo `aporte-mora-cobertura.yaml` y `entrega-del-turno.yaml` siguen afirmando que la empresa aporta el faltante
+- Clase / Severidad / Confianza: DOC (y COHERENCIA, RESPALDO) / S3 / confirmado
+- Ubicaciones: `docs/Arquitectura/ADR-051 Garantía del pozo, comisión y autogestión.md:34`; `docs/catalogo-de-flujos/aporte-mora-cobertura.yaml:3,9,40,108-128,159`; `docs/catalogo-de-flujos/entrega-del-turno.yaml:8,41-55,104-110`; `docs/CasosDeUso` CU-22/CU-23; `servicios/entregas/src/main/resources/openapi/entregas.yaml:324-353` (`fondearPozo`: «lo que falte lo cubre `garantia`»); `servicios/garantia/src/main/resources/openapi/garantia.yaml:64,434-560`
+- Evidencia: ADR-051:34 «Recibir mesa es recibir el pozo completo del turno; la empresa aporta el faltante (regla 7)»; catálogo: pasos `cubrir-faltante` → `recuperar-respaldo`, «La empresa cubre el faltante del corte».
+- Cómo se comprobó: `grep` y lectura de las líneas. Además `python3 scripts/validar_flujos.py` da `OK · aporte-mora-cobertura.yaml: 12 pasos` (`evidencia/05b`): el verificador valida el flujo viejo como correcto.
+- Impacto: según la prioridad de evidencia (regla 00 §8) manda la regla de negocio explícita de Pablo (R-NUEVA-2), pero toda la documentación y el verificador sostienen lo contrario; un agente que lea el repo reimplementará el respaldo.
+- Solución de fondo: ADR que supersede ADR-051 (regla 7, D-02/D-03/D-15), catálogo y CU actualizados, verificador de flujos alineado.
+- Relación con el flujo nuevo: RESPALDO · Conexiones: L1 (aportes, mayor) · Estándares: regla 00 §8 · Esfuerzo: medio
+
+### garantia-entregas-DINERO-013 — `fondo_garantia` sin control de cuadre contra `movimiento_fondo`
+- Clase / Severidad / Confianza: DINERO / S3 / probable
+- Ubicaciones: `sql/50_verificacion/verificaciones.sql:118-134` (cuadre solo para la reserva); `sql/10_tablas/08_garantia_incumplimiento/fondo_garantia.sql`
+- Impacto/Solución: el saldo cacheado del fondo puede divergir sin alerta / verificación de cuadre (y ver DINERO-005). · Esfuerzo: chico
+
+### garantia-entregas-DATOS-004 — `deduccion_entrega` y `fondeo_entrega` mutables (no append-only)
+- Clase / Severidad / Confianza: DATOS (y TRAZA) / S3 / probable
+- Ubicaciones: `sql/35_append_only/append_only.sql` (ninguna tabla de entregas); `servicios/entregas/.../infraestructura/FondeoRepositorio.java` (UPDATE del fondeo)
+- Impacto: la explicación línea a línea de una entrega (91.3.4) puede reescribirse sin historial.
+- Solución de fondo: append-only o historial versionado. · Estándares: 91.1.3, 90.2.7 · Esfuerzo: medio
