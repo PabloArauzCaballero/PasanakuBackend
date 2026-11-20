@@ -14,7 +14,7 @@
 | H1.S1.M3 | Anexo de cobertura por archivo | sección 12 (521 filas) | PASS — cobertura parcial declarada |
 | H1.S1.M4 | Inventarios de aprobaciones y respaldo, ambigüedades | `grep -n 'APR-0\|RSP-0' AUDITORIA-*.md` | PASS |
 | H1.S1.M5 | Vista de conjunto (duplicación, reescritura, fragilidad) | sección 5 y 8 | PASS |
-| H1.S1.M6 | Matriz de contratos y verificadores | `ls evidencia/` (16 salidas) | PASS con límites de entorno declarados |
+| H1.S1.M6 | Matriz de contratos y verificadores | `ls evidencia/` (19 salidas) | PASS con límites de entorno declarados |
 | H1.S1.M7 | Estándares por hallazgo | `grep -c 'Estándares y normas'` = 55 | PASS |
 | H1.S1.M8 | Refutación de S1/S2 | tabla en sección 11 | PASS — 1 baja de S1 a S2, 1 baja de confianza |
 | H1.S1.M9 | Commit y push solo de esta carpeta | `git push`; `git diff --name-only origin/test..HEAD` fuera de la carpeta → 0 | PASS |
@@ -51,7 +51,7 @@ Además: `validar_flujos`, `verificar_criterios`, `verificar_seguridad`, `verifi
 - Valor real de `ADMISION_HUMANA_OBLIGATORIA` en producción; enmascarador de PII de logs.
 
 ## Desvíos del plan
-- Se agregó una indicación del dueño (retransmitida por la sesión que creó esta): catalogar cada hallazgo al identificarlo y subir por tandas. Hubo 7 commits a la rama de entrega en lugar de uno solo; todos con el mismo prefijo de mensaje y solo esta carpeta.
+- Se agregó una indicación del dueño (retransmitida por la sesión que creó esta): catalogar cada hallazgo al identificarlo y subir por tandas. Hubo varios commits por tandas a la rama de entrega en lugar de uno solo; todos con el mismo prefijo de mensaje y solo esta carpeta.
 - El candado `blocker_gate.py` (regla 65) bloqueó el cierre de turno por microtareas `BLOQUEADO`/`EN CURSO` de **otros** trabajos (`docs/trabajo/2026-10-03-…`, `2026-10-14-…`, `2026-10-16-…`, `2026-10-27-…`, `2026-10-28-…`, `2026-10-30-…`). No se tocaron: están fuera del alcance de solo lectura (regla 00 §3). Conviene que su dueño los cierre o declare la simulación.
 
 ## Riesgos residuales
