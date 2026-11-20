@@ -449,6 +449,72 @@
 - Estándares y normas: WCAG 2.2 AA (1.4.3); regla 80.7
 - Esfuerzo estimado: chico
 
+### frontends-compartidos-DINERO-002 — `CampoMonto` borra todos los puntos: «12.50» se envía como `1250.00` (×100) en recargar, retirar, transferir, puja, subasta y crear grupo
+- Clase / Severidad / Confianza: DINERO (también DEFECTO) / **S1** / confirmado por lectura y reproducción de la función (la ejecución en Dart y en el dispositivo NO COMPROBADA: no hay SDK)
+- Ubicaciones: `packages/diseno_flutter/lib/atomos/campo_monto.dart:30-49` (`aCadenaDelContrato`), `:72-73` (el teclado y el formateador **permiten** el punto: `RegExp(r'[0-9.,]')`); `packages/diseno_flutter/lib/atomos/campo_monto_grande.dart:50`; usuarios: `apps/movil/lib/pantallas/billetera/{pantalla_recargar,pantalla_retirar,pantalla_transferir}.dart`, `apps/movil/lib/pantallas/pasanaku/{formulario_de_puja,formulario_de_subasta,organismos_crear_grupo}.dart`; prueba `packages/diseno_flutter/test/unidad/logica_pura_test.dart:25-39` (ningún caso con punto decimal)
+- Evidencia: `final limpio = escrito.replaceAll('.', '').replaceAll(' ', '').trim();`. Reproducción (port literal a Python de la función):
+  ```text
+  '12.50' -> 1250.00
+  '12.5' -> 125.00
+  '1.240,50' -> 1240.50
+  '100.00' -> 10000.00
+  ```
+- Cómo se comprobó: lectura del átomo y de su prueba; `git grep -l "CampoMonto\b|CampoMontoGrande" -- apps/movil/lib` → 6 pantallas de dinero (hallazgo H01 del lector A, re-verificado).
+- Impacto: quien escribe el decimal con punto, la forma que ofrecen por omisión muchos teclados numéricos con `decimal: true`, envía un importe 100 veces mayor sin ningún error. En retiro o transferencia, el servidor ejecuta lo que llega mientras haya saldo. En una puja o subasta de turno, compromete un importe ajeno a la intención de la persona. En crear grupo, fija una cuota 100 veces mayor. La pantalla de transferir muestra el `Monto` resultante (`pantalla_transferir.dart:70`), lo que mitiga solo si la persona lo lee.
+- Causa de fondo: se asumió el punto solo como separador de miles (formato es-BO) y no se validó la ambigüedad. La prueba fija únicamente el formato con coma.
+- Solución de fondo: rechazar la entrada ambigua (un único punto seguido de 1-2 dígitos al final) o interpretarla como decimal; formatear al vuelo mostrando el separador. Agregar pruebas de borde (`12.50`, `12.5`, `1.240`, `1.240.50`) y prueba de widget en cada pantalla de dinero.
+- Relación con el flujo nuevo: FLUJO-QR (la recarga define el importe del QR)
+- Conexiones y módulos afectados: L1 (billetera), L3 (grupos, subasta y puja)
+- Estándares y normas: regla 91.1 (exactitud); ISO/IEC 25010 — adecuación funcional (corrección); CWE-20
+- Esfuerzo estimado: chico
+
+### frontends-compartidos-RESPALDO-003 — El tour de bienvenida de la app promete «un fondo de garantía que cubre la cuota para que el turno se entregue igual»
+- Clase / Severidad / Confianza: RESPALDO / S2 / confirmado
+- Ubicaciones: `packages/diseno_flutter/lib/ilustraciones/arte_fondo_de_garantia.dart:6-8` (en uso desde `apps/movil/lib/pantallas/identidad/laminas_del_tour.dart:2,45`); texto `apps/movil/lib/pantallas/identidad/textos.dart:42-46` (pantalla de L4, punto de contacto)
+- Evidencia: «Si alguien no aporta, el grupo no se frena» / «Hay un fondo de garantía que cubre la cuota para que el turno se entregue igual. La deuda no se perdona: queda viva y el fondo pasa a ser el acreedor.»
+- Cómo se comprobó: lectura y `git grep ArteFondoDeGarantia -- apps/movil/lib`.
+- Impacto: es la primera promesa que lee quien abre la app, y contradice R-NUEVA-2. También contradice ADR-051 D-15, donde el fondo mutual es legado.
+- Causa de fondo, solución y estándares: como RESPALDO-001. Una sola fuente de la política, tras la decisión A-2.
+- Relación con el flujo nuevo: RESPALDO
+- Conexiones y módulos afectados: L4 (textos del alta), L2
+- Esfuerzo estimado: chico
+
+### frontends-compartidos-UX-A11Y-002 — `CelebracionDeExito` pinta la tilde del mismo color que el círculo: «Cuenta creada» se ve vacía, en los dos temas
+- Clase / Severidad / Confianza: UX-A11Y / S2 (en uso) / confirmado por lectura (la captura NO COMPROBADA)
+- Ubicaciones: `packages/diseno_flutter/lib/moviles/celebracion_de_exito.dart:74,77`; `packages/tokens/tokens.json:234,237` (claro `brand` = `brandTexto` = `g600`), `:289,292` (oscuro `g300` = `g300`)
+- Evidencia: `BoxDecoration(color: t.brand, …)` y `painter: _TildeDeExito(_trazo.value, t.brandTexto)`.
+- Cómo se comprobó: lectura y comparación de los valores en `tokens.json`.
+- Impacto: la confirmación visual de éxito no se ve: contraste 1:1 (WCAG 1.4.11). La prueba de widget solo verifica que exista un `CustomPaint`.
+- Causa de fondo: se eligió un rol de texto sobre fondo neutro para dibujar sobre el propio color de marca. Falta un rol «sobre marca» (`brandInk`).
+- Solución de fondo: usar `brandInk` o un rol dedicado, más un golden en claro y oscuro.
+- Relación con el flujo nuevo: ninguna · Conexiones: L4 (alta)
+- Estándares y normas: WCAG 2.2 AA 1.4.11; regla 95.4, 95.5.4
+- Esfuerzo estimado: chico
+
+### frontends-compartidos-HUECO-002 — Piezas públicas del sistema de diseño muestran datos inventados por omisión y prometen «asientos contables reales»
+- Clase / Severidad / Confianza: HUECO (también DATOS y DINERO) / S3 (no se usan hoy en `apps`) / confirmado
+- Ubicaciones: `packages/diseno_flutter/lib/moleculas/grilla_metricas_miembro.dart:21` (`'Bs 24.800'` preformateado, sin `Monto`); `packages/diseno_flutter/lib/moleculas/tarjeta_riesgo_confianza.dart:18,89,122` (`'Riesgo Bajo · A1'`, `'Nivel Excelente'` fijo, «calculado a partir de asientos contables reales»); `packages/diseno_flutter/lib/moviles/tour_en_stages_datos.dart:21`; origen declarado «GymSheet» en `tarjeta_puntos_mesa.dart:10`, `insignia_tile.dart:24`, `celebracion_stage.dart:16`
+- Evidencia: `this.dineroDepositado = 'Bs 24.800',`; `this.calificacion = 'Riesgo Bajo · A1',`.
+- Cómo se comprobó: `grep -rn` de las cadenas; el lector A verificó que no tienen referencias en `apps`.
+- Impacto: un componente usado sin parámetros muestra a una persona un importe y una calificación de riesgo falsos, con la afirmación de que salen del mayor (reglas 00 §2.1 y 91.1.5). La reputación como cifra fija contradice la regla 91.4.2 (la reputación es consecuencia del expediente).
+- Causa de fondo: piezas portadas de otro producto con datos de demostración como valores por omisión.
+- Solución de fondo: parámetros obligatorios sin valor por omisión, datos de demo solo en `catalogo/`, y retirar lo que no tenga uso (ver REESCRITURA en §5).
+- Relación con el flujo nuevo: ninguna · Conexiones: L5 (reputación)
+- Estándares y normas: regla 00 §2.1, 91.4.2, 97.4.1; ISO/IEC 25010 — corrección
+- Esfuerzo estimado: chico
+
+### frontends-compartidos-DEFECTO-005 — Cuatro tratamientos de zona horaria y tres parsers de centavos en el sistema de diseño
+- Clase / Severidad / Confianza: DEFECTO (también DUP-INT y DINERO) / S3 (las piezas con el error de borde no se usan hoy en la app) / confirmado por lectura
+- Ubicaciones: `packages/diseno_flutter/lib/organismos/lista_de_movimientos.dart:41` (agrupa por `fechaIso.substring(0, 10)`, fecha UTC), `packages/diseno_flutter/lib/organismos/fila_de_cuota.dart:21`, `packages/diseno_flutter/lib/organismos/calendario_de_cuotas.dart:56-67` (`totalExigible`); detalle de `Fecha` (UTC-4 fijo) y de la app (`toLocal()`) en el anexo del lector A
+- Evidencia: `centavos += BigInt.parse(p[0]) * BigInt.from(100) + BigInt.parse(p[1]);`. Con `'12.5'` suma 5 centavos en vez de 50, y con `'-12.50'` da -1150. `grupos.putIfAbsent(m.fechaIso.substring(0, 10), …)`.
+- Cómo se comprobó: lectura; `git grep -n "CalendarioDeCuotas" -- apps/movil/lib` → sin usos.
+- Impacto: un movimiento de las 22:00 en La Paz (02:00Z del día siguiente) se agrupa en el día equivocado. Un total exigible mal escrito por el servidor no falla: suma mal. Además es una suma de deuda en el cliente, no leída del mayor (regla 91.1.5).
+- Causa de fondo: no hay un objeto de valor `Dinero` ni una `FechaLaPaz` únicos en el paquete.
+- Solución de fondo: un único parser de importes (el de `packages/tokens`/`Monto`) y un único conversor a `America/La_Paz`, con vectores de prueba compartidos (`packages/tokens/vectores/monto.json` ya existe).
+- Relación con el flujo nuevo: ninguna · Conexiones: L1, L3
+- Estándares y normas: ISO 8601; regla 91.1.5; ISO/IEC 25010 — corrección
+- Esfuerzo estimado: medio
+
 ## 6. Matriz de contratos
 
 (se completa al cerrar)
