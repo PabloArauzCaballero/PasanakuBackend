@@ -1,6 +1,6 @@
 # Reporte — Auditoría L5 `transversal-y-apoyo` (solo lectura)
 
-> **AVANCE: 8 / 9 — 88,9 %.** (H1.S1.M9 «Entrega» queda `EN CURSO` hasta que el push se confirme; ver la última sección)
+> **AVANCE: 9 / 9 — 100 %.** (de la auditoría; los 88 hallazgos quedan abiertos para sus dueños y las pruebas de integración siguen BLOQUEADAS por entorno)
 
 - Fecha: 2026-11-20 · Plan: [PLAN.md](./PLAN.md) · Entregable: [AUDITORIA-transversal-y-apoyo.md](./AUDITORIA-transversal-y-apoyo.md) · Rama: `auditoria/transversal-y-apoyo-2026-11-20` (desde `origin/test` 07fc6971)
 - Peldaño de evidencia alcanzado: el del área más baja es `DISCOVERED` (hallazgos por lectura). `VERIFIED` para los hallazgos ejecutados en base local. `TESTED` para las suites unitarias, web, de contrato y de barrido. Integración `BLOCKED`. Pantallas `UNKNOWN`.
@@ -15,14 +15,11 @@
 | H1.S1.M5 | 88 hallazgos con ficha completa (5 S1, 34 S2, 41 S3, 8 S4) | conteo por `grep "Clase / Severidad"` | PASS: coincide con la tabla del resumen |
 | H1.S1.M6 | Matriz de contratos y verificadores del repo ejecutados | `scripts/*.py` (ver Evidencia) · `inventario_endpoints.py --check` | PASS: §6. Salidas en `evidencia/v-*.txt` |
 | H1.S1.M7 | Estándar y regla en cada ficha | `awk` sobre las fichas | PASS: 88/88 |
+| H1.S1.M9 | Commit y push solo de esta carpeta | `git push -u origin auditoria/transversal-y-apoyo-2026-11-20` | PASS: `* [new branch] auditoria/transversal-y-apoyo-2026-11-20` (commit `da759555`) |
 | H1.S1.M8 | Refutación de los S1 y S2 | reapertura y ejecución en base local | PASS: §11 «Refutación»; ninguno retirado. TYA-DATOS-001 se mantiene en S2 |
 
 ## A medias
-### H1.S1.M9 — Entrega
-- **Qué anda:** los archivos están escritos y `git status` solo muestra esta carpeta.
-- **Qué no anda:** ninguna falla conocida. Al escribir este reporte el push todavía no se había ejecutado.
-- **Qué falta:** `git commit` y `git push -u origin auditoria/transversal-y-apoyo-2026-11-20`. El resultado se agrega abajo en «Entrega».
-- **Dónde quedó:** `docs/trabajo/2026-11-20-auditoria-transversal-y-apoyo/` en la rama `auditoria/transversal-y-apoyo-2026-11-20`. No hay código que compilar: es solo documentación.
+ninguna
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
@@ -80,4 +77,8 @@ $ python3 scripts/auditar_backend.py                      → nota 9.64/10 · «
 - **Procesos en background:** no queda ninguno. PostgreSQL detenido; daemon de Gradle detenido (`./gradlew --stop`); los 4 subagentes terminaron.
 
 ## Entrega
-(se completa después del push)
+```text
+$ git push -u origin auditoria/transversal-y-apoyo-2026-11-20
+ * [new branch]        auditoria/transversal-y-apoyo-2026-11-20 -> auditoria/transversal-y-apoyo-2026-11-20
+```
+Sin PR ni merge, como pide el metaprompt.

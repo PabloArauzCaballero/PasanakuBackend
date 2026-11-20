@@ -12,7 +12,7 @@
 ## H1 — Informe de auditoría L5 entregado
 **CA:** Dado el commit auditado de `origin/test`, cuando una persona abre el informe, entonces encuentra las 12 secciones del metaprompt §9 con hallazgos citados por `ruta:línea`.
 **DoD:** `git status --short` solo muestra esta carpeta · commit pusheado a `auditoria/transversal-y-apoyo-2026-11-20`.
-**Estado:** EN CURSO (pendiente solo M9 hasta el push)
+**Estado:** HECHO (informe entregado; los hallazgos quedan abiertos para sus dueños)
 
 | ID | Microtarea (fase §8) | CA (binario) | DoD (verificación) | Estado |
 |---|---|---|---|---|
@@ -24,7 +24,7 @@
 | H1.S1.M6 | Fase 5 — Conexiones, contratos y verificadores | Matriz de contratos + salidas de verificadores en `evidencia/` | archivos en `evidencia/` | HECHO — §6 (130 operaciones), `evidencia/v-*`, `g-*`, `db-*` |
 | H1.S1.M7 | Fase 6 — Estándares y normativa | Cada hallazgo con ISO 25010 y regla | grep de fichas | HECHO — 88/88 con línea de estándares |
 | H1.S1.M8 | Fase 7 — Refutación | S1/S2 reabiertos y confirmados | registro en sección 11 | HECHO — §11 «Refutación» |
-| H1.S1.M9 | Entrega | Commit y push en la rama | `git push` exit 0 | TODO |
+| H1.S1.M9 | Entrega | Commit y push en la rama | `git push` exit 0 | HECHO — `da759555` en `origin/auditoria/transversal-y-apoyo-2026-11-20` |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
