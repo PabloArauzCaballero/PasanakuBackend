@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, lote L3L5
 
-> **AVANCE: 9 / 23 — 39,1 %.** A MEDIAS: F1.L3.M04, F1.L3.M05, F1.L5.M28. CI con rojos ajenos al lote (ver Riesgos).
+> **AVANCE: 9 / 27 — 33,3 %.** A MEDIAS: F1.L3.M04, F1.L3.M05, F1.L5.M28. CI con rojos ajenos al lote (ver Riesgos).
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md)
 - PR hacia `dev`: mergeados #428 (F1.L3.M04), #431 (F1.L3.M06), #434 (F1.L3.M07), #437 (F1.L3.M05), #453 (T2.M1);
@@ -12,7 +12,7 @@
 - Peldaño de evidencia alcanzado: `TESTED` en todo lo completado (pruebas dirigidas + suites unitaria, web y
   barrido de cada servicio tocado, más `psql` contra PostgreSQL local donde hay SQL). No llega a `VERIFIED`: las
   integraciones con Testcontainers no corrieron (Docker) y el CI de los PR sigue en cola.
-- Conteo: 23 microtareas en `PLAN.md` (H1.S0: 3 · H1.S1: 7 · H1.S2: 11 · H2: 2); `plan_status.py` no reconoce el
+- Conteo: 27 microtareas en `PLAN.md` (H1.S0: 3 · H1.S1: 7 · H1.S2: 11 · H2: 2 · H3: 4, agregado por la coordinación); `plan_status.py` no reconoce el
   formato de IDs de este plan, así que el número sale de la tabla.
 
 ## Completado
@@ -77,6 +77,7 @@
 | F1.S2.M3 (matriz BOLA en `scripts/verificar_seguridad.py`) | TODO | Ampliar el script con las matrices ya escritas en los `*WebTest` de este lote |
 | F2.M6 (retirar el organizador profesional) | TODO | Empieza por el inventario de consumidores (`inventario_endpoints.py`, `listar_topicos.py`) |
 | F2.M8 (retirar aprobaciones eliminables en el lote) | TODO | F2.L3.M10 depende de F3.L3.M17; F2.L3.M15 se mergea después de F3.L3.M18 |
+| F3.S8.M2a/M2b/M6/M4 (registro de parámetros en `tarifas`) | TODO | Contrato de L2 en `docs/trabajo/2026-11-21-tanda2-l2/`; propuesta lista en [PROPUESTA-F3.S8-parametros.md](./PROPUESTA-F3.S8-parametros.md); dueño `tarifas` a confirmar con Pablo |
 | Corridas con Docker (`integrationTest` de `grupos`, `notificaciones`, `transparencia`) | BLOQUEADO (P-19) | Máquina de Pablo; comandos en cada evidencia |
 
 ## Evidencia
