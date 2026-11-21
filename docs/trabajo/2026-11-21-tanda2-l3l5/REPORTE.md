@@ -3,9 +3,9 @@
 > **AVANCE: 9 / 23 — 39,1 %.** A MEDIAS: F1.L3.M04, F1.L3.M05, F1.L5.M28. CI con rojos ajenos al lote (ver Riesgos).
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md)
-- PR hacia `dev` (apilados en este orden; cada uno suma un commit propio y los documentos del lote):
-  #423 T2.M0 (cerrado: incluido en #444, ya en `dev`) · #428 F1.L3.M04 · #431 F1.L3.M06 · #434 F1.L3.M07 · #437 F1.L3.M05 · #438 F1.L5.M26 ·
-  #440 F1.L5.M27 · #443 F1.L5.M23 · #446 F1.L5.M21 · #448 F1.L5.M28 · #453 T2.M1 (ya en `dev`)
+- PR hacia `dev`: mergeados #428 (F1.L3.M04), #431 (F1.L3.M06), #434 (F1.L3.M07), #437 (F1.L3.M05), #453 (T2.M1);
+  #423 (T2.M0) incluido en #444. **Abierto: #448**, consolidado (F1.L5.M26, M27, M23, M21 y M28); #438, #440, #443
+  y #446 se cerraron absorbidos en #448 (tope de 3 PR abiertos por sesión, pedido de la coordinación).
 - Estado del CI: `origin/dev` (con #433 OSV, #419, #444 Mockito y #453 aliado) mergeado en toda la pila el
   2026-11-21; el CI de cada PR se vuelve a correr con eso. Antes: `osv-scan` en rojo por npm de `yarn.lock`
   (resuelto por #433) y #423 en rojo por `identidad · RotacionDeClavesDeFirmaTest` (cubierto por #444).
