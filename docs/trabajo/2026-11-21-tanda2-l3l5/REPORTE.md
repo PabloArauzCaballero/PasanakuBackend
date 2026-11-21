@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, lote L3L5
 
-> **AVANCE: 9 / 27 — 33,3 %.** A MEDIAS: F1.L3.M04, F1.L3.M05, F1.L5.M28. CI con rojos ajenos al lote (ver Riesgos).
+> **AVANCE: 10 / 27 — 37,0 %.** A MEDIAS: F1.L3.M04, F1.L3.M05, F1.L5.M28. CI con rojos ajenos al lote (ver Riesgos).
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md)
 - PR hacia `dev`: mergeados #428 (F1.L3.M04), #431 (F1.L3.M06), #434 (F1.L3.M07), #437 (F1.L3.M05), #453 (T2.M1);
@@ -28,6 +28,7 @@
 | F1.L5.M23 | Webhook CU-82: remitente, contenido, canal e id salen de la carga firmada; fuera de ventana (5 min) se rechaza; el `idMensaje` firmado deduplica | `WebhookDeMensajeriaTest` (doble con HMAC real, tres niveles) | PASS contra doble · [evidencia](./evidencia/F1.L5.M23-webhook-mensajeria.txt) — `CU82Test` `NO COMPROBADO` (Docker) |
 | F1.L5.M21 | El certificado firma los valores de la foto del propio titular y la identidad la dice `identidad` (falla cerrado); `disponibles` e `identidadVerificada` del cuerpo se ignoran (deprecados) | `CertificadoConDatosDelServidorTest` + `psql` + `webTest` | PASS contra doble · [evidencia](./evidencia/F1.L5.M21-certificado-servidor.txt) — `CU75*Test` `NO COMPROBADO` (Docker) |
 | T2.M1 | `inversiones · AliadoSimuladoFlujosContratoTest`: el simulador del aliado respondía HTTP/1.0 y cerraba el socket sin decirlo; el `HttpClient` de Java reutilizaba la conexión cerrada. Ahora habla HTTP/1.1 | diagnóstico bajo carga (29/60 → 0/60 con A y con B) + `contractTest` ×3 con carga + 27 pruebas Python | PASS · [evidencia](./evidencia/T2.M1-inversiones-aliado-http.txt) · #453 |
+| F3.S8.M2a | Modelo del registro de parámetros en `tarifas`: catálogo sin valores, versiones con cuatro ojos e inmutables, congelamiento único por grupo, parámetro y nivel (R-TAR-14 a 17), CU-132 | `generar_ddl.py` + `aplicar.sql` ×2 + `psql` con cada violación + verificadores de bóveda | PASS · [evidencia](./evidencia/F3.S8.M2a-modelo-parametros.txt) · #486 |
 
 ## A medias
 ### F1.L3.M04 — El retiro lo pide solo su titular
@@ -77,7 +78,7 @@
 | F1.S2.M3 (matriz BOLA en `scripts/verificar_seguridad.py`) | TODO | Ampliar el script con las matrices ya escritas en los `*WebTest` de este lote |
 | F2.M6 (retirar el organizador profesional) | TODO | Empieza por el inventario de consumidores (`inventario_endpoints.py`, `listar_topicos.py`) |
 | F2.M8 (retirar aprobaciones eliminables en el lote) | TODO | F2.L3.M10 depende de F3.L3.M17; F2.L3.M15 se mergea después de F3.L3.M18 |
-| F3.S8.M2a/M2b/M6/M4 (registro de parámetros en `tarifas`) | TODO | Contrato de L2 en `docs/trabajo/2026-11-21-tanda2-l2/`; propuesta lista en [PROPUESTA-F3.S8-parametros.md](./PROPUESTA-F3.S8-parametros.md); dueño `tarifas` a confirmar con Pablo |
+| F3.S8.M2b/M6/M4 (API, congelamiento, pantalla) | TODO | Modelo en #486; dueño `tarifas` a confirmar con Pablo; siembra de códigos espera las unidades DECISION_REQUIRED |
 | Corridas con Docker (`integrationTest` de `grupos`, `notificaciones`, `transparencia`) | BLOQUEADO (P-19) | Máquina de Pablo; comandos en cada evidencia |
 
 ## Evidencia

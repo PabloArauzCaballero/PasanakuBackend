@@ -69,11 +69,11 @@ que nombra lo que falta; una versión la propone una persona y la aprueba otra (
 nunca ve una versión posterior a su inicio.
 **DoD:** los de cada microtarea; propuesta en [PROPUESTA-F3.S8-parametros.md](./PROPUESTA-F3.S8-parametros.md)
 (rama `correcciones/tanda2-l3l5-f3-parametros`).
-**Estado:** TODO — el modelo espera el contrato que L2 deja en `docs/trabajo/2026-11-21-tanda2-l2/` (no está en `dev`).
+**Estado:** EN CURSO — modelo en #486 (contrato de L2: #485); siguen M2b, M6 y M4.
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| F3.S8.M2a | Modelo en `11_tarifas_comisiones.puml` + filas de `tarifas` en `Restricciones.md`, alineado al contrato de L2 | Cada `CHECK` (cuatro ojos, `>= 0`, unicidad) rechaza su violación en la base | `generar_ddl.py` + aplicar + deriva + `psql` (PR chico) | TODO |
+| F3.S8.M2a | Modelo en `11_tarifas_comisiones.puml` + filas de `tarifas` en `Restricciones.md`, alineado al contrato de L2 | Cada `CHECK` (cuatro ojos, `>= 0`, unicidad) rechaza su violación en la base | `generar_ddl.py` + aplicar + deriva + `psql` (PR chico) | HECHO (#486) |
 | F3.S8.M2b | Proponer, aprobar (cuatro ojos del token) y consultar vigentes; falla explícita si falta | Aprobar uno mismo → rechazo; sin versión → 422 con el código | unitarias + web con matriz negativa | TODO |
 | F3.S8.M6 | Congelamiento al iniciar el grupo y consulta por grupo | El mismo `grupo_iniciado` dos veces congela una vez; una versión nueva no cambia el grupo | prueba de duplicado + `psql` | TODO |
 | F3.S8.M4 | Pantalla del backoffice | Cuatro estados, error por campo, historial | prueba visual 3 viewports × 2 temas + E2E | TODO |

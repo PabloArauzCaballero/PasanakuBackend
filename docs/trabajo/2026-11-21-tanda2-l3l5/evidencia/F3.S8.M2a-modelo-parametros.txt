@@ -1,0 +1,78 @@
+# F3.S8.M2a — Modelo del registro de parámetros financieros en tarifas (2026-11-21)
+
+Fuente: contrato de L2 (#485, F3.L2.M14-contrato-parametros-tarifas.md) + decisiones de la coordinación:
+TOPE_DEL_RECARGO y UMBRAL_DE_SOLVENCIA_DEL_FONDO en el catálogo; unidades DECISION_REQUIRED (unidad NULL, sin aprobar);
+dimensión por nivel opción (a): nivel_codigo + UNIQUE con COALESCE; 404 para grupo sin congelamiento aceptado.
+Sin valores sembrados (F3.S8.M3, DECISION_REQUIRED).
+
+## Fuente de verdad cambiada
+- docs/entidades/11_tarifas_comisiones.puml: ParametroFinanciero, VersionParametro, ParametroCongeladoGrupo (clases + relacional + relaciones)
+- docs/Restricciones.md (sección R-TAR): R-TAR-14 cuatro ojos, R-TAR-15 coherencia (valor >= 0, moneda solo MONTO, nivel solo si por nivel, sin unidad no se aprueba), R-TAR-16 inmutabilidad, R-TAR-17 congelamiento único
+- scripts/modelo.py: parametro_congelado_grupo en APPEND_ONLY; FK (11, parametro_id) -> parametro_financiero (también en generar_boveda.py)
+
+## Aplicación
+$ python3 scripts/generar_ddl.py -> sql/ generado: 353 tablas · 703 claves foráneas · 811 índices · 558 CHECK · Sin pendientes a nivel de datos.
+  Regenerar dos veces seguidas: sin diferencias.
+$ DROP/CREATE DATABASE; psql -f sql/aplicar.sql -> exit 0 (primera) · exit 0 (segunda: idempotente)
+$ psql -f sql/50_verificacion/verificaciones.sql -> exit 0, (0 rows) de anomalías
+
+## Violaciones contra PostgreSQL 16 (datos sintéticos, limpiados al final)
+INSERT 0 4
+== correcto: versión propuesta y aprobada por OTRA persona
+INSERT 0 1
+UPDATE 1
+== R-TAR-14: la aprueba quien la propuso
+psql:/tmp/claude-0/param.sql:16: ERROR:  new row for relation "version_parametro" violates check constraint "ck_version_parametro_cuatro_ojos"
+DETAIL:  Failing row contains (14987f3d-8dd2-47ab-bee8-317e2bd7f8f9, a1000000-0000-4000-8000-000000000001, null, 1.000000, null, 2026-11-21 22:40:43.779902+00, p, s, 2026-11-21, c1000000-0000-4000-8000-00000000000a, 2026-11-21 22:40:43.779902+00, c1000000-0000-4000-8000-00000000000a, 2026-11-21 22:40:43.779902+00, APROBADA, 75d5d6d5-66e3-437e-9f4a-8fc4b0c3c4c7).
+== R-TAR-14: APROBADA sin aprobador
+psql:/tmp/claude-0/param.sql:20: ERROR:  new row for relation "version_parametro" violates check constraint "ck_version_parametro_aprobada_completa"
+DETAIL:  Failing row contains (3c89ac27-8e6b-49b0-a8e0-19f574c6f3e5, a1000000-0000-4000-8000-000000000001, null, 1.000000, null, 2026-11-21 22:40:43.779902+00, p, s, 2026-11-21, f0a271a7-fb44-4c70-bec1-6a58192a6359, 2026-11-21 22:40:43.779902+00, null, null, APROBADA, a0dc39de-d68f-4f0d-b854-f003f06c0fa2).
+== R-TAR-15: valor negativo
+psql:/tmp/claude-0/param.sql:24: ERROR:  new row for relation "version_parametro" violates check constraint "ck_version_parametro_valor"
+DETAIL:  Failing row contains (3f1d729c-2df5-4908-bc85-9be67d08f34e, a1000000-0000-4000-8000-000000000001, null, -0.010000, null, 2026-11-21 22:40:43.779902+00, p, s, 2026-11-21, 75c706b9-34a5-4a69-83c6-51a5af3c3651, 2026-11-21 22:40:43.779902+00, null, null, PROPUESTA, d739ace7-b881-4768-b0be-2019a65c6cfa).
+== R-TAR-15: MONTO sin moneda
+psql:/tmp/claude-0/param.sql:28: ERROR:  R-TAR-15: la moneda va si y solo si la unidad es MONTO
+CONTEXT:  PL/pgSQL function fn_tar_version_parametro_coherente() line 6 at RAISE
+== R-TAR-15: PORCENTAJE con moneda
+psql:/tmp/claude-0/param.sql:32: ERROR:  R-TAR-15: la moneda va si y solo si la unidad es MONTO
+CONTEXT:  PL/pgSQL function fn_tar_version_parametro_coherente() line 6 at RAISE
+== R-TAR-15: parámetro por nivel sin nivel
+psql:/tmp/claude-0/param.sql:36: ERROR:  R-TAR-15: el nivel va si y solo si el parámetro es por nivel
+CONTEXT:  PL/pgSQL function fn_tar_version_parametro_coherente() line 9 at RAISE
+== R-TAR-15: aprobar un parámetro sin unidad decidida
+psql:/tmp/claude-0/param.sql:40: ERROR:  R-TAR-15: el parámetro no tiene unidad decidida; no se aprueba un valor
+CONTEXT:  PL/pgSQL function fn_tar_version_parametro_coherente() line 12 at RAISE
+== R-TAR-16: cambiar el valor de una versión aprobada
+psql:/tmp/claude-0/param.sql:43: ERROR:  R-TAR-16: la versión b1000000-0000-4000-8000-000000000001 es inmutable salvo su resolución; se corrige con una versión nueva
+CONTEXT:  PL/pgSQL function fn_tar_version_parametro_inmutable() line 15 at RAISE
+== R-TAR-16: borrar una versión
+psql:/tmp/claude-0/param.sql:46: ERROR:  R-TAR-16: una versión de parámetro no se borra
+CONTEXT:  PL/pgSQL function fn_tar_version_parametro_inmutable() line 4 at RAISE
+== R-TAR-17: congelar dos veces el mismo parámetro sin nivel para el mismo grupo
+INSERT 0 1
+psql:/tmp/claude-0/param.sql:50: ERROR:  duplicate key value violates unique constraint "uq_parametro_congelado_grupo"
+DETAIL:  Key (grupo_id, parametro_id, COALESCE(nivel_codigo, ''::character varying))=(d1000000-0000-4000-8000-000000000001, a1000000-0000-4000-8000-000000000001, ) already exists.
+== R-TAR-17 (límite): el mismo parámetro por nivel, dos niveles distintos, sí
+INSERT 0 1
+INSERT 0 2
+== append-only: el rol del servicio no puede UPDATE ni DELETE sobre el congelamiento
+psql:/tmp/claude-0/param.sql:61: ERROR:  permission denied for table parametro_congelado_grupo
+psql:/tmp/claude-0/param.sql:62: ERROR:  permission denied for table parametro_congelado_grupo
+== limpieza (superusuario, sin disparadores)
+DELETE 2
+DELETE 2
+DELETE 4
+
+## Deriva y verificadores
+$ ./gradlew :servicios:tarifas:generateJooq --rerun compileJava compileTestJava -> exit 0 (ParametroFinanciero, VersionParametro, ParametroCongeladoGrupo generados)
+$ ./gradlew :servicios:tarifas:spotlessCheck test webTest testBarrido --rerun -> exit 0
+test: 7 casos, 0 fallos
+webTest: 37 casos, 0 fallos
+testBarrido: 2 casos, 0 fallos
+$ python3 -I scripts/verificar_boveda.py -> TODO OK
+$ python3 -I scripts/verificar_narrativas.py -> Sin fallas.
+$ python3 scripts/verificar_criterios.py -> Sin divergencias (CU-132 pendiente de implementar, como CU-05/26/51/57)
+$ python3 scripts/verificar_seguridad.py -> TODO OK · 5 aviso(s)
+$ python3 -I scripts/catalogo_de_datos.py --escribir -> solo agrega las tres tablas
+
+No cubierto: casos de uso y API (F3.S8.M2b), consumidor de grupo_iniciado (F3.S8.M6), pantalla (F3.S8.M4), siembra de códigos del catálogo (con las unidades que decida Pablo).
