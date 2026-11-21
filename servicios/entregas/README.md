@@ -42,7 +42,7 @@ deducciones dejaran de coincidir sin que nada avise.
 que se cierra con la respuesta del proveedor. Agregar otra al contestar convertiria un
 intento en dos, y el conteo que decide si se reintenta dejaria de significar algo.
 
-## Pozo completo y mercado del derecho a cobrar (carril C, H8/H9)
+## Pozo completo (carril C, H8) y cesion de turnos retirada
 
 **Pozo completo** (`CU22EntregarPozoCompleto`, `POST /entregas/pozo-completo`). Recibir mesa es
 recibir el pozo entero: `aportes` afirma lo confirmado, `garantia` cubre el faltante con la
@@ -51,17 +51,13 @@ alcanza, la entrega queda BLOQUEADA con el pozo como principal, el faltante como
 conservada (`fondeo_entrega.monto_pendiente`) y una incidencia critica. `CU22LiquidarEntrega`
 sigue ahi, intacto, pero su `recaudado` lo afirma el cliente: es el camino anterior.
 
-**Mercado** (`/entregas/mercado/*`, sin CU en la boveda: codigos `AP-CU130-nn` provisionales). Se
-vende el DERECHO a cobrar un turno; no cambia la membresia ni quien debe los aportes.
-`GestionDeOfertas` (publicar, listar, cancelar, vencer), `ComprarOfertaDeTurno` (saga:
-reservar, retener, dar titulo, pagar al vendedor; reanudable) y `TransicionesDeCesion`.
-
-- `HechosDeGrupos` y `FondosDelComprador` son CONTRATOS PROPUESTOS: `grupos` no expone titular ni
-  membresia, y `nucleo-financiero` no tiene «ejecutar una retencion a favor de un tercero». Las
-  implementaciones reales (`GruposNoDisponible`, `FondosNoDisponibles`) DENIEGAN todo: el mercado
-  no opera hasta que existan; las pruebas corren contra dobles de tres niveles.
-- No estan programados los trabajos de `vencer` ni `abortarColgadas`: existen y estan probados.
-- El permiso del mercado es el rol `PARTICIPANTE`; la autorizacion por objeto la hacen los puertos.
+**Cesion de turnos: RETIRADA** (D-L2-1, `DECISIONES.md` tanda 7, 2026-11-21). El mercado del derecho a cobrar
+(`/entregas/mercado/*`, CU-130) y la subasta de cupos (`/entregas/subastas*`, CU-64 por subasta) ya no existen: el
+orden de cobro lo fijan el nivel de puntualidad y el sorteo. Las operaciones siguen en el contrato como `deprecated`
+y responden `410` (`AP-CU130-10`, `AP-CU136-09`) hasta que la app y `nucleo-financiero` las suelten (regla 98.1.3);
+`GET /entregas/mercado/ofertas/{id}` responde el `422 AP-CU130-05` del pacto y nucleo no paga. Las tablas
+`oferta_turno`, `cesion_derecho`, `subasta_cupo` y `puja_subasta` siguen hasta la contraccion: `CesionRepositorio`
+solo LEE las cesiones ya liquidadas, para que el fondeo le pague el pozo a quien compro el turno y no dos veces.
 
 ## Lo que este servicio NO puede hacer
 
@@ -85,15 +81,8 @@ Skills: `arrancar-carril` primero, despues las diecinueve de todo carril de back
 
 `entregas.desembolso_acreditado` lleva el `asiento` propuesto (`AsientoDeEntrega`, origen `ENTREGA`); el contrato con nucleo-financiero y
 lo que quedo contra doble esta en `docs/trabajo/2026-10-08-endurecimiento-integral/evidencia/carril-C/contrato-nucleo-partidas-y-pago-vendedor.md`.
-Carreras de la cesion en el punto de liquidacion: `CU130LiquidacionCarrerasTest`; ficha contractual: `evidencia/carril-O2/H9-S1-M1-ficha-contractual-cesion.md`.
 
 ## Tercera vuelta (carril B3)
 
-- **Productor** de `GET /entregas/mercado/ofertas/{ofertaId}` (id, vendedor, precio, estado), permiso de servicio
-  `SERVICIO_ENTREGAS`: es el hecho con el que `nucleo-financiero` paga al vendedor (`OfertasPorHttp`). Respuesta minima; una oferta
-  inexistente es `AP-CU130-05` y nucleo no paga.
-- **Vigencia contra el cierre del turno**: la oferta tiene que vencer ESTRICTAMENTE antes del cierre que informa `grupos`
-  (`HechosDeGrupos.Turno.cierreDelTurno`); sin cierre informado no se publica (`AP-CU130-08`), pasado el cierre `AP-CU130-03`.
-  `GruposNoDisponible` sigue negando todo: `grupos` aun no expone el turno ni su cierre.
 - **Circuit breaker** en `RecaudoPorHttp`, `RespaldoPorHttp` y `TitularPorHttp` (`ClienteConCircuito`, parametros sinteticos en
   `aportaya.resiliencia.circuito.*`).
