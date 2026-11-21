@@ -39,7 +39,7 @@
 ## A medias
 
 ### H0 (hito del plan maestro) — Preparación
-- **Qué anda:** las 11 microtareas del carril tienen su DoD ejecutado y su PR abierto (#400 a #413).
+- **Qué anda:** las 11 microtareas del carril tienen su DoD ejecutado y su PR abierto (#400 a #405 y #413).
 - **Qué no anda:** nada está en `dev` todavía; mientras #401 no se mergee, cualquier rama que salga de `dev` sigue
   trabada por `blocker_gate` (pasó en esta sesión). F0.M2 no se ejecutó.
 - **Qué falta exactamente:** (1) que Pablo revise y mergee, en este orden: #400, #401, #402 → #403 → #404, #405 y
