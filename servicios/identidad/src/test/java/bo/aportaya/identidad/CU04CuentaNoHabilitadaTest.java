@@ -124,13 +124,17 @@ class CU04CuentaNoHabilitadaTest extends BaseDeCU04 {
     void desbloquearLiberaElBloqueoQueLeeElLogin() {
         UUID interno = fixtura.usuario(telefonoUnico());
         UUID operador = fixtura.usuario(telefonoUnico());
+        // Datos SINTETICOS: el detalle que devuelve desbloquear es el de un usuario interno.
+        dsl.execute(
+                "INSERT INTO identidad.usuario_interno (usuario_id, departamento, cargo) VALUES (?, 'SOPORTE', 'Analista sintetico')",
+                interno);
         OffsetDateTime ahora = OffsetDateTime.now(ZoneOffset.UTC);
         dsl.execute(
-                "INSERT INTO identidad.bloqueo_cuenta (usuario_id, motivo, bloqueada_en, desbloquea_en) VALUES (?, 'INTENTOS_FALLIDOS', ?, ?)",
+                "INSERT INTO identidad.bloqueo_cuenta (usuario_id, motivo, bloqueada_en, desbloquea_en) VALUES (?, 'INTENTOS_FALLIDOS', ?::timestamptz, ?::timestamptz)",
                 interno,
                 ahora,
                 ahora.plusMinutes(30));
-        assertThat(tieneBloqueoVigente(interno)).isTrue();
+        assertThat(bloqueoQueLeeElLogin(interno)).isTrue();
 
         var accesos = new AccesosRepositorio();
         var repositorio = new UsuariosInternosRepositorio(
@@ -140,9 +144,14 @@ class CU04CuentaNoHabilitadaTest extends BaseDeCU04 {
             return repositorio.desbloquear(dsl, interno, "verificado por soporte", operador, ahora);
         });
 
-        assertThat(tieneBloqueoVigente(interno)).isFalse();
+        assertThat(bloqueoQueLeeElLogin(interno)).isFalse();
         assertThat(dsl.fetchValue("SELECT liberada_por FROM identidad.bloqueo_cuenta WHERE usuario_id = ?", interno))
                 .isEqualTo(operador);
+    }
+
+    /** La MISMA consulta que hace CU04Autenticar (el helper de la base cuenta tambien los liberados). */
+    private boolean bloqueoQueLeeElLogin(UUID usuario) {
+        return new UsuarioRepositorio().tieneBloqueoVigente(dsl, usuario, OffsetDateTime.now(ZoneOffset.UTC));
     }
 
     private void cambiarEstado(UUID usuario, String estado) {

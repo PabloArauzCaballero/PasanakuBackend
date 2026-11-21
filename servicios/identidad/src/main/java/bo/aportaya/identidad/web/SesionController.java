@@ -2,8 +2,12 @@ package bo.aportaya.identidad.web;
 
 import bo.aportaya.identidad.aplicacion.CerrarSesion;
 import bo.aportaya.identidad.aplicacion.EmitirAcceso;
+import bo.aportaya.identidad.aplicacion.EnrolarTotp;
 import bo.aportaya.identidad.aplicacion.RenovarSesion;
 import bo.aportaya.identidad.web.generado.SesionApi;
+import bo.aportaya.identidad.web.generado.modelo.EntradaConfirmacionTotp;
+import bo.aportaya.identidad.web.generado.modelo.SalidaConfirmacionTotp;
+import bo.aportaya.identidad.web.generado.modelo.SalidaInicioEnrolamientoTotp;
 import bo.aportaya.identidad.web.generado.modelo.SalidaRenovacion;
 import bo.aportaya.plataforma.dominio.SinContextoDeSesion;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
@@ -13,6 +17,7 @@ import bo.aportaya.plataforma.web.traza.Traza;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Optional;
+import java.util.UUID;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,6 +39,7 @@ public class SesionController implements SesionApi {
     private final HttpServletResponse respuesta;
     private final CerrarSesion cerrarSesion;
     private final bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion sesion;
+    private final EnrolarTotp enrolarTotp;
 
     public SesionController(
             RenovarSesion refresco,
@@ -42,7 +48,8 @@ public class SesionController implements SesionApi {
             HttpServletRequest peticion,
             HttpServletResponse respuesta,
             CerrarSesion cerrarSesion,
-            bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion sesion) {
+            bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion sesion,
+            EnrolarTotp enrolarTotp) {
         this.refresco = refresco;
         this.acceso = acceso;
         this.cookie = cookie;
@@ -50,6 +57,7 @@ public class SesionController implements SesionApi {
         this.respuesta = respuesta;
         this.cerrarSesion = cerrarSesion;
         this.sesion = sesion;
+        this.enrolarTotp = enrolarTotp;
     }
 
     @Override
@@ -105,5 +113,37 @@ public class SesionController implements SesionApi {
         cerrarSesion.ejecutar(sesion.actual().usuarioId(), sesion.idDeLaSesion(), Traza.actual());
         if (cookie.leer(peticion).isPresent()) respuesta.addHeader(HttpHeaders.SET_COOKIE, cookie.borrar());
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * F1.S3.M2: el titular enrola su TOTP. El usuario es el del token; no hay cuerpo. La
+     * semilla viaja una sola vez y con {@code Cache-Control: no-store}.
+     */
+    @Override
+    @Permiso("PARTICIPANTE")
+    @PermisoAlternativo({"BACKOFFICE"})
+    public ResponseEntity<SalidaInicioEnrolamientoTotp> iniciarEnrolamientoTotp() {
+        Traza.marcarCasoDeUso("CU-04", "enrolar-totp");
+        var inicio = enrolarTotp.iniciar(sesion.actual());
+        var salida = new SalidaInicioEnrolamientoTotp();
+        salida.setFactorId(inicio.factorId());
+        salida.setSemilla(inicio.semillaBase32());
+        salida.setUriOtpauth(inicio.uriOtpauth());
+        return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED)
+                .header(HttpHeaders.CACHE_CONTROL, "no-store")
+                .body(salida);
+    }
+
+    @Override
+    @Permiso("PARTICIPANTE")
+    @PermisoAlternativo({"BACKOFFICE"})
+    public ResponseEntity<SalidaConfirmacionTotp> confirmarEnrolamientoTotp(
+            UUID factorId, EntradaConfirmacionTotp cuerpo) {
+        Traza.marcarCasoDeUso("CU-04", factorId.toString());
+        var confirmacion = enrolarTotp.confirmar(factorId, cuerpo.getCodigo(), sesion.actual());
+        var salida = new SalidaConfirmacionTotp();
+        salida.setFactorId(confirmacion.factorId());
+        salida.setConfirmadoEn(confirmacion.confirmadoEn());
+        return ResponseEntity.ok(salida);
     }
 }

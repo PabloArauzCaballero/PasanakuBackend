@@ -58,6 +58,10 @@ class SesionControllerWebTest {
     @MockitoBean
     private bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion sesion;
 
+    // SesionController depende de EnrolarTotp desde F1.S3.M2 (enrolamiento del TOTP).
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.EnrolarTotp enrolarTotp;
+
     @Test
     @DisplayName("con un refresh valido: 200 con el acceso nuevo, el rol, los permisos y la cookie ROTADA")
     void renueva() throws Exception {

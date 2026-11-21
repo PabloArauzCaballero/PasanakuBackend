@@ -6,20 +6,30 @@ import java.time.Instant;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-/** TOTP de RFC 6238 (HMAC-SHA1, 30 s, 6 digitos): el segundo factor de una cuenta de servicio que entra como operador. */
-final class CodigoTotp {
+/**
+ * TOTP de RFC 6238 (HMAC-SHA1, 30 s, 6 digitos).
+ *
+ * <p>Una sola implementacion para quien GENERA el codigo (una cuenta de servicio que entra
+ * como operador, {@link CredencialPorLogin}) y para quien lo VERIFICA (el segundo factor de
+ * {@code identidad}, F1.S3.M2). Los vectores del apendice B de la RFC estan en
+ * {@code CodigoTotpTest}.
+ */
+public final class CodigoTotp {
+
+    /** Duracion de un paso, en segundos (RFC 6238 §4.1, valor por omision). */
+    public static final int PASO_SEGUNDOS = 30;
 
     private static final String ALFABETO = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-    private static final int PASO = 30;
 
     private CodigoTotp() {}
 
-    static String de(String semillaBase32, Instant ahora) {
+    /** El codigo de seis digitos para el paso que contiene {@code ahora}. */
+    public static String de(String semillaBase32, Instant ahora) {
         try {
             Mac mac = Mac.getInstance("HmacSHA1");
             mac.init(new SecretKeySpec(decodificar(semillaBase32), "HmacSHA1"));
             byte[] h = mac.doFinal(ByteBuffer.allocate(8)
-                    .putLong(ahora.getEpochSecond() / PASO)
+                    .putLong(ahora.getEpochSecond() / PASO_SEGUNDOS)
                     .array());
             int desde = h[h.length - 1] & 0x0f;
             int binario = ((h[desde] & 0x7f) << 24)

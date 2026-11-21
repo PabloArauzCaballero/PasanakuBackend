@@ -46,6 +46,10 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     @MockitoBean
     private RenovarSesion renovarSesion;
 
+    // SesionController depende de EnrolarTotp desde F1.S3.M2 (enrolamiento del TOTP).
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.EnrolarTotp enrolarTotp;
+
     // SesionController depende de CerrarSesion desde 553bd786; sin doblarlo el
     // contexto de esta prueba no levantaba y las seis comprobaciones caian juntas.
     @MockitoBean
