@@ -1,10 +1,7 @@
 package bo.aportaya.garantia.web;
 
-import bo.aportaya.garantia.aplicacion.CU23CubrirIncumplimiento;
 import bo.aportaya.garantia.aplicacion.CU25DeclararIncumplimiento;
-import bo.aportaya.garantia.aplicacion.CU26EjecutarAval;
 import bo.aportaya.garantia.aplicacion.CU27RestringirDeudor;
-import bo.aportaya.garantia.aplicacion.CU29DevolverFondo;
 import bo.aportaya.garantia.aplicacion.CU66ReemplazarParticipante;
 import bo.aportaya.garantia.aplicacion.CU67DisolverGrupo;
 import bo.aportaya.garantia.aplicacion.ConsultarRestriccion;
@@ -29,19 +26,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
-    private CU23CubrirIncumplimiento cu23CubrirIncumplimiento;
-
-    @MockitoBean
     private CU25DeclararIncumplimiento cu25DeclararIncumplimiento;
 
     @MockitoBean
-    private CU26EjecutarAval cu26EjecutarAval;
-
-    @MockitoBean
     private CU27RestringirDeudor cu27RestringirDeudor;
-
-    @MockitoBean
-    private CU29DevolverFondo cu29DevolverFondo;
 
     @MockitoBean
     private CU66ReemplazarParticipante cu66ReemplazarParticipante;
