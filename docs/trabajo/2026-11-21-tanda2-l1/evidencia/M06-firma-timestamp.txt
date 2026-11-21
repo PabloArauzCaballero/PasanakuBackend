@@ -1,0 +1,25 @@
+# F1.L1.M06 · la firma del webhook cubre el timestamp — salidas (2026-11-21)
+
+$ base limpia && APORTAYA_TEST_DB_URL=… ./gradlew :servicios:aportes:test --tests "*VerificadorDeFirmaWebhookTest" integrationTest --tests "*CU100WebhookTest" webTest --tests "*PagosEnrutamientoYWebhookWebTest"
+BUILD SUCCESSFUL in 21s
+VerificadorDeFirmaWebhookTest 12/12 · CU100WebhookTest 9/9 · PagosEnrutamientoYWebhookWebTest 5/5
+
+--- control negativo: material() = solo el cuerpo (esquema viejo)
+VerificadorDeFirmaWebhookTest > F1.L1.M06 · el material firmado es timestamp, un punto y el cuerpo: vector fijo FAILED
+VerificadorDeFirmaWebhookTest > F1.L1.M06 · la firma vieja (solo el cuerpo) ya no verifica FAILED
+VerificadorDeFirmaWebhookTest > F1.L1.M06 · un webhook capturado y reenviado con otro X-Timestamp ya no verifica FAILED
+17 tests completed, 3 failed
+> Task :servicios:aportes:test FAILED
+CU100WebhookTest > rechaza un webhook capturado y reenviado con otro X-Timestamp: firma invalida y nada escrito (F1.L1.M06) FAILED
+9 tests completed, 1 failed
+> Task :servicios:aportes:integrationTest FAILED
+BUILD FAILED in 12s
+
+$ ./gradlew :servicios:aportes:spotlessCheck test webTest testBarrido integrationTest --continue (base limpia)
+test 57/57 · webTest 55/55 · testBarrido 2/2 · integrationTest 126/129
+Las 3 que fallan levantan su propio contenedor (BaseDePrueba.contenedor() directo): ENVIRONMENT, "Could not find a valid Docker environment".
+NO COMPROBADO — requiere Docker: ./gradlew :servicios:aportes:integrationTest --tests "*AislamientoEsquemaTest" --tests "*ArranqueTest"
+
+Vector fijo calculado fuera de Java:
+$ printf '1767268800.{"a":1}' | openssl dgst -sha256 -hmac secreto
+SHA2-256(stdin)= f4adddc72cc116116abb8145a9a4850e2e7cca03209a46f80f60d60e300106ba
