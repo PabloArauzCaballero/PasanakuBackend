@@ -1,0 +1,47 @@
+$ python3 docs/trabajo/2026-11-21-diseno-paralelo/evidencia/cruce_rfp.py plantilla && ... matriz
+
+### Plantilla de RFP: RM-01 a RM-20
+
+| Requisito | Documento | Presente |
+|---|---|---|
+| RM-01 | `00-plantilla-rfp.md` | sí |
+| RM-02 | `00-plantilla-rfp.md` | sí |
+| RM-03 | `00-plantilla-rfp.md` | sí |
+| RM-04 | `00-plantilla-rfp.md` | sí |
+| RM-05 | `00-plantilla-rfp.md` | sí |
+| RM-06 | `00-plantilla-rfp.md` | sí |
+| RM-07 | `00-plantilla-rfp.md` | sí |
+| RM-08 | `00-plantilla-rfp.md` | sí |
+| RM-09 | `00-plantilla-rfp.md` | sí |
+| RM-10 | `00-plantilla-rfp.md` | sí |
+| RM-11 | `00-plantilla-rfp.md` | sí |
+| RM-12 | `00-plantilla-rfp.md` | sí |
+| RM-13 | `00-plantilla-rfp.md` | sí |
+| RM-14 | `00-plantilla-rfp.md` | sí |
+| RM-15 | `00-plantilla-rfp.md` | sí |
+| RM-16 | `00-plantilla-rfp.md` | sí |
+| RM-17 | `00-plantilla-rfp.md` | sí |
+| RM-18 | `00-plantilla-rfp.md` | sí |
+| RM-19 | `00-plantilla-rfp.md` | sí |
+| RM-20 | `00-plantilla-rfp.md` | sí |
+
+20/20 presentes
+
+TOTAL FALTANTES: 0
+
+### Matriz: siete criterios comunes y pesos abiertos
+
+| Requisito | Documento | Presente |
+|---|---|---|
+| Regulación | `01-matriz-de-evaluacion.md` | sí |
+| Capacidades técnicas | `01-matriz-de-evaluacion.md` | sí |
+| Seguridad | `01-matriz-de-evaluacion.md` | sí |
+| Datos | `01-matriz-de-evaluacion.md` | sí |
+| Disponibilidad | `01-matriz-de-evaluacion.md` | sí |
+| Costo | `01-matriz-de-evaluacion.md` | sí |
+| Salida | `01-matriz-de-evaluacion.md` | sí |
+| pesos DECISION_REQUIRED | `01-matriz-de-evaluacion.md` | sí |
+
+8/8 presentes
+
+TOTAL FALTANTES: 0
