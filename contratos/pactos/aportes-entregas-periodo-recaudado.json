@@ -1,0 +1,29 @@
+{
+  "productor": "aportes",
+  "consumidor": "entregas",
+  "version": 1,
+  "estado": "PROPUESTA DEL CONSUMIDOR (F0.L2.M03 / F3.L2.M01): el productor todavia no lo emite; lo implementa el lote L1",
+  "descripcion": "Aviso de que el recaudo de un periodo quedo listo para fondear la entrega del turno: entregas fondea SOLO, sin que nadie lo pida (ADR-055, F3.L2.M01). Se emite por el outbox de aportes en la MISMA transaccion que confirma el ultimo aporte del periodo por webhook firmado (motivo COMPLETO), y tambien al vencer la gracia con faltante (motivo GRACIA_VENCIDA), para que la entrega quede esperando la cobertura del fondo del grupo con el motivo visible. El evento NO lleva importes: entregas vuelve a preguntar el recaudo a aportes (GET /aportes/periodos/{periodoId}/recaudo, la unica fuente de las cifras) y el importe nunca lo afirma un evento reenviable. Consumidor: entregas (ConsumidorDePeriodoRecaudadoKafka), idempotente por event_id en entregas.evento_consumido y por turno en fondeo_entrega.",
+  "topico": "aportaya.aportes.periodo_recaudado",
+  "tipo": "aportes.periodo_recaudado",
+  "agregado": "periodo",
+  "cabeceras": ["event_id", "correlation_id"],
+  "campos": {
+    "periodoId": "uuid de grupos.periodo (clave del mensaje)",
+    "grupoId": "uuid del grupo",
+    "motivo": "COMPLETO | GRACIA_VENCIDA",
+    "ocurridoEn": "ISO-8601 con zona, UTC"
+  },
+  "consumidorExige": ["periodoId", "grupoId", "motivo"],
+  "ejemplo": {
+    "periodoId": "e1000000-0000-4000-8000-000000000001",
+    "grupoId": "e1000000-0000-4000-8000-000000000002",
+    "motivo": "COMPLETO",
+    "ocurridoEn": "2026-11-21T12:00:00Z"
+  },
+  "garantias": [
+    "aportes publica el evento en la misma transaccion que confirma el ultimo aporte del periodo (outbox)",
+    "puede llegar mas de una vez (COMPLETO despues de GRACIA_VENCIDA, o reenvios): entregas fondea una sola vez por turno",
+    "el evento nunca trae importes: las cifras se leen del recaudo"
+  ]
+}
