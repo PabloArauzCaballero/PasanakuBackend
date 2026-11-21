@@ -55,7 +55,8 @@ class CU04CuentaNoHabilitadaTest extends BaseDeCU04 {
 
     @ParameterizedTest
     @ValueSource(strings = {"SUSPENDIDO", "BLOQUEADO_SEGURIDAD", "BAJA_VOLUNTARIA", "ELIMINADO"})
-    @DisplayName("invalido: con la clave correcta, una cuenta no habilitada no abre sesion (AP-CU04-02)")
+    @DisplayName(
+            "Dada una cuenta SUSPENDIDO, BLOQUEADO_SEGURIDAD, BAJA_VOLUNTARIA o ELIMINADO · Cuando inicia sesión con la clave correcta · Entonces se responde AP-CU04-02 y no se abre sesión")
     void noHabilitadaNoEntra(String estado) {
         String telefono = telefonoUnico();
         UUID usuario = participanteConCredencial(telefono);
@@ -76,7 +77,7 @@ class CU04CuentaNoHabilitadaTest extends BaseDeCU04 {
 
     @Test
     @DisplayName(
-            "limite: con la clave EQUIVOCADA, la cuenta suspendida responde como credencial invalida (no se cuenta su estado)")
+            "Dada una cuenta suspendida · Cuando se intenta entrar con una clave equivocada · Entonces se responde AP-CU04-01 sin revelar su estado")
     void suspendidaConClaveMalaNoRevelaEstado() {
         String telefono = telefonoUnico();
         UUID usuario = participanteConCredencial(telefono);
@@ -88,7 +89,8 @@ class CU04CuentaNoHabilitadaTest extends BaseDeCU04 {
     }
 
     @Test
-    @DisplayName("correcto: una cuenta en verificacion no se rechaza por su estado")
+    @DisplayName(
+            "Dada una cuenta PENDIENTE_VERIFICACION · Cuando inicia sesión con la clave correcta · Entonces no se la rechaza por su estado")
     void enVerificacionNoSeRechazaPorEstado() {
         String telefono = telefonoUnico();
         UUID usuario = participanteConCredencial(telefono);
@@ -100,7 +102,8 @@ class CU04CuentaNoHabilitadaTest extends BaseDeCU04 {
     }
 
     @Test
-    @DisplayName("invalido: suspendida con sesion viva, el refresh no renueva y la sesion queda revocada")
+    @DisplayName(
+            "Dada una cuenta suspendida con una sesión viva · Cuando renueva su refresh · Entonces no se renueva y la sesión queda revocada · Y reactivar la cuenta no resucita esa sesión")
     void suspendidaNoRefresca() {
         UUID usuario = participanteConCredencial(telefonoUnico());
         UUID sesion = fixtura.sesionAbierta(usuario);
@@ -120,7 +123,8 @@ class CU04CuentaNoHabilitadaTest extends BaseDeCU04 {
     }
 
     @Test
-    @DisplayName("correcto: un interno desbloqueado deja de tener bloqueo vigente para el login")
+    @DisplayName(
+            "Dado un interno con un bloqueo_cuenta vigente · Cuando un operador lo desbloquea · Entonces el login ya no ve un bloqueo vigente · Y queda registrado quién lo liberó")
     void desbloquearLiberaElBloqueoQueLeeElLogin() {
         UUID interno = fixtura.usuario(telefonoUnico());
         UUID operador = fixtura.usuario(telefonoUnico());

@@ -69,7 +69,7 @@ class CU04TotpTest extends BaseDeCU04 {
 
     @Test
     @DisplayName(
-            "correcto: enrola, se vuelve operador y entra con el codigo vigente; 000000 y el codigo reusado no entran")
+            "Dado un usuario que enroló y confirmó su TOTP y después recibió un rol de operador · Cuando inicia sesión con 000000, con el código vigente y con ese mismo código otra vez · Entonces solo entra con el código vigente la primera vez · Y 000000 y el código reusado responden AP-CU04-04")
     void operadorEntraConTotpReal() {
         String telefono = telefonoUnico();
         UUID usuario = participanteConCredencial(telefono);
@@ -94,7 +94,8 @@ class CU04TotpTest extends BaseDeCU04 {
     }
 
     @Test
-    @DisplayName("invalido: el operador sin TOTP enrolado sigue afuera (AP-CU04-06)")
+    @DisplayName(
+            "Dado un operador sin TOTP enrolado · Cuando inicia sesión presentando 000000 · Entonces la respuesta es FACTOR_NO_ENROLADO (AP-CU04-06)")
     void sinEnrolamiento() {
         String telefono = telefonoUnico();
         UUID usuario = participanteConCredencial(telefono);
@@ -106,7 +107,8 @@ class CU04TotpTest extends BaseDeCU04 {
     }
 
     @Test
-    @DisplayName("invalido: confirmar con un codigo que no es de la semilla no activa el factor (AP-CU04-04)")
+    @DisplayName(
+            "Dado un enrolamiento TOTP pendiente · Cuando se lo confirma con un código que no es de su semilla · Entonces se rechaza con AP-CU04-04 y el factor sigue inactivo")
     void confirmarConCodigoMalo() {
         UUID usuario = participanteConCredencial(telefonoUnico());
         var inicio = iniciar(ctx(usuario));
@@ -120,7 +122,8 @@ class CU04TotpTest extends BaseDeCU04 {
     }
 
     @Test
-    @DisplayName("invalido: otra persona no confirma el enrolamiento ajeno, aun con el codigo correcto (AP-CU04-08)")
+    @DisplayName(
+            "Dado el enrolamiento TOTP pendiente de otra persona · Cuando se lo intenta confirmar con el código correcto · Entonces se rechaza con AP-CU04-08")
     void enrolamientoAjeno() {
         UUID titular = participanteConCredencial(telefonoUnico());
         UUID otro = participanteConCredencial(telefonoUnico());
@@ -135,7 +138,7 @@ class CU04TotpTest extends BaseDeCU04 {
 
     @Test
     @DisplayName(
-            "invalido: con un TOTP confirmado no se inicia otro (AP-CU04-09): una sesion robada no cambia el factor")
+            "Dado un titular con un TOTP confirmado · Cuando inicia otro enrolamiento con su sesión · Entonces se rechaza con AP-CU04-09")
     void noReemplazaElConfirmado() {
         UUID usuario = participanteConCredencial(telefonoUnico());
         enrolarYConfirmar(usuario);
@@ -147,7 +150,8 @@ class CU04TotpTest extends BaseDeCU04 {
     }
 
     @Test
-    @DisplayName("correcto: el secreto queda cifrado con version de llave, nunca en claro")
+    @DisplayName(
+            "Dado un enrolamiento TOTP iniciado · Cuando se lee su fila en factor_mfa · Entonces el secreto está cifrado con su version_llave y nunca en claro")
     void secretoCifrado() {
         UUID usuario = participanteConCredencial(telefonoUnico());
         var inicio = iniciar(ctx(usuario));

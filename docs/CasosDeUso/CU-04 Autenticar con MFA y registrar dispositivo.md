@@ -276,6 +276,53 @@ Entonces se le pide su factor enrolado y no se envia correo
 Dado un operador sin factor y con correo confirmado
 Cuando entra
 Entonces sigue rechazado con AP-CU04-06 y no se envia correo (R-SEG-10)
+
+Dado un usuario que enroló y confirmó su TOTP y después recibió un rol de operador
+Cuando inicia sesión con 000000, con el código vigente y con ese mismo código otra vez
+Entonces solo entra con el código vigente la primera vez
+Y 000000 y el código reusado responden AP-CU04-04
+
+Dado un operador sin TOTP enrolado
+Cuando inicia sesión presentando 000000
+Entonces la respuesta es FACTOR_NO_ENROLADO (AP-CU04-06)
+
+Dado un enrolamiento TOTP pendiente
+Cuando se lo confirma con un código que no es de su semilla
+Entonces se rechaza con AP-CU04-04 y el factor sigue inactivo
+
+Dado el enrolamiento TOTP pendiente de otra persona
+Cuando se lo intenta confirmar con el código correcto
+Entonces se rechaza con AP-CU04-08
+
+Dado un titular con un TOTP confirmado
+Cuando inicia otro enrolamiento con su sesión
+Entonces se rechaza con AP-CU04-09
+
+Dado un enrolamiento TOTP iniciado
+Cuando se lee su fila en factor_mfa
+Entonces el secreto está cifrado con su version_llave y nunca en claro
+
+Dada una cuenta SUSPENDIDO, BLOQUEADO_SEGURIDAD, BAJA_VOLUNTARIA o ELIMINADO
+Cuando inicia sesión con la clave correcta
+Entonces se responde AP-CU04-02 y no se abre sesión
+
+Dada una cuenta suspendida
+Cuando se intenta entrar con una clave equivocada
+Entonces se responde AP-CU04-01 sin revelar su estado
+
+Dada una cuenta PENDIENTE_VERIFICACION
+Cuando inicia sesión con la clave correcta
+Entonces no se la rechaza por su estado
+
+Dada una cuenta suspendida con una sesión viva
+Cuando renueva su refresh
+Entonces no se renueva y la sesión queda revocada
+Y reactivar la cuenta no resucita esa sesión
+
+Dado un interno con un bloqueo_cuenta vigente
+Cuando un operador lo desbloquea
+Entonces el login ya no ve un bloqueo vigente
+Y queda registrado quién lo liberó
 ```
 
 ## Ver también
