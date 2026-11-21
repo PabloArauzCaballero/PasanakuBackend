@@ -50,8 +50,7 @@ class CU28RechazosTest extends BaseDeEntregas {
         ContextoSesion ctx = contextoDe(usuario);
         var escenario = fixtura.escenario(usuario);
         var cuenta = transaccion.execute(t -> cuentaCU.registrar(
-                new EntradaRegistro(
-                        "AHORRO", "Banco", "4098765432", "cifrado:x", NOMBRE, DOCUMENTO, NOMBRE, DOCUMENTO, "BOB"),
+                new EntradaRegistro("AHORRO", "Banco", "4098765432", NOMBRE, DOCUMENTO, NOMBRE, DOCUMENTO, "BOB"),
                 ctx));
         if (verificada) {
             transaccion.execute(t -> cuentaCU.verificar(cuenta.cuentaId(), "MICRODEPOSITO", ctx));

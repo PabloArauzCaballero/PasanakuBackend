@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * CU-22 · las pruebas de RECHAZO de las restricciones del pozo completo y del mercado de
- * turnos (R-DES-03, R-DES-04 y R-DES-05), una por restriccion citada.
+ * turnos (R-DES-03, R-DES-04 y R-DES-05), una por restriccion citada, mas el pago en efectivo al organizador.
  *
  * <p>Lo que se prueba aca es que la BASE los rechaza aunque alguien llegue por fuera del caso
  * de uso. El mercado y la subasta de turnos se retiraron (D-L2-1): las filas de oferta y de
@@ -110,6 +110,32 @@ class CU22PozoYMercadoRechazosTest extends BaseDeEntregas {
         assertThat(rechazaLaBase(
                         "UPDATE entregas.fondeo_entrega SET estado = 'CON_PENDIENTE' WHERE id = ?", salida.fondeoId()))
                 .contains("ck_fondeo_entrega_estado");
+    }
+
+    @Test
+    @DisplayName("rechaza una entrega pagada en efectivo al organizador: el organizador no es caja (RN-18)")
+    void rechazaEfectivoAlOrganizador() {
+        var c = caso();
+        aportesDoble.responde(new RecaudoDelPozo.Recaudo(
+                c.e().periodoId(), c.e().grupoId(), OffsetDateTime.now(), bob("6000.00"), bob("6000.00"), bob("0.00")));
+        var salida = pozoCU.fondear(
+                new CU22EntregarPozoCompleto.Entrada(
+                        c.e().grupoId(),
+                        c.e().periodoId(),
+                        c.e().turnoId(),
+                        c.e().cupoId(),
+                        c.e().participanteId(),
+                        "BILLETERA_MOVIL",
+                        LocalDate.now(),
+                        "fondeo-" + c.e().turnoId()),
+                contextoDe(c.vendedor()));
+
+        // El CHECK del enum del modelo ya no tiene EFECTIVO_ORGANIZADOR (F1.L2.M09). Rige en toda base creada desde
+        // este modelo, que es la del contenedor de la prueba.
+        assertThat(rechazaLaBase(
+                        "UPDATE entregas.entrega_fondo SET metodo_desembolso = 'EFECTIVO_ORGANIZADOR' WHERE id = ?",
+                        salida.entregaId()))
+                .contains("ck_entrega_fondo_metodo_desembolso");
     }
 
     @Test
