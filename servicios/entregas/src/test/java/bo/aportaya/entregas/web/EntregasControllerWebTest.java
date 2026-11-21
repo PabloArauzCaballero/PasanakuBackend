@@ -154,7 +154,7 @@ class EntregasControllerWebTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"montoEntregado\":{\"monto\":\"1150.00\",\"moneda\":\"BOB\"}}"))
                     .andExpect(status().isForbidden());
-            verify(cu22, never()).ejecutar(any(), any(), any());
+            verifyNoInteractions(cu22);
         }
 
         @Test
@@ -180,7 +180,7 @@ class EntregasControllerWebTest {
                             .content("{\"montoEntregado\":{\"monto\":\"1150.00\",\"moneda\":\"BOB\"}}"))
                     .andExpect(status().isGone())
                     .andExpect(jsonPath("$.codigo").value("AP-CU22-11"));
-            verify(cu22, never()).ejecutar(any(), any(), any());
+            verifyNoInteractions(cu22);
         }
     }
 }

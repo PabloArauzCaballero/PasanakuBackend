@@ -1,259 +1,126 @@
 package bo.aportaya.entregas;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import bo.aportaya.entregas.aplicacion.CU22LiquidarEntrega.EntradaLiquidacion;
-import bo.aportaya.entregas.aplicacion.CU22LiquidarEntrega.SalidaLiquidacion;
-import bo.aportaya.entregas.dominio.LiquidacionDeEntrega;
-import bo.aportaya.plataforma.dominio.ContextoSesion;
-import bo.aportaya.plataforma.dominio.Dinero;
-import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
-import bo.aportaya.plataforma.dominio.Moneda;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
-import org.junit.jupiter.api.AfterEach;
+import java.math.BigDecimal;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/** CU-22 · Liquidar y entregar el fondo. */
-class CU22Test extends BaseDeEntregas {
-
-    @AfterEach
-    void limpiar() {
-        fixtura.limpiar();
-    }
-
-    private Dinero bob(String monto) {
-        return Dinero.de(monto, Moneda.BOB);
-    }
-
-    private record Caso(UUID usuario, FixturaDeEntregas.Escenario escenario, ContextoSesion ctx) {}
-
-    private Caso caso() {
-        UUID usuario = fixtura.usuario();
-        return new Caso(usuario, fixtura.escenario(usuario), contextoDe(usuario));
-    }
-
-    /** Las deducciones del CU: comision 18 y aporte propio del periodo 500. */
-    private List<LiquidacionDeEntrega.Deduccion> deducciones() {
-        return List.of(
-                new LiquidacionDeEntrega.Deduccion(
-                        "COMISION_PLATAFORMA", "Comision de la plataforma", bob("18.00"), UUID.randomUUID(), true),
-                new LiquidacionDeEntrega.Deduccion(
-                        "APORTE_PROPIO_DEL_PERIODO",
-                        "Su propio aporte del periodo",
-                        bob("500.00"),
-                        UUID.randomUUID(),
-                        true));
-    }
-
-    private EntradaLiquidacion entrada(Caso c, String bruto, String recaudado, List<LiquidacionDeEntrega.Deduccion> d) {
-        return new EntradaLiquidacion(
-                c.escenario().grupoId(),
-                c.escenario().periodoId(),
-                c.escenario().turnoId(),
-                c.escenario().cupoId(),
-                c.escenario().participanteId(),
-                bob(bruto),
-                bob(recaudado),
-                d,
-                "BILLETERA_MOVIL",
-                LocalDate.now());
-    }
+/**
+ * CU-22 · la entrega del pozo completo.
+ *
+ * <p>La entrega nace SOLO del fondeo: el pozo lo afirma aportes y el principal se entrega completo, sin deducciones
+ * (ADR-055/056). La liquidacion con importes del pedido y el cierre manual con un monto libre se retiraron (F1.L2.M09,
+ * F1.L2.M08 y punto 3 del lote L2). Los caminos del fondeo con faltante y sus dobles viven en {@code
+ * CU133PozoCompleto*Test}.
+ */
+class CU22Test extends BaseDePozoCompleto {
 
     @Test
     @DisplayName(
-            "Dada una bolsa bruta de Bs 6.000 y deducciones por Bs 518 · Cuando se liquida la entrega · Entonces monto_neto_a_entregar es 5.482 · Y existe una deduccion_entrega de tipo COMISION_PLATAFORMA con referencia a cargo_comision")
+            "Dado un pozo de Bs 6.000 con todos los aportes confirmados · Cuando se fondea el turno · Entonces nace una sola entrega PROGRAMADA con el pozo completo como principal y sin deducciones")
     void criterio1() {
-        Caso c = caso();
+        var c = caso();
+        aportesConfirma(c, "6000.00");
 
-        SalidaLiquidacion salida =
-                transaccion.execute(t -> entregaCU.liquidar(entrada(c, "6000.00", "6000.00", deducciones()), c.ctx()));
+        var salida = fondear(c, "cu22-1-" + c.e().turnoId());
 
-        assertThat(salida.neto()).isEqualByComparingTo(bob("5482.00"));
-        assertThat(salida.totalDeducciones()).isEqualByComparingTo(bob("518.00"));
-        // Cada deduccion con su origen: «le descontamos 518» no se puede explicar;
-        // «comision 18, aporte propio 500» si.
+        assertThat(salida.esNuevo()).isTrue();
+        assertThat(entregasDelTurno(c)).isEqualTo(1);
+        var fila = dsl.fetchOne(
+                "SELECT estado, monto_bolsa_bruto, total_deducciones, monto_neto_a_entregar FROM entregas.entrega_fondo WHERE id = ?",
+                salida.entregaId());
+        assertThat(fila.get(0, String.class)).isEqualTo("PROGRAMADA");
+        assertThat(fila.get(1, BigDecimal.class)).isEqualByComparingTo("6000.00");
+        assertThat(fila.get(2, BigDecimal.class)).isEqualByComparingTo("0.00");
+        assertThat(fila.get(3, BigDecimal.class)).isEqualByComparingTo("6000.00");
         assertThat(contar(
-                        """
-                        SELECT count(*)::int FROM entregas.deduccion_entrega
-                         WHERE entrega_id = ? AND tipo = 'COMISION_PLATAFORMA'
-                           AND referencia_origen_id IS NOT NULL
-                        """,
+                        "SELECT count(*)::int FROM entregas.deduccion_entrega WHERE entrega_id = ?",
                         salida.entregaId()))
-                .isEqualTo(1);
-        // Y la cabecera la recalcula la BASE: los totales no se escriben a mano.
-        assertThat(dsl.fetchOne(
-                                "SELECT monto_neto_a_entregar FROM entregas.entrega_fondo WHERE id = ?",
-                                salida.entregaId())
-                        .get(0, java.math.BigDecimal.class))
-                .isEqualByComparingTo(new java.math.BigDecimal("5482.00"));
+                .isZero();
     }
 
     @Test
     @DisplayName(
-            "Dado un turno ya liquidado · Cuando se repite la liquidación · Entonces devuelve la MISMA entrega y no crea otra · Y la base sigue rechazando una segunda entrega del turno (R-GRP-01)")
+            "Dado un turno ya fondeado · Cuando se repite el fondeo · Entonces devuelve la MISMA entrega y no crea otra · Y la base sigue rechazando una segunda entrega del turno (R-GRP-01)")
     void criterio2() {
-        Caso c = caso();
-        SalidaLiquidacion primera =
-                transaccion.execute(t -> entregaCU.liquidar(entrada(c, "6000.00", "6000.00", deducciones()), c.ctx()));
+        var c = caso();
+        aportesConfirma(c, "6000.00");
+        var primera = fondear(c, "cu22-2-" + c.e().turnoId());
 
-        // Un reintento del cliente no es una segunda entrega: devuelve la misma.
-        SalidaLiquidacion repetida =
-                transaccion.execute(t -> entregaCU.liquidar(entrada(c, "6000.00", "6000.00", deducciones()), c.ctx()));
-        assertThat(repetida.entregaId()).isEqualTo(primera.entregaId());
-        assertThat(contar(
-                        "SELECT count(*)::int FROM entregas.entrega_fondo WHERE turno_id = ?",
-                        c.escenario().turnoId()))
-                .isEqualTo(1);
+        var otraVez = fondear(c, "cu22-2-" + c.e().turnoId());
 
-        // Dos entregas del mismo turno es pagar dos veces el mismo premio: aunque el caso de uso
-        // ya no lo intente, el indice unico sigue siendo el ultimo control.
-        assertThatThrownBy(() -> transaccion.execute(t -> dsl.execute(
-                        """
-                        INSERT INTO entregas.entrega_fondo
-                            (id, grupo_id, periodo_id, turno_id, cupo_id, beneficiario_participante_id,
-                             monto_bolsa_bruto, total_deducciones, monto_neto_a_entregar,
-                             monto_efectivamente_entregado, moneda, estado, metodo_desembolso,
-                             fecha_programada, version)
-                        SELECT gen_random_uuid(), grupo_id, periodo_id, turno_id, cupo_id,
-                               beneficiario_participante_id, monto_bolsa_bruto, total_deducciones,
-                               monto_neto_a_entregar, monto_efectivamente_entregado, moneda, estado,
-                               metodo_desembolso, fecha_programada, 0
-                          FROM entregas.entrega_fondo WHERE turno_id = ?
-                        """,
-                        c.escenario().turnoId())))
-                .satisfies(e -> assertThat(raizDe(e)).contains("uq_entrega_turno"));
+        assertThat(otraVez.entregaId()).isEqualTo(primera.entregaId());
+        assertThat(otraVez.esNuevo()).isFalse();
+        assertThat(entregasDelTurno(c)).isEqualTo(1);
+        assertThat(segundaEntregaDelTurno(c)).contains("uq_entrega_");
     }
 
     @Test
     @DisplayName(
-            "Dada una entrega autorizada · Cuando la ejecuta el mismo usuario que la autorizó · Entonces la operación se rechaza por segregación de funciones")
+            "Dado un pozo de Bs 6.000 con Bs 5.000 confirmados y nadie que cubra el faltante · Cuando se fondea el turno · Entonces la entrega queda BLOQUEADA con el pozo completo como principal y Bs 1.000 de deuda conservada")
     void criterio3() {
-        Caso c = caso();
-        SalidaLiquidacion entrega =
-                transaccion.execute(t -> entregaCU.liquidar(entrada(c, "6000.00", "6000.00", deducciones()), c.ctx()));
-        ContextoSesion supervisor = contextoDe(fixtura.usuario());
-        transaccion.execute(t -> entregaCU.autorizar(entrega.entregaId(), supervisor));
+        var c = caso();
+        aportesConfirma(c, "5000.00");
+        // Nadie cubre: sin reserva del respaldo hoy, y sin fondo del grupo hasta el modelo A (F3.L2.M05).
+        garantiaDoble.sinReserva(true);
+        try {
+            var salida = fondear(c, "cu22-3-" + c.e().turnoId());
 
-        // Una sola persona que autoriza y ejecuta puede sacar el fondo entero de un
-        // grupo sin que nadie mas lo vea pasar.
-        assertThatThrownBy(() ->
-                        transaccion.execute(t -> entregaCU.ejecutar(entrega.entregaId(), bob("5482.00"), supervisor)))
-                .isInstanceOf(ErrorDeNegocio.class)
-                .hasMessageContaining("no puede ser quien la autorizo");
-        assertThat(contar(
-                        "SELECT count(*)::int FROM entregas.entrega_fondo WHERE id = ? AND estado = 'AUTORIZADA'",
-                        entrega.entregaId()))
-                .isEqualTo(1);
+            assertThat(salida.cifras().pendiente()).isEqualTo(bob("1000.00"));
+            var fila = dsl.fetchOne(
+                    "SELECT estado, monto_bolsa_bruto FROM entregas.entrega_fondo WHERE id = ?", salida.entregaId());
+            assertThat(fila.get(0, String.class)).isEqualTo("BLOQUEADA_POR_FONDO_INCOMPLETO");
+            assertThat(fila.get(1, BigDecimal.class)).isEqualByComparingTo("6000.00");
+            assertThat(numero("SELECT monto_pendiente FROM entregas.fondeo_entrega WHERE id = ?", salida.fondeoId()))
+                    .isEqualByComparingTo("1000.00");
+        } finally {
+            garantiaDoble.sinReserva(false);
+        }
     }
 
     @Test
     @DisplayName("reintento: la misma clave de idempotencia dos veces devuelve la misma respuesta y un solo efecto")
     void reintento() {
-        // La clave es el TURNO, y la sostiene la base. Autorizar dos veces tampoco
-        // vuelve a mover el estado.
-        Caso c = caso();
-        SalidaLiquidacion entrega =
-                transaccion.execute(t -> entregaCU.liquidar(entrada(c, "6000.00", "6000.00", deducciones()), c.ctx()));
-        ContextoSesion supervisor = contextoDe(fixtura.usuario());
+        var c = caso();
+        aportesConfirma(c, "6000.00");
 
-        transaccion.execute(t -> entregaCU.autorizar(entrega.entregaId(), supervisor));
+        var a = fondear(c, "cu22-r-" + c.e().turnoId());
+        var b = fondear(c, "cu22-r-" + c.e().turnoId());
 
-        assertThatThrownBy(() -> transaccion.execute(t -> entregaCU.autorizar(entrega.entregaId(), supervisor)))
-                .isInstanceOf(ErrorDeNegocio.class)
-                .hasMessageContaining("ya no admite autorizacion");
-        assertThat(contar(
-                        "SELECT count(*)::int FROM entregas.evento_dominio WHERE tipo = ? AND agregado_id = ?",
-                        "entregas.entrega_autorizada",
-                        entrega.entregaId()))
+        assertThat(b.entregaId()).isEqualTo(a.entregaId());
+        assertThat(b.fondeoId()).isEqualTo(a.fondeoId());
+        assertThat(contar("SELECT count(*)::int FROM entregas.fondeo_entrega WHERE turno_id = ?", c.e().turnoId()))
                 .isEqualTo(1);
     }
 
     @Test
-    @DisplayName("concurrencia: dos transacciones sobre el mismo agregado, una gana y nunca hay doble efecto")
-    void concurrencia() {
-        // Dos ejecuciones de la misma entrega: la version optimista deja pasar una.
-        // Sin eso se pagaria dos veces el mismo turno.
-        Caso c = caso();
-        SalidaLiquidacion entrega =
-                transaccion.execute(t -> entregaCU.liquidar(entrada(c, "6000.00", "6000.00", deducciones()), c.ctx()));
-        ContextoSesion supervisor = contextoDe(fixtura.usuario());
-        ContextoSesion cajero = contextoDe(fixtura.usuario());
-        transaccion.execute(t -> entregaCU.autorizar(entrega.entregaId(), supervisor));
+    @DisplayName("rechaza por R-GRP-01")
+    void rechazaRGRP01() {
+        // Una entrega por turno. Dos es pagar dos veces el mismo premio, y el grupo se queda sin fondo para el
+        // siguiente. La entrega nace del fondeo; la segunda llega por fuera del caso de uso y la frena la base.
+        var c = caso();
+        aportesConfirma(c, "6000.00");
+        fondear(c, "cu22-g-" + c.e().turnoId());
 
-        transaccion.execute(t -> entregaCU.ejecutar(entrega.entregaId(), bob("5482.00"), cajero));
-
-        assertThatThrownBy(
-                        () -> transaccion.execute(t -> entregaCU.ejecutar(entrega.entregaId(), bob("5482.00"), cajero)))
-                .isInstanceOf(ErrorDeNegocio.class)
-                .hasMessageContaining("no estaba lista");
-        assertThat(contar(
-                        "SELECT count(*)::int FROM entregas.entrega_fondo WHERE id = ? AND estado = 'ENTREGADA'",
-                        entrega.entregaId()))
-                .isEqualTo(1);
+        assertThat(segundaEntregaDelTurno(c)).contains("uq_entrega_");
     }
 
-    @Test
-    @DisplayName("cuadre: la suma de debitos iguala la de creditos, al centavo")
-    void cuadre() {
-        // Bruto menos deducciones igual neto, al centavo, y la suma de las filas de
-        // deduccion iguala el total de la cabecera. Si no cuadraran, nadie podria
-        // explicar la diferencia.
-        Caso c = caso();
-
-        SalidaLiquidacion salida =
-                transaccion.execute(t -> entregaCU.liquidar(entrada(c, "6000.00", "6000.00", deducciones()), c.ctx()));
-
-        var fila = dsl.fetchOne(
+    private String segundaEntregaDelTurno(Caso c) {
+        return rechazaLaBase(
                 """
-                SELECT e.monto_bolsa_bruto AS bruto, e.total_deducciones AS deducciones,
-                       e.monto_neto_a_entregar AS neto,
-                       (SELECT COALESCE(sum(monto), 0) FROM entregas.deduccion_entrega d
-                         WHERE d.entrega_id = e.id) AS suma_filas
-                  FROM entregas.entrega_fondo e WHERE e.id = ?
+                INSERT INTO entregas.entrega_fondo
+                    (id, grupo_id, periodo_id, turno_id, cupo_id, beneficiario_participante_id,
+                     monto_bolsa_bruto, total_deducciones, monto_neto_a_entregar,
+                     monto_efectivamente_entregado, moneda, estado, metodo_desembolso,
+                     fecha_programada, version)
+                VALUES (gen_random_uuid(), ?, ?, ?, ?, ?, 6000.00, 0, 6000.00, 0,
+                        'BOB', 'PROGRAMADA', 'BILLETERA_MOVIL', current_date, 0)
                 """,
-                salida.entregaId());
-        assertThat(fila.get("bruto", java.math.BigDecimal.class)
-                        .subtract(fila.get("deducciones", java.math.BigDecimal.class)))
-                .isEqualByComparingTo(fila.get("neto", java.math.BigDecimal.class));
-        assertThat(fila.get("suma_filas", java.math.BigDecimal.class))
-                .isEqualByComparingTo(fila.get("deducciones", java.math.BigDecimal.class));
-    }
-
-    @Test
-    @DisplayName("evento duplicado y fuera de orden: un solo efecto")
-    void eventoDuplicado() {
-        UUID idEvento = UUID.randomUUID();
-
-        boolean primera = transaccion.execute(t -> consumidos.registrar(dsl, idEvento, "liquidacion"));
-        boolean segunda = transaccion.execute(t -> consumidos.registrar(dsl, idEvento, "liquidacion"));
-
-        assertThat(primera).isTrue();
-        assertThat(segunda).isFalse();
-    }
-
-    @Test
-    @DisplayName("compensacion: se fuerza el fallo de cada paso y el sistema queda cuadrado")
-    void compensa() {
-        // Deducciones que superan la bolsa: no queda entrega ni deduccion. El
-        // beneficiario terminaria debiendo por cobrar su turno, y eso no es una
-        // entrega — es un error de calculo que hay que resolver antes.
-        Caso c = caso();
-        var imposibles = List.of(new LiquidacionDeEntrega.Deduccion(
-                "DEUDA_VENCIDA_PROPIA", "Deuda mayor que la bolsa", bob("6000.01"), UUID.randomUUID(), true));
-
-        assertThatThrownBy(() -> transaccion.execute(
-                        t -> entregaCU.liquidar(entrada(c, "6000.00", "6000.00", imposibles), c.ctx())))
-                .isInstanceOf(ErrorDeNegocio.class)
-                .hasMessageContaining("terminaria debiendo");
-        assertThat(contar(
-                        "SELECT count(*)::int FROM entregas.entrega_fondo WHERE turno_id = ?",
-                        c.escenario().turnoId()))
-                .isZero();
-        assertThat(contar("SELECT count(*)::int FROM entregas.deduccion_entrega"))
-                .isZero();
+                c.e().grupoId(),
+                c.e().periodoId(),
+                c.e().turnoId(),
+                c.e().cupoId(),
+                c.e().participanteId());
     }
 }
