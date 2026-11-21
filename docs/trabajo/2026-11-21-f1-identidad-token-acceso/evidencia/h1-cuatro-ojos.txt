@@ -1,0 +1,11 @@
+$ ./gradlew :plataforma:comun-web:test --tests "*CuatroOjos*" :plataforma:comun-web:webTest --tests "*CuatroOjos*"
+BUILD SUCCESSFUL in 10s
+testsuite name="bo.aportaya.plataforma.web.seguridad.CuatroOjosTest" tests="6" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.plataforma.web.seguridad.CuatroOjosWebTest" tests="7" skipped="0" failures="0" errors="0"
+
+--- mutante: se quita la comparacion de persona en CuatroOjos.exigir (luego se restaura)
+> Task :plataforma:comun-web:test FAILED
+CuatroOjosTest > limite: la misma persona desde OTRA sesion no son cuatro ojos FAILED
+CuatroOjosTest > limite: primer actor rehidratado sin sesion; decide la persona FAILED
+CuatroOjosWebTest > limite: la misma persona abriendo otra sesion tampoco son cuatro ojos (422) FAILED
+> Task :plataforma:comun-web:webTest FAILED
