@@ -12,6 +12,14 @@ fecha: 2026-10-31
 
 # ADR-054 — Grupos sin organizador humano: confianza y emparejamiento
 
+> [!warning] Reemplazado parcialmente por ADR-055 (2026-11-21).
+> Dejan de regir: D5 (emparejamiento con admisión humana: solo se entra por invitación), D6 (organizador
+> profesional: no existe), D7 en permutas y retiro, D8 en lo que se apoya en el tope de ADR-049, D9 en
+> `visibilidad` (no hay grupos públicos), D10 (orden de carriles) y la frase de D1 que mantenía vigente ADR-051.
+> D2 sigue con el agregado «sin deudas vivas». D3/D4 (75 % y cancelación) y la disolución automática de D7
+> quedan **a confirmar** (`DECISION_REQUIRED` en ADR-055). Detalle fila por fila en
+> [[ADR-055 Sin aprobaciones en el circuito|ADR-055]] §3.
+
 > El alta de un grupo exigía un organizador humano habilitado por backoffice que aprobaba a cada
 > integrante, apretaba «iniciar» y convocaba el sorteo, sin custodiar ni cobrar nada (RN-18). Para una
 > familia que ya se conoce, esas tres decisiones no deciden nada y convertían el alta en doce pasos.
