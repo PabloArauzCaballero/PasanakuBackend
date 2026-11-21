@@ -142,7 +142,7 @@ public class CU17BloquearPorAutoridad {
 
         return datos.conContexto(ctx, dsl -> {
             var vigente = bloqueos.vigente(dsl, bloqueoId)
-                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(17, 2), "Ese bloqueo no esta vigente."));
+                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(17, 5), "Ese bloqueo no esta vigente."));
             // AP-CU17-04 · R-BIL-32: quien lo registro no lo levanta (la base lo exige tambien).
             if (vigente.registradoPor().map(ctx.usuarioId()::equals).orElse(false)) {
                 throw new ErrorDeNegocio(
@@ -150,7 +150,7 @@ public class CU17BloquearPorAutoridad {
                         "Quien registro el bloqueo no puede levantarlo: lo levanta otra persona.");
             }
             if (!bloqueos.levantar(dsl, bloqueoId, ctx.usuarioId(), ahora)) {
-                throw new ErrorDeNegocio(CodigoError.de(17, 2), "Ese bloqueo no esta vigente.");
+                throw new ErrorDeNegocio(CodigoError.de(17, 5), "Ese bloqueo no esta vigente.");
             }
             // F1.L1.M10: el saldo retenido vuelve en la MISMA transaccion; si no, la cuenta queda bloqueada sin orden.
             vigente.retencionId().ifPresent(r -> retenciones.liberarDentroDe(dsl, r, ctx));

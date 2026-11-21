@@ -143,7 +143,7 @@ class BilleteraControllerWebTest {
         }
 
         @Test
-        @DisplayName("bloquear por autoridad exige DATOS_SENSIBLES_LEER, no operar ni reversar")
+        @DisplayName("bloquear por autoridad exige BLOQUEO_AUTORIDAD_REGISTRAR, no operar ni reversar")
         void bloquearEsDeCumplimiento() throws Exception {
             mvc.perform(post("/billetera/bloqueos")
                             .with(Sesiones.como("PARTICIPANTE", "BILLETERA_OPERAR", "REVERSO_AUTORIZAR"))

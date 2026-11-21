@@ -63,9 +63,10 @@
   ni `deuda_participante` hasta la cobertura del modelo A (F3.L2.M05); CU-27 y CU-66 operan sobre deudas existentes. Las tablas `aval_participante` y `ejecucion_aval`
   siguen en el modelo.
 - Qué falta exactamente:
-  1. M02: contraer el modelo: el estado `SOLICITADA` del CHECK y `politica_cobertura` del `.puml` → DDL (con
-     consulta previa de filas `SOLICITADA` en TEST, como en F1.L2.M09), y `aprobadaPor`/`EntradaCobertura` del
-     contrato. Las integraciones del punto 3 están NO COMPROBADO local: las valida el CI del PR.
+  1. M02: `SOLICITADA` ya sale del CHECK (#477, con `CK_ESTRECHADOS`; precondición en TEST: `SELECT count(*) FROM
+     garantia.cobertura_incumplimiento WHERE estado = 'SOLICITADA'` = 0). `APROBADA` se queda: el anexo solo nombra
+     `SOLICITADA` (confirmado por el coordinador). Falta quitar `aprobadaPor`/`EntradaCobertura` del contrato (la
+     operación ya responde 410) y la tabla `politica_cobertura` (ver Pendiente: decisión del dueño).
   2. M03: la devolución la dispara el evento de cierre de ciclo, con el estado del grupo leído de `grupos` y las
      deudas contadas en el propio esquema (F3.L2.M06).
   3. F2.L2.M04: quitar `aval_participante` y `ejecucion_aval` de `docs/entidades` y R-GAR-04 de
@@ -99,6 +100,7 @@
 |---|---|---|
 | F1.L2.M10 | TODO | Siguiente PR del lote |
 | F1.L2.M01, M04, M06, M08, M11–M14 | TODO | M13/M14 necesitan `plataforma/comun-web` (cliente único y token de servicio): fuera de alcance |
+| Contracción `politica_cobertura` | DECISION_REQUIRED | Borrar la tabla es destructivo sobre datos compartidos: lo eleva el coordinador a Pablo junto con la migración. Hoy la referencia `garantia.fondo_garantia.politica_cobertura_id` (`fk_fondo_garantia_politica_cobertura_id`, ON DELETE RESTRICT), y `FondoRepositorio.Fondo.politicaId` la sigue leyendo. Consulta de uso en TEST: `SELECT count(*) FROM garantia.politica_cobertura;` · `SELECT count(*) FROM garantia.fondo_garantia WHERE politica_cobertura_id IS NOT NULL;` · `SELECT conrelid::regclass, conname FROM pg_constraint WHERE confrelid = 'garantia.politica_cobertura'::regclass;`. Con la tabla se van la columna `requirio_aprobacion_manual` de `cobertura_incumplimiento` y `fondo_garantia.politica_cobertura_id` (expandir/contraer: primero el código que deja de leerla) |
 | F2.L2.M02 | TODO | Después de F2.L2.M01 y del retiro del consumidor de tópicos de respaldo en `nucleo-financiero` (L1) |
 | L2.S1.M2 | TODO | Precondición: L6 y L1 sueltan los consumidores (ver A medias). No es un bloqueo de ejecución: es el paso «contraer» y se hace apenas mergeen |
 | F1.L2.M10 | TODO | Diseño listo, sin código: puerto `RetencionDelPozo.retener(entregaId, neto, clave) → Concedida(retencionId) / SaldoInsuficiente / NoDisponible`, doble en tres niveles (regla 65) y adaptador que falla cerrado hasta que L1 publique la operación en `nucleo-financiero`. La llamada va FUERA de la transacción de `CU28EmitirDesembolso` (invariante 6), así que la emisión se parte en «leer neto» → «retener» → «escribir orden». Depende además de F2.L2.M06 (la emisión deja de ser humana) |
