@@ -75,9 +75,9 @@
   {
    "nombre": "entregas",
    "descripcion": "Entregas de Fondo. Que la bolsa llegue completa, a la persona correcta, una sola vez.",
-   "tablas": 19,
-   "tablasDeNegocio": 15,
-   "columnas": 228,
+   "tablas": 20,
+   "tablasDeNegocio": 16,
+   "columnas": 235,
    "relaciones": 38,
    "appendOnly": 0,
    "conDatosPersonales": 1,
@@ -26886,6 +26886,102 @@
    "clasificacion": {
     "personales": 0,
     "financieros": 3,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": []
+  },
+  {
+   "tabla": "turno_del_grupo",
+   "esquema": "entregas",
+   "tipo": "NEGOCIO",
+   "modulo": "04",
+   "nombreModulo": "Entregas de Fondo",
+   "servicio": "entregas",
+   "appendOnly": false,
+   "negocio": {},
+   "reglas": [],
+   "columnas": [
+    {
+     "nombre": "turno_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador de referencia para el concepto de turno en turno_del_grupo.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "grupo_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Referencia al grupo de pasanaku en el que se enmarca esta operación.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, índice b-tree.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "periodo_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Identificador de referencia para el concepto de periodo en turno_del_grupo.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, restricción única.",
+     "sensibilidad": "NINGUNA",
+     "unica": true
+    },
+    {
+     "nombre": "cupo_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Identificador de referencia para el concepto de cupo en turno_del_grupo.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "titular_participante_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Identificador de referencia para el concepto de titular participante en turno_del_grupo.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "version",
+     "tipo": "INTEGER",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Número de versión para control de concurrencia optimista y auditoría de modificaciones.",
+     "origenNegocio": "convencion",
+     "sistema": "INTEGER, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "recibido_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de recibido en turno_del_grupo.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema entregas; la escribe y la lee solo el servicio entregas (regla 98.1.1): otro servicio la conoce por su API o por sus eventos.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
     "secretos": 0,
     "derivados": 0
    },

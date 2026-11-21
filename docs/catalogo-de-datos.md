@@ -3382,6 +3382,20 @@ Son dos conversaciones completamente distintas con dos personas distintas. Un so
 | `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, restricción única. | NINGUNA |
 | `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
 
+### `turno_del_grupo`
+
+**Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `turno_id` | UUID | Identificador de referencia para el concepto de turno en `turno_del_grupo`. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `periodo_id` | UUID | Identificador de referencia para el concepto de periodo en `turno_del_grupo`. | UUID, obligatoria, restricción única. | NINGUNA |
+| `cupo_id` | UUID | Identificador de referencia para el concepto de cupo en `turno_del_grupo`. | UUID, obligatoria. | NINGUNA |
+| `titular_participante_id` | UUID | Identificador de referencia para el concepto de titular participante en `turno_del_grupo`. | UUID, obligatoria. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
+| `recibido_en` | TIMESTAMPTZ | Marca temporal o fecha de recibido en `turno_del_grupo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
 ### `validacion_pre_entrega`
 
 **Qué es.** El resultado de aplicar cada regla de control antes de autorizar la entrega.

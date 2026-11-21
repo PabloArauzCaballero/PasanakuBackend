@@ -65,6 +65,22 @@ los pisos de cobertura sin cambios. **Estado:** A MEDIAS
 | F2.L2.M02 | Respaldo empresarial en garantía | Rutas `/garantia/respaldo/*` 410 | suites | A MEDIAS (local verde, evidencia/F2.L2.M02-sin-respaldo-garantia.txt; integración NO COMPROBADO local; precondición en TEST: evidencia/F2.L2.M02-vigentes-respaldo.sql) |
 | F2.L2.M04 | Aval entre participantes | 410 y sin código | suites | A MEDIAS (código retirado y CU-26 marcado RETIRADO, evidencia/F2.L2.M04-cu26-retirado.txt; faltan las tablas) |
 
+### H1.S4 — Entrega automática al cobrarse el turno (F3.L2.M01)
+
+**CA:** Dado un periodo cuyo recaudo `aportes` avisa como listo y un turno conocido para ese periodo, cuando llega el
+aviso (una o varias veces, antes o después de los turnos), entonces `entregas` fondea ese turno una sola vez sin que
+nadie lo pida a mano. **DoD:** pruebas unitarias en los tres niveles contra dobles (regla 65) + integración con base
+real en el CI del PR + DDL regenerado sin deriva. **Estado:** EN CURSO. Diseño:
+[evidencia/F3.L2.M01-diseno-entrega-automatica.md](evidencia/F3.L2.M01-diseno-entrega-automatica.md). Los productores
+(`aportes.periodo_recaudado`, `grupos.turnos_asignados`) no existen: se trabaja contra dobles de sus pactos.
+
+| ID | Microtarea | CA (binario) | DoD (comando) | Estado |
+|---|---|---|---|---|
+| F3.L2.M01.a | Tabla `entregas.turno_del_grupo` en el modelo y DDL regenerado | La tabla existe con `periodo_id` único y sin FK a otro esquema | `generar_ddl.py` + aplicar en psql 5433 + deriva | HECHO (evidencia/F3.L2.M01.a-turno-del-grupo.txt; `verificar_boveda` TODO OK; el README y los planes pasan a 351 tablas porque `verificar_boveda` lo exige) |
+| F3.L2.M01.b | Copia de turnos: aplica `grupos.turnos_asignados` una vez por evento y solo con versión mayor | Duplicado y versión vieja no escriben | `test` (unitaria) + `integrationTest` en CI | TODO |
+| F3.L2.M01.c | Fondeo automático al consumir `aportes.periodo_recaudado` (clave `fondeo-auto-<periodoId>`; sin turno conocido → reintento; aportes caído → reintento) | Correcto, duplicado, fuera de orden y aportes caído dan un solo fondeo | `test` (unitaria, tres niveles) + `integrationTest` en CI | TODO |
+| F3.L2.M01.d | Bordes Kafka de los dos eventos, apagados por omisión hasta la decisión del método de desembolso | Un mensaje sin cabecera o campo se rechaza; la lectura del pacto coincide | `test` de los consumidores con los ejemplos de los pactos | TODO |
+
 ## Riesgos y bloqueos previstos
 
 | Riesgo | Impacto | Mitigación |

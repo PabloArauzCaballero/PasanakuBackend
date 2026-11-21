@@ -70,6 +70,12 @@ CREATE INDEX IF NOT EXISTS ix_fondeo_entrega_estado
 CREATE UNIQUE INDEX IF NOT EXISTS uq_fondeo_entrega_clave_idempotencia
   ON entregas.fondeo_entrega (clave_idempotencia);
 
+CREATE INDEX IF NOT EXISTS ix_turno_del_grupo_grupo_id
+  ON entregas.turno_del_grupo (grupo_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_turno_del_grupo_periodo_id
+  ON entregas.turno_del_grupo (periodo_id);
+
 CREATE INDEX IF NOT EXISTS ix_oferta_turno_grupo_id
   ON entregas.oferta_turno (grupo_id);
 
