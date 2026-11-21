@@ -66,6 +66,22 @@ public class CU19ReembolsarPago {
         this.plazoDeDisputa = plazoDeDisputa;
     }
 
+    private PertenenciaDelParticipante pertenencia;
+
+    /** Por setter: el constructor no cambia (las pruebas de integracion lo arman a mano). */
+    @org.springframework.beans.factory.annotation.Autowired
+    void conPertenencia(PertenenciaDelParticipante pertenencia) {
+        this.pertenencia = pertenencia;
+    }
+
+    /**
+     * F1.L1.M07 · si el pago es de una obligacion de quien pide el reembolso. Se pregunta ANTES de
+     * {@link #solicitar}, fuera de su transaccion: la pertenencia la sabe {@code grupos} (invariante 6).
+     */
+    public boolean esPagoDelSolicitante(UUID pagoId, ContextoSesion ctx) {
+        return pertenencia.pagoEsDelUsuario(pagoId, ctx);
+    }
+
     @Transactional
     public SalidaSolicitud solicitar(EntradaReembolso entrada, ContextoSesion ctx) {
         // El motivo se valida antes de abrir nada: la base solo admite cuatro, y
