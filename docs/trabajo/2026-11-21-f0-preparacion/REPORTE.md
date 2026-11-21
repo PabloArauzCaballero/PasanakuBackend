@@ -272,6 +272,14 @@ Sin fallas.
 - `docs/Cumplimiento.md` afirmaba que declarar un incumplimiento exige una persona; P-12 lo automatiza. Quedó
   como pregunta para Cumplimiento.
 
+- **CI de `dev` en rojo (ajeno a este carril), comprobado el 2026-11-21:** el trabajo «Formato, reglas propias y
+  compilación» falla en `SalidasSensiblesBarridoTest` (`:plataforma:comun-pruebas:testBarrido`). La deuda conocida
+  de `seguridad/salidas-sensibles-conocidas.txt` está anotada por `archivo:línea`; un cambio reciente en `dev` corrió
+  esas líneas (`CU21CobrarAporte`, `CU28EmitirDesembolso`, `CU12TransferirSaldo`, que registran en el log la clave
+  de idempotencia) y la prueba las ve como nuevas. Reproducido en un worktree de `origin/dev` puro, sin cambios de
+  F0: `8 tests completed, 1 failed`. Por eso #405 y #413 muestran ese trabajo en rojo. No lo corregí: es código
+  Java y deuda de seguridad fuera de este carril; lo tiene la sesión de #416.
+
 ## Decisiones y ambigüedades
 
 Actualizado tras la tanda 9 de `DECISIONES.md` (mergeada en `dev` con #414): A1, A2, A5, A6 y A7 quedaron
