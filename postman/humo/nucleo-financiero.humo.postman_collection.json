@@ -741,7 +741,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"operacion\": \"RECARGA\",\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  }\n}",
+              "raw": "{\n  \"operacion\": \"RECARGA\",\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -838,7 +838,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"operacion\": \"RETIRO\",\n  \"cuentaBilleteraId\": \"{{id}}\",\n  \"monto\": {\n    \"monto\": \"5000.00\",\n    \"moneda\": \"USD\"\n  }\n}",
+              "raw": "{\n  \"operacion\": \"RETIRO\",\n  \"cuentaBilleteraId\": \"{{id}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"USD\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -901,7 +901,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"operacion\": \"RECARGA\",\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  }\n}",
+              "raw": "{\n  \"operacion\": \"RECARGA\",\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -968,7 +968,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1040,7 +1040,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"costoProveedor\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"medio\": \"medio-de-prueba\",\n  \"instrumentoFondeoId\": \"{{instrumentoFondeoId}}\",\n  \"cotizacionId\": \"{{cotizacionId}}\"\n}",
+              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"costoProveedor\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"medio\": \"medio-de-prueba\",\n  \"instrumentoFondeoId\": \"{{instrumentoFondeoId}}\",\n  \"cotizacionId\": \"{{cotizacionId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1137,7 +1137,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cuentaBilleteraId\": \"{{id}}\",\n  \"monto\": {\n    \"monto\": \"5000.00\",\n    \"moneda\": \"USD\"\n  },\n  \"costoProveedor\": {\n    \"monto\": \"5000.00\",\n    \"moneda\": \"USD\"\n  },\n  \"medio\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"instrumentoFondeoId\": \"{{id}}\",\n  \"cotizacionId\": \"{{id}}\"\n}",
+              "raw": "{\n  \"cuentaBilleteraId\": \"{{id}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"USD\"\n  },\n  \"costoProveedor\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"USD\"\n  },\n  \"medio\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"instrumentoFondeoId\": \"{{id}}\",\n  \"cotizacionId\": \"{{id}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1200,7 +1200,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"costoProveedor\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"medio\": \"medio-de-prueba\",\n  \"instrumentoFondeoId\": \"{{instrumentoFondeoId}}\",\n  \"cotizacionId\": \"{{cotizacionId}}\"\n}",
+              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"costoProveedor\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"medio\": \"medio-de-prueba\",\n  \"instrumentoFondeoId\": \"{{instrumentoFondeoId}}\",\n  \"cotizacionId\": \"{{cotizacionId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1267,7 +1267,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"costoProveedor\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"medio\": \"medio-de-prueba\",\n  \"instrumentoFondeoId\": \"{{instrumentoFondeoId}}\",\n  \"cotizacionId\": \"{{cotizacionId}}\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "raw": "{\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"costoProveedor\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"medio\": \"medio-de-prueba\",\n  \"instrumentoFondeoId\": \"{{instrumentoFondeoId}}\",\n  \"cotizacionId\": \"{{cotizacionId}}\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1772,7 +1772,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"motivo\": \"motivo-de-prueba\",\n  \"transaccionOrigenId\": \"{{transaccionOrigenId}}\",\n  \"referenciaTipo\": \"referenciaTipo-de-prueba\",\n  \"referenciaId\": \"{{referenciaId}}\",\n  \"expiraEn\": \"{{momento_ahora}}\"\n}",
+              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"motivo\": \"motivo-de-prueba\",\n  \"transaccionOrigenId\": \"{{transaccionOrigenId}}\",\n  \"referenciaTipo\": \"referenciaTipo-de-prueba\",\n  \"referenciaId\": \"{{referenciaId}}\",\n  \"expiraEn\": \"{{momento_ahora}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1869,7 +1869,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cuentaBilleteraId\": \"{{id}}\",\n  \"monto\": {\n    \"monto\": \"5000.00\",\n    \"moneda\": \"USD\"\n  },\n  \"motivo\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"transaccionOrigenId\": \"{{id}}\",\n  \"referenciaTipo\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"referenciaId\": \"{{id}}\",\n  \"expiraEn\": \"{{momento_ahora}}\"\n}",
+              "raw": "{\n  \"cuentaBilleteraId\": \"{{id}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"USD\"\n  },\n  \"motivo\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"transaccionOrigenId\": \"{{id}}\",\n  \"referenciaTipo\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"referenciaId\": \"{{id}}\",\n  \"expiraEn\": \"{{momento_ahora}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1932,7 +1932,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"motivo\": \"motivo-de-prueba\",\n  \"transaccionOrigenId\": \"{{transaccionOrigenId}}\",\n  \"referenciaTipo\": \"referenciaTipo-de-prueba\",\n  \"referenciaId\": \"{{referenciaId}}\",\n  \"expiraEn\": \"{{momento_ahora}}\"\n}",
+              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"motivo\": \"motivo-de-prueba\",\n  \"transaccionOrigenId\": \"{{transaccionOrigenId}}\",\n  \"referenciaTipo\": \"referenciaTipo-de-prueba\",\n  \"referenciaId\": \"{{referenciaId}}\",\n  \"expiraEn\": \"{{momento_ahora}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1999,7 +1999,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"motivo\": \"motivo-de-prueba\",\n  \"transaccionOrigenId\": \"{{transaccionOrigenId}}\",\n  \"referenciaTipo\": \"referenciaTipo-de-prueba\",\n  \"referenciaId\": \"{{referenciaId}}\",\n  \"expiraEn\": \"{{momento_ahora}}\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "raw": "{\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"motivo\": \"motivo-de-prueba\",\n  \"transaccionOrigenId\": \"{{transaccionOrigenId}}\",\n  \"referenciaTipo\": \"referenciaTipo-de-prueba\",\n  \"referenciaId\": \"{{referenciaId}}\",\n  \"expiraEn\": \"{{momento_ahora}}\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2839,7 +2839,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"retencionId\": \"{{retencionId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"titularId\": \"{{titularId}}\"\n}",
+              "raw": "{\n  \"retencionId\": \"{{retencionId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"titularId\": \"{{titularId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2937,7 +2937,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"retencionId\": \"{{id}}\",\n  \"monto\": {\n    \"monto\": \"5000.00\",\n    \"moneda\": \"USD\"\n  },\n  \"titularId\": \"{{id}}\"\n}",
+              "raw": "{\n  \"retencionId\": \"{{id}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"USD\"\n  },\n  \"titularId\": \"{{id}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3001,7 +3001,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"retencionId\": \"{{retencionId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"titularId\": \"{{titularId}}\"\n}",
+              "raw": "{\n  \"retencionId\": \"{{retencionId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"titularId\": \"{{titularId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3069,7 +3069,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"titularId\": \"{{titularId}}\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "raw": "{\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"titularId\": \"{{titularId}}\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3142,7 +3142,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"referenciaId\": \"{{referenciaId}}\"\n}",
+              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"referenciaId\": \"{{referenciaId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3240,7 +3240,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cuentaBilleteraId\": \"{{id}}\",\n  \"monto\": {\n    \"monto\": \"5000.00\",\n    \"moneda\": \"USD\"\n  },\n  \"referenciaId\": \"{{id}}\"\n}",
+              "raw": "{\n  \"cuentaBilleteraId\": \"{{id}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"USD\"\n  },\n  \"referenciaId\": \"{{id}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3304,7 +3304,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"referenciaId\": \"{{referenciaId}}\"\n}",
+              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"referenciaId\": \"{{referenciaId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3372,7 +3372,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"referenciaId\": \"{{referenciaId}}\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "raw": "{\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"referenciaId\": \"{{referenciaId}}\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3682,7 +3682,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"instrumentoDestinoId\": \"{{instrumentoDestinoId}}\",\n  \"evidenciaMfa\": \"evidenciaMfa-de-prueba\",\n  \"factorMfa\": \"factorMfa-de-prueba\",\n  \"cotizacionId\": \"{{cotizacionId}}\"\n}",
+              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"instrumentoDestinoId\": \"{{instrumentoDestinoId}}\",\n  \"evidenciaMfa\": \"evidenciaMfa-de-prueba\",\n  \"factorMfa\": \"factorMfa-de-prueba\",\n  \"cotizacionId\": \"{{cotizacionId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3779,7 +3779,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cuentaBilleteraId\": \"{{id}}\",\n  \"monto\": {\n    \"monto\": \"5000.00\",\n    \"moneda\": \"USD\"\n  },\n  \"instrumentoDestinoId\": \"{{id}}\",\n  \"evidenciaMfa\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"factorMfa\": \"LLLLLLLL\",\n  \"cotizacionId\": \"{{id}}\"\n}",
+              "raw": "{\n  \"cuentaBilleteraId\": \"{{id}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"USD\"\n  },\n  \"instrumentoDestinoId\": \"{{id}}\",\n  \"evidenciaMfa\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"factorMfa\": \"LLLLLLLL\",\n  \"cotizacionId\": \"{{id}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3842,7 +3842,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"instrumentoDestinoId\": \"{{instrumentoDestinoId}}\",\n  \"evidenciaMfa\": \"evidenciaMfa-de-prueba\",\n  \"factorMfa\": \"factorMfa-de-prueba\",\n  \"cotizacionId\": \"{{cotizacionId}}\"\n}",
+              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"instrumentoDestinoId\": \"{{instrumentoDestinoId}}\",\n  \"evidenciaMfa\": \"evidenciaMfa-de-prueba\",\n  \"factorMfa\": \"factorMfa-de-prueba\",\n  \"cotizacionId\": \"{{cotizacionId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3909,7 +3909,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"instrumentoDestinoId\": \"{{instrumentoDestinoId}}\",\n  \"evidenciaMfa\": \"evidenciaMfa-de-prueba\",\n  \"factorMfa\": \"factorMfa-de-prueba\",\n  \"cotizacionId\": \"{{cotizacionId}}\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "raw": "{\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"instrumentoDestinoId\": \"{{instrumentoDestinoId}}\",\n  \"evidenciaMfa\": \"evidenciaMfa-de-prueba\",\n  \"factorMfa\": \"factorMfa-de-prueba\",\n  \"cotizacionId\": \"{{cotizacionId}}\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4312,7 +4312,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cuentaOrigenId\": \"{{cuentaOrigenId}}\",\n  \"destino\": {\n    \"tipo\": \"ALIAS\",\n    \"valor\": \"valor-de-prueba\"\n  },\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"concepto\": \"concepto-de-prueba\",\n  \"obligacionId\": \"{{obligacionId}}\"\n}",
+              "raw": "{\n  \"cuentaOrigenId\": \"{{cuentaOrigenId}}\",\n  \"destino\": {\n    \"tipo\": \"ALIAS\",\n    \"valor\": \"valor-de-prueba\"\n  },\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"concepto\": \"concepto-de-prueba\",\n  \"obligacionId\": \"{{obligacionId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4409,7 +4409,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cuentaOrigenId\": \"{{id}}\",\n  \"destino\": {\n    \"tipo\": \"GRUPO\",\n    \"valor\": \"x\"\n  },\n  \"monto\": {\n    \"monto\": \"5000.00\",\n    \"moneda\": \"USD\"\n  },\n  \"concepto\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"obligacionId\": \"{{id}}\"\n}",
+              "raw": "{\n  \"cuentaOrigenId\": \"{{id}}\",\n  \"destino\": {\n    \"tipo\": \"GRUPO\",\n    \"valor\": \"x\"\n  },\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"USD\"\n  },\n  \"concepto\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"obligacionId\": \"{{id}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4472,7 +4472,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cuentaOrigenId\": \"{{cuentaOrigenId}}\",\n  \"destino\": {\n    \"tipo\": \"ALIAS\",\n    \"valor\": \"valor-de-prueba\"\n  },\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"concepto\": \"concepto-de-prueba\",\n  \"obligacionId\": \"{{obligacionId}}\"\n}",
+              "raw": "{\n  \"cuentaOrigenId\": \"{{cuentaOrigenId}}\",\n  \"destino\": {\n    \"tipo\": \"ALIAS\",\n    \"valor\": \"valor-de-prueba\"\n  },\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"concepto\": \"concepto-de-prueba\",\n  \"obligacionId\": \"{{obligacionId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -4539,7 +4539,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"destino\": {\n    \"tipo\": \"ALIAS\",\n    \"valor\": \"valor-de-prueba\"\n  },\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"concepto\": \"concepto-de-prueba\",\n  \"obligacionId\": \"{{obligacionId}}\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "raw": "{\n  \"destino\": {\n    \"tipo\": \"ALIAS\",\n    \"valor\": \"valor-de-prueba\"\n  },\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"concepto\": \"concepto-de-prueba\",\n  \"obligacionId\": \"{{obligacionId}}\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -5652,7 +5652,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"autoridad\": \"ASFI\",\n  \"tipoOrden\": \"CONGELAMIENTO\",\n  \"numeroOficio\": \"numeroOficio-de-prueba\",\n  \"montoBloqueado\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"alcance\": \"PARCIAL\",\n  \"documentoUrl\": \"https://ejemplo.aportaya.bo/documento.pdf\",\n  \"hashDocumento\": \"0000000000000000000000000000000000000000000000000000000000000000\"\n}",
+              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"autoridad\": \"ASFI\",\n  \"tipoOrden\": \"CONGELAMIENTO\",\n  \"numeroOficio\": \"numeroOficio-de-prueba\",\n  \"montoBloqueado\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"alcance\": \"PARCIAL\",\n  \"documentoUrl\": \"https://ejemplo.aportaya.bo/documento.pdf\",\n  \"hashDocumento\": \"0000000000000000000000000000000000000000000000000000000000000000\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -5749,7 +5749,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cuentaBilleteraId\": \"{{id}}\",\n  \"autoridad\": \"INTERNO\",\n  \"tipoOrden\": \"RETENCION\",\n  \"numeroOficio\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"montoBloqueado\": {\n    \"monto\": \"5000.00\",\n    \"moneda\": \"USD\"\n  },\n  \"alcance\": \"TOTAL\",\n  \"documentoUrl\": \"https://ejemplo.aportaya.bo/documento.pdf\",\n  \"hashDocumento\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\"\n}",
+              "raw": "{\n  \"cuentaBilleteraId\": \"{{id}}\",\n  \"autoridad\": \"INTERNO\",\n  \"tipoOrden\": \"RETENCION\",\n  \"numeroOficio\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"montoBloqueado\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"USD\"\n  },\n  \"alcance\": \"TOTAL\",\n  \"documentoUrl\": \"https://ejemplo.aportaya.bo/documento.pdf\",\n  \"hashDocumento\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -5812,7 +5812,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"autoridad\": \"ASFI\",\n  \"tipoOrden\": \"CONGELAMIENTO\",\n  \"numeroOficio\": \"numeroOficio-de-prueba\",\n  \"montoBloqueado\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"alcance\": \"PARCIAL\",\n  \"documentoUrl\": \"https://ejemplo.aportaya.bo/documento.pdf\",\n  \"hashDocumento\": \"0000000000000000000000000000000000000000000000000000000000000000\"\n}",
+              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"autoridad\": \"ASFI\",\n  \"tipoOrden\": \"CONGELAMIENTO\",\n  \"numeroOficio\": \"numeroOficio-de-prueba\",\n  \"montoBloqueado\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"alcance\": \"PARCIAL\",\n  \"documentoUrl\": \"https://ejemplo.aportaya.bo/documento.pdf\",\n  \"hashDocumento\": \"0000000000000000000000000000000000000000000000000000000000000000\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -5879,7 +5879,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"autoridad\": \"ASFI\",\n  \"tipoOrden\": \"CONGELAMIENTO\",\n  \"numeroOficio\": \"numeroOficio-de-prueba\",\n  \"montoBloqueado\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"alcance\": \"PARCIAL\",\n  \"documentoUrl\": \"https://ejemplo.aportaya.bo/documento.pdf\",\n  \"hashDocumento\": \"0000000000000000000000000000000000000000000000000000000000000000\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "raw": "{\n  \"autoridad\": \"ASFI\",\n  \"tipoOrden\": \"CONGELAMIENTO\",\n  \"numeroOficio\": \"numeroOficio-de-prueba\",\n  \"montoBloqueado\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"alcance\": \"PARCIAL\",\n  \"documentoUrl\": \"https://ejemplo.aportaya.bo/documento.pdf\",\n  \"hashDocumento\": \"0000000000000000000000000000000000000000000000000000000000000000\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -5946,7 +5946,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"modalidad\": \"DINAMICO\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"concepto\": \"concepto-de-prueba\"\n}",
+              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"modalidad\": \"DINAMICO\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"concepto\": \"concepto-de-prueba\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -6038,7 +6038,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cuentaBilleteraId\": \"{{id}}\",\n  \"modalidad\": \"ESTATICO\",\n  \"monto\": {\n    \"monto\": \"5000.00\",\n    \"moneda\": \"USD\"\n  },\n  \"concepto\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\"\n}",
+              "raw": "{\n  \"cuentaBilleteraId\": \"{{id}}\",\n  \"modalidad\": \"ESTATICO\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"USD\"\n  },\n  \"concepto\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -6096,7 +6096,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"modalidad\": \"DINAMICO\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"concepto\": \"concepto-de-prueba\"\n}",
+              "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"modalidad\": \"DINAMICO\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"concepto\": \"concepto-de-prueba\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -6158,7 +6158,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"modalidad\": \"DINAMICO\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"concepto\": \"concepto-de-prueba\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "raw": "{\n  \"modalidad\": \"DINAMICO\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"concepto\": \"concepto-de-prueba\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -6514,7 +6514,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": \"contenido-de-prueba\",\n  \"cuentaOrigenId\": \"{{cuentaOrigenId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  }\n}",
+              "raw": "{\n  \"contenido\": \"contenido-de-prueba\",\n  \"cuentaOrigenId\": \"{{cuentaOrigenId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -6612,7 +6612,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"cuentaOrigenId\": \"{{id}}\",\n  \"monto\": {\n    \"monto\": \"5000.00\",\n    \"moneda\": \"USD\"\n  }\n}",
+              "raw": "{\n  \"contenido\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"cuentaOrigenId\": \"{{id}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"USD\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -6676,7 +6676,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"contenido\": \"contenido-de-prueba\",\n  \"cuentaOrigenId\": \"{{cuentaOrigenId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  }\n}",
+              "raw": "{\n  \"contenido\": \"contenido-de-prueba\",\n  \"cuentaOrigenId\": \"{{cuentaOrigenId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -6744,7 +6744,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"cuentaOrigenId\": \"{{cuentaOrigenId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "raw": "{\n  \"cuentaOrigenId\": \"{{cuentaOrigenId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

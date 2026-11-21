@@ -3,7 +3,7 @@ package bo.aportaya.nucleofinanciero.web;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import bo.aportaya.nucleofinanciero.web.generado.modelo.Dinero;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.Importe;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,10 +14,10 @@ import org.junit.jupiter.api.Test;
  */
 class MapeoDeBilleteraImporteTest {
 
-    private static Dinero bob(String monto) {
-        var d = new Dinero();
+    private static Importe bob(String monto) {
+        var d = new Importe();
         d.setMonto(monto);
-        d.setMoneda(Dinero.MonedaEnum.BOB);
+        d.setMoneda(Importe.MonedaEnum.BOB);
         return d;
     }
 

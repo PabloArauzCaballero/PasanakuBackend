@@ -52,7 +52,8 @@ class BilleteraFondeoWebTest extends BaseDeOperacionesWeb {
     void recargaNegativa() throws Exception {
         mvc.perform(operar(post("/billetera/recargas"), RECARGA.replace("500.00", "-500.00"), "BILLETERA_OPERAR"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.codigo").value("AP-VAL-02"));
+                .andExpect(jsonPath("$.codigo").value("AP-VAL-01"))
+                .andExpect(jsonPath("$.detalle['monto.monto']").exists());
         verifyNoInteractions(recargas);
         verifyNoInteractions(cu10);
     }

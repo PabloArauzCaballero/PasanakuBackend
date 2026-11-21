@@ -2,6 +2,7 @@ package bo.aportaya.nucleofinanciero.web;
 
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarMovimientosBilletera;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.Dinero;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.Importe;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.ListaMovimientosBilletera;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.MovimientoBilletera;
 import bo.aportaya.plataforma.dominio.Moneda;
@@ -16,11 +17,12 @@ final class MapeoDeBilletera {
 
     /**
      * Un importe que ENTRA por el contrato. F1.L1.M01 · nunca negativo (regla 91.2.2): el signo lo da la
-     * operacion. El esquema {@code Dinero} sigue admitiendo signo porque tambien describe saldos de salida
-     * (las cuentas de sistema con {@code permite_saldo_negativo}); por eso la regla de entrada vive aca, en
-     * el unico punto por donde un importe del cliente pasa al dominio, y sale como 400 (AP-VAL-02).
+     * operacion. Lo garantiza el esquema {@code Importe} del contrato (patron sin signo), que el borde valida
+     * con 400 AP-VAL-01 y el campo; el esquema {@code Dinero} queda para los saldos de salida, que si tienen
+     * signo (las cuentas de sistema con {@code permite_saldo_negativo}). El control se repite aca para un
+     * {@code Importe} armado fuera del borde HTTP, que no paso por la validacion del contrato.
      */
-    static bo.aportaya.plataforma.dominio.Dinero dinero(Dinero valor) {
+    static bo.aportaya.plataforma.dominio.Dinero dinero(Importe valor) {
         BigDecimal monto = new BigDecimal(valor.getMonto());
         if (monto.signum() < 0) {
             throw new jakarta.validation.ConstraintViolationException(
@@ -30,12 +32,12 @@ final class MapeoDeBilletera {
                 monto, Moneda.valueOf(valor.getMoneda().getValue()));
     }
 
-    static Optional<bo.aportaya.plataforma.dominio.Dinero> dineroOpcional(Dinero valor) {
+    static Optional<bo.aportaya.plataforma.dominio.Dinero> dineroOpcional(Importe valor) {
         return Optional.ofNullable(valor).map(MapeoDeBilletera::dinero);
     }
 
     /** Cero en la misma moneda: un importe ausente no es un importe sin moneda. */
-    static bo.aportaya.plataforma.dominio.Dinero ceroSiFalta(Dinero valor, Dinero referencia) {
+    static bo.aportaya.plataforma.dominio.Dinero ceroSiFalta(Importe valor, Importe referencia) {
         return valor == null
                 ? bo.aportaya.plataforma.dominio.Dinero.cero(dinero(referencia).moneda())
                 : dinero(valor);

@@ -34,7 +34,7 @@
 openapi: 3.1.0
 info:
   title: nucleo-financiero
-  version: 1.1.0
+  version: 1.3.0
   description: >-
     Servicio nucleo-financiero. Un caso de uso = una operacion, con el codigo CU en el
     operationId. Los importes viajan como CADENA decimal, nunca como number.
@@ -1054,7 +1054,7 @@ components:
         autoridad: { type: string, enum: [ASFI, BCB, FISCALIA, JUZGADO, UIF, INTERNO] }
         tipoOrden: { type: string, enum: [CONGELAMIENTO, EMBARGO, INFORMATIVO, INMOVILIZACION, RETENCION] }
         numeroOficio: { type: string, maxLength: 60 }
-        montoBloqueado: { $ref: '#/components/schemas/Dinero' }
+        montoBloqueado: { $ref: '#/components/schemas/Importe' }
         alcance: { type: string, enum: [PARCIAL, TOTAL] }
         documentoUrl: { type: string, format: uri }
         hashDocumento: { type: string, minLength: 64, maxLength: 64 }
@@ -1103,7 +1103,7 @@ components:
           properties:
             tipo:  { type: string, enum: [ALIAS, GRUPO] }
             valor: { type: string }
-        monto:        { $ref: '#/components/schemas/Dinero' }
+        monto:        { $ref: '#/components/schemas/Importe' }
         concepto:     { type: string, maxLength: 140 }
         obligacionId: { type: string, format: uuid }
     SalidaTransferencia:
@@ -1121,7 +1121,7 @@ components:
       required: [cuentaBilleteraId, monto, instrumentoDestinoId]
       properties:
         cuentaBilleteraId:    { type: string, format: uuid }
-        monto:                { $ref: '#/components/schemas/Dinero' }
+        monto:                { $ref: '#/components/schemas/Importe' }
         instrumentoDestinoId: { type: string, format: uuid }
         # H2.S2.M5: evidenciaMfa reemplaza a factorMfa (JWT de evidencia step-up de
         # `identidad`, no un OTP corto). factorMfa se acepta hasta 2026-12-31 por
@@ -1144,7 +1144,7 @@ components:
       properties:
         operacion: { type: string, enum: [RECARGA, RETIRO] }
         cuentaBilleteraId: { type: string, format: uuid }
-        monto: { $ref: '#/components/schemas/Dinero' }
+        monto: { $ref: '#/components/schemas/Importe' }
     SalidaCotizacionOperacion:
       type: object
       additionalProperties: false
@@ -1227,10 +1227,10 @@ components:
         fecha: { type: string, format: date }
         saldoCustodia:
           description: El saldo segun el extracto bancario de ese dia.
-          allOf: [ { $ref: '#/components/schemas/Dinero' } ]
+          allOf: [ { $ref: '#/components/schemas/Importe' } ]
         saldoEnTransito:
           description: Movimientos ordenados y aun no impactados en el banco.
-          allOf: [ { $ref: '#/components/schemas/Dinero' } ]
+          allOf: [ { $ref: '#/components/schemas/Importe' } ]
     SalidaConciliacionCustodia:
       type: object
       additionalProperties: false
@@ -1338,8 +1338,8 @@ components:
       required: [cuentaBilleteraId, monto, medio]
       properties:
         cuentaBilleteraId: { type: string, format: uuid }
-        monto: { $ref: '#/components/schemas/Dinero' }
-        costoProveedor: { $ref: '#/components/schemas/Dinero' }
+        monto: { $ref: '#/components/schemas/Importe' }
+        costoProveedor: { $ref: '#/components/schemas/Importe' }
         medio: { type: string, maxLength: 30 }
         instrumentoFondeoId: { type: string, format: uuid }
         cotizacionId:
@@ -1386,7 +1386,7 @@ components:
       required: [cuentaBilleteraId, monto, motivo]
       properties:
         cuentaBilleteraId: { type: string, format: uuid }
-        monto:  { $ref: '#/components/schemas/Dinero' }
+        monto:  { $ref: '#/components/schemas/Importe' }
         motivo: { type: string, maxLength: 40 }
         transaccionOrigenId: { type: string, format: uuid }
         referenciaTipo: { type: string, maxLength: 30 }
@@ -1427,7 +1427,7 @@ components:
       required: [retencionId, monto]
       properties:
         retencionId: { type: string, format: uuid }
-        monto:       { $ref: '#/components/schemas/Dinero' }
+        monto:       { $ref: '#/components/schemas/Importe' }
         # titularId: opcional. Si el servicio llamador ya valido a la persona y la informa, el libro
         # verifica que sea la dueña de la billetera retenida; si difiere, no se mueve nada.
         titularId:   { type: string, format: uuid }
@@ -1445,7 +1445,7 @@ components:
       required: [cuentaBilleteraId, monto, referenciaId]
       properties:
         cuentaBilleteraId: { type: string, format: uuid }
-        monto:             { $ref: '#/components/schemas/Dinero' }
+        monto:             { $ref: '#/components/schemas/Importe' }
         referenciaId:      { type: string, format: uuid }
     SalidaAcreditacionRescate:
       type: object
@@ -1461,7 +1461,7 @@ components:
       properties:
         cuentaBilleteraId: { type: string, format: uuid }
         modalidad: { type: string, enum: [DINAMICO, ESTATICO] }
-        monto: { $ref: '#/components/schemas/Dinero' }
+        monto: { $ref: '#/components/schemas/Importe' }
         concepto: { type: string, maxLength: 140 }
     SalidaQrEmitido:
       type: object
@@ -1499,7 +1499,7 @@ components:
         contenido: { type: string, maxLength: 2048 }
         cuentaOrigenId: { type: string, format: uuid }
         monto:
-          $ref: '#/components/schemas/Dinero'
+          $ref: '#/components/schemas/Importe'
     SalidaPagoQr:
       type: object
       additionalProperties: false
@@ -1511,6 +1511,21 @@ components:
         destinatario: { type: string, maxLength: 20 }
         concepto: { type: string, maxLength: 140 }
         saldoDespues: { $ref: '#/components/schemas/Dinero' }
+    Importe:
+      description: >-
+        F1.L1.M01 · un importe que ENTRA por el contrato: nunca negativo (regla 91.2.2). El signo lo da la
+        operacion, no el numero. Un "-50.00" se rechaza en el borde (400 AP-VAL-01, campo `monto`) antes de
+        llegar al caso de uso. Mismo JSON que `Dinero`, que sigue describiendo saldos de salida con signo.
+      type: object
+      additionalProperties: false
+      required: [monto, moneda]
+      properties:
+        monto:
+          type: string
+          pattern: '^\d{1,12}\.\d{2}$'     # CADENA: un number JSON es un doble; DECIMAL(14,2)
+        moneda:
+          type: string
+          enum: [BOB, USD]
     Dinero:
       type: object
       additionalProperties: false
