@@ -35,6 +35,19 @@
   `monto_cubierto_empresa` y `cobertura_respaldo_id` del contrato y del modelo cuando nadie los lea.
 - Dónde quedó: rama `correcciones/tanda2-l2-sin-respaldo-entregas`; compila.
 
+### F2.L2.M02 — `garantia` ya no reserva ni cubre: el respaldo empresarial se retira
+- Qué anda: las seis rutas `/garantia/respaldo/*` quedan `deprecated` (`garantia.yaml` 1.3.0) y responden 410
+  `AP-CU23-15` sin efecto (sin sesión, 401). Los casos de uso del respaldo, la contingencia de caja,
+  `AsientoPropuesto` (`CAJA_EMPRESA`/`RESERVA_RESPALDO`) y sus repositorios ya no existen; `garantia` no publica
+  ningún tópico `respaldo_*`. CU-23 queda «pendiente de implementar» con los criterios del modelo A. `test`,
+  `webTest`, `check`, `testBarrido` y el job de bóveda en verde
+  ([evidencia](./evidencia/F2.L2.M02-sin-respaldo-garantia.txt)).
+- Qué no anda: nada observado; el `integrationTest` de lo que queda en garantía no corrió acá (sin Docker).
+- Qué falta exactamente: el verde del CI; antes de desplegar en TEST, la consulta de vigentes
+  (`evidencia/F2.L2.M02-vigentes-respaldo.sql`) y, si da > 0, sus contra-asientos. Las tablas y R-GAR-08 a 13 se
+  retiran con F2.L2.M03; las rutas se borran del contrato con la contracción.
+- Dónde quedó: rama `correcciones/tanda2-l2-sin-respaldo-garantia`; compila. Desplegar después de #474.
+
 ### F1.L2.M04 — Importes de entrada sin signo; disolución y reemplazo con cifras de sus dueños
 - Qué anda: `garantia.yaml` 1.2.0 define `DineroEntrada` (monto `^\d+\.\d{2}$`, sin signo) y lo usan los importes que
   manda el cliente en `declararIncumplimiento`, `proponerReemplazo` e `iniciarDisolucion`: un negativo recibe 400 sin
@@ -99,7 +112,6 @@
 |---|---|---|
 | F1.L2.M10 | TODO | Siguiente PR del lote |
 | F1.L2.M01, M04, M06, M08, M11–M14 | TODO | M13/M14 necesitan `plataforma/comun-web` (cliente único y token de servicio): fuera de alcance |
-| F2.L2.M02 | TODO | Después de F2.L2.M01 y del retiro del consumidor de tópicos de respaldo en `nucleo-financiero` (L1) |
 | L2.S1.M2 | TODO | Precondición: L6 y L1 sueltan los consumidores (ver A medias). No es un bloqueo de ejecución: es el paso «contraer» y se hace apenas mergeen |
 | F1.L2.M10 | TODO | Diseño listo, sin código: puerto `RetencionDelPozo.retener(entregaId, neto, clave) → Concedida(retencionId) / SaldoInsuficiente / NoDisponible`, doble en tres niveles (regla 65) y adaptador que falla cerrado hasta que L1 publique la operación en `nucleo-financiero`. La llamada va FUERA de la transacción de `CU28EmitirDesembolso` (invariante 6), así que la emisión se parte en «leer neto» → «retener» → «escribir orden». Depende además de F2.L2.M06 (la emisión deja de ser humana) |
 | Punto 3 (bóveda) | TODO | Reescribir CU-22 según ADR-055/056 (pozo completo por fondeo, sin liquidación con deducciones ni cuatro ojos: va junto con F2.L2.M06), sacar de CU-23 la cobertura manual y marcar CU-26 RETIRADO; después borrar `CU22LiquidarEntrega.liquidar`/`ejecutar` y `CU23CubrirIncumplimiento` y reemplazar sus pruebas de integración por las de los criterios nuevos. Conviene hacerlo en una sesión con Docker para correr esas pruebas antes del PR |
