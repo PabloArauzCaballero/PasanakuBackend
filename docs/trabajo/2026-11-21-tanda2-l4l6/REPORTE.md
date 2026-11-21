@@ -1,13 +1,15 @@
 # Reporte — Tanda 2, carril L4L6: identidad, cumplimiento y frontends compartidos
 
-> **AVANCE: 6 / 6 — 100,0 %** de las microtareas abiertas hasta ahora (T2.M1–T2.M4, F1.L6.M04, F1.L4.M25). El resto de F1/F2 de L4 y L6 sigue en TODO.
+> **AVANCE: 6 / 7 — 85,7 %** de las microtareas abiertas hasta ahora (T2.M1–T2.M4, F1.L6.M04, F1.L4.M25 HECHO; F1.L4.M03 A MEDIAS). El resto de F1/F2 de L4 y L6 sigue en TODO.
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Base: `origin/dev` 50cf3be9
 - Ramas y PR (apilados, se mergean en orden):
   1. `correcciones/tanda2-l4l6-f1s3m1-token-vigente` — F1.S3.M1 (resto) · PR #420
   2. `correcciones/tanda2-l4l6-f1s4m1-campo-monto` — F1.S4.M1 / F1.L6.M03 · PR #426
   3. `correcciones/tanda2-l4l6-f1l6m04-patron-importe` — F1.L6.M04 · PR #427
-  4. `correcciones/tanda2-l4l6-f1l4m25-licencia-alcance` — F1.L4.M25
+  4. `correcciones/tanda2-l4l6-f1l4m25-licencia-alcance` — F1.L4.M25 · PR #432
+  5. `correcciones/tanda2-l4l6-f1l4m03-arranque-fail-closed` — F1.L4.M03
+  - Independiente, sobre `origin/dev`: `correcciones/tanda2-l4l6-osv-npm` (avisos OSV en npm) · PR #435, incorporado en 2–4.
 - Peldaño por área: frontends (`packages/tokens`, `packages/ui`, `packages/diseno_flutter`) **TESTED**; identidad **TESTED** (unitarias, web y barrido verdes; mutante detectado). No VERIFIED: no se levantó el servicio con dos procesos reales.
 
 ## Completado
@@ -29,6 +31,16 @@
 - Qué falta exactamente: F1.L4.M15 — en `plataforma/comun-web` (fuera de mi alcance), validar `iss`/`aud` y, en las operaciones de dinero, consultar si `sesion_id` sigue vigente (introspección contra identidad o lista de revocación por evento `identidad.sesion_revocada`). Identidad ya emite `sesion_id` en el token.
 - Dónde quedó: sin cambios para esto.
 
+### F1.L4.M03 — arranque fail-closed
+- Qué anda: identidad no arranca sin `JWT_CLAVE_FIRMA`, cualquiera sea el perfil, salvo con `aportaya.entorno.descartable=true` declarado. Tampoco arranca con `INVITACIONES_CLAVE` ausente o de menos de 32 caracteres. PASS 95 + 160; mutante → 1 fallo. [`evidencia/f1-l4-m03-arranque-fail-closed.txt`](./evidencia/f1-l4-m03-arranque-fail-closed.txt)
+- Qué no anda: el stack local (`despliegue/compose/servicios.yml`, generado por `scripts/generar_compose.py`) arranca identidad con `JWT_CLAVE_FIRMA:` vacía. **Con este cambio, identidad local no levanta** hasta que el compose declare el entorno descartable.
+- Qué falta exactamente (archivos compartidos, fuera de mi alcance):
+  1. `scripts/generar_compose.py`: en las variables locales de identidad, agregar `"APORTAYA_ENTORNO_DESCARTABLE": "true"` (solo en el perfil local, **nunca** en `--coolify`), y regenerar `despliegue/compose/servicios.yml`.
+  2. `docker-compose.coolify.yml` / generador `--coolify`: `JWT_CLAVE_FIRMA: ${JWT_CLAVE_FIRMA:?}` e `INVITACIONES_CLAVE: ${INVITACIONES_CLAVE:?}`, para que el error aparezca en `docker compose config`.
+  3. `despliegue/TEST.md:469`: la fila de `INVITACIONES_CLAVE` pasa a decir «no arranca».
+  4. El pool alineado con `descriptor.yml` (anexo) no se tocó.
+- Dónde quedó: rama `correcciones/tanda2-l4l6-f1l4m03-arranque-fail-closed`; compila y sus pruebas están en verde. TEST no se ve afectado: ya tiene cargados `JWT_CLAVE_FIRMA` e `INVITACIONES_CLAVE` (`despliegue/TEST.md:466-478`).
+
 ## Pendiente
 
 | ID | Estado | Qué lo destraba |
@@ -40,6 +52,7 @@
 - [`evidencia/t2-m2-m4-campo-monto.txt`](./evidencia/t2-m2-m4-campo-monto.txt)
 - [`evidencia/f1-l6-m04-patron-importe.txt`](./evidencia/f1-l6-m04-patron-importe.txt)
 - [`evidencia/f1-l4-m25-licencia-alcance.txt`](./evidencia/f1-l4-m25-licencia-alcance.txt)
+- [`evidencia/f1-l4-m03-arranque-fail-closed.txt`](./evidencia/f1-l4-m03-arranque-fail-closed.txt)
 - Verificadores de bóveda: `verificar_boveda`, `verificar_seguridad`, `verificar_carriles`, `verificar_maqueta`, `verificar_criterios` → `TODO OK` / sin divergencias.
 
 ## No cubierto

@@ -45,6 +45,10 @@ class ArranquePuertaDeEntradaTest {
         registro.add("spring.kafka.bootstrap-servers", () -> "localhost:9092");
         registro.add("aportaya.jwt.jwks-uri", () -> "http://identidad:8080/.well-known/jwks.json");
         registro.add("SEGURIDAD_PIMIENTA", () -> "pimienta-de-prueba");
+        // F1.L4.M03: la prueba es un entorno descartable (clave de firma en memoria) y la
+        // clave de invitaciones se valida al arrancar.
+        registro.add("aportaya.entorno.descartable", () -> "true");
+        registro.add("INVITACIONES_CLAVE", () -> "invitaciones-sinteticas-de-prueba-0000000000");
         // Llave SINTETICA de prueba para el secreto TOTP (F1.S3.M2): sin ella el contexto no arranca.
         registro.add("MFA_LLAVES", () -> "1:llave-sintetica-de-prueba-de-32-caracteres-o-mas");
         registro.add("MFA_LLAVE_VIGENTE", () -> "1");

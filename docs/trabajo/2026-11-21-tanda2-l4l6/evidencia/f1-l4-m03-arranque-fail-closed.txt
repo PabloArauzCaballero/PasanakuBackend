@@ -1,0 +1,31 @@
+# F1.L4.M03 — Arranque fail-closed: secretos y modo descartable atados a una declaracion, no a nombres de perfil
+## Relocalizado en origin/dev 50cf3be9
+EmisorDeAcceso.java:73-91  produccion = acceptsProfiles("staging","production"); TEST corre PERFIL_SPRING=local
+  -> con JWT_CLAVE_FIRMA vacia en TEST se generaba una clave en memoria (cada replica la suya).
+SecretoDeInvitacion.java:29  la clave se validaba en firmar(): readiness verde y 500 en cada invitacion
+  (despliegue/TEST.md:469 lo documenta como comportamiento conocido).
+
+## Cambio
+- aportaya.entorno.descartable (false por omision, no declarada en application.yml): unica llave para
+  arrancar sin JWT_CLAVE_FIRMA. Se activa con APORTAYA_ENTORNO_DESCARTABLE=true (binding de Spring Boot).
+- SecretoDeInvitacion valida la clave (>= 32) en el constructor del bean: falla el arranque.
+- Las 4 pruebas que levantan el contexto declaran descartable=true e INVITACIONES_CLAVE sintetica.
+
+## Pruebas
+$ ./gradlew :servicios:identidad:spotlessApply test webTest testBarrido
+rc=0
+servicios/identidad test: tests=95 skipped=0 failures=0 errors=0
+servicios/identidad webTest: tests=160 skipped=0 failures=0 errors=0
+servicios/identidad testBarrido: tests=3 skipped=0 failures=0 errors=0
+  RotacionDeClavesDeFirmaTest.claveVaciaFueraDeEntornoDescartableFalla   PASS (cualquier perfil)
+  RotacionDeClavesDeFirmaTest.claveVaciaEnEntornoDescartableArranca      PASS
+  SecretoDeInvitacionArranqueTest: null, "", "corta", 31 caracteres -> no arranca; 32 -> arranca   PASS 5/5
+## Mutante: EmisorDeAcceso sin el chequeo (if (false))
+16 tests completed, 1 failed -> BUILD FAILED
+
+## Compose
+$ python3 scripts/generar_compose.py --coolify && python3 scripts/generar_compose.py  -> sin diferencias
+  (la propiedad no se declara en application.yml justamente para no exigir una variable nueva al generador)
+
+## NO COMPROBADO — requiere Docker (maquina de Pablo)
+./gradlew :servicios:identidad:integrationTest --tests '*Arranque*' --tests '*CU01VerificacionCorreo*'

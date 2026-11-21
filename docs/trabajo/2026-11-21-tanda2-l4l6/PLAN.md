@@ -42,7 +42,7 @@
 ### H1.S3 — Resto de F1 de L4 (en orden del anexo, relocalizando cada uno en `dev`)
 | ID | Microtarea | Estado |
 |---|---|---|
-| F1.L4.M03 | Arranque fail-closed de secretos | TODO |
+| F1.L4.M03 | Arranque fail-closed de secretos. CA: sin `JWT_CLAVE_FIRMA` o con `INVITACIONES_CLAVE` corta, fuera de un entorno descartable declarado, no arranca. DoD: `RotacionDeClavesDeFirmaTest` + `SecretoDeInvitacionArranqueTest` | A MEDIAS (identidad hecho; falta el compose local y `${…:?}` en coolify, fuera de alcance) |
 | F1.L4.M05 | Diligencia PEP con cuatro ojos reales | TODO |
 | F1.L4.M06 | Caso LFT analista ≠ revisor, analista del token | TODO |
 | F1.L4.M07 | Segregación del reporte UIF sin hueco por NULL | TODO |
