@@ -15,7 +15,7 @@
   | [#403](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/403) | `…-adr056` (apilada sobre `-adr055`) | H0.S2.M2 — F0.M4 ADR-056 |
   | [#404](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/404) | `…-adr058` (apilada sobre `-adr056`) | H0.S2.M3 — PX0.M01 ADR-058 |
   | [#405](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/405) | `…-flujos` | H0.S3.M1 — F0.M5 catálogo de flujos |
-  | [#406](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/406) | `…-linea-base` | H0.S4 — F0.M6 línea base + este plan y reporte |
+  | [#413](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/413) | `…-linea-base` | H0.S4 — F0.M6 línea base + este plan y reporte |
 - Peldaño de evidencia: **documentación `VERIFIED`** contra sus verificadores (`verificar_boveda.py`,
   `validar_flujos.py`, `blocker_gate.py`, con salida pegada). **Línea base `RUNS`/`TESTED`** según la tabla.
   Nada de esto es `REGRESSION_VERIFIED`: Pablo revisa y mergea.
@@ -39,11 +39,11 @@
 ## A medias
 
 ### H0 (hito del plan maestro) — Preparación
-- **Qué anda:** las 11 microtareas del carril tienen su DoD ejecutado y su PR abierto (#400 a #406).
+- **Qué anda:** las 11 microtareas del carril tienen su DoD ejecutado y su PR abierto (#400 a #413).
 - **Qué no anda:** nada está en `dev` todavía; mientras #401 no se mergee, cualquier rama que salga de `dev` sigue
   trabada por `blocker_gate` (pasó en esta sesión). F0.M2 no se ejecutó.
 - **Qué falta exactamente:** (1) que Pablo revise y mergee, en este orden: #400, #401, #402 → #403 → #404, #405 y
-  #406; (2) correr F0.M2 en la máquina de Pablo con el procedimiento de abajo; (3) sumar a la línea base
+  #413; (2) correr F0.M2 en la máquina de Pablo con el procedimiento de abajo; (3) sumar a la línea base
   `webTest` + `integrationTest` por servicio y `flutter analyze`, en esa misma máquina.
 - **Dónde quedó:** ramas `correcciones/f0-preparacion-2026-11-21*`; solo documentación y evidencia, nada que
   compilar.
