@@ -36,52 +36,54 @@ privilegios efectivos son los del rol de la aplicación (`application.yml` de ca
   abre **un PR** para el grupo F1.S1 (comparten causa: la base no garantiza el mayor), con un commit por microtarea.
 
 ## H1 — El mayor y los importes, garantizados por la base (F1.S1)
+
+Correspondencia de IDs: H1.S2 = F1.S1.M1 · H1.S3 = F1.S1.M2 · H1.S4 = F1.S1.M3 · H1.S5 = F1.S1.M4 · H1.S1 y H1.S6 = línea base y cierre.
 **CA:** Dado el esquema regenerado aplicado sobre PostgreSQL 16, cuando el rol de la aplicación intenta cada una de
 las violaciones (a)–(f), entonces la base las rechaza, y los flujos legítimos (prueba de humo, semillas de dev,
 suites de `nucleo-financiero` y `aportes`) siguen pasando.
 **DoD:** salidas de los guiones `psql` en `evidencia/`; prueba de humo sin `FALLA` y verificaciones en 0 filas;
 regeneración idempotente (segunda corrida sin diff); verificación de deriva `puml → sql → base` en verde;
 `./gradlew :servicios:nucleo-financiero:test` y `:servicios:aportes:test` (las de Testcontainers declaradas aparte).
-**Estado:** EN CURSO
+**Estado:** A MEDIAS — H1.S4.M2 y H1.S5.M2 quedan en otros carriles; la integración Java contra la base (Testcontainers) no se corrió (ver REPORTE)
 
 ### H1.S1 — Línea base y reproducción
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| F1.S1.M0a | Reproducir TYA-DINERO-001 en `dev` | Las 5 violaciones entran en `dev` | `psql -f evidencia/repro_tya_dinero_001.sql` → 5 asientos anómalos listados | HECHO |
-| F1.S1.M0b | Línea base de regresión del esquema en `dev` | Humo sin FALLA, verificaciones 0 filas | `regresion.sh reg_base` → `OK=165 FALLA=0`, 0 filas | HECHO |
+| H1.S1.M1 | Reproducir TYA-DINERO-001 en `dev` | Las 5 violaciones entran en `dev` | `psql -f evidencia/repro_tya_dinero_001.sql` → 5 asientos anómalos listados | HECHO |
+| H1.S1.M2 | Línea base de regresión del esquema en `dev` | Humo sin FALLA, verificaciones 0 filas | `regresion.sh reg_base` → `OK=165 FALLA=0`, 0 filas | HECHO |
 
 ### H1.S2 — F1.S1.M1: cuadre y líneas del mayor (TYA-DINERO-001, ANF-DINERO-004)
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| F1.S1.M1a | `CHECK` de línea: `debe >= 0`, `haber >= 0` y exactamente un lado distinto de cero | Línea negativa, con dos lados o en cero → error `23514` | `psql` como `svc_nucleo_financiero` | TODO |
-| F1.S1.M1b | Trigger inmediato: una línea solo entra a un asiento firme (`CONFIRMADO`/`REVERSADO`) creado en la misma transacción | Línea (o par cuadrado) tardía → error `R-AUD-12` | `psql` como `svc_nucleo_financiero` | TODO |
-| F1.S1.M1c | Cuadre diferido también desde la línea, y asiento firme con al menos dos líneas | Asiento firme sin líneas o con una sola → error al COMMIT | `psql` como `svc_nucleo_financiero` | TODO |
-| F1.S1.M1d | Consulta de cuadre por asiento en `verificaciones.sql` | La consulta devuelve las filas de los asientos anómalos de `dev` y 0 en el esquema nuevo | `psql -f verificaciones.sql` | TODO |
+| H1.S2.M1 | `CHECK` de línea: `debe >= 0`, `haber >= 0` y exactamente un lado distinto de cero | Línea negativa, con dos lados o en cero → error `23514` | `evidencia/M1-mayor-despues.txt` | HECHO |
+| H1.S2.M2 | Trigger inmediato: una línea solo entra a un asiento firme (`CONFIRMADO`/`REVERSADO`) creado en la misma transacción | Línea (o par cuadrado) tardía → error `R-AUD-14`; savepoints dentro de la misma transacción siguen pasando | `evidencia/M1-mayor-despues.txt` | HECHO |
+| H1.S2.M3 | Cuadre diferido también desde la línea (cierra el adelanto con `SET CONSTRAINTS ALL IMMEDIATE`), y asiento firme con al menos dos líneas | Asiento firme sin líneas → error; línea descuadrante tras adelantar → error | `evidencia/M1-mayor-despues.txt` | HECHO |
+| H1.S2.M4 | Consulta de cuadre por asiento en `verificaciones.sql` | La consulta devuelve las filas de los asientos anómalos de `dev` y 0 en el esquema nuevo | `evidencia/M1d-verificaciones.txt` | HECHO |
 
 ### H1.S3 — F1.S1.M2: append-only con permisos revocados
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| F1.S1.M2a | Guion que recorre cada tabla con trigger `*_append_only` e intenta `UPDATE` y `DELETE` con el rol dueño del esquema (y con `svc_*` en `comun`) | Toda combinación → `permission denied` (`42501`) | `psql -f evidencia/verificar_append_only.sql` → 0 filas «PERMITIDO» | TODO |
-| F1.S1.M2b | Cobertura de la regla 91.1.3: asiento, movimiento contable, bitácora, evento de reputación, movimiento de fondo y abono de recuperación están en la lista | Las 6 categorías presentes | consulta en el mismo guion | TODO |
+| H1.S3.M1 | Guion que recorre cada tabla con trigger `*_append_only` e intenta `UPDATE` y `DELETE` con el rol dueño del esquema (y con `svc_*` en `comun`) | Toda combinación → `permission denied` (`42501`) | `psql -f evidencia/verificar_append_only.sql` → 0 filas «PERMITIDO» (1650 intentos, 97 tablas; control negativo detectado) | HECHO (ya resuelto en `dev`, sin cambio de esquema) |
+| H1.S3.M2 | Cobertura de la regla 91.1.3: asiento, movimiento contable, bitácora, evento de reputación, movimiento de fondo y abono de recuperación están en la lista | Las 6 categorías presentes | `evidencia/M2-append-only.txt` | HECHO |
 
 ### H1.S4 — F1.S1.M3: importes nunca negativos (ANF-DINERO-001)
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| F1.S1.M3a | `<<CK>>` en el modelo: `reembolso.monto > 0`; `>= 0` en `pago.monto_comision_proveedor`, `pago.monto_neto_acreditado`, `obligacion_aporte.{monto_pagado,monto_recargo,monto_condonado,monto_cubierto_garantia}`, `disputa_pago.monto_disputado`, `orden_cobro.monto_exacto` | `INSERT`/`UPDATE` negativo con `svc_aportes` → `23514` en cada columna | `psql -f evidencia/verificar_importes.sql` | TODO |
-| F1.S1.M3b | Respuesta 422 de la API ante reembolso negativo | — | — | TODO (carril L1, F1.L1.M01 partes 1-2: contrato y tipo `Importe`) |
+| H1.S4.M1 | `<<CK>>` en el modelo: `reembolso.monto > 0`; `>= 0` en `pago.monto_comision_proveedor`, `pago.monto_neto_acreditado`, `obligacion_aporte.{monto_pagado,monto_recargo,monto_condonado,monto_cubierto_garantia}`, `disputa_pago.monto_disputado`, `orden_cobro.monto_exacto` | `INSERT`/`UPDATE` negativo con `svc_aportes` → `23514` en cada columna | `evidencia/M3-importes-antes.txt` (18/29) y `M3-importes-despues.txt` (29/29, re-aplicado sobre base existente) | HECHO |
+| H1.S4.M2 | Respuesta 422 de la API ante reembolso negativo | — | — | TODO (carril L1, F1.L1.M01 partes 1-2: contrato y tipo `Importe`) |
 
 ### H1.S5 — F1.S1.M4: unicidad de `clave_idempotencia`
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| F1.S1.M4a | Inventario: toda columna `clave_idempotencia` tiene índice `UNIQUE` nombrado, y la violación se demuestra en las tablas de dinero | 0 columnas sin `UNIQUE`; `23505` en el segundo `INSERT` | `psql -f evidencia/verificar_idempotencia.sql` | TODO |
-| F1.S1.M4b | `clave_idempotencia` en las tablas de dinero que no la tienen (`reembolso`, `movimiento_fondo`, `abono_recuperacion`, `retencion_saldo`, `devolucion_comision`, `deduccion_entrega`) + captura como 200 con el mismo `id` | — | — | TODO (carriles L1/L2/L5: F1.L1.M09, F1.L2.M11, F1.L5.M07; exige cambiar contrato y caso de uso) |
+| H1.S5.M1 | Inventario: toda columna `clave_idempotencia` tiene índice `UNIQUE` nombrado, y la violación se demuestra en las tablas de dinero | 0 columnas sin `UNIQUE`; `23505` en el segundo `INSERT` | `evidencia/M4a-idempotencia.txt` (10 tablas ejercitadas, 2 sin filas) | HECHO (ya resuelto en `dev`, sin cambio de esquema) |
+| H1.S5.M2 | `clave_idempotencia` en las tablas de dinero que no la tienen (`reembolso`, `movimiento_fondo`, `abono_recuperacion`, `retencion_saldo`, `devolucion_comision`, `deduccion_entrega`) + captura como 200 con el mismo `id` | — | — | TODO (carriles L1/L2/L5: F1.L1.M09, F1.L2.M11, F1.L5.M07; exige cambiar contrato y caso de uso) |
 
 ### H1.S6 — Regresión y cierre
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| F1.S1.M5a | Regeneración idempotente y deriva | `generar_ddl.py` dos veces sin diff; columnas/constraints del modelo presentes en la base | salida de `git diff --stat` + consulta de deriva | TODO |
-| F1.S1.M5b | Regresión del esquema | Humo `FALLA=0` y sin errores nuevos; verificaciones 0 filas; semillas dev cargan | `regresion.sh reg_nueva` | TODO |
-| F1.S1.M5c | Suites Gradle | `:servicios:nucleo-financiero:test` y `:servicios:aportes:test` sin fallos nuevos | salida de Gradle | TODO |
+| H1.S6.M1 | Regeneración idempotente y deriva | `generar_ddl.py` dos veces sin diff; columnas/constraints del modelo presentes en la base | `evidencia/M5a-deriva.txt` (0 problemas; control negativo con 3) | HECHO |
+| H1.S6.M2 | Regresión del esquema | Humo `FALLA=0` y sin errores nuevos; verificaciones 0 filas; semillas dev cargan | `evidencia/M5b-regresion.txt` | HECHO |
+| H1.S6.M3 | Suites Gradle | `:servicios:nucleo-financiero:test` y `:servicios:aportes:test` sin fallos nuevos | `evidencia/M5c-*.txt`: 94/94 y 53/53 (corredor `test`; el corredor `integrationTest` exige Docker) | HECHO |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
