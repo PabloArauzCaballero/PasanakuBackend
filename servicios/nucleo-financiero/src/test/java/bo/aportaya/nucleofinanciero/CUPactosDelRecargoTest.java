@@ -51,14 +51,16 @@ class CUPactosDelRecargoTest extends BaseDeRecargo {
         var a = aporte("100.00");
         fondo();
         UUID original = procesar(recargo(a, "25.00")).transaccionId().orElseThrow();
-        var salida = transaccion.execute(x -> reversoCU.ejecutar(
+        var salida = Reversos.pedirYAutorizar(
+                transaccion,
+                reversoCU,
                 new bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion.EntradaReverso(
                         "rev-pacto-" + original,
                         original,
                         pacto.path("ejemplo").path("tipo").asText(),
-                        "Prueba del pacto con garantia",
-                        fixtura.usuario()),
-                contextoDe(a.usuario())));
+                        "Prueba del pacto con garantia"),
+                contextoDe(a.usuario()),
+                fixtura.usuario());
 
         JsonNode emitido = emitido(
                 pacto,

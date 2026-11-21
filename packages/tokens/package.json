@@ -8,7 +8,8 @@
     "./tokens.json": "./tokens.json",
     "./tokens.css": "./generado/tokens.css",
     "./dinero": "./dinero/formatear.ts",
-    "./vectores/monto.json": "./vectores/monto.json"
+    "./vectores/monto.json": "./vectores/monto.json",
+    "./vectores/monto-escrito.json": "./vectores/monto-escrito.json"
   },
   "scripts": {
     "build": "node scripts/a-css.mjs && node scripts/a-dart.mjs && node scripts/vectores.mjs",

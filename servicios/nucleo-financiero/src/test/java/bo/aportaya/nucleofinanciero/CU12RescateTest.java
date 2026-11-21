@@ -190,14 +190,16 @@ class CU12RescateTest extends BaseDeInversiones {
     @DisplayName("compensa: reversar el rescate devuelve a la custodia lo acreditado y deja el original intacto")
     void reversa() {
         var salida = rescatar("res-r", cuenta, "300.00", rescate, servicio);
-        var reverso = transaccion.execute(t -> reversoCU.ejecutar(
+        var reverso = Reversos.pedirYAutorizar(
+                transaccion,
+                reversoCU,
                 new bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion.EntradaReverso(
                         "rev-" + salida.transaccionId(),
                         salida.transaccionId(),
                         "ERROR_OPERATIVO",
-                        "El aliado informo el rescate dos veces por error de conciliacion",
-                        fixtura.usuario()),
-                contextoDe(usuario)));
+                        "El aliado informo el rescate dos veces por error de conciliacion"),
+                contextoDe(usuario),
+                fixtura.usuario());
         assertThat(reverso.generaObligacionDeRestitucion()).isFalse();
         assertThat(sistemaFx.saldoDelLibro(cuenta)).isEqualByComparingTo("0.00");
         sistemaFx.imprimir("REVERSO de acreditarRescate", reverso.transaccionReversoId());

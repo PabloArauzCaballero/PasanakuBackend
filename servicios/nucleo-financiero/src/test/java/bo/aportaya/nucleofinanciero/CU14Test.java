@@ -63,8 +63,12 @@ class CU14Test extends BaseDeBilletera {
         Movida m = movida("1000.00", "300.00");
         UUID autoriza = fixtura.usuario();
 
-        SalidaReverso salida = transaccion.execute(x -> reversoCU.ejecutar(
-                new EntradaReverso("rev-1", m.transaccion(), "ERROR_OPERATIVO", MOTIVO, autoriza), m.ctx()));
+        SalidaReverso salida = Reversos.pedirYAutorizar(
+                transaccion,
+                reversoCU,
+                new EntradaReverso("rev-1", m.transaccion(), "ERROR_OPERATIVO", MOTIVO),
+                m.ctx(),
+                autoriza);
 
         assertThat(salida.generaObligacionDeRestitucion()).isFalse();
         assertThat(contar(
@@ -109,8 +113,12 @@ class CU14Test extends BaseDeBilletera {
                 contextoDe(fixtura.titular(m.destino()))));
         UUID autoriza = fixtura.usuario();
 
-        SalidaReverso salida = transaccion.execute(x -> reversoCU.ejecutar(
-                new EntradaReverso("rev-3", m.transaccion(), "CONTRACARGO", MOTIVO, autoriza), m.ctx()));
+        SalidaReverso salida = Reversos.pedirYAutorizar(
+                transaccion,
+                reversoCU,
+                new EntradaReverso("rev-3", m.transaccion(), "CONTRACARGO", MOTIVO),
+                m.ctx(),
+                autoriza);
 
         assertThat(salida.generaObligacionDeRestitucion()).isTrue();
         assertThat(salida.transaccionReversoId()).isNull();
@@ -134,11 +142,19 @@ class CU14Test extends BaseDeBilletera {
         Movida m = movida("1000.00", "200.00");
         UUID autoriza = fixtura.usuario();
 
-        transaccion.execute(x -> reversoCU.ejecutar(
-                new EntradaReverso("rev-r", m.transaccion(), "ANULACION", MOTIVO, autoriza), m.ctx()));
+        Reversos.pedirYAutorizar(
+                transaccion,
+                reversoCU,
+                new EntradaReverso("rev-r", m.transaccion(), "ANULACION", MOTIVO),
+                m.ctx(),
+                autoriza);
 
-        assertThatThrownBy(() -> transaccion.execute(x -> reversoCU.ejecutar(
-                        new EntradaReverso("rev-r2", m.transaccion(), "ANULACION", MOTIVO, autoriza), m.ctx())))
+        assertThatThrownBy(() -> Reversos.pedirYAutorizar(
+                        transaccion,
+                        reversoCU,
+                        new EntradaReverso("rev-r2", m.transaccion(), "ANULACION", MOTIVO),
+                        m.ctx(),
+                        autoriza))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("ya fue reversada");
         assertThat(contar(
@@ -153,11 +169,19 @@ class CU14Test extends BaseDeBilletera {
         Movida m = movida("1000.00", "150.00");
         UUID autoriza = fixtura.usuario();
 
-        transaccion.execute(x -> reversoCU.ejecutar(
-                new EntradaReverso("rev-c1", m.transaccion(), "ANULACION", MOTIVO, autoriza), m.ctx()));
+        Reversos.pedirYAutorizar(
+                transaccion,
+                reversoCU,
+                new EntradaReverso("rev-c1", m.transaccion(), "ANULACION", MOTIVO),
+                m.ctx(),
+                autoriza);
 
-        assertThatThrownBy(() -> transaccion.execute(x -> reversoCU.ejecutar(
-                        new EntradaReverso("rev-c2", m.transaccion(), "ANULACION", MOTIVO, autoriza), m.ctx())))
+        assertThatThrownBy(() -> Reversos.pedirYAutorizar(
+                        transaccion,
+                        reversoCU,
+                        new EntradaReverso("rev-c2", m.transaccion(), "ANULACION", MOTIVO),
+                        m.ctx(),
+                        autoriza))
                 .isInstanceOf(ErrorDeNegocio.class);
         assertThat(contar(
                         "SELECT saldo_disponible::int FROM nucleo_financiero.cuenta_billetera WHERE id = ?",
@@ -171,8 +195,12 @@ class CU14Test extends BaseDeBilletera {
         Movida m = movida("1000.00", "333.33");
         UUID autoriza = fixtura.usuario();
 
-        SalidaReverso salida = transaccion.execute(x -> reversoCU.ejecutar(
-                new EntradaReverso("rev-q", m.transaccion(), "ERROR_OPERATIVO", MOTIVO, autoriza), m.ctx()));
+        SalidaReverso salida = Reversos.pedirYAutorizar(
+                transaccion,
+                reversoCU,
+                new EntradaReverso("rev-q", m.transaccion(), "ERROR_OPERATIVO", MOTIVO),
+                m.ctx(),
+                autoriza);
 
         assertThat(contar(
                         """
@@ -206,14 +234,12 @@ class CU14Test extends BaseDeBilletera {
         // registro del intento a medias.
         Movida m = movida("1000.00", "100.00");
 
-        assertThatThrownBy(() -> transaccion.execute(x -> reversoCU.ejecutar(
-                        new EntradaReverso(
-                                "rev-solo",
-                                m.transaccion(),
-                                "ANULACION",
-                                MOTIVO,
-                                m.ctx().usuarioId()),
-                        m.ctx())))
+        assertThatThrownBy(() -> Reversos.pedirYAutorizar(
+                        transaccion,
+                        reversoCU,
+                        new EntradaReverso("rev-solo", m.transaccion(), "ANULACION", MOTIVO),
+                        m.ctx(),
+                        m.ctx().usuarioId()))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("no puede ser quien lo solicita");
 
@@ -229,8 +255,12 @@ class CU14Test extends BaseDeBilletera {
         Movida m = movida("1000.00", "100.00");
         UUID autoriza = fixtura.usuario();
 
-        assertThatThrownBy(() -> transaccion.execute(x -> reversoCU.ejecutar(
-                        new EntradaReverso("rev-corto", m.transaccion(), "ANULACION", "error", autoriza), m.ctx())))
+        assertThatThrownBy(() -> Reversos.pedirYAutorizar(
+                        transaccion,
+                        reversoCU,
+                        new EntradaReverso("rev-corto", m.transaccion(), "ANULACION", "error"),
+                        m.ctx(),
+                        autoriza))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("explicar que paso");
     }
