@@ -8,6 +8,7 @@ export const ENTRADAS_DE_CUMPLIMIENTO: readonly { ruta: string; texto: string; c
   { ruta: '/cumplimiento/verificaciones', texto: 'Identidad', codigos: ['VERIFICACION_RESOLVER'] },
   { ruta: '/cumplimiento/alertas', texto: 'Alertas', codigos: ['CUMPLIMIENTO_ALERTAS'] },
   { ruta: '/cumplimiento/casos', texto: 'Casos', codigos: ['CUMPLIMIENTO_CASOS'] },
+  { ruta: '/cumplimiento/bloqueos', texto: 'Bloqueos de autoridad', codigos: ['BLOQUEO_AUTORIDAD_REGISTRAR', 'BLOQUEO_AUTORIDAD_LEVANTAR'] },
   { ruta: '/cumplimiento/uif/reportes', texto: 'Reportes UIF', codigos: ['CUMPLIMIENTO_REPORTAR', 'AUDITORIA_LEER'] },
   { ruta: '/cumplimiento/uif/requerimientos', texto: 'Requerimientos', codigos: ['OFICIAL_CUMPLIMIENTO', 'AUDITORIA_LEER'] },
   { ruta: '/cumplimiento/continuidad', texto: 'Continuidad', codigos: ['RESPONSABLE_RIESGOS', 'AUDITORIA_LEER'] },

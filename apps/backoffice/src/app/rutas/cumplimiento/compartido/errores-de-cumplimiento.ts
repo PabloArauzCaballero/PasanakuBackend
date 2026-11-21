@@ -9,6 +9,9 @@ import type { ErrorTraducido } from '../../../nucleo/errores'
 const FILTRO_INVALIDO = 'El filtro de la lista no es válido. Quitá los filtros y volvé a cargar.'
 
 export const MENSAJES_DE_CUMPLIMIENTO: Readonly<Record<string, string>> = {
+  'AP-CU17-04': 'Quien registró el bloqueo no puede levantarlo. Lo tiene que levantar otra persona.',
+  'AP-CU17-05': 'Este bloqueo ya no está vigente: ya se levantó o venció. Actualizá la lista.',
+  'AP-CU17-06': FILTRO_INVALIDO,
   'AP-CU43-01': 'No hay catálogo activo con ese código, o el período todavía no se generó. Revisá el período y el código.',
   'AP-CU43-02': 'Quien aprueba no puede ser quien generó el reporte. Lo tiene que aprobar otra persona.',
   'AP-CU43-03': 'El reporte ya no está en estado Generado: no se puede aprobar ni registrar su envío otra vez. Actualizá la lista.',
