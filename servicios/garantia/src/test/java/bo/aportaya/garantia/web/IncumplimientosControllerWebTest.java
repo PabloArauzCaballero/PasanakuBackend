@@ -102,6 +102,18 @@ class IncumplimientosControllerWebTest {
         }
 
         @Test
+        @DisplayName("F1.L2.M04 · 400: un monto involucrado negativo no llega al caso de uso")
+        void montoNegativo() throws Exception {
+            mvc.perform(post("/incumplimientos")
+                            .with(Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR"))
+                            .header("Idempotency-Key", CLAVE)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(declaracion().replace("\"350.00\"", "\"-350.00\"")))
+                    .andExpect(status().isBadRequest());
+            verifyNoInteractions(cu25);
+        }
+
+        @Test
         @DisplayName("CU-25 · declarar dos veces el mismo expediente responde 200, no abre otro")
         void declararDosVecesNoAbreDos() throws Exception {
             when(cu25.declarar(any(), any()))
