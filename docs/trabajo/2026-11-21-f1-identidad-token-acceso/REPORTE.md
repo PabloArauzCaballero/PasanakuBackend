@@ -128,3 +128,13 @@ servicios/identidad webTest: tests=160 skipped=0 failures=0 errors=0
 ## Estado del entorno al cerrar
 
 La base PostgreSQL local (puerto 5433) se apaga al cerrar. No queda ningún proceso de Gradle en background.
+
+## Candado `blocker_gate` al cerrar
+
+Al cerrar, `blocker_gate.py` bloqueó por 9 microtareas viejas en BLOQUEADO o EN CURSO de otros
+trabajos (`2026-10-03-alta-fecha-actividad-autocaptura`, `2026-10-14-resolver-conflictos-prs-60-63`,
+`2026-10-16-ci-formato-test`, `2026-10-27-rediseno-backoffice-al-repo-desplegado`,
+`2026-10-28-admision-directa-backoffice`, `2026-10-30-arreglos-test-y-espejo`). Ninguna es de
+este carril. Según DECISIONES P-20, se marcan DESCARTADO en **F0.M1**, en un PR propio que revisa
+Pablo. No se tocaron porque quedan fuera del alcance de archivos de esta sesión.
+Este carril no tiene microtareas en BLOQUEADO ni en EN CURSO.
