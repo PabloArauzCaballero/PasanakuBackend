@@ -1,8 +1,8 @@
 # Reporte — Tanda 2, lote L3L5
 
-> **AVANCE: 1 / 24 — 4,2 %.**
+> **AVANCE: 1 / 24 — 4,2 %.** (F1.L3.M04 en A MEDIAS)
 
-- Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Rama(s): `correcciones/tanda2-l3l5-test-admision`
+- Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Rama(s): `correcciones/tanda2-l3l5-test-admision` (#423), `correcciones/tanda2-l3l5-f1-retiro`
 - Peldaño de evidencia alcanzado: T2.M0 `TESTED` (reproducción bajo carga antes/después + suites del servicio).
 
 ## Completado
@@ -19,6 +19,19 @@
   `META-INF/services` a `plataforma/comun-pruebas` (con `junit-platform-launcher` en su `api`); después borrar la
   copia de `grupos`. Lo hace la sesión dueña de `buildSrc`/`plataforma`.
 - Dónde quedó: rama `correcciones/tanda2-l3l5-test-admision`, compila, suites de `grupos` en verde.
+
+### F1.L3.M04 — El retiro lo pide solo su titular
+- Qué anda: en la API, el participante sale del token y del `grupoId` de la ruta; otro integrante en el cuerpo,
+  otro usuario y rol insuficiente reciben 403, sin token 401, sin invocar el caso de uso
+  ([evidencia](./evidencia/F1.L3.M04-retiro-titular.txt), incluye el contraexperimento contra `dev`: 500 con el ajeno).
+- Qué no anda: la base todavía no lo impide: `solicitud_retiro` no tiene titular y cae en la política genérica.
+- Qué falta exactamente: (1) en `docs/entidades/02_grupos_turnos.puml`, `SolicitudRetiro.usuario_id UUID NOT NULL`
+  (FK `identidad.usuario`), regenerar `sql/` con `generar_ddl.py`; (2) en el bloque genérico `fn_seg_aplicar_rls`
+  (`docs/Restricciones.md` → `sql/40_reglas/restricciones.sql`), agregar `'solicitud_retiro'` a
+  `visibles_por_titular` — compartido, fuera del lote; (3) `RetiroRepositorio.solicitar` escribe `usuario_id`
+  con `ctx.usuarioId()`; (4) integración con RLS activa (Docker). (1) y (3) sin (2) romperían el alta del titular:
+  van juntos.
+- Dónde quedó: rama `correcciones/tanda2-l3l5-f1-retiro`, compila, suites de `grupos` en verde.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
