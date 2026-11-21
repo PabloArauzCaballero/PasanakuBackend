@@ -1,0 +1,24 @@
+BEGIN
+SET
+INSERT 0 1
+SAVEPOINT
+psql:/tmp/claude-0/-home-user-PasanakuBackend/bd1cc7de-d0c1-5769-a21a-89948fedaccc/scratchpad/rdes.sql:8: ERROR:  duplicate key value violates unique constraint "uq_oferta_turno_activa"
+DETAIL:  Key (turno_id)=(00000000-0000-4000-8000-0000000000f1) already exists.
+ROLLBACK
+UPDATE 1
+INSERT 0 1
+            paso            | count 
+----------------------------+-------
+ cesion liquidada insertada |     1
+(1 row)
+
+SAVEPOINT
+psql:/tmp/claude-0/-home-user-PasanakuBackend/bd1cc7de-d0c1-5769-a21a-89948fedaccc/scratchpad/rdes.sql:15: ERROR:  new row for relation "cesion_derecho" violates check constraint "ck_cesion_derecho_liquidada"
+DETAIL:  Failing row contains (00000000-0000-4000-8000-0000000000c1, 00000000-0000-4000-8000-0000000000a1, 00000000-0000-4000-8000-0000000000f1, 00000000-0000-4000-8000-0000000000b1, 00000000-0000-4000-8000-0000000000b2, e6bdfa32-7f6e-4be2-bc68-3f6744c6432f, BOB, 5500.00, LIQUIDADA, 7c3f5ccf-c3ee-4ba5-97eb-ae9c824a21fd, null, null, cesion-c1, 2026-11-21 15:06:39.094573+00, 2026-11-21 15:06:39.094573+00, 2026-11-21 15:06:39.094573+00, 0).
+ROLLBACK
+psql:/tmp/claude-0/-home-user-PasanakuBackend/bd1cc7de-d0c1-5769-a21a-89948fedaccc/scratchpad/rdes.sql:18: ERROR:  duplicate key value violates unique constraint "uq_cesion_derecho_turno_viva"
+DETAIL:  Key (turno_id)=(00000000-0000-4000-8000-0000000000f1) already exists.
+ROLLBACK
+psql:/tmp/claude-0/-home-user-PasanakuBackend/bd1cc7de-d0c1-5769-a21a-89948fedaccc/scratchpad/rdes.sql:20: ERROR:  new row for relation "cesion_derecho" violates check constraint "ck_cesion_derecho_partes"
+DETAIL:  Failing row contains (00000000-0000-4000-8000-0000000000c1, 00000000-0000-4000-8000-0000000000a1, 00000000-0000-4000-8000-0000000000f1, 00000000-0000-4000-8000-0000000000b1, 00000000-0000-4000-8000-0000000000b1, e6bdfa32-7f6e-4be2-bc68-3f6744c6432f, BOB, 5500.00, LIQUIDADA, 7c3f5ccf-c3ee-4ba5-97eb-ae9c824a21fd, 5b229aaa-ae52-40dd-a8fd-cd8fece06369, null, cesion-c1, 2026-11-21 15:06:39.094573+00, 2026-11-21 15:06:39.094573+00, 2026-11-21 15:06:39.094573+00, 0).
+ROLLBACK
