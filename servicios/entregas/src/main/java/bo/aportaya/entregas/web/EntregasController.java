@@ -128,17 +128,15 @@ public class EntregasController implements EntregasApi {
 
     // --- Cesion de turno retirada (D-L2-1, DECISIONES tanda 7: «subasta y cesion de turno: se elimina») ---
     // El orden lo fijan el nivel de puntualidad y el sorteo; un turno no se vende ni se subasta. Las operaciones siguen
-    // publicadas (deprecated) solo hasta que la app y nucleo-financiero las suelten (regla 98.1.3): responden 410 sin
+    // publicadas solo hasta que la app y nucleo-financiero las suelten (regla 98.1.3): responden 410 sin
     // efecto. El permiso se sigue exigiendo para no contarle a un anonimo que existieron.
 
-    @Deprecated
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<SalidaOferta> publicarOferta(UUID idempotencyKey, EntradaOferta cuerpo) {
         throw mercadoRetirado();
     }
 
-    @Deprecated
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<PaginaDeOfertas> listarOfertas(Integer limite, Integer pagina) {
@@ -156,49 +154,42 @@ public class EntregasController implements EntregasApi {
         throw new ErrorDeNegocio(CodigoError.de(130, 5), "Esa oferta no esta disponible.");
     }
 
-    @Deprecated
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<SalidaCancelacionDeOferta> cancelarOferta(UUID ofertaId) {
         throw mercadoRetirado();
     }
 
-    @Deprecated
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<SalidaCompra> comprarOferta(UUID ofertaId, UUID idempotencyKey) {
         throw mercadoRetirado();
     }
 
-    @Deprecated
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<VistaDeSubasta> abrirSubastaDeCupo(UUID idempotencyKey, EntradaSubasta cuerpo) {
         throw subastaRetirada();
     }
 
-    @Deprecated
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<PaginaDeSubastas> listarSubastasDeCupo(UUID cupoId, Integer limite, Integer pagina) {
         throw subastaRetirada();
     }
 
-    @Deprecated
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<VistaDeSubasta> consultarSubastaDeCupo(UUID subastaId) {
         throw subastaRetirada();
     }
 
-    @Deprecated
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<SalidaPuja> pujarEnSubasta(UUID subastaId, UUID idempotencyKey, EntradaPuja cuerpo) {
         throw subastaRetirada();
     }
 
-    @Deprecated
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<VistaDeSubasta> cancelarSubastaDeCupo(UUID subastaId) {
