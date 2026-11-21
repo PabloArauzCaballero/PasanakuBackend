@@ -30,6 +30,7 @@
 #   AP-CU26-04  EJECUCION_DUPLICADA   · aca: el aval ya se ejecuto hasta su tope
 #   AP-CU26-05  FUERA_DE_ALCANCE      · reservado
 #   AP-CU26-06  DEUDA_YA_SALDADA      · reservado
+#   AP-CU26-08  AVAL_RETIRADO         · 410: el aval entre participantes se elimino (P-03, F2.L2.M04)
 #   AP-CU26-07  RECLAMO_EN_CURSO      · la persona tiene un reclamo que frena (o cumplimiento no contesto): H13.S1.M6
 #
 # CU-27 · Restringir al deudor
@@ -47,6 +48,7 @@
 #   AP-CU29-03  FONDO_NO_CUADRA       · sin aportantes o total aportado en cero
 #   AP-CU29-04  FONDO_YA_CERRADO      · reservado (el reparto repetido devuelve cero)
 #   AP-CU29-05  SUBROGACION_ABIERTA   · reservado
+#   AP-CU29-06  DEVOLUCION_A_PEDIDO_RETIRADA · 410: la devolucion la dispara el sistema (F1.L2.M03)
 #
 # CU-66 · Reemplazar a un participante moroso
 #   AP-CU66-01  INCUMPLIMIENTO_NO_FIRME · el expediente no existe
@@ -69,6 +71,7 @@
 #   AP-CU23-11  COBERTURA_NO_REVERSIBLE · no existe, o ya tiene recuperaciones
 #   AP-CU23-12  RECAUDO_NO_DISPONIBLE   · aportes no responde: se deniega por omision
 #   AP-CU23-13  PEDIDO_NO_COINCIDE      · periodo/turno de otro grupo, o faltante informado distinto
+#   AP-CU23-14  COBERTURA_MANUAL_RETIRADA · 410: la cobertura no se pide a mano (F1.L2.M02)
 #   AP-CU23-10  CONTINGENCIA_DE_CAJA_ACTIVA · hay una falta de caja sin resolver: no se reservan ciclos nuevos (R-GAR-13)
 # NOTA: varios nombres del CU no describen el caso que el codigo termino ocupando. Se
 # conservan los NUMEROS, que son los que la boveda ata a cada rechazo, y aca queda
@@ -76,10 +79,16 @@
 openapi: 3.1.0
 info:
   title: garantia
-  version: 1.0.0
+  version: 1.1.0
   description: >-
     Servicio garantia. Un caso de uso = una operacion, con el codigo CU en el
     operationId. Los importes viajan como CADENA decimal, nunca como number.
+
+
+    1.1.0 (2026-11-21) · `cubrirIncumplimiento` (F1.L2.M02), `ejecutarAval` (F2.L2.M04, P-03) y
+    `devolverFondo` (F1.L2.M03) quedan `deprecated` y responden 410 sin efecto (AP-CU23-14, AP-CU26-08,
+    AP-CU29-06). Ninguna decide dinero con datos que afirma el cliente. Se borran del contrato cuando los
+    mocks y el backoffice las suelten (regla 98.1.3).
 
 servers:
   - url: /api/v1
@@ -159,8 +168,11 @@ paths:
   /incumplimientos/{expedienteId}/cobertura:
     post:
       operationId: cubrirIncumplimiento         # CU-23
+      deprecated: true
       summary: Cubrir el incumplimiento con el fondo
       description: >-
+        RETIRADA en 1.1.0 (F1.L2.M02: la cobertura no se decide con mora, monto ni aprobador del pedido; la aplica el sistema con el fondo del grupo, modelo A): responde 410 AP-CU23-14 sin efecto.
+
         El fondo existe para que el incumplimiento de uno no se lleve puesto al grupo
         entero. Pero cubrir todo siempre lo VACIA: gana el mas chico de cuatro limites
         —porcentaje, tope por participante, tope del periodo y saldo—. Y cubrir NO
@@ -176,6 +188,9 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/EntradaCobertura' }
       responses:
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU23-14
         '200':
           description: Cobertura aplicada, o rechazada con el limite que mando
           content:
@@ -186,8 +201,11 @@ paths:
   /incumplimientos/{expedienteId}/aval/ejecucion:
     post:
       operationId: ejecutarAval                 # CU-26
+      deprecated: true
       summary: Ejecutar el aval y subrogar la deuda
       description: >-
+        RETIRADA en 1.1.0 (F2.L2.M04, P-03: el aval entre participantes se elimino): responde 410 AP-CU26-08 sin efecto.
+
         Un avalista acepto responder por una cantidad CONCRETA. Cobrarle mas es
         cobrarle algo que nunca acepto (R-GAR-04), y el tope se mide contra lo YA
         ejecutado. Quien paga se subroga: la deuda no desaparece, cambia de acreedor.
@@ -197,6 +215,9 @@ paths:
           required: true
           schema: { type: string, format: uuid }
       responses:
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU26-08
         '200':
           description: Aval ejecutado, con su subrogacion
           content:
@@ -268,8 +289,11 @@ paths:
   /garantia/fondos/{grupoId}/devolucion:
     post:
       operationId: devolverFondo                # CU-29
+      deprecated: true
       summary: Devolver los aportes del fondo al cerrar el grupo
       description: >-
+        RETIRADA en 1.1.0 (F1.L2.M03: grupoCerrado y deudasVivas no los afirma el cliente; la devolucion la dispara el sistema al cerrar el ciclo, F3.L2.M06): responde 410 AP-CU29-06 sin efecto.
+
         No se devuelve mas de lo aportado ni un importe negativo (R-GAR-06), y lo que el
         fondo gasto en cubrir lo pierden TODOS en proporcion: esa es la idea de un fondo
         mutual. El remanente se ajusta en la ultima devolucion para que la suma cierre
@@ -285,6 +309,9 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/EntradaDevolucionFondo' }
       responses:
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU29-06
         '200':
           description: Fondo repartido
           content:
@@ -990,6 +1017,13 @@ components:
         detalle:  { type: object }
         trazaId:  { type: string }
   responses:
+    Retirada:
+      description: >-
+        La operacion fue retirada del producto y ya no tiene efecto (410, no 404: existio y no hay que
+        reintentar). El codigo dice cual.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
     ReglaDeNegocio:
       description: Regla de negocio de la aplicacion (422, no 400)
       content:

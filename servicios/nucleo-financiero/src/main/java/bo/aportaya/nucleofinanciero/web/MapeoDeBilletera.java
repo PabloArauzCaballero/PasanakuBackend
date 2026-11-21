@@ -144,17 +144,6 @@ final class MapeoDeBilletera {
                 java.util.Optional.ofNullable(cuerpo.getExpiraEn()));
     }
 
-    /** El reverso, con quien lo autorizo: un asiento inverso sin firma no existe. */
-    static bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion.EntradaReverso entradaDeReverso(
-            String claveIdempotencia, bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaReverso cuerpo) {
-        return new bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion.EntradaReverso(
-                claveIdempotencia,
-                cuerpo.getTransaccionOriginalId(),
-                cuerpo.getTipo().getValue(),
-                cuerpo.getMotivo(),
-                cuerpo.getAutorizadaPor());
-    }
-
     static bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaReverso reverso(
             bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion.SalidaReverso salida) {
         var respuesta = new bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaReverso();

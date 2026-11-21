@@ -42,7 +42,9 @@ class CU21CompensaRechazosTest extends BaseDeCompensacion {
     void noCompensaLoReembolsadoNiEnDisputa() {
         Caso conReembolso = pagado("500.00", 10);
         transaccion.execute(t -> reembolsoCU.solicitar(
-                new EntradaReembolso(conReembolso.pago(), bob("100.00"), "DUPLICADO"), contextoDe(fixtura.usuario())));
+                new EntradaReembolso(
+                        conReembolso.pago(), bob("100.00"), "DUPLICADO", "reemb-" + java.util.UUID.randomUUID()),
+                contextoDe(fixtura.usuario())));
         var a1 = aviso(conReembolso);
         assertThat(compensar(a1).resultado()).isEqualTo(Resultado.NO_COMPENSABLE);
         assertThat(estadoDelPago(conReembolso.pago())).isEqualTo("ACREDITADO");

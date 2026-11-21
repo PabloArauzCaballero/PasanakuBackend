@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
  * CU-13 · lo que {@code entregas} le pide a la billetera por el mercado y la subasta del cupo, aparte de
  * {@link BilleteraController} (que ya esta al limite de largo del barrido, 300 lineas).
  */
-abstract class RutasDelMercadoDeLaBilletera implements BilleteraApi {
+abstract class RutasDelMercadoDeLaBilletera extends RutasDeReversosDeLaBilletera implements BilleteraApi {
 
     private SesionDeLaPeticion sesionDelMercado;
     private CU13LiberarRetencionDelMercado liberacion;

@@ -243,6 +243,23 @@ inverso, pero no por qué. Y "por qué" es la primera pregunta de toda auditorí
 
 ---
 
+### `SolicitudReverso` / `solicitud_reverso`
+
+**Qué es.** El primer acto de un reverso: quién lo pidió, sobre qué transacción, de qué
+tipo y por qué. No mueve saldo.
+
+**Para qué sirve (negocio).** Que un reverso lo hagan dos personas distintas, cada una
+con su propio token (P-13, `R-BIL-27`). Una persona pide; otra, en otra petición,
+autoriza. Recién entonces se escribe el espejo y nace el [[reverso_transaccion]]. La
+solicitud guarda a las dos, y la base rechaza que sean la misma.
+
+**Por qué debe existir.** Si el autorizador viaja en el cuerpo de una sola petición,
+cualquiera escribe el identificador de otra persona y los cuatro ojos son uno. Separar
+el pedido del hecho deja el reverso (`reverso_transaccion`) como registro de lo
+ejecutado, siempre con su autorizador, como exige `R-SEG-04`.
+
+---
+
 ## Paquete: Entrada y salida de dinero
 
 ### `InstrumentoFondeo` / `instrumento_fondeo`

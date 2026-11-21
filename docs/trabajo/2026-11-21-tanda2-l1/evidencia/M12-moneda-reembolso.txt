@@ -1,0 +1,28 @@
+# F1.L1.M12 · moneda en reembolso y disputa (R-BIL-29) — salidas (2026-11-21)
+
+$ base limpia && APORTAYA_TEST_DB_URL=… ./gradlew :servicios:aportes:spotlessCheck test webTest testBarrido integrationTest --continue
+(gancho APORTAYA_TEST_DB_URL de BaseDeAportes aplicado solo para la corrida; llega en el PR de F1.L1.M06)
+test 53/53 · webTest 55/55 · testBarrido 2/2 · integrationTest 132/135 · CU19MonedaTest 3/3
+Las 3 restantes (AislamientoEsquemaTest, ArranqueTest x2) levantan su propio contenedor: NO COMPROBADO — requieren Docker.
+
+--- control negativo: lectura con Moneda.BOB fija y sin comparar la moneda
+CU19MonedaTest > rechaza la base una moneda fuera del catalogo en reembolso (R-BIL-29) FAILED
+CU19MonedaTest > cuadre: el reembolso de un pago en USD se registra y se lee en USD, no en una moneda fija FAILED
+CU19MonedaTest > rechaza un reembolso en una moneda distinta de la del pago (AP-CU19-02, R-BIL-29) y no inserta nada FAILED
+3 tests completed, 3 failed
+> Task :servicios:aportes:integrationTest FAILED
+BUILD FAILED in 5s
+
+--- migracion sobre una base existente (esquema de origin/dev, luego el nuevo aplicar.sql, y re-aplicado)
+primer intento con el CHECK en el modelo (CK_AMPLIADOS): ERROR column "moneda" does not exist (reembolso.sql corre antes de columnas_agregadas.sql) → el CHECK paso a R-BIL-29 en 40_reglas
+dev: 0 · nuevo sobre dev: 0 · re-aplicado: 0
+ck_reembolso_moneda|CHECK (((moneda IS NULL) OR (moneda = ANY (ARRAY['BOB'::bpchar, 'USD'::bpchar]))))
+ck_disputa_pago_moneda|CHECK (((moneda IS NULL) OR (moneda = ANY (ARRAY['BOB'::bpchar, 'USD'::bpchar]))))
+
+$ python3 scripts/verificar_boveda.py → TODO OK
+$ python3 scripts/verificar_seguridad.py → TODO OK · 7 aviso(s)
+$ python3 scripts/verificar_criterios.py → Sin divergencias entre la boveda y el codigo.
+$ python3 scripts/verificar_pruebas_web.py → La capa web esta cubierta segun ADR-043.
+
+$ grep -n "Moneda.BOB" servicios/aportes/src/main/java/bo/aportaya/aportes/infraestructura/PagoRepositorio.java
+(sin resultados)
