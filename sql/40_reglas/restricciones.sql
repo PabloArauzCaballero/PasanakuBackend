@@ -752,6 +752,25 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_cuenta_benef_principal
   ON cuenta_bancaria_beneficiario (usuario_id)
   WHERE (es_principal);
 
+-- R-BIL-27 · cuatro ojos reales en el reverso (P-13): la solicitud guarda a quien
+-- la pidio; la autorizacion, a otra persona. Ejecutada exige autorizador y reverso.
+ALTER TABLE solicitud_reverso DROP CONSTRAINT IF EXISTS ck_solicitud_reverso_cuatro_ojos;
+ALTER TABLE solicitud_reverso DROP CONSTRAINT IF EXISTS ck_solicitud_reverso_resuelta;
+ALTER TABLE solicitud_reverso
+  ADD CONSTRAINT ck_solicitud_reverso_cuatro_ojos CHECK (
+      autorizada_por IS NULL OR autorizada_por <> solicitada_por
+  ),
+  ADD CONSTRAINT ck_solicitud_reverso_resuelta CHECK (
+      (estado = 'SOLICITADA' AND autorizada_por IS NULL
+         AND reverso_transaccion_id IS NULL AND resuelta_en IS NULL)
+   OR (estado = 'EJECUTADA' AND autorizada_por IS NOT NULL
+         AND reverso_transaccion_id IS NOT NULL AND resuelta_en IS NOT NULL)
+  );
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_solicitud_reverso_viva
+  ON solicitud_reverso (transaccion_original_id)
+  WHERE estado = 'SOLICITADA';
+
 
 -- ---------------------------------------------------------------------
 -- R-LIM — Límites operativos

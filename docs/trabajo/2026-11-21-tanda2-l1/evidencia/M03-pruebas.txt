@@ -1,0 +1,51 @@
+# F1.L1.M03 · reverso con cuatro ojos reales — salidas de las corridas (2026-11-21)
+
+$ ./gradlew :servicios:nucleo-financiero:webTest --tests "*ReversoCuatroOjosWebTest" --tests "*BilleteraControllerWebTest"
+BUILD SUCCESSFUL
+testsuite name="bo.aportaya.nucleofinanciero.web.ReversoCuatroOjosWebTest" tests="7" skipped="0" failures="0" errors="0"
+
+--- control negativo: sin cuatroOjos.segundaFirma(...) en RutasDeReversosDeLaBilletera
+ReversoCuatroOjosWebTest > invalido: un token sin sesion (servicio o step-up) no firma (401) FAILED
+ReversoCuatroOjosWebTest > invalido: quien pidio no autoriza su propia solicitud, ni desde otra sesion (422 AP-CU14-02) FAILED
+7 tests completed, 2 failed
+> Task :servicios:nucleo-financiero:webTest FAILED
+BUILD FAILED in 11s
+
+$ ./gradlew :servicios:nucleo-financiero:spotlessCheck test webTest testBarrido erroresCatalogo
+BUILD SUCCESSFUL in 31s
+test: 94 pruebas, 0 fallas, 0 saltadas · webTest: 89, 0, 0 · testBarrido: 2, 0, 0
+
+$ base limpia (solo sql/aplicar.sql, como BaseDePrueba) && APORTAYA_TEST_DB_URL=jdbc:postgresql://127.0.0.1:5433/pasanaku ./gradlew :servicios:nucleo-financiero:integrationTest --tests <las 12 clases que reversan>
+BUILD SUCCESSFUL in 19s
+testsuite name="bo.aportaya.nucleofinanciero.CU12RescateTest" tests="10" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.nucleofinanciero.CU13InversionTest" tests="11" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.nucleofinanciero.CU13MercadoTest" tests="8" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.nucleofinanciero.CU14CargosTest" tests="4" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.nucleofinanciero.CU14CuatroOjosTest" tests="5" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.nucleofinanciero.CU14RechazosTest" tests="6" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.nucleofinanciero.CU14ReversosTest" tests="3" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.nucleofinanciero.CU14Test" tests="9" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.nucleofinanciero.CUConsumoDeAportesTest" tests="6" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.nucleofinanciero.CUConsumoDeRecargoTest" tests="7" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.nucleofinanciero.CUIndicadoresFinancierosTest" tests="5" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.nucleofinanciero.CUPactosDelRecargoTest" tests="2" skipped="0" failures="0" errors="0"
+(conexion como pasanaku, superusuario: RLS no se ejercita desde Java; las invariantes con el rol de la app estan en M03-r-bil-27-psql.txt)
+
+--- mayor: los reversos ejecutados por las pruebas, con dos personas y su cuadre
+  estado   | dos_personas |  tipo   | monto_total | moneda | debitos | creditos
+ EJECUTADA | t            | REVERSO |      500.00 | BOB    |  500.00 |   500.00
+ EJECUTADA | t            | REVERSO |       25.00 | BOB    |   50.00 |    50.00
+ EJECUTADA | t            | REVERSO |      300.00 | BOB    |  300.00 |   300.00
+
+$ python3 scripts/verificar_criterios.py --servicio nucleo-financiero
+Sin divergencias entre la boveda y el codigo.
+$ python3 scripts/verificar_boveda.py
+TODO OK
+$ python3 scripts/verificar_seguridad.py
+TODO OK · 7 aviso(s)
+$ python3 -I scripts/verificar_narrativas.py
+Sin fallas.
+$ python3 scripts/inventario_endpoints.py --check
+El inventario esta alineado: todo lo implementado tiene contrato y viceversa.
+$ grep -n autorizadaPor (EntradaReverso) en el contrato
+0

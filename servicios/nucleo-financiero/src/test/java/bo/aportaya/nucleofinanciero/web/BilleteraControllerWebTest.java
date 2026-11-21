@@ -134,8 +134,7 @@ class BilleteraControllerWebTest {
                                             """
                                     {"transaccionOriginalId":"eeeeeeee-0000-4000-8000-000000000002",
                                      "tipo":"ERROR_OPERATIVO",
-                                     "motivo":"El proveedor cobro dos veces la misma orden",
-                                     "autorizadaPor":"eeeeeeee-0000-4000-8000-000000000004"}
+                                     "motivo":"El proveedor cobro dos veces la misma orden"}
                                     """))
                     .andExpect(status().isForbidden());
             // Un reverso mueve dinero al reves. Que lo pueda pedir cualquiera que opera
@@ -180,25 +179,28 @@ class BilleteraControllerWebTest {
         }
 
         @Test
-        @DisplayName("con REVERSO_AUTORIZAR, el reverso pasa y responde 201")
-        void reversarConSuPermiso() throws Exception {
-            when(cu14.ejecutar(any(), any()))
-                    .thenReturn(new CU14ReversarTransaccion.SalidaReverso(
-                            UUID.fromString("eeeeeeee-0000-4000-8000-000000000003"), TRANSACCION, true));
+        @DisplayName("con REVERSO_AUTORIZAR, solicitar el reverso pasa y responde 201 sin mover saldo")
+        void solicitarConSuPermiso() throws Exception {
+            when(cu14.solicitar(any(), any()))
+                    .thenReturn(new CU14ReversarTransaccion.SalidaSolicitud(TRANSACCION, "SOLICITADA"));
             mvc.perform(
                             post("/billetera/reversos")
-                                    .with(Sesiones.como("ADMIN_PLATAFORMA", "REVERSO_AUTORIZAR"))
+                                    .with(Sesiones.enSesion(
+                                            Sesiones.USUARIO,
+                                            UUID.randomUUID(),
+                                            "ADMIN_PLATAFORMA",
+                                            "REVERSO_AUTORIZAR"))
                                     .header("Idempotency-Key", CLAVE)
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(
                                             """
                                     {"transaccionOriginalId":"eeeeeeee-0000-4000-8000-000000000002",
                                      "tipo":"ERROR_OPERATIVO",
-                                     "motivo":"El proveedor cobro dos veces la misma orden",
-                                     "autorizadaPor":"eeeeeeee-0000-4000-8000-000000000004"}
+                                     "motivo":"El proveedor cobro dos veces la misma orden"}
                                     """))
                     .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.generaObligacionDeRestitucion").value(true));
+                    .andExpect(jsonPath("$.estado").value("SOLICITADA"));
+            verify(cu14, org.mockito.Mockito.never()).autorizar(any(), any());
         }
     }
 

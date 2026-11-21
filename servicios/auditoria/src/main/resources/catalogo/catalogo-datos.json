@@ -152,10 +152,10 @@
   {
    "nombre": "nucleo_financiero",
    "descripcion": "Billetera, Custodia y Dinero Electrónico. El saldo no se guarda: se deriva, y todos los días cuadra contra el banco.",
-   "tablas": 33,
-   "tablasDeNegocio": 30,
-   "columnas": 384,
-   "relaciones": 74,
+   "tablas": 34,
+   "tablasDeNegocio": 31,
+   "columnas": 395,
+   "relaciones": 78,
    "appendOnly": 8,
    "conDatosPersonales": 5,
    "servicio": "nucleo-financiero"
@@ -54313,6 +54313,26 @@
       "obligatoria": true
      },
      {
+      "columna": "solicitada_por",
+      "tabla": "solicitud_reverso",
+      "esquema": "nucleo_financiero",
+      "columnaDestino": "id",
+      "restriccion": "fk_solicitud_reverso_solicitada_por",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "autorizada_por",
+      "tabla": "solicitud_reverso",
+      "esquema": "nucleo_financiero",
+      "columnaDestino": "id",
+      "restriccion": "fk_solicitud_reverso_autorizada_por",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
+     },
+     {
       "columna": "usuario_id",
       "tabla": "instrumento_fondeo",
       "esquema": "nucleo_financiero",
@@ -55294,7 +55314,7 @@
      }
     ]
    },
-   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian aportes.comprobante_manual, aportes.conciliacion, aportes.excepcion_conciliacion, aportes.extracto_bancario, aportes.pago, aportes.plan_regularizacion, aportes.reembolso, asignacion_rol, auditoria.alerta_cumplimiento, auditoria.coincidencia_lista, auditoria.ejecucion_reporte, auditoria.proceso_anonimizacion, auditoria.reporte_operacion_sospechosa, auditoria.solicitud_datos_personales, auditoria.ticket_soporte, bloqueo_cuenta, catalogo.licencia_regulatoria, catalogo.tarifario, comun.bitacora_evento, comun.registro_acceso_datos, consentimiento, credencial_acceso, cumplimiento.aceptacion_contrato, cumplimiento.acta_comite, cumplimiento.activo_informacion, cumplimiento.alerta_monitoreo_lft, cumplimiento.beneficiario_final, cumplimiento.calificacion_riesgo_cliente, cumplimiento.capacitacion_cumplimiento, cumplimiento.caso_investigacion_lft, cumplimiento.contrato_adhesion, cumplimiento.contrato_tercero, cumplimiento.control_interno, cumplimiento.debida_diligencia, cumplimiento.declaracion_origen_fondos, cumplimiento.declaracion_pep, cumplimiento.designacion_regulatoria, cumplimiento.desvio_perfil, cumplimiento.documento_publicado, cumplimiento.envio_regulatorio, cumplimiento.evaluacion_riesgo_producto, cumplimiento.evaluacion_tercero, cumplimiento.evento_riesgo_operativo, cumplimiento.expediente_cliente, cumplimiento.factor_riesgo_evaluado, cumplimiento.hallazgo_auditoria, cumplimiento.incidente_seguridad, cumplimiento.matriz_riesgo_lft, cumplimiento.observacion_regulatoria, cumplimiento.oficial_cumplimiento, cumplimiento.perfil_transaccional, cumplimiento.plan_accion_riesgo, cumplimiento.plan_continuidad, cumplimiento.politica_interna, cumplimiento.prueba_continuidad, cumplimiento.prueba_control, cumplimiento.punto_reclamo, cumplimiento.reclamo_cliente, cumplimiento.registro_operacion_relevante, cumplimiento.regla_monitoreo_lft, cumplimiento.reporte_regulatorio, cumplimiento.requerimiento_autoridad, cumplimiento.revision_periodica_kyc, direccion_usuario, dispositivo, documento_identidad, entregas.cuenta_bancaria_beneficiario, entregas.entrega_fondo, entregas.historial_estado_entrega, entregas.incidencia_entrega, entregas.validacion_pre_entrega, erp.asiento_plantilla, erp.cierre_periodo_contable, erp.ejercicio_fiscal, erp.estado_financiero_generado, erp.factura_proveedor, erp.orden_compra, erp.pago_a_proveedor, erp.presupuesto, factor_mfa, garantia.abono_recuperacion, garantia.accion_cobranza, garantia.acuerdo_quita, garantia.alerta_temprana, garantia.apelacion_sancion, garantia.aval_participante, garantia.candidato_reemplazo, garantia.capacidad_respaldo, garantia.castigo_deuda, garantia.cobertura_incumplimiento, garantia.cobertura_respaldo, garantia.descargo_participante, garantia.deuda_participante, garantia.evidencia_incumplimiento, garantia.gestion_cobranza, garantia.historial_estado_incumplimiento, garantia.historial_incumplimiento_usuario, garantia.lista_restriccion_interna, garantia.movimiento_fondo, garantia.movimiento_reserva, garantia.promesa_pago, garantia.registro_incumplimiento, garantia.reserva_respaldo, garantia.sancion, garantia.score_riesgo_incumplimiento, grupos.acuerdo, grupos.enlace_grupo, grupos.historial_estado_grupo, grupos.invitacion, grupos.participante, grupos.postulacion_emparejamiento, grupos.reglamento_grupo, grupos.solicitud_ingreso, grupos.sorteo_turnos, historial_credencial, intento_autenticacion, notificaciones.aviso_interno, notificaciones.bandeja_entrada, notificaciones.canal_vinculado, notificaciones.notificacion, nucleo_financiero.asiento_contable, nucleo_financiero.bloqueo_saldo, nucleo_financiero.certificado_saldo, nucleo_financiero.cierre_diario, nucleo_financiero.conciliacion_custodia, nucleo_financiero.cuenta_billetera, nucleo_financiero.descuadre_custodia, nucleo_financiero.evaluacion_antifraude, nucleo_financiero.evidencia_mfa_consumida, nucleo_financiero.instrumento_fondeo, nucleo_financiero.orden_retiro, nucleo_financiero.politica_billetera, nucleo_financiero.regla_antifraude, nucleo_financiero.respuesta_idempotente, nucleo_financiero.retencion_saldo, nucleo_financiero.reverso_transaccion, nucleo_financiero.solicitud_cierre_billetera, nucleo_financiero.transaccion_billetera, organizador.apelacion_sancion_org, organizador.organizador, organizador.sancion_organizador, organizador.solicitud_organizador, perfil_financiero, preferencia_notificacion, publicidad.campana_publicitaria, publicidad.clic_anuncio, publicidad.impresion_anuncio, publicidad.revision_creativa, publicidad.segmento_audiencia, publicidad.socio_comercial, referencia_personal, reputacion_usuario, restriccion_usuario, sesion, solicitud_baja, tarifas.asignacion_tarifario, tarifas.cambio_tarifario, tarifas.campana_promocional, tarifas.cuenta_por_cobrar_comision, tarifas.datos_facturacion, tarifas.devengo_comision, tarifas.devolucion_comision, tarifas.evento_significativo_sin, tarifas.exencion_comision, tarifas.factura_electronica, tarifas.liquidacion_ingresos, tarifas.simulacion_tarifa, token_verificacion, transparencia.certificado_reputacion, transparencia.evento_reputacion, transparencia.insignia_otorgada, transparencia.puntaje_reputacion, transparencia.resena_participante, transparencia.snapshot_reputacion, usuario_interno, verificacion_kyc.",
+   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian aportes.comprobante_manual, aportes.conciliacion, aportes.excepcion_conciliacion, aportes.extracto_bancario, aportes.pago, aportes.plan_regularizacion, aportes.reembolso, asignacion_rol, auditoria.alerta_cumplimiento, auditoria.coincidencia_lista, auditoria.ejecucion_reporte, auditoria.proceso_anonimizacion, auditoria.reporte_operacion_sospechosa, auditoria.solicitud_datos_personales, auditoria.ticket_soporte, bloqueo_cuenta, catalogo.licencia_regulatoria, catalogo.tarifario, comun.bitacora_evento, comun.registro_acceso_datos, consentimiento, credencial_acceso, cumplimiento.aceptacion_contrato, cumplimiento.acta_comite, cumplimiento.activo_informacion, cumplimiento.alerta_monitoreo_lft, cumplimiento.beneficiario_final, cumplimiento.calificacion_riesgo_cliente, cumplimiento.capacitacion_cumplimiento, cumplimiento.caso_investigacion_lft, cumplimiento.contrato_adhesion, cumplimiento.contrato_tercero, cumplimiento.control_interno, cumplimiento.debida_diligencia, cumplimiento.declaracion_origen_fondos, cumplimiento.declaracion_pep, cumplimiento.designacion_regulatoria, cumplimiento.desvio_perfil, cumplimiento.documento_publicado, cumplimiento.envio_regulatorio, cumplimiento.evaluacion_riesgo_producto, cumplimiento.evaluacion_tercero, cumplimiento.evento_riesgo_operativo, cumplimiento.expediente_cliente, cumplimiento.factor_riesgo_evaluado, cumplimiento.hallazgo_auditoria, cumplimiento.incidente_seguridad, cumplimiento.matriz_riesgo_lft, cumplimiento.observacion_regulatoria, cumplimiento.oficial_cumplimiento, cumplimiento.perfil_transaccional, cumplimiento.plan_accion_riesgo, cumplimiento.plan_continuidad, cumplimiento.politica_interna, cumplimiento.prueba_continuidad, cumplimiento.prueba_control, cumplimiento.punto_reclamo, cumplimiento.reclamo_cliente, cumplimiento.registro_operacion_relevante, cumplimiento.regla_monitoreo_lft, cumplimiento.reporte_regulatorio, cumplimiento.requerimiento_autoridad, cumplimiento.revision_periodica_kyc, direccion_usuario, dispositivo, documento_identidad, entregas.cuenta_bancaria_beneficiario, entregas.entrega_fondo, entregas.historial_estado_entrega, entregas.incidencia_entrega, entregas.validacion_pre_entrega, erp.asiento_plantilla, erp.cierre_periodo_contable, erp.ejercicio_fiscal, erp.estado_financiero_generado, erp.factura_proveedor, erp.orden_compra, erp.pago_a_proveedor, erp.presupuesto, factor_mfa, garantia.abono_recuperacion, garantia.accion_cobranza, garantia.acuerdo_quita, garantia.alerta_temprana, garantia.apelacion_sancion, garantia.aval_participante, garantia.candidato_reemplazo, garantia.capacidad_respaldo, garantia.castigo_deuda, garantia.cobertura_incumplimiento, garantia.cobertura_respaldo, garantia.descargo_participante, garantia.deuda_participante, garantia.evidencia_incumplimiento, garantia.gestion_cobranza, garantia.historial_estado_incumplimiento, garantia.historial_incumplimiento_usuario, garantia.lista_restriccion_interna, garantia.movimiento_fondo, garantia.movimiento_reserva, garantia.promesa_pago, garantia.registro_incumplimiento, garantia.reserva_respaldo, garantia.sancion, garantia.score_riesgo_incumplimiento, grupos.acuerdo, grupos.enlace_grupo, grupos.historial_estado_grupo, grupos.invitacion, grupos.participante, grupos.postulacion_emparejamiento, grupos.reglamento_grupo, grupos.solicitud_ingreso, grupos.sorteo_turnos, historial_credencial, intento_autenticacion, notificaciones.aviso_interno, notificaciones.bandeja_entrada, notificaciones.canal_vinculado, notificaciones.notificacion, nucleo_financiero.asiento_contable, nucleo_financiero.bloqueo_saldo, nucleo_financiero.certificado_saldo, nucleo_financiero.cierre_diario, nucleo_financiero.conciliacion_custodia, nucleo_financiero.cuenta_billetera, nucleo_financiero.descuadre_custodia, nucleo_financiero.evaluacion_antifraude, nucleo_financiero.evidencia_mfa_consumida, nucleo_financiero.instrumento_fondeo, nucleo_financiero.orden_retiro, nucleo_financiero.politica_billetera, nucleo_financiero.regla_antifraude, nucleo_financiero.respuesta_idempotente, nucleo_financiero.retencion_saldo, nucleo_financiero.reverso_transaccion, nucleo_financiero.solicitud_cierre_billetera, nucleo_financiero.solicitud_reverso, nucleo_financiero.transaccion_billetera, organizador.apelacion_sancion_org, organizador.organizador, organizador.sancion_organizador, organizador.solicitud_organizador, perfil_financiero, preferencia_notificacion, publicidad.campana_publicitaria, publicidad.clic_anuncio, publicidad.impresion_anuncio, publicidad.revision_creativa, publicidad.segmento_audiencia, publicidad.socio_comercial, referencia_personal, reputacion_usuario, restriccion_usuario, sesion, solicitud_baja, tarifas.asignacion_tarifario, tarifas.cambio_tarifario, tarifas.campana_promocional, tarifas.cuenta_por_cobrar_comision, tarifas.datos_facturacion, tarifas.devengo_comision, tarifas.devolucion_comision, tarifas.evento_significativo_sin, tarifas.exencion_comision, tarifas.factura_electronica, tarifas.liquidacion_ingresos, tarifas.simulacion_tarifa, token_verificacion, transparencia.certificado_reputacion, transparencia.evento_reputacion, transparencia.insignia_otorgada, transparencia.puntaje_reputacion, transparencia.resena_participante, transparencia.snapshot_reputacion, usuario_interno, verificacion_kyc.",
    "clasificacion": {
     "personales": 6,
     "financieros": 0,
@@ -69827,9 +69847,20 @@
       "obligatoria": true
      }
     ],
-    "entrantes": []
+    "entrantes": [
+     {
+      "columna": "reverso_transaccion_id",
+      "tabla": "solicitud_reverso",
+      "esquema": "nucleo_financiero",
+      "columnaDestino": "id",
+      "restriccion": "fk_solicitud_reverso_reverso_transaccion_id",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "1:1",
+      "obligatoria": false
+     }
+    ]
    },
-   "sistema": "Vive en el esquema nucleo_financiero; la escribe y la lee solo el servicio nucleo-financiero (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de identidad.usuario, transaccion_billetera. Reglas nombradas: uq_reverso_original, ck_reverso_segregacion.",
+   "sistema": "Vive en el esquema nucleo_financiero; la escribe y la lee solo el servicio nucleo-financiero (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de identidad.usuario, transaccion_billetera. La referencian solicitud_reverso. Reglas nombradas: uq_reverso_original, ck_reverso_segregacion.",
    "clasificacion": {
     "personales": 0,
     "financieros": 1,
@@ -70312,6 +70343,215 @@
    ]
   },
   {
+   "tabla": "solicitud_reverso",
+   "esquema": "nucleo_financiero",
+   "tipo": "NEGOCIO",
+   "modulo": "10",
+   "nombreModulo": "Billetera, Custodia y Dinero Electrónico",
+   "servicio": "nucleo-financiero",
+   "appendOnly": false,
+   "negocio": {},
+   "reglas": [
+    "ck_solicitud_reverso_cuatro_ojos",
+    "ck_solicitud_reverso_resuelta",
+    "uq_solicitud_reverso_viva"
+   ],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "transaccion_original_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "transaccion_billetera",
+     "negocio": "Referencia por clave foránea a la entidad transaccion_billetera.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a transaccion_billetera, índice b-tree.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "nucleo_financiero"
+    },
+    {
+     "nombre": "solicitada_por",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "usuario",
+     "negocio": "Referencia por clave foránea a la entidad usuario.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a usuario.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "autorizada_por",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "referencia": "usuario",
+     "negocio": "Referencia por clave foránea a la entidad usuario.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, opcional, referencia a usuario.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "reverso_transaccion_id",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "referencia": "reverso_transaccion",
+     "negocio": "Referencia por clave foránea a la entidad reverso_transaccion.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, opcional, referencia a reverso_transaccion, restricción única.",
+     "sensibilidad": "NINGUNA",
+     "unica": true,
+     "esquemaReferencia": "nucleo_financiero"
+    },
+    {
+     "nombre": "clave_idempotencia",
+     "tipo": "VARCHAR(100)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(100), obligatoria, restricción única.",
+     "sensibilidad": "NINGUNA",
+     "unica": true
+    },
+    {
+     "nombre": "tipo",
+     "tipo": "VARCHAR(25)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Subtipo o modalidad específica que determina las reglas operativas aplicables al registro.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(25), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "motivo",
+     "tipo": "VARCHAR(300)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Justificación declarada o causal que originó la creación, rechazo o transición del registro.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(300), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "estado",
+     "tipo": "VARCHAR(15)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Estado operativo o fase del ciclo de vida en que se encuentra el registro.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(15), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "solicitada_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de solicitada en solicitud_reverso.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "resuelta_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de resuelta en solicitud_reverso.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "transaccion_original_id",
+      "tabla": "transaccion_billetera",
+      "esquema": "nucleo_financiero",
+      "columnaDestino": "id",
+      "restriccion": "fk_solicitud_reverso_transaccion_original_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "solicitada_por",
+      "tabla": "usuario",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_solicitud_reverso_solicitada_por",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "autorizada_por",
+      "tabla": "usuario",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_solicitud_reverso_autorizada_por",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
+     },
+     {
+      "columna": "reverso_transaccion_id",
+      "tabla": "reverso_transaccion",
+      "esquema": "nucleo_financiero",
+      "columnaDestino": "id",
+      "restriccion": "fk_solicitud_reverso_reverso_transaccion_id",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "1:1",
+      "obligatoria": false
+     }
+    ],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema nucleo_financiero; la escribe y la lee solo el servicio nucleo-financiero (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de identidad.usuario, reverso_transaccion, transaccion_billetera. Reglas nombradas: ck_solicitud_reverso_cuatro_ojos, ck_solicitud_reverso_resuelta, uq_solicitud_reverso_viva.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": [
+    {
+     "casoDeUso": "CU-14",
+     "titulo": "Reversar una transacción",
+     "endpoints": [
+      {
+       "servicio": "nucleo-financiero",
+       "metodo": "POST",
+       "ruta": "/billetera/reversos",
+       "operationId": "reversarTransaccion"
+      },
+      {
+       "servicio": "nucleo-financiero",
+       "metodo": "GET",
+       "ruta": "/contabilidad/reversos",
+       "operationId": "listarReversos"
+      }
+     ]
+    }
+   ]
+  },
+  {
    "tabla": "transaccion_billetera",
    "esquema": "nucleo_financiero",
    "tipo": "NEGOCIO",
@@ -70640,6 +70880,16 @@
       "obligatoria": false
      },
      {
+      "columna": "transaccion_original_id",
+      "tabla": "solicitud_reverso",
+      "esquema": "nucleo_financiero",
+      "columnaDestino": "id",
+      "restriccion": "fk_solicitud_reverso_transaccion_original_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
       "columna": "transaccion_id",
       "tabla": "orden_recarga",
       "esquema": "nucleo_financiero",
@@ -70751,7 +71001,7 @@
      }
     ]
    },
-   "sistema": "Vive en el esquema nucleo_financiero; la escribe y la lee solo el servicio nucleo-financiero (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de asiento_contable, grupos.grupo, identidad.dispositivo, identidad.sesion, identidad.usuario. La referencian cumplimiento.alerta_monitoreo_lft, cumplimiento.declaracion_origen_fondos, cumplimiento.registro_operacion_relevante, evaluacion_antifraude, movimiento_billetera, orden_recarga, orden_retiro, qr_transferencia, retencion_saldo, reverso_transaccion, tarifas.cargo_comision, tarifas.costo_proveedor_operacion, tarifas.devolucion_comision, transferencia_p2p. Reglas nombradas: uq_tx_idem, uq_tx_inversion_origen, uq_tx_rescate_origen, uq_tx_compra_mercado_origen, ix_transaccion_ocurrida.",
+   "sistema": "Vive en el esquema nucleo_financiero; la escribe y la lee solo el servicio nucleo-financiero (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de asiento_contable, grupos.grupo, identidad.dispositivo, identidad.sesion, identidad.usuario. La referencian cumplimiento.alerta_monitoreo_lft, cumplimiento.declaracion_origen_fondos, cumplimiento.registro_operacion_relevante, evaluacion_antifraude, movimiento_billetera, orden_recarga, orden_retiro, qr_transferencia, retencion_saldo, reverso_transaccion, solicitud_reverso, tarifas.cargo_comision, tarifas.costo_proveedor_operacion, tarifas.devolucion_comision, transferencia_p2p. Reglas nombradas: uq_tx_idem, uq_tx_inversion_origen, uq_tx_rescate_origen, uq_tx_compra_mercado_origen, ix_transaccion_ocurrida.",
    "clasificacion": {
     "personales": 0,
     "financieros": 1,

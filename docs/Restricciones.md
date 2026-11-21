@@ -384,6 +384,7 @@ ALTER TABLE expediente_cliente
 | R-BIL-24 | Una orden de inversión se debita una sola vez, un rescate se acredita una sola vez y una compra del mercado se paga una sola vez | Integridad del dinero · idempotencia | [[CU-13 Retener y liberar saldo]] |
 | R-BIL-25 | Hay una sola cuenta de custodia de inversión activa por moneda | Integridad del dinero | [[CU-13 Retener y liberar saldo]] |
 | R-BIL-26 | Una retención de inversión o de compra del mercado nombra la orden u oferta que la motiva | Trazabilidad | [[CU-13 Retener y liberar saldo]] |
+| R-BIL-27 | El reverso lo pide una persona y lo autoriza otra, cada una desde su token; una sola solicitud viva por transacción | Cuatro ojos reales (R-SEG-04, P-13) | [[CU-14 Reversar una transacción]] |
 
 ```sql
 -- R-BIL-01 · partida doble interna (diferido: se valida al COMMIT)
@@ -807,6 +808,23 @@ ALTER TABLE cuenta_bancaria_beneficiario
 CREATE UNIQUE INDEX uq_cuenta_benef_principal
   ON cuenta_bancaria_beneficiario (usuario_id)
   WHERE (es_principal);
+
+-- R-BIL-27 · cuatro ojos reales en el reverso (P-13): la solicitud guarda a quien
+-- la pidio; la autorizacion, a otra persona. Ejecutada exige autorizador y reverso.
+ALTER TABLE solicitud_reverso
+  ADD CONSTRAINT ck_solicitud_reverso_cuatro_ojos CHECK (
+      autorizada_por IS NULL OR autorizada_por <> solicitada_por
+  ),
+  ADD CONSTRAINT ck_solicitud_reverso_resuelta CHECK (
+      (estado = 'SOLICITADA' AND autorizada_por IS NULL
+         AND reverso_transaccion_id IS NULL AND resuelta_en IS NULL)
+   OR (estado = 'EJECUTADA' AND autorizada_por IS NOT NULL
+         AND reverso_transaccion_id IS NOT NULL AND resuelta_en IS NOT NULL)
+  );
+
+CREATE UNIQUE INDEX uq_solicitud_reverso_viva
+  ON solicitud_reverso (transaccion_original_id)
+  WHERE estado = 'SOLICITADA';
 ```
 
 ---

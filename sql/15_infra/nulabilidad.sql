@@ -689,6 +689,9 @@ ALTER TABLE nucleo_financiero.saldo_diario_billetera ALTER COLUMN hash_anterior 
 ALTER TABLE nucleo_financiero.solicitud_cierre_billetera ALTER COLUMN aprobada_por DROP NOT NULL;
 ALTER TABLE nucleo_financiero.solicitud_cierre_billetera ALTER COLUMN ejecutada_en DROP NOT NULL;
 ALTER TABLE nucleo_financiero.solicitud_cierre_billetera ALTER COLUMN orden_retiro_id DROP NOT NULL;
+ALTER TABLE nucleo_financiero.solicitud_reverso ALTER COLUMN autorizada_por DROP NOT NULL;
+ALTER TABLE nucleo_financiero.solicitud_reverso ALTER COLUMN resuelta_en DROP NOT NULL;
+ALTER TABLE nucleo_financiero.solicitud_reverso ALTER COLUMN reverso_transaccion_id DROP NOT NULL;
 ALTER TABLE nucleo_financiero.transaccion_billetera ALTER COLUMN asiento_contable_id DROP NOT NULL;
 ALTER TABLE nucleo_financiero.transaccion_billetera ALTER COLUMN dispositivo_id DROP NOT NULL;
 ALTER TABLE nucleo_financiero.transaccion_billetera ALTER COLUMN grupo_id DROP NOT NULL;
