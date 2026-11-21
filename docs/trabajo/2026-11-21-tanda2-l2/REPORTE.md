@@ -48,13 +48,18 @@ camino HTTP. Se borran con el punto 3 (Pendiente).
   aval se retiró de raíz del código: `CU26EjecutarAval`, `TopeDelAval`, la ejecución y la subrogación al avalista
   en `GestionRepositorio`, la configuración `aportaya.aval` y sus pruebas
   ([evidencia](./evidencia/F1.L2.M02-M03-F2.L2.M04-garantia.txt)).
-- Qué no anda: `CU23CubrirIncumplimiento` (con su estado `SOLICITADA` y el umbral `politica_cobertura`) y
-  `CU29DevolverFondo` siguen en el código sin camino HTTP. Las tablas `aval_participante` y `ejecucion_aval`
+- Qué anda además (punto 3): `CU23CubrirIncumplimiento`, `CoberturaAplicable`, los métodos de repositorio que solo
+  ella usaba, el tópico `cobertura_requiere_aprobacion` y la configuración `aportaya.deuda` se retiraron; la ficha
+  CU-23 describe el camino vigente (respaldo, transitorio) y el retiro, con sus tres criterios probados
+  (`CU23Test`, `web/CU23CoberturaManualRetiradaWebTest`). Las pruebas de CU-27, CU-66 y tableros arman el deudor
+  con `FixturaDeDeudor` ([evidencia](./evidencia/F1.L2.M02-cu23-sin-cobertura-manual.txt)).
+- Qué no anda: `CU29DevolverFondo` sigue en el código sin camino HTTP. Nada escribe hoy `cobertura_incumplimiento`
+  ni `deuda_participante` hasta la cobertura del modelo A (F3.L2.M05); CU-27 y CU-66 operan sobre deudas existentes. Las tablas `aval_participante` y `ejecucion_aval`
   siguen en el modelo.
 - Qué falta exactamente:
-  1. M02: retirar `CU23CubrirIncumplimiento`, el estado `SOLICITADA`, el tópico `cobertura_requiere_aprobacion` y
-     `politica_cobertura` del `.puml`. Requiere ajustar los criterios de `docs/CasosDeUso/CU-23` (fuera de alcance),
-     porque `verificar_criterios.py` exige sus pruebas mientras exista una clase `CU23*`.
+  1. M02: contraer el modelo: el estado `SOLICITADA` del CHECK y `politica_cobertura` del `.puml` → DDL (con
+     consulta previa de filas `SOLICITADA` en TEST, como en F1.L2.M09), y `aprobadaPor`/`EntradaCobertura` del
+     contrato. Las integraciones del punto 3 están NO COMPROBADO local: las valida el CI del PR.
   2. M03: la devolución la dispara el evento de cierre de ciclo, con el estado del grupo leído de `grupos` y las
      deudas contadas en el propio esquema (F3.L2.M06).
   3. F2.L2.M04: quitar `aval_participante` y `ejecucion_aval` de `docs/entidades` y R-GAR-04 de

@@ -106,6 +106,36 @@ class CU22Test extends BaseDePozoCompleto {
         assertThat(segundaEntregaDelTurno(c)).contains("uq_entrega_");
     }
 
+    @Test
+    @DisplayName("rechaza por R-GRP-02")
+    void rechazaRGRP02() {
+        // El neto no se escribe a mano: sale de la bolsa menos las deducciones, y nunca es negativo. Un neto inventado
+        // es entregar un importe que nadie puede explicar.
+        var c = caso();
+
+        assertThat(entregaConNeto(c, "5000.00")).contains("ck_entrega_neto");
+        assertThat(entregaConNeto(c, "-1.00")).contains("ck_entrega_neto");
+    }
+
+    private String entregaConNeto(Caso c, String neto) {
+        return rechazaLaBase(
+                """
+                INSERT INTO entregas.entrega_fondo
+                    (id, grupo_id, periodo_id, turno_id, cupo_id, beneficiario_participante_id,
+                     monto_bolsa_bruto, total_deducciones, monto_neto_a_entregar,
+                     monto_efectivamente_entregado, moneda, estado, metodo_desembolso,
+                     fecha_programada, version)
+                VALUES (gen_random_uuid(), ?, ?, ?, ?, ?, 6000.00, 0, ?, 0,
+                        'BOB', 'PROGRAMADA', 'BILLETERA_MOVIL', current_date, 0)
+                """,
+                c.e().grupoId(),
+                c.e().periodoId(),
+                c.e().turnoId(),
+                c.e().cupoId(),
+                c.e().participanteId(),
+                new BigDecimal(neto));
+    }
+
     private String segundaEntregaDelTurno(Caso c) {
         return rechazaLaBase(
                 """
