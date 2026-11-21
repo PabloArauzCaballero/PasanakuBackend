@@ -17,12 +17,14 @@ import org.junit.jupiter.api.Test;
 class CU51SelloEncadenadoTest extends EscenarioDeCierreDiario {
 
     private String selloDe(UUID cuenta, LocalDate fecha, String columna) {
-        return dsl.fetchValue(
-                        "SELECT " + ("hash_anterior".equals(columna) ? "hash_anterior" : "hash_registro")
-                                + " FROM nucleo_financiero.saldo_diario_billetera WHERE cuenta_billetera_id = ? AND fecha = ?",
-                        cuenta,
-                        fecha)
-                .toString();
+        var fila = dsl.fetchOne(
+                """
+                SELECT hash_registro, hash_anterior FROM nucleo_financiero.saldo_diario_billetera
+                 WHERE cuenta_billetera_id = ? AND fecha = ?
+                """,
+                cuenta,
+                fecha);
+        return fila.get("hash_anterior".equals(columna) ? 1 : 0, String.class);
     }
 
     private java.util.Optional<LocalDate> ruptura(UUID cuenta, ContextoSesion ctx) {
