@@ -138,6 +138,15 @@
 - Pactos nuevos (`transparencia → identidad`): no escritos.
 
 ## Desvíos del plan
+- F3.S8.M2a (#486): se editó a mano `sql/50_verificacion/prueba_humo.sql` (51 → 52 tablas selladas). Es el único
+  SQL que `generar_ddl.py` no regenera (`generar_ddl.py:463`) y su comentario pide subir la cifra junto con
+  `APPEND_ONLY`; así lo hizo L1 en 7bb165c2. Causa (`PRODUCT_BUG` propio): #486 selló `parametro_congelado_grupo`
+  sin subir la cifra y el CI marcaba «52 de 51». Tras el cambio: `aplicar.sql` + `prueba_humo.sql`, 138 líneas OK.
+- F3.S8.M2b (#492), CI clasificado y corregido de raíz: `verificar_criterios.py` (11 fallas: nombres de
+  `CU132Test` distintos de los escenarios de la bóveda y reglas sin prueba de rechazo; no se había corrido local) y
+  `SalidasSensiblesBarridoTest` (la constante `CLAVE_REUTILIZADA` se leía como credencial; pasa a
+  `REINTENTO_DISTINTO`). La bóveda de CU-132 suma dos escenarios (aprobación feliz y congelamiento) y deja de citar
+  R-TAR-07 (regla de CU-20). Local: `verificar_criterios.py` y `verificar_boveda.py` OK, barridos en verde.
 - El `PLAN.md` se escribió después de la primera edición de `servicios/grupos/build.gradle.kts` (la reproducción
   y el diagnóstico se hicieron antes). Se registra como desvío de la regla 20.
 
