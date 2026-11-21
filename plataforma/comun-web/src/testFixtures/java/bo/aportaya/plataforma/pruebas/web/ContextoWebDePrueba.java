@@ -6,6 +6,7 @@ import bo.aportaya.plataforma.web.dinero.ConfiguracionDeDinero;
 import bo.aportaya.plataforma.web.errores.ManejadorGlobalDeErrores;
 import bo.aportaya.plataforma.web.errores.TraduccionDeRestricciones;
 import bo.aportaya.plataforma.web.seguridad.ConfiguracionDeSeguridad;
+import bo.aportaya.plataforma.web.seguridad.CuatroOjos;
 import bo.aportaya.plataforma.web.seguridad.GuardiaDePermiso;
 import bo.aportaya.plataforma.web.seguridad.RegistroDeGuardias;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
@@ -44,6 +45,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
     ConfiguracionDeDinero.class,
     CuerposEstrictos.class,
     SesionDeLaPeticion.class,
+    CuatroOjos.class,
     GuardiaDePermiso.class,
     RegistroDeGuardias.class,
     ManejadorGlobalDeErrores.class,
