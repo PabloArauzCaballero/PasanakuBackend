@@ -3,8 +3,9 @@
 > **AVANCE: 3 / 14 — 21,4 %.** (F1.L2.M07 en A MEDIAS: no suma)
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · PR mergeados en `dev`: #419, #421, #422, #424 y #429 (CI de la
-  punta 100 % verde, incluidos los cinco corredores y Frontend). Abierto: `correcciones/tanda2-l2-dinero-entrada`
-  (F1.L2.M04)
+  punta 100 % verde, incluidos los cinco corredores y Frontend). Abiertos, independientes entre sí: #459 (F1.L2.M04),
+  #462 (410 en plataforma, punto 5), #463 (llave de cifrado propia, F1.L2.M07 y punto 1) y #464 (CHECK estrechado en
+  bases existentes, F1.L2.M09 y punto 2). Los puntos 1, 2 y 5 son el alcance que amplió el coordinador.
 - Peldaño de evidencia alcanzado: `TESTED` en L2.S1.M1 (`test` + `webTest` + gates estáticos locales en verde).
   `integrationTest` (Testcontainers) no corre en esta nube: lo corre el CI del PR. Todo lo demás del lote: `UNKNOWN`.
 
@@ -113,7 +114,8 @@
 | F2.L2.M02 | TODO | Después de F2.L2.M01 y del retiro del consumidor de tópicos de respaldo en `nucleo-financiero` (L1) |
 | L2.S1.M2 | TODO | Precondición: L6 y L1 sueltan los consumidores (ver A medias). No es un bloqueo de ejecución: es el paso «contraer» y se hace apenas mergeen |
 | F1.L2.M10 | TODO | Diseño listo, sin código: puerto `RetencionDelPozo.retener(entregaId, neto, clave) → Concedida(retencionId) / SaldoInsuficiente / NoDisponible`, doble en tres niveles (regla 65) y adaptador que falla cerrado hasta que L1 publique la operación en `nucleo-financiero`. La llamada va FUERA de la transacción de `CU28EmitirDesembolso` (invariante 6), así que la emisión se parte en «leer neto» → «retener» → «escribir orden». Depende además de F2.L2.M06 (la emisión deja de ser humana) |
-| F2.L2.M01 | TODO | Retirar `RespaldoEmpresarial`/`RespaldoPorHttp` cambia la conducta del fondeo con faltante y reescribe `CU133PozoCompleto*Test`, cuyos nombres son los criterios gherkin de `docs/CasosDeUso/CU-133` (fuera de alcance, `verificar_criterios.py`). Esas pruebas necesitan Docker. Orden: actualizar CU-133 y después este lote |
+| F2.L2.M01 | TODO | Corrección: no existe ficha `CU-133`, así que nada lo ata a la bóveda. Lo que falta es reescribir `CU133PozoCompleto*Test` (integración, Docker) para el fondeo sin respaldo: el faltante queda pendiente a la espera del fondo del grupo |
+| Punto 3 (bóveda) | TODO | Reescribir CU-22 según ADR-055/056 (pozo completo por fondeo, sin liquidación con deducciones ni cuatro ojos: va junto con F2.L2.M06), sacar de CU-23 la cobertura manual y marcar CU-26 RETIRADO; después borrar `CU22LiquidarEntrega.liquidar`/`ejecutar` y `CU23CubrirIncumplimiento` y reemplazar sus pruebas de integración por las de los criterios nuevos. Conviene hacerlo en una sesión con Docker para correr esas pruebas antes del PR |
 
 ## Evidencia
 
@@ -136,6 +138,12 @@
 - La app móvil sigue llamando a la subasta: hoy recibe 410 y muestra un error genérico (L6).
 
 ## Desvíos del plan
+
+- **Alcance ampliado por el coordinador** (2026-11-21): `plataforma/comun-web` (410 común, #462),
+  `scripts/generar_compose.py` (#463), `scripts/modelo.py` y `generar_ddl.py` (#464). La prueba de #464 destapó que
+  un `DROP`/`ADD` en dos sentencias deja la tabla sin CHECK si el `ADD` falla; los estrechados se emiten en un único
+  `ALTER`. El punto 3 (fichas CU-22, CU-23 y CU-26) quedó sin empezar: ver Pendiente. No hay ficha `CU-133` en la
+  bóveda, así que F2.L2.M01 no depende de ninguna.
 
 - **CI de #419, job Frontend en rojo** (clasificación `PRODUCT_BUG` de este lote, regla 80.4): con `deprecated: true` en
   las operaciones de subasta, el cliente Dart generado marcó los métodos y `apps/movil` (que todavía los llama) falló
