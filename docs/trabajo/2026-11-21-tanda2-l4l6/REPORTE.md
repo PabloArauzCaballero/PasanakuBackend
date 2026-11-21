@@ -10,6 +10,7 @@
   4. `correcciones/tanda2-l4l6-f1l4m25-licencia-alcance` — F1.L4.M25 · PR #432
   5. `correcciones/tanda2-l4l6-f1l4m03-arranque-fail-closed` — F1.L4.M03 · PR #439
   6. `correcciones/tanda2-l4l6-f1l6m12-idempotencia-app` — F1.L6.M12 · PR #442
+  - Independiente, sobre `origin/dev`: `correcciones/tanda2-l4l6-f2-retiro-subasta-app` (pedido de L2: subasta fuera de la app y 410 en el mock) · PR #460.
   - Independiente, sobre `origin/dev`: `correcciones/tanda2-l4l6-osv-npm` (avisos OSV en npm) · PR #435, incorporado en 2–4.
 - Peldaño por área: frontends (`packages/tokens`, `packages/ui`, `packages/diseno_flutter`) **TESTED**; identidad **TESTED** (unitarias, web y barrido verdes; mutante detectado). No VERIFIED: no se levantó el servicio con dos procesos reales.
 

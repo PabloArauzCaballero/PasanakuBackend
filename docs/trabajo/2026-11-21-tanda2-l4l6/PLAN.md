@@ -65,6 +65,7 @@
 | F2.L4.M01 | Retirar la doble aprobación humana de retiros (parte identidad/cumplimiento/apps) | TODO |
 | F2.L4.M02 | Retirar el organizador profesional de identidad y backoffice de cumplimiento | TODO |
 | F2.L6.M13 | Shell del backoffice sin aprobaciones eliminables | TODO |
+| F2.L2-pedido | (Pedido de L2 vía coordinador) App sin subasta; mock sin éxitos de operaciones que responden 410. CA: no queda pantalla ni ruta de subasta y el simulado responde 410. DoD: `dart analyze` + `flutter test` + vitest de simulado | HECHO en PR #460 (`evidencia/f2-retiro-subasta-app-y-mock.txt`, en esa rama) |
 | F2.L6.M14 | Mock, clientes y catálogo regenerados sin respaldo ni aprobaciones | TODO |
 
 ## Riesgos y bloqueos previstos
