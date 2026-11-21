@@ -138,3 +138,26 @@ trabajos (`2026-10-03-alta-fecha-actividad-autocaptura`, `2026-10-14-resolver-co
 este carril. Según DECISIONES P-20, se marcan DESCARTADO en **F0.M1**, en un PR propio que revisa
 Pablo. No se tocaron porque quedan fuera del alcance de archivos de esta sesión.
 Este carril no tiene microtareas en BLOQUEADO ni en EN CURSO.
+
+## CI del PR #412 (run 44865471346) — causas y arreglos
+
+Se mergeó `origin/dev` en la rama (merge, sin force-push). Cada job se reprodujo en local:
+
+| Job | Causa de raíz | Arreglo | Commit |
+|---|---|---|---|
+| La bóveda y el esquema no divergen | (a) `verificar_criterios.py`: 11 pruebas `CU04*Test` sin escenario gherkin en la bóveda. (b) `generar_compose.py --coolify` fallaba: `identidad: MFA_LLAVES` y `MFA_LLAVE_VIGENTE` sin valor. | 11 criterios agregados a CU-04 con el mismo nombre que la prueba · variables en el generador y en `docker-compose.coolify.yml` | `48622b0a`, `36793fbe` |
+| Contratos y clientes generados | `postman/` desactualizado tras el cambio de `identidad.yaml` | `generar_postman.py` | `48622b0a` |
+| Dependencias, secretos e imagen | gitleaks `generic-api-key` sobre la semilla **pública** de los vectores de RFC 6238 (`SemillaTotpTest.java:48`, commit `c21797e9`) | Fingerprint exacto en `.gitleaksignore`, con justificación. No se ignora el archivo ni la regla. | `38a2ed87` |
+| Formato, reglas propias y compilación | `spotlessCheck` rojo en `dev` (16 archivos sin formato desde `d2d8c26b`). Con el formato aplicado aparecen defectos que `dev` tapaba: (1) `SalidasSensiblesBarridoTest` ya fallaba en `dev`: CU21, CU28 y CU12 loguean la clave de idempotencia; (2) `UsuariosInternosRepositorio` llegaba a 300 líneas por F1.S3.M1. | `spotlessApply` · logs con el id de la operación en lugar de la clave (90.2.1) · `liberarBloqueos` pasa a `AccesosRepositorio` | `843fbd3e`, `ceb3ebb6`, `a7490e81` |
+
+**Queda en rojo (escalado, no arreglado):** `servicios/nucleo-financiero/.../CU10RecargarSaldo.java`.
+- Sin formato, como está en `dev`, falla `spotlessCheck`.
+- Formateado llega a 309 líneas y falla `testBarrido` (tamaño ≥ 300). El commit `d2d8c26b` lo había comprimido a mano para no pasar el límite.
+- La raíz es separar una pieza, por ejemplo el record `EntradaSolicitud` a su propio archivo. Eso toca unos 20 archivos de nucleo-financiero, que es código de dinero del carril L1. No se hace sin coordinarlo.
+- De paso: su log `Orden de recarga creada` escribe `monto`, que va contra la regla 90.2.1.
+
+Verificación local tras los arreglos:
+- `spotlessCheck` en verde salvo CU10. `testBarrido` en verde en todos los módulos. `compileJava`, `erroresCatalogo` y `generateOpenApiClients` en verde.
+- Los scripts de bóveda, Postman y compose en verde.
+- comun-web 24 + 53, identidad 87 + 160 e integración CU-04 61/61 contra la Postgres local.
+- gitleaks no se pudo correr en local: la descarga del binario fue denegada. Lo valida el CI.
