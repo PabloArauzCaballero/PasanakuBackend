@@ -1,0 +1,19 @@
+# conteo desde servicios/<s>/build/test-results/test/*.xml tras ./gradlew :servicios:<s>:test
+| Servicio | rc | BUILD | Clases | Pruebas | Fallidas | Errores | Omitidas | Tiempo |
+|---|---|---|---|---|---|---|---|---|
+| aportes | 0 | BUILD SUCCESSFUL in 2m 13s | 11 | 53 | 0 | 0 | 0 | |
+| auditoria | 0 | BUILD SUCCESSFUL in 20s | 13 | 58 | 0 | 0 | 0 | |
+| cumplimiento | 0 | BUILD SUCCESSFUL in 17s | 2 | 14 | 0 | 0 | 0 | |
+| entregas | 0 | BUILD SUCCESSFUL in 26s | 9 | 40 | 0 | 0 | 0 | |
+| erp | 0 | BUILD SUCCESSFUL in 13s | 1 | 5 | 0 | 0 | 0 | |
+| garantia | 0 | BUILD SUCCESSFUL in 25s | 8 | 43 | 0 | 0 | 0 | |
+| grupos | 0 | BUILD SUCCESSFUL in 30s | 18 | 114 | 0 | 0 | 0 | |
+| identidad | 0 | BUILD SUCCESSFUL in 36s | 9 | 46 | 0 | 0 | 0 | |
+| inversiones | 0 | BUILD SUCCESSFUL in 15s | 4 | 36 | 0 | 0 | 0 | |
+| notificaciones | 0 | BUILD SUCCESSFUL in 11s | 1 | 5 | 0 | 0 | 0 | |
+| nucleo-financiero | 0 | BUILD SUCCESSFUL in 26s | 19 | 94 | 0 | 0 | 0 | |
+| organizador | 0 | BUILD SUCCESSFUL in 15s | 2 | 15 | 0 | 0 | 0 | |
+| publicidad | 0 | BUILD SUCCESSFUL in 10s | 1 | 5 | 0 | 0 | 0 | |
+| tarifas | 0 | BUILD SUCCESSFUL in 14s | 2 | 7 | 0 | 0 | 0 | |
+| transparencia | 0 | BUILD SUCCESSFUL in 11s | 3 | 24 | 0 | 0 | 0 | |
+| **Total** | | | 103 | 559 | 0 | 0 | 0 | |

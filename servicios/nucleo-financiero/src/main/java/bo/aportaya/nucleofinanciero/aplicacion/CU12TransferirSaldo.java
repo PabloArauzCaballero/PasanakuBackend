@@ -203,7 +203,8 @@ public class CU12TransferirSaldo {
      * el comprobante viejo como si fuera de esta peticion.
      */
     private SalidaTransferencia repetida(DSLContext dsl, UUID transaccionId, EntradaTransferencia entrada) {
-        BITACORA.info("CU-12 · Transferencia P2P reintento idempotente: clave={}", entrada.claveIdempotencia());
+        // Regla 90.2.1: la clave de idempotencia no se loguea; la transaccion ya la identifica.
+        BITACORA.info("CU-12 · Transferencia P2P reintento idempotente: transaccion={}", transaccionId);
         var previa = transferencias.porTransaccion(dsl, transaccionId).orElseThrow();
         boolean igual = previa.origenId().equals(entrada.cuentaOrigenId())
                 && previa.destinoId().equals(entrada.destinoId())

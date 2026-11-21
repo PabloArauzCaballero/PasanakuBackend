@@ -75,7 +75,7 @@ public class CU10RecargarSaldo {
     }
 
     @Transactional
-    public SalidaSolicitud solicitar(EntradaSolicitud entrada, ContextoSesion ctx) {
+    public SalidaSolicitud solicitar(SolicitudDeRecarga entrada, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
         return datos.conContexto(ctx, dsl -> {
@@ -273,34 +273,6 @@ public class CU10RecargarSaldo {
     public int expirarVencidas(ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
         return datos.conContexto(ctx, dsl -> ordenes.expirarVencidas(dsl, ahora));
-    }
-
-    public record EntradaSolicitud(
-            String claveIdempotencia,
-            UUID cuentaBilleteraId,
-            Dinero monto,
-            Dinero costoProveedor,
-            String medio,
-            Optional<UUID> instrumentoFondeoId,
-            Optional<UUID> cotizacionId) {
-
-        /** Sin cotizacion previa: el costo lo dicta el servidor y no hay aceptacion que registrar. */
-        public EntradaSolicitud(
-                String claveIdempotencia,
-                UUID cuentaBilleteraId,
-                Dinero monto,
-                Dinero costoProveedor,
-                String medio,
-                Optional<UUID> instrumentoFondeoId) {
-            this(
-                    claveIdempotencia,
-                    cuentaBilleteraId,
-                    monto,
-                    costoProveedor,
-                    medio,
-                    instrumentoFondeoId,
-                    Optional.empty());
-        }
     }
 
     public record SalidaSolicitud(UUID ordenRecargaId, String estado, OffsetDateTime expiraEn, Dinero acreditara) {}

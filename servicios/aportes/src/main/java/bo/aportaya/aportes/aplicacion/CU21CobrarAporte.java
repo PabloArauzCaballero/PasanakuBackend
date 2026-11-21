@@ -182,8 +182,9 @@ public class CU21CobrarAporte {
         return pagos.porClaveIdempotencia(dsl, entrada.obligacionId(), entrada.claveIdempotencia())
                 .map(pagoId -> {
                     BITACORA.info(
-                            "CU-21 · Cobro de aporte reintento idempotente: clave={}, obligacion={}",
-                            entrada.claveIdempotencia(),
+                            // Regla 90.2.1: la clave de idempotencia no se loguea; el pago ya la identifica.
+                            "CU-21 · Cobro de aporte reintento idempotente: pago={}, obligacion={}",
+                            pagoId,
                             entrada.obligacionId());
                     var pago = pagos.ver(dsl, pagoId).orElseThrow();
                     var obligacion = obligaciones.ver(dsl, pago.obligacionId()).orElseThrow();

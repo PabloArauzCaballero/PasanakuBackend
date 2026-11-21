@@ -3,8 +3,8 @@ package bo.aportaya.nucleofinanciero;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo.EntradaSolicitud;
 import bo.aportaya.nucleofinanciero.aplicacion.CU11RetirarSaldo.EntradaRetiro;
+import bo.aportaya.nucleofinanciero.aplicacion.SolicitudDeRecarga;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
@@ -50,7 +50,7 @@ class CUFlujoRecargaYRetiroTest extends BaseDeBilletera {
 
     private Dinero recargar(Dinero monto, String clave) {
         var orden = transaccion.execute(t -> recargaCU.solicitar(
-                new EntradaSolicitud(clave, cuenta, monto, Dinero.cero(Moneda.BOB), "QR", Optional.empty()), ctx));
+                new SolicitudDeRecarga(clave, cuenta, monto, Dinero.cero(Moneda.BOB), "QR", Optional.empty()), ctx));
         var acreditada = transaccion.execute(t -> recargaCU.acreditar(
                 orden.ordenRecargaId(), ConfirmacionesDePrueba.para(dsl, orden.ordenRecargaId()), ctx));
         assertThat(patasSumanCero(acreditada.transaccionId())).isTrue();

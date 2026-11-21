@@ -95,3 +95,9 @@ Lo que queda abierto es solo para el abogado o Cumplimiento: [`PREGUNTAS-LEGALES
 | Quién es «el perjudicado» del recargo | **El fondo del grupo.** Si el fondo cubrió la cuota, el recargo vuelve al fondo y se devuelve a todos al cierre. Si alguien tuvo que esperar porque el fondo no alcanzó, el recargo va a quien esperó. Esto precisa la tanda 1 (P-05). |
 | Lo incobrable al cierre | **Primero se compensa** con lo que el fondo le iba a devolver al propio moroso. El resto se reparte en partes iguales **solo entre los que cumplieron**. El moroso no recibe devolución mientras deba. |
 | «Grupo perfecto» | El fondo se devuelve igual al cierre. Si el mismo grupo arma otro ciclo, **aporta un porcentaje menor al fondo** y todos suben de nivel juntos. |
+
+## Tanda 10 (seguridad de dependencias)
+
+| Tema | Decisión |
+|---|---|
+| CVE críticas de Spring (CVE-2026-47884 y CVE-2026-47890 en spring-webmvc 6.2.19, más las otras dos excepciones de OSV) | **Renovar la excepción 30 días (hasta el 2026-12-21) y migrar a Spring Boot 4 / Spring 7 antes de esa fecha.** Se re-verificó el 2026-11-21: no hay parche en 6.2 ni Spring Boot 3.5.17, y el barrido `SpringSinSuperficieVulnerableBarridoTest` pasa 3/3. La migración entra al plan como tarea con fecha límite. |

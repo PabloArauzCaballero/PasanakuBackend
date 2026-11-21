@@ -57,7 +57,7 @@ public class RecargasConProveedor {
         this.qrs = qrs;
     }
 
-    public CU10RecargarSaldo.SalidaSolicitud solicitar(CU10RecargarSaldo.EntradaSolicitud entrada, ContextoSesion ctx) {
+    public CU10RecargarSaldo.SalidaSolicitud solicitar(SolicitudDeRecarga entrada, ContextoSesion ctx) {
         return solicitarConQr(entrada, ctx).salida();
     }
 
@@ -66,7 +66,7 @@ public class RecargasConProveedor {
      * guarda en una transaccion propia DESPUES de hablar con el proveedor: la red nunca va dentro de la
      * transaccion. Si el proveedor no emite QR, la orden sigue valida y el QR viaja vacio.
      */
-    public Solicitada solicitarConQr(CU10RecargarSaldo.EntradaSolicitud entrada, ContextoSesion ctx) {
+    public Solicitada solicitarConQr(SolicitudDeRecarga entrada, ContextoSesion ctx) {
         // El precio lo dicta tarifas y se confirma contra la cotizacion que la persona vio. Un reintento
         // de una orden ya abierta no exige una cotizacion vigente: ya se acepto la primera vez.
         var costo = cotizaciones.confirmar(
@@ -77,7 +77,7 @@ public class RecargasConProveedor {
                 entrada.cotizacionId(),
                 existentes.recarga(entrada.cuentaBilleteraId(), entrada.claveIdempotencia(), ctx));
         var salida = recargas.solicitar(
-                new CU10RecargarSaldo.EntradaSolicitud(
+                new SolicitudDeRecarga(
                         entrada.claveIdempotencia(),
                         entrada.cuentaBilleteraId(),
                         entrada.monto(),
