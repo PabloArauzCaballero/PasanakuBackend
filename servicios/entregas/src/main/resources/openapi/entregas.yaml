@@ -32,6 +32,7 @@
 #   AP-CU28-05  ORDEN_YA_EXISTE       · la orden no existe (el duplicado devuelve la que hay)
 #   AP-CU28-06  RECHAZO_DEFINITIVO    · error que no se reintenta
 #   AP-CU28-07  FILTRO_DE_LISTADO_INVALIDO · estado desconocido o cursor a medias (backoffice carril A · H8)
+#   AP-CU28-08  RESPUESTA_MANUAL_RETIRADA · 410: la respuesta del proveedor ya no la anota una persona (F1.L2.M05)
 #
 # CU-22 (pozo completo) · Fondear el pozo: caja confirmada + respaldo empresarial (carril C, H8)
 #   AP-CU22-06  RECAUDO_NO_DISPONIBLE  · aportes no responde: no se fondea nada
@@ -57,7 +58,7 @@
 openapi: 3.1.0
 info:
   title: entregas
-  version: 2.0.0
+  version: 2.1.0
   description: >-
     Servicio entregas. Un caso de uso = una operacion, con el codigo CU en el
     operationId. Los importes viajan como CADENA decimal, nunca como number.
@@ -79,6 +80,10 @@ info:
     que salen el enmascarado y el hash; un cuerpo que todavia mande `numeroCifrado` recibe 400 (campo no
     declarado). Sin convivencia a proposito: aceptar el campo es justo la vulnerabilidad. Ningun cliente del
     monorepo lo enviaba (busqueda en apps/, packages/ y clientes/ sin resultados).
+
+
+    2.1.0 (2026-11-21) · F1.L2.M05 (SEG-005): `anotarRespuestaDesembolso` queda `deprecated` y responde 410
+    AP-CU28-08. Ninguna persona marca un desembolso como acreditado; lo hara el aviso firmado del proveedor.
 
 servers:
   - url: /api/v1
@@ -319,8 +324,13 @@ paths:
   /desembolsos/{ordenId}/respuesta:
     post:
       operationId: anotarRespuestaDesembolso    # CU-28
-      summary: Registrar lo que contesto el proveedor
+      deprecated: true
+      summary: Registrar lo que contesto el proveedor (RETIRADA, responde 410)
       description: >-
+        RETIRADA en 2.1.0 (F1.L2.M05, SEG-005): una persona no puede afirmar que la plata llego. Responde 410
+        AP-CU28-08 sin efecto. La unica via a ACREDITADA es el aviso firmado del proveedor (F3.L2.M02). Se borra
+        del contrato cuando el backoffice deje de llamarla.
+
         La llamada al proveedor la hace quien orquesta, FUERA de esta transaccion
         (invariante 6). Un error definitivo NO se reintenta: insistir contra una cuenta
         que no existe solo demora el momento en que alguien mira el caso, mientras la
@@ -341,6 +351,9 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/SalidaIntentoDesembolso' }
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU28-08: retirada por F1.L2.M05 (2026-11-21), sin efecto
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
   /entregas/pozo-completo:

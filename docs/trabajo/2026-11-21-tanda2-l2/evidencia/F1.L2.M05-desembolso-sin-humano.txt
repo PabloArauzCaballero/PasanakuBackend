@@ -1,0 +1,13 @@
+$ ./gradlew :servicios:entregas:compileTestJava :servicios:entregas:test :servicios:entregas:webTest :servicios:entregas:check -x test ... :servicios:entregas:testBarrido
+BUILD SUCCESSFUL in 19s
+test: 21/0 fallas · webTest: 66/0 fallas
+DesembolsosControllerWebTest: "un éxito anotado por una persona responde 410 y no acredita ni publica nada" PASS (verifyNoInteractions(cu28): sin ACREDITADA ni desembolso_acreditado)
+DesembolsosControllerWebTest: "tampoco se anota un fallo a mano" PASS
+$ python3 scripts/verificar_criterios.py
+Sin divergencias entre la boveda y el codigo.
+$ python3 scripts/verificar_pruebas_web.py
+La capa web esta cubierta segun ADR-043.
+$ python3 scripts/verificar_seguridad.py
+TODO OK · 5 aviso(s)
+$ python3 scripts/verificar_boveda.py
+TODO OK
