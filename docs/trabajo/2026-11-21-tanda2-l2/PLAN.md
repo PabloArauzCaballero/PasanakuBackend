@@ -63,7 +63,7 @@ los pisos de cobertura sin cambios. **Estado:** A MEDIAS
 | F2.L2.M09 | Mercado de ofertas | Se resuelve con L2.S1.M1 | — | HECHO (con L2.S1.M1) |
 | F2.L2.M01 | Respaldo empresarial en entregas | `grep -rn Respaldo servicios/entregas/src` vacío | suites | TODO (precondición: CU-133 de la bóveda) |
 | F2.L2.M02 | Respaldo empresarial en garantía | Rutas `/garantia/respaldo/*` 410 | suites | TODO (después de F2.L2.M01) |
-| F2.L2.M04 | Aval entre participantes | 410 y sin código | suites | A MEDIAS (código retirado; faltan tablas y CU-26) |
+| F2.L2.M04 | Aval entre participantes | 410 y sin código | suites | A MEDIAS (código retirado y CU-26 marcado RETIRADO, evidencia/F2.L2.M04-cu26-retirado.txt; faltan las tablas) |
 
 ## Riesgos y bloqueos previstos
 
