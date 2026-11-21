@@ -36,7 +36,7 @@ Las **28 tablas** de este módulo. Justificación de negocio en [[10_billetera_c
 | [[respuesta_idempotente]] | 9 | 1 | 0 |
 | [[regla_antifraude]] | 10 | 1 | 0 |
 | [[evaluacion_antifraude]] | 11 | 3 | 0 |
-| [[bloqueo_saldo]] | 15 | 3 | 1 |
+| [[bloqueo_saldo]] | 16 | 4 | 1 |
 | [[estado_cuenta_billetera]] | 13 | 1 | 0 |
 | [[certificado_saldo]] | 10 | 2 | 0 |
 | [[solicitud_cierre_billetera]] | 10 | 3 | 0 |

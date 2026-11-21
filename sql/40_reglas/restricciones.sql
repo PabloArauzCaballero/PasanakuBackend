@@ -797,6 +797,27 @@ ALTER TABLE extracto_bancario DROP CONSTRAINT IF EXISTS ck_extracto_bancario_mon
 ALTER TABLE extracto_bancario
   ADD CONSTRAINT ck_extracto_bancario_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
 
+-- R-BIL-30 · una sola salida por estado (F1.L1.M08). El pago y el reembolso son
+-- append-only (R-AUD-01); su estado cambia agregando una fila de historial. Dos
+-- transiciones simultaneas desde el mismo estado chocan aca, no en un if previo.
+CREATE UNIQUE INDEX IF NOT EXISTS uq_historial_estado_pago_salida
+  ON historial_estado_pago (pago_id, estado_anterior);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_historial_estado_reembolso_salida
+  ON historial_estado_reembolso (reembolso_id, estado_anterior);
+
+-- R-BIL-31 · un alta de proveedor por clave (F1.L1.M09). Parcial por las filas de antes,
+-- que no la tienen; toda alta nueva la escribe (CU-99).
+CREATE UNIQUE INDEX IF NOT EXISTS uq_proveedor_pago_clave
+  ON proveedor_pago (clave_idempotencia)
+  WHERE clave_idempotencia IS NOT NULL;
+
+-- R-BIL-32 · cuatro ojos en el bloqueo por autoridad (F1.L1.M10). registrado_por llega
+-- por 15_infra/columnas_agregadas.sql; NULL solo en las filas de antes.
+ALTER TABLE bloqueo_saldo DROP CONSTRAINT IF EXISTS ck_bloqueo_saldo_cuatro_ojos;
+ALTER TABLE bloqueo_saldo
+  ADD CONSTRAINT ck_bloqueo_saldo_cuatro_ojos
+  CHECK (levantada_por IS NULL OR registrado_por IS NULL OR levantada_por <> registrado_por);
+
 
 -- ---------------------------------------------------------------------
 -- R-LIM — Límites operativos

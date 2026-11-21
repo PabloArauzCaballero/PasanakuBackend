@@ -6,8 +6,8 @@ tabla: bloqueo_saldo
 clase: BloqueoSaldo
 modulo: "10 — Billetera, Custodia y Dinero Electrónico"
 clave_primaria: [id]
-columnas: 15
-fk_salientes: 3
+columnas: 16
+fk_salientes: 4
 fk_entrantes: 1
 append_only: false
 ---
@@ -24,6 +24,7 @@ append_only: false
 | `cuenta_billetera_id` | UUID | FK IDX | no | FK, IDX |
 | `retencion_id` | UUID | FK | sí | FK, NULL |
 | `levantada_por` | UUID | FK | sí | FK, NULL |
+| `registrado_por` | UUID | FK | sí | FK, NULL |
 | `autoridad` | VARCHAR(20) | — | no | CK |
 | `tipo_orden` | VARCHAR(30) | — | no | CK |
 | `numero_oficio` | VARCHAR(60) | UQ | no | — |
@@ -42,6 +43,7 @@ append_only: false
 
 | Regla | Tipo | Columnas |
 | --- | :-: | --- |
+| `ck_bloqueo_saldo_cuatro_ojos` | CHECK | `levantada_por`, `registrado_por` |
 | `uq_bloqueo_oficio` | UNIQUE | `numero_oficio` |
 
 ## Claves foráneas salientes
@@ -50,6 +52,7 @@ append_only: false
 | --- | --- | :-: | :-: | --- |
 | `cuenta_billetera_id` | [[cuenta_billetera]] | 10 | no | [[bloqueo_saldo.cuenta_billetera_id → cuenta_billetera]] |
 | `levantada_por` | [[usuario]] | ↗ 01 | sí | [[bloqueo_saldo.levantada_por → usuario]] |
+| `registrado_por` | [[usuario]] | ↗ 01 | sí | [[bloqueo_saldo.registrado_por → usuario]] |
 | `retencion_id` | [[retencion_saldo]] | 10 | sí | [[bloqueo_saldo.retencion_id → retencion_saldo]] |
 
 ## Referenciada por

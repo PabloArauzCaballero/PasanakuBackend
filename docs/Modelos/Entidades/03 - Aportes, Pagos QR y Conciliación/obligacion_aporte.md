@@ -32,10 +32,10 @@ append_only: false
 | `tipo` | VARCHAR(30) | — | no | CK |
 | `monto_esperado` | DECIMAL(14,2) | — | no | CK: > 0 |
 | `moneda` | CHAR(3) | — | no | — |
-| `monto_pagado` | DECIMAL(14,2) | — | no | — |
-| `monto_recargo` | DECIMAL(14,2) | — | no | — |
-| `monto_condonado` | DECIMAL(14,2) | — | no | — |
-| `monto_cubierto_garantia` | DECIMAL(14,2) | — | no | — |
+| `monto_pagado` | DECIMAL(14,2) | — | no | CK: >= 0 |
+| `monto_recargo` | DECIMAL(14,2) | — | no | CK: >= 0 |
+| `monto_condonado` | DECIMAL(14,2) | — | no | CK: >= 0 |
+| `monto_cubierto_garantia` | DECIMAL(14,2) | — | no | CK: >= 0 |
 | `saldo_pendiente` | DECIMAL(14,2) | — | no | GENERATED |
 | `estado` | VARCHAR(30) | IDX | no | CK, IDX |
 | `fecha_vencimiento` | DATE | IDX | no | IDX |

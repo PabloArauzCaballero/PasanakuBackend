@@ -3,12 +3,12 @@ tags:
   - moc
   - modulo/10-billetera-custodia-y-dinero-electronico
 modulo: "10 — Billetera, Custodia y Dinero Electrónico"
-relaciones_fk: 64
+relaciones_fk: 69
 ---
 
 # 10 — Billetera, Custodia y Dinero Electrónico · relaciones
 
-Las **64 claves foráneas** que salen de las tablas de este módulo.
+Las **69 claves foráneas** que salen de las tablas de este módulo.
 
 [[_Relaciones|← Todas las relaciones]] · [[Index]]
 
@@ -16,6 +16,7 @@ Las **64 claves foráneas** que salen de las tablas de este módulo.
 | --- | --- | :-: | :-: |
 | [[bloqueo_saldo.cuenta_billetera_id → cuenta_billetera]] | [[cuenta_billetera]] | — | no |
 | [[bloqueo_saldo.levantada_por → usuario]] | [[usuario]] | ↗ 01 | sí |
+| [[bloqueo_saldo.registrado_por → usuario]] | [[usuario]] | ↗ 01 | sí |
 | [[bloqueo_saldo.retencion_id → retencion_saldo]] | [[retencion_saldo]] | — | sí |
 | [[certificado_saldo.cuenta_billetera_id → cuenta_billetera]] | [[cuenta_billetera]] | — | no |
 | [[certificado_saldo.solicitado_por → usuario]] | [[usuario]] | ↗ 01 | no |
@@ -68,6 +69,10 @@ Las **64 claves foráneas** que salen de las tablas de este módulo.
 | [[solicitud_cierre_billetera.aprobada_por → usuario]] | [[usuario]] | ↗ 01 | sí |
 | [[solicitud_cierre_billetera.cuenta_billetera_id → cuenta_billetera]] | [[cuenta_billetera]] | — | no |
 | [[solicitud_cierre_billetera.orden_retiro_id → orden_retiro]] | [[orden_retiro]] | — | sí |
+| [[solicitud_reverso.autorizada_por → usuario]] | [[usuario]] | ↗ 01 | sí |
+| [[solicitud_reverso.reverso_transaccion_id → reverso_transaccion]] | [[reverso_transaccion]] | — | sí |
+| [[solicitud_reverso.solicitada_por → usuario]] | [[usuario]] | ↗ 01 | no |
+| [[solicitud_reverso.transaccion_original_id → transaccion_billetera]] | [[transaccion_billetera]] | — | no |
 | [[transaccion_billetera.asiento_contable_id → asiento_contable]] | [[asiento_contable]] | ↗ 03 | sí |
 | [[transaccion_billetera.dispositivo_id → dispositivo]] | [[dispositivo]] | ↗ 01 | sí |
 | [[transaccion_billetera.grupo_id → grupo]] | [[grupo]] | ↗ 02 | sí |

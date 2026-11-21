@@ -47,7 +47,8 @@ class CU99Test extends BaseDeAportes {
                 consultaEstado,
                 prioridad,
                 true,
-                true);
+                true,
+                "alta-" + java.util.UUID.randomUUID());
     }
 
     @Test
@@ -120,7 +121,8 @@ class CU99Test extends BaseDeAportes {
                 true,
                 1,
                 true,
-                true);
+                true,
+                "alta-" + java.util.UUID.randomUUID());
 
         assertThatThrownBy(() -> transaccion.execute(t -> proveedorCU.darDeAlta(conSecreto, ctx)))
                 .isInstanceOf(ErrorDeNegocio.class)
@@ -206,7 +208,8 @@ class CU99Test extends BaseDeAportes {
                 true,
                 1,
                 false,
-                true);
+                true,
+                "alta-" + java.util.UUID.randomUUID());
         EntradaAlta sinPruebas = new EntradaAlta(
                 "sinpruebas",
                 "Sin pruebas",
@@ -219,7 +222,8 @@ class CU99Test extends BaseDeAportes {
                 true,
                 1,
                 true,
-                false);
+                false,
+                "alta-" + java.util.UUID.randomUUID());
 
         assertThatThrownBy(() -> transaccion.execute(t -> proveedorCU.darDeAlta(sinContrato, ctx)))
                 .hasMessageContaining("contrato de tercero vigente");

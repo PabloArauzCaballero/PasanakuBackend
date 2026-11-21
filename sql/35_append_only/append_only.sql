@@ -148,6 +148,16 @@ CREATE TRIGGER tg_historial_estado_incumplimiento_append_only
   BEFORE UPDATE OR DELETE ON garantia.historial_estado_incumplimiento
   FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
 
+DROP TRIGGER IF EXISTS tg_historial_estado_pago_append_only ON aportes.historial_estado_pago;
+CREATE TRIGGER tg_historial_estado_pago_append_only
+  BEFORE UPDATE OR DELETE ON aportes.historial_estado_pago
+  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
+
+DROP TRIGGER IF EXISTS tg_historial_estado_reembolso_append_only ON aportes.historial_estado_reembolso;
+CREATE TRIGGER tg_historial_estado_reembolso_append_only
+  BEFORE UPDATE OR DELETE ON aportes.historial_estado_reembolso
+  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
+
 DROP TRIGGER IF EXISTS tg_impresion_anuncio_append_only ON publicidad.impresion_anuncio;
 CREATE TRIGGER tg_impresion_anuncio_append_only
   BEFORE UPDATE OR DELETE ON publicidad.impresion_anuncio
@@ -183,6 +193,11 @@ CREATE TRIGGER tg_movimiento_reserva_append_only
   BEFORE UPDATE OR DELETE ON garantia.movimiento_reserva
   FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
 
+DROP TRIGGER IF EXISTS tg_pago_append_only ON aportes.pago;
+CREATE TRIGGER tg_pago_append_only
+  BEFORE UPDATE OR DELETE ON aportes.pago
+  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
+
 DROP TRIGGER IF EXISTS tg_pago_a_proveedor_append_only ON erp.pago_a_proveedor;
 CREATE TRIGGER tg_pago_a_proveedor_append_only
   BEFORE UPDATE OR DELETE ON erp.pago_a_proveedor
@@ -191,6 +206,11 @@ CREATE TRIGGER tg_pago_a_proveedor_append_only
 DROP TRIGGER IF EXISTS tg_recuperacion_respaldo_append_only ON garantia.recuperacion_respaldo;
 CREATE TRIGGER tg_recuperacion_respaldo_append_only
   BEFORE UPDATE OR DELETE ON garantia.recuperacion_respaldo
+  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
+
+DROP TRIGGER IF EXISTS tg_reembolso_append_only ON aportes.reembolso;
+CREATE TRIGGER tg_reembolso_append_only
+  BEFORE UPDATE OR DELETE ON aportes.reembolso
   FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
 
 DROP TRIGGER IF EXISTS tg_registro_acceso_datos_append_only ON comun.registro_acceso_datos;

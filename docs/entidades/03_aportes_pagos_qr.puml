@@ -213,6 +213,7 @@ package "Cobro: QR y ordenes" {
     - soportaConsultaEstado: Boolean
     - activo: Boolean
     - prioridad: Integer
+    - claveIdempotencia: String
     --
     + generarQR(orden): QRCobro
     + consultarEstado(referencia): EstadoTransaccion
@@ -295,6 +296,24 @@ package "Ejecucion del Pago" {
     + reversar(motivo): Reembolso
     + generarConstancia(): ConstanciaPago
     + aplicarAObligacion()
+  }
+
+  class HistorialEstadoPago {
+    - id: UUID
+    - pagoId: UUID
+    - estadoAnterior: EstadoPago
+    - estadoNuevo: EstadoPago
+    - motivo: String
+    - fechaHora: DateTime
+  }
+
+  class HistorialEstadoReembolso {
+    - id: UUID
+    - reembolsoId: UUID
+    - estadoAnterior: String
+    - estadoNuevo: String
+    - ejecutadoPor: UUID
+    - fechaHora: DateTime
   }
 
   class Reembolso {
@@ -559,6 +578,8 @@ OrdenCobro "*" --> "1" ProveedorPago
 IntentoPago "1" *-- "0..1" Pago
 Pago "1" *-- "0..1" ConstanciaPago
 Pago "1" *-- "0..*" Reembolso
+Pago "1" *-- "0..*" HistorialEstadoPago
+Reembolso "1" *-- "0..*" HistorialEstadoReembolso
 Pago "1" *-- "0..*" DisputaPago
 Pago "1" *-- "0..1" Conciliacion
 
@@ -720,6 +741,7 @@ entity "proveedor_pago" as prov {
   soporta_consulta_estado : BOOLEAN
   activo : BOOLEAN
   prioridad : SMALLINT
+  clave_idempotencia : VARCHAR(100) <<NULL>>
 }
 
 entity "orden_cobro" as orden {
@@ -835,6 +857,26 @@ entity "reembolso" as reemb {
   clave_idempotencia : VARCHAR(100) <<NULL>>
   fecha_solicitud : TIMESTAMPTZ
   fecha_ejecucion : TIMESTAMPTZ <<NULL>>
+}
+
+entity "historial_estado_pago" as histpago {
+  * id : UUID <<PK>>
+  --
+  # pago_id : UUID <<FK, IDX>>
+  estado_anterior : VARCHAR(15)
+  estado_nuevo : VARCHAR(15)
+  motivo : VARCHAR(200)
+  fecha_hora : TIMESTAMPTZ
+}
+
+entity "historial_estado_reembolso" as histreemb {
+  * id : UUID <<PK>>
+  --
+  # reembolso_id : UUID <<FK, IDX>>
+  estado_anterior : VARCHAR(15)
+  estado_nuevo : VARCHAR(15)
+  # ejecutado_por : UUID <<FK>>
+  fecha_hora : TIMESTAMPTZ
 }
 
 entity "disputa_pago" as disp {
@@ -1007,6 +1049,8 @@ intento ||--o| pago : "produce"
 pago ||--o| comp : "respalda (manual)"
 pago ||--o| constancia : "certifica"
 pago ||--o{ reemb : "devuelve"
+pago ||--o{ histpago : "transiciona"
+reemb ||--o{ histreemb : "transiciona"
 pago ||--o{ disp : "disputa"
 pago ||--o| conc : "concilia"
 conc }o--o| movban : "cruza con"

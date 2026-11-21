@@ -46,6 +46,7 @@ ALTER TABLE aportes.pago ALTER COLUMN pagador_nombre DROP NOT NULL;
 ALTER TABLE aportes.pago ALTER COLUMN proveedor_id DROP NOT NULL;
 ALTER TABLE aportes.pago ALTER COLUMN registrado_por DROP NOT NULL;
 ALTER TABLE aportes.politica_mora ALTER COLUMN grupo_id DROP NOT NULL;
+ALTER TABLE aportes.proveedor_pago ALTER COLUMN clave_idempotencia DROP NOT NULL;
 ALTER TABLE aportes.reembolso ALTER COLUMN aprobado_por DROP NOT NULL;
 ALTER TABLE aportes.reembolso ALTER COLUMN clave_idempotencia DROP NOT NULL;
 ALTER TABLE aportes.reembolso ALTER COLUMN fecha_ejecucion DROP NOT NULL;
@@ -627,6 +628,7 @@ ALTER TABLE nucleo_financiero.asiento_contable ALTER COLUMN registrado_por DROP 
 ALTER TABLE nucleo_financiero.bloqueo_saldo ALTER COLUMN levantada_por DROP NOT NULL;
 ALTER TABLE nucleo_financiero.bloqueo_saldo ALTER COLUMN levantado_en DROP NOT NULL;
 ALTER TABLE nucleo_financiero.bloqueo_saldo ALTER COLUMN monto_bloqueado DROP NOT NULL;
+ALTER TABLE nucleo_financiero.bloqueo_saldo ALTER COLUMN registrado_por DROP NOT NULL;
 ALTER TABLE nucleo_financiero.bloqueo_saldo ALTER COLUMN retencion_id DROP NOT NULL;
 ALTER TABLE nucleo_financiero.bloqueo_saldo ALTER COLUMN vence_en DROP NOT NULL;
 ALTER TABLE nucleo_financiero.cierre_diario ALTER COLUMN reabierto_en DROP NOT NULL;

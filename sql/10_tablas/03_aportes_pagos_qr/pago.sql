@@ -1,5 +1,6 @@
 -- pago · módulo 03 — Aportes, Pagos QR y Conciliación
 -- clase de dominio: Pago
+-- APPEND-ONLY: sin UPDATE ni DELETE (ver sql/40_reglas)
 -- Generado por scripts/generar_ddl.py — no editar a mano.
 
 CREATE TABLE IF NOT EXISTS aportes.pago (
@@ -38,7 +39,7 @@ ALTER TABLE aportes.pago ADD CONSTRAINT ck_pago_monto_comision_proveedor CHECK (
 ALTER TABLE aportes.pago DROP CONSTRAINT IF EXISTS ck_pago_monto_neto_acreditado;
 ALTER TABLE aportes.pago ADD CONSTRAINT ck_pago_monto_neto_acreditado CHECK (monto_neto_acreditado >= 0);
 
-COMMENT ON TABLE aportes.pago IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Plata que efectivamente se movió. El hecho económico.';
+COMMENT ON TABLE aportes.pago IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. [append-only] Plata que efectivamente se movió. El hecho económico.';
 COMMENT ON COLUMN aportes.pago.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN aportes.pago.obligacion_id IS 'FK, IDX';
 COMMENT ON COLUMN aportes.pago.intento_pago_id IS 'FK, NULL, UQ';
