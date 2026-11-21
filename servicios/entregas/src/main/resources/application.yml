@@ -52,6 +52,9 @@ aportaya:
   seguridad:
     pimienta: ${SEGURIDAD_PIMIENTA}
     version-llave: 1
+    # F1.L2.M07 (SEG-007): la llave que cifra el numero de cuenta, distinta de la pimienta del hash. Sin valor por
+    # defecto a proposito: si falta, o si es igual a la pimienta, el proceso NO levanta (regla 90.3.4).
+    llave-cifrado-cuentas: ${ENTREGAS_LLAVE_CIFRADO_CUENTAS}
   cuentas:
     # Diez destinos distintos para la misma persona son un patron, no una comodidad.
     maximo-por-usuario: 3

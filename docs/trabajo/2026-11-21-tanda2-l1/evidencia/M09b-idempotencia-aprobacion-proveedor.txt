@@ -1,0 +1,37 @@
+F1.L1.M09 (parte 2) · idempotencia de la aprobacion del reembolso y del alta de proveedor
+Fecha: 2026-11-21 · Rama: correcciones/tanda2-l1-idempotencia-aprobacion-proveedor (apilada sobre #455)
+
+--- fuente de verdad
+puml 03: proveedor_pago.clave_idempotencia VARCHAR(100) <<NULL>> (COLUMNAS_AGREGADAS: expandir)
+Restricciones.md: R-BIL-31 · uq_proveedor_pago_clave (clave_idempotencia) WHERE clave_idempotencia IS NOT NULL
+CU-99 cita R-BIL-31. $ python3 scripts/generar_ddl.py -> Sin pendientes a nivel de datos.
+Migracion: previo exit=0 · nuevo encima exit=0 · re-aplicado exit=0
+
+--- comportamiento
+Alta (CU-99): pg_advisory_xact_lock por clave + busqueda por clave; misma clave y mismo codigo -> el mismo proveedor;
+  misma clave y otro codigo -> AP-CU99-01. PagosController pasa el Idempotency-Key (antes se descartaba).
+Aprobacion (CU-19): la clave natural es el reembolso (una sola salida de SOLICITADO, R-BIL-30). Si quien reintenta es
+  quien ya lo ejecuto, recibe la misma SalidaEjecucion sin mover nada; cualquier otra persona recibe AP-CU19-03.
+
+--- integracion (PostgreSQL 16 local, base limpia)
+$ ./gradlew :servicios:aportes:integrationTest
+151 tests completed, 3 failed -> 148 PASS; los 3 son AislamientoEsquemaTest y ArranqueTest (Docker: ENVIRONMENT,
+NO COMPROBADO aca — requiere Docker).
+CU99IdempotenciaTest 4/4: reintento en serie (mismo id, 1 fila, 1 evento) · 4 altas concurrentes (1 id, 1 fila) ·
+  clave reusada para otro codigo -> rechazo · la base rechaza dos filas con la misma clave (uq_proveedor_pago_clave).
+CU19IdempotenciaTest 6/6 (+2): reintento de la aprobacion -> misma respuesta, 1 fila de historial, 1 evento,
+  monto_pagado 60 (se movio una vez) · otra persona sobre el reembolso ejecutado -> "ya no esta solicitado".
+CU19Test.concurrencia: actualizado al requisito nuevo (el mismo aprobador recibe la misma respuesta; otra persona
+  recibe el rechazo); la asercion de efecto unico (monto_pagado 300) se conserva.
+$ ./gradlew :servicios:aportes:spotlessCheck :servicios:aportes:test :servicios:aportes:webTest :servicios:auditoria:test -> exit=0
+
+--- control negativo (mutante: sin las dos ramas de idempotencia)
+19 tests completed, 5 failed: los dos reintentos de alta, la concurrencia del alta, la clave reusada, el reintento
+de la aprobacion y CU19Test.concurrencia. Codigo restaurado.
+
+--- verificadores
+verificar_boveda TODO OK (182 restricciones) · verificar_seguridad TODO OK · verificar_criterios sin divergencias ·
+verificar_narrativas sin fallas.
+
+No cubierto: la aprobacion no persiste el valor del Idempotency-Key (la idempotencia es por estado + actor); un
+reintento con otra clave del mismo aprobador tambien recibe la misma respuesta. Decision registrada en el REPORTE.

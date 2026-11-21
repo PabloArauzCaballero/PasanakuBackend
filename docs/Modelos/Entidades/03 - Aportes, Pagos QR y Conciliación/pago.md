@@ -9,7 +9,7 @@ estereotipo: Raíz de agregado
 clave_primaria: [id]
 columnas: 19
 fk_salientes: 4
-fk_entrantes: 10
+fk_entrantes: 11
 append_only: false
 ---
 
@@ -27,8 +27,8 @@ append_only: false
 | `proveedor_id` | UUID | FK IDX | sí | FK, NULL, IDX |
 | `monto` | DECIMAL(14,2) | — | no | CK: > 0 |
 | `moneda` | CHAR(3) | — | no | — |
-| `monto_comision_proveedor` | DECIMAL(10,2) | — | no | — |
-| `monto_neto_acreditado` | DECIMAL(14,2) | — | no | — |
+| `monto_comision_proveedor` | DECIMAL(10,2) | — | no | CK: >= 0 |
+| `monto_neto_acreditado` | DECIMAL(14,2) | — | no | CK: >= 0 |
 | `canal` | VARCHAR(30) | — | no | CK |
 | `estado` | VARCHAR(15) | IDX | no | CK, IDX |
 | `fecha_hora_pago` | TIMESTAMPTZ | IDX | no | IDX |
@@ -68,6 +68,7 @@ append_only: false
 | [[constancia_pago]] | `pago_id` | 03 | [[constancia_pago.pago_id → pago]] |
 | [[disputa_pago]] | `pago_id` | 03 | [[disputa_pago.pago_id → pago]] |
 | [[ejecucion_aval]] | `pago_id` | ↗ 08 | [[ejecucion_aval.pago_id → pago]] |
+| [[historial_estado_pago]] | `pago_id` | 03 | [[historial_estado_pago.pago_id → pago]] |
 | [[orden_recarga]] | `pago_id` | ↗ 10 | [[orden_recarga.pago_id → pago]] |
 | [[recuperacion_respaldo]] | `pago_id` | ↗ 08 | [[recuperacion_respaldo.pago_id → pago]] |
 | [[reembolso]] | `pago_id` | 03 | [[reembolso.pago_id → pago]] |
@@ -75,7 +76,7 @@ append_only: false
 
 ## Entidades vecinas
 
-[[abono_recuperacion]] · [[comprobante_manual]] · [[conciliacion]] · [[constancia_pago]] · [[disputa_pago]] · [[ejecucion_aval]] · [[intento_pago]] · [[obligacion_aporte]] · [[orden_recarga]] · [[proveedor_pago]] · [[recuperacion_respaldo]] · [[reembolso]] · [[usuario]] · [[webhook_pasarela]]
+[[abono_recuperacion]] · [[comprobante_manual]] · [[conciliacion]] · [[constancia_pago]] · [[disputa_pago]] · [[ejecucion_aval]] · [[historial_estado_pago]] · [[intento_pago]] · [[obligacion_aporte]] · [[orden_recarga]] · [[proveedor_pago]] · [[recuperacion_respaldo]] · [[reembolso]] · [[usuario]] · [[webhook_pasarela]]
 
 ## Notas del modelo
 

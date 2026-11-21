@@ -119,6 +119,21 @@ ALTER TABLE aportes.extracto_bancario
   ADD CONSTRAINT fk_extracto_bancario_proveedor_id
   FOREIGN KEY (proveedor_id) REFERENCES aportes.proveedor_pago (id) ON DELETE RESTRICT ON UPDATE CASCADE;
 
+ALTER TABLE aportes.historial_estado_pago DROP CONSTRAINT IF EXISTS fk_historial_estado_pago_pago_id;
+ALTER TABLE aportes.historial_estado_pago
+  ADD CONSTRAINT fk_historial_estado_pago_pago_id
+  FOREIGN KEY (pago_id) REFERENCES aportes.pago (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE aportes.historial_estado_reembolso DROP CONSTRAINT IF EXISTS fk_historial_estado_reembolso_ejecutado_por;
+ALTER TABLE aportes.historial_estado_reembolso
+  ADD CONSTRAINT fk_historial_estado_reembolso_ejecutado_por
+  FOREIGN KEY (ejecutado_por) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE aportes.historial_estado_reembolso DROP CONSTRAINT IF EXISTS fk_historial_estado_reembolso_reembolso_id;
+ALTER TABLE aportes.historial_estado_reembolso
+  ADD CONSTRAINT fk_historial_estado_reembolso_reembolso_id
+  FOREIGN KEY (reembolso_id) REFERENCES aportes.reembolso (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
 ALTER TABLE aportes.intento_pago DROP CONSTRAINT IF EXISTS fk_intento_pago_orden_cobro_id;
 ALTER TABLE aportes.intento_pago
   ADD CONSTRAINT fk_intento_pago_orden_cobro_id

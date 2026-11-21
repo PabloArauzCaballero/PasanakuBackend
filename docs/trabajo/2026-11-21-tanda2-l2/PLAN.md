@@ -29,7 +29,7 @@
 **CA:** Dado `dev` con los PR del lote mergeados, cuando se busca la subasta, el mercado de turnos, el
 `numeroCifrado` del cliente y las demás vías del anexo L2, entonces no existen o están cerradas con su prueba.
 **DoD:** cada PR con CI verde y la salida pegada en `evidencia/`.
-**Estado:** A MEDIAS
+**Estado:** A MEDIAS (PR #419, #421, #422, #424 y #429 mergeados en `dev` el 2026-11-21)
 
 ### H1.S1 — Retiro de la cesión de turno (D-L2-1)
 
@@ -52,7 +52,8 @@ los pisos de cobertura sin cambios. **Estado:** A MEDIAS
 | F1.L2.M02 | Retirar la cobertura manual del fondo con datos del cuerpo | 410, sin escritura | `webTest` garantía | A MEDIAS (endpoint 410; falta modelo `SOLICITADA`/`politica_cobertura`) |
 | F1.L2.M03 | Devolución del fondo sin `grupoCerrado`/`deudasVivas` del cuerpo | La API no decide con esos campos | `webTest` | A MEDIAS (endpoint 410; disparo por el sistema en F3.L2.M06) |
 | F1.L2.M10 | `saldoRetenido` fuera de la entrada del desembolso | Campo fuera del contrato | `webTest` | TODO (diseño en REPORTE; falta la operación de L1) |
-| F1.L2.M01, M04, M06, M08, M11–M14 | Ver anexo; dependen de plataforma (token de servicio, cliente único) o del rediseño | — | — | TODO |
+| F1.L2.M04 | Importes de entrada sin signo; disolución y reemplazo con cifras de sus dueños | Un negativo → 400; los totales salen de sus dueños | `webTest` | A MEDIAS (sin signo HECHO; cifras de sus dueños pendiente) |
+| F1.L2.M01, M06, M08, M11–M14 | Ver anexo; dependen de plataforma (token de servicio, cliente único) o del rediseño | — | — | TODO |
 
 ### H1.S3 — Retiro (F2.L2)
 

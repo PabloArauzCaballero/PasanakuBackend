@@ -5,6 +5,7 @@ import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.ErrorDeDominio;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Moneda;
+import bo.aportaya.plataforma.dominio.OperacionRetirada;
 import bo.aportaya.plataforma.web.idempotencia.IdempotenciaConflicto;
 import bo.aportaya.plataforma.web.idempotencia.IdempotenciaEnProceso;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
@@ -110,6 +111,12 @@ public class ControladorDeEnsayo {
     @Permiso("BILLETERA_VER")
     public Salida reglaDeNegocio() {
         throw new ErrorDeNegocio(CodigoError.de(21, 3), "El aporte no cubre la obligacion.", Map.of("faltan", "35.00"));
+    }
+
+    @GetMapping("/ensayo/retirada")
+    @Permiso("BILLETERA_VER")
+    public Salida retirada() {
+        throw new OperacionRetirada(CodigoError.de(21, 9), "Esa operacion ya no existe.");
     }
 
     @GetMapping("/ensayo/regla-del-dominio")

@@ -46,6 +46,7 @@ ALTER TABLE aportes.pago ALTER COLUMN pagador_nombre DROP NOT NULL;
 ALTER TABLE aportes.pago ALTER COLUMN proveedor_id DROP NOT NULL;
 ALTER TABLE aportes.pago ALTER COLUMN registrado_por DROP NOT NULL;
 ALTER TABLE aportes.politica_mora ALTER COLUMN grupo_id DROP NOT NULL;
+ALTER TABLE aportes.proveedor_pago ALTER COLUMN clave_idempotencia DROP NOT NULL;
 ALTER TABLE aportes.reembolso ALTER COLUMN aprobado_por DROP NOT NULL;
 ALTER TABLE aportes.reembolso ALTER COLUMN clave_idempotencia DROP NOT NULL;
 ALTER TABLE aportes.reembolso ALTER COLUMN fecha_ejecucion DROP NOT NULL;

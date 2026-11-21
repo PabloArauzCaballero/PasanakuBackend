@@ -137,4 +137,45 @@ class CU19IdempotenciaTest extends BaseDeAportes {
                         primera.reembolsoId())))
                 .hasMessageContaining("uq_reembolso_clave");
     }
+
+    @Test
+    @DisplayName(
+            "reintento: quien ya aprobo un reembolso y reintenta recibe la misma respuesta y la obligacion se mueve una vez")
+    void reintentoDeLaAprobacion() {
+        UUID solicitante = fixtura.usuario();
+        var aprobador = contextoDe(fixtura.usuario());
+        UUID pago = pagoDe(solicitante);
+        var pedido = pedir(pago, "40.00", "clave-aprobar", contextoDe(solicitante));
+
+        var primera = transaccion.execute(t -> reembolsoCU.aprobar(pedido.reembolsoId(), aprobador));
+        var segunda = transaccion.execute(t -> reembolsoCU.aprobar(pedido.reembolsoId(), aprobador));
+
+        assertThat(segunda).isEqualTo(primera);
+        assertThat(contar(
+                        "SELECT count(*)::int FROM aportes.historial_estado_reembolso WHERE reembolso_id = ?",
+                        pedido.reembolsoId()))
+                .isEqualTo(1);
+        assertThat(contar(
+                        "SELECT count(*)::int FROM aportes.evento_dominio WHERE tipo = 'aportes.reembolso_ejecutado' AND agregado_id = ?",
+                        pedido.reembolsoId()))
+                .isEqualTo(1);
+        assertThat(contar(
+                        "SELECT monto_pagado::int FROM aportes.obligacion_aporte o JOIN aportes.pago p ON p.obligacion_id = o.id WHERE p.id = ?",
+                        pago))
+                .isEqualTo(60);
+    }
+
+    @Test
+    @DisplayName("rechaza que otra persona apruebe un reembolso ya ejecutado (AP-CU19-03)")
+    void rechazaOtraAprobacion() {
+        UUID solicitante = fixtura.usuario();
+        UUID pago = pagoDe(solicitante);
+        var pedido = pedir(pago, "40.00", "clave-otra", contextoDe(solicitante));
+        transaccion.execute(t -> reembolsoCU.aprobar(pedido.reembolsoId(), contextoDe(fixtura.usuario())));
+
+        var otro = contextoDe(fixtura.usuario());
+        assertThatThrownBy(() -> transaccion.execute(t -> reembolsoCU.aprobar(pedido.reembolsoId(), otro)))
+                .isInstanceOf(ErrorDeNegocio.class)
+                .hasMessageContaining("ya no esta solicitado");
+    }
 }
