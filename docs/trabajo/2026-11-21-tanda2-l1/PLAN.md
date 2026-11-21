@@ -45,6 +45,7 @@
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
 | F2.L1.M01 | Retirar el consumidor de asientos de cobertura empresarial/respaldo | no hay consumidor de esos tópicos | grep en `servicios/nucleo-financiero/src/main` vacío + suite | A MEDIAS — PR #452: tópicos y CAJA_EMPRESA fuera; RESERVA_RESPALDO/POZO_GRUPO/DESEMBOLSO los usan caminos vigentes (F3) |
+| L1.P01 | Pedido de L2 (coordinador, 2026-11-21): retirar `OfertasDelMercado`/`OfertasPorHttp`, el pago a tercero, `PactoConEntregasContratoTest` y el pacto `nucleo-financiero-entregas.json` | `pagarAlTercero` responde 410 `AP-CU13-10` sin efecto; nada en `nucleo-financiero` consulta la oferta de `entregas` | `./gradlew :servicios:nucleo-financiero:test :servicios:nucleo-financiero:webTest` + `grep -rn OfertasPorHttp servicios/nucleo-financiero` vacío | HECHO — PR #461 (`evidencia/L2PEDIDO-retiro-ofertas.txt`) |
 | F2.L1.M02 | Retirar cuentas 9.x y tipos de cobertura empresarial del esquema/semillas | base nueva sin 9.x | psql de verificación | TODO |
 | F2.L1.M03 | Catálogo de canales de cobro solo QR y billetera | `INSERT` con `FONDO_GARANTIA` falla | psql | TODO |
 | F2.L1.M04 | Cuotas nacen solas al abrirse el periodo | evento duplicado → una cuota por cupo | prueba dirigida | TODO |

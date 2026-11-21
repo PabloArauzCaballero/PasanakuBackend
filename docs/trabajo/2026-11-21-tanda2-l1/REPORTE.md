@@ -1,14 +1,14 @@
 # Reporte — Tanda 2, lote L1 (`aportes` y `nucleo-financiero`)
 
-> **AVANCE: 8 / 18 — 44,4 %.** Trabajo en curso; lo que queda está bloqueado por archivos compartidos, por otro lote o por decisiones (ver Pendiente). Nada en rojo por código propio; dos fallas del CI de #418 son de módulos ajenos (ver Riesgos).
+> **AVANCE: 9 / 19 — 47,4 %.** Trabajo en curso; lo que queda está bloqueado por archivos compartidos, por otro lote o por decisiones (ver Pendiente). Nada en rojo por código propio; dos fallas del CI de #418 son de módulos ajenos (ver Riesgos).
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Base: `origin/dev` 50cf3be9
-- PR hacia `dev`: #430 mergeado. Abiertos (sin mergear): #418, #425, #436, #441, #445, #447, #449, #450, #451, #452, #454, #455, #456, #458. Pila a mergear en orden: #425 → #447 → #449 → #454 → #455 → #456 → #458.
+- PR hacia `dev`: #430 mergeado. Abiertos (sin mergear): #418, #425, #436, #441, #445, #447, #449, #450, #451, #452, #454, #455, #456, #458, #461 (este fuera de la pila). Pila a mergear en orden: #425 → #447 → #449 → #454 → #455 → #456 → #458.
 - Peldaño de evidencia por área:
   - `aportes` y `nucleo-financiero` (código): `TESTED`, con pruebas dirigidas en verde contra PostgreSQL 16 real local y controles negativos (mutantes) que fallan sin el cambio. No llega a `VERIFIED`: el camino HTTP de punta a punta con los servicios levantados no se ejercitó.
   - Integración con Testcontainers: las clases que levantan su propio contenedor (`AislamientoEsquemaTest`, `ArranqueTest`) quedan **NO COMPROBADAS: requieren Docker** (máquina de Pablo).
 
-Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 = 18. `HECHO` = L1.M00, F1.L1.M03, F1.L1.M04, F1.L1.M05, F1.L1.M06, F1.L1.M09, F1.L1.M12 y F1.L1.M13. Las que quedaron `A MEDIAS` no suman. F1.S4.M2 quedó `DESCARTADO` para L1 (no suma y se declara abajo).
+Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 (L1.P01) = 19. `HECHO` = L1.M00, F1.L1.M03, F1.L1.M04, F1.L1.M05, F1.L1.M06, F1.L1.M09, F1.L1.M12, F1.L1.M13 y L1.P01. Las que quedaron `A MEDIAS` no suman. F1.S4.M2 quedó `DESCARTADO` para L1 (no suma y se declara abajo).
 
 ## Completado
 
@@ -22,6 +22,7 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 = 18. `HECHO` = L
 | F1.L1.M13 | El sello del cierre diario cubre cuenta, fecha, moneda, saldos y el sello anterior. `primeraRuptura` señala el primer día alterado. | `test SelloDelDiaTest` (6/6) + `integrationTest CU51* CU15*` | PASS. El mutante con el sello viejo hace fallar 6 pruebas. `evidencia/M13-sello-cierre.txt` · PR #436 |
 | F1.L1.M09 | Solicitud de reembolso, aprobación y alta de proveedor son idempotentes. La misma clave devuelve el mismo id y deja una sola fila, en serie y en concurrencia. R-BIL-28 y R-BIL-31 están en la base. | `integrationTest CU19IdempotenciaTest` (6/6) + `CU99IdempotenciaTest` (4/4) | PASS. Los mutantes hacen fallar 5 pruebas. `evidencia/M09-*`, `evidencia/M09b-*` · PR #447 y #456 |
 | F1.L1.M12 | `reembolso`, `disputa_pago`, `conciliacion`, `excepcion_conciliacion` y `extracto_bancario` llevan moneda (R-BIL-29). Un reembolso de un pago en USD queda en USD. La conciliación anota la moneda del pago. | `integrationTest CU19MonedaTest` (3/3) + `CU132ConciliacionTest` (3/3) + migración sobre una base existente | PASS. Los mutantes fallan. `evidencia/M12-*`, `evidencia/M12b-*` · PR #449 y #454 |
+| L1.P01 | Pedido de L2: `nucleo-financiero` deja de consultar la oferta de `entregas`. Se borraron el puerto, el cliente HTTP, el pago a tercero, el pacto y sus pruebas, y `pagarAlTercero` responde 410 `AP-CU13-10` sin efecto. | `test` + `webTest` (`pagoATerceroRetirado`) + integración CU12*/CU13* (95/97; las 2 restantes requieren Docker) | PASS. `evidencia/L2PEDIDO-retiro-ofertas.txt` · PR #461 |
 
 ## A medias
 
@@ -88,6 +89,7 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 = 18. `HECHO` = L
 - `M09-reembolso-idempotente.txt`: idempotencia en serie y concurrente, más la migración sobre una base existente.
 - `M09b-idempotencia-aprobacion-proveedor.txt`: aprobación y alta de proveedor, con mutantes.
 - `M12-moneda-reembolso.txt` y `M12b-moneda-conciliacion.txt`: moneda al lado del importe, migración y mutantes.
+- `L2PEDIDO-retiro-ofertas.txt`: retiro del consumidor de ofertas y del pacto con `entregas`.
 - `M10-bloqueo-autoridad.txt`: cuatro ojos, liberación de la retención y mutante.
 - `M08-hechos-inmutables.txt`: sellado, historial, concurrencia, humo del esquema y mutante.
 - `M05-*`, `M04-*`, `F2M01-*`: secreto del webhook, desembolso fail-closed y consumidor de respaldo.
@@ -107,6 +109,7 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 = 18. `HECHO` = L
 - F1.L1.M08 actualizó a mano la cifra fija de `sql/50_verificacion/prueba_humo.sql`, de 47 a 51 tablas selladas. Es un archivo escrito a mano que el generador conserva, y el propio archivo pide subir esa cifra con `APPEND_ONLY`. Lo declaré en #455.
 - F1.L1.M12 deja las columnas nullable (fase expandir, regla 97.3.5). El anexo pedía `NOT NULL`; contraer va después de rellenar las filas viejas.
 - `CU19Test.concurrencia` se actualizó al requisito de M09: el reintento del mismo aprobador recibe la misma respuesta. Conserva la aserción de efecto único y el rechazo para otra persona.
+- L1.P01 borró pruebas que ejercitaban la compra del mercado, una función eliminada por el negocio (D-L2-1). La justificación escrita está en #461 (regla 80.5.5).
 - Archivos compartidos tocados, todos mecánicos o derivados, cada uno declarado en su PR:
   - cifras de tablas, restricciones y entidades en `README.md`, `planes/*` y `docs/Seguridad.md`;
   - una línea en `COLUMNAS_AGREGADAS` de `scripts/generar_ddl.py`;
