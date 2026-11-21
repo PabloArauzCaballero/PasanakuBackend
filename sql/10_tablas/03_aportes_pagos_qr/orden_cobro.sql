@@ -15,13 +15,19 @@ CREATE TABLE IF NOT EXISTS aportes.orden_cobro (
   expira_en                          TIMESTAMPTZ NOT NULL,
   clave_idempotencia                 VARCHAR(80) NOT NULL,
   CONSTRAINT pk_orden_cobro PRIMARY KEY (id),
+  CONSTRAINT ck_orden_cobro_monto_exacto CHECK (monto_exacto >= 0),
   CONSTRAINT ck_orden_cobro_estado CHECK (estado IN ('ANULADA', 'ENTREGADA', 'ESCANEADA', 'EXPIRADA', 'GENERADA', 'PAGADA'))
 );
+
+-- Evolucion: CHECK ampliado (ver CK_AMPLIADOS en modelo.py).
+ALTER TABLE aportes.orden_cobro DROP CONSTRAINT IF EXISTS ck_orden_cobro_monto_exacto;
+ALTER TABLE aportes.orden_cobro ADD CONSTRAINT ck_orden_cobro_monto_exacto CHECK (monto_exacto >= 0);
 
 COMMENT ON TABLE aportes.orden_cobro IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. La instrucción concreta de cobro para una obligación: monto exacto, proveedor, referencia única, vigencia.';
 COMMENT ON COLUMN aportes.orden_cobro.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN aportes.orden_cobro.obligacion_id IS 'FK, IDX';
 COMMENT ON COLUMN aportes.orden_cobro.proveedor_id IS 'FK';
+COMMENT ON COLUMN aportes.orden_cobro.monto_exacto IS 'CK: >= 0';
 COMMENT ON COLUMN aportes.orden_cobro.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN aportes.orden_cobro.referencia_unica IS 'UQ';
 COMMENT ON COLUMN aportes.orden_cobro.estado IS 'CK, IDX';

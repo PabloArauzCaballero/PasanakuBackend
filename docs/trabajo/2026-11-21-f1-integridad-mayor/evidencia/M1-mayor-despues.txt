@@ -1,0 +1,66 @@
+$ psql -f evidencia/repro_tya_dinero_001.sql   # esquema regenerado (rama)
+SET
+BEGIN
+INSERT 0 1
+INSERT 0 2
+COMMIT
+psql:docs/trabajo/2026-11-21-f1-integridad-mayor/evidencia/repro_tya_dinero_001.sql:13: ERROR:  R-AUD-14: el asiento 00000000-0000-0000-0000-0000000000a1 ya esta en firme; una linea nueva no entra (corrija con un contra-asiento)
+psql:docs/trabajo/2026-11-21-f1-integridad-mayor/evidencia/repro_tya_dinero_001.sql:17: ERROR:  R-AUD-14: el asiento 00000000-0000-0000-0000-0000000000a1 ya esta en firme; una linea nueva no entra (corrija con un contra-asiento)
+BEGIN
+INSERT 0 1
+psql:docs/trabajo/2026-11-21-f1-integridad-mayor/evidencia/repro_tya_dinero_001.sql:24: ERROR:  new row for relation "movimiento_contable" violates check constraint "ck_movimiento_contable_un_lado"
+ROLLBACK
+BEGIN
+INSERT 0 1
+psql:docs/trabajo/2026-11-21-f1-integridad-mayor/evidencia/repro_tya_dinero_001.sql:31: ERROR:  new row for relation "movimiento_contable" violates check constraint "ck_movimiento_contable_un_lado"
+ROLLBACK
+BEGIN
+INSERT 0 1
+psql:docs/trabajo/2026-11-21-f1-integridad-mayor/evidencia/repro_tya_dinero_001.sql:37: ERROR:  R-AUD-05: asiento 00000000-0000-0000-0000-0000000000a4 en firme con 0 lineas; necesita al menos dos
+RESET
+                  id                  |   estado   | lineas |  debe  | haber  
+--------------------------------------+------------+--------+--------+--------
+ 00000000-0000-0000-0000-0000000000a1 | CONFIRMADO |      2 | 100.00 | 100.00
+(1 row)
+
+
+$ psql -f evidencia/repro_set_constraints.sql   # esquema regenerado (rama)
+SET
+BEGIN
+INSERT 0 1
+INSERT 0 2
+SET CONSTRAINTS
+psql:docs/trabajo/2026-11-21-f1-integridad-mayor/evidencia/repro_set_constraints.sql:12: ERROR:  R-AUD-05: asiento 00000000-0000-0000-0000-0000000000b1 descuadrado (debe=1099.00, haber=100.00)
+ROLLBACK
+RESET
+ id | lineas | debe | haber 
+----+--------+------+-------
+(0 rows)
+
+
+$ psql -f evidencia/verificar_mayor_valido.sql   # camino legitimo
+SET
+BEGIN
+INSERT 0 1
+INSERT 0 2
+COMMIT
+BEGIN
+INSERT 0 1
+INSERT 0 2
+COMMIT
+BEGIN
+SAVEPOINT
+INSERT 0 1
+RELEASE
+SAVEPOINT
+INSERT 0 2
+RELEASE
+COMMIT
+RESET
+                  id                  |   estado   | lineas |  debe  | haber  
+--------------------------------------+------------+--------+--------+--------
+ 00000000-0000-0000-0000-0000000000c1 | CONFIRMADO |      2 | 100.00 | 100.00
+ 00000000-0000-0000-0000-0000000000c2 | REVERSADO  |      2 | 100.00 | 100.00
+ 00000000-0000-0000-0000-0000000000c3 | CONFIRMADO |      2 |   5.00 |   5.00
+(3 rows)
+

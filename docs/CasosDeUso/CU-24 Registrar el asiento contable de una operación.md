@@ -31,7 +31,7 @@ normas: [Ley 393 (libros y conservación), plan de cuentas, NIIF]
 2. **En la misma transacción que el hecho económico** se crea
    [[asiento_contable]] con `origen_tipo` / `origen_id` apuntando al hecho, y sus
    [[movimiento_contable]].
-3. Un trigger valida `SUM(debe) = SUM(haber)` al confirmar el asiento (`R-AUD-05`), **en una sola moneda**: cada cuenta y cada movimiento llevan su moneda, un movimiento es de la moneda de su cuenta (`R-CTB-10`) y un asiento no mezcla monedas (`R-AUD-12`). Sin un tipo de cambio registrado con su fecha no se suman BOB con USD: una operación en dos monedas son dos asientos.
+3. Un trigger valida `SUM(debe) = SUM(haber)` al confirmar el asiento (`R-AUD-05`), **en una sola moneda**: cada cuenta y cada movimiento llevan su moneda, un movimiento es de la moneda de su cuenta (`R-CTB-10`) y un asiento no mezcla monedas (`R-AUD-12`). Sin un tipo de cambio registrado con su fecha no se suman BOB con USD: una operación en dos monedas son dos asientos. Cada movimiento va al debe o al haber, nunca a los dos, y nunca es negativo (`R-AUD-13`); las líneas entran en la misma transacción que crea el asiento, y un asiento en firme no recibe líneas nuevas ni queda con menos de dos (`R-AUD-14`, `R-AUD-05`).
 4. El saldo de cada [[cuenta_contable]] tocada se sincroniza **desde el libro, por
    trigger** (`R-CTB-09`): la aplicación no lo escribe, igual que no escribe el de
    billetera. Se emite `evento_dominio` en la misma transacción.
@@ -115,7 +115,7 @@ export const ErroresCU24 = {
 
 ## Restricciones aplicables
 
-`R-AUD-01` · `R-AUD-05` · `R-AUD-06` · `R-AUD-11` · `R-AUD-12` · `R-CTB-02` · `R-CTB-09` · `R-CTB-10`
+`R-AUD-01` · `R-AUD-05` · `R-AUD-06` · `R-AUD-11` · `R-AUD-12` · `R-AUD-13` · `R-AUD-14` · `R-CTB-02` · `R-CTB-09` · `R-CTB-10`
 
 ## Evidencia que deja
 

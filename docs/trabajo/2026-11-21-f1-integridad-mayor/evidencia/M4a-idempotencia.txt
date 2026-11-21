@@ -1,0 +1,62 @@
+$ psql -d reg_m3 -f evidencia/verificar_idempotencia.sql   # esquema regenerado + semillas dev
+--- (1) columnas clave_idempotencia y su indice UNIQUE
+                  tabla                  | indice_unique_compuesto 
+-----------------------------------------+-------------------------
+ aportes.intento_pago                    | true)
+ aportes.orden_cobro                     | true)
+ aportes.pago                            | true)
+ aportes.webhook_pasarela                | true)
+ entregas.cesion_derecho                 | false)
+ entregas.fondeo_entrega                 | false)
+ entregas.oferta_turno                   | false)
+ entregas.orden_desembolso               | true)
+ entregas.puja_subasta                   | false)
+ entregas.subasta_cupo                   | false)
+ erp.pago_a_proveedor                    | true)
+ garantia.cobertura_respaldo             | false)
+ garantia.movimiento_reserva             | false)
+ garantia.reserva_respaldo               | false)
+ grupos.alta_grupo                       | false)
+ grupos.decision_ingreso                 | false)
+ grupos.sustitucion_administrador        | false)
+ identidad.token_verificacion            | true)
+ inversiones.consentimiento_inversion    | true)
+ inversiones.corrida_trabajo             | true)
+ inversiones.instruccion_libro           | false)
+ inversiones.orden_inversion             | true)
+ inversiones.rescate_inversion           | true)
+ notificaciones.envio_notificacion       | true)
+ notificaciones.evento_entrega_mensaje   | true)
+ nucleo_financiero.orden_recarga         | true)
+ nucleo_financiero.orden_retiro          | true)
+ nucleo_financiero.respuesta_idempotente | true)
+ nucleo_financiero.transaccion_billetera | true)
+ organizador.decision_habilitacion       | false)
+ organizador.tarea_automatizada          | true)
+ tarifas.cotizacion_comision             | true)
+ tarifas.devengo_comision                | true)
+(33 rows)
+
+--- (1b) esperado 0
+ columnas_sin_unique 
+---------------------
+                   0
+(1 row)
+
+--- (2) segundo INSERT con la misma clave, con el rol de la aplicacion (esperado: RECHAZADO 23505 por el indice de la clave)
+                  tabla                  | filas_con_clave |                      obtenido                       
+-----------------------------------------+-----------------+-----------------------------------------------------
+ aportes.intento_pago                    |               6 | RECHAZADO 23505 uq_intento_pago_idem
+ aportes.orden_cobro                     |               6 | RECHAZADO 23505 uq_orden_cobro_idem
+ aportes.pago                            |              11 | RECHAZADO 23505 uq_pago_idem
+ aportes.webhook_pasarela                |               5 | RECHAZADO 23505 uq_webhook_idem
+ entregas.fondeo_entrega                 |               0 | SIN FILAS CON CLAVE EN LAS SEMILLAS: no se ejercita
+ entregas.orden_desembolso               |               1 | RECHAZADO 23505 uq_orden_desembolso_clave
+ erp.pago_a_proveedor                    |               0 | SIN FILAS CON CLAVE EN LAS SEMILLAS: no se ejercita
+ nucleo_financiero.orden_recarga         |               6 | RECHAZADO 23505 uq_recarga_idem
+ nucleo_financiero.orden_retiro          |               1 | RECHAZADO 23505 uq_retiro_idem
+ nucleo_financiero.transaccion_billetera |              26 | RECHAZADO 23505 uq_tx_idem
+ tarifas.cotizacion_comision             |               1 | RECHAZADO 23505 uq_cotizacion_idem
+ tarifas.devengo_comision                |               1 | RECHAZADO 23505 uq_devengo_idem
+(12 rows)
+

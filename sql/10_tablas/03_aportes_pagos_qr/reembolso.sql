@@ -14,13 +14,19 @@ CREATE TABLE IF NOT EXISTS aportes.reembolso (
   fecha_solicitud                    TIMESTAMPTZ NOT NULL,
   fecha_ejecucion                    TIMESTAMPTZ,
   CONSTRAINT pk_reembolso PRIMARY KEY (id),
+  CONSTRAINT ck_reembolso_monto CHECK (monto > 0),
   CONSTRAINT ck_reembolso_motivo CHECK (motivo IN ('DISPUTA', 'DUPLICADO', 'ERROR_MONTO', 'GRUPO_CANCELADO')),
   CONSTRAINT ck_reembolso_estado CHECK (estado IN ('APROBADO', 'EJECUTADO', 'RECHAZADO', 'SOLICITADO'))
 );
 
+-- Evolucion: CHECK ampliado (ver CK_AMPLIADOS en modelo.py).
+ALTER TABLE aportes.reembolso DROP CONSTRAINT IF EXISTS ck_reembolso_monto;
+ALTER TABLE aportes.reembolso ADD CONSTRAINT ck_reembolso_monto CHECK (monto > 0);
+
 COMMENT ON TABLE aportes.reembolso IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. La devolución de un pago, total o parcial.';
 COMMENT ON COLUMN aportes.reembolso.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN aportes.reembolso.pago_id IS 'FK, IDX';
+COMMENT ON COLUMN aportes.reembolso.monto IS 'CK: > 0';
 COMMENT ON COLUMN aportes.reembolso.motivo IS 'CK';
 COMMENT ON COLUMN aportes.reembolso.estado IS 'CK';
 COMMENT ON COLUMN aportes.reembolso.referencia_proveedor IS 'NULL';

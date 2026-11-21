@@ -167,7 +167,12 @@ public class CU21CobrarAporte {
                                     "tipo", obligacion.tipo()),
                             UUID.fromString(ctx.traza().id())));
 
-            BITACORA.info("CU-21 · Aporte cobrado registrado: pago={}, obligacion={}, monto={}, estado={}", pagoId, obligacion.id(), entrada.monto(), estadoNuevo);
+            BITACORA.info(
+                    "CU-21 · Aporte cobrado registrado: pago={}, obligacion={}, monto={}, estado={}",
+                    pagoId,
+                    obligacion.id(),
+                    entrada.monto(),
+                    estadoNuevo);
             return new SalidaCobro(pagoId, obligacion.id(), estadoNuevo, saldoDespues.pendiente(), true);
         });
     }
@@ -176,7 +181,10 @@ public class CU21CobrarAporte {
     private Optional<SalidaCobro> repeticion(DSLContext dsl, EntradaCobro entrada) {
         return pagos.porClaveIdempotencia(dsl, entrada.obligacionId(), entrada.claveIdempotencia())
                 .map(pagoId -> {
-                    BITACORA.info("CU-21 · Cobro de aporte reintento idempotente: clave={}, obligacion={}", entrada.claveIdempotencia(), entrada.obligacionId());
+                    BITACORA.info(
+                            "CU-21 · Cobro de aporte reintento idempotente: clave={}, obligacion={}",
+                            entrada.claveIdempotencia(),
+                            entrada.obligacionId());
                     var pago = pagos.ver(dsl, pagoId).orElseThrow();
                     var obligacion = obligaciones.ver(dsl, pago.obligacionId()).orElseThrow();
                     return new SalidaCobro(
