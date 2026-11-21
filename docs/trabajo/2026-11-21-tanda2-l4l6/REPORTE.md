@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, carril L4L6: identidad, cumplimiento y frontends compartidos
 
-> **AVANCE: 7 / 8 — 87,5 %** de las microtareas abiertas hasta ahora (T2.M1–T2.M4, F1.L6.M04, F1.L4.M25, F1.L6.M12 HECHO; F1.L4.M03 A MEDIAS). El resto de F1/F2 de L4 y L6 sigue en TODO.
+> **AVANCE: 13 / 14 — 92,9 %** de las microtareas abiertas hasta ahora (T2.M1–T2.M4, F1.L6.M04, F1.L4.M25, F1.L6.M12, TOK.M1, BLQ.M1–M5 HECHO; F1.L4.M03 A MEDIAS). El resto de F1/F2 de L4 y L6 sigue en TODO.
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Base: `origin/dev` 50cf3be9
 - Ramas y PR (apilados, se mergean en orden):
@@ -25,6 +25,8 @@
 | F1.L6.M04 | Los dos patrones rotos de `cumplimiento.yaml` (`'^-?\\d+…'` en comillas simples, que rechazaba «100.00») pasan a `'^\d+\.\d{2}$'`, sin negativos. Se reemplazan los 6 ejemplos basura del mock. Una prueba nueva barre todos los contratos. | `yarn vitest run` (simulado) | PASS 380/380; mutante → 4 fallos. [`evidencia/f1-l6-m04-patron-importe.txt`](./evidencia/f1-l6-m04-patron-importe.txt) |
 | F1.L4.M25 | `GET /licencia/alcance` es una consulta pura (`readOnly`): no emite nada al outbox y no recibe `usuarioId` por query (se quitó del contrato; si alguien lo manda, se ignora). El rechazo se registra solo en `exigirHabilitado`, con el actor del token. | `./gradlew :servicios:cumplimiento:test --tests '*AlcanceSinEfectos*'` + webTest | PASS 2/2 + 87/87; mutante → 1 fallo. [`evidencia/f1-l4-m25-licencia-alcance.txt`](./evidencia/f1-l4-m25-licencia-alcance.txt) |
 | F1.L6.M12 | La app genera la clave de idempotencia por intento (formulario + contenido normalizado) en recargar, retirar y transferir. Un 4xx la libera; timeout, 5xx, 408, 425 y 429 la conservan. | `flutter test test/unidad/idempotencia_por_intento_test.dart` | PASS 7/7 (los tres niveles contra un doble declarado); mutante → 1 fallo; app 919 en verde. [`evidencia/f1-l6-m12-idempotencia-app.txt`](./evidencia/f1-l6-m12-idempotencia-app.txt) |
+| TOK.M1 | `ng serve` vuelve a arrancar en frío: `interpretarMontoEscrito` sale por `@aportaya/tokens/dinero/interpretar` (regresión de #426). PR #487. | Playwright del backoffice + vitest de tokens + `test:front` de ui | PASS. [`evidencia/tokens-interpretar-vite.txt`](./evidencia/tokens-interpretar-vite.txt) |
+| BLQ.M1–M5 | Backoffice `/cumplimiento/bloqueos` (pedido de L1): listado con cursor y filtro `estado`, los cuatro estados, «Levantar» solo con `puedeLevantar` y BLOQUEO_AUTORIDAD_LEVANTAR (sin cuerpo, Idempotency-Key, sin doble envío), AP-CU17-04/05/06 con texto propio, ruta/pestaña/menú/sección con los dos códigos, prueba visual. **Servidor simulado** (HttpTestingController y page.route). | `yarn ng test` dirigido + `test:front` + `test:a11y` + `npx playwright test e2e/visual-bloqueos.e2e.ts` | PASS: 20 dirigidas, 3 axe, 1342 + 97 de regresión, 19 visuales revisadas. [`evidencia/bloqueos-backoffice.txt`](./evidencia/bloqueos-backoffice.txt) |
 | T2.M1 (F1.S3.M1, resto) | La vida del token de acceso es `15 min − 60 s` (tolerancia por omisión de `JwtTimestampValidator`, verificada en el jar 6.5.11). Un servidor de recurso con el validador por omisión rechaza el token al minuto 15 + 1 s. Con eso, sumado a lo de #412 (suspender revoca sesiones, el refresco se niega con `PuedeAutenticarse`), una cuenta suspendida o dada de baja pierde todo acceso en ≤ 15 min. | `./gradlew :servicios:identidad:test --tests '*VidaDelAcceso*'` | PASS 2/2; mutante (15 min) → 2 fallos. [`evidencia/t2-m1-token-vigente.txt`](./evidencia/t2-m1-token-vigente.txt) |
 
 ## A medias
@@ -45,6 +47,12 @@
   4. El pool alineado con `descriptor.yml` (anexo) no se tocó.
 - Avance fuera de este carril: el punto 1 (compose local) lo resolvió el coordinador en **#457**, que se mergea antes que #439. El guion de servidor verifica además que identidad tenga `JWT_CLAVE_FIRMA` en TEST antes de promover. Quedan pendientes los puntos 2 y 3. **#457 ya está en `dev`: #439 queda destrabado.**
 - Dónde quedó: rama `correcciones/tanda2-l4l6-f1l4m03-arranque-fail-closed`; compila y sus pruebas están en verde. TEST no se ve afectado: ya tiene cargados `JWT_CLAVE_FIRMA` e `INVITACIONES_CLAVE` (`despliegue/TEST.md:466-478`).
+
+### L1-pedido-bloqueos — entrega de la bandeja de bloqueos
+- Qué anda: BLQ.M1–M5 en verde contra el contrato de la rama L1 (`01074b9f`, nucleo-financiero 1.4.0).
+- Qué no anda: no hay PR. Mientras la rama de listado de L1 no esté en dev, el contrato `listarBloqueosPorAutoridad` no existe en `dev`.
+- Qué falta exactamente: que entre `correcciones/tanda2-l1-listado-bloqueos`; después mergear `origin/dev` en la rama, regenerar el cliente Angular con el generador y abrir el PR (con un cupo libre, máximo 3). Más adelante: E2E contra nucleo-financiero real.
+- Dónde quedó: rama local `correcciones/tanda2-l4l6-backoffice-bloqueos` (incluye el merge de la rama de L1 y el commit de TOK.M1), sin push; typecheck y lint en verde.
 
 ## Pendiente
 
@@ -83,6 +91,8 @@
 - Verificadores de bóveda: `verificar_boveda`, `verificar_seguridad`, `verificar_carriles`, `verificar_maqueta`, `verificar_criterios` → `TODO OK` / sin divergencias.
 
 ## No cubierto
+- BLQ: ninguna prueba contra `nucleo-financiero` corriendo. Falta el E2E de punta a punta con dos operadores (quien registra no ve «Levantar»; quien levanta, sí) y la persistencia del levantamiento. Lector de pantalla: no probado; solo axe y foco del diálogo heredado de `ap-dialogo`.
+- BLQ visual: en móvil, la primera tarjeta aparece con fondo gris (estado de fila del componente de tabla compartido, probablemente hover). No lo investigué; el componente no es de este cambio.
 - No se probó con dos servicios reales (identidad emisor + otro validando por JWKS); la prueba decodifica con `NimbusJwtDecoder` y la clave pública, que es el mismo código.
 - Las pruebas de integración con Testcontainers (`BaseDePrueba`) no corren acá: **NO COMPROBADO — requiere Docker (máquina de Pablo)**. Comando: `./gradlew :servicios:identidad:integrationTest`.
 
