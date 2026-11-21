@@ -93,7 +93,7 @@ export const ErroresCU22 = {
   NETO_NEGATIVO: 'AP-CU22-05',           // retirado: el principal no se descuenta
   RECAUDO_NO_DISPONIBLE: 'AP-CU22-06',
   PEDIDO_NO_COINCIDE: 'AP-CU22-07',
-  RESPALDO_NO_DISPONIBLE: 'AP-CU22-08',  // se retira con el respaldo empresarial (F2.L2.M01)
+  RESPALDO_NO_DISPONIBLE: 'AP-CU22-08',  // retirado con el respaldo empresarial (F2.L2.M01)
   FONDEO_EN_CONFLICTO: 'AP-CU22-09',
   LIQUIDACION_RETIRADA: 'AP-CU22-10',
   EJECUCION_RETIRADA: 'AP-CU22-11',
@@ -109,7 +109,7 @@ export const ErroresCU22 = {
 | `NETO_NEGATIVO` | Retirado: el principal no se descuenta |
 | `RECAUDO_NO_DISPONIBLE` | `aportes` no responde: no se fondea nada |
 | `PEDIDO_NO_COINCIDE` | El período no es del grupo |
-| `RESPALDO_NO_DISPONIBLE` | `garantia` no responde al pedir el respaldo; se retira con el respaldo empresarial (F2.L2.M01) |
+| `RESPALDO_NO_DISPONIBLE` | Retirado (F2.L2.M01): el fondeo ya no le pide el respaldo a `garantia` |
 | `FONDEO_EN_CONFLICTO` | Otro pedido movió el fondeo, o el turno ya tiene una entrega anterior |
 | `LIQUIDACION_RETIRADA` | `POST /entregas` (410): la liquidación con importes del pedido ya no existe |
 | `EJECUCION_RETIRADA` | `POST /entregas/{id}/ejecucion` (410): la entrega no se cierra a mano |

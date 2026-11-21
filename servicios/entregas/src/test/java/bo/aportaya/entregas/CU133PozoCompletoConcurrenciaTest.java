@@ -36,14 +36,13 @@ class CU133PozoCompletoConcurrenciaTest extends BaseDeEntregas {
 
     @Test
     @DisplayName(
-            "Dados ocho pedidos simultaneos del mismo turno con la misma clave · Cuando se fondea · Entonces hay UNA entrega, UN fondeo, UNA cobertura y exactamente un pedido es el nuevo")
+            "Dados ocho pedidos simultaneos del mismo turno con la misma clave · Cuando se fondea · Entonces hay UNA entrega, UN fondeo, UNA incidencia y exactamente un pedido es el nuevo")
     void ochoPedidosDelMismoTurno() throws Exception {
         UUID usuario = fixtura.usuario();
         var e = fixtura.escenario(usuario);
         var ctx = contextoDe(usuario);
         aportesDoble.responde(new RecaudoDelPozo.Recaudo(
                 e.periodoId(), e.grupoId(), OffsetDateTime.now(), bob("6000.00"), bob("5000.00"), bob("0.00")));
-        garantiaDoble.conDisponible(bob("8000.00"));
         var pedido = new Entrada(
                 e.grupoId(),
                 e.periodoId(),
@@ -87,6 +86,10 @@ class CU133PozoCompletoConcurrenciaTest extends BaseDeEntregas {
                 .isEqualTo(1);
         assertThat(contar("SELECT count(*)::int FROM entregas.fondeo_entrega WHERE turno_id = ?", e.turnoId()))
                 .isEqualTo(1);
-        assertThat(garantiaDoble.coberturasNuevas.get()).isEqualTo(1);
+        // Con faltante y sin quien lo cubra: una sola incidencia, por mas pedidos simultaneos que lleguen.
+        assertThat(contar(
+                        "SELECT count(*)::int FROM entregas.incidencia_entrega WHERE tipo = 'FONDO_INCOMPLETO' AND entrega_id = (SELECT id FROM entregas.entrega_fondo WHERE turno_id = ?)",
+                        e.turnoId()))
+                .isEqualTo(1);
     }
 }
