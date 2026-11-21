@@ -1,0 +1,32 @@
+# Cuentas de servicio en TEST — diagnostico y aprovisionamiento (pedido del coordinador, prioridad)
+## (1) Diagnostico, leido en el codigo de dev 3ee4e564
+A) *_SERVICIO_FACTOR_FIJO NO funciona despues de #412:
+   - roles SERVICIO_* de ambito GLOBAL (sql/60_semillas/10-roles-y-permisos.sql:14-16) -> PerfilDeAcceso.esOperador() = true
+   - ExigeSegundoFactor.decidir -> siempre; FactorAdmisible -> TOTP; DesafioPorTipo.validar -> VerificadorTotp contra
+     factor_mfa.secreto_cifrado. El codigo fijo solo lo aceptaba DesafioDeDesarrollo, borrado en #412.
+   - Resultado: CU04Autenticar:193-201 AP-CU04-04 (o AP-CU04-06 sin TOTP, :156). CredencialPorLogin sin token -> falla
+     cerrada; reintenta cada 30 s y cada intento cuenta: intentos-maximos 5, duracion-bloqueo PT30M (application.yml:76-77).
+   - despliegue/ensayos/arranque/lib.sh:70-72 sigue escribiendo ENTREGAS_SERVICIO_FACTOR_FIJO=000000.
+B) Previo a #412: docker-compose.coolify.yml deja las variables de cuenta de servicio con valor literal vacio
+   (ENTREGAS :233-236, GRUPOS :383-386, INVERSIONES :506-509; no hay GARANTIA_*). Con todo vacio,
+   CredencialDeServicioConfigurada -> CredencialDeServicio.fija("") -> lo que exige credencial de servicio falla cerrado.
+   Lo que se cargue en Coolify NO llega mientras el compose las declare vacias (arreglo en scripts/generar_compose.py).
+
+## (2) despliegue/ensayos/aprovisionar_cuentas_servicio_test.sh
+Probado contra un DOBLE declarado de docker (regla 65): exec psql -> Postgres local 5433 (sql/aplicar.sql + semilla
+10-roles-y-permisos); printenv -> valores sinteticos; ps -> identidad-doble y grupos-doble (sin las variables).
+$ shellcheck (shellcheck-py) aprovisionar_cuentas_servicio_test.sh -> rc=0 (SC2030/31 desactivados con razon: el
+  export de secretos vive solo en el subshell) · bash -n -> rc=0
+Invalido: perfil production -> rc=5, sin escribir · llave corta -> ERROR · servicio desconocido -> ERROR (rc=2)
+          cuenta existe sin archivo -> ERROR y no se toca · archivo incompleto -> ERROR y no se toca
+Correcto: 1a corrida -> «creadas: 3 · completadas: 0» (grupos, entregas, inversiones; garantia: rol SERVICIO_GARANTIA no
+          existe todavia -> se salta)
+Limite:   2a corrida -> «creadas: 0 · completadas: 0» (idempotente)
+          TOTP borrado a mano con archivo presente -> «completadas: 1», con la semilla DEL ARCHIVO
+Permisos: carpeta 700, archivos 600 · Ningun valor de CLAVE ni TOTP_SEMILLA aparece en la salida (grep sobre la salida).
+--estado: solo lectura; avisa «el contenedor NO recibe GRUPOS_SERVICIO_TELEFONO …» cuando el compose las deja vacias.
+Ida y vuelta CONTRA EL CODIGO REAL de identidad (prueba temporal, no commiteada):
+  Argon2Hasheador("pimienta").coincide(clave_del_archivo, hash_de_la_base) = true, clave mala = false,
+  pimienta equivocada = false; CifradorSimetrico.descifrar(cifrado_de_la_base, llave) = semilla_del_archivo.
+  -> tests="1" skipped="0" failures="0" errors="0"
+NO COMPROBADO: corrida en el VPS de TEST ni login real de los servicios (requiere ademas el arreglo B del compose).
