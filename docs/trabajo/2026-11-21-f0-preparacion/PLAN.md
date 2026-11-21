@@ -23,9 +23,9 @@
 - Ambigüedades registradas:
   - A1. El inicio automático: DECISIONES dice «al completarse los cupos»; ADR-054 D3/D4 agregaba el 75 % con fecha
     límite y cancelación. No está decidido si el 75 % sobrevive → `DECISION_REQUIRED` (Pablo), se deja vigente
-    marcado «a confirmar» en ADR-055.
+    marcado «a confirmar» en ADR-055. **Resuelta por la tanda 9 (2026-11-21).**
   - A2. ADR-054 D7 «disolución automática por mora generalizada» vs tanda 7 «disolución votada». `DECISION_REQUIRED`
-    (Pablo); ADR-055 registra la duda sin resolverla.
+    (Pablo); ADR-055 registra la duda sin resolverla. **Resuelta por la tanda 9 (2026-11-21).**
   - A3. ADR-049: P-09 dice «reemplace a ADR-049»; la instrucción del carril dice «reemplazado parcialmente». Supuesto:
     parcial, porque la máquina de estados `AUTORIZADA/EN_REVISION` y el `UPDATE` condicionado sobreviven para los
     retiros retenidos por alerta. Confirmar con Pablo en el PR.

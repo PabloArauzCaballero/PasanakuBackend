@@ -42,8 +42,8 @@
 - **Qué anda:** las 11 microtareas del carril tienen su DoD ejecutado y su PR abierto (#400 a #405 y #413).
 - **Qué no anda:** nada está en `dev` todavía; mientras #401 no se mergee, cualquier rama que salga de `dev` sigue
   trabada por `blocker_gate` (pasó en esta sesión). F0.M2 no se ejecutó.
-- **Qué falta exactamente:** (1) que Pablo revise y mergee, en este orden: #400, #401, #402 → #403 → #404, #405 y
-  #413; (2) correr F0.M2 en la máquina de Pablo con el procedimiento de abajo; (3) sumar a la línea base
+- **Qué falta exactamente:** (1) que Pablo revise y mergee #402 → #403 → #404 (en ese orden), #405 y #413 (#400 y #401 ya
+  están en `dev`); (2) correr F0.M2 en la máquina de Pablo con el procedimiento de abajo; (3) sumar a la línea base
   `webTest` + `integrationTest` por servicio y `flutter analyze`, en esa misma máquina.
 - **Dónde quedó:** ramas `correcciones/f0-preparacion-2026-11-21*`; solo documentación y evidencia, nada que
   compilar.
@@ -274,15 +274,18 @@ Sin fallas.
 
 ## Decisiones y ambigüedades
 
+Actualizado tras la tanda 9 de `DECISIONES.md` (mergeada en `dev` con #414): A1, A2, A5, A6 y A7 quedaron
+resueltas y aplicadas en #402, #403 y #405. Siguen abiertas A3, A8, A9 y A10.
+
 | # | Ambigüedad | Supuesto tomado | A quién confirmar |
 |---|---|---|---|
-| A1 | Inicio del grupo: «al completarse los cupos» vs la regla del 75 % de ADR-054 D3/D4 | No se cambia R-GRP-20; queda `DECISION_REQUIRED` en ADR-055 | Pablo |
-| A2 | Disolución automática por mora generalizada (ADR-054 D7) vs disolución votada (tanda 7) | `DECISION_REQUIRED` en ADR-055 | Pablo |
+| A1 | Inicio del grupo: «al completarse los cupos» vs la regla del 75 % de ADR-054 D3/D4 | **Resuelta (tanda 9):** a la fecha límite decide el creador (achicar, extender o cancelar); reemplaza el 75 %. Aplicado en ADR-055 E6 y §1-bis (#402) | Pablo (decidido el 2026-11-21) |
+| A2 | Disolución automática por mora generalizada (ADR-054 D7) vs disolución votada (tanda 7) | **Resuelta (tanda 9):** la disolución automática sigue, con umbral; convive con la votada. ADR-055 E14 (#402) | Pablo (decidido el 2026-11-21) |
 | A3 | ADR-049: «reemplace» (P-09) vs «reemplazado parcialmente» (instrucción) | Parcial: sobrevive la máquina de estados para la orden retenida por alerta | Pablo (en #402) |
 | A4 | Comisión «fija» (anexo L5) vs «porcentaje único» (tanda 7) | Manda la tanda 7 | — (decidido) |
-| A5 | Quién es «el perjudicado» si el fondo cubrió a tiempo o si son varios | `DECISION_REQUIRED` en ADR-056 | Pablo |
-| A6 | Reparto de lo incobrable: ¿entre todos o solo entre quienes no deben? ¿se compensa la devolución del moroso? | `DECISION_REQUIRED` en ADR-056 | Pablo |
-| A7 | «Grupo perfecto»: el fondo se devuelve antes, ¿de qué? | `DECISION_REQUIRED` en ADR-056 | Pablo |
+| A5 | Quién es «el perjudicado» si el fondo cubrió a tiempo o si son varios | **Resuelta (tanda 9):** el perjudicado es el fondo del grupo; si el fondo no alcanzó, quien esperó. ADR-056 R2 (#403) | Pablo (decidido el 2026-11-21) |
+| A6 | Reparto de lo incobrable: ¿entre todos o solo entre quienes no deben? ¿se compensa la devolución del moroso? | **Resuelta (tanda 9):** primero se compensa con la devolución del moroso; el resto, solo entre los que cumplieron. ADR-056 A5 (#403) | Pablo (decidido el 2026-11-21) |
+| A7 | «Grupo perfecto»: el fondo se devuelve antes, ¿de qué? | **Resuelta (tanda 9):** el fondo se devuelve igual; el ciclo siguiente del mismo grupo aporta un porcentaje menor. ADR-056 D4 (#403) | Pablo (decidido el 2026-11-21) |
 | A8 | Plan de cuentas del modelo A | Transcrito de H3.S3, «a validar con el contador» | Contador |
 | A9 | RM-01: ruta `infraestructura/proveedores/` (plan) vs `infraestructura/adaptadores/<puerto>/` (ADR-033) | Patrón existente (ADR-033) | Pablo (en #404) |
 | A10 | ¿Alguna norma exige segregación humana en la entrega o el cobro? ¿Basta con persona en descargo y apelación? | Preguntas escritas en `Cumplimiento.md`; sugerido sumarlas a `PREGUNTAS-LEGALES.md` (no lo edité: se copió tal cual) | Cumplimiento |
