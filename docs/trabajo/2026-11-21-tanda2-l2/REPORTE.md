@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, lote L2 (garantía y entregas)
 
-> **AVANCE: 6 / 15 — 40,0 %.**
+> **AVANCE: 11 / 20 — 55,0 %.**
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · PR mergeados en `dev`: #419, #421, #422, #424, #429, #459, #462
   y #463, todos con CI verde, incluidos los cinco corredores. #464 se consolidó en #463 por el tope de 3 PR abiertos.
@@ -18,8 +18,31 @@
 | F1.L2.M09 | `POST /entregas` y la ejecución manual responden 410; `EFECTIVO_ORGANIZADOR` no existe en el contrato, en el modelo ni en las bases existentes (`CK_ESTRECHADOS`) | psql contra una base existente y una nueva | PASS — [evidencia](./evidencia/punto2-check-estrechado.txt) (#424, #463) |
 | F1.L2.M05 | Ninguna persona anota la respuesta del proveedor: `POST /desembolsos/{id}/respuesta` responde 410 `AP-CU28-08` sin llamar al caso de uso (sin ACREDITADA ni `desembolso_acreditado`). `CU28EmitirDesembolso.anotarRespuesta` se conserva para el webhook firmado de F3.L2.M02 | `./gradlew :servicios:entregas:webTest` | PASS — [evidencia](./evidencia/F1.L2.M05-desembolso-sin-humano.txt) |
 | P3.M1 | La entrega nace solo del fondeo: `CU22LiquidarEntrega.liquidar`/`ejecutar` y `LiquidacionDeEntrega` no existen; la ficha CU-22 tiene tres criterios probados | `test` + `webTest` locales; `integrationTest` en el CI | PASS — [evidencia](./evidencia/punto3-cu22-sin-liquidacion.txt) (#471, CI verde con los cinco corredores) |
+| F3.L2.M01.a | `entregas.turno_del_grupo` (copia de lectura de los turnos de `grupos`, sin FK a otro esquema, `periodo_id` único) en el modelo, el DDL y la base local | `generar_ddl.py` + psql 5433 + job de bóveda y esquema | PASS — [evidencia](./evidencia/F3.L2.M01.a-turno-del-grupo.txt), [job](./evidencia/F3.L2.M01-boveda-y-esquema.txt) (20/20 pasos en 0) |
+| F3.L2.M01.b | La copia de turnos se aplica una vez por evento y solo con versión mayor | `AplicarTurnosAsignadosTest` + `CU133EntregaAutomaticaTest.versionesDeTurnos` contra Postgres real | PASS — [evidencia](./evidencia/F3.L2.M01-integracion-local.txt), [SQL](./evidencia/F3.L2.M01.bc-sql-saga-y-copia.txt) |
+| F3.L2.M01.c | `entregas` fondea sola al recibir el aviso de recaudo: una entrega por periodo con clave `fondeo-auto-<periodoId>`; aviso duplicado, aviso antes que los turnos, aportes caído y gracia vencida seguida de completo terminan en UN fondeo | `EntregaAutomaticaTest` (11, tres niveles contra dobles) + `CU133EntregaAutomaticaTest` (6) contra Postgres real | PASS — [evidencia](./evidencia/F3.L2.M01-integracion-local.txt) |
+| F3.L2.M01.d | Los bordes Kafka de `aportes.periodo_recaudado` y `grupos.turnos_asignados` leen los ejemplos de los pactos y rechazan sobre o campo faltante; apagados por omisión | `PactosDeLaEntregaAutomaticaTest` (5) | PASS — [evidencia](./evidencia/F3.L2.M01-suites.txt) |
+| F3.L2.M01.e | La incidencia por faltante que abre el sistema no lleva persona: `incidencia_entrega.reportada_por` admite NULL | `CU133EntregaAutomaticaTest.graciaVencidaYDespuesCompleto` (rojo con `fk_incidencia_entrega_reportada_por` antes, verde después) | PASS — [evidencia](./evidencia/F3.L2.M01-integracion-local.txt) |
 
 ## A medias
+
+### H1.S4 / F3.L2.M01 — Entrega automática al cobrarse el turno
+- Qué anda: con la propiedad `aportaya.entrega-automatica.habilitada=true` y un método de desembolso configurado, el
+  aviso `aportes.periodo_recaudado` fondea el turno del periodo sin pedido manual. El aviso queda en la saga
+  `entregas.estado_saga` en la misma transacción que la marca del evento; el barrido (`BarridoDeEntregaAutomatica`,
+  ShedLock) retoma lo que esperaba el turno o a `aportes`. Probado contra dobles en los tres niveles y contra Postgres
+  real (copia local), ver Completado.
+- Qué no anda: los productores no existen. `aportes` (L1) no emite `aportes.periodo_recaudado` y `grupos` no emite
+  `grupos.turnos_asignados`. Por eso la función está **apagada por omisión**: en ningún entorno fondea sola todavía.
+  El método de desembolso de la entrega que nace sola es DECISION_REQUIRED.
+- Qué falta exactamente: (1) L1 emite `aportes.periodo_recaudado` según
+  `contratos/pactos/aportes-entregas-periodo-recaudado.json`, con su prueba de productor; (2) el dueño de `grupos`
+  emite `grupos.turnos_asignados` según `contratos/pactos/grupos-entregas-turnos-asignados.json`, también con prueba
+  de productor; (3) Pablo decide el método de desembolso (ver Decisiones); (4) se enciende en `test` con
+  `APORTAYA_ENTREGAAUTOMATICA_HABILITADA=true` y `APORTAYA_ENTREGAAUTOMATICA_METODODESEMBOLSO`, y se prueba con Kafka
+  real y con `aportes` apagado de verdad (regla 98.8.4).
+- Dónde quedó: rama `correcciones/tanda2-l2-entrega-automatica` (PR #490); compila; `test`, `webTest`, `testBarrido`
+  y la integración local en verde.
 
 `CU22LiquidarEntrega.liquidar`/`ejecutar` ya no existen (#471). `CU23CubrirIncumplimiento` se retira en #472.
 
@@ -121,6 +144,16 @@
 
 ## Evidencia
 
+- F3.L2.M01: [`F3.L2.M01-diseno-entrega-automatica.md`](./evidencia/F3.L2.M01-diseno-entrega-automatica.md) (diseño),
+  [`F3.L2.M01.a-turno-del-grupo.txt`](./evidencia/F3.L2.M01.a-turno-del-grupo.txt) (tabla aplicada en psql),
+  [`F3.L2.M01.bc-sql-saga-y-copia.txt`](./evidencia/F3.L2.M01.bc-sql-saga-y-copia.txt) (SQL de la copia y de la saga
+  con `ROLLBACK`: alta 1, repetido 0, versión mayor 1; la saga solo se reabre desde `EN_CURSO`),
+  [`F3.L2.M01-integracion-local.txt`](./evidencia/F3.L2.M01-integracion-local.txt) (54 pruebas de integración de
+  entregas más las 18 unitarias nuevas, todas en verde),
+  [`F3.L2.M01-suites.txt`](./evidencia/F3.L2.M01-suites.txt) (spotless + `test` 40 + `webTest` 65 + `testBarrido` 2) y
+  [`F3.L2.M01-boveda-y-esquema.txt`](./evidencia/F3.L2.M01-boveda-y-esquema.txt) (los 20 pasos del job con su código de
+  salida real).
+
 - [`evidencia/L2.S1.M1-retiro-cesion.txt`](./evidencia/L2.S1.M1-retiro-cesion.txt): grep de control, `test`/`webTest`,
   `check`/`testBarrido`/spotless, pacto de nucleo con entregas (6/6), `verificar_criterios`, `verificar_pruebas_web`,
   `verificar_seguridad`, `verificar_boveda`, Postman regenerado.
@@ -131,6 +164,13 @@
 
 ## No cubierto
 
+- F3.L2.M01: la integración de entregas corrió contra una **copia local** de Postgres (sin Docker no hay
+  Testcontainers), con la URL cambiada solo en el disco y restaurada después. Falta la corrida del CI. No se
+  ejercitó: el broker Kafka real ni el contenedor de listeners; la caída real del contenedor de `aportes` (se simuló
+  con el doble del puerto `RecaudoDelPozo`); el arranque del contexto Spring con la función encendida; los productores
+  reales (no existen); el reintento entre dos réplicas a la vez (el fondeo ya es único por turno y está probado con
+  ocho pedidos simultáneos en `CU133PozoCompletoConcurrenciaTest`, pero no con dos barridos).
+
 - `integrationTest`, `contractTest` y `sagaTest` de `entregas` no corrieron acá (sin Docker): `CU22PozoYMercadoRechazosTest`
   reescrita queda `NO COMPROBADO` localmente; su SQL sí se ejercitó con `psql`. Comando:
   `./gradlew :servicios:entregas:integrationTest --tests '*CU22PozoYMercadoRechazosTest*'`.
@@ -140,6 +180,17 @@
 - La app móvil sigue llamando a la subasta: hoy recibe 410 y muestra un error genérico (L6).
 
 ## Desvíos del plan
+
+- F3.L2.M01: el diseño decía «reintento con backoff y dead-letter» de Kafka si el aviso llega antes que los turnos.
+  Se cambió por una saga persistida en `entregas.estado_saga` (ADR-028) con barrido: el contenedor de Spring Kafka
+  descarta el mensaje tras unos pocos reintentos seguidos, y eso perdería el aviso. La marca del evento y la saga van
+  en la misma transacción; el aviso no se pierde aunque los turnos lleguen horas después.
+- F3.L2.M01: hubo que tocar `README.md` y seis archivos de `planes/` (350 → 351 tablas), porque `verificar_boveda`
+  falla si las cifras citadas no coinciden. Regenerar la bóveda Obsidian (`generar_boveda.py`) destapó cinco
+  entidades de otros lotes sin caso de uso (`desbloqueo_etapa`, `disponibilidad_servicio_dia`, `etapa`,
+  `puja_subasta`, `subasta_cupo`) y una cifra desfasada en el plan maestro. Se revirtió: no lo verifica el CI y es de
+  otros dueños. Por eso `docs/Modelos/` todavía no tiene la nota de `turno_del_grupo`.
+- F3.L2.M01.e no estaba en el plan: apareció en la integración y se agregó como microtarea.
 
 - **Alcance ampliado por el coordinador** (2026-11-21): `plataforma/comun-web` (410 común, #462),
   `scripts/generar_compose.py` (#463), `scripts/modelo.py` y `generar_ddl.py` (#464). La prueba de #464 destapó que
@@ -169,6 +220,13 @@
 
 ## Riesgos residuales
 
+- F3.L2.M01: la FK `incidencia_entrega.reportada_por` pasó a `ON DELETE SET NULL`, que es la convención del generador
+  para una FK que admite nulos. Borrar un usuario dejaría sin autor las incidencias que reportó. Hoy los usuarios no
+  se borran físicamente; si eso cambia, hay que revisarlo.
+- F3.L2.M01: `turno_del_grupo` es una réplica. Si `grupos` cambia un titular y el evento se atrasa, el fondeo usa el
+  titular viejo. `RegistroDelFondeo` sigue dándole prioridad al título de una cesión. El desfase máximo tolerable
+  (98.4.3) y su alerta quedan para cuando exista el productor.
+
 - F2.L2.M01: desde el despliegue, un turno con faltante queda BLOQUEADO hasta que lleguen los aportes que faltan; nadie
   lo cubre hasta F3.L2.M05 (fondo del grupo). Es lo que pide el plan, pero en `test` cambia lo que ve quien pruebe un
   pozo incompleto: antes lo cubría la reserva. `garantia` sigue exponiendo el respaldo hasta F2.L2.M02.
@@ -179,6 +237,14 @@
   Si hay retenciones vivas, se liberan con la operación de liberación de `nucleo-financiero` (nunca con `UPDATE`).
 
 ## Decisiones y ambigüedades
+
+- **DECISION_REQUIRED (F3.L2.M01), para Pablo:** qué método de desembolso lleva una entrega que nace sola
+  (`entrega_fondo.metodo_desembolso` es `NOT NULL`). Mientras no se decida, la función está apagada; encendida, exige
+  el método por configuración (uno solo para todas: `BILLETERA_MOVIL`, `QR_ENVIO` o `TRANSFERENCIA_BANCARIA`) o el
+  proceso no levanta. La propuesta del diseño (derivarlo del tipo de la cuenta VERIFICADA del beneficiario) exige
+  resolver participante → usuario, que vive en `grupos`. Publicado en el PR #490.
+- F3.L2.M01: la incidencia que abre el sistema queda con `reportada_por` NULL, en vez de inventar un «usuario del
+  sistema» que no existe en las semillas.
 
 - AMB-1 (expandir/contraer con 410) y AMB-2 (el fondeo sigue pagándole al cesionario de una cesión LIQUIDADA o con
   título asignado, para no pagar dos veces el turno): supuestos tomados; confirmar con Pablo en el PR.
