@@ -1,10 +1,10 @@
 # Reporte — Tanda 2, lote L2 (garantía y entregas)
 
-> **AVANCE: 3 / 13 — 23,1 %.** (F1.L2.M07 en A MEDIAS: no suma)
+> **AVANCE: 3 / 14 — 21,4 %.** (F1.L2.M07 en A MEDIAS: no suma)
 
-- Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · PR apilados, mergear en este orden: #419
-  (`correcciones/tanda2-l2-retiro-subasta`) → #421 (`-seg007-cifrado`) → #422 (`-desembolso-sin-humano`) →
-  #424 (`-entrega-legacy`) → #429 (`-garantia-cuerpo`)
+- Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · PR mergeados en `dev`: #419, #421, #422, #424 y #429 (CI de la
+  punta 100 % verde, incluidos los cinco corredores y Frontend). Abierto: `correcciones/tanda2-l2-dinero-entrada`
+  (F1.L2.M04)
 - Peldaño de evidencia alcanzado: `TESTED` en L2.S1.M1 (`test` + `webTest` + gates estáticos locales en verde).
   `integrationTest` (Testcontainers) no corre en esta nube: lo corre el CI del PR. Todo lo demás del lote: `UNKNOWN`.
 
@@ -17,6 +17,18 @@
 | F1.L2.M05 | Ninguna persona anota la respuesta del proveedor: `POST /desembolsos/{id}/respuesta` responde 410 `AP-CU28-08` sin llamar al caso de uso (sin ACREDITADA ni `desembolso_acreditado`). `CU28EmitirDesembolso.anotarRespuesta` se conserva para el webhook firmado de F3.L2.M02 | `./gradlew :servicios:entregas:webTest` | PASS — [evidencia](./evidencia/F1.L2.M05-desembolso-sin-humano.txt) |
 
 ## A medias
+
+### F1.L2.M04 — Importes de entrada sin signo; disolución y reemplazo con cifras de sus dueños
+- Qué anda: `garantia.yaml` 1.2.0 define `DineroEntrada` (monto `^\d+\.\d{2}$`, sin signo) y lo usan los importes que
+  manda el cliente en `declararIncumplimiento`, `proponerReemplazo` e `iniciarDisolucion`: un negativo recibe 400 sin
+  llegar al caso de uso ([evidencia](./evidencia/F1.L2.M04-dinero-entrada.txt)). `entregas` ya no tiene entradas
+  vigentes con importes: todas las que los tenían quedaron retiradas (410).
+- Qué no anda: `CU67DisolverGrupo` y `CU66ReemplazarParticipante` siguen tomando del cuerpo los totales, la masa y
+  la deuda asumida. D-L2-2 (tanda 7) mantiene reemplazo y disolución, votados.
+- Qué falta exactamente: leer el total aportado y la deuda viva de `aportes` y el mayor, y lo entregado de `entregas`,
+  con clientes con timeout y circuito (regla 65: dobles en tres niveles), y quitar esos campos de la entrada.
+  Depende del cliente HTTP único y del token de servicio en `plataforma` (F1.L2.M13/M14).
+- Dónde quedó: rama `correcciones/tanda2-l2-dinero-entrada`; compila, `test`/`webTest` en verde.
 
 ### F1.L2.M02, F1.L2.M03 y F2.L2.M04 — `garantia`: cobertura manual, devolución a pedido y aval
 - Qué anda: `cubrirIncumplimiento` (410 `AP-CU23-14`), `devolverFondo` (410 `AP-CU29-06`) y `ejecutarAval`
