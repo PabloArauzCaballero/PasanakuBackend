@@ -143,3 +143,17 @@ SELECT a.modelo_id, a.codigo, a.hasta, s.codigo AS siguiente, s.desde
          WHERE b.modelo_id = a.modelo_id AND b.orden > a.orden
          ORDER BY b.orden LIMIT 1) s ON TRUE
  WHERE s.desde <> a.hasta;
+
+-- R-AUD-05 / R-AUD-13 · asientos en firme que no cuadran, con menos de dos líneas
+--     o con alguna línea negativa o de dos lados (TYA-DINERO-001). Las reglas lo
+--     impiden desde ahora; esta consulta encuentra lo que haya entrado antes. Lo que
+--     aparezca se corrige con contra-asiento, nunca con UPDATE (regla 91.1.3).
+SELECT a.id, a.estado, count(m.id) AS lineas,
+       COALESCE(SUM(m.debe),0) AS debe, COALESCE(SUM(m.haber),0) AS haber
+  FROM asiento_contable a
+  LEFT JOIN movimiento_contable m ON m.asiento_id = a.id
+ WHERE a.estado IN ('CONFIRMADO', 'REVERSADO')
+ GROUP BY a.id, a.estado
+HAVING count(m.id) < 2
+    OR COALESCE(SUM(m.debe),0) <> COALESCE(SUM(m.haber),0)
+    OR bool_or(m.debe < 0 OR m.haber < 0 OR (m.debe = 0) = (m.haber = 0));

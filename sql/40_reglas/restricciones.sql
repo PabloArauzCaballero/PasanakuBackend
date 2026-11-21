@@ -110,12 +110,20 @@ CREATE TRIGGER tg_bitacora_evento_hash
   FOR EACH ROW EXECUTE FUNCTION fn_aud_encadenar_bitacora();
 
 -- R-AUD-05 · invariante de partida doble contable
+--
+-- Un asiento en firme sin líneas "cuadraba" como 0 = 0 (TYA-DINERO-001): se exige
+-- además que tenga al menos dos. Una sola línea nunca cuadra (R-AUD-13 le da un solo
+-- lado), así que el mínimo real es dos.
 CREATE OR REPLACE FUNCTION fn_aud_asiento_cuadrado() RETURNS trigger AS $$
-DECLARE v_debe NUMERIC(16,2); v_haber NUMERIC(16,2);
+DECLARE v_debe NUMERIC(16,2); v_haber NUMERIC(16,2); v_lineas INT;
 BEGIN
-  SELECT COALESCE(SUM(debe),0), COALESCE(SUM(haber),0)
-    INTO v_debe, v_haber
+  SELECT count(*), COALESCE(SUM(debe),0), COALESCE(SUM(haber),0)
+    INTO v_lineas, v_debe, v_haber
     FROM movimiento_contable WHERE asiento_id = NEW.id;
+  IF v_lineas < 2 THEN
+    RAISE EXCEPTION 'R-AUD-05: asiento % en firme con % lineas; necesita al menos dos',
+                    NEW.id, v_lineas;
+  END IF;
   IF v_debe <> v_haber THEN
     RAISE EXCEPTION 'R-AUD-05: asiento % descuadrado (debe=%, haber=%)',
                     NEW.id, v_debe, v_haber;
@@ -187,6 +195,90 @@ CREATE CONSTRAINT TRIGGER tg_asiento_una_moneda
   DEFERRABLE INITIALLY DEFERRED
   FOR EACH ROW WHEN (NEW.estado IN ('CONFIRMADO', 'REVERSADO'))
   EXECUTE FUNCTION fn_aud_asiento_una_moneda();
+
+-- R-AUD-13 · cada línea va al debe o al haber, nunca a los dos, y nunca es negativa
+--
+-- R-AUD-05 suma: dos líneas de -10 "cuadran" (TYA-DINERO-001, reproducido). El signo
+-- lo da la cuenta y el lado, no el número (regla 91.2.2). `Partida` ya lo exige en el
+-- dominio de nucleo-financiero; esto lo hace cumplir a cualquiera que escriba.
+ALTER TABLE movimiento_contable DROP CONSTRAINT IF EXISTS ck_movimiento_contable_un_lado;
+ALTER TABLE movimiento_contable
+  ADD CONSTRAINT ck_movimiento_contable_un_lado CHECK (
+        debe >= 0 AND haber >= 0 AND (debe = 0) <> (haber = 0));
+
+-- R-AUD-14 · un asiento en firme no recibe líneas nuevas
+--
+-- R-AUD-05 y R-AUD-12 se disparan al insertar el ENCABEZADO. Una línea insertada
+-- después, en otra transacción, no volvía a disparar nada: un asiento CONFIRMADO
+-- aceptaba una línea suelta que lo descuadraba, o un par cuadrado que cambiaba los
+-- saldos sin asiento nuevo (TYA-DINERO-001, reproducido). Corregir un asiento en firme
+-- es un contra-asiento (R-AUD-06, regla 91.1.3), nunca una línea más.
+--
+-- Cómo se sabe que el asiento es "de esta transacción": la fila del encabezado es
+-- visible y su xmin sigue en curso. Bajo MVCC, una fila no confirmada de OTRA
+-- transacción no es visible, así que un xmin en curso solo puede ser de esta (o de
+-- una de sus subtransacciones). El xid de 32 bits se lleva a xid8 por su distancia
+-- con signo (módulo 2^32) al xid de la transacción actual: el de una subtransacción
+-- es MAYOR que el de la principal, así que no alcanza con suponer "anterior". Si la
+-- fila es vieja o está congelada, pg_xact_status no devuelve 'in progress' y la
+-- línea se rechaza.
+CREATE OR REPLACE FUNCTION fn_aud_linea_en_asiento_abierto() RETURNS trigger AS $$
+DECLARE v_estado VARCHAR(15); v_xmin BIGINT; v_actual BIGINT; v_dif BIGINT;
+BEGIN
+  SELECT a.estado, a.xmin::text::bigint INTO v_estado, v_xmin
+    FROM asiento_contable a WHERE a.id = NEW.asiento_id;
+  IF v_estado IS NULL OR v_estado NOT IN ('CONFIRMADO', 'REVERSADO') THEN
+    RETURN NEW;
+  END IF;
+  v_actual := pg_current_xact_id()::text::bigint;
+  v_dif := (((v_actual & 4294967295) - v_xmin) % 4294967296 + 4294967296) % 4294967296;
+  IF v_dif >= 2147483648 THEN
+    v_dif := v_dif - 4294967296;
+  END IF;
+  IF v_actual - v_dif < 0
+     OR pg_xact_status((v_actual - v_dif)::text::xid8) IS DISTINCT FROM 'in progress' THEN
+    RAISE EXCEPTION 'R-AUD-14: el asiento % ya esta en firme; una linea nueva no entra (corrija con un contra-asiento)',
+                    NEW.asiento_id;
+  END IF;
+  RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS tg_movimiento_contable_asiento_abierto ON movimiento_contable;
+CREATE TRIGGER tg_movimiento_contable_asiento_abierto
+  BEFORE INSERT ON movimiento_contable
+  FOR EACH ROW EXECUTE FUNCTION fn_aud_linea_en_asiento_abierto();
+
+-- El cuadre se revalida también desde cada línea. Sin esto, dentro de la MISMA
+-- transacción alcanzaba con `SET CONSTRAINTS ALL IMMEDIATE` después de las primeras
+-- líneas: los triggers del encabezado se adelantaban, pasaban, y una línea posterior
+-- descuadraba el asiento sin que nada volviera a mirar (reproducido sobre dev). Con
+-- este trigger, cualquier línea que se agregue vuelve a exigir R-AUD-05 y R-AUD-12
+-- al momento en que se evalúen sus restricciones diferidas.
+CREATE OR REPLACE FUNCTION fn_aud_linea_cuadra() RETURNS trigger AS $$
+DECLARE v_estado VARCHAR(15); v_debe NUMERIC(16,2); v_haber NUMERIC(16,2); v_monedas INT;
+BEGIN
+  SELECT estado INTO v_estado FROM asiento_contable WHERE id = NEW.asiento_id;
+  IF v_estado IS NULL OR v_estado NOT IN ('CONFIRMADO', 'REVERSADO') THEN
+    RETURN NULL;
+  END IF;
+  SELECT COALESCE(SUM(debe),0), COALESCE(SUM(haber),0), count(DISTINCT moneda)
+    INTO v_debe, v_haber, v_monedas
+    FROM movimiento_contable WHERE asiento_id = NEW.asiento_id;
+  IF v_monedas > 1 THEN
+    RAISE EXCEPTION 'R-AUD-12: el asiento % mezcla % monedas', NEW.asiento_id, v_monedas;
+  END IF;
+  IF v_debe <> v_haber THEN
+    RAISE EXCEPTION 'R-AUD-05: asiento % descuadrado (debe=%, haber=%)',
+                    NEW.asiento_id, v_debe, v_haber;
+  END IF;
+  RETURN NULL;
+END $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS tg_movimiento_contable_cuadra ON movimiento_contable;
+CREATE CONSTRAINT TRIGGER tg_movimiento_contable_cuadra
+  AFTER INSERT ON movimiento_contable
+  DEFERRABLE INITIALLY DEFERRED
+  FOR EACH ROW EXECUTE FUNCTION fn_aud_linea_cuadra();
 
 -- R-AUD-07 · un cierre de saldo por cuenta y día
 ALTER TABLE saldo_diario_billetera DROP CONSTRAINT IF EXISTS uq_saldo_diario_cuenta_fecha;
