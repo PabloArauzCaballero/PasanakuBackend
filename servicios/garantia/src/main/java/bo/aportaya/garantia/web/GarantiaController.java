@@ -1,6 +1,5 @@
 package bo.aportaya.garantia.web;
 
-import bo.aportaya.garantia.aplicacion.CU29DevolverFondo;
 import bo.aportaya.garantia.aplicacion.CU66ReemplazarParticipante;
 import bo.aportaya.garantia.aplicacion.CU67DisolverGrupo;
 import bo.aportaya.garantia.dominio.CuadreDeDisolucion;
@@ -22,6 +21,7 @@ import bo.aportaya.garantia.web.generado.modelo.SalidaRecuperacionRespaldo;
 import bo.aportaya.garantia.web.generado.modelo.SalidaReemplazo;
 import bo.aportaya.garantia.web.generado.modelo.SalidaReservaRespaldo;
 import bo.aportaya.garantia.web.generado.modelo.SalidaReversaRespaldo;
+import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
@@ -40,43 +40,31 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class GarantiaController implements GarantiaApi {
 
-    private final CU29DevolverFondo cu29;
     private final CU66ReemplazarParticipante cu66;
     private final CU67DisolverGrupo cu67;
     private final RespaldoWeb respaldo;
     private final SesionDeLaPeticion sesion;
 
     public GarantiaController(
-            CU29DevolverFondo cu29,
-            CU66ReemplazarParticipante cu66,
-            CU67DisolverGrupo cu67,
-            RespaldoWeb respaldo,
-            SesionDeLaPeticion sesion) {
-        this.cu29 = cu29;
+            CU66ReemplazarParticipante cu66, CU67DisolverGrupo cu67, RespaldoWeb respaldo, SesionDeLaPeticion sesion) {
         this.cu66 = cu66;
         this.cu67 = cu67;
         this.respaldo = respaldo;
         this.sesion = sesion;
     }
 
+    /**
+     * F1.L2.M03 (SEG-004): la devolucion decidia con {@code grupoCerrado} y {@code deudasVivas} del cuerpo. Se retira
+     * de la API: la dispara el sistema al cerrarse el ciclo, con las precondiciones leidas de sus duenos (F3.L2.M06).
+     * 410 sin efecto: el fondo no cambia.
+     */
+    @Deprecated
     @Override
     @Permiso("GRUPO_ADMINISTRAR")
     public ResponseEntity<SalidaDevolucionFondo> devolverFondo(UUID grupoId, EntradaDevolucionFondo cuerpo) {
-        Traza.marcarCasoDeUso("CU-29", grupoId.toString());
-
-        var salida = cu29.devolver(
-                new CU29DevolverFondo.EntradaDevolucion(
-                        grupoId, Boolean.TRUE.equals(cuerpo.getGrupoCerrado()), cuerpo.getDeudasVivas()),
-                sesion.actual());
-
-        var respuesta = new SalidaDevolucionFondo();
-        respuesta.setFondoId(salida.fondoId());
-        respuesta.setTotalAportado(MapeoDeGarantia.dinero(salida.totalAportado()));
-        respuesta.setTotalDevuelto(MapeoDeGarantia.dinero(salida.totalDevuelto()));
-        respuesta.setConsumidoPorCoberturas(MapeoDeGarantia.dinero(salida.consumidoPorCoberturas()));
-        respuesta.setDevoluciones(
-                salida.devoluciones().stream().map(MapeoDeGarantia::devolucion).toList());
-        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+        throw new OperacionRetirada(
+                CodigoError.de(29, 6),
+                "El fondo ya no se devuelve a pedido: lo devuelve el sistema al cerrar el ciclo.");
     }
 
     @Override

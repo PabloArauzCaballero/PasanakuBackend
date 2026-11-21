@@ -1,0 +1,18 @@
+$ ./gradlew :servicios:entregas:compileTestJava :servicios:entregas:test :servicios:entregas:webTest
+BUILD SUCCESSFUL in 40s
+test: 21 pruebas, 0 fallas (CifradoDelNumeroDeCuentaTest 1/1: descifrar lo guardado == numero; enmascarado == CuentaEnmascarada.de(numero))
+webTest: 66 pruebas, 0 fallas (CuentasBancariasControllerWebTest: "400: un numeroCifrado del cliente se rechaza" PASS, sin llamar al caso de uso ni a identidad)
+
+$ spotlessCheck + check -x test + testBarrido (entregas)
+BUILD SUCCESSFUL in 4s
+$ python3 scripts/verificar_criterios.py
+Sin divergencias entre la boveda y el codigo.
+$ python3 scripts/verificar_pruebas_web.py
+La capa web esta cubierta segun ADR-043.
+$ python3 scripts/verificar_seguridad.py
+TODO OK · 5 aviso(s)
+$ python3 scripts/verificar_boveda.py
+TODO OK
+
+$ grep -rn "getNumeroCifrado\|entrada.numeroCifrado" servicios/entregas/src
+(exit 1: sin resultados)

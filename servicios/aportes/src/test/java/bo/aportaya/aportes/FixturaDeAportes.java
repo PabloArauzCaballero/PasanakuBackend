@@ -59,6 +59,11 @@ final class FixturaDeAportes {
      * @param diasHastaVencer negativo para que ya este vencida
      */
     Obligacion obligacion(UUID usuarioId, String monto, int diasHastaVencer) {
+        return obligacion(usuarioId, monto, diasHastaVencer, "BOB");
+    }
+
+    /** F1.L1.M12 · la misma obligacion en otra moneda (USD), para probar que nada fija BOB. */
+    Obligacion obligacion(UUID usuarioId, String monto, int diasHastaVencer, String moneda) {
         UUID grupo = grupo();
         UUID participante = UUID.randomUUID();
         dsl.execute(
@@ -103,7 +108,7 @@ final class FixturaDeAportes {
                     (id, grupo_id, periodo_id, cupo_id, participante_id, tipo, monto_esperado,
                      moneda, monto_pagado, monto_recargo, monto_condonado, monto_cubierto_garantia,
                      estado, fecha_vencimiento, fecha_fin_gracia, dias_mora, version)
-                VALUES (?, ?, ?, ?, ?, 'APORTE_PERIODICO', ?, 'BOB', 0, 0, 0, 0,
+                VALUES (?, ?, ?, ?, ?, 'APORTE_PERIODICO', ?, ?, 0, 0, 0, 0,
                         'PENDIENTE', current_date + ?, current_date + ?, 0, 0)
                 """,
                 obligacion,
@@ -112,6 +117,7 @@ final class FixturaDeAportes {
                 cupo,
                 participante,
                 new BigDecimal(monto),
+                moneda,
                 diasHastaVencer,
                 diasHastaVencer);
         return new Obligacion(obligacion, grupo, participante);

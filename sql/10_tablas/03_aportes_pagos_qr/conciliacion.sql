@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS aportes.conciliacion (
   estado                             VARCHAR(25) NOT NULL,
   metodo                             VARCHAR(20) NOT NULL,
   diferencia_monto                   NUMERIC(14,2) NOT NULL,
+  moneda                             CHAR(3),
   conciliado_por                     UUID,
   fecha_conciliacion                 TIMESTAMPTZ,
   CONSTRAINT pk_conciliacion PRIMARY KEY (id),

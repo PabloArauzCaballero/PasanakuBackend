@@ -92,11 +92,12 @@ class CU14ReversosTest extends BaseDeBilletera {
         fixtura.limite("TRANSFERENCIA", ESTANDAR, "MES", new BigDecimal("100000.00"), null);
         UUID original = transferencia("300.00");
         UUID autoriza = fixtura.usuario();
-        UUID ejecutado = transaccion
-                .execute(x -> reversoCU.ejecutar(
-                        new EntradaReverso(
-                                "rev-lst-" + UUID.randomUUID(), original, "ERROR_OPERATIVO", MOTIVO, autoriza),
-                        contextoDe(fixtura.usuario())))
+        UUID ejecutado = Reversos.pedirYAutorizar(
+                        transaccion,
+                        reversoCU,
+                        new EntradaReverso("rev-lst-" + UUID.randomUUID(), original, "ERROR_OPERATIVO", MOTIVO),
+                        contextoDe(fixtura.usuario()),
+                        autoriza)
                 .reversoId();
         UUID otraOriginal = transferencia("40.00");
         UUID solicitado = UUID.randomUUID();
