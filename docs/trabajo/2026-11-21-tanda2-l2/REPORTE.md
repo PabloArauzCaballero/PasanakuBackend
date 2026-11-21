@@ -63,7 +63,7 @@
 ### F1.L2.M07 — El número de cuenta se cifra solo en el servidor, con clave dedicada (SEG-007)
 - Qué anda: `numeroCifrado` ya no existe en `EntradaRegistroCuenta` (OpenAPI 2.0.0); un cuerpo que lo manda recibe 400
   sin llegar al caso de uso. `CU18RegistrarCuentaDestino` cifra siempre desde `numeroEnClaro`, el mismo número del
-  que salen el enmascarado y el hash. Prueba unitaria de ida y vuelta en verde
+  que salen el enmascarado y el hash. Prueba unitaria de ida y vuelta (`NumeroDeCuentaProtegidoTest`) en verde
   ([evidencia](./evidencia/F1.L2.M07-numero-cifrado.txt)).
 - Qué no anda: la clave de cifrado sigue siendo `aportaya.seguridad.pimienta`, la misma que el pepper del hash.
 - Qué falta exactamente:
@@ -132,6 +132,11 @@
   Verificado que el cliente Dart regenerado ya no anota esos métodos (Flutter no está en esta nube). Propagado a toda
   la pila. Las operaciones retiradas en #422, #424 y #429 sí llevan `deprecated`, porque ningún cliente compilado
   del monorepo las llama (solo `packages/simulado` y un ensayo en Python).
+- **CI de #424, «Los cinco corredores» en rojo** (clasificación `TEST_BUG`, regla 80.4): `CifradoDelNumeroDeCuentaTest`
+  excedía el límite de 5 s por prueba del corredor `test` («idaYVuelta() timed out after 5 seconds»; localmente
+  4,948 s). El costo era Mockito simulando clases `final` (`Datos`) y `DSLContext`, no el cifrado. Corregido en #421
+  sin tocar el límite: la invariante pasó al átomo `NumeroDeCuentaProtegido` (enmascarado, hash y cifrado del mismo
+  número por construcción), que usa CU-18; su prueba pura corre en 0,247 s. Propagado a la pila.
 
 - El anexo pedía 404/410 «retirando del OpenAPI». Se eligió 410 manteniendo las operaciones `deprecated` (AMB-1):
   borrarlas rompía el build de la app (cliente Dart generado) y la prueba de pacto de nucleo, ambos fuera de alcance.
