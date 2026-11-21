@@ -1,0 +1,19 @@
+T2.M0b — el arreglo de T2.M0 llevado a todos los modulos (sesion coordinadora, 2026-11-21)
+Motivo: el mismo intermitente aparecio en el CI de #423 en otro servicio:
+  RotacionDeClavesDeFirmaTest (identidad) > laAnteriorSoloSePublica() timed out after 5 seconds
+
+Cambio: el -javaagent de mockito-core va en buildSrc/aportaya.base.gradle.kts (toda tarea Test cuyo
+classpath tenga mockito-core) y MockitoAlAbrirLaSesion pasa a plataforma/comun-pruebas (ServiceLoader).
+Se quitan las copias locales de servicios/grupos.
+
+Verificacion (contenedor de la nube, PostgreSQL 16 local en 5433):
+$ git stash  # sin el cambio
+$ ./gradlew :servicios:identidad:test --rerun && grep -l "self-attaching" servicios/identidad/build/test-results/test/*.xml | wc -l
+BUILD SUCCESSFUL in 24s
+1
+$ git stash pop  # con el cambio
+$ ./gradlew :servicios:identidad:test --rerun && grep -l "self-attaching" ... | wc -l
+BUILD SUCCESSFUL in 13s
+0
+$ ./gradlew :servicios:grupos:test :servicios:identidad:test
+BUILD SUCCESSFUL — tests 201 fail 0 err 0
