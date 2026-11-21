@@ -7,13 +7,13 @@ tags:
   - microservicios
   - dinero
 titulo: "ADR-057 — «Poder de compra»: dónde vive el agregado del comercio aliado"
-estado: propuesta
+estado: aceptada
 fecha: 2026-11-21
 ---
 
 # ADR-057 — «Poder de compra»: dónde vive el agregado del comercio aliado
 
-> **Estado: propuesta.** La escribe la sesión de diseño en paralelo del plan de correcciones del 2026-11-21
+> **Estado: aceptada** (Pablo ordenó el merge el 2026-11-21; la construcción sigue condicionada a L-11 y a un comercio firmado). La escribe la sesión de diseño en paralelo del plan de correcciones del 2026-11-21
 > (`PX10.M01`). La aprueba Pablo. Es **solo diseño**: la tanda 6 de `DECISIONES.md` dice «diseñar ahora,
 > construir después», y el código de la fase 5 no empieza hasta tener (1) la opinión legal **L-11**
 > (clasificación ante ASFI y garantía sobre bienes) y (2) al menos un comercio firmado. Este ADR no habilita
@@ -62,7 +62,7 @@ precio congelado) y dónde vive el canje que libera el pago al comercio?
 | Costo (repositorio, pipeline, base, guardia, contrato) | Alto, para un piloto condicionado | Bajo | Bajo | Bajo |
 | Saltos sincrónicos en el canje (98.2.5) | panel → comercios → entregas: 2 | panel → publicidad → entregas: 2 | panel → entregas: 1 | **panel → entregas: 1** (la verificación del comercio llega por evento) |
 
-## Decisión (propuesta)
+## Decisión
 
 **O4. No se crea un servicio nuevo.** El agregado del comercio aliado es un **módulo nuevo dentro de
 `publicidad`**, que extiende `socio_comercial`; el canje y el pago al comercio son un **destino de la entrega**
