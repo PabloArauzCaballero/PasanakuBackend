@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, lote L3L5
 
-> **AVANCE: 1 / 24 — 4,2 %.** (F1.L3.M04 en A MEDIAS)
+> **AVANCE: 2 / 24 — 8,3 %.** (F1.L3.M04 en A MEDIAS)
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Rama(s): `correcciones/tanda2-l3l5-test-admision` (#423), `correcciones/tanda2-l3l5-f1-retiro`
 - Peldaño de evidencia alcanzado: T2.M0 `TESTED` (reproducción bajo carga antes/después + suites del servicio).
@@ -9,6 +9,8 @@
 | ID | Qué se logró | Comando | Resultado |
 |---|---|---|---|
 | T2.M0 | El arranque único de Mockito ya no cae dentro de `armar()`; con la CPU repartida la clase pasa 3/3 (antes `TimeoutException` a 7,3 s) sin cambiar ningún límite | `taskset -c 0 ./gradlew --no-daemon :servicios:grupos:test --tests '*AdmisionDelGrupoSustitucionTest' --rerun` ×3 con 3 procesos ocupados en el mismo núcleo | PASS · [evidencia](./evidencia/T2.M0-mockito-arranque.txt) |
+
+| F1.L3.M06 | «Grupos activos» cuenta al participante en mora y excluye los grupos terminales reales; los estados salen de enumerados de dominio comparados con el `CHECK` | `./gradlew :servicios:grupos:test --tests '*EstadosContraElModeloTest'` + `psql` vieja/nueva | PASS · [evidencia](./evidencia/F1.L3.M06-estados-vivos.txt) |
 
 ## A medias
 ### T2.M0b — El mismo arreglo para todos los servicios
@@ -53,5 +55,8 @@
   clase (mockear cuatro tipos del proyecto).
 
 ## Decisiones y ambigüedades
+- F1.L3.M06: «vinculados» = `ACEPTADO_PENDIENTE_FIRMA`, `ACTIVO`, `EN_MORA`, `SUSPENDIDO`. Un `EXPULSADO` que
+  todavía debe al fondo no cuenta como grupo activo: su deuda la custodia `garantia` (deudas vivas), no este conteo.
+  Supuesto a confirmar con Pablo: que el cierre de billetera también consulte deudas vivas.
 - Se declaró `junit-platform-launcher` como `testImplementation` de `grupos` (ya estaba en el catálogo y en el
   runtime de pruebas; solo cambia `testCompileClasspath` en el lockfile). A confirmar con Pablo al hacer T2.M0b.
