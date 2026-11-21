@@ -3,6 +3,7 @@ package bo.aportaya.garantia.infraestructura;
 import bo.aportaya.garantia.dominio.puertos.RecaudoDelPeriodo;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.Moneda;
+import bo.aportaya.plataforma.web.clientes.CredencialDeServicio;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -26,18 +28,21 @@ import org.springframework.web.client.RestClient;
 public class RecaudoPorHttp implements RecaudoDelPeriodo {
 
     private final ClienteConCircuito cliente;
+    private final CredencialDeServicio servicio;
 
     @Autowired
     public RecaudoPorHttp(
             RestClient.Builder constructor,
             @Value("${aportaya.servicios.aportes}") String urlDeAportes,
-            ConfiguracionDeCircuito circuito) {
+            ConfiguracionDeCircuito circuito,
+            CredencialDeServicio servicio) {
         this.cliente = new ClienteConCircuito(constructor, urlDeAportes, "aportes", circuito);
+        this.servicio = servicio;
     }
 
-    /** Con los parametros del plan de resiliencia: la usan las pruebas del adaptador. */
-    RecaudoPorHttp(RestClient.Builder constructor, String urlDeAportes) {
-        this(constructor, urlDeAportes, ConfiguracionDeCircuito.porOmision());
+    /** Con los parametros del plan de resiliencia y una credencial a medida: la usan las pruebas del adaptador. */
+    RecaudoPorHttp(RestClient.Builder constructor, String urlDeAportes, CredencialDeServicio servicio) {
+        this(constructor, urlDeAportes, ConfiguracionDeCircuito.porOmision(), servicio);
     }
 
     /** Para pruebas y diagnostico: el estado del circuito hacia `aportes`. */
@@ -47,8 +52,18 @@ public class RecaudoPorHttp implements RecaudoDelPeriodo {
 
     @Override
     public Optional<Recaudo> consultar(UUID periodoId) {
+        // F1.L1.M07 (regla 98.6): con la identidad de SERVICIO de garantia, nunca con el token de una sesion. Sin
+        // credencial no sale la peticion: vacio, y quien pregunta no avanza.
+        var token = servicio.vigente();
+        if (token.isEmpty()) {
+            return Optional.empty();
+        }
         try {
-            return cliente.consultar("/aportes/periodos/" + periodoId + "/recaudo", Respuesta.class)
+            return Optional.ofNullable(cliente.ejecutar(rest -> rest.get()
+                            .uri("/aportes/periodos/{id}/recaudo", periodoId)
+                            .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.get())
+                            .retrieve()
+                            .body(Respuesta.class)))
                     .map(Respuesta::aRecaudo);
         } catch (RuntimeException noSePudo) {
             return Optional.empty();

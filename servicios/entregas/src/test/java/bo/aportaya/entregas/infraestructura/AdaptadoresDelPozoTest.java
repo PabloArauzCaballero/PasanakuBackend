@@ -25,12 +25,17 @@ import org.springframework.web.client.RestClient;
  */
 class AdaptadoresDelPozoTest {
 
+    /** F1.L1.M07: el recaudo se pregunta con la identidad de servicio de entregas. */
+    private static final bo.aportaya.plataforma.web.clientes.CredencialDeServicio SERVICIO =
+            bo.aportaya.plataforma.web.clientes.CredencialDeServicio.fija("token-de-servicio-entregas");
+
     private static final UUID PERIODO = UUID.fromString("f6000000-0000-4000-8000-000000000001");
     private static final UUID GRUPO = UUID.fromString("f6000000-0000-4000-8000-000000000002");
 
     private HttpServer servidor;
     private final AtomicReference<String> cuerpoRecibido = new AtomicReference<>();
     private final AtomicReference<String> claveRecibida = new AtomicReference<>();
+    private final AtomicReference<String> autorizacionRecibida = new AtomicReference<>();
 
     @AfterEach
     void apagar() {
@@ -45,6 +50,7 @@ class AdaptadoresDelPozoTest {
         servidor.createContext(ruta, intercambio -> {
             cuerpoRecibido.set(new String(intercambio.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
             claveRecibida.set(intercambio.getRequestHeaders().getFirst("Idempotency-Key"));
+            autorizacionRecibida.set(intercambio.getRequestHeaders().getFirst("Authorization"));
             try {
                 Thread.sleep(demoraMs);
             } catch (InterruptedException e) {
@@ -85,11 +91,34 @@ class AdaptadoresDelPozoTest {
     // ---------------------------------------------------------------- aportes (recaudo)
 
     @Test
+    @DisplayName("RECAUDO · F1.L1.M07 · la pregunta viaja con el token de la identidad de servicio de entregas")
+    void recaudoConIdentidadDeServicio() throws Exception {
+        String url = levantar("/aportes/periodos/" + PERIODO + "/recaudo", 200, RECAUDO, 0);
+
+        assertThat(new RecaudoPorHttp(conTiempos(), url, SERVICIO).consultar(PERIODO))
+                .isPresent();
+        assertThat(autorizacionRecibida.get()).isEqualTo("Bearer token-de-servicio-entregas");
+    }
+
+    @Test
+    @DisplayName("RECAUDO · F1.L1.M07 · sin credencial de servicio no sale la peticion: vacio y la entrega no avanza")
+    void recaudoSinCredencial() throws Exception {
+        String url = levantar("/aportes/periodos/" + PERIODO + "/recaudo", 200, RECAUDO, 0);
+
+        var sinCredencial = new RecaudoPorHttp(
+                conTiempos(), url, bo.aportaya.plataforma.web.clientes.CredencialDeServicio.ninguna());
+        assertThat(sinCredencial.consultar(PERIODO)).isEmpty();
+        assertThat(autorizacionRecibida.get()).isNull();
+    }
+
+    @Test
     @DisplayName("RECAUDO · CORRECTO · la respuesta del contrato de aportes se arma con importes exactos")
     void recaudoCorrecto() throws Exception {
         String url = levantar("/aportes/periodos/" + PERIODO + "/recaudo", 200, RECAUDO, 0);
 
-        var recaudo = new RecaudoPorHttp(conTiempos(), url).consultar(PERIODO).orElseThrow();
+        var recaudo = new RecaudoPorHttp(conTiempos(), url, SERVICIO)
+                .consultar(PERIODO)
+                .orElseThrow();
 
         assertThat(recaudo.grupoId()).isEqualTo(GRUPO);
         assertThat(recaudo.pozo()).isEqualTo(bob("6000.00"));
@@ -102,25 +131,28 @@ class AdaptadoresDelPozoTest {
         String ruta = "/aportes/periodos/" + PERIODO + "/recaudo";
         for (int estado : new int[] {500, 404, 403}) {
             String url = levantar(ruta, estado, "{}", 0);
-            assertThat(new RecaudoPorHttp(conTiempos(), url).consultar(PERIODO)).isEmpty();
+            assertThat(new RecaudoPorHttp(conTiempos(), url, SERVICIO).consultar(PERIODO))
+                    .isEmpty();
             apagar();
         }
         String roto = levantar(ruta, 200, "esto no es json", 0);
-        assertThat(new RecaudoPorHttp(conTiempos(), roto).consultar(PERIODO)).isEmpty();
+        assertThat(new RecaudoPorHttp(conTiempos(), roto, SERVICIO).consultar(PERIODO))
+                .isEmpty();
         apagar();
         String incompleto = levantar(ruta, 200, "{\"periodoId\":\"" + PERIODO + "\"}", 0);
-        assertThat(new RecaudoPorHttp(conTiempos(), incompleto).consultar(PERIODO))
+        assertThat(new RecaudoPorHttp(conTiempos(), incompleto, SERVICIO).consultar(PERIODO))
                 .isEmpty();
         apagar();
 
         String lento = levantar(ruta, 200, RECAUDO, 1500);
         long antes = System.nanoTime();
-        assertThat(new RecaudoPorHttp(conTiempos(), lento).consultar(PERIODO)).isEmpty();
+        assertThat(new RecaudoPorHttp(conTiempos(), lento, SERVICIO).consultar(PERIODO))
+                .isEmpty();
         assertThat((System.nanoTime() - antes) / 1_000_000).isLessThan(1200);
         apagar();
 
         String apagado = levantar(ruta, 200, RECAUDO, 0);
-        var adaptador = new RecaudoPorHttp(conTiempos(), apagado);
+        var adaptador = new RecaudoPorHttp(conTiempos(), apagado, SERVICIO);
         apagar();
         assertThat(adaptador.consultar(PERIODO)).isEmpty();
     }

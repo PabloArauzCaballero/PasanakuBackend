@@ -1,0 +1,78 @@
+F1.L1.M07 pasos 1 y 2 — identidad de servicio en las lecturas de aportes que hacen otros servicios (regla 98.6)
+Rama: correcciones/tanda2-l1-identidad-servicio (desde origin/dev con #472 y #474) · Fecha: 2026-11-21
+Autorizado por el coordinador: grupos, entregas y garantia en un solo PR; SERVICIO_GARANTIA y su configuracion.
+
+Saltos:
+- grupos --(SERVICIO_GRUPOS)--> aportes GET /aportes/grupos/{id}/morosos      (HechosPorHttp.morososDelGrupo)
+- grupos --(SERVICIO_GRUPOS)--> aportes GET /aportes/grupos/{id}/primera-cuota (PrimerAportePorHttp)
+- entregas --(SERVICIO_ENTREGAS)--> aportes GET /aportes/periodos/{id}/recaudo (RecaudoPorHttp)
+- garantia --(SERVICIO_GARANTIA)--> aportes GET /aportes/periodos/{id}/recaudo (RecaudoPorHttp)
+
+Paso 1 · aportes (AportesController):
+- contarMorosos y consultarPrimeraCuota: @Permiso("SERVICIO_GRUPOS") (antes BILLETERA_VER: cualquiera contaba los
+  morosos de un grupo ajeno). Ninguna app ni el backoffice las llaman (grep en apps/: sin coincidencias).
+- consultarRecaudoDelPeriodo: @Permiso("SERVICIO_ENTREGAS") + @PermisoAlternativo(SERVICIO_GARANTIA, ENTREGA_EJECUTAR).
+  ENTREGA_EJECUTAR es transitorio: se retira en el paso 3 (otro PR, despues de TEST).
+- RLS: obligacion_aporte y pago no tienen usuario_id ni cuenta_billetera_id: fn_seg_aplicar_rls no les pone
+  politica (sql/40_reglas/restricciones.sql:1568), asi que la identidad de servicio lee lo mismo que antes.
+Paso 2 · consumidores: el token de la cuenta de servicio (CredencialDeServicio), nunca el de la sesion. Sin
+credencial no sale la peticion: grupos → SIN_DATO_DE_MOROSOS / vacio (el ingreso y el sorteo fallan cerrados);
+entregas y garantia → vacio (la entrega no avanza).
+garantia: rol SERVICIO_GARANTIA (seeders/minimos/10-roles-y-permisos.json → generar_semillas.py),
+ConfiguracionDeCredencialDeServicio, aportaya.servicios.identidad y aportaya.garantia.aportes.cuenta-servicio.*,
+variables en generar_compose.py (Coolify: telefono y clave sin valor por omision), fila en
+docs/operacion/rotacion-de-secretos-ensayada.md.
+
+Semillas (base limpia + sembrar.sql dos veces; roles|rol_permiso|roles de servicio):
+siembra 1 exit=0
+32|160|SERVICIO_ENTREGAS,SERVICIO_GARANTIA,SERVICIO_GRUPOS,SERVICIO_INVERSIONES
+siembra 2 exit=0
+32|160|SERVICIO_ENTREGAS,SERVICIO_GARANTIA,SERVICIO_GRUPOS,SERVICIO_INVERSIONES
+(la segunda corrida no inserta nada)
+
+Pruebas nuevas o cambiadas:
+- aportes IdentidadDeServicioWebTest 17/17: SERVICIO_GRUPOS lee morosos (200); PARTICIPANTE, ORGANIZADOR y
+  BACKOFFICE con BILLETERA_VER, SERVICIO_ENTREGAS y SERVICIO_GARANTIA → 403 en morosos y en primera cuota, sin
+  tocar el caso de uso; sin token 401 en las tres; recaudo: BILLETERA_VER y SERVICIO_GRUPOS → 403; SERVICIO_ENTREGAS,
+  SERVICIO_GARANTIA y ENTREGA_EJECUTAR pasan la guardia.
+- aportes PrimeraCuotaWebTest y AportesConsultasWebTest: el llamador pasa de una persona con BILLETERA_VER a
+  SERVICIO_GRUPOS (es el cambio de M07, no un debilitamiento: la persona ahora recibe 403, probado arriba).
+- grupos PrimerAportePorHttpTest +2 (Authorization = token de servicio; sin credencial no hay peticion y vacio),
+  HechosPorHttpTest +1 (sin credencial, SIN_DATO_DE_MOROSOS) y la de morosos con credencial.
+- entregas AdaptadoresDelPozoTest +2 y garantia RecaudoPorHttpTest +2: mismo par (token de servicio / sin credencial).
+- Mutante del inventario: sin la fila de GARANTIA_SERVICIO_CLAVE, RotacionDeSecretosContratoTest falla
+  ("secretos sin fila"); con la fila, 2/2. SecretosSinDefaultBarridoTest 1/1 (la clave no tiene default).
+
+Regresion (base limpia, PostgreSQL local; spotlessCheck OK en los cuatro):
+aportes test: 59 pruebas, 0 en rojo (Docker 0, otras 0)
+aportes webTest: 79 pruebas, 0 en rojo (Docker 0, otras 0)
+aportes testBarrido: 4 pruebas, 0 en rojo (Docker 0, otras 0)
+aportes integrationTest: 155 pruebas, 3 en rojo (Docker 3, otras 0)
+grupos test: 122 pruebas, 0 en rojo (Docker 0, otras 0)
+grupos webTest: 184 pruebas, 0 en rojo (Docker 0, otras 0)
+grupos testBarrido: 2 pruebas, 1 en rojo (Docker 0, otras 1)
+grupos integrationTest: 51 pruebas, 48 en rojo (Docker 48, otras 0)
+entregas test: 24 pruebas, 0 en rojo (Docker 0, otras 0)
+entregas webTest: 65 pruebas, 0 en rojo (Docker 0, otras 0)
+entregas testBarrido: 2 pruebas, 0 en rojo (Docker 0, otras 0)
+entregas integrationTest: 13 pruebas, 13 en rojo (Docker 13, otras 0)
+garantia test: 45 pruebas, 0 en rojo (Docker 0, otras 0)
+garantia webTest: 50 pruebas, 0 en rojo (Docker 0, otras 0)
+garantia testBarrido: 2 pruebas, 0 en rojo (Docker 0, otras 0)
+garantia integrationTest: 24 pruebas, 23 en rojo (Docker 23, otras 0)
+grupos testBarrido: el rojo era HechosPorHttp en 300 lineas; se acorto el comentario propio → 299, testBarrido OK.
+Las integrationTest en rojo son todas "Could not find a valid Docker environment" (grupos, entregas y garantia no
+tienen el gancho de base local) → NO COMPROBADO aca; las corre la CI con Testcontainers.
+
+Verificadores: verificar_pruebas_web, verificar_contratos_limites, verificar_seguridad, verificar_criterios,
+verificar_boveda, verificar_narrativas, verificar_carriles, validar_flujos → exit=0. generar_compose.py y --coolify
+regenerados (verificar_limites_compose OK), generar_k8s OK, catalogo_de_datos y DDL sin cambios, Postman regenerado.
+
+Variables NUEVAS para Coolify (nombres, sin valores): GARANTIA_SERVICIO_TELEFONO, GARANTIA_SERVICIO_CLAVE y
+GARANTIA_SERVICIO_TOTP_SEMILLA (o GARANTIA_SERVICIO_FACTOR_FIJO solo en TEST). Se generan creando en identidad una
+cuenta de servicio con el rol SERVICIO_GARANTIA (como las de SERVICIO_GRUPOS/ENTREGAS). Ademas, para que grupos y
+entregas lleguen a aportes, sus cuentas de servicio (GRUPOS_SERVICIO_* y ENTREGAS_SERVICIO_*, ya existentes) tienen
+que estar cargadas: sin ellas, desde este cambio los ingresos, el sorteo y la entrega fallan cerrados.
+
+No cubierto: integracion con Spring y Testcontainers de grupos, entregas y garantia (Docker); el camino real con
+tokens emitidos por identidad (no hay compose aca). Paso 3 (retirar ENTREGA_EJECUTAR del recaudo) va en otro PR.

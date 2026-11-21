@@ -99,8 +99,13 @@ public class AportesController implements AportesApi {
         return ResponseEntity.ok(respuesta);
     }
 
+    /**
+     * F1.L1.M07 (BOLA, regla 98.6): cuantos morosos tiene un grupo lo pregunta {@code grupos} con su identidad de
+     * servicio para decidir un ingreso, no una persona: con {@code BILLETERA_VER} cualquiera contaba los morosos de un
+     * grupo ajeno. No hay pantalla que lo pida.
+     */
     @Override
-    @Permiso("BILLETERA_VER")
+    @Permiso("SERVICIO_GRUPOS")
     public ResponseEntity<Morosos> contarMorosos(UUID grupoId) {
         Traza.marcarCasoDeUso("CU-21", grupoId.toString());
 
@@ -113,9 +118,10 @@ public class AportesController implements AportesApi {
     /**
      * Que cupos pagaron la cuota 1. Lo pregunta CU-60 antes de comprometer el sorteo (R-GRP-20): sin leer este esquema
      * y sin que lo afirme quien quiere sortear. Solo identificadores de cupo: nada de personas ni importes.
+     * F1.L1.M07: lo pregunta {@code grupos} con su identidad de servicio, no una persona.
      */
     @Override
-    @Permiso("BILLETERA_VER")
+    @Permiso("SERVICIO_GRUPOS")
     public ResponseEntity<PrimeraCuota> consultarPrimeraCuota(UUID grupoId) {
         Traza.marcarCasoDeUso("CU-60", grupoId.toString());
 
@@ -209,8 +215,14 @@ public class AportesController implements AportesApi {
         return ResponseEntity.ok(respuesta);
     }
 
+    /**
+     * El recaudo del pozo lo preguntan {@code entregas} y {@code garantia} con su identidad de servicio (F1.L1.M07,
+     * regla 98.6). {@code ENTREGA_EJECUTAR} queda solo mientras se despliegan las credenciales de servicio: se retira en
+     * el paso 3 (contraer), cuando los dos lleguen con la suya.
+     */
     @Override
-    @Permiso("ENTREGA_EJECUTAR")
+    @Permiso("SERVICIO_ENTREGAS")
+    @PermisoAlternativo({"SERVICIO_GARANTIA", "ENTREGA_EJECUTAR"})
     public ResponseEntity<RecaudoDelPeriodo> consultarRecaudoDelPeriodo(UUID periodoId) {
         Traza.marcarCasoDeUso("CU-21", periodoId.toString());
 

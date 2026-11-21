@@ -160,12 +160,12 @@ class AportesConsultasWebTest {
         }
 
         @Test
-        @DisplayName("200 con la cuenta de morosos del grupo")
+        @DisplayName("200 con la cuenta de morosos del grupo, para grupos con su identidad de servicio")
         void morosos() throws Exception {
             when(estados.morososDelGrupo(any(), any())).thenReturn(3);
 
             mvc.perform(get("/aportes/grupos/{id}/morosos", OBLIGACION)
-                            .with(Sesiones.como("ORGANIZADOR", "BILLETERA_VER")))
+                            .with(Sesiones.como("PARTICIPANTE", "SERVICIO_GRUPOS")))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.morosos").value(3))
                     .andExpect(jsonPath("$.grupoId").value(OBLIGACION.toString()));
