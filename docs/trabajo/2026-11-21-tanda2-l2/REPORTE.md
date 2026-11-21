@@ -178,7 +178,8 @@
   título asignado, para no pagar dos veces el turno): supuestos tomados; confirmar con Pablo en el PR.
 - Códigos nuevos: `AP-CU130-10`, `AP-CU136-09`, `AP-CU28-08`, `AP-CU22-10`, `AP-CU22-11` (entregas) y
   `AP-CU23-14`, `AP-CU26-08`, `AP-CU29-06` (garantía), todos 410. No se reusa ningún código.
-- `OperacionRetirada` y `RetiroDeOperaciones` quedan duplicadas en `entregas` y `garantia`: su lugar es
-  `plataforma/comun-web` (el manejador común no conoce el 410), fuera de alcance. Deuda anotada.
+- `OperacionRetirada` y `RetiroDeOperaciones` estaban duplicadas en `entregas` y `garantia`. Con el alcance ampliado
+  por el coordinador (punto 5), `OperacionRetirada` pasó a `plataforma/comun-dominio` y el 410 a
+  `ManejadorGlobalDeErrores`; las copias se borraron ([evidencia](./evidencia/punto5-410-plataforma.txt)).
 - Se borró `CU27ReclamoEnCursoTest.reclamoEnCursoNoEjecutaElAval`: probaba la guarda de reclamos para el aval
   (código 26), que ya no tiene quien la llame. La guarda sigue probada para CU-27.

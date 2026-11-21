@@ -1,0 +1,43 @@
+$ ./gradlew :plataforma:comun-dominio:test :plataforma:comun-web:test :plataforma:comun-web:webTest :servicios:entregas:test :servicios:garantia:test webTest --continue
+BUILD SUCCESSFUL in 4m 48s
+plataforma/comun-dominio                 test       81 pruebas · 0 fallas
+plataforma/comun-web                     test       24 pruebas · 0 fallas
+plataforma/comun-web                     webTest    54 pruebas · 0 fallas
+servicios/aportes                        webTest    55 pruebas · 0 fallas
+servicios/auditoria                      webTest    82 pruebas · 0 fallas
+servicios/cumplimiento                   webTest    87 pruebas · 0 fallas
+servicios/entregas                       test       22 pruebas · 0 fallas
+servicios/entregas                       webTest    65 pruebas · 0 fallas
+servicios/erp                            webTest    52 pruebas · 0 fallas
+servicios/garantia                       test       43 pruebas · 0 fallas
+servicios/garantia                       webTest    48 pruebas · 0 fallas
+servicios/grupos                         webTest   173 pruebas · 0 fallas
+servicios/identidad                      webTest   160 pruebas · 0 fallas
+servicios/inversiones                    webTest    33 pruebas · 0 fallas
+servicios/notificaciones                 webTest    46 pruebas · 0 fallas
+servicios/nucleo-financiero              test        5 pruebas · 0 fallas
+servicios/nucleo-financiero              webTest    82 pruebas · 0 fallas
+servicios/organizador                    webTest    43 pruebas · 0 fallas
+servicios/publicidad                     webTest    21 pruebas · 0 fallas
+servicios/tarifas                        webTest    37 pruebas · 0 fallas
+servicios/transparencia                  webTest    51 pruebas · 0 fallas
+  (comun-dominio luego suma OperacionRetiradaTest: 2 pruebas)
+  ManejadorGlobalDeErroresWebTest "410: una operacion retirada sale con su codigo" PASS
+  CesionRetiradaWebTest (entregas) y las pruebas 410 de garantia PASS con el manejador comun
+
+$ spotlessCheck + check -x test (comun-dominio, comun-web, entregas, garantia) + testBarrido
+BUILD SUCCESSFUL in 54s
+$ jacocoTestCoverageVerification (comun-dominio, comun-web)
+BUILD SUCCESSFUL in 6s
+$ python3 scripts/verificar_criterios.py
+Sin divergencias entre la boveda y el codigo.
+$ python3 scripts/verificar_pruebas_web.py
+La capa web esta cubierta segun ADR-043.
+$ python3 scripts/verificar_seguridad.py
+TODO OK · 5 aviso(s)
+$ python3 scripts/verificar_boveda.py
+TODO OK
+
+$ grep -rln "class OperacionRetirada\|class RetiroDeOperaciones" servicios plataforma
+plataforma/comun-dominio/src/test/java/bo/aportaya/plataforma/dominio/OperacionRetiradaTest.java
+plataforma/comun-dominio/src/main/java/bo/aportaya/plataforma/dominio/OperacionRetirada.java
