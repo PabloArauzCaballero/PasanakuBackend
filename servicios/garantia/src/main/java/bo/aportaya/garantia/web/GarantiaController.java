@@ -22,6 +22,7 @@ import bo.aportaya.garantia.web.generado.modelo.SalidaReemplazo;
 import bo.aportaya.garantia.web.generado.modelo.SalidaReservaRespaldo;
 import bo.aportaya.garantia.web.generado.modelo.SalidaReversaRespaldo;
 import bo.aportaya.plataforma.dominio.CodigoError;
+import bo.aportaya.plataforma.dominio.OperacionRetirada;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
