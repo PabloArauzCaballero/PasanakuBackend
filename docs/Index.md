@@ -4,7 +4,7 @@ tags:
   - indice
 titulo: "AportaYa — modelo de datos"
 entidades: 336
-relaciones_fk: 681
+relaciones_fk: 682
 modulos: 14
 ---
 
@@ -25,7 +25,7 @@ docs/
 │   │   ├── 01 - Identidad, Usuarios y Seguridad/
 │   │   ├── 02 - Grupos, Cupos, Turnos y Gobernanza/
 │   │   └── ...
-│   └── Relaciones/          ← una nota por clave foránea (681), en 14 carpetas
+│   └── Relaciones/          ← una nota por clave foránea (682), en 14 carpetas
 │       ├── 01 - Identidad, Usuarios y Seguridad/
 │       └── ...
 ├── CasosDeUso/              ← un caso de uso por flujo (111), con criterios de aceptación
@@ -66,7 +66,7 @@ Casi todo el modelo se explica con cinco ideas. Si vas a leer solo cinco notas, 
 | 07 | Organizador y Automatización | Administrar es un rol, no un negocio: el organizador no cobra ni custodia | 13 | 17 | [[07_organizador_automatizacion\|negocio]] |
 | 08 | Garantía, Incumplimiento, Cobranza y Sanciones | El grupo no se detiene, pero la deuda no se perdona sola | 39 | 117 | [[08_garantia_incumplimiento\|negocio]] |
 | 09 | Auditoría, Reportes y Cumplimiento | Poder demostrar todo lo anterior ante un reclamo o un regulador | 22 | 28 | [[09_auditoria_reportes\|negocio]] |
-| 10 | Billetera, Custodia y Dinero Electrónico | El saldo no se guarda: se deriva, y todos los días cuadra contra el banco | 28 | 68 | [[10_billetera_custodia\|negocio]] |
+| 10 | Billetera, Custodia y Dinero Electrónico | El saldo no se guarda: se deriva, y todos los días cuadra contra el banco | 28 | 69 | [[10_billetera_custodia\|negocio]] |
 | 11 | Tarifas, Comisiones, Impuestos y Facturación | La política de cobro es dato, no código: se cambia con un seeder | 27 | 65 | [[11_tarifas_comisiones\|negocio]] |
 | 12 | Cumplimiento Regulatorio y Consumidor Financiero | Que una inspección se responda con consultas, no armando carpetas | 47 | 102 | [[12_cumplimiento_asfi\|negocio]] |
 | 13 | Contabilidad Financiera y ERP | Que cerrar un mes no dependa de un Excel armado a mano | 18 | 39 | [[13_contabilidad_erp\|negocio]] |
@@ -78,7 +78,7 @@ El grado (FK entrantes + salientes) es un buen proxy de importancia estructural:
 
 | Entidad | Módulo | FK salientes | FK entrantes | Grado |
 | --- | :-: | --: | --: | --: |
-| [[usuario]] | 01 | 0 | 222 | **222** |
+| [[usuario]] | 01 | 0 | 223 | **223** |
 | [[grupo]] | 02 | 1 | 50 | **51** |
 | [[participante]] | 02 | 3 | 29 | **32** |
 | [[transaccion_billetera]] | 10 | 5 | 16 | **21** |
@@ -93,7 +93,7 @@ El grado (FK entrantes + salientes) es un buen proxy de importancia estructural:
 
 ## Acoplamiento entre módulos
 
-De las 681 claves foráneas, **355 cruzan módulos**. La matriz muestra
+De las 682 claves foráneas, **356 cruzan módulos**. La matriz muestra
 cuántas FK van de un módulo (fila) a otro (columna):
 
 | desde \ hacia | 01 | 02 | 03 | 04 | 05 | 06 | 07 | 08 | 09 | 10 | 11 | 12 | 13 | 14 |
@@ -107,7 +107,7 @@ cuántas FK van de un módulo (fila) a otro (columna):
 | **07** | 7 | 1 | · | · | · | · | · | · | · | · | · | · | · | · |
 | **08** | 33 | 33 | 10 | 2 | 1 | · | · | · | · | · | · | · | · | · |
 | **09** | 16 | 3 | · | · | · | · | · | · | · | · | · | · | · | · |
-| **10** | 21 | 3 | 8 | · | · | · | · | · | 1 | · | · | · | · | · |
+| **10** | 22 | 3 | 8 | · | · | · | · | · | 1 | · | · | · | · | · |
 | **11** | 15 | 6 | 6 | 1 | · | · | · | 1 | · | 3 | · | 1 | · | · |
 | **12** | 60 | · | · | · | · | · | · | · | 4 | 5 | 1 | · | · | · |
 | **13** | 8 | · | 10 | · | · | · | · | · | · | · | · | · | · | · |

@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.bloqueo_saldo (
   cuenta_billetera_id                UUID NOT NULL,
   retencion_id                       UUID,
   levantada_por                      UUID,
+  registrado_por                     UUID,
   autoridad                          VARCHAR(20) NOT NULL,
   tipo_orden                         VARCHAR(30) NOT NULL,
   numero_oficio                      VARCHAR(60) NOT NULL,

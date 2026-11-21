@@ -477,6 +477,8 @@ package "Limites, fraude y medidas restrictivas" {
     - estado: String
     - venceEn: DateTime
     - levantadoEn: DateTime
+    - registradoPor: UUID
+    - levantadaPor: UUID
     --
     + aplicar(): RetencionSaldo
     + levantar(oficio)
@@ -974,6 +976,7 @@ entity "bloqueo_saldo" as bloqsaldo {
   # cuenta_billetera_id : UUID <<FK, IDX>>
   # retencion_id : UUID <<FK, NULL>>
   # levantada_por : UUID <<FK, NULL>>
+  # registrado_por : UUID <<FK, NULL>>
   autoridad : VARCHAR(20) <<CK>>
   tipo_orden : VARCHAR(30) <<CK>>
   numero_oficio : VARCHAR(60)

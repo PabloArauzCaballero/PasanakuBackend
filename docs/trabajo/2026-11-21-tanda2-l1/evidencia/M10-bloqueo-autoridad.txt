@@ -1,0 +1,39 @@
+F1.L1.M10 (ANF-SEG-006) · bloqueo judicial: segregacion al levantar y liberacion de la retencion (parte del servicio)
+Fecha: 2026-11-21 · Rama: correcciones/tanda2-l1-bloqueo-autoridad (apilada sobre #456)
+
+--- fuente de verdad
+puml 10: bloqueo_saldo.registrado_por UUID <<FK, NULL>> (COLUMNAS_AGREGADAS: expandir; FK a identidad.usuario por
+  ACTOR_A_USUARIO). Restricciones.md: R-BIL-32 · ck_bloqueo_saldo_cuatro_ojos
+  CHECK (levantada_por IS NULL OR registrado_por IS NULL OR levantada_por <> registrado_por). CU-17 cita R-BIL-32 y
+  declara AP-CU17-04 MISMA_PERSONA_LEVANTA; el contrato lo anota en el 422.
+$ python3 scripts/generar_ddl.py -> Sin pendientes · migracion: previo exit=0 · nuevo encima exit=0 · re-aplicado exit=0
+
+--- comportamiento
+CU17.ejecutar guarda registrado_por = ctx.usuarioId() (del token). CU17.levantar: quien lo registro -> AP-CU17-04;
+otra persona -> LEVANTADO y la retencion asociada se libera en la MISMA transaccion (antes quedaba VIGENTE: la
+cuenta seguia retenida sin orden).
+
+--- integracion (PostgreSQL 16 local, base limpia, gancho de BaseDeBilletera)
+$ ./gradlew :servicios:nucleo-financiero:integrationTest
+CU17CuatroOjosTest 3/3 · CU17Test 9/9 · CU17RechazosTest 4/4.
+480 tests completed, 26 failed: 25 por "Could not find a valid Docker environment" / contexto Spring con Testcontainers
+(ENVIRONMENT, NO COMPROBADO aca — requiere Docker) y CU40Test (fn_lim_evaluar), que falla igual SIN este cambio
+(git stash: 13 tests completed, 1 failed) -> previo, no causado por este PR.
+CU17Test.concurrencia: el levantamiento lo hace otra persona (requisito nuevo R-BIL-32); la asercion de efecto unico
+("no esta vigente" al segundo intento) se conserva.
+$ ./gradlew :servicios:nucleo-financiero:spotlessCheck :servicios:nucleo-financiero:test :servicios:nucleo-financiero:webTest
+  :servicios:auditoria:test -> exit=0
+
+--- control negativo (mutante: sin la comparacion de personas y sin liberar la retencion)
+3 tests completed, 2 failed: rechazaLaMismaPersona, cuadreAlLevantar (la tercera prueba es la regla de la base).
+
+--- verificadores: verificar_boveda TODO OK (183 restricciones) · verificar_seguridad TODO OK ·
+verificar_criterios sin divergencias · verificar_narrativas sin fallas.
+
+Pendiente (archivos compartidos, NO tocados):
+- Permisos BLOQUEO_AUTORIDAD_REGISTRAR y BLOQUEO_AUTORIDAD_LEVANTAR: agregarlos en sql/60_semillas/10-roles-y-permisos.sql
+  (fila en `permiso` + asignacion a OFICIAL_CUMPLIMIENTO) y despues cambiar @Permiso("DATOS_SENSIBLES_LEER") por
+  @Permiso("BLOQUEO_AUTORIDAD_REGISTRAR") en BilleteraController.bloquearPorAutoridad (linea ~255).
+- Operacion de contrato para levantar (POST /billetera/bloqueos/{bloqueoId}/levantamiento con
+  @Permiso("BLOQUEO_AUTORIDAD_LEVANTAR")): hoy CU17.levantar no tiene ruta HTTP.
+- AMB-L1-3 sin confirmar con Cumplimiento (supuesto del anexo: accion humana, dos personas).

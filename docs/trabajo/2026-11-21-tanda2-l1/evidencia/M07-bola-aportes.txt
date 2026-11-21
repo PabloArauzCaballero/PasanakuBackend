@@ -1,0 +1,19 @@
+# F1.L1.M07 · BOLA en aportes (estado del participante y reembolso) — salidas (2026-11-21)
+
+$ ./gradlew :servicios:aportes:spotlessCheck test webTest testBarrido → test 57/57 · webTest 59/59 · testBarrido 2/2 · BUILD SUCCESSFUL
+$ base limpia && APORTAYA_TEST_DB_URL=… ./gradlew :servicios:aportes:integrationTest --continue
+(gancho APORTAYA_TEST_DB_URL de BaseDeAportes aplicado solo para la corrida; llega en el PR de F1.L1.M06)
+integrationTest 129/132 · AutorizacionNegativaTest 4/4 (doble de grupos: es del usuario / es de otro / grupos caido; limites: pago inexistente, participante sin obligaciones)
+Las 3 restantes (AislamientoEsquemaTest, ArranqueTest x2) levantan su propio contenedor: NO COMPROBADO — requieren Docker.
+
+--- control negativo: sin los dos chequeos en AportesController/PagosController
+AportesConsultasWebTest > GET — lo que este servicio le contesta a los otros > F1.L1.M07 · otro usuario u otro grupo: el estado de un participante ajeno es 404, sin cuerpo FAILED
+PagosControllerWebTest > Pedir un reembolso y aprobarlo son dos actos de dos personas > F1.L1.M07 · otro usuario u otro grupo: el reembolso de un pago ajeno es 404 y no se solicita nada FAILED
+16 tests completed, 2 failed
+> Task :servicios:aportes:webTest FAILED
+BUILD FAILED in 11s
+
+$ python3 scripts/verificar_boveda.py → TODO OK
+$ python3 scripts/verificar_seguridad.py → TODO OK · 7 aviso(s)
+$ python3 scripts/verificar_criterios.py → Sin divergencias entre la boveda y el codigo.
+$ python3 scripts/verificar_pruebas_web.py → La capa web esta cubierta segun ADR-043.
