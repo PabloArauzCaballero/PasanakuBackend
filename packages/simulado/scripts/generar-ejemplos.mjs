@@ -51,6 +51,29 @@ function errorDeCatalogo(servicio, operacion, estado, forma) {
   if (forma === 'problema') return { tipo: 'about:blank', titulo: mensaje, estado, codigo: elegido.codigo, detalle: null }
   return { codigo: elegido.codigo, mensaje, detalle: {}, trazaId: `traza-${operacion}-rechazo` }
 }
+/**
+ * El codigo de RETIRO de la operacion: el que el contrato anota junto a su `'410':`
+ * (`# AP-CU136-09: retirada por ...`). Si no lo anota, el primero `*_RETIRADA` de la operacion.
+ */
+function errorDeRetiro(servicio, operacion) {
+  const yaml = contratos.find((c) => c.servicio === servicio)?.yaml ?? ''
+  const desde = yaml.search(new RegExp(`operationId:\\s*${operacion}\\b`))
+  let codigo = null
+  if (desde >= 0) {
+    const resto = yaml.slice(desde + 1)
+    const hasta = resto.search(/operationId:/)
+    const bloque = hasta >= 0 ? resto.slice(0, hasta) : resto
+    const tras410 = bloque.split(/'410':/)[1]
+    codigo = tras410?.split('\n').slice(0, 3).join('\n').match(/AP-CU\d+-\d{2}/)?.[0] ?? null
+  }
+  const nombreDe = (c) => catalogo.global.get(c) ?? ''
+  if (!codigo) {
+    const propios = catalogo.porOperacion.get(`${servicio}/${operacion}`) ?? []
+    codigo = propios.find((e) => /RETIRAD/.test(e.nombre ?? nombreDe(e.codigo)))?.codigo ?? null
+  }
+  if (!codigo) return null
+  return { codigo, mensaje: mensajeDeRegla(nombreDe(codigo), codigo), detalle: {}, trazaId: `traza-${operacion}-retirada` }
+}
 /** Forma del cuerpo de error que declara el contrato para ese estado. */
 function formaDeError(documento, operacion, estado) {
   const declarada = resolver(documento, operacion.responses?.[String(estado)] ?? {})
@@ -98,6 +121,16 @@ for (const archivo of readdirSync(GENERADO).filter((a) => a.endsWith('.json'))) 
       if (existsSync(destino) && !forzar) {
         conservados += 1
         alinearRechazo(destino, servicio, operacion.operationId, documento, operacion)
+        continue
+      }
+      // Retirada (declara 410): el servidor responde 410 sin efecto, y el mock dice lo mismo.
+      // Inventarle un exito haria que una pantalla vieja «funcione» contra el simulado.
+      if (operacion.responses?.['410']) {
+        const escenarios = {
+          rechazo: { estado: 410, cuerpo: errorDeRetiro(servicio, operacion.operationId) ?? cuerpo(documento, operacion, 410, 'representativo') },
+        }
+        writeFileSync(destino, `${JSON.stringify({ servicio, operacion: operacion.operationId, metodo, ruta, escenarios }, null, 2)}\n`, 'utf8')
+        creados += 1
         continue
       }
       const exito = estados(operacion, (c) => c >= 200 && c < 300)[0]
