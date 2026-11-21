@@ -48,7 +48,7 @@
 | F1.L4.M07 | Segregación del reporte UIF sin hueco por NULL | TODO |
 | F1.L4.M12 | OTP de correo: reintento sobre código consumido | TODO |
 | F1.L4.M18 | `VerificarTitularidad` contra KYC aprobado vigente | TODO |
-| F1.L4.M25 | `GET /licencia/alcance` no escribe ni acepta usuario del query | TODO |
+| F1.L4.M25 | `GET /licencia/alcance` no escribe ni acepta usuario del query. CA: 10 GET rechazados → outbox sin cambios; el `usuarioId` del query se ignora. DoD: `AlcanceSinEfectosTest` + `LicenciaControllerWebTest` | HECHO (`evidencia/f1-l4-m25-licencia-alcance.txt`) |
 | F1.L4.M26 | Controles regulatorios con hechos del servidor | TODO |
 | Resto (M04, M08–M11, M13–M17, M19–M24) | Ver anexo; se abren en este orden después de los anteriores | TODO |
 

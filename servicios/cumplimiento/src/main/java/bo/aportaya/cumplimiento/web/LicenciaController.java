@@ -7,8 +7,6 @@ import bo.aportaya.cumplimiento.web.generado.modelo.SalidaAlcanceLimitesSandbox;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
-import java.util.Optional;
-import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,11 +35,11 @@ public class LicenciaController implements LicenciaApi {
 
     @Override
     @Permiso("PARTICIPANTE")
-    public ResponseEntity<SalidaAlcance> verificarAlcance(String servicio, UUID usuarioId) {
+    public ResponseEntity<SalidaAlcance> verificarAlcance(String servicio) {
         Traza.marcarCasoDeUso("CU-46", servicio);
 
-        var salida = cu46.ejecutar(
-                new CU46VerificarAlcance.EntradaAlcance(servicio, Optional.ofNullable(usuarioId), 0), sesion.actual());
+        // F1.L4.M25: consulta pura. Ni el usuario sale del query ni el GET escribe.
+        var salida = cu46.ejecutar(CU46VerificarAlcance.EntradaAlcance.de(servicio), sesion.actual());
 
         var respuesta = new SalidaAlcance();
         respuesta.setHabilitado(salida.habilitado());
