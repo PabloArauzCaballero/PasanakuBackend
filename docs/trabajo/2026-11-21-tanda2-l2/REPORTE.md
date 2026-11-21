@@ -1,8 +1,9 @@
 # Reporte — Tanda 2, lote L2 (garantía y entregas)
 
-> **AVANCE: 2 / 13 — 15,4 %.**
+> **AVANCE: 2 / 13 — 15,4 %.** (F1.L2.M07 en A MEDIAS: no suma)
 
-- Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Rama(s): `correcciones/tanda2-l2-retiro-subasta`
+- Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Rama(s): `correcciones/tanda2-l2-retiro-subasta` (#419),
+  `correcciones/tanda2-l2-seg007-cifrado` (apilada sobre #419)
 - Peldaño de evidencia alcanzado: `TESTED` en L2.S1.M1 (`test` + `webTest` + gates estáticos locales en verde).
   `integrationTest` (Testcontainers) no corre en esta nube: lo corre el CI del PR. Todo lo demás del lote: `UNKNOWN`.
 
@@ -14,6 +15,21 @@
 | F2.L2.M09 | Mercado de ofertas (código muerto) retirado | ídem | PASS (con L2.S1.M1) |
 
 ## A medias
+
+### F1.L2.M07 — El número de cuenta se cifra solo en el servidor, con clave dedicada (SEG-007)
+- Qué anda: `numeroCifrado` ya no existe en `EntradaRegistroCuenta` (OpenAPI 2.0.0); un cuerpo que lo manda recibe 400
+  sin llegar al caso de uso. `CU18RegistrarCuentaDestino` cifra siempre desde `numeroEnClaro`, el mismo número del
+  que salen el enmascarado y el hash. Prueba unitaria de ida y vuelta en verde
+  ([evidencia](./evidencia/F1.L2.M07-numero-cifrado.txt)).
+- Qué no anda: la clave de cifrado sigue siendo `aportaya.seguridad.pimienta`, la misma que el pepper del hash.
+- Qué falta exactamente:
+  1. Fuera de alcance (`scripts/generar_compose.py` y los `docker-compose*.yml` generados): agregar el secreto
+     `ENTREGAS_LLAVE_CIFRADO_CUENTAS` a la lista de secretos del generador y regenerar el compose.
+  2. En este lote, después de 1: `aportaya.seguridad.llave-cifrado-cuentas: ${ENTREGAS_LLAVE_CIFRADO_CUENTAS}` en
+     `application.yml` sin valor por defecto (el servicio no arranca sin ella, con su prueba de arranque), usarla en
+     `CU18RegistrarCuentaDestino` y en quien descifra, y recifrar las cuentas existentes (datos sintéticos, P-14)
+     descifrando con la pimienta y cifrando con la llave nueva.
+- Dónde quedó: rama `correcciones/tanda2-l2-seg007-cifrado`; compila y `test`/`webTest` en verde.
 
 ### L2.S1.M2 — Contracción del contrato y del esquema de la cesión
 - Qué anda: el código ya no crea ofertas, cesiones, subastas ni pujas; las operaciones son `deprecated` (OpenAPI 1.1.0).
@@ -36,7 +52,6 @@
 
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| F1.L2.M07 (SEG-007 `numeroCifrado`) | TODO | Siguiente PR del lote |
 | F1.L2.M05, M09, M02, M03, M10 | TODO | Siguientes PR del lote |
 | F1.L2.M01, M04, M06, M08, M11–M14 | TODO | M13/M14 necesitan `plataforma/comun-web` (cliente único y token de servicio): fuera de alcance |
 | F2.L2.M01, M02, M04 | TODO | Siguientes PR del lote |

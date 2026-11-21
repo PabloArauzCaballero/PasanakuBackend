@@ -57,7 +57,7 @@
 openapi: 3.1.0
 info:
   title: entregas
-  version: 1.1.0
+  version: 2.0.0
   description: >-
     Servicio entregas. Un caso de uso = una operacion, con el codigo CU en el
     operationId. Los importes viajan como CADENA decimal, nunca como number.
@@ -73,6 +73,13 @@ info:
     nucleo-financiero: ya no hay oferta que pagar. Contraccion (regla 98.1.3): se borran del contrato cuando la
     app movil deje de llamarlas y nucleo-financiero retire su consumidor; la fecha la fija Pablo al mergear
     esos cambios.
+
+
+    2.0.0 (2026-11-21) · SEG-007, cambio INCOMPATIBLE de seguridad (regla 98.1.3): `EntradaRegistroCuenta`
+    ya no tiene `numeroCifrado`. El servidor cifra el numero de cuenta desde `numeroCuenta`, el mismo del
+    que salen el enmascarado y el hash; un cuerpo que todavia mande `numeroCifrado` recibe 400 (campo no
+    declarado). Sin convivencia a proposito: aceptar el campo es justo la vulnerabilidad. Ningun cliente del
+    monorepo lo enviaba (busqueda en apps/, packages/ y clientes/ sin resultados).
 
 servers:
   - url: /api/v1
@@ -848,7 +855,7 @@ components:
     EntradaRegistroCuenta:
       type: object
       additionalProperties: false
-      required: [tipoCuenta, entidadFinanciera, numeroCuenta, numeroCifrado, titularNombre, titularDocumento, moneda]
+      required: [tipoCuenta, entidadFinanciera, numeroCuenta, titularNombre, titularDocumento, moneda]
       properties:
         tipoCuenta:        { type: string, enum: [AHORRO, CORRIENTE, BILLETERA] }
         entidadFinanciera: { type: string, maxLength: 60 }
@@ -860,12 +867,9 @@ components:
             El numero en claro, y **nunca se persiste asi** (CU-18, R-SEG-01). Entra
             solo para derivar el enmascarado que se muestra y el hash con el que se
             detecta la cuenta repetida; las dos derivaciones ocurren ANTES de tocar la
-            base, asi que el numero no llega a ninguna consulta.
-        numeroCifrado:
-          type: string
-          description: >-
-            ya cifrado por el almacen de llaves. **El numero en claro nunca viaja en
-            este campo ni se persiste** (R-SEG-01)
+            base, asi que el numero no llega a ninguna consulta. El cifrado que se guarda
+            tambien sale de este numero, en el servidor (SEG-007): el cliente no manda
+            ningun cifrado.
         titularNombre:    { type: string, maxLength: 120 }
         titularDocumento: { type: string, maxLength: 30 }
         moneda:           { type: string, enum: [BOB, USD] }
