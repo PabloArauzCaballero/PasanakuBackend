@@ -6,7 +6,7 @@ tabla: disputa_pago
 clase: DisputaPago
 modulo: "03 — Aportes, Pagos QR y Conciliación"
 clave_primaria: [id]
-columnas: 10
+columnas: 11
 fk_salientes: 1
 fk_entrantes: 0
 append_only: false
@@ -24,12 +24,21 @@ append_only: false
 | `pago_id` | UUID | FK IDX | no | FK, IDX |
 | `tipo` | VARCHAR(25) | — | no | CK |
 | `descripcion` | TEXT | — | no | — |
-| `monto_disputado` | DECIMAL(14,2) | — | no | — |
+| `monto_disputado` | DECIMAL(14,2) | — | no | CK: >= 0 |
+| `moneda` | CHAR(3) | — | sí | NULL |
 | `estado` | VARCHAR(25) | — | no | CK |
 | `evidencias` | JSONB | — | no | — |
 | `abierta_en` | TIMESTAMPTZ | — | no | — |
 | `fecha_limite_respuesta` | TIMESTAMPTZ | — | no | — |
 | `resuelta_en` | TIMESTAMPTZ | — | sí | NULL |
+
+## Reglas del catálogo
+
+> Declaradas en [[Restricciones]], no en el modelo. El nombre es el que devuelve la base al rechazar.
+
+| Regla | Tipo | Columnas |
+| --- | :-: | --- |
+| `ck_disputa_pago_moneda` | CHECK | `moneda` |
 
 ## Claves foráneas salientes
 

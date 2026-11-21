@@ -68,6 +68,16 @@ OPCIONALES = {}
 COLUMNAS_AGREGADAS = {
     # 2026-10-30 · CU-64: la votacion del traspaso dice a quien entra.
     ("acuerdo", "entrante_participante_id"),
+    # 2026-11-21 · F1.L1.M09: la clave del reembolso. NULL solo en las filas de antes;
+    # toda solicitud nueva la escribe (CU-19) y R-BIL-28 la hace unica por pago.
+    ("reembolso", "clave_idempotencia"),
+    # 2026-11-21 · F1.L1.M12: la moneda al lado del importe (regla 91.1.2). NULL solo en
+    # las filas de antes; CU-19 la copia del pago en toda fila nueva.
+    ("reembolso", "moneda"),
+    ("disputa_pago", "moneda"),
+    ("conciliacion", "moneda"),
+    ("excepcion_conciliacion", "moneda"),
+    ("extracto_bancario", "moneda"),
 }
 COMENTARIO_AGREGADA = {}
 

@@ -1,0 +1,54 @@
+{
+  "servicio": "nucleo-financiero",
+  "operacion": "solicitarReverso",
+  "metodo": "post",
+  "ruta": "/billetera/reversos",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "solicitudId": "5d0f3a52-1d7e-4b8a-9b0e-6f1c2a7e9d41",
+        "estado": "SOLICITADA"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "solicitudId": "5d0f3a52-1d7e-4b8a-9b0e-6f1c2a7e9d41",
+        "estado": "SOLICITADA"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "solicitudId": "5d0f3a52-1d7e-4b8a-9b0e-6f1c2a7e9d41",
+        "estado": "SOLICITADA"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "solicitudId": "5d0f3a52-1d7e-4b8a-9b0e-6f1c2a7e9d41",
+        "estado": "SOLICITADA"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU14-01",
+        "mensaje": "Transaccion no reversable",
+        "detalle": {},
+        "trazaId": "traza-solicitarReverso-rechazo"
+      }
+    }
+  }
+}
