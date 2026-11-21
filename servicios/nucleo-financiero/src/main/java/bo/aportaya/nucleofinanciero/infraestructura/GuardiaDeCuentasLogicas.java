@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 /**
  * Un mapeo de cuentas logicas SINTETICO no entra a produccion.
  *
- * <p>El entorno de pruebas trae un mapeo provisional de {@code CAJA_EMPRESA}, {@code RESERVA_RESPALDO} y
+ * <p>El entorno de pruebas trae un mapeo provisional de {@code RESERVA_RESPALDO} y
  * {@code POZO_GRUPO} al arbol 9 del plan de cuentas (seeders/minimos/22-cuentas-de-sistema.json): sirve para
  * ejercitar el consumo de asientos, no para asentar dinero real. Con el perfil {@code production} y el consumo
  * encendido, el proceso NO ARRANCA hasta que contabilidad entregue el mapeo definitivo (ambiguedad A5) y alguien
