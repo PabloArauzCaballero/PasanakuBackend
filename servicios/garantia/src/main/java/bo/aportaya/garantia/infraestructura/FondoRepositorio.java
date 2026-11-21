@@ -1,6 +1,5 @@
 package bo.aportaya.garantia.infraestructura;
 
-import bo.aportaya.garantia.dominio.CoberturaAplicable;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.Moneda;
 import java.math.BigDecimal;
@@ -39,90 +38,6 @@ public class FondoRepositorio {
                 .where(DSL.field("id", UUID.class).eq(id))
                 .forUpdate()
                 .fetchOptional(this::aFondo);
-    }
-
-    /** La politica del fondo. Es catalogo (invariante 10), no constantes del codigo. */
-    public Optional<CoberturaAplicable.Politica> politica(DSLContext dsl, UUID politicaId, Moneda moneda) {
-        return dsl.select(
-                        DSL.field("porcentaje_maximo_cobertura_por_aporte", BigDecimal.class),
-                        DSL.field("tope_cobertura_por_participante", BigDecimal.class),
-                        DSL.field("tope_cobertura_por_periodo", BigDecimal.class),
-                        DSL.field("max_coberturas_por_participante", Short.class),
-                        DSL.field("requiere_aprobacion_manual_desde", BigDecimal.class),
-                        DSL.field("dias_mora_para_activar", Short.class))
-                .from(DSL.table(DSL.name("garantia", "politica_cobertura")))
-                .where(DSL.field("id", UUID.class).eq(politicaId))
-                .fetchOptional(f -> new CoberturaAplicable.Politica(
-                        f.get("porcentaje_maximo_cobertura_por_aporte", BigDecimal.class),
-                        Dinero.de(f.get("tope_cobertura_por_participante", BigDecimal.class), moneda),
-                        Dinero.de(f.get("tope_cobertura_por_periodo", BigDecimal.class), moneda),
-                        f.get("max_coberturas_por_participante", Short.class),
-                        Dinero.de(f.get("requiere_aprobacion_manual_desde", BigDecimal.class), moneda),
-                        f.get("dias_mora_para_activar", Short.class)));
-    }
-
-    /** Lo que este participante ya consumio del fondo, y cuantas veces. */
-    public CoberturaAplicable.Consumido consumido(
-            DSLContext dsl, UUID fondoId, UUID participanteId, UUID periodoId, Moneda moneda) {
-        var fila = dsl.fetchOne(
-                """
-                SELECT
-                  COALESCE(SUM(c.monto_cubierto) FILTER (WHERE r.participante_id = ?), 0) AS por_participante,
-                  COALESCE(SUM(c.monto_cubierto) FILTER (WHERE c.periodo_id = ?), 0)      AS por_periodo,
-                  count(*) FILTER (WHERE r.participante_id = ?)::int                       AS previas
-                  FROM garantia.cobertura_incumplimiento c
-                  JOIN garantia.registro_incumplimiento r ON r.id = c.registro_id
-                 WHERE c.fondo_id = ? AND c.estado <> 'RECHAZADA'
-                """,
-                participanteId,
-                periodoId,
-                participanteId,
-                fondoId);
-        return new CoberturaAplicable.Consumido(
-                Dinero.de(fila.get("por_participante", BigDecimal.class), moneda),
-                Dinero.de(fila.get("por_periodo", BigDecimal.class), moneda),
-                fila.get("previas", Integer.class));
-    }
-
-    public Optional<UUID> coberturaDe(DSLContext dsl, UUID registroId) {
-        return dsl.select(DSL.field("id", UUID.class))
-                .from(DSL.table(DSL.name("garantia", "cobertura_incumplimiento")))
-                .where(DSL.field("registro_id", UUID.class).eq(registroId))
-                .fetchOptional(f -> f.get("id", UUID.class));
-    }
-
-    public UUID registrarCobertura(
-            DSLContext dsl,
-            UUID fondoId,
-            UUID registroId,
-            UUID obligacionId,
-            UUID periodoId,
-            CoberturaAplicable.Resultado calculo,
-            String estado,
-            UUID aprobadaPor,
-            OffsetDateTime ahora) {
-
-        UUID id = UUID.randomUUID();
-        dsl.insertInto(DSL.table(DSL.name("garantia", "cobertura_incumplimiento")))
-                .set(DSL.field("id", UUID.class), id)
-                .set(DSL.field("fondo_id", UUID.class), fondoId)
-                .set(DSL.field("registro_id", UUID.class), registroId)
-                .set(DSL.field("obligacion_id", UUID.class), obligacionId)
-                .set(DSL.field("periodo_id", UUID.class), periodoId)
-                .set(DSL.field("aprobada_por", UUID.class), aprobadaPor)
-                .set(
-                        DSL.field("monto_solicitado", BigDecimal.class),
-                        calculo.montoSolicitado().monto())
-                .set(
-                        DSL.field("monto_cubierto", BigDecimal.class),
-                        calculo.montoCubierto().monto())
-                .set(DSL.field("porcentaje_cobertura", BigDecimal.class), calculo.porcentajeCobertura())
-                .set(DSL.field("estado", String.class), estado)
-                .set(DSL.field("requirio_aprobacion_manual", Boolean.class), calculo.exigeAprobacionManual())
-                .set(DSL.field("solicitada_en", OffsetDateTime.class), ahora)
-                .set(DSL.field("aplicada_en", OffsetDateTime.class), "APLICADA".equals(estado) ? ahora : null)
-                .execute();
-        return id;
     }
 
     /**

@@ -996,16 +996,14 @@ paths:
         Lo consultan los otros servicios antes de habilitar una operacion.
         Deniega por omision: sin licencia legible, sin alcance o sin sandbox, la
         respuesta es no. Un fallo de lectura no puede traducirse en «segui».
-        No lleva Idempotency-Key porque no tiene efecto: solo responde.
+        No lleva Idempotency-Key porque no tiene efecto: solo responde, y no
+        escribe nada (F1.L4.M25: antes cada rechazo crecia el outbox). No acepta
+        el usuario por query: quien pregunta sale del token.
       parameters:
         - name: servicio
           in: query
           required: true
           schema: { type: string, maxLength: 40 }
-        - name: usuarioId
-          in: query
-          required: false
-          schema: { type: string, format: uuid }
       responses:
         '200':
           description: Decision de habilitacion, con la via y sus limites

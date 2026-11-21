@@ -57,6 +57,10 @@ public class PagosController implements PagosApi {
     public ResponseEntity<SalidaReembolso> solicitarReembolso(
             UUID idempotencyKey, UUID pagoId, EntradaReembolso cuerpo) {
         Traza.marcarCasoDeUso("CU-19", pagoId.toString());
+        // F1.L1.M07 (BOLA): el pago de otro es 404, sin crear la solicitud ni emitir el evento.
+        if (!cu19.esPagoDelSolicitante(pagoId, sesion.actual())) {
+            return ResponseEntity.notFound().build();
+        }
 
         var salida = cu19.solicitar(
                 new CU19ReembolsarPago.EntradaReembolso(

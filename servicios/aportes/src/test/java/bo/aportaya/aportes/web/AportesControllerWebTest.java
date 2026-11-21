@@ -167,6 +167,13 @@ class AportesControllerWebTest {
         }
 
         @Test
+        @DisplayName("F1.L1.M01 · un cobro con monto negativo es 400 y no se acredita nada")
+        void montoNegativo() throws Exception {
+            cobrar(COBRO.replace("\"350.00\"", "\"-350.00\"")).andExpect(status().isBadRequest());
+            org.mockito.Mockito.verify(cu21, org.mockito.Mockito.never()).acreditar(any(), any());
+        }
+
+        @Test
         @DisplayName("400: un canal de cobro que el contrato no enumera")
         void canalFueraDelContrato() throws Exception {
             cobrar(COBRO.replace("QR_INTEROPERABLE", "TRUEQUE")).andExpect(status().isBadRequest());

@@ -1,0 +1,31 @@
+# F1.L1.M13 · sello encadenado del cierre diario — salidas (2026-11-21)
+
+$ ./gradlew :servicios:nucleo-financiero:test --tests "*SelloDelDiaTest"  → 6/6
+$ base limpia && APORTAYA_TEST_DB_URL=… ./gradlew :servicios:nucleo-financiero:integrationTest --tests "*CU51*" --tests "*CU15*"
+(con el gancho APORTAYA_TEST_DB_URL de BaseDeBilletera aplicado solo para la corrida; ese gancho llega en el PR de F1.L1.M03)
+BUILD SUCCESSFUL in 12s
+testsuite name="bo.aportaya.nucleofinanciero.CU51CierreDesdeContabilidadTest" tests="8" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.nucleofinanciero.CU51CierresTest" tests="2" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.nucleofinanciero.CU51RechazosTest" tests="3" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.nucleofinanciero.CU51SelloEncadenadoTest" tests="2" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.nucleofinanciero.CU51Test" tests="9" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.nucleofinanciero.CU15RechazosTest" tests="3" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.nucleofinanciero.CU15Test" tests="9" skipped="0" failures="0" errors="0"
+
+--- control negativo: material = cuentaId|fecha (el sello viejo)
+SelloDelDiaTest > cambiar la moneda de un dia lo senala FAILED
+SelloDelDiaTest > reemplazar un eslabon entero, con su sello recalculado, rompe el dia siguiente FAILED
+SelloDelDiaTest > cambiar el saldo disponible, el retenido, la moneda o el sello anterior cambia el sello FAILED
+SelloDelDiaTest > alterar el saldo de un dia anterior senala ese dia, no uno posterior FAILED
+SelloDelDiaTest > el material es canonico: cuenta, fecha, moneda, importes a dos decimales y sello anterior FAILED
+11 tests completed, 5 failed
+> Task :servicios:nucleo-financiero:test FAILED
+CU51SelloEncadenadoTest > rechaza un saldo diario adulterado: la verificacion de la cadena senala ese dia FAILED
+2 tests completed, 1 failed
+> Task :servicios:nucleo-financiero:integrationTest FAILED
+BUILD FAILED in 13s
+
+$ ./gradlew :servicios:nucleo-financiero:spotlessCheck test webTest testBarrido
+BUILD SUCCESSFUL in 32s
+test 100/100 · webTest 82/82 · testBarrido 2/2
+$ python3 scripts/verificar_seguridad.py → TODO OK · 7 aviso(s) (tras quitar la concatenacion de SQL de la prueba; CU51SelloEncadenadoTest re-corrida: BUILD SUCCESSFUL)

@@ -5,20 +5,17 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import bo.aportaya.nucleofinanciero.aplicacion.PagoDeRecargaDePrueba;
 import bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRecargas;
-import bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRetiro;
 import bo.aportaya.nucleofinanciero.infraestructura.RecargasProveedorLocal;
 import bo.aportaya.nucleofinanciero.infraestructura.RecargasProveedorSimulado;
 import bo.aportaya.plataforma.pruebas.BaseDePrueba;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 /**
  * Que proveedor de recargas queda vivo en cada perfil, con el contexto de Spring entero.
@@ -70,10 +67,9 @@ class ArranqueRecargaQrTest {
     @Test
     void enProduccionElModoPruebaNoArranca() {
         var contenedor = BaseDePrueba.contenedor();
-        var arranque = new SpringApplicationBuilder(Aplicacion.class)
-                .profiles("production")
-                .initializers(contexto -> contexto.getBeanFactory()
-                        .registerSingleton("proveedorDeRetiro", Mockito.mock(ProveedorDeRetiro.class)));
+        // F1.L1.M04: production ya trae su ProveedorDeRetiro (ProveedorDeRetiroNoConfigurado, falla cerrado);
+        // registrar otro aca lo duplicaria y el arranque fallaria por eso, no por el que esta prueba mira.
+        var arranque = new SpringApplicationBuilder(Aplicacion.class).profiles("production");
 
         // Como argumentos y no con .properties(): esas son propiedades por defecto y el perfil las pisa.
         String[] argumentos = {
@@ -100,9 +96,6 @@ class ArranqueRecargaQrTest {
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @ActiveProfiles("production")
     class EnProduccionPorOmision {
-
-        @MockitoBean
-        private ProveedorDeRetiro proveedorDeRetiro;
 
         @Autowired
         private ProveedorDeRecargas proveedor;

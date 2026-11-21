@@ -42,13 +42,13 @@
 ### H1.S3 — Resto de F1 de L4 (en orden del anexo, relocalizando cada uno en `dev`)
 | ID | Microtarea | Estado |
 |---|---|---|
-| F1.L4.M03 | Arranque fail-closed de secretos | TODO |
+| F1.L4.M03 | Arranque fail-closed de secretos. CA: sin `JWT_CLAVE_FIRMA` o con `INVITACIONES_CLAVE` corta, fuera de un entorno descartable declarado, no arranca. DoD: `RotacionDeClavesDeFirmaTest` + `SecretoDeInvitacionArranqueTest` | A MEDIAS (identidad hecho; falta el compose local y `${…:?}` en coolify, fuera de alcance) |
 | F1.L4.M05 | Diligencia PEP con cuatro ojos reales | TODO |
 | F1.L4.M06 | Caso LFT analista ≠ revisor, analista del token | TODO |
 | F1.L4.M07 | Segregación del reporte UIF sin hueco por NULL | TODO |
 | F1.L4.M12 | OTP de correo: reintento sobre código consumido | TODO |
 | F1.L4.M18 | `VerificarTitularidad` contra KYC aprobado vigente | TODO |
-| F1.L4.M25 | `GET /licencia/alcance` no escribe ni acepta usuario del query | TODO |
+| F1.L4.M25 | `GET /licencia/alcance` no escribe ni acepta usuario del query. CA: 10 GET rechazados → outbox sin cambios; el `usuarioId` del query se ignora. DoD: `AlcanceSinEfectosTest` + `LicenciaControllerWebTest` | HECHO (`evidencia/f1-l4-m25-licencia-alcance.txt`) |
 | F1.L4.M26 | Controles regulatorios con hechos del servidor | TODO |
 | Resto (M04, M08–M11, M13–M17, M19–M24) | Ver anexo; se abren en este orden después de los anteriores | TODO |
 
@@ -56,7 +56,8 @@
 | ID | Microtarea | Estado |
 |---|---|---|
 | F1.L6.M04 | Patrón de importe de `cumplimiento.yaml` válido y sin negativos. CA: «100.00» valida, «-1.00» no. DoD: `yarn vitest run` en `packages/simulado` | HECHO (`evidencia/f1-l6-m04-patron-importe.txt`) |
-| F1.L6.M05 a M12 | Ver anexo L6 | TODO |
+| F1.L6.M12 | App: clave por intento (formulario + contenido), liberada ante 4xx, conservada ante timeout/5xx/429. CA: 422 → corregir → se procesa; timeout reintentado no duplica. DoD: `flutter test test/unidad/idempotencia_por_intento_test.dart` | HECHO (`evidencia/f1-l6-m12-idempotencia-app.txt`) |
+| F1.L6.M05 a M11 | Ver anexo L6 | TODO |
 
 ## H2 — F2 de L4 y L6
 | ID | Microtarea | Estado |
@@ -64,6 +65,7 @@
 | F2.L4.M01 | Retirar la doble aprobación humana de retiros (parte identidad/cumplimiento/apps) | TODO |
 | F2.L4.M02 | Retirar el organizador profesional de identidad y backoffice de cumplimiento | TODO |
 | F2.L6.M13 | Shell del backoffice sin aprobaciones eliminables | TODO |
+| F2.L2-pedido | (Pedido de L2 vía coordinador) App sin subasta; mock sin éxitos de operaciones que responden 410. CA: no queda pantalla ni ruta de subasta y el simulado responde 410. DoD: `dart analyze` + `flutter test` + vitest de simulado | HECHO en PR #460 (`evidencia/f2-retiro-subasta-app-y-mock.txt`, en esa rama) |
 | F2.L6.M14 | Mock, clientes y catálogo regenerados sin respaldo ni aprobaciones | TODO |
 
 ## Riesgos y bloqueos previstos

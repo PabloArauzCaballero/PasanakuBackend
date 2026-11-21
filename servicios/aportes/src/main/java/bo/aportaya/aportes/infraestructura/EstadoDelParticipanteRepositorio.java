@@ -63,4 +63,17 @@ public class EstadoDelParticipanteRepositorio {
                 grupoId);
         return fila == null ? 0 : fila.get("morosos", Integer.class);
     }
+
+    /** El periodo de alguna obligacion del participante: con el se pregunta a grupos de quien es. */
+    public java.util.Optional<UUID> unPeriodoDe(DSLContext dsl, UUID participanteId) {
+        return dsl.resultQuery(
+                        """
+                        SELECT o.periodo_id FROM aportes.obligacion_aporte o
+                         WHERE o.participante_id = ?
+                         ORDER BY o.periodo_id
+                         LIMIT 1
+                        """,
+                        participanteId)
+                .fetchOptional(r -> r.get(0, UUID.class));
+    }
 }

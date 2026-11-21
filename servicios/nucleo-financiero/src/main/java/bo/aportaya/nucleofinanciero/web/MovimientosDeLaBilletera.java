@@ -4,7 +4,6 @@ import bo.aportaya.nucleofinanciero.aplicacion.CU12AcreditarRescate;
 import bo.aportaya.nucleofinanciero.aplicacion.CU12TransferirSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino;
 import bo.aportaya.nucleofinanciero.aplicacion.CU16CerrarBilletera;
-import bo.aportaya.nucleofinanciero.aplicacion.PagoDeCompraEnMercado;
 import bo.aportaya.nucleofinanciero.aplicacion.ResolverDestino;
 import bo.aportaya.nucleofinanciero.dominio.puertos.HechosDeOtrosServicios;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaAcreditacionRescate;
@@ -42,7 +41,6 @@ class MovimientosDeLaBilletera {
     private final CU12TransferirSaldo cu12;
     private final CU12AcreditarRescate rescates;
     private final CU13EjecutarConDestino ejecuciones;
-    private final PagoDeCompraEnMercado pagos;
     private final CU16CerrarBilletera cu16;
     private final ResolverDestino destinos;
     private final HechosDeOtrosServicios afuera;
@@ -51,14 +49,12 @@ class MovimientosDeLaBilletera {
             CU12TransferirSaldo cu12,
             CU12AcreditarRescate rescates,
             CU13EjecutarConDestino ejecuciones,
-            PagoDeCompraEnMercado pagos,
             CU16CerrarBilletera cu16,
             ResolverDestino destinos,
             HechosDeOtrosServicios afuera) {
         this.cu12 = cu12;
         this.rescates = rescates;
         this.ejecuciones = ejecuciones;
-        this.pagos = pagos;
         this.cu16 = cu16;
         this.destinos = destinos;
         this.afuera = afuera;
@@ -75,13 +71,6 @@ class MovimientosDeLaBilletera {
                         Optional.ofNullable(cuerpo.getTitularId())),
                 ctx);
         return ResponseEntity.ok(MapeoDeBilletera.ejecucion(salida));
-    }
-
-    /** La retencion de una compra del mercado se paga al vendedor de la oferta; el cuerpo no dicta a quien. */
-    ResponseEntity<SalidaEjecucionDeRetencion> pagarAlTercero(
-            UUID retencionId, UUID claveIdempotencia, ContextoSesion ctx) {
-        return ResponseEntity.ok(
-                MapeoDeBilletera.ejecucion(pagos.ejecutar(retencionId, claveIdempotencia.toString(), ctx)));
     }
 
     /** El rescate vuelve de la custodia a la billetera del titular. */

@@ -3,7 +3,6 @@ package bo.aportaya.garantia;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import bo.aportaya.garantia.aplicacion.CU23CubrirIncumplimiento.EntradaCobertura;
 import bo.aportaya.garantia.aplicacion.CU25DeclararIncumplimiento.EntradaDeclaracion;
 import bo.aportaya.garantia.aplicacion.CU66ReemplazarParticipante.EntradaReemplazo;
 import bo.aportaya.garantia.aplicacion.CU66ReemplazarParticipante.SalidaReemplazo;
@@ -62,8 +61,7 @@ class CU66RechazosTest extends BaseDeGarantia {
                         null,
                         null),
                 gestor));
-        transaccion.execute(t ->
-                coberturaCU.cubrir(new EntradaCobertura(expediente.expedienteId(), bob("1000.00"), 60, null), gestor));
+        fixturaDeDeudor.cubiertoPorElFondo(expediente.expedienteId(), "1000.00", gestor.usuarioId(), true);
         return new Caso(escenario, expediente.expedienteId(), gestor);
     }
 

@@ -1,0 +1,30 @@
+Punto 3 · CU-22: la entrega nace solo del fondeo (retiro de CU22LiquidarEntrega.liquidar/ejecutar)
+Rama: correcciones/tanda2-l2-cu22-sin-liquidacion (sobre origin/dev 02668c95)
+
+$ ./gradlew :servicios:entregas:spotlessApply :servicios:entregas:compileTestJava :servicios:entregas:test :servicios:entregas:webTest
+EXIT=0
+test     tests 27 fail 0 err 0 skip 0   (suma de build/test-results/test/*.xml)
+webTest  tests 65 fail 0 err 0 skip 0   (suma de build/test-results/webTest/*.xml)
+
+$ ./gradlew :servicios:entregas:spotlessCheck :servicios:entregas:check -x test -x jacocoTestCoverageVerification -x jacocoTestReport
+EXIT=0
+$ ./gradlew testBarrido
+EXIT_BARRIDO=0
+
+$ python3 scripts/verificar_criterios.py
+pendientes de implementar (4): CU-05 (identidad), CU-26 (garantia), CU-51 (aportes), CU-57 (nucleo-financiero)
+Sin divergencias entre la boveda y el codigo.
+$ python3 scripts/verificar_boveda.py          -> TODO OK
+$ python3 scripts/verificar_seguridad.py       -> TODO OK · 5 aviso(s) (preexistentes)
+$ python3 scripts/verificar_pruebas_web.py     -> La capa web esta cubierta segun ADR-043.
+$ python3 scripts/verificar_narrativas.py      -> Sin fallas.
+
+# El rechazo de R-GRP-01 que afirma CU22Test existe en el esquema real (base local 5433, sintetica):
+$ psql -d pasanaku -Atc "select indexname||' | '||indexdef from pg_indexes where schemaname='entregas' and tablename='entrega_fondo' and indexname like 'uq_entrega_%'"
+uq_entrega_turno | CREATE UNIQUE INDEX uq_entrega_turno ON entregas.entrega_fondo USING btree (turno_id)
+uq_entrega_periodo | CREATE UNIQUE INDEX uq_entrega_periodo ON entregas.entrega_fondo USING btree (periodo_id)
+
+NO COMPROBADO LOCAL (sin Docker; lo valida el CI del PR, «Los cinco corredores» -> integrationTest con Testcontainers):
+  CU22Test (criterio1, criterio2, criterio3, reintento, rechazaRGRP01) · CU133PozoCompletoTest.seEntregaUnaSolaVez
+  · CU133PozoCompletoRechazosTest.turnoYaLiquidadoPorElCaminoAnterior · CU28RechazosTest · EscenarioDeDesembolso
+  · jacocoTestCoverageVerification de entregas (depende de integrationTest).

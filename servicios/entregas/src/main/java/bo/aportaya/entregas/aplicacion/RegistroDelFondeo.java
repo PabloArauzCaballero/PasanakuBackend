@@ -78,8 +78,7 @@ public class RegistroDelFondeo {
             UUID entregaId, UUID fondeoId, String estadoDelFondeo, FondeoDelPozo.Resultado cifras, boolean esNuevo) {}
 
     @Transactional
-    public Salida registrar(
-            Entrada e, FondeoDelPozo.Resultado cifras, UUID coberturaId, OffsetDateTime corte, ContextoSesion ctx) {
+    public Salida registrar(Entrada e, FondeoDelPozo.Resultado cifras, OffsetDateTime corte, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
         return datos.conContexto(ctx, dsl -> {
@@ -92,13 +91,13 @@ public class RegistroDelFondeo {
             }
             if (previo.isPresent()) {
                 var p = previo.get();
-                if (!fondeos.completar(dsl, p, cifras, coberturaId, corte, ahora)) {
+                if (!fondeos.completar(dsl, p, cifras, corte, ahora)) {
                     throw new ErrorDeNegocio(
                             CodigoError.de(22, 9), "Otro pedido movio el fondeo de ese turno primero: reintenta.");
                 }
                 if (cifras.completo()) {
                     destrabar(dsl, p.entregaId(), ahora);
-                    anunciarFondeo(dsl, p.entregaId(), e.turnoId(), cifras, coberturaId, ctx);
+                    anunciarFondeo(dsl, p.entregaId(), e.turnoId(), cifras, ctx);
                 }
                 return new Salida(
                         p.entregaId(), p.id(), cifras.completo() ? "FONDEADO" : "CON_PENDIENTE", cifras, false);
@@ -122,9 +121,9 @@ public class RegistroDelFondeo {
             if (!cifras.completo()) {
                 entregas.cambiarEstado(dsl, entregaId, List.of("PROGRAMADA"), "BLOQUEADA_POR_FONDO_INCOMPLETO", 0);
             }
-            UUID fondeoId = fondeos.crear(dsl, entregaId, e.turnoId(), cifras, coberturaId, e.clave(), corte, ahora);
+            UUID fondeoId = fondeos.crear(dsl, entregaId, e.turnoId(), cifras, e.clave(), corte, ahora);
             if (cifras.completo()) {
-                anunciarFondeo(dsl, entregaId, e.turnoId(), cifras, coberturaId, ctx);
+                anunciarFondeo(dsl, entregaId, e.turnoId(), cifras, ctx);
             } else {
                 abrirIncidencia(dsl, entregaId, e.turnoId(), cifras.pendiente(), ctx, ahora);
             }
@@ -139,7 +138,8 @@ public class RegistroDelFondeo {
             throw new ErrorDeNegocio(CodigoError.de(22, 9), "La entrega ya no estaba bloqueada por el fondeo.");
         }
         fondeos.incidenciaAbierta(dsl, entregaId)
-                .ifPresent(id -> fondeos.resolverIncidencia(dsl, id, "Faltante cubierto por el respaldo.", ahora));
+                .ifPresent(id ->
+                        fondeos.resolverIncidencia(dsl, id, "El pozo se completo: el faltante quedo cubierto.", ahora));
     }
 
     private void abrirIncidencia(
@@ -149,8 +149,9 @@ public class RegistroDelFondeo {
                         dsl,
                         entregaId,
                         ctx.usuarioId(),
-                        "Falta extraordinaria de caja: el respaldo empresarial no cubre " + pendiente
-                                + ". La entrega queda bloqueada y la deuda se conserva.",
+                        "Falta de caja: faltan " + pendiente
+                                + " para el pozo. La entrega queda bloqueada y la deuda se conserva hasta que la"
+                                + " cubra el fondo del grupo.",
                         (int) slaDeLaIncidencia.toHours(),
                         ahora));
         outbox.emitir(
@@ -168,12 +169,9 @@ public class RegistroDelFondeo {
     }
 
     private void anunciarFondeo(
-            DSLContext dsl,
-            UUID entregaId,
-            UUID turnoId,
-            FondeoDelPozo.Resultado c,
-            UUID coberturaId,
-            ContextoSesion ctx) {
+            DSLContext dsl, UUID entregaId, UUID turnoId, FondeoDelPozo.Resultado c, ContextoSesion ctx) {
+        // cubiertoEmpresa y coberturaId siguen en el sobre por compatibilidad del evento (98.1.3): la empresa ya no
+        // cubre (F2.L2.M01), asi que van en cero y vacio hasta la contraccion del contrato.
         outbox.emitir(
                 dsl,
                 new EventoDominio(
@@ -186,7 +184,7 @@ public class RegistroDelFondeo {
                                 "confirmado", c.confirmado().toString(),
                                 "cubiertoMutual", c.cubiertoMutual().toString(),
                                 "cubiertoEmpresa", c.cubiertoEmpresa().toString(),
-                                "coberturaId", coberturaId == null ? "" : coberturaId.toString(),
+                                "coberturaId", "",
                                 "moneda", c.pozo().moneda().name()),
                         UUID.fromString(ctx.traza().id())));
     }

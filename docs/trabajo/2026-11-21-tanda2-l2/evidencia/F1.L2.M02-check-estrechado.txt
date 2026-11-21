@@ -1,0 +1,30 @@
+$ python3 scripts/generar_ddl.py && git diff -- sql
+-  CONSTRAINT ck_cobertura_incumplimiento_estado CHECK (estado IN ('APLICADA', 'APROBADA', 'EN_RECUPERACION', 'INCOBRABLE', 'RECHAZADA', 'RECUPERADA_PARCIAL', 'RECUPERADA_TOTAL', 'REVERSADA', 'SOLICITADA'))
++  CONSTRAINT ck_cobertura_incumplimiento_estado CHECK (estado IN ('APLICADA', 'APROBADA', 'EN_RECUPERACION', 'INCOBRABLE', 'RECHAZADA', 'RECUPERADA_PARCIAL', 'RECUPERADA_TOTAL', 'REVERSADA'))
++-- Evolucion: CHECK ESTRECHADO (ver CK_ESTRECHADOS en modelo.py). El ADD revalida
++-- las filas existentes: falla si queda alguna con un valor retirado, sin tocar el CHECK viejo.
++ALTER TABLE garantia.cobertura_incumplimiento DROP CONSTRAINT IF EXISTS ck_cobertura_incumplimiento_estado,
++  ADD CONSTRAINT ck_cobertura_incumplimiento_estado CHECK (estado IN ('APLICADA', 'APROBADA', 'EN_RECUPERACION', 'INCOBRABLE', 'RECHAZADA', 'RECUPERADA_PARCIAL', 'RECUPERADA_TOTAL', 'REVERSADA'));
++
+
+Prueba contra una base EXISTENTE (CHECK viejo, como TEST) y una nueva — PostgreSQL 16 local, sql/aplicar.sql:
+== 0. se repone el CHECK VIEJO (con SOLICITADA) para simular TEST
+== 1. con una fila SOLICITADA (sintetica, FK desactivadas), aplicar.sql FALLA
+psql:10_tablas/08_garantia_incumplimiento/cobertura_incumplimiento.sql:29: ERROR:  check constraint "ck_cobertura_incumplimiento_estado" of relation "cobertura_incumplimiento" is violated by some row
+aplicar exit=3
+== 1b. y el CHECK viejo sigue vivo (no quedo la tabla sin CHECK, y todavia admite SOLICITADA)
+1
+t
+== 2. sin la fila: aplicar.sql estrecha el CHECK
+psql:15_infra/mensajeria.sql:46: NOTICE:  column "ultimo_error" of relation "evento_dominio" already exists, skipping
+psql:15_infra/mensajeria.sql:135: NOTICE:  column "ultimo_error" of relation "evento_dominio" already exists, skipping
+aplicar exit=0
+CHECK (((estado)::text = ANY ((ARRAY['APLICADA'::character varying, 'APROBADA'::character varying, 'EN_RECUPERACION'::character varying, 'INCOBRABLE'::character varying, 'RECHAZADA'::character varying, 'RECUPERADA_PARCIAL'::character varying, 'RECUPERADA_TOTAL'::character varying, 'REVERSADA'::character varying])::text[])))
+== 3. segunda corrida: idempotente
+aplicar exit=0
+== 4. fila nueva con SOLICITADA: rechazada
+ERROR:  new row for relation "cobertura_incumplimiento" violates check constraint "ck_cobertura_incumplimiento_estado"
+== 5. base nueva
+psql:15_infra/mensajeria.sql:46: NOTICE:  column "ultimo_error" of relation "evento_dominio" already exists, skipping
+psql:15_infra/mensajeria.sql:135: NOTICE:  column "ultimo_error" of relation "evento_dominio" already exists, skipping
+aplicar exit=0

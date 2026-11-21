@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 class ConsumidorDeAsientosKafkaTest {
 
     private static ConsumerRecord<String, String> registro(String cuerpo, String... cabeceras) {
-        var r = new ConsumerRecord<>("aportaya.garantia.respaldo_reservado", 0, 0L, "clave", cuerpo);
+        var r = new ConsumerRecord<>("aportaya.entregas.desembolso_acreditado", 0, 0L, "clave", cuerpo);
         for (int i = 0; i < cabeceras.length; i += 2) {
             r.headers().add(cabeceras[i], cabeceras[i + 1].getBytes(StandardCharsets.UTF_8));
         }
@@ -33,11 +33,11 @@ class ConsumidorDeAsientosKafkaTest {
                 "event_id",
                 evento.toString(),
                 "type",
-                "garantia.respaldo_reservado",
+                "entregas.desembolso_acreditado",
                 "correlation_id",
                 correlacion.toString()));
         assertThat(e.eventoId()).isEqualTo(evento);
-        assertThat(e.tipo()).isEqualTo("garantia.respaldo_reservado");
+        assertThat(e.tipo()).isEqualTo("entregas.desembolso_acreditado");
         assertThat(e.correlationId()).isEqualTo(correlacion);
         assertThat(e.carga().path("asiento").path("origenTipo").asText()).isEqualTo("AJUSTE");
     }
@@ -57,5 +57,16 @@ class ConsumidorDeAsientosKafkaTest {
         assertThatThrownBy(() -> ConsumidorDeAsientosKafka.leer(
                         registro(null, "event_id", id, "type", "t", "correlation_id", id)))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName(
+            "F2.L1.M01 · el consumidor no escucha respaldo ni cobertura empresarial: solo el desembolso confirmado")
+    void sinTopicosDeRespaldo() throws Exception {
+        var escucha = ConsumidorDeAsientosKafka.class
+                .getMethod("alRecibir", ConsumerRecord.class)
+                .getAnnotation(org.springframework.kafka.annotation.KafkaListener.class);
+        assertThat(escucha.topics()).containsExactly("aportaya.entregas.desembolso_acreditado");
+        assertThat(String.join(",", escucha.topics())).doesNotContain("respaldo_", "cobertura_empresarial");
     }
 }

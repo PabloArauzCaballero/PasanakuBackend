@@ -1,7 +1,6 @@
 package bo.aportaya.garantia.web;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import bo.aportaya.garantia.aplicacion.CU25DeclararIncumplimiento;
@@ -27,10 +26,9 @@ import org.springframework.test.web.servlet.MockMvc;
  * <p>Separado de {@link IncumplimientosControllerWebTest} por la regla de tamano de
  * archivo: el debido proceso y la cobertura son dos temas.
  *
- * <p>Lo que se fija aca: <b>cubrir no perdona</b> —la respuesta trae la deuda que queda
- * contra quien incumplio— y <b>por encima del umbral no se cubre solo</b>: la respuesta
- * dice que requiere aprobacion y no devuelve cobertura. Automatizar la cobertura de
- * montos grandes es como se vacia un fondo sin que nadie mire.
+ * <p>La cobertura manual se retiro (F1.L2.M02): el 410 es un criterio de CU-23 y vive en
+ * {@link CU23CoberturaManualRetiradaWebTest}. Aca queda la validacion del cuerpo, que el
+ * contrato sigue exigiendo antes de responder.
  */
 @PruebaWeb(IncumplimientosController.class)
 class CoberturaWebTest {
@@ -63,22 +61,6 @@ class CoberturaWebTest {
     @Nested
     @DisplayName("CU-23 · cubrir no perdona")
     class Cobertura {
-
-        @Test
-        @DisplayName("F1.L2.M02 · la cobertura manual responde 410 AP-CU23-14 y no cubre nada")
-        void coberturaManualRetirada() throws Exception {
-            mvc.perform(
-                            post("/incumplimientos/{id}/cobertura", EXPEDIENTE)
-                                    .with(Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR"))
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .content(
-                                            """
-                                    {"montoSolicitado":{"monto":"500.00","moneda":"BOB"},"diasMora":10,
-                                     "aprobadaPor":"b2000000-0000-4000-8000-000000000009"}
-                                    """))
-                    .andExpect(status().isGone())
-                    .andExpect(jsonPath("$.codigo").value("AP-CU23-14"));
-        }
 
         @Test
         @DisplayName("CU-23 · 400: días de mora negativos")

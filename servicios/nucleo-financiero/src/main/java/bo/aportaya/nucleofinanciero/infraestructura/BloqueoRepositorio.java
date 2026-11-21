@@ -25,6 +25,7 @@ public class BloqueoRepositorio {
             String alcance,
             String documentoUrl,
             String hashDocumento,
+            UUID registradoPor,
             OffsetDateTime recibidoEn) {
 
         UUID id = UUID.randomUUID();
@@ -42,6 +43,8 @@ public class BloqueoRepositorio {
                 .set(DSL.field("documento_url", String.class), documentoUrl)
                 .set(DSL.field("hash_documento", String.class), hashDocumento)
                 .set(DSL.field("estado", String.class), "VIGENTE")
+                // F1.L1.M10 · R-BIL-32: quien lo registro, desde su token; no puede ser quien lo levante.
+                .set(DSL.field("registrado_por", UUID.class), registradoPor)
                 .set(DSL.field("recibido_en", OffsetDateTime.class), recibidoEn)
                 .execute();
         return id;
@@ -72,6 +75,19 @@ public class BloqueoRepositorio {
                         f.get("autoridad", String.class),
                         Optional.ofNullable(f.get("retencion_id", UUID.class))));
     }
+
+    /** El bloqueo vigente por su id, con quien lo registro y su retencion (F1.L1.M10). */
+    public Optional<Vigente> vigente(DSLContext dsl, UUID bloqueoId) {
+        return dsl.select(DSL.field("registrado_por", UUID.class), DSL.field("retencion_id", UUID.class))
+                .from(DSL.table(DSL.name("nucleo_financiero", "bloqueo_saldo")))
+                .where(DSL.field("id", UUID.class).eq(bloqueoId))
+                .and(DSL.field("estado").eq("VIGENTE"))
+                .fetchOptional(f -> new Vigente(
+                        Optional.ofNullable(f.get("registrado_por", UUID.class)),
+                        Optional.ofNullable(f.get("retencion_id", UUID.class))));
+    }
+
+    public record Vigente(Optional<UUID> registradoPor, Optional<UUID> retencionId) {}
 
     /** Levantar el bloqueo es decision de la misma autoridad que lo puso, nunca nuestra. */
     public boolean levantar(DSLContext dsl, UUID bloqueoId, UUID levantadaPor, OffsetDateTime ahora) {

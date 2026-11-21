@@ -11,174 +11,169 @@ normas: [ASFI transparencia, SIN facturación, contabilidad]
 
 # CU-22 — Liquidar y entregar el fondo
 
-> **Objetivo.** Que la bolsa llegue completa, a la persona correcta, **una sola
-> vez**, y que cada boliviano descontado tenga una línea explicable —incluida la
-> comisión de la plataforma.
+> **Objetivo.** Que el pozo llegue **completo**, a la persona correcta y **una sola vez**, sin que ninguna persona
+> decida el importe: el pozo lo afirma `aportes` y el principal no se descuenta.
 
-> **Vigencia ([[ADR-051 Garantía del pozo, comisión y autogestión|ADR-051]], D-04 y D-15, aceptado por delegación del dueño, pendiente de ratificación).**
-> El camino que manda es el del **pozo completo** (`CU22EntregarPozoCompleto`): el principal se acredita íntegro, la
-> comisión de la plataforma es un **cargo separado** con su propia línea (no una deducción del principal) y todo importe
-> que se cobre a quien recibe se muestra línea por línea. La liquidación con deducciones de abajo
-> (`CU22LiquidarEntrega`) queda como **legado**, y la falta de plata en la bolsa la cubre la reserva empresarial
-> (todo o nada), no el fondo mutual. No hay comisión del organizador (RN-18).
+> **Vigencia ([[ADR-055 Sin aprobaciones en el circuito|ADR-055]] E8 y [[ADR-056 Tu garantía vuelve y la puntualidad vale plata|ADR-056]], 2026-11-21).**
+> La entrega nace **solo** del fondeo del pozo completo (`CU22EntregarPozoCompleto`). Se retiraron la liquidación
+> con bruto, recaudado y deducciones que mandaba el cliente (F1.L2.M09) y el cierre manual con un monto libre
+> (F1.L2.M08): `POST /entregas` y `POST /entregas/{id}/ejecucion` responden **410**. La comisión no sale del pozo:
+> se cobra en el mismo QR de la cuota como línea aparte (DECISIONES, tanda 7). No hay comisión del organizador ni
+> pasa dinero por su cuenta (RN-18, regla 91.5).
+>
+> **Transitorio.** Hasta que el fondeo y la emisión los dispare el sistema (F3.L2.M01 y F3.L2.M02), la autorización
+> y la orden de desembolso ([[CU-28 Emitir la orden de desembolso y ejecutar el intento]]) siguen siendo actos de
+> Tesorería; F2.L2.M06 los retira junto con la segregación de la entrega (`ck_entrega_segregacion`).
 
 ## Actores y disparador
 
-- **Actor principal:** el sistema (organizador digital) o el organizador humano.
-- **Disparador:** llega la fecha programada del turno.
+- **Actor principal:** el sistema.
+- **Disparador:** el turno del período tiene su pozo cobrado (hoy, el pedido de fondeo; en F3, el evento del turno
+  cobrado).
 
 ## Precondiciones
 
 1. Existe [[turno]] del período sin entrega previa (`R-GRP-01`).
-2. La bolsa está completa o el faltante está cubierto ([[CU-23 Cubrir un incumplimiento con el fondo]]).
-3. El beneficiario tiene cuenta operativa y sin bloqueos que impidan acreditar.
+2. `aportes` responde lo confirmado del período; un pendiente no es caja.
+3. El beneficiario tiene cuenta verificada y fuera de enfriamiento al momento del desembolso (CU-28).
 
 ## Flujo principal
 
-1. Se crea [[entrega_fondo]] con `monto_bolsa_bruto` calculado desde las
-   obligaciones acreditadas del período.
-2. Se ejecutan las [[validacion_pre_entrega]] contra cada [[regla_entrega]]
-   activa; una regla bloqueante en `RECHAZADA` impide autorizar.
-3. Se calculan las [[deduccion_entrega]] línea por línea, en el orden definido:
-   - `APORTE_PROPIO_DEL_PERIODO`, `DEUDA_VENCIDA_PROPIA`, `RECARGO_MORA_PROPIO`,
-     `REPOSICION_FONDO_GARANTIA`;
-   - **`COMISION_PLATAFORMA`**, cuyo importe viene de
-     [[CU-31 Devengar y cobrar la comisión]] usando la [[tarifa_congelada_grupo]];
-   - `RETENCION_IMPUESTO`, `COSTO_TRANSFERENCIA`.
-4. `monto_neto_a_entregar = monto_bolsa_bruto - total_deducciones` (`R-GRP-02`).
-5. Autoriza una persona/rol y **ejecuta otra** (`autorizada_por` ≠ `ejecutada_por`,
-   `R-SEG-04`).
-6. **En la misma transacción**:
-   - se retiene la bolsa en la cuenta del grupo ([[CU-13 Retener y liberar saldo]]);
-   - se crea la [[transaccion_billetera]] `tipo='ENTREGA_DE_FONDO'`: débito a la
-     cuenta del grupo, crédito a la del beneficiario por el neto, crédito a
-     `PLATAFORMA_INGRESOS` por la comisión y a `PLATAFORMA_IMPUESTOS_POR_PAGAR`
-     por el impuesto;
-   - se registra el [[asiento_contable]];
-   - se marca el `cargo_comision` como cobrado.
-7. Se emite la [[constancia_pago]] / comprobante con el detalle de deducciones y se
-   solicita [[confirmacion_recepcion]].
-8. Se dispara la facturación de la comisión ([[CU-32 Emitir factura electrónica]]).
+1. Se pregunta a `aportes` el pozo, lo confirmado y lo cubierto del período, fuera de la transacción.
+2. En una transacción local se crea [[entrega_fondo]] con el **pozo completo** como principal y sin deducciones, y
+   su [[fondeo_entrega]], que cuadra al centavo (`R-DES-03`).
+3. Si el pozo está completo, la entrega queda `PROGRAMADA`; si falta caja, queda `BLOQUEADA_POR_FONDO_INCOMPLETO`
+   con la deuda conservada y una incidencia, a la espera del fondo del grupo (modelo A, F3.L2.M05).
+4. El desembolso a la cuenta verificada lo emite y lo acredita [[CU-28 Emitir la orden de desembolso y ejecutar el intento]];
+   la entrega queda `ENTREGADA` solo cuando el desembolso se acredita.
 
 ## Flujos alternativos
 
-| # | Situación | Resultado |
-| :-: | --- | --- |
-| 2a | Falta plata en la bolsa | `BLOQUEADA_POR_FONDO_INCOMPLETO`: problema del grupo, dispara módulo 8 |
-| 2b | El beneficiario no cumple una validación | `BLOQUEADA_POR_VALIDACION`: problema individual, con causa concreta |
-| 3a | El neto quedaría negativo | Se rechaza: `R-GRP-02` impide entregar menos que cero; el excedente de deuda queda como obligación |
-| 5a | Intento de doble entrega del mismo turno | Rechazo por unicidad (`R-GRP-01`) |
-| 7a | El beneficiario objeta las deducciones | `RECHAZADA_POR_BENEFICIARIO`; se abre reclamo ([[CU-52 Atender un reclamo en plazo]]) sin revertir aún |
-| — | Entrega anulada después de acreditar | [[CU-14 Reversar una transacción]] + [[CU-33 Devolver comisión y emitir nota de crédito]] |
+| # | Situación | Comportamiento |
+| --- | --- | --- |
+| 1a | `aportes` no responde | No se escribe nada (`AP-CU22-06`); el reintento es seguro |
+| 1b | El período no es del grupo | Se rechaza (`AP-CU22-07`) |
+| 2a | Se repite el fondeo con la misma clave | Devuelve la misma entrega y el mismo fondeo |
+| 2b | El turno ya tiene una entrega anterior al fondeo | Se rechaza (`AP-CU22-09`); la base además impide una segunda entrega (`R-GRP-01`) |
 
 ## Postcondiciones
 
-- Un turno = una entrega. El beneficiario puede explicar cada deducción.
-- El ingreso de la plataforma quedó devengado, cobrado y contabilizado.
+- Una sola [[entrega_fondo]] por turno, con el pozo completo como principal.
+- Un [[fondeo_entrega]] que cuadra, y la deuda conservada si faltó caja.
 
 ## Contrato · `openapi/entregas.yaml`
 
 ```ts
 export const EntradaCU22 = z.object({
   claveIdempotencia: z.string().uuid(),
+  grupoId: z.string().uuid(),
+  periodoId: z.string().uuid(),
   turnoId: z.string().uuid(),
-  autorizadaPor: z.string().uuid(),
-  ejecutadaPor: z.string().uuid(),
+  cupoId: z.string().uuid(),
+  beneficiarioId: z.string().uuid(),
+  metodoDesembolso: z.enum(['BILLETERA_MOVIL', 'COMPENSACION_INTERNA', 'QR_ENVIO', 'TRANSFERENCIA_BANCARIA']),
+  fechaProgramada: z.string().date(),
 }).strict()
 
 export const SalidaCU22 = z.object({
   entregaId: z.string().uuid(),
-  montoBolsaBruto: MontoSchema,
-  deducciones: z.array(z.object({ tipo: z.string(), monto: MontoSchema, referencia: z.string() })),
-  montoNeto: MontoSchema,
-  constanciaUrl: z.string().url(),
+  fondeoId: z.string().uuid(),
+  estado: z.enum(['FONDEADO', 'CON_PENDIENTE']),
+  pozo: MontoSchema,
+  confirmado: MontoSchema,
+  pendiente: MontoSchema,
+  esNuevo: z.boolean(),
 }).strict()
 
 export const ErroresCU22 = {
-  BOLSA_INCOMPLETA: 'AP-CU22-01',
+  BOLSA_INCOMPLETA: 'AP-CU22-01',        // retirado con la liquidacion vieja
   VALIDACION_BLOQUEANTE: 'AP-CU22-02',
   ENTREGA_DUPLICADA: 'AP-CU22-03',
-  SEGREGACION_INCUMPLIDA: 'AP-CU22-04',
-  NETO_NEGATIVO: 'AP-CU22-05',
+  SEGREGACION_INCUMPLIDA: 'AP-CU22-04',  // retirado con la ejecucion manual
+  NETO_NEGATIVO: 'AP-CU22-05',           // retirado: el principal no se descuenta
+  RECAUDO_NO_DISPONIBLE: 'AP-CU22-06',
+  PEDIDO_NO_COINCIDE: 'AP-CU22-07',
+  RESPALDO_NO_DISPONIBLE: 'AP-CU22-08',  // retirado con el respaldo empresarial (F2.L2.M01)
+  FONDEO_EN_CONFLICTO: 'AP-CU22-09',
+  LIQUIDACION_RETIRADA: 'AP-CU22-10',
+  EJECUCION_RETIRADA: 'AP-CU22-11',
 } as const
 ```
 
 | Error | Cuándo se devuelve |
 | --- | --- |
-| `BOLSA_INCOMPLETA` | Falta plata del período y el fondo no cubre |
-| `VALIDACION_BLOQUEANTE` | Una regla de entrega bloqueante quedó en rechazada |
-| `ENTREGA_DUPLICADA` | Ese turno ya fue entregado (R-GRP-01) |
-| `SEGREGACION_INCUMPLIDA` | Quien autoriza no puede ejecutar (R-SEG-04) |
-| `NETO_NEGATIVO` | Las deducciones superan la bolsa (R-GRP-02) |
+| `BOLSA_INCOMPLETA` | Retirado: era de la liquidación con importes del pedido |
+| `VALIDACION_BLOQUEANTE` | Al autorizar, una regla de entrega bloqueante sigue sin resolver |
+| `ENTREGA_DUPLICADA` | La entrega no existe o ya no admite la autorización |
+| `SEGREGACION_INCUMPLIDA` | Retirado: era de la ejecución manual |
+| `NETO_NEGATIVO` | Retirado: el principal no se descuenta |
+| `RECAUDO_NO_DISPONIBLE` | `aportes` no responde: no se fondea nada |
+| `PEDIDO_NO_COINCIDE` | El período no es del grupo |
+| `RESPALDO_NO_DISPONIBLE` | Retirado (F2.L2.M01): el fondeo ya no le pide el respaldo a `garantia` |
+| `FONDEO_EN_CONFLICTO` | Otro pedido movió el fondeo, o el turno ya tiene una entrega anterior |
+| `LIQUIDACION_RETIRADA` | `POST /entregas` (410): la liquidación con importes del pedido ya no existe |
+| `EJECUCION_RETIRADA` | `POST /entregas/{id}/ejecucion` (410): la entrega no se cierra a mano |
+
+Un código retirado queda retirado: no se reusa.
 
 ## Descomposición atómica
 
 | Nivel | Pieza | Responsabilidad |
 | --- | --- | --- |
-| Átomo | `calcularDeducciones` | Arma las líneas en orden y devuelve el neto; puro y con pruebas de propiedad |
-| Átomo | `componerAsientoDeEntrega` | Partidas de bolsa, beneficiario, ingreso e impuesto |
-| Molécula | `EntregaRepositorio` | Alta y transiciones de la entrega |
-| Molécula | `ValidacionPreEntregaRepositorio` | Ejecuta y registra cada regla |
-| Molécula | `DevengoComisionRepositorio` | Devenga la comisión del tarifario congelado |
-| Organismo | `CU22LiquidarEntrega` | Transacción: liquidación completa, sin estados intermedios |
-| Página | `POST /entregas/:turnoId` | Traduce y delega, sin lógica |
+| Átomo | `FondeoDelPozo` | Cuánto es caja confirmada, cuánto falta y cuánto queda pendiente; puro |
+| Molécula | `RecaudoPorHttp` | Pregunta a `aportes`, con timeout y circuito |
+| Molécula | `FondeoRepositorio`, `EntregaRepositorio` | Alta del fondeo y de la entrega, transiciones con versión |
+| Organismo | `RegistroDelFondeo` | La transacción local: entrega + fondeo + eventos por outbox |
+| Organismo | `CU22EntregarPozoCompleto` | Pregunta afuera, escribe adentro |
+| Página | `POST /entregas/pozo-completo` | Traduce y delega, sin lógica |
 
 ## Eventos, trabajos y permisos
 
 | Emite | Dispara | Exige |
 | --- | --- | --- |
-| `entrega.autorizada` | Retención de la bolsa y validaciones previas | `ENTREGA_AUTORIZAR` |
-| `entrega.ejecutada` | Comisión, factura, asiento, bloque de transparencia y aviso | `ENTREGA_EJECUTAR` |
+| `entregas.pozo_fondeado` | La orden de desembolso (hoy manual, F3: automática) | Hoy `ENTREGA_EJECUTAR` (transitorio) |
+| `entregas.entrega_autorizada` | Habilita la orden de desembolso (transitorio, F2.L2.M06) | `ENTREGA_AUTORIZAR` |
 
 ## Interfaz
 
-- **App:** *Cobrar mi turno*: bolsa, cada deducción con su motivo, y el neto en grande.
-- **Backoffice:** Tablero de entregas del día con sus validaciones y el doble control.
+- **App:** *Cobrar mi turno*: el pozo completo, la cuenta de destino y el estado del desembolso.
 
 ## Restricciones aplicables
 
-`R-GRP-01` · `R-GRP-02` · `R-TAR-04` · `R-TAR-06` · `R-BIL-01` · `R-SEG-04` ·
-`R-AUD-05` · `R-DES-03` · `R-DES-04` · `R-DES-05`
+`R-GRP-01` · `R-GRP-02` · `R-DES-03` · `R-DES-04` · `R-DES-05`
 
-Las tres últimas las hace cumplir la base en el camino del **pozo completo** y del
-mercado de turnos del servicio `entregas` (`CU22EntregarPozoCompleto` y las clases de
-ofertas y compra de turno), no en la liquidación con deducciones descrita arriba:
-
-- `R-DES-03` · el fondeo del pozo **cuadra al centavo**: confirmado + cubierto por el
-  fondo mutual + faltante = pozo. Lo pendiente es el faltante menos lo que cubrió el
-  respaldo empresarial —es la deuda que se conserva— y el fondeo solo está `FONDEADO`
-  cuando el pendiente es cero.
-- `R-DES-04` · **una oferta viva por turno**: el derecho a cobrar un turno no puede
-  estar publicado, reservado o liquidándose en dos ofertas a la vez.
-- `R-DES-05` · **una cesión viva por turno**, entre partes distintas, y sin retención de
-  fondos no hay título asignado ni cesión liquidada.
-
-Esos caminos devuelven además `AP-CU22-06` a `AP-CU22-09`, declarados en
-`openapi/entregas.yaml`; el contrato de arriba todavía no los lista.
+- `R-GRP-01` · **una entrega por turno**: dos entregas del mismo turno es pagar dos veces el mismo premio.
+- `R-GRP-02` · **el neto es la bolsa menos las deducciones, y nunca negativo** (`ck_entrega_neto`,
+  `ck_entrega_neto_no_negativo`). El fondeo entrega el pozo completo sin deducciones; la base sigue rechazando
+  cualquier fila cuyo neto no salga de esa cuenta.
+- `R-DES-03` · el fondeo del pozo **cuadra al centavo**: confirmado + cubierto + faltante = pozo, y el pendiente es
+  la deuda conservada.
+- `R-DES-04` y `R-DES-05` · una oferta y una cesión vivas por turno. El mercado de turnos se retiró (D-L2-1): las
+  tablas y sus restricciones siguen hasta la contracción del esquema, para las cesiones ya liquidadas.
 
 ## Evidencia que deja
 
-[[entrega_fondo]] · [[deduccion_entrega]] · [[validacion_pre_entrega]] ·
-[[transaccion_billetera]] · [[devengo_comision]] · [[cargo_comision]] ·
-[[asiento_contable]] · [[constancia_pago]] · [[confirmacion_recepcion]] ·
-[[fondeo_entrega]] · [[oferta_turno]] · [[cesion_derecho]]
+[[entrega_fondo]] · [[fondeo_entrega]] · [[incidencia_entrega]] · [[historial_estado_entrega]] · el evento por outbox
+
+Tablas del módulo que este caso conserva sin escribirlas en el flujo nuevo: [[validacion_pre_entrega]] y
+[[regla_entrega]] (las lee la autorización transitoria), [[confirmacion_recepcion]] (la reemplaza la acreditación
+del desembolso), y [[oferta_turno]] y [[cesion_derecho]] (mercado retirado, D-L2-1; se contraen después).
 
 ## Criterios de aceptación
 
 ```gherkin
-Dada una bolsa bruta de Bs 6.000 y deducciones por Bs 518
-Cuando se liquida la entrega
-Entonces monto_neto_a_entregar es 5.482
-Y existe una deduccion_entrega de tipo COMISION_PLATAFORMA con referencia a cargo_comision
+Dado un pozo de Bs 6.000 con todos los aportes confirmados
+Cuando se fondea el turno
+Entonces nace una sola entrega PROGRAMADA con el pozo completo como principal y sin deducciones
 
-Dado un turno ya liquidado
-Cuando se repite la liquidación
+Dado un turno ya fondeado
+Cuando se repite el fondeo
 Entonces devuelve la MISMA entrega y no crea otra
 Y la base sigue rechazando una segunda entrega del turno (R-GRP-01)
 
-Dada una entrega autorizada
-Cuando la ejecuta el mismo usuario que la autorizó
-Entonces la operación se rechaza por segregación de funciones
+Dado un pozo de Bs 6.000 con Bs 5.000 confirmados y nadie que cubra el faltante
+Cuando se fondea el turno
+Entonces la entrega queda BLOQUEADA con el pozo completo como principal y Bs 1.000 de deuda conservada
 ```
 
 ## Ver también

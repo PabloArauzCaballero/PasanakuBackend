@@ -3408,6 +3408,7 @@ COMMENT ON COLUMN nucleo_financiero.bloqueo_saldo.id IS '[NEGOCIO] Identificador
 COMMENT ON COLUMN nucleo_financiero.bloqueo_saldo.cuenta_billetera_id IS '[NEGOCIO] Referencia a la billetera donde se debita o acredita el movimiento de fondos. [SISTEMA] uuid, obligatoria (NOT NULL), clave foránea (FK) hacia `cuenta_billetera`, con índice B-tree.';
 COMMENT ON COLUMN nucleo_financiero.bloqueo_saldo.retencion_id IS '[NEGOCIO] Referencia por clave foránea a la entidad `retencion_saldo`. [SISTEMA] uuid, opcional, clave foránea (FK) hacia `retencion_saldo`.';
 COMMENT ON COLUMN nucleo_financiero.bloqueo_saldo.levantada_por IS '[NEGOCIO] Referencia por clave foránea a la entidad `usuario`. [SISTEMA] uuid, opcional, clave foránea (FK) hacia `usuario`.';
+COMMENT ON COLUMN nucleo_financiero.bloqueo_saldo.registrado_por IS '[NEGOCIO] Referencia por clave foránea a la entidad `usuario`. [SISTEMA] uuid, opcional, clave foránea (FK) hacia `usuario`.';
 COMMENT ON COLUMN nucleo_financiero.bloqueo_saldo.autoridad IS '[NEGOCIO] Atributo que representa autoridad en el modelo de `bloqueo_saldo`. [SISTEMA] varchar(20), obligatoria (NOT NULL).';
 COMMENT ON COLUMN nucleo_financiero.bloqueo_saldo.tipo_orden IS '[NEGOCIO] Atributo que representa tipo orden en el modelo de `bloqueo_saldo`. [SISTEMA] varchar(30), obligatoria (NOT NULL).';
 COMMENT ON COLUMN nucleo_financiero.bloqueo_saldo.numero_oficio IS '[NEGOCIO] Numeración secuencial o identificador numérico de oficio. [SISTEMA] varchar(60), obligatoria (NOT NULL).';

@@ -41,6 +41,8 @@ class ArranqueTest {
         registro.add("spring.kafka.bootstrap-servers", () -> "localhost:9092");
         registro.add("aportaya.jwt.jwks-uri", () -> "http://identidad:8080/.well-known/jwks.json");
         registro.add("SEGURIDAD_PIMIENTA", () -> "pimienta-de-prueba");
+        // F1.L1.M05: sin el secreto del webhook, aportes no arranca. Este es solo de la prueba.
+        registro.add("APORTES_WEBHOOK_SECRETO", () -> "secreto-webhook-solo-para-el-arranque-de-prueba");
     }
 
     @Autowired

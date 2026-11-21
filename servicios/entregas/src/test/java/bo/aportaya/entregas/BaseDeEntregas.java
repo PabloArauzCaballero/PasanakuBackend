@@ -59,7 +59,6 @@ abstract class BaseDeEntregas {
     protected static CU22LiquidarEntrega entregaCU;
     protected static RegistroDelFondeo registroDelFondeo;
     protected static DoblesDelPozo.Aportes aportesDoble;
-    protected static DoblesDelPozo.Garantia garantiaDoble;
     protected static CU22EntregarPozoCompleto pozoCU;
     protected static CU28EmitirDesembolso desembolsoCU;
 
@@ -107,15 +106,13 @@ abstract class BaseDeEntregas {
                     public Salida registrar(
                             Entrada e,
                             bo.aportaya.entregas.dominio.FondeoDelPozo.Resultado cifras,
-                            java.util.UUID coberturaId,
                             java.time.OffsetDateTime corte,
                             ContextoSesion ctx) {
-                        return transaccion.execute(t -> super.registrar(e, cifras, coberturaId, corte, ctx));
+                        return transaccion.execute(t -> super.registrar(e, cifras, corte, ctx));
                     }
                 };
         aportesDoble = new DoblesDelPozo.Aportes();
-        garantiaDoble = new DoblesDelPozo.Garantia();
-        pozoCU = new CU22EntregarPozoCompleto(aportesDoble, garantiaDoble, registroDelFondeo);
+        pozoCU = new CU22EntregarPozoCompleto(aportesDoble, registroDelFondeo);
         desembolsoCU = new CU28EmitirDesembolso(
                 datos,
                 new DesembolsoRepositorio(),
@@ -125,6 +122,32 @@ abstract class BaseDeEntregas {
                 Reloj.delSistema(),
                 INTENTOS_MAXIMOS,
                 Duration.ofMinutes(15));
+    }
+
+    /**
+     * Una entrega como nace hoy: del fondeo del pozo completo, con aportes confirmando Bs 6.000 en caja (el doble de
+     * aportes, regla 65). La liquidacion con importes del pedido se retiro (F1.L2.M09).
+     */
+    protected UUID entregaFondeada(FixturaDeEntregas.Escenario e, String metodo, ContextoSesion ctx) {
+        aportesDoble.responde(new bo.aportaya.entregas.dominio.puertos.RecaudoDelPozo.Recaudo(
+                e.periodoId(),
+                e.grupoId(),
+                java.time.OffsetDateTime.now(),
+                bo.aportaya.plataforma.dominio.Dinero.de("6000.00", bo.aportaya.plataforma.dominio.Moneda.BOB),
+                bo.aportaya.plataforma.dominio.Dinero.de("6000.00", bo.aportaya.plataforma.dominio.Moneda.BOB),
+                bo.aportaya.plataforma.dominio.Dinero.de("0.00", bo.aportaya.plataforma.dominio.Moneda.BOB)));
+        return pozoCU.fondear(
+                        new CU22EntregarPozoCompleto.Entrada(
+                                e.grupoId(),
+                                e.periodoId(),
+                                e.turnoId(),
+                                e.cupoId(),
+                                e.participanteId(),
+                                metodo,
+                                java.time.LocalDate.now(),
+                                "fondeo-" + e.turnoId()),
+                        ctx)
+                .entregaId();
     }
 
     protected ContextoSesion contextoDe(UUID usuarioId) {
