@@ -1,0 +1,192 @@
+package bo.aportaya.identidad;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import bo.aportaya.identidad.aplicacion.EntradaAutenticacion;
+import bo.aportaya.identidad.aplicacion.RenovarSesion;
+import bo.aportaya.identidad.dominio.PoliticaDeIntentos;
+import bo.aportaya.identidad.dominio.ResultadoDeAutenticacion;
+import bo.aportaya.identidad.infraestructura.AccesosRepositorio;
+import bo.aportaya.identidad.infraestructura.Argon2Hasheador;
+import bo.aportaya.identidad.infraestructura.RolesYPermisosRepositorio;
+import bo.aportaya.identidad.infraestructura.UsuarioRepositorio;
+import bo.aportaya.identidad.infraestructura.UsuariosInternosRepositorio;
+import bo.aportaya.plataforma.datos.Datos;
+import bo.aportaya.plataforma.dominio.CodigoError;
+import bo.aportaya.plataforma.dominio.Ids;
+import bo.aportaya.plataforma.dominio.Reloj;
+import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Optional;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
+/**
+ * F1.S3.M1 · IDCU-SEG-075 / IDCU-SEG-089, contra PostgreSQL real: el ingreso y la
+ * renovacion miran {@code usuario.estado}, y desbloquear libera el modelo que lee el login.
+ *
+ * <p>Datos sinteticos (regla 97.6). Corre en {@code integrationTest} (Testcontainers).
+ */
+class CU04CuentaNoHabilitadaTest extends BaseDeCU04 {
+
+    private static final String SEARCH_PATH_DEL_SERVICIO = "SET LOCAL search_path TO identidad, catalogo, comun";
+
+    private RenovarSesion refresco;
+
+    @BeforeEach
+    void armarRefresco() {
+        dsl.execute(
+                """
+                INSERT INTO identidad.politica_token
+                    (proposito, ttl_segundos, longitud_codigo, max_intentos_validacion, max_reenvios_por_hora,
+                     cooldown_reenvio_segundos, max_emisiones_por_dia, canales_permitidos,
+                     exige_dispositivo_conocido, invalida_anteriores, vigente_desde)
+                VALUES ('REFRESCO_SESION', 43200, 64, 1, 0, 0, 200, 'COOKIE_HTTPONLY', false, false,
+                        '2026-01-01T00:00:00-04:00')
+                ON CONFLICT (proposito, vigente_desde) DO NOTHING
+                """);
+        refresco = new RenovarSesion(new Datos(dsl), new UsuarioRepositorio(), Reloj.delSistema(), Ids.seguros());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"SUSPENDIDO", "BLOQUEADO_SEGURIDAD", "BAJA_VOLUNTARIA", "ELIMINADO"})
+    @DisplayName("invalido: con la clave correcta, una cuenta no habilitada no abre sesion (AP-CU04-02)")
+    void noHabilitadaNoEntra(String estado) {
+        String telefono = telefonoUnico();
+        UUID usuario = participanteConCredencial(telefono);
+        cambiarEstado(usuario, estado);
+        int sesionesAntes = sesionesDe(usuario);
+
+        ResultadoDeAutenticacion resultado = autenticar(telefono, "clave-correcta");
+
+        assertThat(resultado.exitoso()).isFalse();
+        assertThat(resultado.codigo()).contains(CodigoError.de(4, 2));
+        assertThat(resultado.sesionId()).isEmpty();
+        assertThat(sesionesDe(usuario)).isEqualTo(sesionesAntes);
+        assertThat(dsl.fetchValue(
+                        "SELECT motivo_fallo FROM identidad.intento_autenticacion WHERE usuario_id = ? ORDER BY fecha_hora DESC LIMIT 1",
+                        usuario))
+                .isEqualTo("CUENTA_NO_HABILITADA");
+    }
+
+    @Test
+    @DisplayName(
+            "limite: con la clave EQUIVOCADA, la cuenta suspendida responde como credencial invalida (no se cuenta su estado)")
+    void suspendidaConClaveMalaNoRevelaEstado() {
+        String telefono = telefonoUnico();
+        UUID usuario = participanteConCredencial(telefono);
+        cambiarEstado(usuario, "SUSPENDIDO");
+
+        ResultadoDeAutenticacion resultado = autenticar(telefono, "clave-equivocada");
+
+        assertThat(resultado.codigo()).contains(CodigoError.de(4, 1));
+    }
+
+    @Test
+    @DisplayName("correcto: una cuenta en verificacion no se rechaza por su estado")
+    void enVerificacionNoSeRechazaPorEstado() {
+        String telefono = telefonoUnico();
+        UUID usuario = participanteConCredencial(telefono);
+        cambiarEstado(usuario, "PENDIENTE_VERIFICACION");
+
+        ResultadoDeAutenticacion resultado = autenticar(telefono, "clave-correcta");
+
+        assertThat(resultado.codigo().filter(CodigoError.de(4, 2)::equals)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("invalido: suspendida con sesion viva, el refresh no renueva y la sesion queda revocada")
+    void suspendidaNoRefresca() {
+        UUID usuario = participanteConCredencial(telefonoUnico());
+        UUID sesion = fixtura.sesionAbierta(usuario);
+        String token = emitir(usuario, sesion);
+        cambiarEstado(usuario, "SUSPENDIDO");
+
+        var renovacion = renovar(token);
+
+        assertThat(renovacion.renovada()).isFalse();
+        assertThat(dsl.fetchValue(
+                        "SELECT motivo_revocacion FROM identidad.sesion WHERE id = ? AND revocada_en IS NOT NULL",
+                        sesion))
+                .isEqualTo("CUENTA_NO_HABILITADA");
+        // Reactivar la cuenta no resucita esa sesion: hay que volver a entrar.
+        cambiarEstado(usuario, "ACTIVO");
+        assertThat(renovar(token).renovada()).isFalse();
+    }
+
+    @Test
+    @DisplayName("correcto: un interno desbloqueado deja de tener bloqueo vigente para el login")
+    void desbloquearLiberaElBloqueoQueLeeElLogin() {
+        UUID interno = fixtura.usuario(telefonoUnico());
+        UUID operador = fixtura.usuario(telefonoUnico());
+        OffsetDateTime ahora = OffsetDateTime.now(ZoneOffset.UTC);
+        dsl.execute(
+                "INSERT INTO identidad.bloqueo_cuenta (usuario_id, motivo, bloqueada_en, desbloquea_en) VALUES (?, 'INTENTOS_FALLIDOS', ?, ?)",
+                interno,
+                ahora,
+                ahora.plusMinutes(30));
+        assertThat(tieneBloqueoVigente(interno)).isTrue();
+
+        var accesos = new AccesosRepositorio();
+        var repositorio = new UsuariosInternosRepositorio(
+                accesos, new Argon2Hasheador("pimienta-de-prueba"), new RolesYPermisosRepositorio(accesos));
+        transaccion.execute(e -> {
+            dsl.execute(SEARCH_PATH_DEL_SERVICIO);
+            return repositorio.desbloquear(dsl, interno, "verificado por soporte", operador, ahora);
+        });
+
+        assertThat(tieneBloqueoVigente(interno)).isFalse();
+        assertThat(dsl.fetchValue("SELECT liberada_por FROM identidad.bloqueo_cuenta WHERE usuario_id = ?", interno))
+                .isEqualTo(operador);
+    }
+
+    private void cambiarEstado(UUID usuario, String estado) {
+        dsl.execute("UPDATE identidad.usuario SET estado = ? WHERE id = ?", estado, usuario);
+    }
+
+    private ResultadoDeAutenticacion autenticar(String telefono, String clave) {
+        var entrada = new EntradaAutenticacion(
+                telefono,
+                clave.toCharArray(),
+                "huella-" + telefono,
+                "ANDROID",
+                "127.0.0.1",
+                "prueba",
+                UUID.randomUUID().toString(),
+                Optional.empty(),
+                false,
+                Duration.ofHours(12));
+        return transaccion.execute(e -> cu04.ejecutar(entrada, new PoliticaDeIntentos(5, Duration.ofMinutes(30))));
+    }
+
+    private String emitir(UUID usuario, UUID sesion) {
+        return transaccion
+                .execute(e -> {
+                    dsl.execute(SEARCH_PATH_DEL_SERVICIO);
+                    return refresco.emitir(
+                            usuario,
+                            sesion,
+                            "127.0.0.1",
+                            "prueba",
+                            UUID.randomUUID().toString());
+                })
+                .token();
+    }
+
+    private RenovarSesion.Renovacion renovar(String token) {
+        return transaccion.execute(e -> {
+            dsl.execute(SEARCH_PATH_DEL_SERVICIO);
+            return refresco.renovar(
+                    token, "127.0.0.1", "prueba", UUID.randomUUID().toString());
+        });
+    }
+
+    private static String telefonoUnico() {
+        return "+5917%07d".formatted(Math.floorMod(UUID.randomUUID().getMostSignificantBits(), 10_000_000L));
+    }
+}
