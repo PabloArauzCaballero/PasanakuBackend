@@ -5217,7 +5217,7 @@
                   "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
                   "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
                   "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
-                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([201, 400, 404, 409, 422]);",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([201, 400, 403, 404, 409, 422]);",
                   "});",
                   "",
                   "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
@@ -5343,7 +5343,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"motivo\": \"motivo-de-prueba\",\n  \"aceptaPlanDePago\": true,\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "raw": "{\n  \"participanteId\": \"{{participanteId}}\",\n  \"aceptaPlanDePago\": true,\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

@@ -1,6 +1,11 @@
 package bo.aportaya.grupos.infraestructura;
 
+import static bo.aportaya.grupos.generado.Tables.GRUPO;
+import static bo.aportaya.grupos.generado.Tables.PARTICIPANTE;
+
 import bo.aportaya.grupos.aplicacion.Consultas;
+import bo.aportaya.grupos.dominio.EstadoDeGrupo;
+import bo.aportaya.grupos.dominio.EstadoDeParticipante;
 import bo.aportaya.grupos.dominio.PaqueteDeSorteo;
 import bo.aportaya.grupos.dominio.PoliticaDelGrupo;
 import java.util.List;
@@ -44,18 +49,24 @@ public class ConsultasRepositorio {
         return fila == null ? Optional.empty() : Optional.ofNullable(fila.get("usuario", UUID.class));
     }
 
-    /** En cuantos grupos vivos participa hoy. Cero significa que se puede ir. */
+    /**
+     * En cuantos grupos vivos participa hoy. Cero significa que se puede ir.
+     *
+     * <p>Los estados salen del dominio ({@link EstadoDeGrupo#TERMINALES}, {@link EstadoDeParticipante#VINCULADOS}),
+     * no de una lista escrita en el SQL: esa lista divergio del {@code CHECK} de la base (F1.L3.M06).
+     */
     public int gruposActivosDe(DSLContext dsl, UUID usuarioId) {
-        var fila = dsl.fetchOne(
-                """
-                SELECT COUNT(*)::int AS activos
-                  FROM grupos.participante p
-                  JOIN grupos.grupo g ON g.id = p.grupo_id
-                 WHERE p.usuario_id = ? AND p.estado = 'ACTIVO'
-                   AND g.estado NOT IN ('CERRADO', 'CANCELADO', 'DISUELTO')
-                """,
-                usuarioId);
-        return fila == null ? 0 : fila.get("activos", Integer.class);
+        return dsl.fetchCount(dsl.select(PARTICIPANTE.GRUPO_ID)
+                .from(PARTICIPANTE)
+                .join(GRUPO)
+                .on(GRUPO.ID.eq(PARTICIPANTE.GRUPO_ID))
+                .where(PARTICIPANTE.USUARIO_ID.eq(usuarioId))
+                .and(PARTICIPANTE.ESTADO.in(nombres(EstadoDeParticipante.VINCULADOS)))
+                .and(GRUPO.ESTADO.notIn(nombres(EstadoDeGrupo.TERMINALES))));
+    }
+
+    private static List<String> nombres(java.util.Set<? extends Enum<?>> estados) {
+        return estados.stream().map(Enum::name).sorted().toList();
     }
 
     /** Administrador activo del grupo (el que tiene {@code es_organizador}). */

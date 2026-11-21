@@ -1,0 +1,29 @@
+# F1.L3.M06 — Estados vivos del grupo únicos (2026-11-21)
+
+## Relocalización en origin/dev
+ConsultasRepositorio.gruposActivosDe: p.estado = 'ACTIVO' AND g.estado NOT IN ('CERRADO','CANCELADO','DISUELTO')
+ck_grupo_estado (sql/10_tablas/02_grupos_turnos/grupo.sql:37) no tiene CERRADO ni DISUELTO; sí FINALIZADO y DISUELTO_ANTICIPADAMENTE. Hallazgo vigente.
+
+## Semántica contra PostgreSQL 16 real (base local 5433, datos sintéticos, transacción revertida)
+$ psql -f estados.sql   (usuario sintético en: EN_MORA/EN_CURSO · ACTIVO/FINALIZADO · RETIRADO/CONFORMADO)
+--- consulta VIEJA (origin/dev) ---
+ participante |   grupo    
+--------------+------------
+ ACTIVO       | FINALIZADO
+(1 row)
+
+--- consulta NUEVA (estados del dominio) ---
+ participante |  grupo   
+--------------+----------
+ EN_MORA      | EN_CURSO
+(1 row)
+
+ROLLBACK
+Nota: la consulta NUEVA es la equivalente escrita a mano de la que arma jOOQ con los mismos conjuntos.
+
+## Pruebas
+$ ./gradlew :servicios:grupos:test --tests '*EstadosContraElModeloTest' --rerun -> exit=0, 2 casos, 0 fallos
+$ ./gradlew :servicios:grupos:spotlessCheck test webTest testBarrido --rerun -> exit=0
+test: 116 casos, 0 fallos · webTest: 179 casos, 0 fallos · testBarrido: 2 casos, 0 fallos
+
+No cubierto: el rechazo del cierre de billetera en nucleo-financiero (otro lote); integración del repositorio con Testcontainers (Docker); prueba de contrato del endpoint interno.
