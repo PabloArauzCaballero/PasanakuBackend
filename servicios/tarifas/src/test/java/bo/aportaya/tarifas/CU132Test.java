@@ -57,7 +57,9 @@ class CU132Test extends BaseDeTarifas {
     }
 
     @Test
-    @DisplayName("Correcto · propone, otra persona aprueba y el catálogo la muestra vigente")
+    @DisplayName(
+            "Dada una versión de parámetro propuesta por una persona · Cuando otra persona la aprueba con su propio"
+                    + " token · Entonces la versión queda APROBADA y rige desde su vigencia")
     void proponerYAprobar() {
         UUID clave = UUID.randomUUID();
         var v = cu132.proponer(codigo, propuesta("5"), clave, contextoDe(propone));
@@ -78,7 +80,7 @@ class CU132Test extends BaseDeTarifas {
     }
 
     @Test
-    @DisplayName("Límite · repetir la propuesta con la misma clave no crea otra fila")
+    @DisplayName("Reintento · repetir la propuesta con la misma clave no crea otra fila")
     void reintentoSinDuplicar() {
         UUID clave = UUID.randomUUID();
         var primera = cu132.proponer(codigo, propuesta("5"), clave, contextoDe(propone));
@@ -90,7 +92,8 @@ class CU132Test extends BaseDeTarifas {
     }
 
     @Test
-    @DisplayName("Inválido · quien propuso no aprueba lo suyo y la fila sigue PROPUESTA")
+    @DisplayName("Dada una versión de parámetro propuesta por una persona · Cuando la misma persona intenta aprobarla"
+            + " · Entonces la aprobación se rechaza y la versión sigue PROPUESTA")
     void mismaPersona() {
         var v = cu132.proponer(codigo, propuesta("5"), UUID.randomUUID(), contextoDe(propone));
 
@@ -101,7 +104,7 @@ class CU132Test extends BaseDeTarifas {
     }
 
     @Test
-    @DisplayName("Inválido · una segunda aprobación de otra persona no reescribe la primera")
+    @DisplayName("Rechaza una segunda aprobación de otra persona: no reescribe la primera")
     void segundaAprobacion() {
         var v = cu132.proponer(codigo, propuesta("5"), UUID.randomUUID(), contextoDe(propone));
         cu132.aprobar(v.id(), contextoDe(aprueba));
@@ -113,5 +116,64 @@ class CU132Test extends BaseDeTarifas {
                         v.id(),
                         aprueba))
                 .isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName(
+            "Dada una versión de parámetro APROBADA · Cuando alguien intenta cambiar su valor o borrarla · Entonces"
+                    + " se rechaza y la corrección exige una versión nueva")
+    void aprobadaInmutable() {
+        var v = cu132.proponer(codigo, propuesta("5"), UUID.randomUUID(), contextoDe(propone));
+        cu132.aprobar(v.id(), contextoDe(aprueba));
+
+        // R-TAR-16: ni el valor ni la fila; se corrige con una versión nueva.
+        assertThat(rechazaLaBase("update tarifas.version_parametro set valor = 6 where id = '" + v.id() + "'"))
+                .contains("R-TAR-16");
+        assertThat(rechazaLaBase("delete from tarifas.version_parametro where id = '" + v.id() + "'"))
+                .contains("R-TAR-16");
+        var nueva = cu132.proponer(codigo, propuesta("6"), UUID.randomUUID(), contextoDe(propone));
+        assertThat(cu132.aprobar(nueva.id(), contextoDe(aprueba)).estado()).isEqualTo("APROBADA");
+    }
+
+    @Test
+    @DisplayName("Dado un grupo que ya congeló un parámetro en un nivel · Cuando se intenta congelar otra versión del"
+            + " mismo parámetro y nivel para ese grupo · Entonces se rechaza y el grupo conserva la versión que congeló"
+            + " al iniciar")
+    void congelamientoUnico() {
+        var primera = cu132.proponer(codigo, propuesta("5"), UUID.randomUUID(), contextoDe(propone));
+        cu132.aprobar(primera.id(), contextoDe(aprueba));
+        var segunda = cu132.proponer(codigo, propuesta("6"), UUID.randomUUID(), contextoDe(propone));
+        cu132.aprobar(segunda.id(), contextoDe(aprueba));
+        UUID grupo = UUID.randomUUID();
+        String congelar = "insert into tarifas.parametro_congelado_grupo"
+                + " (grupo_id, parametro_id, version_parametro_id, congelado_en)"
+                + " select '%s', parametro_id, id, now() from tarifas.version_parametro where id = '%s'";
+        dslFixtura.execute(congelar.formatted(grupo, primera.id()));
+
+        // R-TAR-17: una sola copia por grupo, parámetro y nivel.
+        assertThat(rechazaLaBase(congelar.formatted(grupo, segunda.id()))).contains("uq_parametro_congelado_grupo");
+        assertThat(contar(
+                        "select count(*) from tarifas.parametro_congelado_grupo where grupo_id = ?"
+                                + " and version_parametro_id = ?",
+                        grupo,
+                        primera.id()))
+                .isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Rechaza en la base a quien aprueba lo que propuso y un valor negativo (R-TAR-14, R-TAR-15)")
+    void rechazosDeLaBase() {
+        var v = cu132.proponer(codigo, propuesta("5"), UUID.randomUUID(), contextoDe(propone));
+
+        assertThat(rechazaLaBase(
+                        "update tarifas.version_parametro set estado = 'APROBADA', aprobado_por = propuesto_por,"
+                                + " aprobado_en = now() where id = '" + v.id() + "'"))
+                .contains("ck_version_parametro_cuatro_ojos");
+        assertThat(rechazaLaBase("insert into tarifas.version_parametro (parametro_id, valor, vigente_desde,"
+                        + " procedencia_fuente, procedencia_referencia, procedencia_fecha, propuesto_por, propuesto_en,"
+                        + " estado, clave_idempotencia) select parametro_id, -1, now(), 'f', 'r', current_date,"
+                        + " gen_random_uuid(), now(), 'PROPUESTA', gen_random_uuid() from tarifas.version_parametro"
+                        + " where id = '" + v.id() + "'"))
+                .contains("ck_version_parametro_valor");
     }
 }
