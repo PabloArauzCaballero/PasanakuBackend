@@ -1,0 +1,16 @@
+$ RAIZ_REPO=<checkout -central-riesgo> python3 .../cruce_rfp.py px9
+
+### PX-9 — diseño de consentimiento y reporte
+
+| Requisito | Documento | Presente |
+|---|---|---|
+| RF-PX9-01 | `PX-9-central-de-riesgo-diseno.md` | sí |
+| RF-PX9-02 | `PX-9-central-de-riesgo-diseno.md` | sí |
+| RF-PX9-03 | `PX-9-central-de-riesgo-diseno.md` | sí |
+| RF-PX9-04 | `PX-9-central-de-riesgo-diseno.md` | sí |
+| condicionado a L-04 | `PX-9-central-de-riesgo-diseno.md` | sí |
+
+5/5 presentes
+
+TOTAL FALTANTES: 0
+exit 0
