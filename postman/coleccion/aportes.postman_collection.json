@@ -134,7 +134,7 @@
             }
           ]
         },
-        "description": "## Solicitar el reembolso de un pago\n\nSolo SOLICITA. Ejecutar exige una segunda persona (R-SEG-04): un reembolso es la via mas corta para sacar dinero con una excusa verosimil.\n\n| | |\n| --- | --- |\n| **Servicio** | `aportes` |\n| **Operacion** | `solicitarReembolso` |\n| **Ruta** | `POST /api/v1/pagos/{pagoId}/reembolsos` |\n| **Permiso** | `BILLETERA_OPERAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Solicitar el reembolso de un pago\n\nSolo SOLICITA. Ejecutar exige una segunda persona (R-SEG-04): un reembolso es la via mas corta para sacar dinero con una excusa verosimil.\n\n| | |\n| --- | --- |\n| **Servicio** | `aportes` |\n| **Operacion** | `solicitarReembolso` |\n| **Ruta** | `POST /api/v1/pagos/{pagoId}/reembolsos` |\n| **Permiso** | `BILLETERA_OPERAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `404`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"motivo\": \"DISPUTA\"\n}",
@@ -153,7 +153,7 @@
             "type": "text/javascript",
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
-              "const esperadas = [200, 422];",
+              "const esperadas = [200, 404, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",
@@ -753,7 +753,7 @@
             }
           ]
         },
-        "description": "## Si esta al dia, cuanto aporto y cuanto debe\n\nLa consulta que hace posible que otros servicios decidan sin leer este esquema (invariante 11). `grupos` la usa antes de permitir una permuta o un traspaso; `nucleo-financiero`, antes de cerrar una billetera. El identificador es el `participanteId` de `grupos` (una persona tiene uno POR GRUPO), NO el `usuarioId`: quien parte de un usuario resuelve primero sus participaciones con `GET /grupos/participaciones` y pregunta por cada una. Sin ella, el dato lo tendria que afirmar quien pide — y el que pide seria juez de si esta al dia.\nQuien no tiene ninguna obligacion esta al dia: no deber nada porque todavia no se le pidio nada no es estar en mora.\n\n| | |\n| --- | --- |\n| **Servicio** | `aportes` |\n| **Operacion** | `consultarEstadoDelParticipante` |\n| **Ruta** | `GET /api/v1/aportes/participantes/{participanteId}/estado` |\n| **Permiso** | `BILLETERA_VER` |\n| **Respuestas** | `200` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+        "description": "## Si esta al dia, cuanto aporto y cuanto debe\n\nLa consulta que hace posible que otros servicios decidan sin leer este esquema (invariante 11). `grupos` la usa antes de permitir una permuta o un traspaso; `nucleo-financiero`, antes de cerrar una billetera. El identificador es el `participanteId` de `grupos` (una persona tiene uno POR GRUPO), NO el `usuarioId`: quien parte de un usuario resuelve primero sus participaciones con `GET /grupos/participaciones` y pregunta por cada una. Sin ella, el dato lo tendria que afirmar quien pide — y el que pide seria juez de si esta al dia.\nQuien no tiene ninguna obligacion esta al dia: no deber nada porque todavia no se le pidio nada no es estar en mora.\nF1.L1.M07 (BOLA): solo contesta sobre el participante que es la persona de la sesion (pertenencia resuelta por `grupos`, como en el cobro). El de otra persona es 404.\n\n| | |\n| --- | --- |\n| **Servicio** | `aportes` |\n| **Operacion** | `consultarEstadoDelParticipante` |\n| **Ruta** | `GET /api/v1/aportes/participantes/{participanteId}/estado` |\n| **Permiso** | `BILLETERA_VER` |\n| **Respuestas** | `200`, `404` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
       },
       "response": [],
       "event": [
@@ -763,7 +763,7 @@
             "type": "text/javascript",
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
-              "const esperadas = [200];",
+              "const esperadas = [200, 404];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",

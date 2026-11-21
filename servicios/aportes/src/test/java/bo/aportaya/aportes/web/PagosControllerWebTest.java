@@ -2,6 +2,7 @@ package bo.aportaya.aportes.web;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -83,6 +84,7 @@ class PagosControllerWebTest {
         @Test
         @DisplayName("201 al pedirlo, con lo que queda disponible del pago")
         void pedirReembolso() throws Exception {
+            when(cu19.esPagoDelSolicitante(any(), any())).thenReturn(true);
             when(cu19.solicitar(any(), any()))
                     .thenReturn(new CU19ReembolsarPago.SalidaSolicitud(REEMBOLSO, "SOLICITADO", bob("0.00")));
 
@@ -121,6 +123,37 @@ class PagosControllerWebTest {
                     // Devolver dinero reabre la obligacion: si no se dijera, el
                     // participante quedaria al dia sin haber pagado.
                     .andExpect(jsonPath("$.estadoObligacion").value("PENDIENTE"));
+        }
+
+        @Test
+        @DisplayName(
+                "F1.L1.M07 · otro usuario u otro grupo: el reembolso de un pago ajeno es 404 y no se solicita nada")
+        void reembolsoDePagoAjeno() throws Exception {
+            when(cu19.esPagoDelSolicitante(any(), any())).thenReturn(false);
+            mvc.perform(post("/pagos/{id}/reembolsos", PAGO)
+                            .with(Sesiones.comoOtro("PARTICIPANTE", "BILLETERA_OPERAR"))
+                            .header("Idempotency-Key", CLAVE)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(REEMBOLSO_PEDIDO))
+                    .andExpect(status().isNotFound());
+            verify(cu19, org.mockito.Mockito.never()).solicitar(any(), any());
+        }
+
+        @Test
+        @DisplayName("F1.L1.M07 · sin BILLETERA_OPERAR es 403 y sin token es 401, sin llegar al caso de uso")
+        void reembolsoSinPermisoNiToken() throws Exception {
+            mvc.perform(post("/pagos/{id}/reembolsos", PAGO)
+                            .with(Sesiones.como("PARTICIPANTE", "BILLETERA_VER"))
+                            .header("Idempotency-Key", CLAVE)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(REEMBOLSO_PEDIDO))
+                    .andExpect(status().isForbidden());
+            mvc.perform(post("/pagos/{id}/reembolsos", PAGO)
+                            .header("Idempotency-Key", CLAVE)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(REEMBOLSO_PEDIDO))
+                    .andExpect(status().isUnauthorized());
+            verifyNoInteractions(cu19);
         }
 
         @Test

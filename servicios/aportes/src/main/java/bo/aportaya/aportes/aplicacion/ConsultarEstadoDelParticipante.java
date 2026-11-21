@@ -24,10 +24,29 @@ public class ConsultarEstadoDelParticipante {
 
     private final Datos datos;
     private final EstadoDelParticipanteRepositorio estados;
+    private final PertenenciaDelParticipante pertenencia;
 
-    public ConsultarEstadoDelParticipante(Datos datos, EstadoDelParticipanteRepositorio estados) {
+    public ConsultarEstadoDelParticipante(
+            Datos datos, EstadoDelParticipanteRepositorio estados, PertenenciaDelParticipante pertenencia) {
         this.datos = datos;
         this.estados = estados;
+        this.pertenencia = pertenencia;
+    }
+
+    /**
+     * F1.L1.M07 · el estado del participante, solo si es la persona de la sesion. Vacio si es de otro: la web
+     * responde 404 sin confirmar que existe. La pregunta a {@code grupos} va FUERA de la transaccion
+     * (invariante 6); por eso este metodo no es transaccional y la lectura del estado abre la suya.
+     */
+    public java.util.Optional<EstadoDePagos> delUsuario(UUID participanteId, ContextoSesion ctx) {
+        if (!pertenencia.participanteEsDelUsuario(participanteId, ctx)) {
+            return java.util.Optional.empty();
+        }
+        return java.util.Optional.of(pertenencia.enLectura(() -> ejecutarSinTransaccion(participanteId, ctx)));
+    }
+
+    private EstadoDePagos ejecutarSinTransaccion(UUID participanteId, ContextoSesion ctx) {
+        return datos.conContexto(ctx, dsl -> estados.de(dsl, participanteId));
     }
 
     @Transactional(readOnly = true)

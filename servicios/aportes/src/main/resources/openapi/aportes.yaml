@@ -114,6 +114,10 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/SalidaReembolso' }
+        '404':
+          description: >-
+            El pago no existe o no es de quien pide (F1.L1.M07, BOLA): la misma respuesta para los dos casos,
+            sin cuerpo, para no confirmar que el pago de otro existe
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
   /pagos/reembolsos/{reembolsoId}/aprobacion:
@@ -321,6 +325,9 @@ paths:
 
         Quien no tiene ninguna obligacion esta al dia: no deber nada porque todavia no
         se le pidio nada no es estar en mora.
+
+        F1.L1.M07 (BOLA): solo contesta sobre el participante que es la persona de la sesion (pertenencia
+        resuelta por `grupos`, como en el cobro). El de otra persona es 404.
       parameters:
         - name: participanteId
           in: path
@@ -332,6 +339,8 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/EstadoDelParticipante' }
+        '404':
+          description: El participante no es de quien pregunta; sin cuerpo, para no confirmar que existe
 
   /aportes/grupos/{grupoId}/morosos:
     get:
