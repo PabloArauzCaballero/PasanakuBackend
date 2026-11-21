@@ -163,14 +163,16 @@ class CUConsumoDeRecargoTest extends BaseDeRecargo {
         var aplicado = procesar(recargo(a, "25.00"));
         UUID original = aplicado.transaccionId().orElseThrow();
 
-        var salida = transaccion.execute(x -> reversoCU.ejecutar(
+        var salida = Reversos.pedirYAutorizar(
+                transaccion,
+                reversoCU,
                 new bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion.EntradaReverso(
                         "rev-recargo-" + original,
                         original,
                         "ERROR_OPERATIVO",
-                        "El recargo se cobro sobre una cuota que estaba en gracia",
-                        fixtura.usuario()),
-                contextoDe(a.usuario())));
+                        "El recargo se cobro sobre una cuota que estaba en gracia"),
+                contextoDe(a.usuario()),
+                fixtura.usuario());
 
         assertThat(salida.generaObligacionDeRestitucion()).isFalse();
         assertThat(saldoDelLibro(a.billetera())).isEqualByComparingTo("100.00");

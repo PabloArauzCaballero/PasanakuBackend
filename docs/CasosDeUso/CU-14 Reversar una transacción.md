@@ -32,7 +32,10 @@ normas: [Ley 393 (conservación e integridad), ASFI riesgo operativo]
 
 1. Se crea [[reverso_transaccion]] con `tipo` (`ANULACION`, `CONTRACARGO`,
    `ERROR_OPERATIVO`, `ORDEN_AUTORIDAD`), `motivo` y `monto_reversado`.
-2. Un supervisor autoriza (`autorizada_por` ≠ quien lo solicitó, `R-SEG-04`).
+2. Otra persona autoriza, en otra petición y con su propio token (`autorizada_por` ≠
+   `solicitada_por`, `R-SEG-04`, `R-BIL-27`, P-13). La solicitud se registra primero en
+   [[solicitud_reverso]] (`POST /billetera/reversos`) y no mueve saldo; la autorización
+   (`POST /billetera/reversos/{solicitudId}/autorizacion`) la ejecuta una sola vez.
 3. **En una sola transacción**:
    - se crea una nueva [[transaccion_billetera]] `tipo='REVERSO'` con los
      [[movimiento_billetera]] espejados (débito donde hubo crédito y viceversa);
@@ -50,7 +53,9 @@ normas: [Ley 393 (conservación e integridad), ASFI riesgo operativo]
 | # | Situación | Resultado |
 | :-: | --- | --- |
 | 3a | El saldo ya se gastó y quedaría negativo | El reverso genera una obligación de restitución en lugar de saldo negativo: **nunca se permite descubierto** (`R-BIL-02`) |
-| 2a | No hay segundo aprobador | La reversa no se ejecuta |
+| 2a | No hay segundo aprobador | La reversa no se ejecuta: la solicitud queda `SOLICITADA` |
+| 2b | Quien pidió intenta autorizar su propia solicitud | `AP-CU14-02`; nada se mueve (`R-BIL-27`) |
+| 2c | Se autoriza dos veces la misma solicitud | `AP-CU14-05`; el reverso existe una sola vez |
 | 1a | Se intenta reversar dos veces | Rechazo por unicidad (`R-BIL-15`) |
 | — | Se reversa un débito de inversión, un rescate o el pago de una compra del mercado | Es el mismo espejo: cada pata vuelve en sentido contrario (la custodia de inversión o el vendedor devuelven lo recibido), la original queda íntegra y, si la contraparte ya gastó, se genera la obligación de restitución. Probado en `CU13InversionTest`, `CU13MercadoTest` y `CU12RescateTest` (casos `compensa`) |
 | — | Contracargo del proveedor | Además del reverso, se abre disputa y se evalúa cargo al usuario según contrato |
@@ -68,7 +73,11 @@ export const EntradaCU14 = z.object({
   transaccionOriginalId: z.string().uuid(),
   tipo:   z.enum(['ANULACION','CONTRACARGO','ERROR_OPERATIVO','ORDEN_AUTORIDAD']),
   motivo: z.string().min(20).max(300),
-  autorizadaPor: z.string().uuid(),
+}).strict()   // sin autorizador: lo da el token de la segunda petición (P-13)
+
+export const SalidaSolicitudCU14 = z.object({
+  solicitudId: z.string().uuid(),
+  estado: z.enum(['SOLICITADA','EJECUTADA']),
 }).strict()
 
 export const SalidaCU14 = z.object({
@@ -82,15 +91,17 @@ export const ErroresCU14 = {
   FALTA_AUTORIZACION: 'AP-CU14-02',
   SALDO_INSUFICIENTE_PARA_REVERSO: 'AP-CU14-03',
   FILTRO_DE_LISTADO_INVALIDO: 'AP-CU14-04',
+  SOLICITUD_NO_PENDIENTE: 'AP-CU14-05',
 } as const
 ```
 
 | Error | Cuándo se devuelve |
 | --- | --- |
 | `TRANSACCION_NO_REVERSABLE` | No está aplicada o ya fue reversada (R-BIL-15) |
-| `FALTA_AUTORIZACION` | Quien autoriza no puede ser quien solicita (R-SEG-04) |
+| `FALTA_AUTORIZACION` | Quien autoriza no puede ser quien solicita (R-SEG-04, R-BIL-27) |
 | `SALDO_INSUFICIENTE_PARA_REVERSO` | Se generó obligación de restitución en su lugar |
 | `FILTRO_DE_LISTADO_INVALIDO` | El listado recibió un estado desconocido, o `antesDe` sin `antesDeId` (o al revés) |
+| `SOLICITUD_NO_PENDIENTE` | La solicitud no existe o ya fue resuelta: autorizarla de nuevo no ejecuta otra vez |
 
 **Listado de reversos (backoffice carril A · H8).** `GET /contabilidad/reversos` (`listarReversos`,
 `AUDITORIA_LEER`) filtra por `estados` (sin filtro: todos) y pagina por `(solicitadaEn, id)` del más
@@ -121,7 +132,7 @@ A-7 del carril).
 
 ## Restricciones aplicables
 
-`R-AUD-01` · `R-AUD-03` · `R-AUD-06` · `R-BIL-02` · `R-BIL-15` · `R-SEG-04`
+`R-AUD-01` · `R-AUD-03` · `R-AUD-06` · `R-BIL-02` · `R-BIL-15` · `R-BIL-27` · `R-SEG-04`
 
 ## Evidencia que deja
 
@@ -160,6 +171,16 @@ Dada una recarga con cargo cuyo saldo acreditado ya se gastó
 Cuando se reversa
 Entonces el reverso se convierte en obligación de restitución
 Y el cargo no se avisa y la orden sigue ACREDITADA
+
+Dada una solicitud de reverso creada por la persona A
+Cuando la persona B, con su propio token, la autoriza
+Entonces el reverso se ejecuta
+Y la base guarda a A como solicitante y a B como autorizador
+
+Dada una solicitud de reverso creada por la persona A
+Cuando A intenta autorizarla
+Entonces se rechaza con AP-CU14-02
+Y no se mueve saldo
 
 # Listado de reversos (backoffice carril A)
 Dados reversos en estado SOLICITADO y EJECUTADO

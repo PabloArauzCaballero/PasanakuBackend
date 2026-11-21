@@ -32,7 +32,7 @@
         "description": "## Registrar una cuenta bancaria de destino\n\nEl numero NUNCA se guarda en claro (R-SEG-01): la fila lleva el cifrado, un hash con pimienta para buscar, y una version enmascarada. Y la cuenta esta a nombre de quien la registra (R-SEG-02): una cuenta de destino ajena es la forma mas simple de sacar plata de un grupo hacia afuera.\n\n| | |\n| --- | --- |\n| **Servicio** | `entregas` |\n| **Operacion** | `registrarCuentaDestino` |\n| **Ruta** | `POST /api/v1/cuentas-bancarias` |\n| **Permiso** | `BILLETERA_OPERAR` |\n| **Respuestas** | `201`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"tipoCuenta\": \"AHORRO\",\n  \"entidadFinanciera\": \"entidadFinanciera-de-prueba\",\n  \"numeroCuenta\": \"numeroCuenta-de-prueba\",\n  \"numeroCifrado\": \"numeroCifrado-de-prueba\",\n  \"titularNombre\": \"titularNombre-de-prueba\",\n  \"titularDocumento\": \"titularDocumento-de-prueba\",\n  \"moneda\": \"BOB\"\n}",
+          "raw": "{\n  \"tipoCuenta\": \"AHORRO\",\n  \"entidadFinanciera\": \"entidadFinanciera-de-prueba\",\n  \"numeroCuenta\": \"numeroCuenta-de-prueba\",\n  \"titularNombre\": \"titularNombre-de-prueba\",\n  \"titularDocumento\": \"titularDocumento-de-prueba\",\n  \"moneda\": \"BOB\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -344,7 +344,7 @@
           ],
           "variable": []
         },
-        "description": "## Liquidar la entrega del turno\n\nUna entrega por turno (R-GRP-01) y el neto NUNCA negativo: que las deducciones superen la bolsa significa que el beneficiario terminaria debiendo por cobrar su turno. Cada deduccion viaja con su tipo y su origen.\n\n| | |\n| --- | --- |\n| **Servicio** | `entregas` |\n| **Operacion** | `liquidarEntrega` |\n| **Ruta** | `POST /api/v1/entregas` |\n| **Permiso** | `ENTREGA_EJECUTAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Liquidar la entrega del turno\n\nRETIRADA en 2.2.0 (F1.L2.M09: la unica fuente de una entrega es el fondeo del pozo; el bruto y el recaudado no los afirma el cliente): responde 410 AP-CU22-10 sin efecto.\nUna entrega por turno (R-GRP-01) y el neto NUNCA negativo: que las deducciones superen la bolsa significa que el beneficiario terminaria debiendo por cobrar su turno. Cada deduccion viaja con su tipo y su origen.\n\n| | |\n| --- | --- |\n| **Servicio** | `entregas` |\n| **Operacion** | `liquidarEntrega` |\n| **Ruta** | `POST /api/v1/entregas` |\n| **Permiso** | `ENTREGA_EJECUTAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `410`, `201`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"grupoId\": \"{{grupoId}}\",\n  \"periodoId\": \"{{periodoId}}\",\n  \"turnoId\": \"{{turnoId}}\",\n  \"cupoId\": \"{{cupoId}}\",\n  \"beneficiarioId\": \"{{beneficiarioId}}\",\n  \"bruto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"recaudado\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"deducciones\": [\n    {\n      \"tipo\": \"AJUSTE_ACORDADO\",\n      \"descripcion\": \"descripcion-de-prueba\",\n      \"monto\": {\n        \"monto\": \"100.00\",\n        \"moneda\": \"BOB\"\n      },\n      \"referenciaOrigenId\": \"{{referenciaOrigenId}}\",\n      \"esObligatoria\": true\n    }\n  ],\n  \"metodoDesembolso\": \"BILLETERA_MOVIL\",\n  \"fechaProgramada\": \"{{fecha_hoy}}\"\n}",
@@ -363,7 +363,7 @@
             "type": "text/javascript",
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
-              "const esperadas = [201, 422];",
+              "const esperadas = [201, 410, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",
@@ -503,7 +503,7 @@
             }
           ]
         },
-        "description": "## Ejecutar la entrega\n\nQuien autoriza NO ejecuta (R-SEG-04). Una sola persona que hace las dos cosas puede sacar el fondo entero de un grupo sin que nadie mas lo vea pasar.\n\n| | |\n| --- | --- |\n| **Servicio** | `entregas` |\n| **Operacion** | `ejecutarEntrega` |\n| **Ruta** | `POST /api/v1/entregas/{entregaId}/ejecucion` |\n| **Permiso** | `ENTREGA_EJECUTAR` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Ejecutar la entrega\n\nRETIRADA en 2.2.0 (F1.L2.M08: la entrega queda ENTREGADA solo al acreditarse su desembolso, no con un monto del pedido): responde 410 AP-CU22-11 sin efecto.\nQuien autoriza NO ejecuta (R-SEG-04). Una sola persona que hace las dos cosas puede sacar el fondo entero de un grupo sin que nadie mas lo vea pasar.\n\n| | |\n| --- | --- |\n| **Servicio** | `entregas` |\n| **Operacion** | `ejecutarEntrega` |\n| **Ruta** | `POST /api/v1/entregas/{entregaId}/ejecucion` |\n| **Permiso** | `ENTREGA_EJECUTAR` |\n| **Respuestas** | `410`, `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"montoEntregado\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  }\n}",
@@ -522,7 +522,7 @@
             "type": "text/javascript",
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
-              "const esperadas = [200, 422];",
+              "const esperadas = [200, 410, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",
@@ -732,7 +732,7 @@
       ]
     },
     {
-      "name": "anotarRespuestaDesembolso · Registrar lo que contesto el proveedor",
+      "name": "anotarRespuestaDesembolso · Registrar lo que contesto el proveedor (RETIRADA, responde 410)",
       "request": {
         "method": "POST",
         "header": [
@@ -763,7 +763,7 @@
             }
           ]
         },
-        "description": "## Registrar lo que contesto el proveedor\n\nLa llamada al proveedor la hace quien orquesta, FUERA de esta transaccion (invariante 6). Un error definitivo NO se reintenta: insistir contra una cuenta que no existe solo demora el momento en que alguien mira el caso, mientras la plata del beneficiario sigue retenida.\n\n| | |\n| --- | --- |\n| **Servicio** | `entregas` |\n| **Operacion** | `anotarRespuestaDesembolso` |\n| **Ruta** | `POST /api/v1/desembolsos/{ordenId}/respuesta` |\n| **Permiso** | `ENTREGA_EJECUTAR` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Registrar lo que contesto el proveedor (RETIRADA, responde 410)\n\nRETIRADA en 2.1.0 (F1.L2.M05, SEG-005): una persona no puede afirmar que la plata llego. Responde 410 AP-CU28-08 sin efecto. La unica via a ACREDITADA es el aviso firmado del proveedor (F3.L2.M02). Se borra del contrato cuando el backoffice deje de llamarla.\nLa llamada al proveedor la hace quien orquesta, FUERA de esta transaccion (invariante 6). Un error definitivo NO se reintenta: insistir contra una cuenta que no existe solo demora el momento en que alguien mira el caso, mientras la plata del beneficiario sigue retenida.\n\n| | |\n| --- | --- |\n| **Servicio** | `entregas` |\n| **Operacion** | `anotarRespuestaDesembolso` |\n| **Ruta** | `POST /api/v1/desembolsos/{ordenId}/respuesta` |\n| **Permiso** | `ENTREGA_EJECUTAR` |\n| **Respuestas** | `200`, `410`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"iniciado\": \"{{momento_ahora}}\",\n  \"exitoso\": true,\n  \"referenciaProveedor\": \"referenciaProveedor-de-prueba\",\n  \"codigoError\": \"codigoError-de-prueba\",\n  \"mensajeProveedor\": \"mensajeProveedor-de-prueba\"\n}",
@@ -782,7 +782,7 @@
             "type": "text/javascript",
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
-              "const esperadas = [200, 422];",
+              "const esperadas = [200, 410, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",

@@ -1,15 +1,10 @@
 package bo.aportaya.garantia.web;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import bo.aportaya.garantia.aplicacion.CU23CubrirIncumplimiento;
 import bo.aportaya.garantia.aplicacion.CU25DeclararIncumplimiento;
-import bo.aportaya.garantia.aplicacion.CU26EjecutarAval;
 import bo.aportaya.garantia.aplicacion.CU27RestringirDeudor;
 import bo.aportaya.garantia.aplicacion.CU66ReemplazarParticipante;
 import bo.aportaya.garantia.aplicacion.ReclamosEnCurso;
@@ -50,13 +45,7 @@ class CoberturaWebTest {
     private MockMvc mvc;
 
     @MockitoBean
-    private CU23CubrirIncumplimiento cu23;
-
-    @MockitoBean
     private CU25DeclararIncumplimiento cu25;
-
-    @MockitoBean
-    private CU26EjecutarAval cu26;
 
     @MockitoBean
     private CU27RestringirDeudor cu27;
@@ -76,49 +65,19 @@ class CoberturaWebTest {
     class Cobertura {
 
         @Test
-        @DisplayName("CU-23 · la cobertura devuelve la DEUDA que queda contra quien incumplió")
-        void cubrirDejaDeuda() throws Exception {
-            when(cu23.cubrir(any(), any()))
-                    .thenReturn(new CU23CubrirIncumplimiento.SalidaCobertura(
-                            COBERTURA, DEUDA, bob("350.00"), "TOPE_POR_PARTICIPANTE", false, true));
-
+        @DisplayName("F1.L2.M02 · la cobertura manual responde 410 AP-CU23-14 y no cubre nada")
+        void coberturaManualRetirada() throws Exception {
             mvc.perform(
                             post("/incumplimientos/{id}/cobertura", EXPEDIENTE)
                                     .with(Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR"))
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(
                                             """
-                                    {"montoSolicitado":{"monto":"350.00","moneda":"BOB"},"diasMora":15}
+                                    {"montoSolicitado":{"monto":"500.00","moneda":"BOB"},"diasMora":10,
+                                     "aprobadaPor":"b2000000-0000-4000-8000-000000000009"}
                                     """))
-                    .andExpect(status().isCreated())
-                    // Sin la deuda, el fondo paga y nadie sabe a quien cobrarle.
-                    .andExpect(jsonPath("$.deudaId").value(DEUDA.toString()))
-                    .andExpect(jsonPath("$.montoCubierto.monto").value("350.00"))
-                    // Que limite mando es lo que explica por que se cubrio ESE monto.
-                    .andExpect(jsonPath("$.limiteQueMando").value("TOPE_POR_PARTICIPANTE"))
-                    .andExpect(jsonPath("$.requiereAprobacion").value(false));
-        }
-
-        @Test
-        @DisplayName("CU-23 · por encima del umbral, la respuesta dice que requiere aprobación y NO cubre")
-        void porEncimaDelUmbralPideAprobacion() throws Exception {
-            when(cu23.cubrir(any(), any()))
-                    .thenReturn(new CU23CubrirIncumplimiento.SalidaCobertura(
-                            null, null, bob("0.00"), "TOPE_POR_PERIODO", true, true));
-
-            mvc.perform(
-                            post("/incumplimientos/{id}/cobertura", EXPEDIENTE)
-                                    .with(Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR"))
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .content(
-                                            """
-                                    {"montoSolicitado":{"monto":"9000.00","moneda":"BOB"},"diasMora":40}
-                                    """))
-                    .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.requiereAprobacion").value(true))
-                    // Automatizar la cobertura de montos grandes es como se vacia un
-                    // fondo sin que nadie mire.
-                    .andExpect(jsonPath("$.coberturaId").doesNotExist());
+                    .andExpect(status().isGone())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU23-14"));
         }
 
         @Test
@@ -133,7 +92,6 @@ class CoberturaWebTest {
                                     {"montoSolicitado":{"monto":"350.00","moneda":"BOB"},"diasMora":-5}
                                     """))
                     .andExpect(status().isBadRequest());
-            verifyNoInteractions(cu23);
         }
     }
 }

@@ -66,7 +66,9 @@ public class PagosController implements PagosApi {
                 new CU19ReembolsarPago.EntradaReembolso(
                         pagoId,
                         MapeoDeAportes.dinero(cuerpo.getMonto()),
-                        cuerpo.getMotivo().getValue()),
+                        cuerpo.getMotivo().getValue(),
+                        // F1.L1.M09: antes la clave llegaba y se descartaba.
+                        idempotencyKey.toString()),
                 sesion.actual());
 
         var respuesta = new SalidaReembolso();

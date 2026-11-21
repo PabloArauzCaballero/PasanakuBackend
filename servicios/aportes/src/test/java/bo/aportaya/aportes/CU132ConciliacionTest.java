@@ -152,6 +152,12 @@ class CU132ConciliacionTest extends BaseDeAportes {
                         contar(
                                 "SELECT count(DISTINCT tipo)::int FROM aportes.excepcion_conciliacion WHERE tipo IN ('SIN_CONFIRMACION_PROVEEDOR','MONTO_DISTINTO','SIN_MOVIMIENTO_BANCARIO')"))
                 .isEqualTo(3);
+        // F1.L1.M12 · R-BIL-29: cada diferencia lleva la moneda del pago que la origina.
+        assertThat(contar("SELECT count(*)::int FROM aportes.conciliacion WHERE moneda IS DISTINCT FROM 'BOB'"))
+                .isZero();
+        assertThat(contar(
+                        "SELECT count(*)::int FROM aportes.excepcion_conciliacion WHERE moneda IS DISTINCT FROM 'BOB'"))
+                .isZero();
         // Solo se marcan conciliados los movimientos que coinciden con libro y proveedor.
         assertThat(contar("SELECT count(*)::int FROM aportes.movimiento_bancario WHERE conciliado"))
                 .isEqualTo(2);
