@@ -48,6 +48,8 @@ class CU69EventoDeInicioTest extends BaseDeInicio {
         assertThat(carga(grupo, "moneda")).isEqualTo("BOB");
         assertThat(carga(grupo, "cuposTotales")).isEqualTo("8");
         assertThat(carga(grupo, "iniciadoEn")).isNotBlank();
+        // Pacto grupos-tarifas-grupo-iniciado.json: tarifas congela lo vigente en este momento; sin zona lo rechaza.
+        assertThat(java.time.OffsetDateTime.parse(carga(grupo, "iniciadoEn"))).isNotNull();
         UUID periodoUno = (UUID) dsl.fetchOne("SELECT id FROM grupos.periodo WHERE grupo_id = ? AND numero = 1", grupo)
                 .get(0);
         assertThat(carga(grupo, "periodo.periodoId")).isEqualTo(periodoUno.toString());

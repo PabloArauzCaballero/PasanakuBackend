@@ -1,0 +1,26 @@
+{
+  "productor": "grupos",
+  "consumidor": "tarifas",
+  "version": 1,
+  "descripcion": "F3.S8.M6 (CU-132): al iniciar el grupo, tarifas congela la version APROBADA de cada parametro financiero que regia en iniciadoEn (ADR-056 §6). Productor: CU69IniciarGrupo por su outbox (el mismo evento del pacto grupos-aportes-grupo-iniciado.json). Consumidor: CongelarParametrosDelGrupo via ConsumidorDeGruposIniciadosKafka. tarifas lee SOLO grupoId e iniciadoEn: cupos, participantes y montos no se leen ni se registran (regla 90.2). Lo comparten CU69EventoDeInicioTest (grupos emite al menos estos campos) y ConsumidorDeGruposIniciadosKafkaTest (tarifas lee este ejemplo). NO existe todavia una prueba contra Kafka y los dos procesos reales juntos.",
+  "topico": "aportaya.grupos.grupo_iniciado",
+  "tipo": "grupos.grupo_iniciado",
+  "agregado": "grupo",
+  "cabeceras": ["event_id", "correlation_id"],
+  "campos": {
+    "grupoId": "uuid del grupo (clave del mensaje)",
+    "iniciadoEn": "ISO-8601 con zona, UTC: el momento cuya version vigente se congela"
+  },
+  "consumidorExige": ["grupoId", "iniciadoEn"],
+  "ejemplo": {
+    "grupoId": "d0000000-0000-4000-8000-000000000001",
+    "moneda": "BOB",
+    "cuposTotales": 2,
+    "iniciadoEn": "2026-10-30T15:00:00Z"
+  },
+  "garantias": [
+    "tarifas congela UNA vez por evento (evento_consumido) y UNA vez por grupo, parametro y nivel (uq_parametro_congelado_grupo), aunque el inicio llegue re-emitido con otro id",
+    "tarifas rechaza sin tocar la base un evento sin grupoId, sin iniciadoEn o con iniciadoEn sin zona; el mensaje no se marca consumido",
+    "un codigo sin version aprobada al iniciar no se completa despues: GET /tarifas/parametros/grupos/{grupoId} responde 422 AP-CU132-06 nombrandolo y garantia falla cerrado"
+  ]
+}

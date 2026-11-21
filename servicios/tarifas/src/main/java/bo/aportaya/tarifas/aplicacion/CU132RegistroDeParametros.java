@@ -8,6 +8,7 @@ import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.tarifas.dominio.ParametroDelCatalogo;
 import bo.aportaya.tarifas.dominio.PropuestaDeParametro;
 import bo.aportaya.tarifas.dominio.VersionDelParametro;
+import bo.aportaya.tarifas.dominio.VigenciaDeParametros;
 import bo.aportaya.tarifas.infraestructura.ParametroRepositorio;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -69,15 +70,7 @@ public class CU132RegistroDeParametros {
                         var delParametro = vivas.stream()
                                 .filter(v -> v.parametroId().equals(p.id()))
                                 .toList();
-                        // Vigente = la aprobada más reciente ya en vigor, una por nivel (vivas viene ordenada).
-                        var vigentes = delParametro.stream()
-                                .filter(v -> "APROBADA".equals(v.estado()))
-                                .filter(v -> !v.vigenteDesde().isAfter(ahora))
-                                .collect(java.util.stream.Collectors.toMap(
-                                        v -> v.nivel().orElse(""), v -> v, (a, b) -> a, java.util.LinkedHashMap::new))
-                                .values()
-                                .stream()
-                                .toList();
+                        var vigentes = VigenciaDeParametros.vigentesAl(delParametro, ahora);
                         var propuestas = delParametro.stream()
                                 .filter(v -> "PROPUESTA".equals(v.estado()))
                                 .toList();
