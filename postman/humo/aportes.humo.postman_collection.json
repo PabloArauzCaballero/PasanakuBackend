@@ -452,7 +452,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"motivo\": \"DISPUTA\"\n}",
+              "raw": "{\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"motivo\": \"DISPUTA\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -556,7 +556,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"monto\": {\n    \"monto\": \"5000.00\",\n    \"moneda\": \"USD\"\n  },\n  \"motivo\": \"GRUPO_CANCELADO\"\n}",
+              "raw": "{\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"USD\"\n  },\n  \"motivo\": \"GRUPO_CANCELADO\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -626,7 +626,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"motivo\": \"DISPUTA\"\n}",
+              "raw": "{\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"motivo\": \"DISPUTA\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -992,7 +992,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipo\": \"CONTRACARGO\",\n  \"descripcion\": \"descripcion-de-prueba\",\n  \"montoDisputado\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"referenciaDelProveedor\": \"referenciaDelProveedor-de-prueba\"\n}",
+              "raw": "{\n  \"tipo\": \"CONTRACARGO\",\n  \"descripcion\": \"descripcion-de-prueba\",\n  \"montoDisputado\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"referenciaDelProveedor\": \"referenciaDelProveedor-de-prueba\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1091,7 +1091,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipo\": \"MONTO_INCORRECTO\",\n  \"descripcion\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"montoDisputado\": {\n    \"monto\": \"5000.00\",\n    \"moneda\": \"USD\"\n  },\n  \"referenciaDelProveedor\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\"\n}",
+              "raw": "{\n  \"tipo\": \"MONTO_INCORRECTO\",\n  \"descripcion\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"montoDisputado\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"USD\"\n  },\n  \"referenciaDelProveedor\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1156,7 +1156,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipo\": \"CONTRACARGO\",\n  \"descripcion\": \"descripcion-de-prueba\",\n  \"montoDisputado\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"referenciaDelProveedor\": \"referenciaDelProveedor-de-prueba\"\n}",
+              "raw": "{\n  \"tipo\": \"CONTRACARGO\",\n  \"descripcion\": \"descripcion-de-prueba\",\n  \"montoDisputado\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"referenciaDelProveedor\": \"referenciaDelProveedor-de-prueba\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1225,7 +1225,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"descripcion\": \"descripcion-de-prueba\",\n  \"montoDisputado\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"referenciaDelProveedor\": \"referenciaDelProveedor-de-prueba\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "raw": "{\n  \"descripcion\": \"descripcion-de-prueba\",\n  \"montoDisputado\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"referenciaDelProveedor\": \"referenciaDelProveedor-de-prueba\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

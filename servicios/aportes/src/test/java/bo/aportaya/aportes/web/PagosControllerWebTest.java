@@ -124,6 +124,33 @@ class PagosControllerWebTest {
         }
 
         @Test
+        @DisplayName("F1.L1.M01 · un reembolso de -50.00 es 400 con el error en el campo monto, sin solicitar nada")
+        void reembolsoNegativo() throws Exception {
+            mvc.perform(post("/pagos/{id}/reembolsos", PAGO)
+                            .with(Sesiones.como("PARTICIPANTE", "BILLETERA_OPERAR"))
+                            .header("Idempotency-Key", CLAVE)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(REEMBOLSO_PEDIDO.replace("350.00", "-50.00")))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.codigo").value("AP-VAL-01"))
+                    .andExpect(jsonPath("$.detalle['monto.monto']").exists());
+            verifyNoInteractions(cu19);
+        }
+
+        @Test
+        @DisplayName("F1.L1.M01 · limite: un reembolso de 0.01 pasa el contrato")
+        void reembolsoDeUnCentavo() throws Exception {
+            when(cu19.solicitar(any(), any()))
+                    .thenReturn(new CU19ReembolsarPago.SalidaSolicitud(REEMBOLSO, "SOLICITADO", bob("0.00")));
+            mvc.perform(post("/pagos/{id}/reembolsos", PAGO)
+                            .with(Sesiones.como("PARTICIPANTE", "BILLETERA_OPERAR"))
+                            .header("Idempotency-Key", CLAVE)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(REEMBOLSO_PEDIDO.replace("350.00", "0.01")))
+                    .andExpect(status().isCreated());
+        }
+
+        @Test
         @DisplayName("400: un motivo de reembolso que el contrato no enumera")
         void motivoFueraDelContrato() throws Exception {
             mvc.perform(post("/pagos/{id}/reembolsos", PAGO)
