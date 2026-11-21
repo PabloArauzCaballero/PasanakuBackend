@@ -36,7 +36,7 @@ if hasattr(sys.stdout, "reconfigure"):
 from collections import defaultdict
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
-from modelo import (MODULOS, FOCO, APPEND_ONLY, PARTICIONADAS, CK_AMPLIADOS,  # noqa: E402
+from modelo import (MODULOS, FOCO, APPEND_ONLY, PARTICIONADAS, CK_AMPLIADOS, CK_ESTRECHADOS,  # noqa: E402
 
                     ESQUEMA, ESQUEMA_CATALOGO, CATALOGO, CATALOGO_ESCRITOR,
                     LIBRO_CONTABLE,
@@ -68,6 +68,16 @@ OPCIONALES = {}
 COLUMNAS_AGREGADAS = {
     # 2026-10-30 · CU-64: la votacion del traspaso dice a quien entra.
     ("acuerdo", "entrante_participante_id"),
+    # 2026-11-21 · F1.L1.M09: la clave del reembolso. NULL solo en las filas de antes;
+    # toda solicitud nueva la escribe (CU-19) y R-BIL-28 la hace unica por pago.
+    ("reembolso", "clave_idempotencia"),
+    # 2026-11-21 · F1.L1.M12: la moneda al lado del importe (regla 91.1.2). NULL solo en
+    # las filas de antes; CU-19 la copia del pago en toda fila nueva.
+    ("reembolso", "moneda"),
+    ("disputa_pago", "moneda"),
+    ("conciliacion", "moneda"),
+    ("excepcion_conciliacion", "moneda"),
+    ("extracto_bancario", "moneda"),
 }
 COMENTARIO_AGREGADA = {}
 
@@ -596,11 +606,19 @@ def generar():
                     "  END LOOP;",
                     "END $$;", ""]
             ampliadas = {ident("ck", tabla, c) for c in CK_AMPLIADOS.get(tabla, [])}
+            estrechadas = {ident("ck", tabla, c) for c in CK_ESTRECHADOS.get(tabla, [])}
             for nombre_ck, expr in checks:
                 if nombre_ck in ampliadas:
                     sql += [f"-- Evolucion: CHECK ampliado (ver CK_AMPLIADOS en modelo.py).",
                             f"ALTER TABLE {q(tabla)} DROP CONSTRAINT IF EXISTS {nombre_ck};",
                             f"ALTER TABLE {q(tabla)} ADD CONSTRAINT {nombre_ck} CHECK ({expr});", ""]
+                elif nombre_ck in estrechadas:
+                    # Un solo ALTER: si el ADD falla por una fila vieja, el DROP se deshace con el y la tabla
+                    # conserva su CHECK anterior. Dos sentencias la dejarian sin CHECK hasta la proxima corrida.
+                    sql += [f"-- Evolucion: CHECK ESTRECHADO (ver CK_ESTRECHADOS en modelo.py). El ADD revalida",
+                            f"-- las filas existentes: falla si queda alguna con un valor retirado, sin tocar el CHECK viejo.",
+                            f"ALTER TABLE {q(tabla)} DROP CONSTRAINT IF EXISTS {nombre_ck},",
+                            f"  ADD CONSTRAINT {nombre_ck} CHECK ({expr});", ""]
             que_es = narrativas.get(tabla, {}).get("queEs")
             desc = comentario(que_es) if que_es else FOCO[k].replace("'", "''")
             marca = " [append-only]" if tabla in APPEND_ONLY else ""
@@ -1256,7 +1274,8 @@ def escribir_infra_borradores():
     d.mkdir(parents=True, exist_ok=True)
     (d / "borradores.sql").write_text("\n".join(L), encoding="utf-8")
 
-
+
+
 def escribir_orquestador(mods):
     L = ["-- Aplica el esquema completo en orden.",
          "--   psql -v ON_ERROR_STOP=1 -f sql/aplicar.sql",

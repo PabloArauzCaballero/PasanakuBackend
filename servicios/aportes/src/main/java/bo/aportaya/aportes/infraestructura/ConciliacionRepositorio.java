@@ -74,6 +74,13 @@ public class ConciliacionRepositorio {
                 .set(DSL.field("estado", String.class), estado)
                 .set(DSL.field("metodo", String.class), "REFERENCIA_EXACTA")
                 .set(DSL.field("diferencia_monto", BigDecimal.class), diferencia)
+                // F1.L1.M12 · R-BIL-29: la diferencia esta en la moneda del pago que se concilia.
+                .set(
+                        DSL.field("moneda", String.class),
+                        DSL.select(DSL.field("moneda", String.class))
+                                .from(DSL.table(DSL.name("aportes", "pago")))
+                                .where(DSL.field("id", UUID.class).eq(pagoId))
+                                .asField())
                 .set(
                         DSL.field("fecha_conciliacion", OffsetDateTime.class),
                         "CONCILIADO_AUTOMATICO".equals(estado) ? ahora : null)
@@ -92,6 +99,13 @@ public class ConciliacionRepositorio {
                         DSL.field("descripcion", String.class),
                         descripcion.length() > 300 ? descripcion.substring(0, 300) : descripcion)
                 .set(DSL.field("monto_diferencia", BigDecimal.class), diferencia)
+                // F1.L1.M12 · la de su conciliacion (que es la del pago).
+                .set(
+                        DSL.field("moneda", String.class),
+                        DSL.select(DSL.field("moneda", String.class))
+                                .from(DSL.table(DSL.name("aportes", "conciliacion")))
+                                .where(DSL.field("id", UUID.class).eq(conciliacionId))
+                                .asField())
                 .set(DSL.field("estado", String.class), "ABIERTA")
                 .execute();
     }

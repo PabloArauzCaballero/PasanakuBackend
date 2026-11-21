@@ -151,16 +151,25 @@ public class PagoRepositorio {
     }
 
     public UUID solicitarReembolso(
-            DSLContext dsl, UUID pagoId, Dinero monto, String motivo, UUID solicitadoPor, OffsetDateTime ahora) {
+            DSLContext dsl,
+            UUID pagoId,
+            Dinero monto,
+            String motivo,
+            UUID solicitadoPor,
+            String claveIdempotencia,
+            OffsetDateTime ahora) {
 
         UUID id = UUID.randomUUID();
         dsl.insertInto(DSL.table(DSL.name("aportes", "reembolso")))
                 .set(DSL.field("id", UUID.class), id)
                 .set(DSL.field("pago_id", UUID.class), pagoId)
                 .set(DSL.field("monto", BigDecimal.class), monto.monto())
+                // F1.L1.M12 · R-BIL-29: la moneda al lado del importe, la del pago (CU-19 ya la comparo).
+                .set(DSL.field("moneda", String.class), monto.moneda().name())
                 .set(DSL.field("motivo", String.class), motivo)
                 .set(DSL.field("estado", String.class), "SOLICITADO")
                 .set(DSL.field("solicitado_por", UUID.class), solicitadoPor)
+                .set(DSL.field("clave_idempotencia", String.class), claveIdempotencia)
                 .set(DSL.field("fecha_solicitud", OffsetDateTime.class), ahora)
                 .execute();
         return id;
@@ -181,21 +190,42 @@ public class PagoRepositorio {
                 > 0;
     }
 
-    public Optional<Reembolso> verReembolso(DSLContext dsl, UUID reembolsoId) {
-        Record fila = dsl.select(
-                        DSL.field("id", UUID.class),
-                        DSL.field("pago_id", UUID.class),
-                        DSL.field("monto", BigDecimal.class),
-                        DSL.field("estado", String.class),
-                        DSL.field("solicitado_por", UUID.class))
+    /** F1.L1.M09 · el candado de (pago, clave) hasta el fin de la transaccion: dos reintentos no corren a la vez. */
+    public void bloquearIdempotenciaDeReembolso(DSLContext dsl, UUID pagoId, String clave) {
+        dsl.execute(
+                "SELECT pg_advisory_xact_lock(hashtextextended(?, 0::bigint))", "reembolso|" + pagoId + "|" + clave);
+    }
+
+    /** La solicitud que ya uso esa clave sobre ese pago, si la hay (R-BIL-28). */
+    public Optional<Reembolso> reembolsoPorClave(DSLContext dsl, UUID pagoId, String clave) {
+        return dsl.select(DSL.field("id", UUID.class))
                 .from(DSL.table(DSL.name("aportes", "reembolso")))
-                .where(DSL.field("id", UUID.class).eq(reembolsoId))
+                .where(DSL.field("pago_id", UUID.class).eq(pagoId))
+                .and(DSL.field("clave_idempotencia", String.class).eq(clave))
+                .fetchOptional(r -> r.value1())
+                .flatMap(id -> verReembolso(dsl, id));
+    }
+
+    /**
+     * F1.L1.M12 · la moneda se lee de la fila; una fila de antes de R-BIL-29 no la tiene y toma la de su pago,
+     * nunca una fija.
+     */
+    public Optional<Reembolso> verReembolso(DSLContext dsl, UUID reembolsoId) {
+        Record fila = dsl.resultQuery(
+                        """
+                        SELECT r.id, r.pago_id, r.monto, COALESCE(r.moneda, p.moneda) AS moneda, r.estado,
+                               r.solicitado_por
+                          FROM aportes.reembolso r
+                          JOIN aportes.pago p ON p.id = r.pago_id
+                         WHERE r.id = ?
+                        """,
+                        reembolsoId)
                 .fetchOne();
         return Optional.ofNullable(fila)
                 .map(f -> new Reembolso(
                         f.get("id", UUID.class),
                         f.get("pago_id", UUID.class),
-                        Dinero.de(f.get("monto", BigDecimal.class), Moneda.BOB),
+                        Dinero.de(f.get("monto", BigDecimal.class), Moneda.valueOf(f.get("moneda", String.class))),
                         f.get("estado", String.class),
                         f.get("solicitado_por", UUID.class)));
     }
@@ -233,6 +263,7 @@ public class PagoRepositorio {
                 .set(DSL.field("tipo", String.class), tipo)
                 .set(DSL.field("descripcion", String.class), descripcion)
                 .set(DSL.field("monto_disputado", BigDecimal.class), montoDisputado.monto())
+                .set(DSL.field("moneda", String.class), montoDisputado.moneda().name())
                 .set(DSL.field("estado", String.class), "ABIERTA")
                 .set(DSL.field("evidencias", org.jooq.JSONB.class), org.jooq.JSONB.valueOf(evidenciasJson))
                 .set(DSL.field("abierta_en", OffsetDateTime.class), abiertaEn)

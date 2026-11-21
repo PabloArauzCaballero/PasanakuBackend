@@ -65,7 +65,9 @@ class AuditoriaCriticaTest extends BaseDeAportes {
                         true),
                 ctxSolicitante));
         SalidaSolicitud solicitud = transaccion.execute(t -> reembolsoCU.solicitar(
-                new EntradaReembolso(cobro.pagoId(), bob("500.00"), "DUPLICADO"), ctxSolicitante));
+                new EntradaReembolso(
+                        cobro.pagoId(), bob("500.00"), "DUPLICADO", "reemb-" + java.util.UUID.randomUUID()),
+                ctxSolicitante));
 
         UUID aprobadorId = fixtura.usuario();
         ContextoSesion ctxAprobador = contextoDe(aprobadorId);
