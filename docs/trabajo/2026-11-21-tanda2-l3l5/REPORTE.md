@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, lote L3L5
 
-> **AVANCE: 10 / 27 — 37,0 %.** A MEDIAS: F1.L3.M04, F1.L3.M05, F1.L5.M28. CI con rojos ajenos al lote (ver Riesgos).
+> **AVANCE: 10 / 27 — 37,0 %.** A MEDIAS: F1.L3.M04, F1.L3.M05, F1.L5.M28. Abiertos: #448 y #486. Retoma: ver «Para quien retome».
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md)
 - PR hacia `dev`: mergeados #428 (F1.L3.M04), #431 (F1.L3.M06), #434 (F1.L3.M07), #437 (F1.L3.M05), #453 (T2.M1);
@@ -14,6 +14,30 @@
   integraciones con Testcontainers no corrieron (Docker) y el CI de los PR sigue en cola.
 - Conteo: 27 microtareas en `PLAN.md` (H1.S0: 3 · H1.S1: 7 · H1.S2: 11 · H2: 2 · H3: 4, agregado por la coordinación); `plan_status.py` no reconoce el
   formato de IDs de este plan, así que el número sale de la tabla.
+
+## Para quien retome este lote (traspaso de coordinación, 2026-11-21)
+
+- **Estado:** 10/27 (ver primera línea). Todo está empujado a `origin`; no queda nada solo en local.
+- **PR abiertos (tope: 3 por sesión):**
+  - **#448** · rama `correcciones/tanda2-l3l5-f1-tarifario` · F1.L5.M26, M27, M23, M21 y M28 (parcial). Es la punta
+    de la pila: acá viven `PLAN.md` y `REPORTE.md` al día. Absorbe a #438, #440, #443 y #446 (cerrados).
+  - **#486** · rama `correcciones/tanda2-l3l5-f3-parametros` · F3.S8.M2a: modelo del registro de parámetros en
+    `tarifas` + siembra de los 7 códigos sin valores (unidades: DECISIONES tanda 11, #489). Su copia de
+    `PLAN.md`/`REPORTE.md` es la de `dev`; la vigente es la de #448.
+- **Mergeados:** #428, #431, #434, #437, #453; #423 dentro de #444.
+- **Siguiente, en orden:** F3.S8.M2b (API en `tarifas`: proponer, aprobar con `CuatroOjos` de `plataforma/comun-web`,
+  consultar vigentes y `GET /tarifas/parametros/grupos/{grupoId}` según el contrato de L2 en
+  `docs/trabajo/2026-11-21-tanda2-l2/evidencia/F3.L2.M14-contrato-parametros-tarifas.md`: 200 / 404 sin congelamiento
+  / 422 con el código que falta), después F3.S8.M6 (consumidor idempotente de `grupos.grupo_iniciado` que escribe
+  `parametro_congelado_grupo`) y F3.S8.M4 (pantalla del backoffice). Luego, lo pendiente de la tabla «Pendiente».
+- **Archivos vedados por aviso de otros lotes:** `servicios/grupos/.../HechosPorHttp.java`, `PrimerAportePorHttp.java`
+  y su credencial de servicio, hasta que entre el PR de L1 (M07). F1.L3.M05 (503) espera ese PR.
+- **Cómo verificar en la nube:** receta de PostgreSQL en 5433 de
+  `docs/trabajo/2026-11-21-plan-correcciones/EJECUCION.md`; `generateJooq` solo declara salidas, así que tras un
+  cambio de esquema hay que correrlo con `--rerun`. Para intermitentes: reproducir con `taskset -c 0` y 3 procesos
+  ocupados (ver T2.M0 y T2.M1).
+- **Decisiones que esperan a Pablo:** ventana del webhook de mensajería (5 min, F1.L5.M23); fuente para derivar el
+  tipo de cambio del tarifario (F1.L5.M28, o F3.L5.M36); D-L5-3 (segundo firmante del tarifario).
 
 ## Completado
 | ID | Qué se logró | Comando | Resultado |
