@@ -554,8 +554,24 @@ jobs:
             test -e "$resultado" || continue
             xcrun xcresulttool get test-results summary --path "$resultado" || true
           done
+          # El log COMPLETO de la app (Runner) va a un artefacto: con `tail -100` solo quedaban
+          # lineas posteriores al fallo y no se podia saber si el deep link no llego, llego
+          # tarde o llego tapado (intermitente de deep_link_test 02, #465). En consola, solo
+          # el proceso de la app, sin el ruido de red del runner de pruebas.
+          mkdir -p apps/movil/build/diagnostico-ios
           xcrun simctl spawn "$SIMULADOR_UDID" log show --last 15m --style compact \
-            --predicate 'process == "RunnerUITests-Runner" OR process == "Runner"' | tail -100 || true
+            --predicate 'process == "RunnerUITests-Runner" OR process == "Runner"' \
+            > apps/movil/build/diagnostico-ios/integracion-simulador.log 2>&1 || true
+          grep -E ' Runner\[' apps/movil/build/diagnostico-ios/integracion-simulador.log | tail -400 || true
+
+      - name: integracion · subir el log del simulador si falla
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostico-integracion-${{ github.sha }}
+          path: apps/movil/build/diagnostico-ios/
+          if-no-files-found: ignore
+          retention-days: 7
 
   # -------------------------------------------------------------- release-ios --
   # H3 completo (madre H6.S3, decision D-A5). Gate de capabilities ANTES de
@@ -654,8 +670,24 @@ jobs:
             test -e "$resultado" || continue
             xcrun xcresulttool get test-results summary --path "$resultado" || true
           done
+          # El log COMPLETO de la app (Runner) va a un artefacto: con `tail -100` solo quedaban
+          # lineas posteriores al fallo y no se podia saber si el deep link no llego, llego
+          # tarde o llego tapado (intermitente de deep_link_test 02, #465). En consola, solo
+          # el proceso de la app, sin el ruido de red del runner de pruebas.
+          mkdir -p apps/movil/build/diagnostico-ios
           xcrun simctl spawn "$SIMULADOR_UDID" log show --last 15m --style compact \
-            --predicate 'process == "RunnerUITests-Runner" OR process == "Runner"' | tail -100 || true
+            --predicate 'process == "RunnerUITests-Runner" OR process == "Runner"' \
+            > apps/movil/build/diagnostico-ios/release-ios-simulador.log 2>&1 || true
+          grep -E ' Runner\[' apps/movil/build/diagnostico-ios/release-ios-simulador.log | tail -400 || true
+
+      - name: release-ios · subir el log del simulador si falla
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostico-release-ios-${{ github.sha }}
+          path: apps/movil/build/diagnostico-ios/
+          if-no-files-found: ignore
+          retention-days: 7
 
       # El IPA de release, con el numero de corrida y los defines desde
       # variables del repositorio (nunca hardcodeados). `--no-codesign`: sin
