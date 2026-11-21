@@ -40,8 +40,8 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU100-01",
-        "mensaje": "Periodo ya cerrado",
+        "codigo": "AP-CU102-02",
+        "mensaje": "Documento ya registrado a otro tercero",
         "detalle": {},
         "trazaId": "traza-darDeAltaTercero-rechazo"
       }

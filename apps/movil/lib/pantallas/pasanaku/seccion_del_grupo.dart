@@ -13,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'acceso_a_la_subasta.dart';
 import 'aviso_de_refirma.dart';
 import 'dominio/detalle_del_grupo.dart';
 import 'inicio_del_grupo.dart';
@@ -152,7 +151,6 @@ class VistaDelGrupo extends StatelessWidget {
           ),
           const SizedBox(height: Espacio.s3),
         ],
-        AccesoALaSubasta(detalle: d),
         Text(
           TextosDetalleDelGrupo.integrantes,
           style: Tipo.titulo3.copyWith(color: t.text),
