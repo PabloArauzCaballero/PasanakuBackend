@@ -73,6 +73,7 @@ public class ConciliacionRepositorio {
             Dinero retenido,
             int movimientos,
             String hash,
+            String hashAnterior,
             OffsetDateTime ahora) {
 
         UUID id = UUID.randomUUID();
@@ -84,8 +85,43 @@ public class ConciliacionRepositorio {
                 .set(DSL.field("saldo_retenido", BigDecimal.class), retenido.monto())
                 .set(DSL.field("cantidad_movimientos", Integer.class), movimientos)
                 .set(DSL.field("hash_registro", String.class), hash)
+                .set(DSL.field("hash_anterior", String.class), hashAnterior)
                 .set(DSL.field("cerrado_en", OffsetDateTime.class), ahora)
                 .execute();
         return id;
+    }
+
+    /** El sello del ultimo dia cerrado antes de {@code fecha}: el eslabon al que se encadena el nuevo. */
+    public java.util.Optional<String> selloAnterior(DSLContext dsl, UUID cuentaId, LocalDate fecha) {
+        return dsl.select(DSL.field("hash_registro", String.class))
+                .from(DSL.table(DSL.name("nucleo_financiero", "saldo_diario_billetera")))
+                .where(DSL.field("cuenta_billetera_id", UUID.class).eq(cuentaId))
+                .and(DSL.field("fecha", LocalDate.class).lt(fecha))
+                .orderBy(DSL.field("fecha").desc())
+                .limit(1)
+                .fetchOptional(DSL.field("hash_registro", String.class));
+    }
+
+    /** La cadena de saldos diarios de una cuenta, del dia mas viejo al mas nuevo, con la moneda de la cuenta. */
+    public java.util.List<bo.aportaya.nucleofinanciero.dominio.SelloDelDia.Eslabon> cadena(
+            DSLContext dsl, UUID cuentaId) {
+        return dsl.resultQuery(
+                        """
+                        SELECT s.cuenta_billetera_id, s.fecha, c.moneda, s.saldo_disponible, s.saldo_retenido,
+                               s.hash_registro, s.hash_anterior
+                          FROM nucleo_financiero.saldo_diario_billetera s
+                          JOIN nucleo_financiero.cuenta_billetera c ON c.id = s.cuenta_billetera_id
+                         WHERE s.cuenta_billetera_id = ?
+                         ORDER BY s.fecha
+                        """,
+                        cuentaId)
+                .fetch(r -> new bo.aportaya.nucleofinanciero.dominio.SelloDelDia.Eslabon(
+                        r.get(0, UUID.class),
+                        r.get(1, LocalDate.class),
+                        r.get(2, String.class),
+                        r.get(3, BigDecimal.class),
+                        r.get(4, BigDecimal.class),
+                        r.get(5, String.class),
+                        r.get(6, String.class)));
     }
 }
