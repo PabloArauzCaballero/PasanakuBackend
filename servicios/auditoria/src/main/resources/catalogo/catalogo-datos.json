@@ -24,7 +24,7 @@
    "descripcion": "Aportes, Pagos QR y Conciliación. Que \"pagué\" signifique \"el banco lo confirmó\".",
    "tablas": 22,
    "tablasDeNegocio": 18,
-   "columnas": 227,
+   "columnas": 230,
    "relaciones": 38,
    "appendOnly": 0,
    "conDatosPersonales": 1,
@@ -413,7 +413,9 @@
     "negocio": "Es la entidad que hace verdadero el \"pagado\". Mientras no exista una conciliación en estado CONCILIADO_*, el aporte no está realmente saldado por más que la pasarela haya dicho \"aprobado\".\n\nmetodo guarda cómo se logró el cruce (referencia exacta, monto+fecha, manual). Es un indicador de calidad operativa: si el 40% de la conciliación es manual, la generación de referencias tiene un problema. diferenciaMonto captura los centavos y las comisiones no previstas.\n\nforzarManual(usuarioId, justificacion) existe porque siempre hay casos que el algoritmo no resuelve — pero exige justificación y deja autor, porque forzar una conciliación es afirmar que entró plata.",
     "porQue": "Sin conciliación explícita, la única fuente de verdad es la pasarela, y las pasarelas se equivocan, reintentan y reversan."
    },
-   "reglas": [],
+   "reglas": [
+    "ck_conciliacion_moneda"
+   ],
    "columnas": [
     {
      "nombre": "id",
@@ -480,6 +482,16 @@
      "origenNegocio": "convencion",
      "sistema": "DECIMAL(14,2), obligatoria, sensibilidad financiero.",
      "sensibilidad": "FINANCIERO"
+    },
+    {
+     "nombre": "moneda",
+     "tipo": "CHAR(3)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).",
+     "origenNegocio": "convencion",
+     "sistema": "CHAR(3), opcional.",
+     "sensibilidad": "NINGUNA"
     },
     {
      "nombre": "conciliado_por",
@@ -550,7 +562,7 @@
      }
     ]
    },
-   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de identidad.usuario, movimiento_bancario, pago. La referencian excepcion_conciliacion.",
+   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de identidad.usuario, movimiento_bancario, pago. La referencian excepcion_conciliacion. Reglas nombradas: ck_conciliacion_moneda.",
    "clasificacion": {
     "personales": 0,
     "financieros": 1,
@@ -1441,7 +1453,9 @@
     "negocio": "Los siete tipos son el catálogo de todo lo que sale mal con el dinero en la práctica: monto distinto, referencia ausente, pago duplicado, pago sin obligación, obligación sin pago, fuera de plazo, moneda distinta. Tipificarlos permite medir cuál predomina y atacar la causa.\n\nasignadaA convierte el descuadre en trabajo de alguien, con dueño. Sin asignación, las excepciones se acumulan y nadie las mira hasta que son cien.",
     "porQue": "Y sobre todo: toda excepción abierta bloquea el cierre diario. Esa es la regla que impide que los descuadres se arrastren. Sin la entidad no hay qué bloquear."
    },
-   "reglas": [],
+   "reglas": [
+    "ck_excepcion_conciliacion_moneda"
+   ],
    "columnas": [
     {
      "nombre": "id",
@@ -1494,6 +1508,16 @@
      "origenNegocio": "convencion",
      "sistema": "DECIMAL(14,2), obligatoria, sensibilidad financiero.",
      "sensibilidad": "FINANCIERO"
+    },
+    {
+     "nombre": "moneda",
+     "tipo": "CHAR(3)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).",
+     "origenNegocio": "convencion",
+     "sistema": "CHAR(3), opcional.",
+     "sensibilidad": "NINGUNA"
     },
     {
      "nombre": "estado",
@@ -1573,7 +1597,7 @@
     ],
     "entrantes": []
    },
-   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de conciliacion, identidad.usuario.",
+   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de conciliacion, identidad.usuario. Reglas nombradas: ck_excepcion_conciliacion_moneda.",
    "clasificacion": {
     "personales": 0,
     "financieros": 1,
@@ -1710,7 +1734,9 @@
     "negocio": "Es la fuente de verdad externa. Todo lo que el sistema afirma sobre el dinero se contrasta contra esto. cuadrar() verifica que saldo inicial + movimientos = saldo final: si no cuadra, el archivo está incompleto y conciliar contra él daría un falso \"todo bien\".\n\nimportadoPor deja constancia de quién cargó el extracto, porque un extracto adulterado invalidaría toda la conciliación de ese día.",
     "porQue": "Sin extracto no hay contra qué conciliar y la plataforma solo puede confiar en lo que la pasarela le informa."
    },
-   "reglas": [],
+   "reglas": [
+    "ck_extracto_bancario_moneda"
+   ],
    "columnas": [
     {
      "nombre": "id",
@@ -1785,6 +1811,16 @@
      "sensibilidad": "FINANCIERO"
     },
     {
+     "nombre": "moneda",
+     "tipo": "CHAR(3)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).",
+     "origenNegocio": "convencion",
+     "sistema": "CHAR(3), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
      "nombre": "archivo_url",
      "tipo": "VARCHAR(255)",
      "nulable": false,
@@ -1853,7 +1889,7 @@
      }
     ]
    },
-   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de identidad.usuario, proveedor_pago. La referencian movimiento_bancario.",
+   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de identidad.usuario, proveedor_pago. La referencian movimiento_bancario. Reglas nombradas: ck_extracto_bancario_moneda.",
    "clasificacion": {
     "personales": 0,
     "financieros": 2,

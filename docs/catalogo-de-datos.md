@@ -45,7 +45,7 @@
 
 **Casos de uso que la nombran.** CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-51 Ejecutar el cierre diario (`consultarRecaudoDiario`, `listarCierresDiarios`) · CU-82 Procesar una respuesta entrante (`procesarRespuestaEntrante`)
 
-**Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `movimiento_bancario`, `pago`. La referencian `excepcion_conciliacion`.
+**Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `movimiento_bancario`, `pago`. La referencian `excepcion_conciliacion`. Reglas nombradas: `ck_conciliacion_moneda`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
@@ -55,6 +55,7 @@
 | `estado` | VARCHAR(25) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(25), obligatoria, índice b-tree. | NINGUNA |
 | `metodo` | VARCHAR(20) | Atributo que representa metodo en el modelo de `conciliacion`. | VARCHAR(20), obligatoria. | NINGUNA |
 | `diferencia_monto` | DECIMAL(14,2) | Importe monetario correspondiente a diferencia en `conciliacion`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), opcional. | NINGUNA |
 | `conciliado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `fecha_conciliacion` | TIMESTAMPTZ | Marca temporal o fecha de conciliacion en `conciliacion`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
@@ -204,7 +205,7 @@
 
 **Casos de uso que la nombran.** CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`) · CU-35 Cerrar la liquidación mensual de ingresos (`cerrarLiquidacion`) · CU-51 Ejecutar el cierre diario (`consultarRecaudoDiario`, `listarCierresDiarios`)
 
-**Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `conciliacion`, `identidad.usuario`.
+**Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `conciliacion`, `identidad.usuario`. Reglas nombradas: `ck_excepcion_conciliacion_moneda`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
@@ -213,6 +214,7 @@
 | `tipo` | VARCHAR(30) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(30), obligatoria. | NINGUNA |
 | `descripcion` | VARCHAR(300) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(300), obligatoria. | NINGUNA |
 | `monto_diferencia` | DECIMAL(14,2) | Importe monetario correspondiente a diferencia en `excepcion_conciliacion`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), opcional. | NINGUNA |
 | `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
 | `asignada_a` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `resolucion` | VARCHAR(300) | Atributo que representa resolucion en el modelo de `excepcion_conciliacion`. | VARCHAR(300), opcional. | NINGUNA |
@@ -231,7 +233,7 @@
 
 **Casos de uso que la nombran.** CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`) · CU-51 Ejecutar el cierre diario (`consultarRecaudoDiario`, `listarCierresDiarios`) · CU-99 Dar de alta un proveedor de pago y enrutar el cobro (`enrutarCobro`, `darDeAltaProveedor`)
 
-**Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `proveedor_pago`. La referencian `movimiento_bancario`.
+**Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `proveedor_pago`. La referencian `movimiento_bancario`. Reglas nombradas: `ck_extracto_bancario_moneda`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
@@ -242,6 +244,7 @@
 | `fecha_hasta` | DATE | Marca temporal o fecha de hasta en `extracto_bancario`. | DATE, obligatoria. | NINGUNA |
 | `saldo_inicial` | DECIMAL(14,2) | Atributo que representa saldo inicial en el modelo de `extracto_bancario`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `saldo_final` | DECIMAL(14,2) | Atributo que representa saldo final en el modelo de `extracto_bancario`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), opcional. | NINGUNA |
 | `archivo_url` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a archivo. | VARCHAR(255), obligatoria. | NINGUNA |
 | `importado_en` | TIMESTAMPTZ | Marca temporal o fecha de importado en `extracto_bancario`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `importado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |

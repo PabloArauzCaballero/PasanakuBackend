@@ -972,6 +972,7 @@ COMMENT ON COLUMN aportes.extracto_bancario.fecha_desde IS '[NEGOCIO] Marca temp
 COMMENT ON COLUMN aportes.extracto_bancario.fecha_hasta IS '[NEGOCIO] Marca temporal o fecha de hasta en `extracto_bancario`. [SISTEMA] date, obligatoria (NOT NULL).';
 COMMENT ON COLUMN aportes.extracto_bancario.saldo_inicial IS '[NEGOCIO] Atributo que representa saldo inicial en el modelo de `extracto_bancario`. [SISTEMA] decimal(14,2), obligatoria (NOT NULL), sensibilidad FINANCIERO.';
 COMMENT ON COLUMN aportes.extracto_bancario.saldo_final IS '[NEGOCIO] Atributo que representa saldo final en el modelo de `extracto_bancario`. [SISTEMA] decimal(14,2), obligatoria (NOT NULL), sensibilidad FINANCIERO.';
+COMMENT ON COLUMN aportes.extracto_bancario.moneda IS '[NEGOCIO] Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). [SISTEMA] char(3), opcional.';
 COMMENT ON COLUMN aportes.extracto_bancario.archivo_url IS '[NEGOCIO] Localizador uniforme de recursos (URL/URI) correspondiente a archivo. [SISTEMA] varchar(255), obligatoria (NOT NULL).';
 COMMENT ON COLUMN aportes.extracto_bancario.importado_en IS '[NEGOCIO] Marca temporal o fecha de importado en `extracto_bancario`. [SISTEMA] timestamptz, obligatoria (NOT NULL).';
 COMMENT ON COLUMN aportes.extracto_bancario.importado_por IS '[NEGOCIO] Referencia por clave foránea a la entidad `usuario`. [SISTEMA] uuid, obligatoria (NOT NULL), clave foránea (FK) hacia `usuario`.';
@@ -996,6 +997,7 @@ COMMENT ON COLUMN aportes.conciliacion.movimiento_bancario_id IS '[NEGOCIO] Refe
 COMMENT ON COLUMN aportes.conciliacion.estado IS '[NEGOCIO] Estado operativo o fase del ciclo de vida en que se encuentra el registro. [SISTEMA] varchar(25), obligatoria (NOT NULL), con índice B-tree.';
 COMMENT ON COLUMN aportes.conciliacion.metodo IS '[NEGOCIO] Atributo que representa metodo en el modelo de `conciliacion`. [SISTEMA] varchar(20), obligatoria (NOT NULL).';
 COMMENT ON COLUMN aportes.conciliacion.diferencia_monto IS '[NEGOCIO] Importe monetario correspondiente a diferencia en `conciliacion`. [SISTEMA] decimal(14,2), obligatoria (NOT NULL), sensibilidad FINANCIERO.';
+COMMENT ON COLUMN aportes.conciliacion.moneda IS '[NEGOCIO] Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). [SISTEMA] char(3), opcional.';
 COMMENT ON COLUMN aportes.conciliacion.conciliado_por IS '[NEGOCIO] Referencia por clave foránea a la entidad `usuario`. [SISTEMA] uuid, opcional, clave foránea (FK) hacia `usuario`.';
 COMMENT ON COLUMN aportes.conciliacion.fecha_conciliacion IS '[NEGOCIO] Marca temporal o fecha de conciliacion en `conciliacion`. [SISTEMA] timestamptz, opcional.';
 COMMENT ON TABLE aportes.excepcion_conciliacion IS '[NEGOCIO] Cada descuadre detectado, tipificado y asignado a alguien para resolver.. Los siete tipos son el catálogo de todo lo que sale mal con el dinero en la práctica: monto distinto, referencia ausente, pago duplicado, pago sin obligación, obligación sin pago, fuera de plazo, moneda distinta. Tipificarlos permite medir cuál predomina y atacar la causa.
@@ -1006,6 +1008,7 @@ COMMENT ON COLUMN aportes.excepcion_conciliacion.conciliacion_id IS '[NEGOCIO] R
 COMMENT ON COLUMN aportes.excepcion_conciliacion.tipo IS '[NEGOCIO] Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. [SISTEMA] varchar(30), obligatoria (NOT NULL).';
 COMMENT ON COLUMN aportes.excepcion_conciliacion.descripcion IS '[NEGOCIO] Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. [SISTEMA] varchar(300), obligatoria (NOT NULL).';
 COMMENT ON COLUMN aportes.excepcion_conciliacion.monto_diferencia IS '[NEGOCIO] Importe monetario correspondiente a diferencia en `excepcion_conciliacion`. [SISTEMA] decimal(14,2), obligatoria (NOT NULL), sensibilidad FINANCIERO.';
+COMMENT ON COLUMN aportes.excepcion_conciliacion.moneda IS '[NEGOCIO] Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). [SISTEMA] char(3), opcional.';
 COMMENT ON COLUMN aportes.excepcion_conciliacion.estado IS '[NEGOCIO] Estado operativo o fase del ciclo de vida en que se encuentra el registro. [SISTEMA] varchar(15), obligatoria (NOT NULL), con índice B-tree.';
 COMMENT ON COLUMN aportes.excepcion_conciliacion.asignada_a IS '[NEGOCIO] Referencia por clave foránea a la entidad `usuario`. [SISTEMA] uuid, opcional, clave foránea (FK) hacia `usuario`.';
 COMMENT ON COLUMN aportes.excepcion_conciliacion.resolucion IS '[NEGOCIO] Atributo que representa resolucion en el modelo de `excepcion_conciliacion`. [SISTEMA] varchar(300), opcional.';

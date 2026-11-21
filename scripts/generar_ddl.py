@@ -75,6 +75,9 @@ COLUMNAS_AGREGADAS = {
     # las filas de antes; CU-19 la copia del pago en toda fila nueva.
     ("reembolso", "moneda"),
     ("disputa_pago", "moneda"),
+    ("conciliacion", "moneda"),
+    ("excepcion_conciliacion", "moneda"),
+    ("extracto_bancario", "moneda"),
 }
 COMENTARIO_AGREGADA = {}
 

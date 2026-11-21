@@ -861,6 +861,7 @@ entity "extracto_bancario" as extracto {
   fecha_hasta : DATE
   saldo_inicial : DECIMAL(14,2)
   saldo_final : DECIMAL(14,2)
+  moneda : CHAR(3) <<NULL>>
   archivo_url : VARCHAR(255)
   importado_en : TIMESTAMPTZ
   # importado_por : UUID <<FK>>
@@ -887,6 +888,7 @@ entity "conciliacion" as conc {
   estado : VARCHAR(25) <<CK, IDX>>
   metodo : VARCHAR(20) <<CK>>
   diferencia_monto : DECIMAL(14,2)
+  moneda : CHAR(3) <<NULL>>
   # conciliado_por : UUID <<FK, NULL>>
   fecha_conciliacion : TIMESTAMPTZ <<NULL>>
 }
@@ -898,6 +900,7 @@ entity "excepcion_conciliacion" as excep {
   tipo : VARCHAR(30) <<CK>>
   descripcion : VARCHAR(300)
   monto_diferencia : DECIMAL(14,2)
+  moneda : CHAR(3) <<NULL>>
   estado : VARCHAR(15) <<CK, IDX>>
   # asignada_a : UUID <<FK, NULL>>
   resolucion : VARCHAR(300) <<NULL>>

@@ -787,6 +787,15 @@ ALTER TABLE reembolso
 ALTER TABLE disputa_pago DROP CONSTRAINT IF EXISTS ck_disputa_pago_moneda;
 ALTER TABLE disputa_pago
   ADD CONSTRAINT ck_disputa_pago_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
+ALTER TABLE conciliacion DROP CONSTRAINT IF EXISTS ck_conciliacion_moneda;
+ALTER TABLE conciliacion
+  ADD CONSTRAINT ck_conciliacion_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
+ALTER TABLE excepcion_conciliacion DROP CONSTRAINT IF EXISTS ck_excepcion_conciliacion_moneda;
+ALTER TABLE excepcion_conciliacion
+  ADD CONSTRAINT ck_excepcion_conciliacion_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
+ALTER TABLE extracto_bancario DROP CONSTRAINT IF EXISTS ck_extracto_bancario_moneda;
+ALTER TABLE extracto_bancario
+  ADD CONSTRAINT ck_extracto_bancario_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
 
 
 -- ---------------------------------------------------------------------

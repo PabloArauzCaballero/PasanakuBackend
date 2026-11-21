@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS aportes.excepcion_conciliacion (
   tipo                               VARCHAR(30) NOT NULL,
   descripcion                        VARCHAR(300) NOT NULL,
   monto_diferencia                   NUMERIC(14,2) DEFAULT 0 NOT NULL,
+  moneda                             CHAR(3),
   estado                             VARCHAR(15) NOT NULL,
   asignada_a                         UUID,
   resolucion                         VARCHAR(300),

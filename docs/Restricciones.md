@@ -386,7 +386,7 @@ ALTER TABLE expediente_cliente
 | R-BIL-26 | Una retención de inversión o de compra del mercado nombra la orden u oferta que la motiva | Trazabilidad | [[CU-13 Retener y liberar saldo]] |
 | R-BIL-27 | El reverso lo pide una persona y lo autoriza otra, cada una desde su token; una sola solicitud viva por transacción | Cuatro ojos reales (R-SEG-04, P-13) | [[CU-14 Reversar una transacción]] |
 | R-BIL-28 | Un reembolso por pago y clave de idempotencia: reintentar la solicitud no crea otra | Idempotencia de dinero (regla 91.1.4, 91.2.4) | [[CU-19 Reembolsar un pago y atender una disputa]] |
-| R-BIL-29 | Un reembolso y una disputa de pago llevan su moneda ISO-4217 al lado del importe | Ningún importe sin moneda (regla 91.1.2) | [[CU-19 Reembolsar un pago y atender una disputa]] |
+| R-BIL-29 | Reembolso, disputa, conciliación, excepción de conciliación y extracto bancario llevan su moneda ISO-4217 al lado del importe | Ningún importe sin moneda (regla 91.1.2) | [[CU-19 Reembolsar un pago y atender una disputa]] |
 
 ```sql
 -- R-BIL-01 · partida doble interna (diferido: se valida al COMMIT)
@@ -842,6 +842,12 @@ ALTER TABLE reembolso
   ADD CONSTRAINT ck_reembolso_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
 ALTER TABLE disputa_pago
   ADD CONSTRAINT ck_disputa_pago_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
+ALTER TABLE conciliacion
+  ADD CONSTRAINT ck_conciliacion_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
+ALTER TABLE excepcion_conciliacion
+  ADD CONSTRAINT ck_excepcion_conciliacion_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
+ALTER TABLE extracto_bancario
+  ADD CONSTRAINT ck_extracto_bancario_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
 ```
 
 ---
