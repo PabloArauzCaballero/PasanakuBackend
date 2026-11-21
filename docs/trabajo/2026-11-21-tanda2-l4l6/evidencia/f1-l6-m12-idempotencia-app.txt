@@ -1,0 +1,25 @@
+# F1.L6.M12 — App: clave de idempotencia por intento, liberada ante el rechazo y conservada ante la duda
+## Relocalizado en origin/dev 50cf3be9
+apps/movil/lib/proveedores/idempotencia.dart  clave por formularioId (= cuenta), sin contenido
+apps/movil/lib/dominio/cu10_recargar_saldo.dart:34, cu11:30, cu12:31  claveDe(formularioId(cuenta))
+  catch -> la clave queda retenida SIEMPRE: tras un 422 por importe, el reenvio corregido usa la clave vieja.
+
+## Prueba dirigida (DOBLE declarado del servidor de nucleo-financiero, regla 65, tres niveles)
+$ flutter test test/unidad/idempotencia_por_intento_test.dart
+00:00 +7: All tests passed!
+  correcto : el exito cierra la clave (dos recargas = dos claves)
+  limite   : timeout -> reintento con la MISMA clave, una sola orden · 503 conserva · 429 conserva
+  invalido : 422, correccion y reenvio -> se procesa con otra clave · 422 y mismo contenido -> clave nueva
+  esRechazoDefinitivo: 400/409/422 si; 408/425/429/500/503/sin respuesta no
+## Mutante: trasElFallo no libera ante 4xx
+00:00 +6 -1: Some tests failed.
+
+## Regresion de la app (Flutter 3.50.1 local)
+$ flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku test/a11y --timeout 60s
+02:28 +919 -6: Some tests failed.
+  Los 6 rojos son los mismos que fallan en dev sin este cambio (ENVIRONMENT, ver t2-m2-m4-campo-monto.txt).
+$ dart analyze --fatal-infos (archivos tocados) -> solo el aviso de material.dart del SDK 3.50
+$ dart format: los archivos tocados formateados; 6 goldens h10_* ya venian sin formato en dev (formatter nuevo).
+
+## NO COMPROBADO — integracion contra el servidor real (maquina de Pablo)
+recargar con 422 real, corregir y reenviar; timeout real con un solo efecto en el mayor.

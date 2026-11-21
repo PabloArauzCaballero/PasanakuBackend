@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import bo.aportaya.cumplimiento.aplicacion.CU46VerificarAlcance;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.Sesiones;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -95,7 +94,7 @@ class LicenciaControllerWebTest {
     }
 
     @Test
-    @DisplayName("CU-46 · el servicio consultado llega tal cual al caso de uso")
+    @DisplayName("CU-46 · el servicio consultado llega tal cual; el usuarioId del query se ignora (F1.L4.M25)")
     void loQueLlegaAlCasoDeUso() throws Exception {
         when(cu46.ejecutar(any(), any()))
                 .thenReturn(new CU46VerificarAlcance.SalidaAlcance(true, "LICENCIA", null, ""));
@@ -106,8 +105,9 @@ class LicenciaControllerWebTest {
         verify(cu46).ejecutar(capturada.capture(), any());
         org.assertj.core.api.Assertions.assertThat(capturada.getValue().servicio())
                 .isEqualTo("BILLETERA");
-        org.assertj.core.api.Assertions.assertThat(capturada.getValue().usuarioId())
-                .isEqualTo(Optional.of(USUARIO));
+        // `pedir` manda el id de OTRA persona en el query: no llega a ningun lado.
+        org.assertj.core.api.Assertions.assertThat(capturada.getValue())
+                .isEqualTo(CU46VerificarAlcance.EntradaAlcance.de("BILLETERA"));
     }
 
     @Test

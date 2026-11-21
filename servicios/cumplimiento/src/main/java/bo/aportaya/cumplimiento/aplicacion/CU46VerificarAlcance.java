@@ -15,7 +15,6 @@ import bo.aportaya.plataforma.mensajeria.Outbox;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,73 +59,84 @@ public class CU46VerificarAlcance {
         this.serviciosDeSalida = Set.copyOf(serviciosDeSalida);
     }
 
-    @Transactional
+    /**
+     * La consulta: <b>no escribe</b> (F1.L4.M25). Antes cada rechazo emitia un evento al
+     * outbox, asi que cualquier participante podia hacer crecer la tabla con un GET y el
+     * registro no distinguia una pregunta de una operacion rechazada.
+     */
+    @Transactional(readOnly = true)
     public SalidaAlcance ejecutar(EntradaAlcance entrada, ContextoSesion ctx) {
         LocalDate hoy = reloj.ahora().atOffset(ZoneOffset.UTC).toLocalDate();
+        return datos.conContexto(ctx, dsl -> resolver(dsl, entrada, hoy).salida());
+    }
 
-        return datos.conContexto(ctx, dsl -> {
-            var licencia = licencias.vigente(dsl, hoy);
-
-            // AP-CU46-01: sin fila de licencia no hay nada que interpretar. Denegar
-            // por omision es la unica lectura segura de una tabla vacia.
-            EstadoDeLicencia estado =
-                    licencia.map(LicenciaRepositorio.Licencia::estado).orElse(EstadoDeLicencia.EN_TRAMITE);
-            boolean vigente =
-                    licencia.map(LicenciaRepositorio.Licencia::vigente).orElse(false);
-            Set<String> alcance =
-                    licencia.map(LicenciaRepositorio.Licencia::alcance).orElse(Set.of());
-
-            Decision decision = HabilitacionDeServicio.resolver(
-                    entrada.servicio(),
-                    estado,
-                    vigente,
-                    alcance,
-                    sandboxes.activoPara(dsl, entrada.servicio(), hoy, entrada.usuariosRegistrados()),
-                    serviciosDeSalida);
-
-            if (!decision.habilitado()) {
-                // El rechazo se registra ANTES de lanzarlo: el evento va en la misma
-                // transaccion y sobrevive, porque el error de negocio no revierte lo
-                // que ya se escribio en el outbox de esta transaccion... salvo que el
-                // llamador la revierta. Por eso se emite y se devuelve la decision, y
-                // es el llamador quien decide si eso es un rechazo duro.
+    /**
+     * La version que corta, para una operacion real: registra el rechazo (con el actor del
+     * token, nunca uno recibido) y lanza el codigo que el contrato promete.
+     */
+    @Transactional
+    public void exigirHabilitado(EntradaAlcance entrada, ContextoSesion ctx) {
+        LocalDate hoy = reloj.ahora().atOffset(ZoneOffset.UTC).toLocalDate();
+        SalidaAlcance salida = datos.conContexto(ctx, dsl -> {
+            Resuelta resuelta = resolver(dsl, entrada, hoy);
+            if (!resuelta.salida().habilitado()) {
                 outbox.emitir(
                         dsl,
                         new EventoDominio(
                                 "cumplimiento.servicio_rechazado_por_alcance",
                                 "licencia_regulatoria",
-                                entrada.usuarioId()
-                                        .orElse(UUID.fromString(ctx.traza().id())),
+                                ctx.usuarioId() != null
+                                        ? ctx.usuarioId()
+                                        : UUID.fromString(ctx.traza().id()),
                                 Map.of(
                                         "servicio", entrada.servicio(),
-                                        "estadoLicencia", estado.name(),
-                                        "motivo", decision.motivo().orElse("")),
+                                        "estadoLicencia", resuelta.estado().name(),
+                                        "motivo",
+                                                resuelta.salida().motivo() == null
+                                                        ? ""
+                                                        : resuelta.salida().motivo()),
                                 UUID.fromString(ctx.traza().id())));
             }
-
-            return new SalidaAlcance(
-                    decision.habilitado(),
-                    decision.via().name(),
-                    decision.limites()
-                            .map(l -> new LimitesSandbox(
-                                    l.usuarios(), l.montoOperacion().toPlainString()))
-                            .orElse(null),
-                    decision.motivo().orElse(null));
+            return resuelta.salida();
         });
-    }
-
-    /**
-     * La version que corta: la usan los servicios que no quieren decidir dos veces.
-     * Traduce la decision al codigo de error que el contrato promete.
-     */
-    @Transactional
-    public void exigirHabilitado(EntradaAlcance entrada, ContextoSesion ctx) {
-        SalidaAlcance salida = ejecutar(entrada, ctx);
         if (salida.habilitado()) {
             return;
         }
         throw new ErrorDeNegocio(codigoDe(entrada, salida), salida.motivo());
     }
+
+    private Resuelta resolver(org.jooq.DSLContext dsl, EntradaAlcance entrada, LocalDate hoy) {
+        var licencia = licencias.vigente(dsl, hoy);
+
+        // AP-CU46-01: sin fila de licencia no hay nada que interpretar. Denegar
+        // por omision es la unica lectura segura de una tabla vacia.
+        EstadoDeLicencia estado =
+                licencia.map(LicenciaRepositorio.Licencia::estado).orElse(EstadoDeLicencia.EN_TRAMITE);
+        boolean vigente = licencia.map(LicenciaRepositorio.Licencia::vigente).orElse(false);
+        Set<String> alcance =
+                licencia.map(LicenciaRepositorio.Licencia::alcance).orElse(Set.of());
+
+        Decision decision = HabilitacionDeServicio.resolver(
+                entrada.servicio(),
+                estado,
+                vigente,
+                alcance,
+                sandboxes.activoPara(dsl, entrada.servicio(), hoy, entrada.usuariosRegistrados()),
+                serviciosDeSalida);
+
+        return new Resuelta(
+                estado,
+                new SalidaAlcance(
+                        decision.habilitado(),
+                        decision.via().name(),
+                        decision.limites()
+                                .map(l -> new LimitesSandbox(
+                                        l.usuarios(), l.montoOperacion().toPlainString()))
+                                .orElse(null),
+                        decision.motivo().orElse(null)));
+    }
+
+    private record Resuelta(EstadoDeLicencia estado, SalidaAlcance salida) {}
 
     private CodigoError codigoDe(EntradaAlcance entrada, SalidaAlcance salida) {
         String motivo = salida.motivo() == null ? "" : salida.motivo();
@@ -142,11 +152,12 @@ public class CU46VerificarAlcance {
         return CodigoError.de(46, 2); // FUERA_DE_ALCANCE (R-LIC-01)
     }
 
-    public record EntradaAlcance(String servicio, Optional<UUID> usuarioId, int usuariosRegistrados) {
+    /** Sin usuario: quien pregunta sale del token (F1.L4.M25). */
+    public record EntradaAlcance(String servicio, int usuariosRegistrados) {
 
         /** El caso comun: preguntar por un servicio, sin sandbox de por medio. */
         public static EntradaAlcance de(String servicio) {
-            return new EntradaAlcance(servicio, Optional.empty(), 0);
+            return new EntradaAlcance(servicio, 0);
         }
     }
 
