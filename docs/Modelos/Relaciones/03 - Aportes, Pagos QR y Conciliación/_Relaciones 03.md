@@ -3,12 +3,12 @@ tags:
   - moc
   - modulo/03-aportes-pagos-qr-y-conciliacion
 modulo: "03 — Aportes, Pagos QR y Conciliación"
-relaciones_fk: 48
+relaciones_fk: 51
 ---
 
 # 03 — Aportes, Pagos QR y Conciliación · relaciones
 
-Las **48 claves foráneas** que salen de las tablas de este módulo.
+Las **51 claves foráneas** que salen de las tablas de este módulo.
 
 [[_Relaciones|← Todas las relaciones]] · [[Index]]
 
@@ -36,6 +36,9 @@ Las **48 claves foráneas** que salen de las tablas de este módulo.
 | [[excepcion_conciliacion.conciliacion_id → conciliacion]] | [[conciliacion]] | — | no |
 | [[extracto_bancario.importado_por → usuario]] | [[usuario]] | ↗ 01 | no |
 | [[extracto_bancario.proveedor_id → proveedor_pago]] | [[proveedor_pago]] | — | no |
+| [[historial_estado_pago.pago_id → pago]] | [[pago]] | — | no |
+| [[historial_estado_reembolso.ejecutado_por → usuario]] | [[usuario]] | ↗ 01 | no |
+| [[historial_estado_reembolso.reembolso_id → reembolso]] | [[reembolso]] | — | no |
 | [[intento_pago.orden_cobro_id → orden_cobro]] | [[orden_cobro]] | — | no |
 | [[movimiento_bancario.extracto_id → extracto_bancario]] | [[extracto_bancario]] | — | no |
 | [[movimiento_contable.asiento_id → asiento_contable]] | [[asiento_contable]] | — | no |

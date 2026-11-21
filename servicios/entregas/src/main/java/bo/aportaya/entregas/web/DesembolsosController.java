@@ -10,6 +10,7 @@ import bo.aportaya.entregas.web.generado.modelo.PaginaDeDesembolsos;
 import bo.aportaya.entregas.web.generado.modelo.SalidaIntentoDesembolso;
 import bo.aportaya.entregas.web.generado.modelo.SalidaOrdenDesembolso;
 import bo.aportaya.plataforma.dominio.CodigoError;
+import bo.aportaya.plataforma.dominio.OperacionRetirada;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;

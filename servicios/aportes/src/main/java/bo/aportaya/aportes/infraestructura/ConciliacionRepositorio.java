@@ -31,7 +31,8 @@ public class ConciliacionRepositorio {
                         DSL.field("monto", BigDecimal.class),
                         DSL.field("moneda", String.class))
                 .from(DSL.table(DSL.name("aportes", "pago")))
-                .where(DSL.field("estado", String.class).eq("ACREDITADO"))
+                // F1.L1.M08 · R-BIL-30: un pago reversado (con historial) ya no es acreditado.
+                .where(PagoRepositorio.ESTADO_VIGENTE.eq("ACREDITADO"))
                 .and(DSL.field("fecha_hora_acreditacion", OffsetDateTime.class)
                         .ge(desde.atStartOfDay().atOffset(java.time.ZoneOffset.UTC)))
                 .and(DSL.field("fecha_hora_acreditacion", OffsetDateTime.class)

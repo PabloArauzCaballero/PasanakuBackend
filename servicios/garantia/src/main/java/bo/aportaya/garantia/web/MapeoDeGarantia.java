@@ -4,6 +4,7 @@ import bo.aportaya.garantia.dominio.CuadreDeDisolucion;
 import bo.aportaya.garantia.dominio.DevolucionDelFondo;
 import bo.aportaya.garantia.web.generado.modelo.DevolucionDeParticipante;
 import bo.aportaya.garantia.web.generado.modelo.Dinero;
+import bo.aportaya.garantia.web.generado.modelo.DineroEntrada;
 import bo.aportaya.garantia.web.generado.modelo.LiquidacionDeParticipante;
 import bo.aportaya.plataforma.dominio.Moneda;
 import java.math.BigDecimal;
@@ -15,6 +16,13 @@ final class MapeoDeGarantia {
     private MapeoDeGarantia() {}
 
     static bo.aportaya.plataforma.dominio.Dinero dinero(Dinero valor) {
+        return bo.aportaya.plataforma.dominio.Dinero.de(
+                new BigDecimal(valor.getMonto()),
+                Moneda.valueOf(valor.getMoneda().getValue()));
+    }
+
+    /** Un importe que manda el cliente: el contrato ya garantizo que no tiene signo (F1.L2.M04). */
+    static bo.aportaya.plataforma.dominio.Dinero dinero(DineroEntrada valor) {
         return bo.aportaya.plataforma.dominio.Dinero.de(
                 new BigDecimal(valor.getMonto()),
                 Moneda.valueOf(valor.getMoneda().getValue()));

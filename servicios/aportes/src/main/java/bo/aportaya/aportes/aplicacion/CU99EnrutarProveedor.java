@@ -73,6 +73,18 @@ public class CU99EnrutarProveedor {
         }
 
         return datos.conContexto(ctx, dsl -> {
+            // F1.L1.M09 · R-BIL-31: el reintento con la misma clave devuelve el mismo proveedor. El candado
+            // serializa dos reintentos simultaneos; el indice unico es la red si el candado faltara.
+            proveedores.bloquearIdempotencia(dsl, entrada.claveIdempotencia());
+            var previo = proveedores.porClave(dsl, entrada.claveIdempotencia());
+            if (previo.isPresent()) {
+                if (!previo.get().codigo().equals(entrada.codigo())) {
+                    throw new ErrorDeNegocio(
+                            CodigoError.de(99, 1), "La clave de idempotencia ya identifica el alta de otro proveedor.");
+                }
+                return new SalidaAlta(
+                        previo.get().id(), previo.get().codigo(), previo.get().activo());
+            }
             // AP-CU99-01.
             if (proveedores.existeCodigo(dsl, entrada.codigo())) {
                 throw new ErrorDeNegocio(
@@ -100,7 +112,8 @@ public class CU99EnrutarProveedor {
                     entrada.comisionPorcentual(),
                     entrada.soportaWebhook(),
                     entrada.soportaConsultaEstado(),
-                    entrada.prioridad());
+                    entrada.prioridad(),
+                    entrada.claveIdempotencia());
 
             outbox.emitir(
                     dsl,
@@ -163,7 +176,8 @@ public class CU99EnrutarProveedor {
             boolean soportaConsultaEstado,
             int prioridad,
             boolean tieneContratoVigente,
-            boolean pruebasCompletas) {}
+            boolean pruebasCompletas,
+            String claveIdempotencia) {}
 
     public record SalidaAlta(UUID proveedorId, String codigo, boolean activo) {}
 

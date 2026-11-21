@@ -31,6 +31,8 @@ public class ProveedorPagoRepositorio {
 
     public record Activo(UUID id) {}
 
+    public record AltaRegistrada(UUID id, String codigo, boolean activo) {}
+
     public boolean existeCodigo(DSLContext dsl, String codigo) {
         return dsl.fetchCount(
                         DSL.table(DSL.name("aportes", "proveedor_pago")),
@@ -49,7 +51,8 @@ public class ProveedorPagoRepositorio {
             BigDecimal comisionPorcentual,
             boolean soportaWebhook,
             boolean soportaConsultaEstado,
-            int prioridad) {
+            int prioridad,
+            String claveIdempotencia) {
 
         UUID id = UUID.randomUUID();
         dsl.insertInto(DSL.table(DSL.name("aportes", "proveedor_pago")))
@@ -65,8 +68,26 @@ public class ProveedorPagoRepositorio {
                 .set(DSL.field("soporta_consulta_estado", Boolean.class), soportaConsultaEstado)
                 .set(DSL.field("activo", Boolean.class), true)
                 .set(DSL.field("prioridad", Short.class), (short) prioridad)
+                .set(DSL.field("clave_idempotencia", String.class), claveIdempotencia)
                 .execute();
         return id;
+    }
+
+    /** F1.L1.M09 · la clave hasta el fin de la transaccion: dos reintentos del alta no corren a la vez. */
+    public void bloquearIdempotencia(DSLContext dsl, String clave) {
+        dsl.execute("SELECT pg_advisory_xact_lock(hashtextextended(?, 0::bigint))", "proveedor_pago|" + clave);
+    }
+
+    /** El alta que ya uso esa clave, si la hay (R-BIL-31). */
+    public java.util.Optional<AltaRegistrada> porClave(DSLContext dsl, String clave) {
+        return dsl.select(
+                        DSL.field("id", UUID.class),
+                        DSL.field("codigo", String.class),
+                        DSL.field("activo", Boolean.class))
+                .from(DSL.table(DSL.name("aportes", "proveedor_pago")))
+                .where(DSL.field("clave_idempotencia", String.class).eq(clave))
+                .fetchOptional(f -> new AltaRegistrada(
+                        f.get("id", UUID.class), f.get("codigo", String.class), f.get("activo", Boolean.class)));
     }
 
     /**

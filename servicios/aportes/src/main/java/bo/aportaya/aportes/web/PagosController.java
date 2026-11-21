@@ -129,7 +129,9 @@ public class PagosController implements PagosApi {
                         Boolean.TRUE.equals(cuerpo.getSoportaConsultaEstado()),
                         cuerpo.getPrioridad(),
                         Boolean.TRUE.equals(cuerpo.getTieneContratoVigente()),
-                        Boolean.TRUE.equals(cuerpo.getPruebasCompletas())),
+                        Boolean.TRUE.equals(cuerpo.getPruebasCompletas()),
+                        // F1.L1.M09: antes la clave llegaba y se descartaba.
+                        idempotencyKey.toString()),
                 sesion.actual());
 
         var respuesta = new SalidaProveedor();

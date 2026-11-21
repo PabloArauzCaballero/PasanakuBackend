@@ -113,7 +113,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"codigoExpediente\": \"codigoExpediente-de-prueba\",\n  \"usuarioId\": \"{{usuarioId}}\",\n  \"participanteId\": \"{{participanteId}}\",\n  \"grupoId\": \"{{grupoId}}\",\n  \"periodoId\": \"{{periodoId}}\",\n  \"cupoId\": \"{{cupoId}}\",\n  \"obligacionId\": \"{{obligacionId}}\",\n  \"tipo\": \"ABANDONO_DE_GRUPO\",\n  \"severidad\": \"LEVE\",\n  \"origenDeteccion\": \"ALERTA_DE_RIESGO\",\n  \"montoInvolucrado\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"diasMora\": 0,\n  \"afectoALaEntrega\": true,\n  \"tipoDeEvidencia\": \"ACTA_ACUERDO\",\n  \"descripcionDeLaEvidencia\": \"descripcionDeLaEvidencia-de-prueba\",\n  \"urlDeLaEvidencia\": \"urlDeLaEvidencia-de-prueba\",\n  \"hashDeLaEvidencia\": \"0000000000000000000000000000000000000000000000000000000000000000\"\n}",
+              "raw": "{\n  \"codigoExpediente\": \"codigoExpediente-de-prueba\",\n  \"usuarioId\": \"{{usuarioId}}\",\n  \"participanteId\": \"{{participanteId}}\",\n  \"grupoId\": \"{{grupoId}}\",\n  \"periodoId\": \"{{periodoId}}\",\n  \"cupoId\": \"{{cupoId}}\",\n  \"obligacionId\": \"{{obligacionId}}\",\n  \"tipo\": \"ABANDONO_DE_GRUPO\",\n  \"severidad\": \"LEVE\",\n  \"origenDeteccion\": \"ALERTA_DE_RIESGO\",\n  \"montoInvolucrado\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"diasMora\": 0,\n  \"afectoALaEntrega\": true,\n  \"tipoDeEvidencia\": \"ACTA_ACUERDO\",\n  \"descripcionDeLaEvidencia\": \"descripcionDeLaEvidencia-de-prueba\",\n  \"urlDeLaEvidencia\": \"urlDeLaEvidencia-de-prueba\",\n  \"hashDeLaEvidencia\": \"0000000000000000000000000000000000000000000000000000000000000000\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -209,7 +209,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"codigoExpediente\": \"LLLLLLLLLLLLLLLLLLLL\",\n  \"usuarioId\": \"{{id}}\",\n  \"participanteId\": \"{{id}}\",\n  \"grupoId\": \"{{id}}\",\n  \"periodoId\": \"{{id}}\",\n  \"cupoId\": \"{{id}}\",\n  \"obligacionId\": \"{{id}}\",\n  \"tipo\": \"USO_INDEBIDO_DE_LA_PLATAFORMA\",\n  \"severidad\": \"CRITICA\",\n  \"origenDeteccion\": \"REPORTE_DE_PARTICIPANTE\",\n  \"montoInvolucrado\": {\n    \"monto\": \"5000.00\",\n    \"moneda\": \"USD\"\n  },\n  \"diasMora\": 0,\n  \"afectoALaEntrega\": false,\n  \"tipoDeEvidencia\": \"LOG_SISTEMA\",\n  \"descripcionDeLaEvidencia\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"urlDeLaEvidencia\": \"x\",\n  \"hashDeLaEvidencia\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\"\n}",
+              "raw": "{\n  \"codigoExpediente\": \"LLLLLLLLLLLLLLLLLLLL\",\n  \"usuarioId\": \"{{id}}\",\n  \"participanteId\": \"{{id}}\",\n  \"grupoId\": \"{{id}}\",\n  \"periodoId\": \"{{id}}\",\n  \"cupoId\": \"{{id}}\",\n  \"obligacionId\": \"{{id}}\",\n  \"tipo\": \"USO_INDEBIDO_DE_LA_PLATAFORMA\",\n  \"severidad\": \"CRITICA\",\n  \"origenDeteccion\": \"REPORTE_DE_PARTICIPANTE\",\n  \"montoInvolucrado\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"USD\"\n  },\n  \"diasMora\": 0,\n  \"afectoALaEntrega\": false,\n  \"tipoDeEvidencia\": \"LOG_SISTEMA\",\n  \"descripcionDeLaEvidencia\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"urlDeLaEvidencia\": \"x\",\n  \"hashDeLaEvidencia\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -271,7 +271,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"codigoExpediente\": \"codigoExpediente-de-prueba\",\n  \"usuarioId\": \"{{usuarioId}}\",\n  \"participanteId\": \"{{participanteId}}\",\n  \"grupoId\": \"{{grupoId}}\",\n  \"periodoId\": \"{{periodoId}}\",\n  \"cupoId\": \"{{cupoId}}\",\n  \"obligacionId\": \"{{obligacionId}}\",\n  \"tipo\": \"ABANDONO_DE_GRUPO\",\n  \"severidad\": \"LEVE\",\n  \"origenDeteccion\": \"ALERTA_DE_RIESGO\",\n  \"montoInvolucrado\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"diasMora\": 0,\n  \"afectoALaEntrega\": true,\n  \"tipoDeEvidencia\": \"ACTA_ACUERDO\",\n  \"descripcionDeLaEvidencia\": \"descripcionDeLaEvidencia-de-prueba\",\n  \"urlDeLaEvidencia\": \"urlDeLaEvidencia-de-prueba\",\n  \"hashDeLaEvidencia\": \"0000000000000000000000000000000000000000000000000000000000000000\"\n}",
+              "raw": "{\n  \"codigoExpediente\": \"codigoExpediente-de-prueba\",\n  \"usuarioId\": \"{{usuarioId}}\",\n  \"participanteId\": \"{{participanteId}}\",\n  \"grupoId\": \"{{grupoId}}\",\n  \"periodoId\": \"{{periodoId}}\",\n  \"cupoId\": \"{{cupoId}}\",\n  \"obligacionId\": \"{{obligacionId}}\",\n  \"tipo\": \"ABANDONO_DE_GRUPO\",\n  \"severidad\": \"LEVE\",\n  \"origenDeteccion\": \"ALERTA_DE_RIESGO\",\n  \"montoInvolucrado\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"diasMora\": 0,\n  \"afectoALaEntrega\": true,\n  \"tipoDeEvidencia\": \"ACTA_ACUERDO\",\n  \"descripcionDeLaEvidencia\": \"descripcionDeLaEvidencia-de-prueba\",\n  \"urlDeLaEvidencia\": \"urlDeLaEvidencia-de-prueba\",\n  \"hashDeLaEvidencia\": \"0000000000000000000000000000000000000000000000000000000000000000\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -337,7 +337,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"usuarioId\": \"{{usuarioId}}\",\n  \"participanteId\": \"{{participanteId}}\",\n  \"grupoId\": \"{{grupoId}}\",\n  \"periodoId\": \"{{periodoId}}\",\n  \"cupoId\": \"{{cupoId}}\",\n  \"obligacionId\": \"{{obligacionId}}\",\n  \"tipo\": \"ABANDONO_DE_GRUPO\",\n  \"severidad\": \"LEVE\",\n  \"origenDeteccion\": \"ALERTA_DE_RIESGO\",\n  \"montoInvolucrado\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"diasMora\": 0,\n  \"afectoALaEntrega\": true,\n  \"tipoDeEvidencia\": \"ACTA_ACUERDO\",\n  \"descripcionDeLaEvidencia\": \"descripcionDeLaEvidencia-de-prueba\",\n  \"urlDeLaEvidencia\": \"urlDeLaEvidencia-de-prueba\",\n  \"hashDeLaEvidencia\": \"0000000000000000000000000000000000000000000000000000000000000000\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "raw": "{\n  \"usuarioId\": \"{{usuarioId}}\",\n  \"participanteId\": \"{{participanteId}}\",\n  \"grupoId\": \"{{grupoId}}\",\n  \"periodoId\": \"{{periodoId}}\",\n  \"cupoId\": \"{{cupoId}}\",\n  \"obligacionId\": \"{{obligacionId}}\",\n  \"tipo\": \"ABANDONO_DE_GRUPO\",\n  \"severidad\": \"LEVE\",\n  \"origenDeteccion\": \"ALERTA_DE_RIESGO\",\n  \"montoInvolucrado\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"diasMora\": 0,\n  \"afectoALaEntrega\": true,\n  \"tipoDeEvidencia\": \"ACTA_ACUERDO\",\n  \"descripcionDeLaEvidencia\": \"descripcionDeLaEvidencia-de-prueba\",\n  \"urlDeLaEvidencia\": \"urlDeLaEvidencia-de-prueba\",\n  \"hashDeLaEvidencia\": \"0000000000000000000000000000000000000000000000000000000000000000\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3179,7 +3179,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"causal\": \"ACUERDO\",\n  \"motivo\": \"motivo-de-prueba\",\n  \"totalAportado\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"totalEntregado\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"masaDisponible\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"posiciones\": [\n    {\n      \"participanteId\": \"{{participanteId}}\",\n      \"aportado\": {\n        \"monto\": \"100.00\",\n        \"moneda\": \"BOB\"\n      },\n      \"recibido\": \"recibido-de-prueba\"\n    }\n  ]\n}",
+              "raw": "{\n  \"causal\": \"ACUERDO\",\n  \"motivo\": \"motivo-de-prueba\",\n  \"totalAportado\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"totalEntregado\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"masaDisponible\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"posiciones\": [\n    {\n      \"participanteId\": \"{{participanteId}}\",\n      \"aportado\": {\n        \"monto\": \"1.11\",\n        \"moneda\": \"BOB\"\n      },\n      \"recibido\": \"recibido-de-prueba\"\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3279,7 +3279,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"causal\": \"SIN_REEMPLAZO\",\n  \"motivo\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"totalAportado\": {\n    \"monto\": \"5000.00\",\n    \"moneda\": \"USD\"\n  },\n  \"totalEntregado\": {\n    \"monto\": \"5000.00\",\n    \"moneda\": \"USD\"\n  },\n  \"masaDisponible\": {\n    \"monto\": \"5000.00\",\n    \"moneda\": \"USD\"\n  },\n  \"posiciones\": [\n    {\n      \"participanteId\": \"{{id}}\",\n      \"aportado\": {\n        \"monto\": \"5000.00\",\n        \"moneda\": \"USD\"\n      },\n      \"recibido\": \"x\"\n    }\n  ]\n}",
+              "raw": "{\n  \"causal\": \"SIN_REEMPLAZO\",\n  \"motivo\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"totalAportado\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"USD\"\n  },\n  \"totalEntregado\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"USD\"\n  },\n  \"masaDisponible\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"USD\"\n  },\n  \"posiciones\": [\n    {\n      \"participanteId\": \"{{id}}\",\n      \"aportado\": {\n        \"monto\": \"1.11\",\n        \"moneda\": \"USD\"\n      },\n      \"recibido\": \"x\"\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3345,7 +3345,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"causal\": \"ACUERDO\",\n  \"motivo\": \"motivo-de-prueba\",\n  \"totalAportado\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"totalEntregado\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"masaDisponible\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"posiciones\": [\n    {\n      \"participanteId\": \"{{participanteId}}\",\n      \"aportado\": {\n        \"monto\": \"100.00\",\n        \"moneda\": \"BOB\"\n      },\n      \"recibido\": \"recibido-de-prueba\"\n    }\n  ]\n}",
+              "raw": "{\n  \"causal\": \"ACUERDO\",\n  \"motivo\": \"motivo-de-prueba\",\n  \"totalAportado\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"totalEntregado\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"masaDisponible\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"posiciones\": [\n    {\n      \"participanteId\": \"{{participanteId}}\",\n      \"aportado\": {\n        \"monto\": \"1.11\",\n        \"moneda\": \"BOB\"\n      },\n      \"recibido\": \"recibido-de-prueba\"\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3415,7 +3415,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"motivo\": \"motivo-de-prueba\",\n  \"totalAportado\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"totalEntregado\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"masaDisponible\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"posiciones\": [\n    {\n      \"participanteId\": \"{{participanteId}}\",\n      \"aportado\": {\n        \"monto\": \"100.00\",\n        \"moneda\": \"BOB\"\n      },\n      \"recibido\": \"recibido-de-prueba\"\n    }\n  ],\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "raw": "{\n  \"motivo\": \"motivo-de-prueba\",\n  \"totalAportado\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"totalEntregado\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"masaDisponible\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"posiciones\": [\n    {\n      \"participanteId\": \"{{participanteId}}\",\n      \"aportado\": {\n        \"monto\": \"1.11\",\n        \"moneda\": \"BOB\"\n      },\n      \"recibido\": \"recibido-de-prueba\"\n    }\n  ],\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

@@ -326,6 +326,9 @@ APPEND_ONLY = {
     "version_condiciones", "consentimiento_inversion", "devengo_dpf", "valor_cuota",
     "comprobante_inversion", "comision_exito", "conciliacion_interes",
     "distribucion_interes",
+    # F1.L1.M08 (R-BIL-30): el pago y el reembolso son hechos de dinero; su estado
+    # cambia agregando una fila a su historial, nunca con UPDATE sobre el hecho.
+    "pago", "reembolso", "historial_estado_pago", "historial_estado_reembolso",
 }
 
 # --- tablas particionadas por rango de fecha -----------------------------
@@ -369,6 +372,19 @@ CK_AMPLIADOS = {
     "pago": ["monto_comision_proveedor", "monto_neto_acreditado"],
     "reembolso": ["monto"],
     "disputa_pago": ["monto_disputado"],
+}
+
+# CHECK de enumerado que se ESTRECHO despues de que existieran bases: un valor sale del
+# modelo por decision de negocio. Mismo DROP/ADD idempotente que CK_AMPLIADOS, con una
+# diferencia que no se puede esconder: el ADD revalida las filas que ya estan, asi que
+# aplicar el DDL FALLA si queda alguna con el valor retirado. Eso es lo buscado (la base no
+# acepta en silencio lo que el modelo prohibe), y por eso cada entrada lleva su consulta
+# previa: se corre en TEST antes de promover y tiene que dar 0.
+CK_ESTRECHADOS = {
+    # 2026-11-21: F1.L2.M09 — el organizador no es caja (RN-18, regla 91.5): sale
+    # EFECTIVO_ORGANIZADOR. Consulta previa:
+    #   SELECT count(*) FROM entregas.entrega_fondo WHERE metodo_desembolso = 'EFECTIVO_ORGANIZADOR';
+    "entrega_fondo": ["metodo_desembolso"],
 }
 
 # --- FK -> tabla destino: overrides donde el nombre de columna no coincide ---
