@@ -219,3 +219,14 @@ a este carril (2026-10-03, 10-14, 10-16, 10-27, 10-28 y 10-30). Este plan no tie
 Pablo ya decidió qué hacer con esas 9 (DECISIONES.md, P-20): marcarlas `DESCARTADO` con el motivo «reemplazadas
 por el plan de correcciones del 2026-11-21», en su propio PR. Es la microtarea **F0.M1** de otra sesión. No se
 tocaron desde acá, porque están fuera del alcance de archivos de este carril (regla 00 §3).
+Resuelto en `dev` con el PR #401 (F0.M1); la rama ya incorpora `origin/dev` fd441fbe.
+
+## CI del PR #411 (primera corrida en rojo)
+La rama se actualizó con `origin/dev` por merge (sin force-push). Causa de cada falla, verificada contra el log o
+reproducida localmente:
+
+| Job | Causa | Corrección | Verificación local |
+|---|---|---|---|
+| «La boveda y el esquema no divergen» y «Bóveda, seguridad, carriles y despliegue» | `verificar_boveda`: R-AUD-13 y R-AUD-14 no estaban citadas por ningún caso de uso, y 3 planes decían «175 restricciones» (son 177). `verificar_seguridad`: `docs/Seguridad.md` decía 175. **Causa: este PR.** | CU-24 cita R-AUD-13/14 en su flujo y en su lista de restricciones; las cifras pasan a 177 | `evidencia/CI-verificadores.txt`: los 6 verificadores con `exit=0` y `generar_ddl` + `generar_semillas` sin diff |
+| (sin job propio) `erroresCatalogo` | `generar_errores.py` asigna la regla a la última línea de comentario que **empieza** con `R-…`: mis comentarios mapeaban `ck_movimiento_contable_un_lado` a R-AUD-05 y dejaban los triggers nuevos sin regla. **Causa: este PR**; el CI no lo marcaba en rojo. | Comentarios reordenados en `docs/Restricciones.md`; solo cambian comentarios del SQL | `un_lado=R-AUD-13`, `asiento_abierto=R-AUD-14`, `cuadra=R-AUD-14`. Re-verificado el esquema (`evidencia/CI-reverificacion.txt`): humo idéntico, 6 rechazos, 3 caminos legítimos, importes 29/0 |
+| «Formato, reglas propias y compilacion» | `spotlessCheck` falla en **10 archivos Java de 7 módulos** que este PR no toca (`comun-datos`, `comun-dominio`, `comun-web`, `aportes`, `entregas`, `identidad`, `nucleo-financiero`), introducidos en `dev` el 2026-11-01 (07956b99, 69b265e9). **Anterior a este PR**: falla igual en cualquier PR hacia `dev`; el CI de push a `dev` no corre este job. | **No se corrigió desde acá.** Esos módulos son los que editan en paralelo los carriles L1, L2 y L4: reformatearlos rompe la regla de lotes disjuntos (70.4.9) y el alcance (00 §3). Necesita un PR propio, que corra `./gradlew spotlessApply` una sola vez y en coordinación con los carriles. | `./gradlew spotlessCheck --continue` reproduce los 10 archivos |
