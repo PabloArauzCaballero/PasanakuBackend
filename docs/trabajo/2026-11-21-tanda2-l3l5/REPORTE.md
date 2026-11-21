@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, lote L3L5
 
-> **AVANCE: 6 / 24 — 25,0 %.** (F1.L3.M04 en A MEDIAS)
+> **AVANCE: 7 / 24 — 29,2 %.** (F1.L3.M04 en A MEDIAS)
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Rama(s): `correcciones/tanda2-l3l5-test-admision` (#423), `correcciones/tanda2-l3l5-f1-retiro`
 - Peldaño de evidencia alcanzado: T2.M0 `TESTED` (reproducción bajo carga antes/después + suites del servicio).
@@ -15,6 +15,7 @@
 | F1.L5.M26 | Marcar leído un aviso interno exige ser su destinatario (usuario o rol), en la escritura; ajeno → 404 | `psql` (B: `UPDATE 0`) + `AvisosInternosWebTest` | PASS · [evidencia](./evidencia/F1.L5.M26-avisos-destinatario.txt) — integración `NO COMPROBADO` (Docker); RLS por destinatario pendiente (bloque genérico) |
 | F1.L5.M27 | El contrato de `notificaciones` no tiene ninguna operación con el contacto en la ruta o la query: se retiró el `GET /notificaciones/supresion` | verificación del contrato con PyYAML + `webTest` (el GET no contesta ni con permiso) | PASS · [evidencia](./evidencia/F1.L5.M27-supresion-url.txt) |
 | F1.L5.M23 | Webhook CU-82: remitente, contenido, canal e id salen de la carga firmada; fuera de ventana (5 min) se rechaza; el `idMensaje` firmado deduplica | `WebhookDeMensajeriaTest` (doble con HMAC real, tres niveles) | PASS contra doble · [evidencia](./evidencia/F1.L5.M23-webhook-mensajeria.txt) — `CU82Test` `NO COMPROBADO` (Docker) |
+| F1.L5.M21 | El certificado firma los valores de la foto del propio titular y la identidad la dice `identidad` (falla cerrado); `disponibles` e `identidadVerificada` del cuerpo se ignoran (deprecados) | `CertificadoConDatosDelServidorTest` + `psql` + `webTest` | PASS contra doble · [evidencia](./evidencia/F1.L5.M21-certificado-servidor.txt) — `CU75*Test` `NO COMPROBADO` (Docker) |
 
 ## A medias
 ### T2.M0b — El mismo arreglo para todos los servicios

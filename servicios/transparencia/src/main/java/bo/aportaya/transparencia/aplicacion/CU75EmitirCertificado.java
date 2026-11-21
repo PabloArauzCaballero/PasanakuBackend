@@ -8,8 +8,10 @@ import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.mensajeria.EventoDominio;
 import bo.aportaya.plataforma.mensajeria.Outbox;
 import bo.aportaya.transparencia.dominio.CertificadoVerificable;
+import bo.aportaya.transparencia.dominio.puertos.VerificacionDeIdentidad;
 import bo.aportaya.transparencia.infraestructura.CadenaRepositorio;
 import bo.aportaya.transparencia.infraestructura.CertificadoRepositorio;
+import bo.aportaya.transparencia.infraestructura.SnapshotRepositorio;
 import java.security.SecureRandom;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -47,6 +49,8 @@ public class CU75EmitirCertificado {
     private final Outbox outbox;
     private final Reloj reloj;
     private final SecureRandom azar;
+    private final SnapshotRepositorio snapshots;
+    private final VerificacionDeIdentidad identidad;
     private final String claveDeFirma;
     private final String baseUrlPublica;
 
@@ -57,6 +61,8 @@ public class CU75EmitirCertificado {
             Outbox outbox,
             Reloj reloj,
             SecureRandom azar,
+            SnapshotRepositorio snapshots,
+            VerificacionDeIdentidad identidad,
             @Value("${aportaya.certificados.clave-de-firma}") String claveDeFirma,
             @Value("${aportaya.certificados.base-url-publica}") String baseUrlPublica) {
         this.datos = datos;
@@ -65,6 +71,8 @@ public class CU75EmitirCertificado {
         this.outbox = outbox;
         this.reloj = reloj;
         this.azar = azar;
+        this.snapshots = snapshots;
+        this.identidad = identidad;
         this.claveDeFirma = claveDeFirma;
         this.baseUrlPublica = baseUrlPublica;
     }
@@ -78,8 +86,8 @@ public class CU75EmitirCertificado {
                     CodigoError.de(75, 4), "Solo el titular puede emitir su certificado de reputacion.");
         }
         // AP-CU75-02. Un certificado sobre una identidad sin verificar es un documento
-        // que dice «esta persona es de fiar» sin saber quien es.
-        if (!entrada.identidadVerificada()) {
+        // que dice «esta persona es de fiar» sin saber quien es. Lo dice `identidad`, no el cuerpo (F1.L5.M21).
+        if (!identidad.verificada(ctx.usuarioId())) {
             throw new ErrorDeNegocio(
                     CodigoError.de(75, 2),
                     "Para emitir un certificado hay que completar la verificacion de identidad.");
@@ -90,7 +98,13 @@ public class CU75EmitirCertificado {
 
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
-        var contenido = CertificadoVerificable.contenido(entrada.disponibles(), entrada.incluir());
+        // F1.L5.M21: lo que se firma sale de la foto del PROPIO titular, no del cuerpo. Una foto ajena es «no hay
+        // foto».
+        var disponibles = datos.conContexto(
+                        ctx, dsl -> snapshots.disponiblesDelTitular(dsl, entrada.snapshotId(), ctx.usuarioId()))
+                .orElseThrow(() ->
+                        new ErrorDeNegocio(CodigoError.de(75, 1), "No hay una foto de reputacion de la cual emitir."));
+        var contenido = CertificadoVerificable.contenido(disponibles, entrada.incluir());
         String hashContenido = CertificadoVerificable.hash(contenido);
         String firma = CertificadoVerificable.firmar(hashContenido, claveDeFirma);
 
@@ -255,13 +269,8 @@ public class CU75EmitirCertificado {
      * @param disponibles todo lo que se podria mostrar, ya resuelto desde la foto
      * @param incluir lo que el titular eligio; lo demas no entra ni al hash
      */
-    public record EntradaCertificado(
-            UUID usuarioId,
-            UUID snapshotId,
-            Map<String, String> disponibles,
-            Set<String> incluir,
-            int vigenciaDias,
-            boolean identidadVerificada) {}
+    /** Lo que elige el titular. Los valores y la verificacion de identidad los pone el servidor (F1.L5.M21). */
+    public record EntradaCertificado(UUID usuarioId, UUID snapshotId, Set<String> incluir, int vigenciaDias) {}
 
     public record SalidaCertificado(
             UUID certificadoId,

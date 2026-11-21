@@ -95,7 +95,9 @@ class FixturaDeTransparencia {
                 usuarioId,
                 puntaje,
                 nivel,
-                "{\"puntaje\":\"" + puntaje + "\"}");
+                // F1.L5.M21: el certificado sale de esta foto; sus factores son lo que se puede mostrar (sinteticos).
+                "{\"puntaje\":\"" + puntaje + "\",\"antiguedad\":\"18 meses\",\"gruposCompletados\":\"3\","
+                        + "\"insignias\":\"PRIMER_PASANAKU, PAGADOR_PUNTUAL\",\"indicePuntualidad\":\"0.96\"}");
         return id;
     }
 
