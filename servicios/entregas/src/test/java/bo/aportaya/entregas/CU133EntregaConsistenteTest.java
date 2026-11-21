@@ -38,7 +38,6 @@ class CU133EntregaConsistenteTest extends BaseDePozoCompleto {
                         "AHORRO",
                         "Banco de Prueba",
                         "4012345678",
-                        "cifrado:x",
                         "Maria Fernanda Quispe",
                         "8123456",
                         "Maria Fernanda Quispe",

@@ -1,7 +1,6 @@
 package bo.aportaya.nucleofinanciero.web;
 
 import bo.aportaya.nucleofinanciero.aplicacion.CU13RetenerSaldo;
-import bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion;
 import bo.aportaya.nucleofinanciero.aplicacion.CU15EmitirExtracto;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarMovimientosBilletera;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarSaldo;
@@ -19,7 +18,6 @@ import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaQr;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaRecarga;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaRetencion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaRetiro;
-import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaReverso;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaTransferencia;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.ListaMovimientosBilletera;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.PaginaRetirosEnRevision;
@@ -39,7 +37,6 @@ import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaQrLeido;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaRecarga;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaRetencion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaRetiro;
-import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaReverso;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaTransferencia;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
@@ -70,7 +67,6 @@ public class BilleteraController extends RutasDelMercadoDeLaBilletera {
     private final FondeoDeLaBilletera fondeo;
     private final QrDeLaBilletera qr;
     private final CU13RetenerSaldo cu13;
-    private final CU14ReversarTransaccion cu14;
     private final CU15EmitirExtracto cu15;
     private final bo.aportaya.nucleofinanciero.aplicacion.CU17BloquearPorAutoridad cu17;
     private final MovimientosDeLaBilletera movimientos;
@@ -83,7 +79,6 @@ public class BilleteraController extends RutasDelMercadoDeLaBilletera {
             FondeoDeLaBilletera fondeo,
             QrDeLaBilletera qr,
             CU13RetenerSaldo cu13,
-            CU14ReversarTransaccion cu14,
             CU15EmitirExtracto cu15,
             bo.aportaya.nucleofinanciero.aplicacion.CU17BloquearPorAutoridad cu17,
             MovimientosDeLaBilletera movimientos,
@@ -93,7 +88,6 @@ public class BilleteraController extends RutasDelMercadoDeLaBilletera {
         this.fondeo = fondeo;
         this.qr = qr;
         this.cu13 = cu13;
-        this.cu14 = cu14;
         this.cu15 = cu15;
         this.cu17 = cu17;
         this.movimientos = movimientos;
@@ -225,15 +219,6 @@ public class BilleteraController extends RutasDelMercadoDeLaBilletera {
         Traza.marcarCasoDeUso("CU-12", cuerpo.getCuentaBilleteraId().toString());
         return movimientos.acreditarRescate(
                 idempotencyKey, cuerpo, IdentidadDeServicio.como(sesion, "SERVICIO_INVERSIONES"));
-    }
-
-    @Override
-    @Permiso("REVERSO_AUTORIZAR")
-    public ResponseEntity<SalidaReverso> reversarTransaccion(UUID idempotencyKey, EntradaReverso cuerpo) {
-        Traza.marcarCasoDeUso("CU-14", cuerpo.getTransaccionOriginalId().toString());
-        var salida =
-                cu14.ejecutar(MapeoDeBilletera.entradaDeReverso(idempotencyKey.toString(), cuerpo), sesion.actual());
-        return ResponseEntity.status(HttpStatus.CREATED).body(MapeoDeBilletera.reverso(salida));
     }
 
     @Override

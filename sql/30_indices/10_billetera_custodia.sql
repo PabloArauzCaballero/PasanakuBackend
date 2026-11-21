@@ -67,6 +67,15 @@ CREATE INDEX IF NOT EXISTS ix_reverso_transaccion_transaccion_original_id
 CREATE UNIQUE INDEX IF NOT EXISTS uq_reverso_transaccion_transaccion_reverso_id
   ON nucleo_financiero.reverso_transaccion (transaccion_reverso_id);
 
+CREATE INDEX IF NOT EXISTS ix_solicitud_reverso_transaccion_original_id
+  ON nucleo_financiero.solicitud_reverso (transaccion_original_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_solicitud_reverso_reverso_transaccion_id
+  ON nucleo_financiero.solicitud_reverso (reverso_transaccion_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_solicitud_reverso_clave_idempotencia
+  ON nucleo_financiero.solicitud_reverso (clave_idempotencia);
+
 CREATE INDEX IF NOT EXISTS ix_instrumento_fondeo_usuario_id
   ON nucleo_financiero.instrumento_fondeo (usuario_id);
 

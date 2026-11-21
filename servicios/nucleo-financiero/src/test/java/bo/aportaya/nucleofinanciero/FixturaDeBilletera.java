@@ -228,6 +228,7 @@ final class FixturaDeBilletera {
         // `saldo_diario_billetera` y `certificado_saldo` NO se borran: son
         // append-only y R-AUD-01 lo hace cumplir. Tampoco hace falta — cada prueba
         // abre sus propias cuentas, asi que lo de la anterior no le suma ni le resta.
+        dsl.execute("DELETE FROM nucleo_financiero.solicitud_reverso");
         dsl.execute("DELETE FROM nucleo_financiero.solicitud_cierre_billetera");
         dsl.execute("DELETE FROM nucleo_financiero.bloqueo_saldo");
         dsl.execute("DELETE FROM nucleo_financiero.transferencia_p2p");

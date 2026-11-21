@@ -209,26 +209,6 @@ class FixturaDeGarantia {
                 participanteId);
     }
 
-    /** Un aval vigente. El avalista acepto responder por una cantidad concreta. */
-    UUID aval(UUID grupoId, UUID participanteAvaladoId, UUID avalistaUsuarioId, String tope, String porcentaje) {
-        UUID id = UUID.randomUUID();
-        dsl.execute(
-                """
-                INSERT INTO garantia.aval_participante
-                    (id, grupo_id, participante_avalado_id, avalista_usuario_id,
-                     es_participante_del_grupo, monto_maximo_avalado, alcance,
-                     porcentaje_responsabilidad, aceptado_en, estado)
-                VALUES (?, ?, ?, ?, false, ?, 'PORCENTAJE', ?, now() - interval '30 days', 'VIGENTE')
-                """,
-                id,
-                grupoId,
-                participanteAvaladoId,
-                avalistaUsuarioId,
-                new BigDecimal(tope),
-                new BigDecimal(porcentaje));
-        return id;
-    }
-
     void limpiar() {
         // El nombre de la tabla va como IDENTIFICADOR de jOOQ, no concatenado.
         //

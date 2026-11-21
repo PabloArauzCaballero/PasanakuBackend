@@ -279,6 +279,26 @@ ALTER TABLE nucleo_financiero.solicitud_cierre_billetera
   ADD CONSTRAINT fk_solicitud_cierre_billetera_orden_retiro_id
   FOREIGN KEY (orden_retiro_id) REFERENCES nucleo_financiero.orden_retiro (id) ON DELETE SET NULL ON UPDATE CASCADE;
 
+ALTER TABLE nucleo_financiero.solicitud_reverso DROP CONSTRAINT IF EXISTS fk_solicitud_reverso_autorizada_por;
+ALTER TABLE nucleo_financiero.solicitud_reverso
+  ADD CONSTRAINT fk_solicitud_reverso_autorizada_por
+  FOREIGN KEY (autorizada_por) REFERENCES identidad.usuario (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE nucleo_financiero.solicitud_reverso DROP CONSTRAINT IF EXISTS fk_solicitud_reverso_reverso_transaccion_id;
+ALTER TABLE nucleo_financiero.solicitud_reverso
+  ADD CONSTRAINT fk_solicitud_reverso_reverso_transaccion_id
+  FOREIGN KEY (reverso_transaccion_id) REFERENCES nucleo_financiero.reverso_transaccion (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE nucleo_financiero.solicitud_reverso DROP CONSTRAINT IF EXISTS fk_solicitud_reverso_solicitada_por;
+ALTER TABLE nucleo_financiero.solicitud_reverso
+  ADD CONSTRAINT fk_solicitud_reverso_solicitada_por
+  FOREIGN KEY (solicitada_por) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE nucleo_financiero.solicitud_reverso DROP CONSTRAINT IF EXISTS fk_solicitud_reverso_transaccion_original_id;
+ALTER TABLE nucleo_financiero.solicitud_reverso
+  ADD CONSTRAINT fk_solicitud_reverso_transaccion_original_id
+  FOREIGN KEY (transaccion_original_id) REFERENCES nucleo_financiero.transaccion_billetera (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
 ALTER TABLE nucleo_financiero.transaccion_billetera DROP CONSTRAINT IF EXISTS fk_transaccion_billetera_asiento_contable_id;
 ALTER TABLE nucleo_financiero.transaccion_billetera
   ADD CONSTRAINT fk_transaccion_billetera_asiento_contable_id

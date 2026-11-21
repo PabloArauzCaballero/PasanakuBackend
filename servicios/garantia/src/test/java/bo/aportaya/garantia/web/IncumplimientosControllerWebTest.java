@@ -8,9 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import bo.aportaya.garantia.aplicacion.CU23CubrirIncumplimiento;
 import bo.aportaya.garantia.aplicacion.CU25DeclararIncumplimiento;
-import bo.aportaya.garantia.aplicacion.CU26EjecutarAval;
 import bo.aportaya.garantia.aplicacion.CU27RestringirDeudor;
 import bo.aportaya.garantia.aplicacion.CU66ReemplazarParticipante;
 import bo.aportaya.garantia.aplicacion.ReclamosEnCurso;
@@ -60,13 +58,7 @@ class IncumplimientosControllerWebTest {
     private MockMvc mvc;
 
     @MockitoBean
-    private CU23CubrirIncumplimiento cu23;
-
-    @MockitoBean
     private CU25DeclararIncumplimiento cu25;
-
-    @MockitoBean
-    private CU26EjecutarAval cu26;
 
     @MockitoBean
     private CU27RestringirDeudor cu27;
@@ -234,16 +226,13 @@ class IncumplimientosControllerWebTest {
         }
 
         @Test
-        @DisplayName(
-                "rechaza: ejecutar el aval con un reclamo que frena responde 422 AP-CU26-07 y NO llega al caso de uso")
-        void ejecutarAvalConReclamo() throws Exception {
-            reclamoQueFrena(26);
-
+        @DisplayName("F2.L2.M04 · ejecutar el aval responde 410 AP-CU26-08 sin preguntar a cumplimiento")
+        void avalRetirado() throws Exception {
             mvc.perform(post("/incumplimientos/{id}/aval/ejecucion", EXPEDIENTE)
                             .with(Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR")))
-                    .andExpect(status().isUnprocessableEntity())
-                    .andExpect(jsonPath("$.codigo").value("AP-CU26-07"));
-            verifyNoInteractions(cu26);
+                    .andExpect(status().isGone())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU26-08"));
+            verifyNoInteractions(reclamosEnCurso);
         }
 
         @Test
@@ -257,7 +246,6 @@ class IncumplimientosControllerWebTest {
                             .content("{\"nivel\":\"LIMITADO\",\"motivo\":\"x\"}"))
                     .andExpect(status().isForbidden());
             verifyNoInteractions(reclamosEnCurso);
-            verifyNoInteractions(cu26);
             verifyNoInteractions(cu27);
         }
     }

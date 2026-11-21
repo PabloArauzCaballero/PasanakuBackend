@@ -6,7 +6,7 @@ tabla: extracto_bancario
 clase: ExtractoBancario
 modulo: "03 — Aportes, Pagos QR y Conciliación"
 clave_primaria: [id]
-columnas: 10
+columnas: 11
 fk_salientes: 2
 fk_entrantes: 1
 append_only: false
@@ -27,9 +27,18 @@ append_only: false
 | `fecha_hasta` | DATE | — | no | — |
 | `saldo_inicial` | DECIMAL(14,2) | — | no | — |
 | `saldo_final` | DECIMAL(14,2) | — | no | — |
+| `moneda` | CHAR(3) | — | sí | NULL |
 | `archivo_url` | VARCHAR(255) | — | no | — |
 | `importado_en` | TIMESTAMPTZ | — | no | — |
 | `importado_por` | UUID | FK | no | FK |
+
+## Reglas del catálogo
+
+> Declaradas en [[Restricciones]], no en el modelo. El nombre es el que devuelve la base al rechazar.
+
+| Regla | Tipo | Columnas |
+| --- | :-: | --- |
+| `ck_extracto_bancario_moneda` | CHECK | `moneda` |
 
 ## Claves foráneas salientes
 

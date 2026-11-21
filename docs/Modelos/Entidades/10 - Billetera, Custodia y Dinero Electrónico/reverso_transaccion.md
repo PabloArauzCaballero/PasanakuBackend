@@ -8,7 +8,7 @@ modulo: "10 — Billetera, Custodia y Dinero Electrónico"
 clave_primaria: [id]
 columnas: 10
 fk_salientes: 3
-fk_entrantes: 0
+fk_entrantes: 1
 append_only: false
 ---
 
@@ -48,9 +48,15 @@ append_only: false
 | `transaccion_original_id` | [[transaccion_billetera]] | 10 | no | [[reverso_transaccion.transaccion_original_id → transaccion_billetera]] |
 | `transaccion_reverso_id` | [[transaccion_billetera]] | 10 | sí | [[reverso_transaccion.transaccion_reverso_id → transaccion_billetera]] |
 
+## Referenciada por
+
+| Entidad | Columna | Módulo | Relación |
+| --- | --- | :-: | --- |
+| [[solicitud_reverso]] | `reverso_transaccion_id` | 10 | [[solicitud_reverso.reverso_transaccion_id → reverso_transaccion]] |
+
 ## Entidades vecinas
 
-[[transaccion_billetera]] · [[usuario]]
+[[solicitud_reverso]] · [[transaccion_billetera]] · [[usuario]]
 
 ## Ver también
 

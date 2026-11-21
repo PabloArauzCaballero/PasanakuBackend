@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS aportes.extracto_bancario (
   fecha_hasta                        DATE NOT NULL,
   saldo_inicial                      NUMERIC(14,2) DEFAULT 0 NOT NULL,
   saldo_final                        NUMERIC(14,2) DEFAULT 0 NOT NULL,
+  moneda                             CHAR(3),
   archivo_url                        VARCHAR(255) NOT NULL,
   importado_en                       TIMESTAMPTZ NOT NULL,
   importado_por                      UUID NOT NULL,
