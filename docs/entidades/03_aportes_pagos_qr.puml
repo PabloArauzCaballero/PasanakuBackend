@@ -213,6 +213,7 @@ package "Cobro: QR y ordenes" {
     - soportaConsultaEstado: Boolean
     - activo: Boolean
     - prioridad: Integer
+    - claveIdempotencia: String
     --
     + generarQR(orden): QRCobro
     + consultarEstado(referencia): EstadoTransaccion
@@ -295,6 +296,24 @@ package "Ejecucion del Pago" {
     + reversar(motivo): Reembolso
     + generarConstancia(): ConstanciaPago
     + aplicarAObligacion()
+  }
+
+  class HistorialEstadoPago {
+    - id: UUID
+    - pagoId: UUID
+    - estadoAnterior: EstadoPago
+    - estadoNuevo: EstadoPago
+    - motivo: String
+    - fechaHora: DateTime
+  }
+
+  class HistorialEstadoReembolso {
+    - id: UUID
+    - reembolsoId: UUID
+    - estadoAnterior: String
+    - estadoNuevo: String
+    - ejecutadoPor: UUID
+    - fechaHora: DateTime
   }
 
   class Reembolso {
@@ -559,6 +578,8 @@ OrdenCobro "*" --> "1" ProveedorPago
 IntentoPago "1" *-- "0..1" Pago
 Pago "1" *-- "0..1" ConstanciaPago
 Pago "1" *-- "0..*" Reembolso
+Pago "1" *-- "0..*" HistorialEstadoPago
+Reembolso "1" *-- "0..*" HistorialEstadoReembolso
 Pago "1" *-- "0..*" DisputaPago
 Pago "1" *-- "0..1" Conciliacion
 
@@ -720,6 +741,7 @@ entity "proveedor_pago" as prov {
   soporta_consulta_estado : BOOLEAN
   activo : BOOLEAN
   prioridad : SMALLINT
+  clave_idempotencia : VARCHAR(100) <<NULL>>
 }
 
 entity "orden_cobro" as orden {
@@ -826,13 +848,35 @@ entity "reembolso" as reemb {
   --
   # pago_id : UUID <<FK, IDX>>
   monto : DECIMAL(14,2) <<CK: > 0>>
+  moneda : CHAR(3) <<NULL>>
   motivo : VARCHAR(30) <<CK>>
   estado : VARCHAR(15) <<CK>>
   referencia_proveedor : VARCHAR(80) <<NULL>>
   # solicitado_por : UUID <<FK>>
   # aprobado_por : UUID <<FK, NULL>>
+  clave_idempotencia : VARCHAR(100) <<NULL>>
   fecha_solicitud : TIMESTAMPTZ
   fecha_ejecucion : TIMESTAMPTZ <<NULL>>
+}
+
+entity "historial_estado_pago" as histpago {
+  * id : UUID <<PK>>
+  --
+  # pago_id : UUID <<FK, IDX>>
+  estado_anterior : VARCHAR(15)
+  estado_nuevo : VARCHAR(15)
+  motivo : VARCHAR(200)
+  fecha_hora : TIMESTAMPTZ
+}
+
+entity "historial_estado_reembolso" as histreemb {
+  * id : UUID <<PK>>
+  --
+  # reembolso_id : UUID <<FK, IDX>>
+  estado_anterior : VARCHAR(15)
+  estado_nuevo : VARCHAR(15)
+  # ejecutado_por : UUID <<FK>>
+  fecha_hora : TIMESTAMPTZ
 }
 
 entity "disputa_pago" as disp {
@@ -842,6 +886,7 @@ entity "disputa_pago" as disp {
   tipo : VARCHAR(25) <<CK>>
   descripcion : TEXT
   monto_disputado : DECIMAL(14,2) <<CK: >= 0>>
+  moneda : CHAR(3) <<NULL>>
   estado : VARCHAR(25) <<CK>>
   evidencias : JSONB
   abierta_en : TIMESTAMPTZ
@@ -858,6 +903,7 @@ entity "extracto_bancario" as extracto {
   fecha_hasta : DATE
   saldo_inicial : DECIMAL(14,2)
   saldo_final : DECIMAL(14,2)
+  moneda : CHAR(3) <<NULL>>
   archivo_url : VARCHAR(255)
   importado_en : TIMESTAMPTZ
   # importado_por : UUID <<FK>>
@@ -884,6 +930,7 @@ entity "conciliacion" as conc {
   estado : VARCHAR(25) <<CK, IDX>>
   metodo : VARCHAR(20) <<CK>>
   diferencia_monto : DECIMAL(14,2)
+  moneda : CHAR(3) <<NULL>>
   # conciliado_por : UUID <<FK, NULL>>
   fecha_conciliacion : TIMESTAMPTZ <<NULL>>
 }
@@ -895,6 +942,7 @@ entity "excepcion_conciliacion" as excep {
   tipo : VARCHAR(30) <<CK>>
   descripcion : VARCHAR(300)
   monto_diferencia : DECIMAL(14,2)
+  moneda : CHAR(3) <<NULL>>
   estado : VARCHAR(15) <<CK, IDX>>
   # asignada_a : UUID <<FK, NULL>>
   resolucion : VARCHAR(300) <<NULL>>
@@ -1001,6 +1049,8 @@ intento ||--o| pago : "produce"
 pago ||--o| comp : "respalda (manual)"
 pago ||--o| constancia : "certifica"
 pago ||--o{ reemb : "devuelve"
+pago ||--o{ histpago : "transiciona"
+reemb ||--o{ histreemb : "transiciona"
 pago ||--o{ disp : "disputa"
 pago ||--o| conc : "concilia"
 conc }o--o| movban : "cruza con"

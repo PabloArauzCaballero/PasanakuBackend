@@ -384,6 +384,11 @@ ALTER TABLE expediente_cliente
 | R-BIL-24 | Una orden de inversión se debita una sola vez, un rescate se acredita una sola vez y una compra del mercado se paga una sola vez | Integridad del dinero · idempotencia | [[CU-13 Retener y liberar saldo]] |
 | R-BIL-25 | Hay una sola cuenta de custodia de inversión activa por moneda | Integridad del dinero | [[CU-13 Retener y liberar saldo]] |
 | R-BIL-26 | Una retención de inversión o de compra del mercado nombra la orden u oferta que la motiva | Trazabilidad | [[CU-13 Retener y liberar saldo]] |
+| R-BIL-27 | El reverso lo pide una persona y lo autoriza otra, cada una desde su token; una sola solicitud viva por transacción | Cuatro ojos reales (R-SEG-04, P-13) | [[CU-14 Reversar una transacción]] |
+| R-BIL-28 | Un reembolso por pago y clave de idempotencia: reintentar la solicitud no crea otra | Idempotencia de dinero (regla 91.1.4, 91.2.4) | [[CU-19 Reembolsar un pago y atender una disputa]] |
+| R-BIL-29 | Reembolso, disputa, conciliación, excepción de conciliación y extracto bancario llevan su moneda ISO-4217 al lado del importe | Ningún importe sin moneda (regla 91.1.2) | [[CU-19 Reembolsar un pago y atender una disputa]] |
+| R-BIL-30 | El pago y el reembolso no se editan: su estado vigente es la última fila de su historial append-only, y desde cada estado se sale una sola vez | Hechos de dinero inmutables (regla 91.1.3, R-AUD-01) | [[CU-19 Reembolsar un pago y atender una disputa]] |
+| R-BIL-31 | Un alta de proveedor por clave de idempotencia: reintentar el alta devuelve el mismo proveedor | Idempotencia de las operaciones con efecto (regla 91.1.4, 91.2.4) | [[CU-99 Dar de alta un proveedor de pago y enrutar el cobro]] |
 
 ```sql
 -- R-BIL-01 · partida doble interna (diferido: se valida al COMMIT)
@@ -807,6 +812,58 @@ ALTER TABLE cuenta_bancaria_beneficiario
 CREATE UNIQUE INDEX uq_cuenta_benef_principal
   ON cuenta_bancaria_beneficiario (usuario_id)
   WHERE (es_principal);
+
+-- R-BIL-27 · cuatro ojos reales en el reverso (P-13): la solicitud guarda a quien
+-- la pidio; la autorizacion, a otra persona. Ejecutada exige autorizador y reverso.
+ALTER TABLE solicitud_reverso
+  ADD CONSTRAINT ck_solicitud_reverso_cuatro_ojos CHECK (
+      autorizada_por IS NULL OR autorizada_por <> solicitada_por
+  ),
+  ADD CONSTRAINT ck_solicitud_reverso_resuelta CHECK (
+      (estado = 'SOLICITADA' AND autorizada_por IS NULL
+         AND reverso_transaccion_id IS NULL AND resuelta_en IS NULL)
+   OR (estado = 'EJECUTADA' AND autorizada_por IS NOT NULL
+         AND reverso_transaccion_id IS NOT NULL AND resuelta_en IS NOT NULL)
+  );
+
+CREATE UNIQUE INDEX uq_solicitud_reverso_viva
+  ON solicitud_reverso (transaccion_original_id)
+  WHERE estado = 'SOLICITADA';
+-- R-BIL-28 · un reembolso por pago y clave (F1.L1.M09). Parcial porque las filas de
+-- antes no tienen clave; toda solicitud nueva la escribe. Un SELECT previo no alcanza:
+-- entre el SELECT y el INSERT entra el duplicado (regla 91.2.4).
+CREATE UNIQUE INDEX uq_reembolso_clave
+  ON reembolso (pago_id, clave_idempotencia)
+  WHERE clave_idempotencia IS NOT NULL;
+
+-- R-BIL-29 · moneda al lado del importe (F1.L1.M12). Se declara aca y no en el modelo
+-- porque la columna llega a las bases existentes por 15_infra/columnas_agregadas.sql,
+-- que corre DESPUES de las tablas: este bloque corre despues de los dos. NULL solo en
+-- las filas de antes; CU-19 copia la moneda del pago en toda fila nueva.
+ALTER TABLE reembolso
+  ADD CONSTRAINT ck_reembolso_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
+ALTER TABLE disputa_pago
+  ADD CONSTRAINT ck_disputa_pago_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
+ALTER TABLE conciliacion
+  ADD CONSTRAINT ck_conciliacion_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
+ALTER TABLE excepcion_conciliacion
+  ADD CONSTRAINT ck_excepcion_conciliacion_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
+ALTER TABLE extracto_bancario
+  ADD CONSTRAINT ck_extracto_bancario_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
+
+-- R-BIL-30 · una sola salida por estado (F1.L1.M08). El pago y el reembolso son
+-- append-only (R-AUD-01); su estado cambia agregando una fila de historial. Dos
+-- transiciones simultaneas desde el mismo estado chocan aca, no en un if previo.
+CREATE UNIQUE INDEX uq_historial_estado_pago_salida
+  ON historial_estado_pago (pago_id, estado_anterior);
+CREATE UNIQUE INDEX uq_historial_estado_reembolso_salida
+  ON historial_estado_reembolso (reembolso_id, estado_anterior);
+
+-- R-BIL-31 · un alta de proveedor por clave (F1.L1.M09). Parcial por las filas de antes,
+-- que no la tienen; toda alta nueva la escribe (CU-99).
+CREATE UNIQUE INDEX uq_proveedor_pago_clave
+  ON proveedor_pago (clave_idempotencia)
+  WHERE clave_idempotencia IS NOT NULL;
 ```
 
 ---

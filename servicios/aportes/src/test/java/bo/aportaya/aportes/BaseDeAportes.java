@@ -6,6 +6,7 @@ import bo.aportaya.aportes.aplicacion.CU21CobrarAporte;
 import bo.aportaya.aportes.aplicacion.CU99EnrutarProveedor;
 import bo.aportaya.aportes.dominio.ProveedorDeSecretoWebhook;
 import bo.aportaya.aportes.infraestructura.AuditoriaRepositorio;
+import bo.aportaya.aportes.infraestructura.DisputaPagoRepositorio;
 import bo.aportaya.aportes.infraestructura.ObligacionRepositorio;
 import bo.aportaya.aportes.infraestructura.PagoRepositorio;
 import bo.aportaya.aportes.infraestructura.ProveedorPagoRepositorio;
@@ -50,11 +51,26 @@ abstract class BaseDeAportes {
     /** El mismo secreto que firma el doble de la pasarela en los tests (Q-02). */
     protected static final String SECRETO_DE_PRUEBA = "secreto-webhook-de-prueba-para-tests";
 
+    /**
+     * La base de la corrida: la del contenedor compartido o, si esta {@code APORTAYA_TEST_DB_URL}, una
+     * PostgreSQL ya armada con {@code sql/aplicar.sql} (el mismo gancho que {@code BaseDeCU04} de identidad,
+     * para correr sin Docker).
+     */
+    private static DataSource fuente() {
+        String urlExterna = System.getenv("APORTAYA_TEST_DB_URL");
+        if (urlExterna != null && !urlExterna.isBlank()) {
+            return new DriverManagerDataSource(
+                    urlExterna,
+                    System.getenv().getOrDefault("APORTAYA_TEST_DB_USER", "pasanaku"),
+                    System.getenv().getOrDefault("APORTAYA_TEST_DB_PASSWORD", ""));
+        }
+        var contenedor = BaseDePrueba.contenedor();
+        return new DriverManagerDataSource(contenedor.getJdbcUrl(), contenedor.getUsername(), contenedor.getPassword());
+    }
+
     @BeforeAll
     static void armar() {
-        var contenedor = BaseDePrueba.contenedor();
-        DataSource fuente = new DriverManagerDataSource(
-                contenedor.getJdbcUrl(), contenedor.getUsername(), contenedor.getPassword());
+        DataSource fuente = fuente();
         dsl = DSL.using(new TransactionAwareDataSourceProxy(fuente), SQLDialect.POSTGRES);
         dslFixtura = DSL.using(fuente, SQLDialect.POSTGRES);
         transaccion = new TransactionTemplate(new DataSourceTransactionManager(fuente));
@@ -70,6 +86,7 @@ abstract class BaseDeAportes {
         reembolsoCU = new CU19ReembolsarPago(
                 datos,
                 pagos,
+                new DisputaPagoRepositorio(),
                 obligaciones,
                 consumidos,
                 outbox,

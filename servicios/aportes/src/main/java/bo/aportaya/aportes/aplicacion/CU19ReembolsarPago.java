@@ -4,6 +4,7 @@ import bo.aportaya.aportes.dominio.MotivoDeReembolso;
 import bo.aportaya.aportes.dominio.SaldoDeLaObligacion;
 import bo.aportaya.aportes.dominio.TipoDeDisputa;
 import bo.aportaya.aportes.infraestructura.AuditoriaRepositorio;
+import bo.aportaya.aportes.infraestructura.DisputaPagoRepositorio;
 import bo.aportaya.aportes.infraestructura.ObligacionRepositorio;
 import bo.aportaya.aportes.infraestructura.PagoRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
@@ -40,6 +41,7 @@ public class CU19ReembolsarPago {
 
     private final Datos datos;
     private final PagoRepositorio pagos;
+    private final DisputaPagoRepositorio disputas;
     private final ObligacionRepositorio obligaciones;
     private final Consumidos consumidos;
     private final Outbox outbox;
@@ -50,6 +52,7 @@ public class CU19ReembolsarPago {
     public CU19ReembolsarPago(
             Datos datos,
             PagoRepositorio pagos,
+            DisputaPagoRepositorio disputas,
             ObligacionRepositorio obligaciones,
             Consumidos consumidos,
             Outbox outbox,
@@ -58,6 +61,7 @@ public class CU19ReembolsarPago {
             @Value("${aportaya.reembolso.plazo-de-disputa}") Duration plazoDeDisputa) {
         this.datos = datos;
         this.pagos = pagos;
+        this.disputas = disputas;
         this.obligaciones = obligaciones;
         this.consumidos = consumidos;
         this.outbox = outbox;
@@ -74,6 +78,14 @@ public class CU19ReembolsarPago {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
         return datos.conContexto(ctx, dsl -> {
+            // F1.L1.M09 · R-BIL-28: la misma clave sobre el mismo pago es la misma solicitud. El candado serializa
+            // dos reintentos simultaneos; el indice unico es el respaldo si algo lo saltea.
+            pagos.bloquearIdempotenciaDeReembolso(dsl, entrada.pagoId(), entrada.claveIdempotencia());
+            var previo = pagos.reembolsoPorClave(dsl, entrada.pagoId(), entrada.claveIdempotencia());
+            if (previo.isPresent()) {
+                return repetido(dsl, previo.get(), entrada, ctx);
+            }
+
             var pago = pagos.ver(dsl, entrada.pagoId())
                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(19, 1), "Ese pago no existe."));
 
@@ -82,6 +94,13 @@ public class CU19ReembolsarPago {
             if (!"ACREDITADO".equals(pago.estado()) && !"CONCILIADO".equals(pago.estado())) {
                 throw new ErrorDeNegocio(
                         CodigoError.de(19, 1), "Ese pago esta " + pago.estado() + ": todavia no se puede reembolsar.");
+            }
+
+            // F1.L1.M12 · AP-CU19-02: se devuelve en la moneda en que se pago, sin conversion implicita.
+            if (entrada.monto().moneda() != pago.monto().moneda()) {
+                throw new ErrorDeNegocio(
+                        CodigoError.de(19, 2),
+                        "El reembolso tiene que ser en " + pago.monto().moneda() + ", la moneda del pago.");
             }
 
             // AP-CU19-02: contra lo YA reembolsado, no contra el monto original. Dos
@@ -95,8 +114,8 @@ public class CU19ReembolsarPago {
                         Map.of("pagado", pago.monto().toString(), "yaReembolsado", yaDevuelto.toString()));
             }
 
-            UUID reembolsoId =
-                    pagos.solicitarReembolso(dsl, pago.id(), entrada.monto(), motivo, ctx.usuarioId(), ahora);
+            UUID reembolsoId = pagos.solicitarReembolso(
+                    dsl, pago.id(), entrada.monto(), motivo, ctx.usuarioId(), entrada.claveIdempotencia(), ahora);
 
             outbox.emitir(
                     dsl,
@@ -115,6 +134,21 @@ public class CU19ReembolsarPago {
         });
     }
 
+    /**
+     * El reintento devuelve la solicitud original, con lo que queda disponible hoy. Si la clave se usa para otra
+     * cosa (otro monto, otra persona), no es un reintento: es un error del cliente.
+     */
+    private SalidaSolicitud repetido(
+            org.jooq.DSLContext dsl, PagoRepositorio.Reembolso previo, EntradaReembolso entrada, ContextoSesion ctx) {
+        if (!previo.monto().equals(entrada.monto()) || !previo.solicitadoPor().equals(ctx.usuarioId())) {
+            throw new ErrorDeNegocio(CodigoError.de(19, 2), "La clave de idempotencia ya identifica otra solicitud.");
+        }
+        var pago = pagos.ver(dsl, previo.pagoId()).orElseThrow();
+        Dinero disponible = pago.monto()
+                .menos(pagos.reembolsadoDe(dsl, pago.id(), pago.monto().moneda()));
+        return new SalidaSolicitud(previo.id(), previo.estado(), disponible);
+    }
+
     /** Aprobar y ejecutar. Quien aprueba no puede ser quien solicito. */
     @Transactional
     public SalidaEjecucion aprobar(UUID reembolsoId, ContextoSesion ctx) {
@@ -130,6 +164,12 @@ public class CU19ReembolsarPago {
                         CodigoError.de(19, 4), "Quien aprueba un reembolso no puede ser quien lo solicito.");
             }
             if (!pagos.ejecutarReembolso(dsl, reembolsoId, ctx.usuarioId(), ahora)) {
+                // F1.L1.M09 · el reintento de quien ya lo aprobo recibe la misma respuesta, sin volver a mover nada.
+                if (ctx.usuarioId().equals(pagos.ejecutadoPor(dsl, reembolsoId).orElse(null))) {
+                    var pago = pagos.ver(dsl, reembolso.pagoId()).orElseThrow();
+                    var obligacion = obligaciones.ver(dsl, pago.obligacionId()).orElseThrow();
+                    return new SalidaEjecucion(reembolsoId, "EJECUTADO", obligacion.id(), obligacion.estado());
+                }
                 throw new ErrorDeNegocio(CodigoError.de(19, 3), "Ese reembolso ya no esta solicitado.");
             }
 
@@ -199,12 +239,12 @@ public class CU19ReembolsarPago {
             if (!consumidos.registrar(dsl, idMensaje, "proveedor-pago")) {
                 return new SalidaDisputa(null, ahora, false);
             }
-            if (pagos.hayDisputaAbierta(dsl, entrada.pagoId())) {
+            if (disputas.hayDisputaAbierta(dsl, entrada.pagoId())) {
                 return new SalidaDisputa(null, ahora, false);
             }
 
             OffsetDateTime limite = ahora.plus(plazoDeDisputa);
-            UUID disputaId = pagos.abrirDisputa(
+            UUID disputaId = disputas.abrirDisputa(
                     dsl, entrada.pagoId(), tipo, entrada.descripcion(), entrada.montoDisputado(), "[]", ahora, limite);
 
             outbox.emitir(
@@ -222,7 +262,8 @@ public class CU19ReembolsarPago {
         });
     }
 
-    public record EntradaReembolso(UUID pagoId, Dinero monto, String motivo) {}
+    /** {@code claveIdempotencia}: la {@code Idempotency-Key} de la peticion (F1.L1.M09, R-BIL-28). */
+    public record EntradaReembolso(UUID pagoId, Dinero monto, String motivo, String claveIdempotencia) {}
 
     public record SalidaSolicitud(UUID reembolsoId, String estado, Dinero disponibleRestante) {}
 

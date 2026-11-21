@@ -6,7 +6,6 @@ import bo.aportaya.garantia.aplicacion.CU23RecuperarRespaldo;
 import bo.aportaya.garantia.aplicacion.CU23ReservarRespaldo;
 import bo.aportaya.garantia.aplicacion.CU23ReversarCobertura;
 import bo.aportaya.garantia.aplicacion.CU25DeclararIncumplimiento;
-import bo.aportaya.garantia.aplicacion.CU26EjecutarAval;
 import bo.aportaya.garantia.aplicacion.CU27RestringirDeudor;
 import bo.aportaya.garantia.aplicacion.CU29DevolverFondo;
 import bo.aportaya.garantia.aplicacion.CU66ReemplazarParticipante;
@@ -43,7 +42,6 @@ abstract class BaseDeGarantia {
     /** Plazos y politicas: son configuracion, no constantes del negocio. */
     protected static final Duration PLAZO_DE_DESCARGO = Duration.ofDays(5);
 
-    protected static final Duration PLAZO_DE_RESPUESTA_DEL_AVAL = Duration.ofDays(10);
     protected static final int DIAS_PARA_EXIGIR_LA_DEUDA = 30;
     protected static final int ANIOS_DE_PRESCRIPCION = 5;
 
@@ -61,7 +59,6 @@ abstract class BaseDeGarantia {
     protected static CU23RecuperarRespaldo recuperacionCU;
     protected static CU23ReversarCobertura reversaCU;
     protected static CU25DeclararIncumplimiento expedienteCU;
-    protected static CU26EjecutarAval avalCU;
     protected static CU27RestringirDeudor restriccionCU;
     protected static CU29DevolverFondo devolucionCU;
     protected static CU66ReemplazarParticipante reemplazoCU;
@@ -106,8 +103,6 @@ abstract class BaseDeGarantia {
                 Reloj.delSistema(),
                 DIAS_PARA_EXIGIR_LA_DEUDA,
                 ANIOS_DE_PRESCRIPCION);
-        avalCU = new CU26EjecutarAval(
-                datos, gestion, fondos, deudas, expedientes, outbox, Reloj.delSistema(), PLAZO_DE_RESPUESTA_DEL_AVAL);
         restriccionCU =
                 new CU27RestringirDeudor(datos, gestion, fondos, deudas, expedientes, outbox, Reloj.delSistema());
         devolucionCU = new CU29DevolverFondo(datos, fondos, outbox, Reloj.delSistema());

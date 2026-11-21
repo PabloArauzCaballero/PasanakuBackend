@@ -326,6 +326,9 @@ APPEND_ONLY = {
     "version_condiciones", "consentimiento_inversion", "devengo_dpf", "valor_cuota",
     "comprobante_inversion", "comision_exito", "conciliacion_interes",
     "distribucion_interes",
+    # F1.L1.M08 (R-BIL-30): el pago y el reembolso son hechos de dinero; su estado
+    # cambia agregando una fila a su historial, nunca con UPDATE sobre el hecho.
+    "pago", "reembolso", "historial_estado_pago", "historial_estado_reembolso",
 }
 
 # --- tablas particionadas por rango de fecha -----------------------------

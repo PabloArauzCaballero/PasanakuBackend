@@ -6,9 +6,9 @@ tabla: reembolso
 clase: Reembolso
 modulo: "03 — Aportes, Pagos QR y Conciliación"
 clave_primaria: [id]
-columnas: 10
+columnas: 12
 fk_salientes: 3
-fk_entrantes: 0
+fk_entrantes: 1
 append_only: false
 ---
 
@@ -22,14 +22,25 @@ append_only: false
 | --- | --- | --- | :-: | --- |
 | `id` | UUID | PK | no | PK |
 | `pago_id` | UUID | FK IDX | no | FK, IDX |
-| `monto` | DECIMAL(14,2) | — | no | — |
+| `monto` | DECIMAL(14,2) | — | no | CK: > 0 |
+| `moneda` | CHAR(3) | — | sí | NULL |
 | `motivo` | VARCHAR(30) | — | no | CK |
 | `estado` | VARCHAR(15) | — | no | CK |
 | `referencia_proveedor` | VARCHAR(80) | — | sí | NULL |
 | `solicitado_por` | UUID | FK | no | FK |
 | `aprobado_por` | UUID | FK | sí | FK, NULL |
+| `clave_idempotencia` | VARCHAR(100) | — | sí | NULL |
 | `fecha_solicitud` | TIMESTAMPTZ | — | no | — |
 | `fecha_ejecucion` | TIMESTAMPTZ | — | sí | NULL |
+
+## Reglas del catálogo
+
+> Declaradas en [[Restricciones]], no en el modelo. El nombre es el que devuelve la base al rechazar.
+
+| Regla | Tipo | Columnas |
+| --- | :-: | --- |
+| `ck_reembolso_moneda` | CHECK | `moneda` |
+| `uq_reembolso_clave` | UNIQUE | `pago_id`, `clave_idempotencia` |
 
 ## Claves foráneas salientes
 
@@ -39,9 +50,15 @@ append_only: false
 | `pago_id` | [[pago]] | 03 | no | [[reembolso.pago_id → pago]] |
 | `solicitado_por` | [[usuario]] | ↗ 01 | no | [[reembolso.solicitado_por → usuario]] |
 
+## Referenciada por
+
+| Entidad | Columna | Módulo | Relación |
+| --- | --- | :-: | --- |
+| [[historial_estado_reembolso]] | `reembolso_id` | 03 | [[historial_estado_reembolso.reembolso_id → reembolso]] |
+
 ## Entidades vecinas
 
-[[pago]] · [[usuario]]
+[[historial_estado_reembolso]] · [[pago]] · [[usuario]]
 
 ## Ver también
 

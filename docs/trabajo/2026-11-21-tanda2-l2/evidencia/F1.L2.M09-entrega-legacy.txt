@@ -1,0 +1,19 @@
+$ ./gradlew :servicios:entregas:test :servicios:entregas:webTest :servicios:entregas:check -x test ... :servicios:entregas:testBarrido erroresCatalogo
+BUILD SUCCESSFUL in 18s
+test 21/0 · webTest 65/0
+  EntregasControllerWebTest: "F1.L2.M09 · 410 AP-CU22-10" PASS · "400: EFECTIVO_ORGANIZADOR ya no es un metodo del contrato" PASS · "F1.L2.M08 · ejecutar responde 410 AP-CU22-11" PASS
+
+$ python3 scripts/generar_ddl.py && git diff --stat -- sql
+ sql/10_tablas/04_entregas_fondo/entrega_fondo.sql | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+$ psql -d pasanaku_nueva -f sql/aplicar.sql   (base nueva desde el modelo)  -> exit 0
+$ psql -d pasanaku_nueva -f evidencia/F1.L2.M09-efectivo-organizador.sql
+INSERT 0 1
+psql:/tmp/claude-0/-home-user-PasanakuBackend/bd1cc7de-d0c1-5769-a21a-89948fedaccc/scratchpad/rdes06.sql:9: ERROR:  new row for relation "entrega_fondo" violates check constraint "ck_entrega_fondo_met
+$ python3 scripts/verificar_criterios.py
+Sin divergencias entre la boveda y el codigo.
+$ python3 scripts/verificar_seguridad.py
+TODO OK · 5 aviso(s)
+$ python3 scripts/verificar_boveda.py
+TODO OK

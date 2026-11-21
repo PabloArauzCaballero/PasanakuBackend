@@ -7,13 +7,24 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Component;
 
-/** {@code pago}, {@code reembolso} y {@code disputa_pago}. */
+/** {@code pago} y {@code reembolso}, con su historial de estados (R-BIL-30). */
 @Component
 public class PagoRepositorio {
+
+    /**
+     * F1.L1.M08 · R-BIL-30: el estado vigente de un pago es la ultima fila de su historial; sin historial, el
+     * de alta. Se usa sobre {@code FROM aportes.pago} sin alias.
+     */
+    static final Field<String> ESTADO_VIGENTE = DSL.field(
+            """
+            COALESCE((SELECT h.estado_nuevo FROM aportes.historial_estado_pago h WHERE h.pago_id = pago.id \
+            ORDER BY h.fecha_hora DESC, h.id DESC LIMIT 1), pago.estado)""",
+            String.class);
 
     public UUID registrar(
             DSLContext dsl,
@@ -88,7 +99,7 @@ public class PagoRepositorio {
                         DSL.field("id", UUID.class),
                         DSL.field("monto", BigDecimal.class),
                         DSL.field("moneda", String.class),
-                        DSL.field("estado", String.class))
+                        ESTADO_VIGENTE.as("estado"))
                 .from(DSL.table(DSL.name("aportes", "pago")))
                 .where(DSL.field("referencia_proveedor", String.class).eq(referenciaProveedor))
                 .orderBy(DSL.field("fecha_hora_pago").desc())
@@ -108,11 +119,22 @@ public class PagoRepositorio {
      * en la escritura (no en un {@code if} previo): un pago en disputa, ya reversado o de otro estado no se toca.
      */
     public boolean reversar(DSLContext dsl, UUID pagoId) {
-        return dsl.update(DSL.table(DSL.name("aportes", "pago")))
-                        .set(DSL.field("estado", String.class), "REVERSADO")
-                        .where(DSL.field("id", UUID.class).eq(pagoId))
-                        .and(DSL.field("estado", String.class).eq("ACREDITADO"))
-                        .execute()
+        // F1.L1.M08 · R-BIL-30: el pago es append-only; su estado cambia con una fila de historial.
+        // La precondicion va en la escritura y uq_historial_estado_pago_salida decide la carrera.
+        return dsl.execute(
+                        """
+                        INSERT INTO aportes.historial_estado_pago
+                            (id, pago_id, estado_anterior, estado_nuevo, motivo, fecha_hora)
+                        SELECT gen_random_uuid(), pago.id, 'ACREDITADO', 'REVERSADO',
+                               'Compensacion: el libro no pudo aplicar el aporte', clock_timestamp()
+                          FROM aportes.pago
+                         WHERE pago.id = ?
+                           AND COALESCE((SELECT h.estado_nuevo FROM aportes.historial_estado_pago h
+                                          WHERE h.pago_id = pago.id ORDER BY h.fecha_hora DESC, h.id DESC LIMIT 1),
+                                        pago.estado) = 'ACREDITADO'
+                        ON CONFLICT (pago_id, estado_anterior) DO NOTHING
+                        """,
+                        pagoId)
                 == 1;
     }
 
@@ -123,7 +145,7 @@ public class PagoRepositorio {
                         DSL.field("proveedor_id", UUID.class),
                         DSL.field("monto", BigDecimal.class),
                         DSL.field("moneda", String.class),
-                        DSL.field("estado", String.class))
+                        ESTADO_VIGENTE.as("estado"))
                 .from(DSL.table(DSL.name("aportes", "pago")))
                 .where(DSL.field("id", UUID.class).eq(pagoId))
                 .fetchOne();
@@ -142,8 +164,11 @@ public class PagoRepositorio {
         // revisado en H2.S2.M2 del carril PR4-seguridad, sin entrada interpolada.
         BigDecimal total = (BigDecimal) dsl.fetchOne(
                         """
-                        SELECT COALESCE(SUM(monto), 0) FROM aportes.reembolso
-                         WHERE pago_id = ? AND estado <> 'RECHAZADO'
+                        SELECT COALESCE(SUM(r.monto), 0) FROM aportes.reembolso r
+                         WHERE r.pago_id = ?
+                           AND COALESCE((SELECT h.estado_nuevo FROM aportes.historial_estado_reembolso h
+                                          WHERE h.reembolso_id = r.id ORDER BY h.fecha_hora DESC, h.id DESC LIMIT 1),
+                                        r.estado) <> 'RECHAZADO'
                         """,
                         pagoId)
                 .get(0);
@@ -151,16 +176,25 @@ public class PagoRepositorio {
     }
 
     public UUID solicitarReembolso(
-            DSLContext dsl, UUID pagoId, Dinero monto, String motivo, UUID solicitadoPor, OffsetDateTime ahora) {
+            DSLContext dsl,
+            UUID pagoId,
+            Dinero monto,
+            String motivo,
+            UUID solicitadoPor,
+            String claveIdempotencia,
+            OffsetDateTime ahora) {
 
         UUID id = UUID.randomUUID();
         dsl.insertInto(DSL.table(DSL.name("aportes", "reembolso")))
                 .set(DSL.field("id", UUID.class), id)
                 .set(DSL.field("pago_id", UUID.class), pagoId)
                 .set(DSL.field("monto", BigDecimal.class), monto.monto())
+                // F1.L1.M12 · R-BIL-29: la moneda al lado del importe, la del pago (CU-19 ya la comparo).
+                .set(DSL.field("moneda", String.class), monto.moneda().name())
                 .set(DSL.field("motivo", String.class), motivo)
                 .set(DSL.field("estado", String.class), "SOLICITADO")
                 .set(DSL.field("solicitado_por", UUID.class), solicitadoPor)
+                .set(DSL.field("clave_idempotencia", String.class), claveIdempotencia)
                 .set(DSL.field("fecha_solicitud", OffsetDateTime.class), ahora)
                 .execute();
         return id;
@@ -171,74 +205,75 @@ public class PagoRepositorio {
      * aprobaciones simultaneas no devuelven la plata dos veces.
      */
     public boolean ejecutarReembolso(DSLContext dsl, UUID reembolsoId, UUID aprobadoPor, OffsetDateTime ahora) {
-        return dsl.update(DSL.table(DSL.name("aportes", "reembolso")))
-                        .set(DSL.field("estado", String.class), "EJECUTADO")
-                        .set(DSL.field("aprobado_por", UUID.class), aprobadoPor)
-                        .set(DSL.field("fecha_ejecucion", OffsetDateTime.class), ahora)
-                        .where(DSL.field("id", UUID.class).eq(reembolsoId))
-                        .and(DSL.field("estado").eq("SOLICITADO"))
-                        .execute()
-                > 0;
+        // F1.L1.M08 · R-BIL-30: el reembolso es append-only; quien aprueba y cuando quedan en su historial.
+        return dsl.execute(
+                        """
+                        INSERT INTO aportes.historial_estado_reembolso
+                            (id, reembolso_id, estado_anterior, estado_nuevo, ejecutado_por, fecha_hora)
+                        SELECT gen_random_uuid(), r.id, 'SOLICITADO', 'EJECUTADO', ?, ?::timestamptz
+                          FROM aportes.reembolso r
+                         WHERE r.id = ?
+                           AND COALESCE((SELECT h.estado_nuevo FROM aportes.historial_estado_reembolso h
+                                          WHERE h.reembolso_id = r.id ORDER BY h.fecha_hora DESC, h.id DESC LIMIT 1),
+                                        r.estado) = 'SOLICITADO'
+                        ON CONFLICT (reembolso_id, estado_anterior) DO NOTHING
+                        """,
+                        aprobadoPor,
+                        ahora,
+                        reembolsoId)
+                == 1;
     }
 
-    public Optional<Reembolso> verReembolso(DSLContext dsl, UUID reembolsoId) {
-        Record fila = dsl.select(
-                        DSL.field("id", UUID.class),
-                        DSL.field("pago_id", UUID.class),
-                        DSL.field("monto", BigDecimal.class),
-                        DSL.field("estado", String.class),
-                        DSL.field("solicitado_por", UUID.class))
+    /** Quien ejecuto el reembolso, segun su historial (R-BIL-30); vacio si sigue solicitado. */
+    public Optional<UUID> ejecutadoPor(DSLContext dsl, UUID reembolsoId) {
+        return dsl.select(DSL.field("ejecutado_por", UUID.class))
+                .from(DSL.table(DSL.name("aportes", "historial_estado_reembolso")))
+                .where(DSL.field("reembolso_id", UUID.class).eq(reembolsoId))
+                .and(DSL.field("estado_nuevo", String.class).eq("EJECUTADO"))
+                .fetchOptional(r -> r.value1());
+    }
+
+    /** F1.L1.M09 · el candado de (pago, clave) hasta el fin de la transaccion: dos reintentos no corren a la vez. */
+    public void bloquearIdempotenciaDeReembolso(DSLContext dsl, UUID pagoId, String clave) {
+        dsl.execute(
+                "SELECT pg_advisory_xact_lock(hashtextextended(?, 0::bigint))", "reembolso|" + pagoId + "|" + clave);
+    }
+
+    /** La solicitud que ya uso esa clave sobre ese pago, si la hay (R-BIL-28). */
+    public Optional<Reembolso> reembolsoPorClave(DSLContext dsl, UUID pagoId, String clave) {
+        return dsl.select(DSL.field("id", UUID.class))
                 .from(DSL.table(DSL.name("aportes", "reembolso")))
-                .where(DSL.field("id", UUID.class).eq(reembolsoId))
+                .where(DSL.field("pago_id", UUID.class).eq(pagoId))
+                .and(DSL.field("clave_idempotencia", String.class).eq(clave))
+                .fetchOptional(r -> r.value1())
+                .flatMap(id -> verReembolso(dsl, id));
+    }
+
+    /**
+     * F1.L1.M12 · la moneda se lee de la fila; una fila de antes de R-BIL-29 no la tiene y toma la de su pago,
+     * nunca una fija.
+     */
+    public Optional<Reembolso> verReembolso(DSLContext dsl, UUID reembolsoId) {
+        Record fila = dsl.resultQuery(
+                        """
+                        SELECT r.id, r.pago_id, r.monto, COALESCE(r.moneda, p.moneda) AS moneda,
+                               COALESCE((SELECT h.estado_nuevo FROM aportes.historial_estado_reembolso h
+                                          WHERE h.reembolso_id = r.id ORDER BY h.fecha_hora DESC, h.id DESC LIMIT 1),
+                                        r.estado) AS estado,
+                               r.solicitado_por
+                          FROM aportes.reembolso r
+                          JOIN aportes.pago p ON p.id = r.pago_id
+                         WHERE r.id = ?
+                        """,
+                        reembolsoId)
                 .fetchOne();
         return Optional.ofNullable(fila)
                 .map(f -> new Reembolso(
                         f.get("id", UUID.class),
                         f.get("pago_id", UUID.class),
-                        Dinero.de(f.get("monto", BigDecimal.class), Moneda.BOB),
+                        Dinero.de(f.get("monto", BigDecimal.class), Moneda.valueOf(f.get("moneda", String.class))),
                         f.get("estado", String.class),
                         f.get("solicitado_por", UUID.class)));
-    }
-
-    /** Una disputa abierta por pago: la segunda del proveedor es un reenvio. */
-    public boolean hayDisputaAbierta(DSLContext dsl, UUID pagoId) {
-        return dsl.fetchCount(
-                        DSL.table(DSL.name("aportes", "disputa_pago")),
-                        DSL.field("pago_id", UUID.class).eq(pagoId),
-                        DSL.field("estado").ne("RESUELTA"))
-                > 0;
-    }
-
-    /**
-     * Abre la disputa con su plazo **guardado**, no calculado al consultar.
-     *
-     * <p>Invariante 8: el plazo que corre es el que se fijo al recibirla. Recalcularlo
-     * al mirar el tablero lo moveria cada vez que cambie la politica, y el proveedor
-     * no acepta ese argumento.
-     */
-    public UUID abrirDisputa(
-            DSLContext dsl,
-            UUID pagoId,
-            String tipo,
-            String descripcion,
-            Dinero montoDisputado,
-            String evidenciasJson,
-            OffsetDateTime abiertaEn,
-            OffsetDateTime fechaLimite) {
-
-        UUID id = UUID.randomUUID();
-        dsl.insertInto(DSL.table(DSL.name("aportes", "disputa_pago")))
-                .set(DSL.field("id", UUID.class), id)
-                .set(DSL.field("pago_id", UUID.class), pagoId)
-                .set(DSL.field("tipo", String.class), tipo)
-                .set(DSL.field("descripcion", String.class), descripcion)
-                .set(DSL.field("monto_disputado", BigDecimal.class), montoDisputado.monto())
-                .set(DSL.field("estado", String.class), "ABIERTA")
-                .set(DSL.field("evidencias", org.jooq.JSONB.class), org.jooq.JSONB.valueOf(evidenciasJson))
-                .set(DSL.field("abierta_en", OffsetDateTime.class), abiertaEn)
-                .set(DSL.field("fecha_limite_respuesta", OffsetDateTime.class), fechaLimite)
-                .execute();
-        return id;
     }
 
     public record Pago(UUID id, UUID obligacionId, Optional<UUID> proveedorId, Dinero monto, String estado) {}

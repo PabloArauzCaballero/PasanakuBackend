@@ -640,6 +640,12 @@ def dependencias_de(servicio, servicios):
     return "\n".join(lineas)
 
 
+# Variables que solo existen en el compose local, por servicio. Nunca llegan al desplegado.
+SOLO_LOCAL = {
+    "identidad": {"APORTAYA_ENTORNO_DESCARTABLE": "\"true\""},
+}
+
+
 def variables_de(servicio):
     """Las variables que este servicio exige, leidas de su propia configuracion.
 
@@ -715,6 +721,11 @@ def main():
             # El perfil `todo` levanta el Collector: en local las trazas y metricas viajan por OTLP.
             lineas.append("      TRAZAS_HABILITADAS: \"true\"")
             lineas.append("      METRICAS_OTLP_HABILITADAS: \"true\"")
+            # F1.L4.M03: identidad falla cerrado sin JWT_CLAVE_FIRMA salvo en un entorno descartable
+            # DECLARADO. Este compose es una maquina de desarrollo; el desplegado (--coolify) nunca
+            # lo declara, y su application.yml tampoco, para que no se pueda heredar por omision.
+            for variable, valor in SOLO_LOCAL.get(servicio, {}).items():
+                lineas.append(f"      {variable}: {valor}")
             bloques.append(BLOQUE.format(nombre=servicio, ambiente="\n".join(lineas)))
 
     if sin_valor:

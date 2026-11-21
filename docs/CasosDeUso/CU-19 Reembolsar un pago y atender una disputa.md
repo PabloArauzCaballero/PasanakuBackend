@@ -72,6 +72,7 @@ normas: [ASFI Consumidor Financiero, reglas de marca y contracargo, contabilidad
 | 6a | La disputa llega vencida por retraso del proveedor | Se responde igual y se deja constancia de la fecha de recepción real: el plazo se cuenta desde que lo supimos |
 | 7a | No hay evidencia suficiente | Es un hallazgo en sí mismo: significa que el flujo de cobro no dejó rastro y se registra como [[hallazgo_auditoria]] |
 | 8a | Disputa perdida sobre un aporte ya entregado al ganador del turno | La pérdida la absorbe la plataforma o el [[fondo_garantia]] según reglamento; **nunca se le quita el dinero al que ya cobró su turno** |
+| — | Reintento de la solicitud con la misma `Idempotency-Key` | Devuelve la misma solicitud (mismo `reembolsoId`); no se crea otra (`R-BIL-28`) |
 | — | Reintento del webhook de disputa | La clave del proveedor lo hace idempotente: una disputa por aviso |
 
 ## Postcondiciones
@@ -155,11 +156,11 @@ export const ErroresCU19 = {
 ## Restricciones aplicables
 
 `R-BIL-01` · `R-BIL-02` · `R-BIL-06` · `R-BIL-12` · `R-SEG-04` · `R-AUD-01` ·
-`R-AUD-05` · `R-CON-01`
+`R-AUD-05` · `R-BIL-28` · `R-BIL-29` · `R-BIL-30` · `R-CON-01`
 
 ## Evidencia que deja
 
-[[reembolso]] · [[disputa_pago]] · [[intento_pago]] · [[transaccion_billetera]] ·
+[[reembolso]] · [[historial_estado_reembolso]] · [[historial_estado_pago]] · [[disputa_pago]] · [[intento_pago]] · [[transaccion_billetera]] ·
 [[asiento_contable]] · [[excepcion_conciliacion]] · `evento_dominio` ·
 [[bitacora_evento]]
 

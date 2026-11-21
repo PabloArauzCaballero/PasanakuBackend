@@ -31,7 +31,8 @@ public class RecaudoDiarioRepositorio {
                         SELECT sum(abs(x.monto_diferencia)) AS diferencia
                           FROM aportes.excepcion_conciliacion x
                          WHERE x.conciliacion_id = c.id AND x.estado <> 'RESUELTA') e ON true
-                 WHERE p.estado = 'ACREDITADO'
+                 WHERE COALESCE((SELECT h.estado_nuevo FROM aportes.historial_estado_pago h WHERE h.pago_id = p.id
+                                  ORDER BY h.fecha_hora DESC, h.id DESC LIMIT 1), p.estado) = 'ACREDITADO'
                    AND p.fecha_hora_acreditacion >= ?::timestamptz AND p.fecha_hora_acreditacion < ?::timestamptz
                  GROUP BY p.moneda
                  ORDER BY p.moneda
@@ -55,7 +56,8 @@ public class RecaudoDiarioRepositorio {
                   JOIN aportes.conciliacion c ON c.id = x.conciliacion_id
                   JOIN aportes.pago p ON p.id = c.pago_id
                  WHERE x.estado <> 'RESUELTA'
-                   AND p.estado = 'ACREDITADO'
+                   AND COALESCE((SELECT h.estado_nuevo FROM aportes.historial_estado_pago h WHERE h.pago_id = p.id
+                                  ORDER BY h.fecha_hora DESC, h.id DESC LIMIT 1), p.estado) = 'ACREDITADO'
                    AND p.fecha_hora_acreditacion >= ?::timestamptz AND p.fecha_hora_acreditacion < ?::timestamptz
                 """,
                         desde,
