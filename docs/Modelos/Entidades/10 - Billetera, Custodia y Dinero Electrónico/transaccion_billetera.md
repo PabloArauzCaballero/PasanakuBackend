@@ -10,7 +10,7 @@ estereotipo: Raíz de agregado
 clave_primaria: [id]
 columnas: 20
 fk_salientes: 5
-fk_entrantes: 15
+fk_entrantes: 16
 append_only: true
 ---
 
@@ -83,11 +83,12 @@ append_only: true
 | [[retencion_saldo]] | `transaccion_origen_id` | 10 | [[retencion_saldo.transaccion_origen_id → transaccion_billetera]] |
 | [[reverso_transaccion]] | `transaccion_original_id` | 10 | [[reverso_transaccion.transaccion_original_id → transaccion_billetera]] |
 | [[reverso_transaccion]] | `transaccion_reverso_id` | 10 | [[reverso_transaccion.transaccion_reverso_id → transaccion_billetera]] |
+| [[solicitud_reverso]] | `transaccion_original_id` | 10 | [[solicitud_reverso.transaccion_original_id → transaccion_billetera]] |
 | [[transferencia_p2p]] | `transaccion_id` | 10 | [[transferencia_p2p.transaccion_id → transaccion_billetera]] |
 
 ## Entidades vecinas
 
-[[alerta_monitoreo_lft]] · [[asiento_contable]] · [[cargo_comision]] · [[costo_proveedor_operacion]] · [[declaracion_origen_fondos]] · [[devolucion_comision]] · [[dispositivo]] · [[evaluacion_antifraude]] · [[grupo]] · [[movimiento_billetera]] · [[orden_recarga]] · [[orden_retiro]] · [[qr_transferencia]] · [[registro_operacion_relevante]] · [[retencion_saldo]] · [[reverso_transaccion]] · [[sesion]] · [[transferencia_p2p]] · [[usuario]]
+[[alerta_monitoreo_lft]] · [[asiento_contable]] · [[cargo_comision]] · [[costo_proveedor_operacion]] · [[declaracion_origen_fondos]] · [[devolucion_comision]] · [[dispositivo]] · [[evaluacion_antifraude]] · [[grupo]] · [[movimiento_billetera]] · [[orden_recarga]] · [[orden_retiro]] · [[qr_transferencia]] · [[registro_operacion_relevante]] · [[retencion_saldo]] · [[reverso_transaccion]] · [[sesion]] · [[solicitud_reverso]] · [[transferencia_p2p]] · [[usuario]]
 
 ## Notas del modelo
 

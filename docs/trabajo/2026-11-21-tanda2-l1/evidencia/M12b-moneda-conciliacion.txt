@@ -1,0 +1,33 @@
+F1.L1.M12 (parte 2) · moneda CHAR(3) al lado del importe en conciliacion, excepcion_conciliacion y extracto_bancario
+Fecha: 2026-11-21 · Rama: correcciones/tanda2-l1-moneda-conciliacion (apilada sobre #449)
+
+--- fuente de verdad
+docs/entidades/03_aportes_pagos_qr.puml: moneda : CHAR(3) <<NULL>> en las 3 tablas
+scripts/generar_ddl.py: las 3 tablas en COLUMNAS_AGREGADAS (expandir; la columna nace nullable)
+docs/Restricciones.md: R-BIL-29 ampliada con ck_conciliacion_moneda, ck_excepcion_conciliacion_moneda,
+  ck_extracto_bancario_moneda (moneda IS NULL OR moneda IN ('BOB','USD'))
+$ python3 scripts/generar_ddl.py  -> Sin pendientes
+
+--- migracion sobre una base existente (esquema de HEAD previo, luego el nuevo aplicar.sql, y re-aplicado)
+previo: exit=0 · nuevo sobre previo: exit=0 · re-aplicado: exit=0
+restricciones presentes: ck_conciliacion_moneda ck_disputa_pago_moneda ck_excepcion_conciliacion_moneda
+  ck_extracto_bancario_moneda ck_reembolso_moneda
+INSERT extracto_bancario con moneda 'EUR' -> ERROR: violates check constraint "ck_extracto_bancario_moneda"
+
+--- integracion (PostgreSQL 16 local, base limpia con solo aplicar.sql)
+$ ./gradlew :servicios:aportes:integrationTest --tests '*CU132ConciliacionTest' --tests '*CU21CalendarioConciliacionTest' --tests '*CU19*'
+exit=0 · 6 clases · 30 pruebas · 0 fallos · 0 errores · 0 omitidas
+CU132ConciliacionTest.loteDeTresFuentes ahora exige moneda='BOB' en las 5 conciliaciones y las 3 excepciones.
+
+--- control negativo (mutante): ConciliacionRepositorio.registrar escribe moneda NULL
+3 tests completed, 1 failed · CU132ConciliacionTest.java:157 expected: 0 but was: 5
+(restaurado el codigo; vuelve a verde)
+
+--- verificadores
+verificar_boveda: TODO OK (cifras sin cambio: R-BIL-29 es la misma regla ampliada)
+verificar_seguridad: TODO OK · 0 bloquean
+verificar_criterios: Sin divergencias entre la boveda y el codigo.
+
+No cubierto: extracto_bancario.moneda no la escribe ningun codigo de produccion (no hay importador de
+extractos en el servicio; solo semillas de dev y pruebas), queda NULL hasta que exista el importador.
+Contraer (NOT NULL) queda para despues de rellenar las filas viejas (regla 97.3.5).
