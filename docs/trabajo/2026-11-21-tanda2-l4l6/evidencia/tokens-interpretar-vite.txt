@@ -29,3 +29,22 @@ $ (packages/ui) yarn test:front
  Test Files  39 passed (39)
       Tests  231 passed (231)
 $ (packages/ui) yarn lint → exit 0 · (apps/web) yarn typecheck → exit 0
+
+## 2026-11-21 23:30 · CI de #487 en rojo: typecheck de packages/ui (clase PRODUCT_BUG, mío)
+error TS6059: File '.../packages/tokens/dinero/interpretar.ts' is not under 'rootDir' '.../packages/ui'.
+Causa: el alias `paths` `@aportaya/tokens/*` → `packages/tokens/*` encuentra `dinero/interpretar.ts` como archivo fuente propio
+(fuera de rootDir). `@aportaya/tokens/dinero` no choca porque no existe ese archivo: TS cae al `exports` del paquete.
+Arreglo: la entrada de exports se llama `./monto-escrito` (no es una ruta de archivo) → `./dinero/interpretar.ts".
+No lo vi antes porque corrí pruebas y lint de ui, no su typecheck: ahora corro el paso del CI completo.
+$ yarn lint && yarn typecheck   (raíz, turbo sobre todos los workspaces, como el paso f1 del CI)
+lint=0
+typecheck=0
+$ (packages/ui) yarn test:front
+ Test Files  39 passed (39)
+      Tests  231 passed (231)
+$ (packages/tokens) yarn vitest run
+ Test Files  4 passed (4)
+      Tests  52 passed (52)
+$ yarn workspace @aportaya/backoffice build → exit 0 · yarn workspace @aportaya/web build → exit 0
+$ ng serve (backoffice, sin .angular/cache) + Chromium en /ingreso
+titulo: Ingresar · AportaYa · UNRESOLVED_IMPORT en el log del servidor: 0 · único error de consola: 502 del proxy al mock 4010 (no levantado)

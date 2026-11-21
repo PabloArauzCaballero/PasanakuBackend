@@ -1,0 +1,54 @@
+{
+  "servicio": "identidad",
+  "operacion": "confirmarEnrolamientoTotp",
+  "metodo": "post",
+  "ruta": "/sesion/factores/totp/{factorId}/confirmacion",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "factorId": "0c19b45a-1c57-43da-804e-378028713834",
+        "confirmadoEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "factorId": "0c19b45a-1c57-43da-804e-378028713834",
+        "confirmadoEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "factorId": "0c19b45a-1c57-43da-804e-378028713834",
+        "confirmadoEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "factorId": "0c19b45a-1c57-43da-804e-378028713834",
+        "confirmadoEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU04-04",
+        "mensaje": "Codigo invalido",
+        "detalle": {},
+        "trazaId": "traza-confirmarEnrolamientoTotp-rechazo"
+      }
+    }
+  }
+}
