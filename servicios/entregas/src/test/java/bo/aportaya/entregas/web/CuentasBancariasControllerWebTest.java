@@ -50,7 +50,7 @@ class CuentasBancariasControllerWebTest {
     private static final String CUERPO =
             """
             {"tipoCuenta":"AHORRO","entidadFinanciera":"Banco Nacional",
-             "numeroCuenta":"1234567890123456","numeroCifrado":"AAAA-cifrado-por-el-almacen",
+             "numeroCuenta":"1234567890123456",
              "titularNombre":"Pablo Arauz","titularDocumento":"1234567","moneda":"BOB"}
             """;
 
@@ -92,8 +92,7 @@ class CuentasBancariasControllerWebTest {
 
             org.assertj.core.api.Assertions.assertThat(cuerpo)
                     .as("el numero en claro salio en la respuesta")
-                    .doesNotContain(EN_CLARO)
-                    .doesNotContain("AAAA-cifrado-por-el-almacen");
+                    .doesNotContain(EN_CLARO);
         }
 
         @Test
@@ -164,11 +163,12 @@ class CuentasBancariasControllerWebTest {
         }
 
         @Test
-        @DisplayName("CU-18 · 400: sin numeroCifrado, que el contrato exige")
-        void faltaElNumeroCifrado() throws Exception {
-            registrar(CUERPO.replace("\"numeroCifrado\":\"AAAA-cifrado-por-el-almacen\",", ""))
+        @DisplayName("CU-18 · 400: un numeroCifrado del cliente se rechaza; el cifrado lo hace el servidor (SEG-007)")
+        void rechazaElCifradoDelCliente() throws Exception {
+            registrar(CUERPO.replace("\"numeroCuenta\":", "\"numeroCifrado\":\"enc:v1:otro-numero\",\"numeroCuenta\":"))
                     .andExpect(status().isBadRequest());
             verifyNoInteractions(cu18);
+            verifyNoInteractions(titular);
         }
     }
 

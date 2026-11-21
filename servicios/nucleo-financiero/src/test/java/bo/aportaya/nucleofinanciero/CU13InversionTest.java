@@ -243,14 +243,16 @@ class CU13InversionTest extends BaseDeInversiones {
     void reversa() {
         var debito = debitar("deb-r", retencion, "300.00", servicio);
         UUID tesorero = fixtura.usuario();
-        var reverso = transaccion.execute(t -> reversoCU.ejecutar(
+        var reverso = Reversos.pedirYAutorizar(
+                transaccion,
+                reversoCU,
                 new bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion.EntradaReverso(
                         "rev-" + debito.transaccionId(),
                         debito.transaccionId(),
                         "ERROR_OPERATIVO",
-                        "La orden de inversion se anulo antes de comprar la posicion",
-                        tesorero),
-                contextoDe(usuario)));
+                        "La orden de inversion se anulo antes de comprar la posicion"),
+                contextoDe(usuario),
+                tesorero);
 
         assertThat(reverso.generaObligacionDeRestitucion()).isFalse();
         assertThat(sistemaFx.saldoDelLibro(cuenta)).isEqualByComparingTo("1000.00");

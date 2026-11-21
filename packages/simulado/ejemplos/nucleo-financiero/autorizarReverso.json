@@ -1,8 +1,8 @@
 {
   "servicio": "nucleo-financiero",
-  "operacion": "reversarTransaccion",
+  "operacion": "autorizarReverso",
   "metodo": "post",
-  "ruta": "/billetera/reversos",
+  "ruta": "/billetera/reversos/{solicitudId}/autorizacion",
   "escenarios": {
     "ok": {
       "estado": 201,
@@ -48,10 +48,10 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU14-01",
-        "mensaje": "Transaccion no reversable",
+        "codigo": "AP-CU14-02",
+        "mensaje": "Quien autoriza un reverso no puede ser quien lo solicita.",
         "detalle": {},
-        "trazaId": "traza-reversarTransaccion-rechazo"
+        "trazaId": "traza-autorizarReverso-rechazo"
       }
     }
   }

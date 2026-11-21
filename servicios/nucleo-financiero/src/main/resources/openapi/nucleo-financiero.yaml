@@ -593,14 +593,14 @@ paths:
 
   /billetera/reversos:
     post:
-      operationId: reversarTransaccion         # CU-14
-      summary: Reversar una transaccion aplicada
+      operationId: solicitarReverso            # CU-14, primer acto
+      summary: Solicitar el reverso de una transaccion aplicada
       description: >-
-        Reversar es escribir el espejo, no borrar el original. El libro es
-        append-only y la transaccion original conserva sus movimientos sin un solo
-        cambio: el extracto tiene que poder contar la historia completa —el cobro y
-        su devolucion—, no un cobro que se desvanecio.
-        Cuatro ojos: quien autoriza no puede ser quien solicita.
+        Reversar es escribir el espejo, no borrar el original. Cuatro ojos reales (P-13):
+        este acto solo registra la solicitud, con quien la pide tomado del token. Nada se
+        mueve hasta que OTRA persona la autoriza con su propio token en
+        /billetera/reversos/{solicitudId}/autorizacion. El cuerpo no declara ningun
+        autorizador: si un cliente lo manda, se rechaza como campo no declarado.
       parameters:
         - $ref: '#/components/parameters/ClaveIdempotencia'
       requestBody:
@@ -610,14 +610,39 @@ paths:
             schema: { $ref: '#/components/schemas/EntradaReverso' }
       responses:
         '201':
+          description: Solicitud registrada, a la espera de la autorizacion de otra persona
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaSolicitudReverso' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU14-01 TRANSACCION_NO_REVERSABLE · AP-CU14-02 MOTIVO_INSUFICIENTE
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/reversos/{solicitudId}/autorizacion:
+    post:
+      operationId: autorizarReverso            # CU-14, segundo acto
+      summary: Autorizar y ejecutar un reverso solicitado por otra persona
+      description: >-
+        El autorizador sale del token y tiene que ser una persona distinta de quien
+        solicito (misma persona, aun desde otra sesion: 422). La solicitud se ejecuta una
+        sola vez: autorizarla de nuevo responde 422 y no mueve saldo.
+      parameters:
+        - name: solicitudId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '201':
           description: Reverso ejecutado, o restitucion generada si el saldo no alcanza
           content:
             application/json:
               schema: { $ref: '#/components/schemas/SalidaReverso' }
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
-          # AP-CU14-01 TRANSACCION_NO_REVERSABLE · AP-CU14-02 FALTA_AUTORIZACION
-          # AP-CU14-03 SALDO_INSUFICIENTE_PARA_REVERSO
+          # AP-CU14-01 TRANSACCION_NO_REVERSABLE · AP-CU14-02 FALTA_AUTORIZACION (misma persona)
+          # AP-CU14-03 SALDO_INSUFICIENTE_PARA_REVERSO · AP-CU14-05 SOLICITUD_NO_PENDIENTE
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
@@ -1034,12 +1059,18 @@ components:
     EntradaReverso:
       type: object
       additionalProperties: false
-      required: [transaccionOriginalId, tipo, motivo, autorizadaPor]
+      required: [transaccionOriginalId, tipo, motivo]
       properties:
         transaccionOriginalId: { type: string, format: uuid }
         tipo:   { type: string, enum: [ANULACION, CONTRACARGO, ERROR_OPERATIVO, ORDEN_AUTORIDAD] }
         motivo: { type: string, minLength: 20, maxLength: 300 }
-        autorizadaPor: { type: string, format: uuid }
+    SalidaSolicitudReverso:
+      type: object
+      additionalProperties: false
+      required: [solicitudId, estado]
+      properties:
+        solicitudId: { type: string, format: uuid }
+        estado:      { type: string, enum: [SOLICITADA, EJECUTADA] }
     SalidaReverso:
       type: object
       additionalProperties: false

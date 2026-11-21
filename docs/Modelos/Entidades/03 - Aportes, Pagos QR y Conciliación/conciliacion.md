@@ -6,7 +6,7 @@ tabla: conciliacion
 clase: Conciliacion
 modulo: "03 — Aportes, Pagos QR y Conciliación"
 clave_primaria: [id]
-columnas: 8
+columnas: 9
 fk_salientes: 3
 fk_entrantes: 1
 append_only: false
@@ -26,8 +26,17 @@ append_only: false
 | `estado` | VARCHAR(25) | IDX | no | CK, IDX |
 | `metodo` | VARCHAR(20) | — | no | CK |
 | `diferencia_monto` | DECIMAL(14,2) | — | no | — |
+| `moneda` | CHAR(3) | — | sí | NULL |
 | `conciliado_por` | UUID | FK | sí | FK, NULL |
 | `fecha_conciliacion` | TIMESTAMPTZ | — | sí | NULL |
+
+## Reglas del catálogo
+
+> Declaradas en [[Restricciones]], no en el modelo. El nombre es el que devuelve la base al rechazar.
+
+| Regla | Tipo | Columnas |
+| --- | :-: | --- |
+| `ck_conciliacion_moneda` | CHECK | `moneda` |
 
 ## Claves foráneas salientes
 
