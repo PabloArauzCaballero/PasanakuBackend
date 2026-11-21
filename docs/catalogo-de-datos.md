@@ -8468,6 +8468,12 @@ Guardar la evaluación importa por dos razones opuestas: cuando el motor **acert
 
 ### `solicitud_reverso`
 
+**Qué es.** El primer acto de un reverso: quién lo pidió, sobre qué transacción, de qué tipo y por qué. No mueve saldo.
+
+**Para qué sirve.** Que un reverso lo hagan dos personas distintas, cada una con su propio token (P-13, `R-BIL-27`). Una persona pide; otra, en otra petición, autoriza. Recién entonces se escribe el espejo y nace el [[reverso_transaccion]]. La solicitud guarda a las dos, y la base rechaza que sean la misma.
+
+**Por qué existe.** Si el autorizador viaja en el cuerpo de una sola petición, cualquiera escribe el identificador de otra persona y los cuatro ojos son uno. Separar el pedido del hecho deja el reverso (`reverso_transaccion`) como registro de lo ejecutado, siempre con su autorizador, como exige `R-SEG-04`.
+
 **Casos de uso que la nombran.** CU-14 Reversar una transacción (`reversarTransaccion`, `listarReversos`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `reverso_transaccion`, `transaccion_billetera`. Reglas nombradas: `ck_solicitud_reverso_cuatro_ojos`, `ck_solicitud_reverso_resuelta`, `uq_solicitud_reverso_viva`.
