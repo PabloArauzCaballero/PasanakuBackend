@@ -1,4 +1,4 @@
-# Transferencia — coordinación del plan de correcciones de Pasanaku (2026-11-21, 23:20 UTC)
+# Transferencia — coordinación del plan de correcciones de Pasanaku (2026-11-21, 23:35 UTC)
 
 > Para la sesión que retome la coordinación. Leé esto entero antes de actuar. Todo lo que dice está en GitHub;
 > nada vive solo en el chat.
@@ -44,7 +44,7 @@ Cada sesión tiene su `docs/trabajo/2026-11-21-tanda2-<lote>/PLAN.md` y `REPORTE
 | #484 | Parámetros del modelo A obligatorios (interruptor `MODELO_A_HABILITADO`, apagado por omisión) | Mergear verde. |
 | #448 | L3L5: notificaciones/transparencia/tarifas (autorización, webhook, certificado) | Mergear verde. |
 | #468 | `dependabot.yml` → `target-branch: dev`, **contra `main`** | El sistema de permisos bloqueó mergearlo. Necesita que Pablo lo mergee o lo autorice explícitamente. Después cerrar #394–#397 (apuntan a `main`) para que dependabot los rehaga contra `dev`. |
-| #394–#397 | Dependabot contra `main` | Ver #468. |
+| #394–#397 | Dependabot contra `main` | **Cerrados** (21-11, 23:30). Dependabot los rehace contra `dev` cuando #468 entre en `main`. |
 
 Herramientas que usé (scratchpad, pueden haberse perdido; son triviales de rehacer):
 - `ci.sh <n…>`: estado de checks por PR (`gh api repos/…/commits/<sha>/check-runs`).
@@ -103,3 +103,21 @@ Herramientas que usé (scratchpad, pueden haberse perdido; son triviales de reha
 - Parámetros del modelo A validados solo con `MODELO_A_HABILITADO=true`.
 - Mockito como `-javaagent` en toda JVM de prueba (#444); aliado simulado en HTTP/1.1 (#453); credenciales del
   compose desplegado como `${VAR:-}` con guarda (#481).
+
+## 8. Cómo seguir desde OTRA cuenta (pedido de Pablo: la cuenta actual se queda sin tokens)
+
+Las cuatro sesiones de §2 y esta coordinación pertenecen a la cuenta anterior: **otra cuenta no puede mandarles
+mensajes**. Hay dos caminos:
+
+1. **Mientras sigan vivas:** las sesiones siguen trabajando solas (orden de «no detenerse», tope de 3 PR) y abren PR a
+   `dev`. Quien coordine desde la cuenta nueva solo necesita GitHub: revisar y mergear sus PR (§3) y promover (§4).
+   Las sesiones avisan a Pablo si la coordinación no responde.
+2. **Si una sesión se detiene:** crear una sesión nueva por lote, con el repo en `dev`, y darle este prompt:
+   «Sos la sesión ejecutora del lote <L1|L2|L3L5|L4L6> de la tanda 2 del plan de correcciones de Pasanaku. Leé
+   `CLAUDE.md`, `AGENTS.md`, `.claude/rules/`, `docs/trabajo/2026-11-21-plan-correcciones/EJECUCION.md`,
+   `TRANSFERENCIA.md`, `DECISIONES.md` (tandas 1–11) y tu `docs/trabajo/2026-11-21-tanda2-<lote>/PLAN.md` y
+   `REPORTE.md`. Retomá desde la primera microtarea que no esté HECHA, con el alcance de archivos del lote, tope de 3 PR
+   abiertos, un PR por cambio a `dev`, sin mergear vos. No te detengas.» Las ramas de trabajo de cada lote están en
+   `origin/correcciones/tanda2-<lote>-*`.
+
+Primer paso de la coordinación nueva: correr `ci.sh`/`vigia.sh` (§3) sobre los PR abiertos y mergear lo verde.
