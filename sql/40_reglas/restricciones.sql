@@ -752,6 +752,51 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_cuenta_benef_principal
   ON cuenta_bancaria_beneficiario (usuario_id)
   WHERE (es_principal);
 
+-- R-BIL-27 · cuatro ojos reales en el reverso (P-13): la solicitud guarda a quien
+-- la pidio; la autorizacion, a otra persona. Ejecutada exige autorizador y reverso.
+ALTER TABLE solicitud_reverso DROP CONSTRAINT IF EXISTS ck_solicitud_reverso_cuatro_ojos;
+ALTER TABLE solicitud_reverso DROP CONSTRAINT IF EXISTS ck_solicitud_reverso_resuelta;
+ALTER TABLE solicitud_reverso
+  ADD CONSTRAINT ck_solicitud_reverso_cuatro_ojos CHECK (
+      autorizada_por IS NULL OR autorizada_por <> solicitada_por
+  ),
+  ADD CONSTRAINT ck_solicitud_reverso_resuelta CHECK (
+      (estado = 'SOLICITADA' AND autorizada_por IS NULL
+         AND reverso_transaccion_id IS NULL AND resuelta_en IS NULL)
+   OR (estado = 'EJECUTADA' AND autorizada_por IS NOT NULL
+         AND reverso_transaccion_id IS NOT NULL AND resuelta_en IS NOT NULL)
+  );
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_solicitud_reverso_viva
+  ON solicitud_reverso (transaccion_original_id)
+  WHERE estado = 'SOLICITADA';
+-- R-BIL-28 · un reembolso por pago y clave (F1.L1.M09). Parcial porque las filas de
+-- antes no tienen clave; toda solicitud nueva la escribe. Un SELECT previo no alcanza:
+-- entre el SELECT y el INSERT entra el duplicado (regla 91.2.4).
+CREATE UNIQUE INDEX IF NOT EXISTS uq_reembolso_clave
+  ON reembolso (pago_id, clave_idempotencia)
+  WHERE clave_idempotencia IS NOT NULL;
+
+-- R-BIL-29 · moneda al lado del importe (F1.L1.M12). Se declara aca y no en el modelo
+-- porque la columna llega a las bases existentes por 15_infra/columnas_agregadas.sql,
+-- que corre DESPUES de las tablas: este bloque corre despues de los dos. NULL solo en
+-- las filas de antes; CU-19 copia la moneda del pago en toda fila nueva.
+ALTER TABLE reembolso DROP CONSTRAINT IF EXISTS ck_reembolso_moneda;
+ALTER TABLE reembolso
+  ADD CONSTRAINT ck_reembolso_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
+ALTER TABLE disputa_pago DROP CONSTRAINT IF EXISTS ck_disputa_pago_moneda;
+ALTER TABLE disputa_pago
+  ADD CONSTRAINT ck_disputa_pago_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
+ALTER TABLE conciliacion DROP CONSTRAINT IF EXISTS ck_conciliacion_moneda;
+ALTER TABLE conciliacion
+  ADD CONSTRAINT ck_conciliacion_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
+ALTER TABLE excepcion_conciliacion DROP CONSTRAINT IF EXISTS ck_excepcion_conciliacion_moneda;
+ALTER TABLE excepcion_conciliacion
+  ADD CONSTRAINT ck_excepcion_conciliacion_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
+ALTER TABLE extracto_bancario DROP CONSTRAINT IF EXISTS ck_extracto_bancario_moneda;
+ALTER TABLE extracto_bancario
+  ADD CONSTRAINT ck_extracto_bancario_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
+
 
 -- ---------------------------------------------------------------------
 -- R-LIM — Límites operativos

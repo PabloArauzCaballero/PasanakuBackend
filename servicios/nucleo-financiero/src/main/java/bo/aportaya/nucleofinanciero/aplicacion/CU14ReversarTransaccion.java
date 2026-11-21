@@ -4,10 +4,11 @@ import bo.aportaya.nucleofinanciero.infraestructura.CuentaBilleteraRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.LibroDeBilletera;
 import bo.aportaya.nucleofinanciero.infraestructura.LibroDeBilletera.Pata;
 import bo.aportaya.nucleofinanciero.infraestructura.ReversoRepositorio;
+import bo.aportaya.nucleofinanciero.infraestructura.SolicitudReversoRepositorio;
+import bo.aportaya.nucleofinanciero.infraestructura.SolicitudReversoRepositorio.Solicitud;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
-import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.mensajeria.EventoDominio;
@@ -32,9 +33,11 @@ import org.springframework.transaction.annotation.Transactional;
  * y el extracto tiene que poder contar la historia completa — el cobro y su
  * devolucion, no un cobro que se desvanecio.
  *
- * <p>Cuatro ojos: quien autoriza no puede ser quien solicita. Un reverso es la
- * operacion con la que se puede sacar plata de cualquier cuenta sin que el titular
- * intervenga, asi que exige dos personas por definicion (R-SEG-04).
+ * <p>Cuatro ojos reales (P-13, R-BIL-27): son dos actos de dos personas, cada una con su
+ * propio token. {@link #solicitar} guarda a quien lo pide; {@link #autorizar}, en otra
+ * peticion, lo ejecuta con quien autoriza. Ningun actor sale del cuerpo de la peticion: un
+ * reverso es la operacion con la que se puede sacar plata de cualquier cuenta sin que el
+ * titular intervenga (R-SEG-04).
  */
 @Service
 public class CU14ReversarTransaccion {
@@ -43,175 +46,225 @@ public class CU14ReversarTransaccion {
 
     private final Datos datos;
     private final ReversoRepositorio reversos;
+    private final SolicitudReversoRepositorio solicitudes;
     private final CuentaBilleteraRepositorio cuentas;
     private final LibroDeBilletera libro;
     private final Outbox outbox;
     private final Reloj reloj;
+    private final CargoDelReverso cargo;
 
     public CU14ReversarTransaccion(
             Datos datos,
             ReversoRepositorio reversos,
+            SolicitudReversoRepositorio solicitudes,
             CuentaBilleteraRepositorio cuentas,
             LibroDeBilletera libro,
             Outbox outbox,
-            Reloj reloj) {
+            Reloj reloj,
+            CargoDelReverso cargo) {
         this.datos = datos;
         this.reversos = reversos;
+        this.solicitudes = solicitudes;
         this.cuentas = cuentas;
         this.libro = libro;
         this.outbox = outbox;
         this.reloj = reloj;
+        this.cargo = cargo;
     }
 
+    /** Primer acto: registra la solicitud, con quien la pide tomado de la sesion. No mueve saldo. */
     @Transactional
-    public SalidaReverso ejecutar(EntradaReverso entrada, ContextoSesion ctx) {
+    public SalidaSolicitud solicitar(EntradaReverso entrada, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
-
-        // AP-CU14-02 · R-SEG-04. Se comprueba ANTES de tocar la base: un reverso sin
-        // cuatro ojos no merece ni una consulta.
-        if (entrada.autorizadaPor().equals(ctx.usuarioId())) {
-            throw new ErrorDeNegocio(
-                    CodigoError.de(14, 2), "Quien autoriza un reverso no puede ser quien lo solicita.");
-        }
         if (entrada.motivo() == null || entrada.motivo().trim().length() < MOTIVO_MINIMO) {
             // Un motivo de tres palabras no explica nada seis meses despues, que es
             // justo cuando alguien pregunta por que se le saco plata de la cuenta.
             throw new ErrorDeNegocio(
                     CodigoError.de(14, 2), "El motivo del reverso tiene que explicar que paso, no resumirlo.");
         }
-
         return datos.conContexto(ctx, dsl -> {
-            var original = reversos.original(dsl, entrada.transaccionOriginalId())
-                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(14, 1), "Esa transaccion no existe."));
-
-            // AP-CU14-01 · R-BIL-15.
-            if (!original.esReversable()) {
-                throw new ErrorDeNegocio(
-                        CodigoError.de(14, 1), "Esa transaccion esta " + original.estado() + ": no se reversa.");
+            var previa = solicitudes.porClave(dsl, entrada.claveIdempotencia());
+            if (previa.isPresent()) {
+                return repetida(previa.get(), entrada, ctx);
             }
-            if (reversos.yaFueReversada(dsl, original.id())) {
-                throw new ErrorDeNegocio(CodigoError.de(14, 1), "Esa transaccion ya fue reversada.");
-            }
-
-            // Se bloquean las cuentas que el reverso va a tocar, en orden de
-            // identificador: es el mismo cuidado que en la transferencia.
-            original.patas().stream()
-                    .map(ReversoRepositorio.Movimiento::cuentaId)
-                    .distinct()
-                    .sorted()
-                    .forEach(cuenta -> cuentas.bloquear(dsl, cuenta));
-
-            // AP-CU14-03: si el espejo dejaria una cuenta en negativo, no se fuerza.
-            // Se registra una obligacion de restitucion y el saldo NO baja de cero —
-            // el error fue nuestro y la deuda queda a la vista, no escondida en un
-            // saldo negativo que la persona no entiende.
-            List<Pata> espejo = new ArrayList<>();
-            boolean generaRestitucion = false;
-            for (var pata : original.patas()) {
-                if ("CREDITO".equals(pata.sentido())) {
-                    var cuenta = cuentas.ver(dsl, pata.cuentaId()).orElseThrow();
-                    if (pata.monto().esMayorQue(cuenta.disponible()) && !cuenta.permiteNegativo()) {
-                        generaRestitucion = true;
-                    }
-                }
-                espejo.add(
-                        new Pata(pata.cuentaId(), pata.sentidoInverso(), pata.monto(), "Reverso de: " + pata.glosa()));
-            }
-
-            if (generaRestitucion) {
-                UUID reversoId = reversos.registrar(
-                        dsl,
-                        original.id(),
-                        null,
-                        entrada.autorizadaPor(),
-                        entrada.tipo(),
-                        entrada.motivo(),
-                        original.montoTotal(),
-                        ahora);
-                outbox.emitir(
-                        dsl,
-                        new EventoDominio(
-                                "nucleo_financiero.restitucion_requerida",
-                                "reverso_transaccion",
-                                reversoId,
-                                Map.of(
-                                        "transaccionOriginalId", original.id().toString(),
-                                        "monto", original.montoTotal().toString(),
-                                        "motivo", entrada.motivo()),
-                                UUID.fromString(ctx.traza().id())));
-                return new SalidaReverso(reversoId, null, true);
-            }
-
-            UUID transaccionReverso = libro.registrar(
+            exigirReversable(dsl, entrada.transaccionOriginalId());
+            var creada = solicitudes.crear(
                     dsl,
-                    "REVERSO",
-                    "AJUSTE",
-                    original.id(),
-                    "API",
-                    original.montoTotal(),
+                    entrada.transaccionOriginalId(),
+                    ctx.usuarioId(),
                     entrada.claveIdempotencia(),
-                    Optional.of(entrada.autorizadaPor()),
-                    espejo,
+                    entrada.tipo(),
+                    entrada.motivo(),
                     ahora);
+            if (creada.isEmpty()) {
+                // Un reintento concurrente con la misma clave gano la carrera, o ya hay otra solicitud viva.
+                return solicitudes
+                        .porClave(dsl, entrada.claveIdempotencia())
+                        .map(s -> repetida(s, entrada, ctx))
+                        .orElseThrow(() -> new ErrorDeNegocio(
+                                CodigoError.de(14, 1), "Esa transaccion ya tiene un reverso pendiente de autorizar."));
+            }
+            return new SalidaSolicitud(creada.get(), "SOLICITADA");
+        });
+    }
 
+    /** Quien pidio la solicitud, para que la capa web lo compare con quien autoriza (CuatroOjos). */
+    @Transactional(readOnly = true)
+    public UUID solicitadaPor(UUID solicitudId, ContextoSesion ctx) {
+        return datos.conContexto(ctx, dsl -> solicitudes
+                .ver(dsl, solicitudId)
+                .map(Solicitud::solicitadaPor)
+                .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(14, 5), "Esa solicitud de reverso no existe.")));
+    }
+
+    /**
+     * Segundo acto: otra persona autoriza y el reverso se ejecuta, una sola vez.
+     *
+     * <p>Quien autoriza es {@code ctx.usuarioId()}, del token. La capa web ya lo comparo con
+     * {@code CuatroOjos}; aca se vuelve a exigir porque el caso de uso no confia en quien lo
+     * llama, y la base lo exige una tercera vez ({@code ck_solicitud_reverso_cuatro_ojos}).
+     */
+    @Transactional
+    public SalidaReverso autorizar(UUID solicitudId, ContextoSesion ctx) {
+        OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
+        return datos.conContexto(ctx, dsl -> {
+            var solicitud = solicitudes
+                    .bloquear(dsl, solicitudId)
+                    .orElseThrow(
+                            () -> new ErrorDeNegocio(CodigoError.de(14, 5), "Esa solicitud de reverso no existe."));
+            // AP-CU14-02 · R-SEG-04 · R-BIL-27.
+            if (solicitud.solicitadaPor().equals(ctx.usuarioId()) || ctx.esSistema()) {
+                throw new ErrorDeNegocio(
+                        CodigoError.de(14, 2), "Quien autoriza un reverso no puede ser quien lo solicita.");
+            }
+            if (!solicitud.pendiente()) {
+                throw new ErrorDeNegocio(CodigoError.de(14, 5), "Esa solicitud de reverso ya fue resuelta.");
+            }
+            var salida = ejecutar(dsl, solicitud, ctx.usuarioId(), ctx, ahora);
+            if (!solicitudes.marcarEjecutada(dsl, solicitud.id(), ctx.usuarioId(), salida.reversoId(), ahora)) {
+                throw new ErrorDeNegocio(CodigoError.de(14, 5), "Otra autorizacion resolvio esa solicitud primero.");
+            }
+            return salida;
+        });
+    }
+
+    private SalidaSolicitud repetida(Solicitud previa, EntradaReverso entrada, ContextoSesion ctx) {
+        if (!previa.transaccionOriginalId().equals(entrada.transaccionOriginalId())
+                || !previa.solicitadaPor().equals(ctx.usuarioId())) {
+            throw new ErrorDeNegocio(CodigoError.de(14, 1), "La clave de idempotencia ya identifica otra solicitud.");
+        }
+        return new SalidaSolicitud(previa.id(), previa.estado());
+    }
+
+    private ReversoRepositorio.Original exigirReversable(DSLContext dsl, UUID transaccionId) {
+        var original = reversos.original(dsl, transaccionId)
+                .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(14, 1), "Esa transaccion no existe."));
+        // AP-CU14-01 · R-BIL-15.
+        if (!original.esReversable()) {
+            throw new ErrorDeNegocio(
+                    CodigoError.de(14, 1), "Esa transaccion esta " + original.estado() + ": no se reversa.");
+        }
+        if (reversos.yaFueReversada(dsl, original.id())) {
+            throw new ErrorDeNegocio(CodigoError.de(14, 1), "Esa transaccion ya fue reversada.");
+        }
+        return original;
+    }
+
+    private SalidaReverso ejecutar(
+            DSLContext dsl, Solicitud solicitud, UUID autorizadaPor, ContextoSesion ctx, OffsetDateTime ahora) {
+        var original = exigirReversable(dsl, solicitud.transaccionOriginalId());
+
+        // Se bloquean las cuentas que el reverso va a tocar, en orden de
+        // identificador: es el mismo cuidado que en la transferencia.
+        original.patas().stream()
+                .map(ReversoRepositorio.Movimiento::cuentaId)
+                .distinct()
+                .sorted()
+                .forEach(cuenta -> cuentas.bloquear(dsl, cuenta));
+
+        // AP-CU14-03: si el espejo dejaria una cuenta en negativo, no se fuerza.
+        // Se registra una obligacion de restitucion y el saldo NO baja de cero —
+        // el error fue nuestro y la deuda queda a la vista, no escondida en un
+        // saldo negativo que la persona no entiende.
+        List<Pata> espejo = new ArrayList<>();
+        boolean generaRestitucion = false;
+        for (var pata : original.patas()) {
+            if ("CREDITO".equals(pata.sentido())) {
+                var cuenta = cuentas.ver(dsl, pata.cuentaId()).orElseThrow();
+                if (pata.monto().esMayorQue(cuenta.disponible()) && !cuenta.permiteNegativo()) {
+                    generaRestitucion = true;
+                }
+            }
+            espejo.add(new Pata(pata.cuentaId(), pata.sentidoInverso(), pata.monto(), "Reverso de: " + pata.glosa()));
+        }
+
+        if (generaRestitucion) {
             UUID reversoId = reversos.registrar(
                     dsl,
                     original.id(),
-                    transaccionReverso,
-                    entrada.autorizadaPor(),
-                    entrada.tipo(),
-                    entrada.motivo(),
+                    null,
+                    autorizadaPor,
+                    solicitud.tipo(),
+                    solicitud.motivo(),
                     original.montoTotal(),
                     ahora);
-            revertirElCargo(dsl, original, transaccionReverso, ctx);
-
             outbox.emitir(
                     dsl,
                     new EventoDominio(
-                            "nucleo_financiero.transaccion_reversada",
+                            "nucleo_financiero.restitucion_requerida",
                             "reverso_transaccion",
                             reversoId,
                             Map.of(
                                     "transaccionOriginalId", original.id().toString(),
-                                    "transaccionReversoId", transaccionReverso.toString(),
-                                    "tipo", entrada.tipo()),
+                                    "monto", original.montoTotal().toString(),
+                                    "motivo", solicitud.motivo()),
                             UUID.fromString(ctx.traza().id())));
+            return new SalidaReverso(reversoId, null, true);
+        }
 
-            return new SalidaReverso(reversoId, transaccionReverso, false);
-        });
+        // La clave del libro sale de la solicitud: autorizar dos veces no puede asentar dos veces.
+        UUID transaccionReverso = libro.registrar(
+                dsl,
+                "REVERSO",
+                "AJUSTE",
+                original.id(),
+                "API",
+                original.montoTotal(),
+                "reverso:" + solicitud.id(),
+                Optional.of(autorizadaPor),
+                espejo,
+                ahora);
+
+        UUID reversoId = reversos.registrar(
+                dsl,
+                original.id(),
+                transaccionReverso,
+                autorizadaPor,
+                solicitud.tipo(),
+                solicitud.motivo(),
+                original.montoTotal(),
+                ahora);
+        cargo.revertir(dsl, original, transaccionReverso, ctx);
+
+        outbox.emitir(
+                dsl,
+                new EventoDominio(
+                        "nucleo_financiero.transaccion_reversada",
+                        "reverso_transaccion",
+                        reversoId,
+                        Map.of(
+                                "transaccionOriginalId", original.id().toString(),
+                                "transaccionReversoId", transaccionReverso.toString(),
+                                "tipo", solicitud.tipo()),
+                        UUID.fromString(ctx.traza().id())));
+
+        return new SalidaReverso(reversoId, transaccionReverso, false);
     }
 
-    /**
-     * Si lo que se reversa era una recarga o un retiro con costo, ese costo tambien se devuelve, y no por una
-     * edicion: el contra-asiento de arriba es nuevo y el original queda intacto. La devolucion fiscal (nota de
-     * credito) es de {@code tarifas}, que la ejecuta al recibir este evento; aca solo se avisa, una vez, y con
-     * identificadores. El reverso ocurre una sola vez por transaccion (R-BIL-15), asi que el aviso tambien.
-     */
-    private void revertirElCargo(
-            DSLContext dsl, ReversoRepositorio.Original original, UUID reverso, ContextoSesion ctx) {
-        reversos.cargoDe(dsl, original).ifPresent(cargo -> {
-            if ("ORDEN_RECARGA".equals(cargo.ordenTipo())) {
-                reversos.marcarRecargaReversada(dsl, cargo.ordenId());
-            }
-            if (cargo.costo().esMayorQue(Dinero.cero(cargo.costo().moneda()))) {
-                var carga = new java.util.HashMap<String, Object>();
-                carga.put("ordenTipo", cargo.ordenTipo());
-                carga.put("transaccionReversoId", reverso.toString());
-                cargo.cotizacionId().ifPresent(id -> carga.put("cotizacionId", id.toString()));
-                outbox.emitir(
-                        dsl,
-                        new EventoDominio(
-                                "nucleo_financiero.cargo_a_revertir",
-                                cargo.ordenTipo().toLowerCase(java.util.Locale.ROOT),
-                                cargo.ordenId(),
-                                carga,
-                                UUID.fromString(ctx.traza().id())));
-            }
-        });
-    }
+    /** Sin autorizador: quien autoriza es otra peticion, con otro token. */
+    public record EntradaReverso(String claveIdempotencia, UUID transaccionOriginalId, String tipo, String motivo) {}
 
-    public record EntradaReverso(
-            String claveIdempotencia, UUID transaccionOriginalId, String tipo, String motivo, UUID autorizadaPor) {}
+    public record SalidaSolicitud(UUID solicitudId, String estado) {}
 
     public record SalidaReverso(UUID reversoId, UUID transaccionReversoId, boolean generaObligacionDeRestitucion) {}
 }

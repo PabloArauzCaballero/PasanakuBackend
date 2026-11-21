@@ -230,14 +230,16 @@ class CUConsumoDeAportesTest extends BaseDeAportes {
                         .reversar(d, salida.asientoId().orElseThrow(), "reversa del aporte", ctx)));
         // La billetera: reverso del libro (CU-14), cuatro ojos: quien autoriza no es quien solicita.
         UUID autoriza = fixtura.usuario();
-        var reverso = transaccion.execute(t -> reversoCU.ejecutar(
+        var reverso = Reversos.pedirYAutorizar(
+                transaccion,
+                reversoCU,
                 new EntradaReverso(
                         "rev-aporte-" + UUID.randomUUID(),
                         salida.transaccionId().orElseThrow(),
                         "ANULACION",
-                        "Reversa del aporte cobrado por error operativo documentado",
-                        autoriza),
-                contextoDe(fixtura.usuario())));
+                        "Reversa del aporte cobrado por error operativo documentado"),
+                contextoDe(fixtura.usuario()),
+                autoriza);
 
         assertThat(reverso.generaObligacionDeRestitucion()).isFalse();
         // El original sigue INTACTO: dos movimientos de billetera y dos contables; el espejo es nuevo.

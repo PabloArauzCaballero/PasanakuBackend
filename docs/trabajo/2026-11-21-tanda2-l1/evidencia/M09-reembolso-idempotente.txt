@@ -1,0 +1,20 @@
+# F1.L1.M09 · reembolso idempotente (R-BIL-28) — salidas (2026-11-21)
+
+$ base limpia && APORTAYA_TEST_DB_URL=… ./gradlew :servicios:aportes:spotlessCheck test webTest testBarrido integrationTest --continue
+(gancho APORTAYA_TEST_DB_URL de BaseDeAportes aplicado solo para la corrida; llega en el PR de F1.L1.M06)
+test 53/53 · webTest 55/55 · testBarrido 2/2 · integrationTest 129/132
+name="bo.aportaya.aportes.CU19IdempotenciaTest" tests="4" skipped="0" failures="0" errors="0"
+  reintento en serie → mismo reembolsoId, 1 fila, 1 evento · 8 envios concurrentes misma clave → 1 id, 1 fila
+  misma clave con otro monto → AP-CU19-02, sigue 1 fila · INSERT duplicado directo → uq_reembolso_clave
+Las 3 restantes (AislamientoEsquemaTest, ArranqueTest x2) levantan su propio contenedor: NO COMPROBADO — requieren Docker.
+
+--- migracion sobre una base existente (esquema de origin/dev aplicado, luego el nuevo aplicar.sql)
+dev aplicado: exit=0 · columna antes: 0 · nuevo sobre dev: exit=0
+clave_idempotencia|YES
+CREATE UNIQUE INDEX uq_reembolso_clave ON aportes.reembolso USING btree (pago_id, clave_idempotencia) WHERE (clave_idempotencia IS NOT NULL)
+1
+
+$ python3 scripts/verificar_boveda.py → TODO OK
+$ python3 scripts/verificar_seguridad.py → TODO OK · 7 aviso(s)
+$ python3 scripts/verificar_criterios.py → Sin divergencias entre la boveda y el codigo.
+$ python3 scripts/verificar_pruebas_web.py → La capa web esta cubierta segun ADR-043.
