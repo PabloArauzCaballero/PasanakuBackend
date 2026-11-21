@@ -33,6 +33,12 @@ def crear_servidor(host: str, puerto: int, aliado: Aliado, api_key: str, control
 
     class Handler(BaseHTTPRequestHandler):
         server_version = "AliadoFicticio/1"
+        # HTTP/1.1 como un aliado real: conexion persistente con Content-Length (que `responder` siempre manda) y
+        # cierre explicito solo cuando se simula una respuesta perdida. Con el HTTP/1.0 por defecto, el servidor
+        # cerraba el socket tras cada respuesta sin decirlo; el HttpClient de Java guardaba esa conexion en su pool y,
+        # con la CPU cargada, la reutilizaba ya cerrada: «HTTP/1.1 header parser received no bytes» (intermitente de
+        # AliadoSimuladoFlujosContratoTest, demostrado en docs/trabajo/2026-11-21-tanda2-l3l5/evidencia/).
+        protocol_version = "HTTP/1.1"
 
         def log_message(self, formato: str, *args: Any) -> None:
             return  # sin URLs, credenciales ni importes en los logs del servidor de pruebas
