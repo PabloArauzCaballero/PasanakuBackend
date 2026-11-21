@@ -7128,12 +7128,6 @@
                   "value": "servicio-de-prueba",
                   "description": "",
                   "disabled": false
-                },
-                {
-                  "key": "usuarioId",
-                  "value": "{{usuarioId}}",
-                  "description": "",
-                  "disabled": false
                 }
               ]
             }
@@ -7221,12 +7215,6 @@
                   "value": "servicio-de-prueba",
                   "description": "",
                   "disabled": false
-                },
-                {
-                  "key": "usuarioId",
-                  "value": "{{usuarioId}}",
-                  "description": "",
-                  "disabled": false
                 }
               ]
             }
@@ -7277,12 +7265,6 @@
                 {
                   "key": "servicio",
                   "value": "servicio-de-prueba",
-                  "description": "",
-                  "disabled": false
-                },
-                {
-                  "key": "usuarioId",
-                  "value": "{{usuarioId}}",
                   "description": "",
                   "disabled": false
                 }

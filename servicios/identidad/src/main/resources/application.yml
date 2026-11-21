@@ -43,6 +43,9 @@ aportaya:
     # para que las sesiones vivas sigan validando hasta que venzan (15 min). Vacia fuera de
     # una rotacion. Ver docs/operacion/rotacion-de-secretos-ensayada.md.
     clave-firma-anterior: ${JWT_CLAVE_FIRMA_ANTERIOR:}
+  # F1.L4.M03: `aportaya.entorno.descartable` NO se declara aca y vale false. Solo una
+  # maquina de desarrollo o de pruebas la pone en true (APORTAYA_ENTORNO_DESCARTABLE=true),
+  # y es lo unico que permite arrancar sin JWT_CLAVE_FIRMA (clave en memoria).
   zona-horaria: America/La_Paz      # plazos habiles
   invitaciones:
     clave: ${INVITACIONES_CLAVE:}
