@@ -83,3 +83,15 @@ Lo que queda abierto es solo para el abogado o Cumplimiento: [`PREGUNTAS-LEGALES
 | Segundo proveedor de cobro QR y de desembolso | **Obligatorio antes de producción.** |
 | Contactos con proveedores | **Ninguno.** Las RFP salen al mercado abierto. |
 | Facturación de la comisión | **Con un proveedor de facturación autorizado**, no integrada directo con el SIN. |
+
+## Tanda 9 (decisiones que pidió la sesión F0)
+
+| Tema | Decisión |
+|---|---|
+| Tamaño del grupo | El **creador** del grupo, que es su administrador, configura exactamente el tamaño. **Antes de arrancar lo cambia libremente.** Con el grupo en marcha solo se pueden **agregar cupos al final del calendario**, con aprobación del grupo por votación y sin tocar los turnos ya asignados. |
+| Grupo sin llenar a la fecha límite | **Decide el creador:** achicar el grupo a los que ya entraron (si todos aceptan el nuevo pozo), extender la fecha o cancelar. Si no hace nada en X días (parámetro), el grupo se cancela. Hasta el arranque nadie pagó nada. Esto reemplaza el arranque con el 75 % de ADR-054. |
+| Poderes del creador | Los cuatro ofrecidos, con los límites recomendados. (1) Invitar y revocar invitaciones mientras haya cupos. (2) Configurar el grupo (monto, periodicidad, fecha de inicio y nombre) **solo antes de arrancar**. (3) Fijar la fecha límite y cancelar el grupo **solo antes de arrancar**. (4) Pasar el rol a otro participante, que tiene que aceptarlo. **No puede** aprobar pagos ni entregas, mover dinero (regla 91.5), expulsar a nadie ni cambiar turnos. Lo que afecta a otros va por votación. No es el «organizador profesional», que se eliminó (P-11): es un participante con rol de administración de la configuración. |
+| Disolución automática por mora | **Sigue, con umbral:** si el fondo del grupo se agota y la mora supera un umbral (parámetro), el grupo se disuelve solo y cada uno se liquida desde el mayor. Convive con la disolución por votación. |
+| Quién es «el perjudicado» del recargo | **El fondo del grupo.** Si el fondo cubrió la cuota, el recargo vuelve al fondo y se devuelve a todos al cierre. Si alguien tuvo que esperar porque el fondo no alcanzó, el recargo va a quien esperó. Esto precisa la tanda 1 (P-05). |
+| Lo incobrable al cierre | **Primero se compensa** con lo que el fondo le iba a devolver al propio moroso. El resto se reparte en partes iguales **solo entre los que cumplieron**. El moroso no recibe devolución mientras deba. |
+| «Grupo perfecto» | El fondo se devuelve igual al cierre. Si el mismo grupo arma otro ciclo, **aporta un porcentaje menor al fondo** y todos suben de nivel juntos. |
