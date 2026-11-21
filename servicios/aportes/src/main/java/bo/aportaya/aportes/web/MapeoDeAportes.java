@@ -17,7 +17,23 @@ final class MapeoDeAportes {
 
     private MapeoDeAportes() {}
 
+    /**
+     * Un {@code Dinero} que ENTRA por el contrato (hoy, el del cobro). F1.L1.M01 · nunca negativo (regla
+     * 91.2.2): el esquema admite signo porque tambien describe salidas, asi que la regla de entrada vive aca
+     * y sale como 400 (AP-VAL-02) en vez de chocar con el CHECK de la base.
+     */
     static bo.aportaya.plataforma.dominio.Dinero dinero(Dinero valor) {
+        BigDecimal monto = new BigDecimal(valor.getMonto());
+        if (monto.signum() < 0) {
+            throw new jakarta.validation.ConstraintViolationException(
+                    "monto: un importe de entrada no puede ser negativo", java.util.Set.of());
+        }
+        return bo.aportaya.plataforma.dominio.Dinero.de(
+                monto, Moneda.valueOf(valor.getMoneda().getValue()));
+    }
+
+    /** F1.L1.M01 · el importe de entrada: el contrato ya garantizo que no es negativo. */
+    static bo.aportaya.plataforma.dominio.Dinero dinero(bo.aportaya.aportes.web.generado.modelo.Importe valor) {
         return bo.aportaya.plataforma.dominio.Dinero.de(
                 new BigDecimal(valor.getMonto()),
                 Moneda.valueOf(valor.getMoneda().getValue()));

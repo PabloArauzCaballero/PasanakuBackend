@@ -137,7 +137,7 @@
         "description": "## Solicitar el reembolso de un pago\n\nSolo SOLICITA. Ejecutar exige una segunda persona (R-SEG-04): un reembolso es la via mas corta para sacar dinero con una excusa verosimil.\n\n| | |\n| --- | --- |\n| **Servicio** | `aportes` |\n| **Operacion** | `solicitarReembolso` |\n| **Ruta** | `POST /api/v1/pagos/{pagoId}/reembolsos` |\n| **Permiso** | `BILLETERA_OPERAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `404`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"motivo\": \"DISPUTA\"\n}",
+          "raw": "{\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"motivo\": \"DISPUTA\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -302,7 +302,7 @@
         "description": "## Registrar una disputa recibida del proveedor\n\nEl plazo de respuesta se calcula al ingresar y queda GUARDADO (R-CON-01, invariante 8): recalcularlo al consultar es un argumento que el proveedor no acepta.\n\n| | |\n| --- | --- |\n| **Servicio** | `aportes` |\n| **Operacion** | `registrarDisputa` |\n| **Ruta** | `POST /api/v1/pagos/{pagoId}/disputas` |\n| **Permiso** | `SOPORTE` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"tipo\": \"CONTRACARGO\",\n  \"descripcion\": \"descripcion-de-prueba\",\n  \"montoDisputado\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"referenciaDelProveedor\": \"referenciaDelProveedor-de-prueba\"\n}",
+          "raw": "{\n  \"tipo\": \"CONTRACARGO\",\n  \"descripcion\": \"descripcion-de-prueba\",\n  \"montoDisputado\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"referenciaDelProveedor\": \"referenciaDelProveedor-de-prueba\"\n}",
           "options": {
             "raw": {
               "language": "json"

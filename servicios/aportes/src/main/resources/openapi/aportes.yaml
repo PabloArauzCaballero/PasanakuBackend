@@ -637,7 +637,7 @@ components:
       additionalProperties: false
       required: [monto, motivo]
       properties:
-        monto:  { $ref: '#/components/schemas/Dinero' }
+        monto:  { $ref: '#/components/schemas/Importe' }
         motivo:
           type: string
           # Los cuatro que admite ck_reembolso_motivo. El CU-19 nombra otros tres que
@@ -669,7 +669,7 @@ components:
           type: string
           enum: [CONTRACARGO, DESCONOCIMIENTO, MONTO_INCORRECTO]
         descripcion:            { type: string, maxLength: 500 }
-        montoDisputado:         { $ref: '#/components/schemas/Dinero' }
+        montoDisputado:         { $ref: '#/components/schemas/Importe' }
         referenciaDelProveedor: { type: string, maxLength: 100 }
     SalidaDisputa:
       type: object
@@ -799,6 +799,20 @@ components:
         monto:
           type: string
           pattern: '^-?\d+\.\d{2}$'     # CADENA: un number JSON es un doble
+        moneda:
+          type: string
+          enum: [BOB, USD]
+    Importe:
+      description: >-
+        F1.L1.M01 · un importe de entrada: nunca negativo (regla 91.2.2). El signo lo da la operacion,
+        no el numero. Un "-50.00" se rechaza en el borde (400, campo `monto`) antes de llegar al caso de uso.
+      type: object
+      additionalProperties: false
+      required: [monto, moneda]
+      properties:
+        monto:
+          type: string
+          pattern: '^\d{1,12}\.\d{2}$'
         moneda:
           type: string
           enum: [BOB, USD]
