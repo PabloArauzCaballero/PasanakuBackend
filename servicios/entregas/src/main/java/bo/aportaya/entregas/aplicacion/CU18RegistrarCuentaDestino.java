@@ -1,11 +1,10 @@
 package bo.aportaya.entregas.aplicacion;
 
-import bo.aportaya.entregas.dominio.CuentaEnmascarada;
+import bo.aportaya.entregas.dominio.NumeroDeCuentaProtegido;
 import bo.aportaya.entregas.dominio.TitularidadDeCuenta;
 import bo.aportaya.entregas.dominio.VentanaDeEnfriamiento;
 import bo.aportaya.entregas.infraestructura.CuentaDestinoRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
-import bo.aportaya.plataforma.dominio.CifradorSimetrico;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
@@ -69,7 +68,9 @@ public class CU18RegistrarCuentaDestino {
     public SalidaRegistro registrar(EntradaRegistro entrada, ContextoSesion ctx) {
         // El enmascarado y el hash se calculan ANTES de tocar la base: el numero en
         // claro no entra a ninguna consulta, ni siquiera a una que vaya a fallar.
-        var enmascarada = CuentaEnmascarada.de(entrada.numeroEnClaro(), pimienta, versionLlave);
+        // SEG-007: enmascarado, hash y cifrado salen del mismo numero, en el servidor.
+        var protegido = NumeroDeCuentaProtegido.de(entrada.numeroEnClaro(), pimienta, versionLlave);
+        var enmascarada = protegido.enmascarada();
 
         // AP-CU18-01 · R-SEG-02: la cuenta es de quien la registra.
         if (!TitularidadDeCuenta.coincide(
@@ -98,16 +99,12 @@ public class CU18RegistrarCuentaDestino {
             }
 
             boolean primera = cuentas.cuantasTiene(dsl, ctx.usuarioId()) == 0;
-            // SEG-007: se cifra SIEMPRE aca, desde el numero del que salen el enmascarado y el hash. Un cifrado que
-            // llega del cliente podria ser de OTRO numero: lo que se paga y lo que se muestra dejarian de coincidir.
-            String numeroCifrado = CifradorSimetrico.cifrar(entrada.numeroEnClaro(), pimienta);
-
             UUID cuentaId = cuentas.registrar(
                     dsl,
                     ctx.usuarioId(),
                     entrada.tipoCuenta(),
                     entrada.entidadFinanciera(),
-                    numeroCifrado,
+                    protegido.cifrado(),
                     enmascarada,
                     entrada.titularNombre(),
                     entrada.titularDocumento(),
