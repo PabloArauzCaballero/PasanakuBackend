@@ -1,0 +1,22 @@
+F2.L2.M04 (documentación) · CU-26 marcado RETIRADO
+Rama: correcciones/tanda2-l2-cu26-retirado (sobre origin/dev 02668c95)
+
+$ git diff --stat origin/dev -- docs/CasosDeUso
+ .../CasosDeUso/CU-26 Ejecutar el aval y subrogar la deuda.md | 12 ++++++++++++
+ docs/CasosDeUso/_CasosDeUso.md                               |  2 +-
+ 2 files changed, 13 insertions(+), 1 deletion(-)
+
+$ python3 scripts/verificar_boveda.py | tail -2
+
+TODO OK
+$ python3 scripts/verificar_criterios.py | tail -2
+pendientes de implementar (4): CU-05 (identidad), CU-26 (garantia), CU-51 (aportes), CU-57 (nucleo-financiero)
+Sin divergencias entre la boveda y el codigo.
+$ python3 scripts/verificar_narrativas.py | tail -2
+
+Sin fallas.
+
+$ grep -n AP-CU26-08 servicios/garantia/src/main/resources/openapi/garantia.yaml | head -1
+33:#   AP-CU26-08  AVAL_RETIRADO         · 410: el aval entre participantes se elimino (P-03, F2.L2.M04)
+
+No cubierto: sin código ni pruebas (es documentación). La lista de «pendientes» de verificar_criterios sigue incluyendo CU-26.

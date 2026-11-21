@@ -3,6 +3,7 @@ tags:
   - caso-uso
   - modulo/08-garantia-incumplimiento-cobranza-y-sanciones
 codigo: CU-26
+estado: retirado
 criticidad: alta
 actores: [Sistema, Avalista, Organizador, Cobranza]
 normas: [Debido proceso, ASFI Consumidor Financiero, contabilidad]
@@ -13,6 +14,17 @@ normas: [Debido proceso, ASFI Consumidor Financiero, contabilidad]
 > **Objetivo.** Que quien firmó como avalista responda cuando corresponde, sabiendo
 > desde el primer día a qué se comprometió, y que su pago genere una deuda del
 > incumplido hacia él, no un regalo.
+
+> [!warning] **RETIRADO** (F2.L2.M04, decisión P-03; [[ADR-055 Sin aprobaciones en el circuito|ADR-055]] y ADR-056, modelo A)
+> El aval entre participantes se eliminó: el **fondo del grupo** cubre esos casos y nadie
+> responde con su patrimonio por la cuota de otro. No hay código detrás: `CU26EjecutarAval`,
+> `TopeDelAval` y la subrogación al avalista se retiraron, y `POST /incumplimientos/{expedienteId}/aval/ejecucion`
+> está `deprecated` y responde **410 `AP-CU26-08`** sin efecto. Las tablas [[aval_participante]] y
+> [[ejecucion_aval]] siguen en el esquema hasta su contracción; nada las escribe.
+>
+> Lo que sigue es **el diseño histórico**, conservado como registro de lo que se retiró. No es
+> especificación vigente ni debe implementarse. Por eso `verificar_criterios.py` lo lista entre
+> los «pendientes de implementar»: no tiene clase ni pruebas, y no las va a tener.
 
 ## Actores y disparador
 

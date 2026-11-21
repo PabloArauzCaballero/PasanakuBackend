@@ -53,7 +53,9 @@ camino HTTP. Se borran con el punto 3 (Pendiente).
      deudas contadas en el propio esquema (F3.L2.M06).
   3. F2.L2.M04: quitar `aval_participante` y `ejecucion_aval` de `docs/entidades` y R-GAR-04 de
      `docs/Restricciones.md` (la cifra de restricciones cambia en `docs/Seguridad.md` y `planes/*`, fuera de
-     alcance). Marcar retirado `docs/CasosDeUso/CU-26` (hoy figura «pendiente de implementar»).
+     alcance). `docs/CasosDeUso/CU-26` ya está marcado RETIRADO (`estado: retirado` y aviso en la ficha y en
+     el índice); `verificar_criterios.py` lo sigue listando como «pendiente» porque no distingue retirados: es un
+     cambio en ese script, fuera del alcance de L2.
      `identidad.referencia_personal.acepta_ser_avalista` es de L4.
 - Dónde quedó: rama `correcciones/tanda2-l2-garantia-cuerpo`; compila, `test`/`webTest` en verde.
 
