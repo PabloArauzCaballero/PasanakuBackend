@@ -3,7 +3,7 @@
 > **AVANCE: 13 / 15 — 86,7 %.** Nada en rojo. Dos microtareas quedan TODO en otros carriles (API 422 y clave en tablas sin columna); la integración Java contra la base no se corrió (sin Docker).
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Rama: `correcciones/f1-integridad-mayor-2026-11-21` (base `origin/dev` 850e0f51)
-- PR: __PR__
+- PR: https://github.com/PabloArauzCaballero/PasanakuBackend/pull/411 (hacia `dev`, sin mergear)
 - Peldaño de evidencia alcanzado:
   - Esquema (M1, M3): `TESTED` contra PostgreSQL 16 real con el rol de la aplicación (`SET ROLE svc_*`), en
     tres niveles, con regresión del esquema en verde. **No** `VERIFIED`: el camino de punta a punta por la API
