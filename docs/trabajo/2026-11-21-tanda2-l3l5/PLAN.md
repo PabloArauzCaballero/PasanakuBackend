@@ -69,13 +69,13 @@ que nombra lo que falta; una versión la propone una persona y la aprueba otra (
 nunca ve una versión posterior a su inicio.
 **DoD:** los de cada microtarea; propuesta en [PROPUESTA-F3.S8-parametros.md](./PROPUESTA-F3.S8-parametros.md)
 (rama `correcciones/tanda2-l3l5-f3-parametros`).
-**Estado:** EN CURSO — modelo en #486, API en #492 (contrato de L2: #485); siguen M6 y M4.
+**Estado:** EN CURSO — modelo en #486, API en #492 (contrato de L2: #485); M6 en rama sin PR (tope); sigue M4.
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
 | F3.S8.M2a | Modelo en `11_tarifas_comisiones.puml` + filas de `tarifas` en `Restricciones.md`, alineado al contrato de L2 | Cada `CHECK` (cuatro ojos, `>= 0`, unicidad) rechaza su violación en la base | `generar_ddl.py` + aplicar + deriva + `psql` (PR chico) | HECHO (#486) |
 | F3.S8.M2b | Proponer, aprobar (cuatro ojos del token) y consultar vigentes; falla explícita si falta | Aprobar uno mismo → rechazo; sin versión → 422 con el código | unitarias + web con matriz negativa | HECHO (#492; el 422 por grupo sin versión pasa a M6, que trae la consulta por grupo) |
-| F3.S8.M6 | Congelamiento al iniciar el grupo y consulta por grupo | El mismo `grupo_iniciado` dos veces congela una vez; una versión nueva no cambia el grupo | prueba de duplicado + `psql` | TODO |
+| F3.S8.M6 | Congelamiento al iniciar el grupo y consulta por grupo | El mismo `grupo_iniciado` dos veces congela una vez; una versión nueva no cambia el grupo | prueba de duplicado + `psql` | A MEDIAS (psql y unitarias PASS; `CU132CongelamientoTest` espera CI) |
 | F3.S8.M4 | Pantalla del backoffice | Cuatro estados, error por campo, historial | prueba visual 3 viewports × 2 temas + E2E | TODO |
 
 ## Riesgos y bloqueos previstos

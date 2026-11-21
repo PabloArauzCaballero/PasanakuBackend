@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, lote L3L5
 
-> **AVANCE: 11 / 27 — 40,7 %.** A MEDIAS: F1.L3.M04, F1.L3.M05, F1.L5.M28. Abiertos: #448, #486 y #492 (tope de 3). Retoma: ver «Para quien retome».
+> **AVANCE: 11 / 27 — 40,7 %.** A MEDIAS: F1.L3.M04, F1.L3.M05, F1.L5.M28, F3.S8.M6. Abiertos: #448, #486 y #492 (tope de 3); M6 empujado sin PR. Retoma: ver «Para quien retome».
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md)
 - PR hacia `dev`: mergeados #428 (F1.L3.M04), #431 (F1.L3.M06), #434 (F1.L3.M07), #437 (F1.L3.M05), #453 (T2.M1);
@@ -27,7 +27,9 @@
   - **#492** · rama `correcciones/tanda2-l3l5-f3-parametros-api` · F3.S8.M2b: API de CU-132 (catálogo, proponer,
     aprobar con cuatro ojos del token). Apilado sobre #486: se mergea después.
 - **Mergeados:** #428, #431, #434, #437, #453; #423 dentro de #444.
-- **Siguiente, en orden:** F3.S8.M6, apilado sobre #492 y sin PR hasta que haya cupo: `GET /tarifas/parametros/grupos/{grupoId}` según el contrato de L2 en
+- **Sin PR (tope de 3):** rama `correcciones/tanda2-l3l5-f3-parametros-congelamiento` (F3.S8.M6), apilada sobre #492.
+  Abrir su PR hacia `dev` en cuanto se mergee #486 o #492.
+- **Siguiente, en orden:** F3.S8.M4 (pantalla del backoffice). Lo ya hecho de M6: `GET /tarifas/parametros/grupos/{grupoId}` según el contrato de L2 en
   `docs/trabajo/2026-11-21-tanda2-l2/evidencia/F3.L2.M14-contrato-parametros-tarifas.md`: 200 / 404 sin congelamiento
   / 422 con el código que falta) y el consumidor idempotente de `grupos.grupo_iniciado` que escribe
   `parametro_congelado_grupo` y F3.S8.M4 (pantalla del backoffice). Luego, lo pendiente de la tabla «Pendiente».
@@ -57,6 +59,20 @@
 | F3.S8.M2b | API de CU-132 en `tarifas`: catálogo con vigentes, propuesta idempotente por clave, aprobación solo por otra persona con su token (borde + caso de uso + `CHECK`), precondición en el `UPDATE` | `./gradlew :servicios:tarifas:test :servicios:tarifas:webTest` (23/23, 45/45) + `psql` con reintento, misma persona, carrera y edición | PASS · [evidencia](./evidencia/F3.S8.M2b-api-parametros.txt) · #492 |
 
 ## A medias
+### F3.S8.M6 — Congelamiento de parámetros al iniciar el grupo
+- Qué anda: el consumidor de `grupos.grupo_iniciado` lee solo `grupoId` e `iniciadoEn` (pacto nuevo
+  `contratos/pactos/grupos-tarifas-grupo-iniciado.json`) y rechaza lo que falta; congela la versión APROBADA que
+  regía en `iniciadoEn`; `GET /tarifas/parametros/grupos/{grupoId}` solo para `SERVICIO_GARANTIA` responde 200 /
+  404 sin cuerpo / 422 `AP-CU132-06` con los códigos que faltan. Unitarias 33/33 y web 50/50 en `tarifas`; en base
+  real, el `INSERT … ON CONFLICT DO NOTHING` contra el índice de expresión da `INSERT 0 1` y luego `INSERT 0 0`, y
+  `UPDATE`/`DELETE` lo rechaza R-AUD-01 ([evidencia](./evidencia/F3.S8.M6-congelamiento-por-grupo.txt)).
+- Qué no anda: no está demostrado con el código real que el mismo evento dos veces sea `DUPLICADO` (la marca
+  `evento_consumido` con `Consumidos`): eso lo prueba `CU132CongelamientoTest`, que necesita Docker y no corrió.
+- Qué falta exactamente: abrir el PR (hoy hay 3 abiertos) para que CI corra `CU132CongelamientoTest`, `CU132Test`
+  y `ArranqueTest` de `tarifas` (listener nuevo); `SERVICIO_GARANTIA` llega con #483; el pacto del lado de
+  `garantia` (consumidor del GET) es de L2.
+- Dónde quedó: rama `correcciones/tanda2-l3l5-f3-parametros-congelamiento` (8e92a226), compila, empujada.
+
 ### F1.L3.M04 — El retiro lo pide solo su titular
 - Qué anda: en la API, el participante sale del token y del `grupoId` de la ruta; otro integrante en el cuerpo,
   otro usuario y rol insuficiente reciben 403, sin token 401, sin invocar el caso de uso
@@ -104,7 +120,7 @@
 | F1.S2.M3 (matriz BOLA en `scripts/verificar_seguridad.py`) | TODO | Ampliar el script con las matrices ya escritas en los `*WebTest` de este lote |
 | F2.M6 (retirar el organizador profesional) | TODO | Empieza por el inventario de consumidores (`inventario_endpoints.py`, `listar_topicos.py`) |
 | F2.M8 (retirar aprobaciones eliminables en el lote) | TODO | F2.L3.M10 depende de F3.L3.M17; F2.L3.M15 se mergea después de F3.L3.M18 |
-| F3.S8.M6/M4 (congelamiento, pantalla) | TODO | Se ejecutan en orden en esta sesión; M6 sin PR hasta que haya cupo (tope 3) |
+| F3.S8.M4 (pantalla del backoffice) | TODO | Sigue en esta sesión; consume #492 |
 | Corridas con Docker (`integrationTest` de `grupos`, `notificaciones`, `transparencia`) | BLOQUEADO (P-19) | Máquina de Pablo; comandos en cada evidencia |
 
 ## Evidencia
@@ -136,6 +152,12 @@
   clase (mockear cuatro tipos del proyecto).
 
 ## Decisiones y ambigüedades
+- F3.S8.M6: un parámetro por nivel cuenta como completo si tiene al menos un nivel congelado: los códigos de nivel
+  son de `transparencia` y `tarifas` no sabe cuáles debería haber. Si garantia necesita uno que no está, falla
+  cerrado igual. A confirmar con L2 y Pablo.
+- F3.S8.M6: un código sin versión aprobada al iniciar queda faltante para siempre en ese grupo (no se completa con
+  una versión posterior, ADR-056 §6). Que el grupo no pueda iniciar así lo decide `grupos` (contrato de L2, §4).
+- F3.S8.M6: el evento opcional `tarifas.parametros_congelados` no se emite; `garantia` usa el GET.
 - F3.S8.M2b: `TARIFARIO_ADMINISTRAR` propone y aprueba; la separación la da el cuatro-ojos (dos personas, dos
   tokens), no dos permisos. A confirmar con Pablo (anotado en #492).
 - F1.L5.M23: ventana del webhook de mensajería = 5 minutos (`aportaya.webhook.ventana: PT5M` en `application.yml`).
