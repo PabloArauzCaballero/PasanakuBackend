@@ -42,8 +42,8 @@
 - **Qué anda:** las 11 microtareas del carril tienen su DoD ejecutado y su PR abierto (#400 a #405 y #413).
 - **Qué no anda:** nada está en `dev` todavía; mientras #401 no se mergee, cualquier rama que salga de `dev` sigue
   trabada por `blocker_gate` (pasó en esta sesión). F0.M2 no se ejecutó.
-- **Qué falta exactamente:** (1) que Pablo revise y mergee #402 → #403 → #404 (en ese orden), #405 y #413 (#400 y #401 ya
-  están en `dev`); (2) correr F0.M2 en la máquina de Pablo con el procedimiento de abajo; (3) sumar a la línea base
+- **Qué falta exactamente:** (1) que Pablo revise y mergee #405 y #413 (#400, #401, #402, #403 y #404 ya están en
+  `dev`); (2) correr F0.M2 en la máquina de Pablo con el procedimiento de abajo; (3) sumar a la línea base
   `webTest` + `integrationTest` por servicio y `flutter analyze`, en esa misma máquina.
 - **Dónde quedó:** ramas `correcciones/f0-preparacion-2026-11-21*`; solo documentación y evidencia, nada que
   compilar.
