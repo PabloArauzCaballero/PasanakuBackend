@@ -7729,7 +7729,7 @@ La diferencia con el opt-out del `CanalVinculado` es importante: la supresión e
 
 **Casos de uso que la nombran.** CU-11 Retirar saldo (`solicitarRetiro`) · CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`) · CU-17 Bloquear saldo por orden de autoridad (`bloquearPorAutoridad`) · CU-45 Atender un requerimiento de autoridad
 
-**Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `cuenta_billetera`, `identidad.usuario`, `retencion_saldo`. La referencian `cumplimiento.requerimiento_autoridad`. Reglas nombradas: `uq_bloqueo_oficio`.
+**Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `cuenta_billetera`, `identidad.usuario`, `retencion_saldo`. La referencian `cumplimiento.requerimiento_autoridad`. Reglas nombradas: `uq_bloqueo_oficio`, `ck_bloqueo_saldo_cuatro_ojos`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
@@ -7737,6 +7737,7 @@ La diferencia con el opt-out del `CanalVinculado` es importante: la supresión e
 | `cuenta_billetera_id` | UUID | Referencia a la billetera donde se debita o acredita el movimiento de fondos. | UUID, obligatoria, referencia a `cuenta_billetera`, índice b-tree. | NINGUNA |
 | `retencion_id` | UUID | Referencia por clave foránea a la entidad `retencion_saldo`. | UUID, opcional, referencia a `retencion_saldo`. | NINGUNA |
 | `levantada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `registrado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `autoridad` | VARCHAR(20) | Atributo que representa autoridad en el modelo de `bloqueo_saldo`. | VARCHAR(20), obligatoria. | NINGUNA |
 | `tipo_orden` | VARCHAR(30) | Atributo que representa tipo orden en el modelo de `bloqueo_saldo`. | VARCHAR(30), obligatoria. | NINGUNA |
 | `numero_oficio` | VARCHAR(60) | Numeración secuencial o identificador numérico de oficio. | VARCHAR(60), obligatoria. | NINGUNA |
