@@ -48,3 +48,29 @@ Siguen abiertas: P-19 (dónde correr Docker) y P-20 (el candado `blocker_gate`).
 | P-19 | Dónde correr Docker y la integración | **En la máquina de Pablo**, por Remote Control, con permiso en cada caso. |
 | P-20 | Las 9 microtareas viejas que traban `blocker_gate` | **Marcarlas DESCARTADO**, con el motivo «reemplazadas por el plan de correcciones del 2026-11-21», en un PR que revisa Pablo. |
 | — | Fase 5 «Poder de compra» | Propuesta aceptada como dirección. Es un piloto condicionado a dos cosas: la opinión legal (ASFI y garantía sobre bienes) y al menos un comercio firmado. Fuera de las fases 1 a 4. |
+
+## Tanda 6 (sobre el plan)
+
+| Tema | Decisión |
+|---|---|
+| «Poder de compra» | **Diseñar ahora, construir después.** En paralelo a F1–F3 se escriben el ADR, el contrato tipo con comercios y el diseño de pantallas. El código arranca cuando haya opinión legal y un comercio firmado. |
+| Opiniones legales y de Cumplimiento | **Pablo tiene abogado/Cumplimiento.** El plan deja un documento con las preguntas listas para enviarle. |
+| Parámetros financieros | **Configurables desde el portal de administración (backoffice).** Ninguno queda fijo en el código ni en un archivo de configuración. |
+| Ejecución del plan | **Sesiones en paralelo por fase**, cada una con su propia rama y su PR a `dev`. Las pruebas con Docker se agrupan y corren en la máquina de Pablo. |
+
+## Tanda 7 (ambigüedades de los anexos)
+
+| Ambigüedad | Decisión |
+|---|---|
+| Vigencia de los parámetros | **Rigen solo para grupos nuevos.** Cada grupo congela sus parámetros al iniciar, como parte del reglamento que aceptaron sus integrantes. |
+| Quién cambia un parámetro | **Dos personas.** Una lo propone y otra distinta lo aprueba, con las dos identidades tomadas del token. |
+| D-L2-1 / D-L3-2: subasta y cesión de turno | **Se elimina.** |
+| D-L2-2: reemplazo y disolución sin organizador | Se acepta la recomendación: **reemplazo por invitación votado por el grupo** y **disolución votada**, con liquidación calculada desde el mayor. |
+| D-L3-1: qué vota el grupo | Se acepta la recomendación: **reemplazo de un participante** y **disolución**. No hay permuta (el orden lo fija el nivel y el sorteo). No hay condonación (lo incobrable se reparte al cierre según el modelo A). |
+| D-L3-3: retiro sin haber cobrado | **Se devuelve lo aportado al final del ciclo:** las cuotas más el aporte al fondo. Su cupo lo puede tomar un reemplazo invitado. |
+| D-L5-1 / D-L5-2: comisión | **Porcentaje único, igual para todos, sobre la cuota.** Se cobra en el mismo QR de la cuota como línea aparte y nunca sale del pozo. |
+| AMB-L1-1: recargo por mora | **Automático y anulable.** Se calcula solo al vencer el plazo de gracia; si el descargo prospera, se revierte con un contra-asiento. La sanción y la reputación sí esperan al expediente firme. |
+| D-L2-3: residuo de redondeo | **De a un centavo, empezando por el de mayor nivel de puntualidad.** Si hay empate, decide el sorteo del grupo. Nunca se pierde un centavo. |
+| AMB-L1-2: transferencias P2P | **Se permite transferir a otra persona por su identificador único. No se permite pagar la cuota de otro.** |
+
+Lo que queda abierto es solo para el abogado o Cumplimiento: [`PREGUNTAS-LEGALES.md`](../2026-11-21-plan-correcciones/PREGUNTAS-LEGALES.md).

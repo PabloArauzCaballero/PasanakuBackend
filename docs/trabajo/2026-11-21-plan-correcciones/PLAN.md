@@ -11,7 +11,7 @@
 
 - **IN:** los 474 hallazgos de L1–L6, las decisiones de `DECISIONES.md`, los ADR que esas decisiones cambian, las pruebas que demuestran cada arreglo y los textos de la web y la app.
 - **OUT:** el piloto «Poder de compra» (fase 5). Su diseño se incluye acá, pero no se empieza sin la opinión legal y sin al menos un comercio firmado. También queda fuera cualquier despliegue a producción: lo habilita el dossier H15, no este plan.
-- **Ambigüedades abiertas (`DECISION_REQUIRED`):**
+- **Ambigüedades abiertas:** las de negocio están todas decididas. Las legales están en [`PREGUNTAS-LEGALES.md`](./PREGUNTAS-LEGALES.md) (L-01 a L-12) y se le envían al abogado o a Cumplimiento. Detalle:
   - Valores de los parámetros financieros: porcentaje del fondo por nivel, días de gracia, tasa y tope de recargo, umbrales de alerta UIF y enfriamiento tras cambio de cuenta. Los fijan Pablo y Cumplimiento.
   - Opinión de Cumplimiento sobre el fondo del grupo en cuenta segregada (si es captación ante ASFI).
   - Cobertura automática con subrogación sin expediente previo.
@@ -167,7 +167,8 @@ Diseño de cuentas, a validar con el contador antes de implementar (`DECISION_RE
 | F3.S3.M1 | Fondo del grupo en cuenta segregada, porcentaje parametrizado por nivel de puntualidad, saldo leído del mayor | Ningún asiento del fondo toca cuentas de la empresa | Asientos pegados | TODO |
 | F3.S3.M2 | Cobertura automática al vencer el plazo de gracia, idempotente por obligación, con límite igual al saldo del fondo verificado dentro de la transacción y bloqueo | Dos coberturas simultáneas de la misma obligación dejan un solo efecto; sin saldo, no se cubre y la entrega espera con el motivo visible | Prueba de concurrencia real | TODO |
 | F3.S3.M3 | Subrogación: el moroso queda debiéndole al fondo; lo que paga se imputa primero a esa deuda | La deuda existe y se ve | Prueba de integración | TODO |
-| F3.S3.M4 | Recargo por mora calculado con un parámetro obligatorio y acreditado **al perjudicado** | El recargo nunca llega a cuentas de la empresa | Asientos pegados | TODO |
+| F3.S3.M4 | Recargo por mora automático al vencer el plazo de gracia, anulable con contra-asiento si prospera el descargo, acreditado **al perjudicado** | El recargo nunca llega a cuentas de la empresa | Asientos pegados + prueba de reversa | TODO |
+| F3.S3.M8 | Residuo de redondeo en las devoluciones y en el reparto de lo incobrable: de a un centavo, empezando por el de mayor nivel de puntualidad, con desempate por el sorteo del grupo | La suma repartida es igual al total y nunca se pierde un centavo | Prueba con divisiones inexactas | TODO |
 | F3.S3.M5 | Cierre del ciclo: devolución a cada uno de su aporte menos su parte del incobrable, calculada desde el mayor; cada devolución es un desembolso con las reglas de F3.S2 | El fondo queda en cero y cuadra | Consulta de cuadre + asientos | TODO |
 | F3.S3.M6 | Métrica de solvencia del fondo por grupo, con alerta | Hay alerta cuando el saldo baja del umbral (parámetro) | Prueba de la alerta | TODO |
 | F3.S3.M7 | Opinión de Cumplimiento sobre el fondo segregado (captación) y sobre la cobertura con subrogación sin expediente | Respuesta escrita archivada | Documento en `evidencia/F3/` | DECISION_REQUIRED |
@@ -179,7 +180,9 @@ Diseño de cuentas, a validar con el contador antes de implementar (`DECISION_RE
 | F3.S4.M1 | Ingreso solo por enlace de invitación de un miembro, con token de propósito único y vencimiento; requisitos verificados en el servidor (KYC aprobado, reglamento aceptado en su versión exacta, sin deudas vivas) | Sin invitación válida no se entra; con requisitos incompletos, 422 con el motivo | Pruebas de API, incluido el token reutilizado | TODO |
 | F3.S4.M2 | Trabajo programado (ShedLock, timeout y reintento) que inicia el grupo al completarse los cupos | El grupo arranca sin intervención humana | Prueba de integración del trabajo | TODO |
 | F3.S4.M3 | Sorteo con compromiso y revelación; orden por nivel de puntualidad (el nivel más alto elige primero; dentro del mismo nivel, sorteo); lista congelada; herramienta de verificación pública | Cualquier participante recalcula el orden y le da igual | Salida de la herramienta (skill `rosca-group-lifecycle` §3) | TODO |
-| F3.S4.M4 | Retiro voluntario con liquidación según el reglamento; quien ya cobró no se retira sin resolver su deuda | No queda en `PENDIENTE` para siempre | Prueba | TODO |
+| F3.S4.M4 | Retiro voluntario: quien no cobró recupera lo aportado (cuotas y fondo) al cierre del ciclo; quien ya cobró no se retira sin resolver su deuda | No queda en `PENDIENTE` para siempre | Prueba | TODO |
+| F3.S4.M5 | Votaciones del grupo, solo para el reemplazo por invitación (el entrante toma el cupo con su turno y sus obligaciones) y la disolución (liquidación desde el mayor); quórum según el reglamento aceptado; nunca se aprueba por silencio | Sin quórum no se aprueba; el reemplazo no mueve el calendario | Prueba | TODO |
+| F3.S4.M6 | Eliminar la subasta y la cesión de turno, la permuta y la condonación por voto | No existen | `grep` + suites | TODO |
 
 ### H3.S5 — Identidad y cumplimiento
 
@@ -210,7 +213,10 @@ Diseño de cuentas, a validar con el contador antes de implementar (`DECISION_RE
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
 | F3.S8.M1 | Textos nuevos de la web pública, el FAQ, el JSON-LD, el tour de la app, los errores y las plantillas: sin «el fondo cubre la entrega» ni «una persona revisa tu ingreso»; explican el modelo A + D. Los redacta Claude y los aprueba Pablo | Pablo aprueba cada texto | `grep` de frases prohibidas sin resultados + aprobación registrada | TODO |
-| F3.S8.M2 | Registro de parámetros financieros obligatorios por servicio, validado al arrancar | Si falta uno, el servicio no arranca y nombra el que falta | Prueba de arranque | TODO |
+| F3.S8.M2 | Registro central de parámetros financieros, **editable desde el backoffice**: versionado y con fecha de vigencia, con bitácora de quién cambió qué. Ningún parámetro queda fijo en el código ni en un `.yml`. Mientras no esté cargado, la operación que lo usa falla con un error explícito | Un parámetro sin cargar bloquea la operación y nombra lo que falta; un cambio queda auditado | Prueba de integración + prueba de autorización negativa sobre la pantalla | TODO |
+| F3.S8.M5 | Comisión: porcentaje único sobre la cuota, cobrado en el mismo QR como línea aparte; nunca sale del pozo; sin descuentos ni exenciones | La línea de comisión se ve y se asienta aparte | Asientos pegados | TODO |
+| F3.S8.M6 | Los parámetros se congelan al iniciar cada grupo; un cambio rige solo para grupos nuevos y necesita dos personas distintas (quien propone ≠ quien aprueba, ambas del token) | Un grupo en curso no cambia | Prueba de integración + autorización negativa | TODO |
+| F3.S8.M4 | Pantalla de parámetros en el backoffice: los cuatro estados, formulario con error por campo, historial de versiones y vista de «qué grupos afecta» | Capturas en 3 *viewports* y 2 temas | Prueba visual + E2E | TODO |
 | F3.S8.M3 | Pablo y Cumplimiento fijan los valores de los parámetros, con procedencia registrada | Valores con fuente y fecha | Documento firmado | DECISION_REQUIRED |
 
 ---
@@ -234,7 +240,7 @@ Contenido, agrupado por clase:
 
 ## H5 — Piloto «Poder de compra» (F5, condicionado)
 
-**Condición de inicio:** la opinión legal sobre la clasificación ante ASFI y la garantía sobre bienes, y al menos un comercio firmado. Sin esas dos, la fase queda en `DECISION_REQUIRED`.
+**Ya, en paralelo a F1–F3:** el diseño (ADR-057, contrato tipo con comercios, pantallas). **Condición para empezar el código:** la opinión legal sobre la clasificación ante ASFI y la garantía sobre bienes, y al menos un comercio firmado. Sin esas dos, la fase queda en `DECISION_REQUIRED`.
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
@@ -262,3 +268,38 @@ Contenido, agrupado por clase:
 | Cumplimiento clasifica el fondo del grupo como captación | Hay que rediseñar el modelo A | F3.S3.M7 va antes de implementar F3.S3; F1 y F2 no dependen de eso |
 | Eliminar el servicio `organizador` rompe consumidores | Hay regresiones en `grupos` y `transparencia` | F2.M6 empieza con un inventario de consumidores (`scripts/inventario_endpoints.py`, `listar_topicos.py`) |
 | 474 hallazgos con duplicados entre lotes | Trabajo hecho dos veces | Cada anexo marca «se resuelve con»; las microtareas transversales de este plan tienen prioridad sobre las de los anexos |
+
+---
+
+## Índice de anexos (detalle por hallazgo)
+
+Cada anexo convierte cada ficha de su informe en una microtarea de raíz, con su causa, su corrección, el CA y el DoD. Al final, cada anexo trae la tabla de trazabilidad «hallazgo → microtarea», verificada por script: no falta ninguna ficha.
+
+| Lote | Anexo | Fichas | Microtareas | F0 | F1 | F2 | F3 | F4 |
+|---|---|---|---|---|---|---|---|---|
+| L1 | [ANEXO-L1-aportes-nucleo-financiero.md](./anexos/ANEXO-L1-aportes-nucleo-financiero.md) | 45 | 44 | 0 | 13 | 4 | 20 | 7 |
+| L2 | [ANEXO-L2-garantia-entregas.md](./anexos/ANEXO-L2-garantia-entregas.md) | 68 | 59 | 4 | 14 | 9 | 14 | 18 |
+| L3 | [ANEXO-L3-grupos-organizador.md](./anexos/ANEXO-L3-grupos-organizador.md) | 55 | 27 | 2 | 7 | 6 | 7 | 5 |
+| L4 | [ANEXO-L4-identidad-cumplimiento.md](./anexos/ANEXO-L4-identidad-cumplimiento.md) | 176 | 134 | 5 | 26 | 2 | 12 | 89 |
+| L5 | [ANEXO-L5-transversal-y-apoyo.md](./anexos/ANEXO-L5-transversal-y-apoyo.md) | 88 | 82 | 5 | 26 | 4 | 9 | 38 |
+| L6 | [ANEXO-L6-frontends-compartidos.md](./anexos/ANEXO-L6-frontends-compartidos.md) | 42 | 40 | 2 | 10 | 2 | 5 | 21 |
+| **Total** | | **474** | **386** | 18 | 96 | 27 | 67 | 178 |
+
+Notas de integración:
+- Las microtareas de este plan maestro (`F1.S2.M1`, `F2.M1`, etc.) son transversales y **van primero**. Cuando una microtarea de un anexo dice «se resuelve con» o depende de «coordinar con el lote Lx», manda la microtarea del plan maestro.
+- Los anexos se escribieron mientras se decidían las últimas ambigüedades: D-L2-1, D-L2-2, D-L2-3, D-L3-1, D-L3-2, D-L3-3, D-L5-1, D-L5-2, AMB-L1-1 y AMB-L1-2 ya están **decididas** en `DECISIONES.md`, tanda 7, y esa decisión manda sobre el supuesto que dejó el anexo. Las restantes (AMB-L1-3, AMB-L4-1, AMB-L4-2, AMB-L4-3, AMB-L4-4 y D-L5-3) pasaron a `PREGUNTAS-LEGALES.md`.
+- Hay excepciones al orden de fases, declaradas en cada anexo:
+  - F2.L3.M15 (retirar el inicio y el sorteo manuales) se mergea **después** de F3.L3.M18 (inicio y sorteo automáticos).
+  - F3.L4.M06 necesita adelantar F4.L4.M53.
+  - F3.L4.M09 depende de F4.L4.M25.
+- Algunos S1 se **cortan en F1**, donde se cierra la parte explotable, y se rehacen en F3 con el flujo nuevo. Por ejemplo: L1 FLUJO-QR-001, L2 SEG-003, SEG-004 y SEG-005.
+- L6 tiene 40 candidatos sin verificar (su §5-bis), que se revisan en F4.L6.M40.
+
+## Ejecución (decisión de Pablo: sesiones en paralelo por fase)
+
+1. **F0:** una sesión. Usa la máquina de Pablo para Docker (F0.M2).
+2. **F1:** primero, una sesión para las transversales: `F1.S1.*` (esquema del mayor) y `F1.S2.M1` (actor del token en `comun-web`). Después, hasta 4 sesiones en paralelo, con archivos disjuntos: {L1 aportes/nucleo}, {L2 garantía/entregas}, {L3 + L5 servicios de apoyo}, {L4 identidad/cumplimiento}; L6 se suma a la que tenga menos carga.
+3. **F2:** el mismo reparto, después de F1.
+4. **F3:** cuatro carriles, {cobro QR + entrega}, {modelo A en garantía}, {grupos + transparencia/gamificación}, {identidad/cumplimiento + parámetros en backoffice}. El diseño de «Poder de compra» (ADR-057, contrato tipo y pantallas) corre en paralelo desde F1.
+5. **F4:** por lote, en paralelo.
+6. Cada sesión trabaja en su propia rama, abre un PR por cambio terminado hacia `dev` y escribe su `PLAN.md` y su `REPORTE.md` con evidencia. Las pruebas que necesitan Docker se agrupan por fase y corren en la máquina de Pablo por Remote Control. Pablo revisa y mergea.
