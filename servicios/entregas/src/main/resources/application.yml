@@ -43,7 +43,6 @@ aportaya:
     # pregunta por su contrato, y fuera de la transaccion (invariante 6).
     identidad: ${URL_IDENTIDAD:http://identidad:8080}
     aportes: ${URL_APORTES:http://aportes:8080}        # afirma cuanto del pozo es caja confirmada
-    garantia: ${URL_GARANTIA:http://garantia:8080}    # cubre el faltante con la reserva empresarial
     # Sin uso desde el retiro de la cesion de turnos (D-L2-1); se quitan con la contraccion, junto al compose generado.
     grupos: ${URL_GRUPOS:http://grupos:8080}
     nucleo-financiero: ${URL_NUCLEO_FINANCIERO:http://nucleo-financiero:8080}

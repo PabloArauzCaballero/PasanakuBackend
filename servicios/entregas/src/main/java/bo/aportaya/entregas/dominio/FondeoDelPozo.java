@@ -4,11 +4,13 @@ import bo.aportaya.entregas.dominio.puertos.RecaudoDelPozo;
 import bo.aportaya.plataforma.dominio.Dinero;
 
 /**
- * Como queda fondeado el pozo de un turno: caja confirmada + fondo mutual + respaldo empresarial.
+ * Como queda fondeado el pozo de un turno: caja confirmada + fondo mutual.
  *
- * <p>El principal es SIEMPRE el pozo completo (ambiguedad A6): lo que falte lo pone el respaldo;
- * si el respaldo no alcanza, el faltante queda como <b>deuda conservada</b> ({@code pendiente})
- * y la entrega no sale. Nunca se entrega menos «y despues vemos».
+ * <p>El principal es SIEMPRE el pozo completo (ambiguedad A6). Lo que falte queda como <b>deuda
+ * conservada</b> ({@code pendiente}) y la entrega no sale hasta que la cubra el fondo del grupo
+ * (ADR-055 E7, F3.L2.M05). Nunca se entrega menos «y despues vemos». La empresa no cubre nada
+ * (F2.L2.M01): {@code cubiertoEmpresa} queda en cero y se conserva solo porque es parte del contrato
+ * de la respuesta y del evento hasta su contraccion.
  */
 public final class FondeoDelPozo {
 
@@ -27,15 +29,14 @@ public final class FondeoDelPozo {
         }
     }
 
-    public static Resultado calcular(RecaudoDelPozo.Recaudo recaudo, Dinero cubiertoEmpresa) {
+    public static Resultado calcular(RecaudoDelPozo.Recaudo recaudo) {
         Dinero faltante = recaudo.faltante();
-        Dinero cubierto = cubiertoEmpresa.esMayorQue(faltante) ? faltante : cubiertoEmpresa;
         return new Resultado(
                 recaudo.pozo(),
                 recaudo.confirmado(),
                 recaudo.cubiertoMutual(),
                 faltante,
-                cubierto,
-                faltante.menos(cubierto));
+                Dinero.cero(faltante.moneda()),
+                faltante);
     }
 }
