@@ -1,18 +1,18 @@
 # Reporte — Tanda 2, lote L3L5
 
-> **AVANCE: 7 / 22 — 31,8 %.** A MEDIAS: T2.M0b, F1.L3.M04, F1.L3.M05, F1.L5.M28. CI con rojos ajenos al lote (ver Riesgos).
+> **AVANCE: 8 / 23 — 34,8 %.** A MEDIAS: T2.M0b, F1.L3.M04, F1.L3.M05, F1.L5.M28. CI con rojos ajenos al lote (ver Riesgos).
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md)
 - PR hacia `dev` (apilados en este orden; cada uno suma un commit propio y los documentos del lote):
   #423 T2.M0 · #428 F1.L3.M04 · #431 F1.L3.M06 · #434 F1.L3.M07 · #437 F1.L3.M05 · #438 F1.L5.M26 ·
-  #440 F1.L5.M27 · #443 F1.L5.M23 · #446 F1.L5.M21 · #448 F1.L5.M28
+  #440 F1.L5.M27 · #443 F1.L5.M23 · #446 F1.L5.M21 · #448 F1.L5.M28 · #453 T2.M1 (no apilado, desde `dev`)
 - Estado del CI al cerrar el turno: `osv-scan` en rojo en todos (EXTERNAL: npm de `yarn.lock`, ver Riesgos);
   #423 «Los cinco corredores» en rojo por `identidad · RotacionDeClavesDeFirmaTest` (no es de este lote, ver Riesgos);
   «Contratos y clientes generados» en verde en #428 tras regenerar Postman; el resto de los jobs, en cola.
 - Peldaño de evidencia alcanzado: `TESTED` en todo lo completado (pruebas dirigidas + suites unitaria, web y
   barrido de cada servicio tocado, más `psql` contra PostgreSQL local donde hay SQL). No llega a `VERIFIED`: las
   integraciones con Testcontainers no corrieron (Docker) y el CI de los PR sigue en cola.
-- Conteo: 22 microtareas en `PLAN.md` (H1.S0: 2 · H1.S1: 7 · H1.S2: 11 · H2: 2); `plan_status.py` no reconoce el
+- Conteo: 23 microtareas en `PLAN.md` (H1.S0: 3 · H1.S1: 7 · H1.S2: 11 · H2: 2); `plan_status.py` no reconoce el
   formato de IDs de este plan, así que el número sale de la tabla.
 
 ## Completado
@@ -26,9 +26,10 @@
 | F1.L5.M27 | El contrato de `notificaciones` no tiene ninguna operación con el contacto en la ruta o la query: se retiró el `GET /notificaciones/supresion` | verificación del contrato con PyYAML + `webTest` (el GET no contesta ni con permiso) | PASS · [evidencia](./evidencia/F1.L5.M27-supresion-url.txt) |
 | F1.L5.M23 | Webhook CU-82: remitente, contenido, canal e id salen de la carga firmada; fuera de ventana (5 min) se rechaza; el `idMensaje` firmado deduplica | `WebhookDeMensajeriaTest` (doble con HMAC real, tres niveles) | PASS contra doble · [evidencia](./evidencia/F1.L5.M23-webhook-mensajeria.txt) — `CU82Test` `NO COMPROBADO` (Docker) |
 | F1.L5.M21 | El certificado firma los valores de la foto del propio titular y la identidad la dice `identidad` (falla cerrado); `disponibles` e `identidadVerificada` del cuerpo se ignoran (deprecados) | `CertificadoConDatosDelServidorTest` + `psql` + `webTest` | PASS contra doble · [evidencia](./evidencia/F1.L5.M21-certificado-servidor.txt) — `CU75*Test` `NO COMPROBADO` (Docker) |
+| T2.M1 | `inversiones · AliadoSimuladoFlujosContratoTest`: el simulador del aliado respondía HTTP/1.0 y cerraba el socket sin decirlo; el `HttpClient` de Java reutilizaba la conexión cerrada. Ahora habla HTTP/1.1 | diagnóstico bajo carga (29/60 → 0/60 con A y con B) + `contractTest` ×3 con carga + 27 pruebas Python | PASS · [evidencia](./evidencia/T2.M1-inversiones-aliado-http.txt) · #453 |
 
 ## A medias
-### T2.M0b — El mismo arreglo para todos los servicios
+### T2.M0b — El mismo arreglo para todos los servicios (lo resuelve la coordinación en #444)
 - Qué anda: en `grupos`, Mockito entra como `-javaagent` y su arranque se paga en `MockitoAlAbrirLaSesion`.
 - Qué no anda: los otros servicios siguen con el auto-attach de Mockito dentro de la primera prueba que mockea.
 - Qué falta exactamente: mover el bloque `tasks.withType<Test>` de `servicios/grupos/build.gradle.kts` a

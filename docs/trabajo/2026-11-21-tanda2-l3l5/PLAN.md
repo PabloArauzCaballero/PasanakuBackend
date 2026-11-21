@@ -26,7 +26,8 @@
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
 | T2.M0 | Mockito como `-javaagent` y su arranque único pagado al abrir la sesión de JUnit (`LauncherSessionListener`) en `grupos` | Con 1 núcleo + 3 procesos ocupados, la clase pasa 3/3 (antes: `armar() timed out after 5 seconds`) | `taskset -c 0 ./gradlew --no-daemon :servicios:grupos:test --tests '*AdmisionDelGrupoSustitucionTest' --rerun` ×3 + `:servicios:grupos:test webTest` | HECHO |
-| T2.M0b | Mismo arreglo para el resto de servicios (en `buildSrc` + `comun-pruebas`) | Ninguna JVM de prueba se auto-adjunta | grep `self-attaching` vacío en `build/test-results` | A MEDIAS (fuera de alcance: `buildSrc`, `plataforma`) |
+| T2.M0b | Mismo arreglo para el resto de servicios (en `buildSrc` + `comun-pruebas`) | Ninguna JVM de prueba se auto-adjunta | grep `self-attaching` vacío en `build/test-results` | A MEDIAS — lo hace la coordinación en #444 (incluye #423); pasa a HECHO al entrar en `dev` |
+| T2.M1 | Causa raíz del intermitente `inversiones · AliadoSimuladoFlujosContratoTest` (pedido de la coordinación) | Bajo carga, 0 fallos (antes 29/60) sin reintentos ni timeouts | Diagnóstico A/B bajo carga + `contractTest` ×3 con carga | HECHO (#453) |
 
 ### H1.S1 — F1 del anexo L3 (servicio `grupos`)
 | ID | Microtarea | CA | DoD | Estado |
