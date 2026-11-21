@@ -29,7 +29,7 @@
 **CA:** Dado `dev` con los PR del lote mergeados, cuando se busca la subasta, el mercado de turnos, el
 `numeroCifrado` del cliente y las demás vías del anexo L2, entonces no existen o están cerradas con su prueba.
 **DoD:** cada PR con CI verde y la salida pegada en `evidencia/`.
-**Estado:** A MEDIAS (PR #419, #421, #422, #424 y #429 mergeados en `dev` el 2026-11-21)
+**Estado:** A MEDIAS (mergeados en `dev` el 2026-11-21: #419, #421, #422, #424, #429, #459, #462 y #463)
 
 ### H1.S1 — Retiro de la cesión de turno (D-L2-1)
 
@@ -46,9 +46,9 @@ los pisos de cobertura sin cambios. **Estado:** A MEDIAS
 
 | ID | Microtarea | CA (binario) | DoD (comando) | Estado |
 |---|---|---|---|---|
-| F1.L2.M07 | `numeroCifrado` fuera del contrato de entrada; cifrado solo en servidor con clave propia | Un cuerpo con `numeroCifrado` → 400; ida y vuelta del cifrado coincide | `webTest` del rechazo + unitaria de ida y vuelta | A MEDIAS (contrato y cifrado en servidor HECHO; clave propia pendiente de `generar_compose.py`) |
+| F1.L2.M07 | `numeroCifrado` fuera del contrato de entrada; cifrado solo en servidor con clave propia | Un cuerpo con `numeroCifrado` → 400; ida y vuelta del cifrado coincide | `webTest` del rechazo + unitaria de ida y vuelta + arranque sin llave | HECHO (#421 + #463; evidencia/F1.L2.M07-llave-cifrado.txt) |
 | F1.L2.M05 | Retirar `POST /desembolsos/{id}/respuesta` (acreditación humana) | 410 y sin `desembolso_acreditado` | `webTest` | HECHO (evidencia/F1.L2.M05-desembolso-sin-humano.txt) |
-| F1.L2.M09 | Retirar `POST /entregas` legacy y `EFECTIVO_ORGANIZADOR` | 410; el método no existe en contrato ni modelo | `webTest` + psql | A MEDIAS (bases existentes: falta evolución del CHECK) |
+| F1.L2.M09 | Retirar `POST /entregas` legacy y `EFECTIVO_ORGANIZADOR` | 410; el método no existe en contrato ni modelo ni en bases existentes | `webTest` + psql | HECHO (#424 + #463; evidencia/punto2-check-estrechado.txt) |
 | F1.L2.M02 | Retirar la cobertura manual del fondo con datos del cuerpo | 410, sin escritura | `webTest` garantía | A MEDIAS (endpoint 410; falta modelo `SOLICITADA`/`politica_cobertura`) |
 | F1.L2.M03 | Devolución del fondo sin `grupoCerrado`/`deudasVivas` del cuerpo | La API no decide con esos campos | `webTest` | A MEDIAS (endpoint 410; disparo por el sistema en F3.L2.M06) |
 | F1.L2.M10 | `saldoRetenido` fuera de la entrada del desembolso | Campo fuera del contrato | `webTest` | TODO (diseño en REPORTE; falta la operación de L1) |
