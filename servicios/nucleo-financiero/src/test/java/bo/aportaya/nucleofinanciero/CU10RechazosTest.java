@@ -3,7 +3,7 @@ package bo.aportaya.nucleofinanciero;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo.EntradaSolicitud;
+import bo.aportaya.nucleofinanciero.aplicacion.SolicitudDeRecarga;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.Moneda;
@@ -49,7 +49,7 @@ class CU10RechazosTest extends BaseDeBilletera {
         UUID cuenta = billeteraConLimite();
         ContextoSesion ctx = contextoDe(fixtura.titular(cuenta));
         var orden = transaccion.execute(e -> recargaCU.solicitar(
-                new EntradaSolicitud("aud03", cuenta, bob("10.00"), bob("0.00"), "QR", Optional.empty()), ctx));
+                new SolicitudDeRecarga("aud03", cuenta, bob("10.00"), bob("0.00"), "QR", Optional.empty()), ctx));
         var acreditada = transaccion.execute(e -> recargaCU.acreditar(
                 orden.ordenRecargaId(), ConfirmacionesDePrueba.para(dsl, orden.ordenRecargaId()), ctx));
 
@@ -103,7 +103,7 @@ class CU10RechazosTest extends BaseDeBilletera {
         UUID cuenta = billeteraConLimite();
         ContextoSesion ctx = contextoDe(fixtura.titular(cuenta));
         var orden = transaccion.execute(e -> recargaCU.solicitar(
-                new EntradaSolicitud("aud10", cuenta, bob("20.00"), bob("0.00"), "QR", Optional.empty()), ctx));
+                new SolicitudDeRecarga("aud10", cuenta, bob("20.00"), bob("0.00"), "QR", Optional.empty()), ctx));
         transaccion.execute(e -> recargaCU.acreditar(
                 orden.ordenRecargaId(), ConfirmacionesDePrueba.para(dsl, orden.ordenRecargaId()), ctx));
 
@@ -158,9 +158,9 @@ class CU10RechazosTest extends BaseDeBilletera {
         ContextoSesion ctx = contextoDe(fixtura.titular(cuenta));
 
         var primera = transaccion.execute(e -> recargaCU.solicitar(
-                new EntradaSolicitud("bil19", cuenta, bob("15.00"), bob("0.00"), "QR", Optional.empty()), ctx));
+                new SolicitudDeRecarga("bil19", cuenta, bob("15.00"), bob("0.00"), "QR", Optional.empty()), ctx));
         var segunda = transaccion.execute(e -> recargaCU.solicitar(
-                new EntradaSolicitud("bil19", cuenta, bob("15.00"), bob("0.00"), "QR", Optional.empty()), ctx));
+                new SolicitudDeRecarga("bil19", cuenta, bob("15.00"), bob("0.00"), "QR", Optional.empty()), ctx));
 
         assertThat(segunda.ordenRecargaId()).isEqualTo(primera.ordenRecargaId());
         assertThat(segunda.estado()).isEqualTo(primera.estado());
@@ -215,7 +215,7 @@ class CU10RechazosTest extends BaseDeBilletera {
         fixtura.limite("RECARGA", ESTANDAR, "MES", new BigDecimal("10000.00"), null);
         ContextoSesion ctx = contextoDe(fixtura.titular(cuenta));
         var orden = transaccion.execute(e -> recargaCU.solicitar(
-                new EntradaSolicitud("uif02", cuenta, bob("30.00"), bob("0.00"), "QR", Optional.empty()), ctx));
+                new SolicitudDeRecarga("uif02", cuenta, bob("30.00"), bob("0.00"), "QR", Optional.empty()), ctx));
 
         assertThatThrownBy(() -> transaccion.execute(e -> recargaCU.acreditar(
                         orden.ordenRecargaId(), ConfirmacionesDePrueba.para(dsl, orden.ordenRecargaId()), ctx)))

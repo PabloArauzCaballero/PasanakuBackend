@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor;
+import bo.aportaya.nucleofinanciero.aplicacion.SolicitudDeRecarga;
 import bo.aportaya.nucleofinanciero.dominio.DiscrepanciaDelProveedor;
 import bo.aportaya.nucleofinanciero.dominio.DiscrepanciaDelProveedor.Tipo;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
@@ -55,7 +56,7 @@ class CU10DiscrepanciaTest extends BaseDeBilletera {
 
     private UUID ordenPendiente(String clave, String monto) {
         return flujo.solicitar(
-                        new CU10RecargarSaldo.EntradaSolicitud(
+                        new SolicitudDeRecarga(
                                 clave,
                                 cuenta,
                                 Dinero.de(monto, Moneda.BOB),

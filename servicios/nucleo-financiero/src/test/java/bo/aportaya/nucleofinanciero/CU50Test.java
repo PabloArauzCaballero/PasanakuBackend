@@ -3,10 +3,10 @@ package bo.aportaya.nucleofinanciero;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo.EntradaSolicitud;
 import bo.aportaya.nucleofinanciero.aplicacion.CU11RetirarSaldo.EntradaRetiro;
 import bo.aportaya.nucleofinanciero.aplicacion.CU50ConciliarCustodia.EntradaConciliacion;
 import bo.aportaya.nucleofinanciero.aplicacion.CU50ConciliarCustodia.SalidaConciliacion;
+import bo.aportaya.nucleofinanciero.aplicacion.SolicitudDeRecarga;
 import bo.aportaya.nucleofinanciero.dominio.RatioDeCobertura;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Dinero;
@@ -111,7 +111,7 @@ class CU50Test extends BaseDeBilletera {
 
         // La recarga si entra.
         var recarga = transaccion.execute(t -> recargaCU.solicitar(
-                new EntradaSolicitud("rec-encaje", cuenta, bob("200.00"), bob("0.00"), "QR", Optional.empty()), ctx));
+                new SolicitudDeRecarga("rec-encaje", cuenta, bob("200.00"), bob("0.00"), "QR", Optional.empty()), ctx));
         assertThat(recarga.estado()).isEqualTo("PENDIENTE");
     }
 

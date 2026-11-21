@@ -3,9 +3,9 @@ package bo.aportaya.nucleofinanciero;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo.EntradaSolicitud;
 import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo.SalidaSolicitud;
 import bo.aportaya.nucleofinanciero.aplicacion.CU15EmitirExtracto.EntradaExtracto;
+import bo.aportaya.nucleofinanciero.aplicacion.SolicitudDeRecarga;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
@@ -198,7 +198,7 @@ class AutorizacionNegativaTest extends BaseDeBilletera {
         Escenario a = deA();
         Escenario b = deB();
         SalidaSolicitud orden = transaccion.execute(t -> recargaCU.solicitar(
-                new EntradaSolicitud("idor-recarga", a.cuenta(), bob("300.00"), bob("0.00"), "QR", Optional.empty()),
+                new SolicitudDeRecarga("idor-recarga", a.cuenta(), bob("300.00"), bob("0.00"), "QR", Optional.empty()),
                 a.ctx()));
 
         assertThat(contarComo(
