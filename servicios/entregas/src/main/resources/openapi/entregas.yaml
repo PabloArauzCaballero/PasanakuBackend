@@ -39,6 +39,8 @@
 #   AP-CU22-07  PEDIDO_NO_COINCIDE     · el periodo no es del grupo, o el respaldo cubrio otro importe
 #   AP-CU22-08  RESPALDO_NO_DISPONIBLE · garantia no responde: no se sabe si cubrio, se reintenta
 #   AP-CU22-09  FONDEO_EN_CONFLICTO    · otro pedido movio el fondeo, o el turno ya se liquido por el camino anterior
+#   AP-CU22-10  LIQUIDACION_RETIRADA   · 410: POST /entregas ya no existe; la entrega sale del fondeo (F1.L2.M09)
+#   AP-CU22-11  EJECUCION_RETIRADA     · 410: la entrega no se cierra a mano; la cierra la acreditacion (F1.L2.M08)
 #
 # Mercado del derecho a cobrar un turno (carril C, H9). NO existe caso de uso en la boveda:
 # la numeracion AP-CU130-nn es PROVISIONAL (confirmar con quien gobierna docs/CasosDeUso).
@@ -58,7 +60,7 @@
 openapi: 3.1.0
 info:
   title: entregas
-  version: 2.1.0
+  version: 2.2.0
   description: >-
     Servicio entregas. Un caso de uso = una operacion, con el codigo CU en el
     operationId. Los importes viajan como CADENA decimal, nunca como number.
@@ -84,6 +86,11 @@ info:
 
     2.1.0 (2026-11-21) · F1.L2.M05 (SEG-005): `anotarRespuestaDesembolso` queda `deprecated` y responde 410
     AP-CU28-08. Ninguna persona marca un desembolso como acreditado; lo hara el aviso firmado del proveedor.
+
+
+    2.2.0 (2026-11-21) · F1.L2.M09 y F1.L2.M08: `liquidarEntrega` (POST /entregas) y `ejecutarEntrega`
+    quedan `deprecated` y responden 410 (AP-CU22-10, AP-CU22-11). `EFECTIVO_ORGANIZADOR` sale del enum de
+    `EntradaLiquidacion`: el organizador no es caja (RN-18).
 
 servers:
   - url: /api/v1
@@ -190,8 +197,11 @@ paths:
   /entregas:
     post:
       operationId: liquidarEntrega              # CU-22
+      deprecated: true
       summary: Liquidar la entrega del turno
       description: >-
+        RETIRADA en 2.2.0 (F1.L2.M09: la unica fuente de una entrega es el fondeo del pozo; el bruto y el recaudado no los afirma el cliente): responde 410 AP-CU22-10 sin efecto.
+
         Una entrega por turno (R-GRP-01) y el neto NUNCA negativo: que las deducciones
         superen la bolsa significa que el beneficiario terminaria debiendo por cobrar
         su turno. Cada deduccion viaja con su tipo y su origen.
@@ -203,6 +213,9 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/EntradaLiquidacion' }
       responses:
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU22-10
         '201':
           description: Entrega liquidada, en estado PROGRAMADA
           content:
@@ -233,8 +246,11 @@ paths:
   /entregas/{entregaId}/ejecucion:
     post:
       operationId: ejecutarEntrega              # CU-22
+      deprecated: true
       summary: Ejecutar la entrega
       description: >-
+        RETIRADA en 2.2.0 (F1.L2.M08: la entrega queda ENTREGADA solo al acreditarse su desembolso, no con un monto del pedido): responde 410 AP-CU22-11 sin efecto.
+
         Quien autoriza NO ejecuta (R-SEG-04). Una sola persona que hace las dos cosas
         puede sacar el fondo entero de un grupo sin que nadie mas lo vea pasar.
       parameters:
@@ -253,6 +269,9 @@ paths:
               properties:
                 montoEntregado: { $ref: '#/components/schemas/Dinero' }
       responses:
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU22-11
         '200':
           description: Entrega ejecutada
           content:
@@ -962,8 +981,8 @@ components:
           items: { $ref: '#/components/schemas/DeduccionEntrega' }
         metodoDesembolso:
           type: string
-          enum: [BILLETERA_MOVIL, COMPENSACION_INTERNA, EFECTIVO_ORGANIZADOR, QR_ENVIO,
-                 TRANSFERENCIA_BANCARIA]
+          # Sin EFECTIVO_ORGANIZADOR desde 2.2.0: el organizador no es caja (RN-18, regla 91.5).
+          enum: [BILLETERA_MOVIL, COMPENSACION_INTERNA, QR_ENVIO, TRANSFERENCIA_BANCARIA]
         fechaProgramada: { type: string, format: date }
     SalidaLiquidacion:
       type: object

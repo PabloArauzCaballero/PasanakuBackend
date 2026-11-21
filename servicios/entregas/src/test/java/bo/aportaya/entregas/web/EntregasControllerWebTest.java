@@ -7,15 +7,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import bo.aportaya.entregas.aplicacion.CU22EntregarPozoCompleto;
 import bo.aportaya.entregas.aplicacion.CU22LiquidarEntrega;
-import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.Dinero;
-import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Moneda;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.Sesiones;
@@ -23,7 +20,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -83,54 +79,30 @@ class EntregasControllerWebTest {
     class Liquidar {
 
         @Test
-        @DisplayName("201 con la liquidacion, y el dinero como cadena decimal")
-        void caminoFeliz() throws Exception {
-            when(cu22.liquidar(any(), any()))
-                    .thenReturn(new CU22LiquidarEntrega.SalidaLiquidacion(
-                            ENTREGA, bob("1200.00"), bob("50.00"), bob("1150.00"), "LIQUIDADA"));
-
+        @DisplayName(
+                "F1.L2.M09 · 410 AP-CU22-10: la liquidacion con importes del pedido ya no existe y no llama al caso de uso")
+        void liquidacionRetirada() throws Exception {
             mvc.perform(post("/entregas")
                             .with(Sesiones.como("ORGANIZADOR", "ENTREGA_EJECUTAR"))
                             .header("Idempotency-Key", CLAVE)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(CUERPO_VALIDO))
-                    .andExpect(status().isCreated())
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                    .andExpect(jsonPath("$.entregaId").value(ENTREGA.toString()))
-                    .andExpect(jsonPath("$.estado").value("LIQUIDADA"))
-                    // Cadena y no numero: un `1150.00` en coma flotante que viaja por
-                    // JSON vuelve como 1150.0 y el centavo se pierde en el camino, sin
-                    // que nada falle (ADR-019).
-                    .andExpect(jsonPath("$.neto.monto").value("1150.00"))
-                    .andExpect(jsonPath("$.neto.moneda").value("BOB"))
-                    .andExpect(jsonPath("$.totalDeducciones.monto").value("50.00"));
+                    .andExpect(status().isGone())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU22-10"));
+            verifyNoInteractions(cu22);
         }
 
         @Test
-        @DisplayName("el cuerpo llega al caso de uso con los montos exactos, sin redondear")
-        void loQueLlegaAlCasoDeUso() throws Exception {
-            when(cu22.liquidar(any(), any()))
-                    .thenReturn(new CU22LiquidarEntrega.SalidaLiquidacion(
-                            ENTREGA, bob("1200.00"), bob("0.00"), bob("1200.00"), "LIQUIDADA"));
-
+        @DisplayName(
+                "F1.L2.M09 · 400: EFECTIVO_ORGANIZADOR ya no es un metodo del contrato (el organizador no es caja)")
+        void efectivoAlOrganizadorNoExiste() throws Exception {
             mvc.perform(post("/entregas")
                             .with(Sesiones.como("ORGANIZADOR", "ENTREGA_EJECUTAR"))
                             .header("Idempotency-Key", CLAVE)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(CUERPO_VALIDO))
-                    .andExpect(status().isCreated());
-
-            // Comprobar que `liquidar` se llamo no dice nada; lo que importa es CON QUE.
-            var capturada = ArgumentCaptor.forClass(CU22LiquidarEntrega.EntradaLiquidacion.class);
-            verify(cu22).liquidar(capturada.capture(), any());
-            var entrada = capturada.getValue();
-
-            org.assertj.core.api.Assertions.assertThat(entrada.grupoId()).isEqualTo(GRUPO);
-            org.assertj.core.api.Assertions.assertThat(entrada.bruto()).isEqualByComparingTo(bob("1200.00"));
-            org.assertj.core.api.Assertions.assertThat(entrada.metodoDesembolso())
-                    .isEqualTo("TRANSFERENCIA_BANCARIA");
-            org.assertj.core.api.Assertions.assertThat(entrada.fechaProgramada())
-                    .isEqualTo(java.time.LocalDate.of(2026, 4, 1));
+                            .content(CUERPO_VALIDO.replace("TRANSFERENCIA_BANCARIA", "EFECTIVO_ORGANIZADOR")))
+                    .andExpect(status().isBadRequest());
+            verifyNoInteractions(cu22);
         }
 
         @Test
@@ -158,22 +130,6 @@ class EntregasControllerWebTest {
                             .content(CUERPO_VALIDO.replace("2026-04-01", "31/04/2026")))
                     .andExpect(status().isBadRequest());
             verifyNoInteractions(cu22);
-        }
-
-        @Test
-        @DisplayName("422: la regla del caso de uso sale con su AP-CU22-nn y no toca el estado")
-        void reglaDeNegocio() throws Exception {
-            when(cu22.liquidar(any(), any()))
-                    .thenThrow(
-                            new ErrorDeNegocio(CodigoError.de(22, 4), "Lo recaudado no cubre el bruto de la entrega."));
-
-            mvc.perform(post("/entregas")
-                            .with(Sesiones.como("ORGANIZADOR", "ENTREGA_EJECUTAR"))
-                            .header("Idempotency-Key", CLAVE)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(CUERPO_VALIDO))
-                    .andExpect(status().isUnprocessableEntity())
-                    .andExpect(jsonPath("$.codigo").value("AP-CU22-04"));
         }
     }
 
@@ -215,18 +171,16 @@ class EntregasControllerWebTest {
         }
 
         @Test
-        @DisplayName("con el permiso correcto, ejecutar responde 200 con el monto entregado")
-        void ejecutarConSuPermiso() throws Exception {
-            when(cu22.ejecutar(eq(ENTREGA), any(), any()))
-                    .thenReturn(new CU22LiquidarEntrega.SalidaEjecucion(ENTREGA, "ENTREGADA", bob("1150.00")));
-
+        @DisplayName(
+                "F1.L2.M08 · con el permiso, ejecutar responde 410 AP-CU22-11: la entrega no se cierra con un monto libre")
+        void ejecutarRetirado() throws Exception {
             mvc.perform(post("/entregas/{id}/ejecucion", ENTREGA)
                             .with(Sesiones.como("ORGANIZADOR", "ENTREGA_EJECUTAR"))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"montoEntregado\":{\"monto\":\"1150.00\",\"moneda\":\"BOB\"}}"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.estado").value("ENTREGADA"))
-                    .andExpect(jsonPath("$.montoEntregado.monto").value("1150.00"));
+                    .andExpect(status().isGone())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU22-11"));
+            verify(cu22, never()).ejecutar(any(), any(), any());
         }
     }
 }

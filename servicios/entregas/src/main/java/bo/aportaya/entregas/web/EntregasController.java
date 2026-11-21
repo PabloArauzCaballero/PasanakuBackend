@@ -2,7 +2,6 @@ package bo.aportaya.entregas.web;
 
 import bo.aportaya.entregas.aplicacion.CU22EntregarPozoCompleto;
 import bo.aportaya.entregas.aplicacion.CU22LiquidarEntrega;
-import bo.aportaya.entregas.dominio.LiquidacionDeEntrega;
 import bo.aportaya.entregas.web.generado.EntregasApi;
 import bo.aportaya.entregas.web.generado.modelo.EjecutarEntregaRequest;
 import bo.aportaya.entregas.web.generado.modelo.EntradaFondeoDelPozo;
@@ -53,39 +52,18 @@ public class EntregasController implements EntregasApi {
         this.sesion = sesion;
     }
 
+    /**
+     * F1.L2.M09 (DINERO-003): la liquidacion vieja confiaba en el bruto y el recaudado que mandaba el cliente,
+     * descartaba la clave de idempotencia y admitia pagar en efectivo al organizador (RN-18, regla 91.5). La unica
+     * fuente de una entrega es el fondeo del pozo, con importes afirmados por aportes. Responde 410 sin efecto.
+     */
+    @Deprecated
     @Override
     @Permiso("ENTREGA_EJECUTAR")
     public ResponseEntity<SalidaLiquidacion> liquidarEntrega(UUID idempotencyKey, EntradaLiquidacion cuerpo) {
-        Traza.marcarCasoDeUso("CU-22", cuerpo.getTurnoId().toString());
-
-        var salida = cu22.liquidar(
-                new CU22LiquidarEntrega.EntradaLiquidacion(
-                        cuerpo.getGrupoId(),
-                        cuerpo.getPeriodoId(),
-                        cuerpo.getTurnoId(),
-                        cuerpo.getCupoId(),
-                        cuerpo.getBeneficiarioId(),
-                        MapeoDeEntregas.dinero(cuerpo.getBruto()),
-                        MapeoDeEntregas.dinero(cuerpo.getRecaudado()),
-                        cuerpo.getDeducciones().stream()
-                                .map(d -> new LiquidacionDeEntrega.Deduccion(
-                                        d.getTipo().getValue(),
-                                        d.getDescripcion(),
-                                        MapeoDeEntregas.dinero(d.getMonto()),
-                                        d.getReferenciaOrigenId(),
-                                        Boolean.TRUE.equals(d.getEsObligatoria())))
-                                .toList(),
-                        cuerpo.getMetodoDesembolso().getValue(),
-                        cuerpo.getFechaProgramada()),
-                sesion.actual());
-
-        var respuesta = new SalidaLiquidacion();
-        respuesta.setEntregaId(salida.entregaId());
-        respuesta.setBruto(MapeoDeEntregas.dinero(salida.bruto()));
-        respuesta.setTotalDeducciones(MapeoDeEntregas.dinero(salida.totalDeducciones()));
-        respuesta.setNeto(MapeoDeEntregas.dinero(salida.neto()));
-        respuesta.setEstado(salida.estado());
-        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+        throw new OperacionRetirada(
+                CodigoError.de(22, 10),
+                "La entrega ya no se liquida con importes del pedido: sale del fondeo del pozo.");
     }
 
     @Override
@@ -102,18 +80,17 @@ public class EntregasController implements EntregasApi {
         return ResponseEntity.ok(respuesta);
     }
 
+    /**
+     * F1.L2.M08 (DINERO-001), primera parte: cerrar una entrega con un monto libre del pedido era un segundo camino
+     * de cierre, paralelo al desembolso. Una entrega solo queda ENTREGADA cuando se acredita su desembolso. 410.
+     */
+    @Deprecated
     @Override
     @Permiso("ENTREGA_EJECUTAR")
     public ResponseEntity<SalidaEjecucionEntrega> ejecutarEntrega(UUID entregaId, EjecutarEntregaRequest cuerpo) {
-        Traza.marcarCasoDeUso("CU-22", entregaId.toString());
-
-        var salida = cu22.ejecutar(entregaId, MapeoDeEntregas.dinero(cuerpo.getMontoEntregado()), sesion.actual());
-
-        var respuesta = new SalidaEjecucionEntrega();
-        respuesta.setEntregaId(salida.entregaId());
-        respuesta.setEstado(SalidaEjecucionEntrega.EstadoEnum.fromValue(salida.estado()));
-        respuesta.setMontoEntregado(MapeoDeEntregas.dinero(salida.montoEntregado()));
-        return ResponseEntity.ok(respuesta);
+        throw new OperacionRetirada(
+                CodigoError.de(22, 11),
+                "La entrega ya no se cierra a mano: queda entregada al acreditarse el desembolso.");
     }
 
     /** Recibir mesa es recibir el pozo completo: el importe lo afirman aportes y garantia, no el cliente. */
