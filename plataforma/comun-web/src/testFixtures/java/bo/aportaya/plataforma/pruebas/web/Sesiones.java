@@ -60,6 +60,18 @@ public final class Sesiones {
     }
 
     /**
+     * Sesion de {@code usuario} con su {@code sesion_id}, como la emite identidad al abrir
+     * una sesion. La necesita quien prueba los cuatro ojos: la segunda firma es otra
+     * persona en otra sesion, y sin el reclamo el actor no puede firmar.
+     */
+    public static RequestPostProcessor enSesion(UUID usuario, UUID sesion, String rol, String... permisos) {
+        return jwt().jwt(token -> {
+            reclamos(token, usuario.toString(), rol, List.of(permisos));
+            token.claim("sesion_id", sesion.toString());
+        });
+    }
+
+    /**
      * Un token verificado al que le falta un reclamo obligatorio.
      *
      * <p>Existe porque la firma valida y el contenido util son dos cosas distintas:

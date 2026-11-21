@@ -1,0 +1,30 @@
+BEGIN
+SET
+INSERT 0 1
+SET
+--- titular: inicia el enrolamiento (fila inactiva, secreto cifrado)
+INSERT 0 1
+--- titular: confirma
+UPDATE 1
+--- sistema (ingreso): lee el factor activo
+ tipo | activo | version_llave 
+------+--------+---------------
+ TOTP | t      |             1
+(1 row)
+
+--- sistema: marca el paso usado (anti-reuso); 1 fila
+UPDATE 1
+--- el MISMO paso otra vez: 0 filas (codigo reutilizado)
+UPDATE 0
+--- un paso ANTERIOR: 0 filas
+UPDATE 0
+--- el paso SIGUIENTE: 1 fila
+UPDATE 1
+--- otro usuario (participante) no ve el factor ajeno: 0 filas
+ count 
+-------
+     0
+(1 row)
+
+RESET
+ROLLBACK

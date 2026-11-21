@@ -320,7 +320,7 @@ Los cinco campos de monto no son redundancia, son la historia económica complet
 
 **Por qué existe.** Sin obligación explícita, "quién debe cuánto" sería un cálculo derivado del calendario, y no habría dónde registrar recargos, condonaciones, coberturas ni exoneraciones.
 
-**Casos de uso que la nombran.** CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`) · CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`) · CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-64 Traspasar un cupo (`traspasarCupo`, `consultarPuntaje`) · CU-72 Sellar el bloque de transparencia (`listarBloques`, `sellarBloque`) · CU-81 Programar recordatorios de aporte
+**Casos de uso que la nombran.** CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`) · CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`) · CU-60 Sortear los turnos (`consultarPrimeraCuota`, `comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-64 Traspasar un cupo (`listarAcuerdos`, `traspasarCupo`) · CU-72 Sellar el bloque de transparencia (`listarBloques`, `sellarBloque`) · CU-81 Programar recordatorios de aporte
 
 **Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.cupo`, `grupos.grupo`, `grupos.participante`, `grupos.periodo`, `obligacion_aporte`, `plan_regularizacion`, `politica_mora`. La referencian `garantia.cobertura_incumplimiento`, `garantia.cobertura_respaldo_linea`, `garantia.registro_incumplimiento`, `nucleo_financiero.transferencia_p2p`, `obligacion_aporte`, `orden_cobro`, `pago`, `tarifas.cargo_comision`. Reglas nombradas: `uq_obligacion_periodo_cupo`.
 
@@ -392,7 +392,7 @@ Los cinco campos de monto no son redundancia, son la historia económica complet
 
 **Por qué existe.** Es el hecho económico. Sin él no hay contabilidad, ni constancia, ni conciliación, ni reputación basada en cumplimiento real.
 
-**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-51 Ejecutar el cierre diario (`consultarRecaudoDiario`, `listarCierresDiarios`) · CU-82 Procesar una respuesta entrante (`procesarRespuestaEntrante`)
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`, `pagarRecargaDePrueba`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-51 Ejecutar el cierre diario (`consultarRecaudoDiario`, `listarCierresDiarios`) · CU-82 Procesar una respuesta entrante (`procesarRespuestaEntrante`)
 
 **Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `intento_pago`, `obligacion_aporte`, `proveedor_pago`. La referencian `comprobante_manual`, `conciliacion`, `constancia_pago`, `disputa_pago`, `garantia.abono_recuperacion`, `garantia.ejecucion_aval`, `garantia.recuperacion_respaldo`, `nucleo_financiero.orden_recarga`, `reembolso`, `webhook_pasarela`. Reglas nombradas: `uq_pago_idem`.
 
@@ -518,7 +518,7 @@ Los cinco campos de monto no son redundancia, son la historia económica complet
 
 **Por qué existe.** Separado de la orden porque el payload EMV tiene su propio formato, su propio CRC validable y su propia representación gráfica, y porque un mismo cobro puede necesitar QR en un canal y enlace en otro.
 
-**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-81 Programar recordatorios de aporte · CU-99 Dar de alta un proveedor de pago y enrutar el cobro (`enrutarCobro`, `darDeAltaProveedor`)
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`, `pagarRecargaDePrueba`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-81 Programar recordatorios de aporte · CU-99 Dar de alta un proveedor de pago y enrutar el cobro (`enrutarCobro`, `darDeAltaProveedor`)
 
 **Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `orden_cobro`.
 
@@ -589,7 +589,7 @@ El flujo `solicitado → aprobado → ejecutado`, con `solicitadoPor` y `aprobad
 
 **Por qué existe.** Sin persistir los webhooks, un fallo de procesamiento pierde el evento para siempre y el pago nunca se acredita. Con la tabla, se reintenta (`intentosProcesamiento`) o se manda a cola muerta para revisión manual.
 
-**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-99 Dar de alta un proveedor de pago y enrutar el cobro (`enrutarCobro`, `darDeAltaProveedor`)
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`, `pagarRecargaDePrueba`) · CU-99 Dar de alta un proveedor de pago y enrutar el cobro (`enrutarCobro`, `darDeAltaProveedor`)
 
 **Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `pago`, `proveedor_pago`. Reglas nombradas: `uq_webhook_idem`.
 
@@ -899,7 +899,7 @@ Una tabla sin ficha se muestra **activa y detectada**: está en el modelo y nadi
 
 **Por qué existe.** Sin registro de incidentes no se puede correlacionar un reclamo masivo de usuarios con la caída que lo causó, ni decidir con fundamento sobre las consecuencias (perdonar mora, reprogramar entregas, compensar).
 
-**Casos de uso que la nombran.** CU-15 Emitir extracto y certificado de saldo (`emitirExtracto`, `listarMovimientosBilletera`) · CU-50 Conciliar la custodia y verificar el encaje (`ejecutarCierreDiario`, `listarConciliaciones`, `conciliarCustodia`) · CU-54 Registrar un evento de riesgo operativo (`registrarRiesgoOperativo`) · CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-61 Verificar públicamente el sorteo (`consultarPaqueteDelSorteo`) · CU-72 Sellar el bloque de transparencia (`listarBloques`, `sellarBloque`) · CU-73 Verificar la cadena de transparencia (`verificarCadena`)
+**Casos de uso que la nombran.** CU-15 Emitir extracto y certificado de saldo (`emitirExtracto`, `listarMovimientosBilletera`) · CU-50 Conciliar la custodia y verificar el encaje (`ejecutarCierreDiario`, `listarConciliaciones`, `conciliarCustodia`) · CU-54 Registrar un evento de riesgo operativo (`registrarRiesgoOperativo`) · CU-60 Sortear los turnos (`consultarPrimeraCuota`, `comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-61 Verificar públicamente el sorteo (`consultarPaqueteDelSorteo`) · CU-72 Sellar el bloque de transparencia (`listarBloques`, `sellarBloque`) · CU-73 Verificar la cadena de transparencia (`verificarCadena`)
 
 **Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `cumplimiento.evento_riesgo_operativo`, `cumplimiento.incidente_seguridad`, `nucleo_financiero.descuadre_custodia`.
 
@@ -997,7 +997,7 @@ Una tabla sin ficha se muestra **activa y detectada**: está en el modelo y nadi
 
 **Por qué existe.** Sin política de retención, o se guarda todo para siempre (riesgo regulatorio y costo creciente) o se borra sin criterio (y se pierde evidencia que la ley obliga a tener).
 
-**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`) · CU-130 Gobernar la ficha de cada tabla del catálogo de datos (`obtenerResumenDelCatalogo`, `guardarFichaDeGobierno`)
+**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `cambiarMiFotoDePerfil`, `consultarMiPerfil`, `revocarCertificado`) · CU-130 Gobernar la ficha de cada tabla del catálogo de datos (`obtenerResumenDelCatalogo`, `guardarFichaDeGobierno`)
 
 **Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `ficha_gobierno_tabla`.
 
@@ -1025,7 +1025,7 @@ Una tabla sin ficha se muestra **activa y detectada**: está en el modelo y nadi
 
 **Por qué existe.** Sin proceso formal, el borrado es un script ad-hoc que alguien corre una vez, sin registro de qué se afectó ni posibilidad de explicarlo después.
 
-**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`)
+**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `cambiarMiFotoDePerfil`, `consultarMiPerfil`, `revocarCertificado`)
 
 **Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `solicitud_datos_personales`.
 
@@ -1178,7 +1178,7 @@ Es exactamente la situación que hay que resolver bien: alguien que debe plata p
 
 **Por qué existe.** Sin gestión formal, las solicitudes llegan por correo, se pierden y se incumplen los plazos.
 
-**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`)
+**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `cambiarMiFotoDePerfil`, `consultarMiPerfil`, `revocarCertificado`)
 
 **Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `proceso_anonimizacion`.
 
@@ -1463,7 +1463,7 @@ Dos campos merecen atención especial:
 
 **Por qué existe.** Sin bitácora, cualquier disputa se resuelve por la palabra de quien tiene acceso al sistema. Con bitácora encadenada, se resuelve con evidencia verificable.
 
-**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-03 Declaración PEP y beneficiario final · CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`) · CU-05 Aceptar contrato de adhesión y tarifario · CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`) · CU-08 Asignar y revocar roles de operador (`asignarRolesUsuarioInterno`) · CU-09 Cambiar credenciales y solicitar la baja · CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`) · CU-17 Bloquear saldo por orden de autoridad (`bloquearPorAutoridad`) · CU-18 Registrar y verificar una cuenta bancaria de destino (`registrarCuentaDestino`, `consultarDisponibilidad`, `designarCuentaPrincipal`, `verificarCuentaDestino`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-27 Restringir al deudor e incluirlo en la lista interna (`levantarRestriccion`, `restringirDeudor`) · CU-40 Evaluar límites antes de una operación · CU-44 De alerta de monitoreo a reporte de operación sospechosa (`listarBandejaDeAlertas`, `listarBandejaDeCasos`, `abrirCasoLft`, `decidirCasoLft`) · CU-45 Atender un requerimiento de autoridad · CU-46 Verificar el alcance de la licencia (`verificarAlcance`) · CU-47 Evaluar el riesgo del producto antes de lanzarlo · CU-48 Calibrar reglas de cumplimiento y triar sus alertas · CU-53 Elevar un reclamo a segunda instancia · CU-55 Gestionar un incidente de seguridad (`registrarIncidente`, `notificarTitulares`, `reportarIncidente`) · CU-57 Operar un punto de atención y arquear el efectivo · CU-58 Definir, programar y exportar un reporte (`listarDefinicionesDeReporte`, `listarEjecucionesDeReporte`, `descargarExportacion`, `ejecutarReporte`) · CU-59 Mantener el calendario de días no hábiles (`calcularPlazoHabil`, `calcularVencimientoLocal`) · CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-63 Proponer y votar un acuerdo (`proponerAcuerdo`, `votarAcuerdo`) · CU-76 Reseñar a un participante y moderar la reseña (`publicarResena`, `moderarResena`) · CU-91 Firmar y rescindir el contrato de organizador (`firmarContrato`, `rescindirContrato`, `firmarHabilitacionBasica`, `emitirContrato`) · CU-95 Definir una regla de automatización (`definirRegla`, `activarRegla`) · CU-96 Programar y ejecutar una tarea automatizada (`programarTarea`, `aprobarTarea`, `anotarEjecucion`) · CU-130 Gobernar la ficha de cada tabla del catálogo de datos (`obtenerResumenDelCatalogo`, `guardarFichaDeGobierno`) · CU-131 Revisar cada columna del catálogo de datos (`obtenerTablaDelCatalogo`, `revisarColumna`)
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-03 Declaración PEP y beneficiario final · CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`) · CU-05 Aceptar contrato de adhesión y tarifario · CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `cambiarMiFotoDePerfil`, `consultarMiPerfil`, `revocarCertificado`) · CU-08 Asignar y revocar roles de operador (`asignarRolesUsuarioInterno`) · CU-09 Cambiar credenciales y solicitar la baja · CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`) · CU-17 Bloquear saldo por orden de autoridad (`bloquearPorAutoridad`) · CU-18 Registrar y verificar una cuenta bancaria de destino (`registrarCuentaDestino`, `consultarDisponibilidad`, `designarCuentaPrincipal`, `verificarCuentaDestino`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-27 Restringir al deudor e incluirlo en la lista interna (`levantarRestriccion`, `restringirDeudor`) · CU-40 Evaluar límites antes de una operación · CU-44 De alerta de monitoreo a reporte de operación sospechosa (`listarBandejaDeAlertas`, `listarBandejaDeCasos`, `abrirCasoLft`, `decidirCasoLft`) · CU-45 Atender un requerimiento de autoridad · CU-46 Verificar el alcance de la licencia (`verificarAlcance`) · CU-47 Evaluar el riesgo del producto antes de lanzarlo · CU-48 Calibrar reglas de cumplimiento y triar sus alertas · CU-53 Elevar un reclamo a segunda instancia · CU-55 Gestionar un incidente de seguridad (`registrarIncidente`, `notificarTitulares`, `reportarIncidente`) · CU-57 Operar un punto de atención y arquear el efectivo · CU-58 Definir, programar y exportar un reporte (`listarDefinicionesDeReporte`, `listarEjecucionesDeReporte`, `descargarExportacion`, `ejecutarReporte`) · CU-59 Mantener el calendario de días no hábiles (`calcularPlazoHabil`, `calcularVencimientoLocal`) · CU-60 Sortear los turnos (`consultarPrimeraCuota`, `comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-63 Proponer y votar un acuerdo (`proponerAcuerdo`, `votarAcuerdo`) · CU-76 Reseñar a un participante y moderar la reseña (`publicarResena`, `moderarResena`) · CU-91 Firmar y rescindir el contrato de organizador (`firmarContrato`, `rescindirContrato`, `firmarHabilitacionBasica`, `emitirContrato`) · CU-95 Definir una regla de automatización (`definirRegla`, `activarRegla`) · CU-96 Programar y ejecutar una tarea automatizada (`programarTarea`, `aprobarTarea`, `anotarEjecucion`) · CU-130 Gobernar la ficha de cada tabla del catálogo de datos (`obtenerResumenDelCatalogo`, `guardarFichaDeGobierno`) · CU-131 Revisar cada columna del catálogo de datos (`obtenerTablaDelCatalogo`, `revisarColumna`)
 
 **Sistema.** Vive en el esquema `comun`: todo servicio INSERTA su rastro y ninguno lee ni edita el de otro; el SELECT es de `rol_auditor` (excepción enumerada en `COMPARTIDAS_ESCRITURA`) y del servicio `auditoria`, que es quien la consulta (excepción enumerada en `COMPARTIDAS_LECTURA`). Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `grupos.grupo`, `identidad.usuario`.
 
@@ -1505,7 +1505,7 @@ El escenario: se filtran los documentos de identidad de 200 usuarios. La bitáco
 
 **Por qué existe.** Es requisito de cualquier normativa seria de protección de datos, y es la única defensa —y la única prueba— ante un incidente de privacidad.
 
-**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`) · CU-15 Emitir extracto y certificado de saldo (`emitirExtracto`, `listarMovimientosBilletera`) · CU-17 Bloquear saldo por orden de autoridad (`bloquearPorAutoridad`) · CU-18 Registrar y verificar una cuenta bancaria de destino (`registrarCuentaDestino`, `consultarDisponibilidad`, `designarCuentaPrincipal`, `verificarCuentaDestino`) · CU-44 De alerta de monitoreo a reporte de operación sospechosa (`listarBandejaDeAlertas`, `listarBandejaDeCasos`, `abrirCasoLft`, `decidirCasoLft`) · CU-45 Atender un requerimiento de autoridad · CU-58 Definir, programar y exportar un reporte (`listarDefinicionesDeReporte`, `listarEjecucionesDeReporte`, `descargarExportacion`, `ejecutarReporte`)
+**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `cambiarMiFotoDePerfil`, `consultarMiPerfil`, `revocarCertificado`) · CU-15 Emitir extracto y certificado de saldo (`emitirExtracto`, `listarMovimientosBilletera`) · CU-17 Bloquear saldo por orden de autoridad (`bloquearPorAutoridad`) · CU-18 Registrar y verificar una cuenta bancaria de destino (`registrarCuentaDestino`, `consultarDisponibilidad`, `designarCuentaPrincipal`, `verificarCuentaDestino`) · CU-44 De alerta de monitoreo a reporte de operación sospechosa (`listarBandejaDeAlertas`, `listarBandejaDeCasos`, `abrirCasoLft`, `decidirCasoLft`) · CU-45 Atender un requerimiento de autoridad · CU-58 Definir, programar y exportar un reporte (`listarDefinicionesDeReporte`, `listarEjecucionesDeReporte`, `descargarExportacion`, `ejecutarReporte`)
 
 **Sistema.** Vive en el esquema `comun`: todo servicio INSERTA su rastro y ninguno lee ni edita el de otro; el SELECT es de `rol_auditor` (excepción enumerada en `COMPARTIDAS_ESCRITURA`). Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `identidad.usuario`. Reglas nombradas: `ck_acceso_justificacion`.
 
@@ -1580,7 +1580,7 @@ La aceptación guarda IP, dispositivo, token de firma y hash de evidencia: eso e
 
 En el incidente, `plazo_reporte` se calcula al detectar y **se guarda**: tres relojes distintos corren en paralelo —contención, reporte al organismo y notificación a los titulares— y hay que poder demostrar cuál regía ese día.
 
-**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`) · CU-55 Gestionar un incidente de seguridad (`registrarIncidente`, `notificarTitulares`, `reportarIncidente`)
+**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `cambiarMiFotoDePerfil`, `consultarMiPerfil`, `revocarCertificado`) · CU-55 Gestionar un incidente de seguridad (`registrarIncidente`, `notificarTitulares`, `reportarIncidente`)
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `contrato_tercero`, `identidad.usuario`. La referencian `incidente_seguridad`.
 
@@ -1725,7 +1725,7 @@ Lo importante es que **descartar también deja rastro**: `conclusion` es obligat
 
 `plazo_limite` en el caso obliga a que la investigación tenga fecha de vencimiento.
 
-**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-03 Declaración PEP y beneficiario final · CU-06 Revisión periódica de conocimiento del cliente · CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`) · CU-44 De alerta de monitoreo a reporte de operación sospechosa (`listarBandejaDeAlertas`, `listarBandejaDeCasos`, `abrirCasoLft`, `decidirCasoLft`) · CU-48 Calibrar reglas de cumplimiento y triar sus alertas
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-03 Declaración PEP y beneficiario final · CU-06 Revisión periódica de conocimiento del cliente · CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `cambiarMiFotoDePerfil`, `consultarMiPerfil`, `revocarCertificado`) · CU-44 De alerta de monitoreo a reporte de operación sospechosa (`listarBandejaDeAlertas`, `listarBandejaDeCasos`, `abrirCasoLft`, `decidirCasoLft`) · CU-48 Calibrar reglas de cumplimiento y triar sus alertas
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `auditoria.reporte_operacion_sospechosa`, `identidad.usuario`. La referencian `alerta_monitoreo_lft`. Reglas nombradas: `ck_caso_plazo`, `ck_caso_revision`, `ck_caso_reporte`, `ix_caso_vencidos`.
 
@@ -1827,7 +1827,7 @@ La aceptación guarda IP, dispositivo, token de firma y hash de evidencia: eso e
 
 **Para qué sirve.** Una billetera se apoya en terceros críticos: pasarela, mensajería, nube, antifraude. La responsabilidad frente al cliente **no se terceriza**, así que hay que registrar quién procesa qué, si accede a datos personales, en qué país los procesa, con qué cláusulas de confidencialidad, auditoría y continuidad, y con qué nivel de servicio. La evaluación periódica mide cumplimiento de acuerdo de nivel de servicio e incidentes atribuibles.
 
-**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`) · CU-55 Gestionar un incidente de seguridad (`registrarIncidente`, `notificarTitulares`, `reportarIncidente`) · CU-99 Dar de alta un proveedor de pago y enrutar el cobro (`enrutarCobro`, `darDeAltaProveedor`)
+**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `cambiarMiFotoDePerfil`, `consultarMiPerfil`, `revocarCertificado`) · CU-55 Gestionar un incidente de seguridad (`registrarIncidente`, `notificarTitulares`, `reportarIncidente`) · CU-99 Dar de alta un proveedor de pago y enrutar el cobro (`enrutarCobro`, `darDeAltaProveedor`)
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `activo_informacion`, `evaluacion_tercero`.
 
@@ -1887,7 +1887,7 @@ La aceptación guarda IP, dispositivo, token de firma y hash de evidencia: eso e
 
 **Por qué existe.** Porque la verificación KYC es un acto técnico —validar que el documento es real y la persona es quien dice ser— y la debida diligencia es un proceso de cumplimiento con vigencia, revisión periódica, aprobación y vencimiento. Fusionarlas hace imposible representar "el KYC está bien pero la debida diligencia venció".
 
-**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-02 Elevar nivel de debida diligencia (`consultarEstadoDeVerificacion`, `iniciarVerificacion`) · CU-06 Revisión periódica de conocimiento del cliente · CU-18 Registrar y verificar una cuenta bancaria de destino (`registrarCuentaDestino`, `consultarDisponibilidad`, `designarCuentaPrincipal`, `verificarCuentaDestino`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`) · CU-90 Postular a organizador y habilitarse (`activarRolOrganizador`, `postularOrganizador`, `aprobarPostulacion`, `consultarHabilitacionBasica`, `aceptarHabilitacionBasica`, `habilitarOrganizador`)
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-02 Elevar nivel de debida diligencia (`consultarEstadoDeVerificacion`, `iniciarVerificacion`) · CU-06 Revisión periódica de conocimiento del cliente · CU-18 Registrar y verificar una cuenta bancaria de destino (`registrarCuentaDestino`, `consultarDisponibilidad`, `designarCuentaPrincipal`, `verificarCuentaDestino`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`, `consultarEtapasDePersonas`) · CU-90 Postular a organizador y habilitarse (`activarRolOrganizador`, `postularOrganizador`, `aprobarPostulacion`, `consultarHabilitacionBasica`, `aceptarHabilitacionBasica`, `habilitarOrganizador`)
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `calificacion_riesgo_cliente`, `identidad.usuario`, `identidad.verificacion_kyc`. Reglas nombradas: `ix_ddd_por_vencer`.
 
@@ -2223,7 +2223,7 @@ El envío guarda `numero_constancia`: la prueba de que se envió. La observació
 
 `retencion_hasta` es también lo que hace compatible el derecho a la eliminación de datos personales con la obligación de conservación: [[proceso_anonimizacion]] (M9) consulta esta fecha antes de borrar.
 
-**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-02 Elevar nivel de debida diligencia (`consultarEstadoDeVerificacion`, `iniciarVerificacion`) · CU-06 Revisión periódica de conocimiento del cliente · CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`) · CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`)
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-02 Elevar nivel de debida diligencia (`consultarEstadoDeVerificacion`, `iniciarVerificacion`) · CU-06 Revisión periódica de conocimiento del cliente · CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `cambiarMiFotoDePerfil`, `consultarMiPerfil`, `revocarCertificado`) · CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`)
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. Reglas nombradas: `ck_expediente_retencion_futura`.
 
@@ -2268,7 +2268,7 @@ El envío guarda `numero_constancia`: la prueba de que se envió. La observació
 
 **Para qué sirve.** Un hallazgo sin responsable y sin plazo no se corrige. El plan de acción tiene responsable, fecha comprometida, porcentaje de avance y evidencia de cierre. Los hallazgos vencidos son visibles y **son exactamente lo primero que revisa una inspección de seguimiento**.
 
-**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`) · CU-17 Bloquear saldo por orden de autoridad (`bloquearPorAutoridad`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-35 Cerrar la liquidación mensual de ingresos (`cerrarLiquidacion`) · CU-43 Remitir los reportes mensuales a la UIF · CU-44 De alerta de monitoreo a reporte de operación sospechosa (`listarBandejaDeAlertas`, `listarBandejaDeCasos`, `abrirCasoLft`, `decidirCasoLft`) · CU-45 Atender un requerimiento de autoridad · CU-47 Evaluar el riesgo del producto antes de lanzarlo · CU-49 Designar al oficial de cumplimiento y capacitar · CU-52 Atender un reclamo en plazo (`listarBandejaDeReclamos`, `consultarEfectoDeReclamos`, `consultarReclamo`, `responderReclamo`) · CU-54 Registrar un evento de riesgo operativo (`registrarRiesgoOperativo`) · CU-56 Ejecutar una prueba de continuidad · CU-94 Elevar una decisión al comité de gobierno
+**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `cambiarMiFotoDePerfil`, `consultarMiPerfil`, `revocarCertificado`) · CU-17 Bloquear saldo por orden de autoridad (`bloquearPorAutoridad`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-35 Cerrar la liquidación mensual de ingresos (`cerrarLiquidacion`) · CU-43 Remitir los reportes mensuales a la UIF · CU-44 De alerta de monitoreo a reporte de operación sospechosa (`listarBandejaDeAlertas`, `listarBandejaDeCasos`, `abrirCasoLft`, `decidirCasoLft`) · CU-45 Atender un requerimiento de autoridad · CU-47 Evaluar el riesgo del producto antes de lanzarlo · CU-49 Designar al oficial de cumplimiento y capacitar · CU-52 Atender un reclamo en plazo (`listarBandejaDeReclamos`, `consultarEfectoDeReclamos`, `consultarReclamo`, `responderReclamo`) · CU-54 Registrar un evento de riesgo operativo (`registrarRiesgoOperativo`) · CU-56 Ejecutar una prueba de continuidad · CU-94 Elevar una decisión al comité de gobierno
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `plan_accion_riesgo`.
 
@@ -2655,7 +2655,7 @@ Tres columnas que parecen detalle y son el núcleo del cumplimiento:
 
 `exento` + `motivo_exencion` cubren los casos que la norma excluye expresamente (operativa propia entre entidades reguladas, pagos de servicios básicos, impuestos, bonos sociales, pagos con tarjeta). Sin esas columnas, un exento se ve igual que un olvido.
 
-**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-11 Retirar saldo (`solicitarRetiro`) · CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`) · CU-41 Detectar umbral y registrar formulario PCC-01 · CU-42 Detectar umbral y registrar ROG · CU-43 Remitir los reportes mensuales a la UIF
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`, `pagarRecargaDePrueba`) · CU-11 Retirar saldo (`solicitarRetiro`) · CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`) · CU-41 Detectar umbral y registrar formulario PCC-01 · CU-42 Detectar umbral y registrar ROG · CU-43 Remitir los reportes mensuales a la UIF
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `catalogo.umbral_reporte_uif`, `declaracion_origen_fondos`, `identidad.usuario`, `nucleo_financiero.transaccion_billetera`, `registro_operacion_relevante`, `reporte_regulatorio`. La referencian `registro_operacion_relevante`. Reglas nombradas: `ck_operelev_ventana`, `ck_operelev_tipo_cambio`, `ck_operelev_declaracion`, `ck_operelev_periodo`, `uq_operelev_tx_umbral`, `ix_operelev_periodo`, `ix_operelev_usuario_fecha`.
 
@@ -2758,7 +2758,7 @@ El envío guarda `numero_constancia`: la prueba de que se envió. La observació
 
 **Por qué existe.** Porque **nunca se ejecuta una orden sin el documento que la respalda**, y porque el día que el titular reclame por qué le congelaron el saldo, la respuesta tiene que ser el número de oficio, no "nos lo pidieron".
 
-**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`) · CU-17 Bloquear saldo por orden de autoridad (`bloquearPorAutoridad`) · CU-45 Atender un requerimiento de autoridad
+**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `cambiarMiFotoDePerfil`, `consultarMiPerfil`, `revocarCertificado`) · CU-17 Bloquear saldo por orden de autoridad (`bloquearPorAutoridad`) · CU-45 Atender un requerimiento de autoridad
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `nucleo_financiero.bloqueo_saldo`. Reglas nombradas: `ix_requerimiento_vencidos`.
 
@@ -4218,7 +4218,7 @@ Esa es la diferencia entre el pasanaku digital y el de cuaderno. En el tradicion
 
 **Por qué existe.** Sin deuda como entidad independiente, el incumplimiento se cierra cuando el grupo cierra, y quien abandonó no tiene ninguna consecuencia duradera.
 
-**Casos de uso que la nombran.** CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-27 Restringir al deudor e incluirlo en la lista interna (`levantarRestriccion`, `restringirDeudor`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-62 Permutar turnos entre participantes (`solicitarPermuta`) · CU-64 Traspasar un cupo (`traspasarCupo`, `consultarPuntaje`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`)
+**Casos de uso que la nombran.** CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-27 Restringir al deudor e incluirlo en la lista interna (`levantarRestriccion`, `restringirDeudor`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-62 Permutar turnos entre participantes (`solicitarPermuta`) · CU-64 Traspasar un cupo (`listarAcuerdos`, `traspasarCupo`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `cobertura_incumplimiento`, `grupos.grupo`, `grupos.participante`, `identidad.usuario`, `registro_incumplimiento`. La referencian `abono_recuperacion`, `castigo_deuda`, `ejecucion_aval`, `subrogacion`.
 
@@ -5047,7 +5047,7 @@ La máquina de estados **es el debido proceso hecho dato**:
 
 **Por qué existe.** Prevenir un incumplimiento cuesta una fracción de lo que cuesta gestionarlo: cobertura del fondo, gestión de cobranza, sanción, apelación, reemplazo. La prevención es el mejor negocio del módulo.
 
-**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`) · CU-97 Anticipar el riesgo con alertas tempranas (`cerrarAlertaRiesgo`, `evaluarRiesgo`)
+**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`, `consultarEtapasDePersonas`) · CU-97 Anticipar el riesgo con alertas tempranas (`cerrarAlertaRiesgo`, `evaluarRiesgo`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.grupo`, `identidad.usuario`.
 
@@ -5112,7 +5112,7 @@ La máquina de estados **es el debido proceso hecho dato**:
 
 **Por qué existe.** Sin ella no hay debido proceso posible: no se puede sancionar a alguien por incumplir reglas que no consta que haya aceptado. Es la base de todo el módulo 8.
 
-**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-64 Traspasar un cupo (`traspasarCupo`, `consultarPuntaje`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
+**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-60 Sortear los turnos (`consultarPrimeraCuota`, `comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-64 Traspasar un cupo (`listarAcuerdos`, `traspasarCupo`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`, `consultarEtapasDePersonas`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.token_verificacion`, `participante`, `reglamento_grupo`.
 
@@ -5138,7 +5138,7 @@ En el pasanaku presencial esto se resuelve en reunión. Digitalmente, `Acuerdo` 
 
 **Por qué existe.** Sin acuerdos, la plataforma le entrega al organizador un poder que en el pasanaku real nunca tuvo, y reproduce digitalmente el abuso que promete evitar.
 
-**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`) · CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-62 Permutar turnos entre participantes (`solicitarPermuta`) · CU-63 Proponer y votar un acuerdo (`proponerAcuerdo`, `votarAcuerdo`) · CU-64 Traspasar un cupo (`traspasarCupo`, `consultarPuntaje`) · CU-65 Retirarse de un grupo (`solicitarRetiro`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`)
+**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`) · CU-60 Sortear los turnos (`consultarPrimeraCuota`, `comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-62 Permutar turnos entre participantes (`solicitarPermuta`) · CU-63 Proponer y votar un acuerdo (`proponerAcuerdo`, `votarAcuerdo`) · CU-64 Traspasar un cupo (`listarAcuerdos`, `traspasarCupo`) · CU-65 Retirarse de un grupo (`solicitarRetiro`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupo`, `identidad.usuario`. La referencian `garantia.acuerdo_quita`, `garantia.disolucion_anticipada`, `garantia.plan_contingencia`, `garantia.reemplazo_participante`, `garantia.sancion`, `tarifas.tarifa_congelada_grupo`, `traspaso_cupo`, `voto_participante`. Reglas nombradas: `uq_acuerdo_abierto`.
 
@@ -5169,7 +5169,7 @@ En el pasanaku presencial esto se resuelve en reunión. Digitalmente, `Acuerdo` 
 
 **Por qué existe.** Sin ella, un reintento duplicaría el grupo con sus cupos y su reglamento. Tampoco se podría distinguir un reintento legítimo de un pedido distinto mandado con la misma clave.
 
-**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
+**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`, `consultarEtapasDePersonas`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva.
 
@@ -5222,7 +5222,7 @@ En el pasanaku presencial esto se resuelve en reunión. Digitalmente, `Acuerdo` 
 
 **Por qué existe.** Un algoritmo de emparejamiento con constantes hardcodeadas no se puede ajustar frente a la evidencia. `vigenteDesde` permite saber con qué criterio se armó cada grupo histórico.
 
-**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
+**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`, `consultarEtapasDePersonas`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `propuesta_grupo`.
 
@@ -5249,7 +5249,7 @@ El caso que justifica toda la separación: **un participante abandona en el per�
 
 **Por qué existe.** Sin `Cupo`, el modelo no soporta manos múltiples, ni medias manos, ni reemplazos sin descuadre. Los tres casos son la norma, no la excepción.
 
-**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-64 Traspasar un cupo (`traspasarCupo`, `consultarPuntaje`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
+**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-60 Sortear los turnos (`consultarPrimeraCuota`, `comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-64 Traspasar un cupo (`listarAcuerdos`, `traspasarCupo`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`, `consultarEtapasDePersonas`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupo`, `participante`. La referencian `aportes.obligacion_aporte`, `entregas.entrega_fondo`, `entregas.oferta_turno`, `entregas.subasta_cupo`, `garantia.reemplazo_participante`, `garantia.registro_incumplimiento`, `traspaso_cupo`, `turno`.
 
@@ -5272,7 +5272,7 @@ El caso que justifica toda la separación: **un participante abandona en el per�
 
 **Por qué existe.** Con la admisión humana obligatoria (ADR-052 DD-2), el organizador propone y backoffice resuelve. Sin esta tabla, la propuesta, la resolución y el motivo se pisarían en la solicitud y no habría forma de reconstruir por qué alguien quedó dentro o fuera.
 
-**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
+**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`, `consultarEtapasDePersonas`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Reglas nombradas: `ck_decision_ingreso_fase`, `ck_decision_ingreso_resultado`, `ck_decision_ingreso_revision`, `ck_decision_ingreso_motivo`, `ck_decision_ingreso_recomendacion`, `ck_decision_ingreso_propuesta`, `uq_decision_ingreso_resolucion`.
 
@@ -5375,7 +5375,7 @@ El caso que justifica toda la separación: **un participante abandona en el per�
 
 **Por qué existe.** Es la unidad de negocio. Sin ella no hay contexto para ninguna obligación, ningún turno ni ninguna entrega.
 
-**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-63 Proponer y votar un acuerdo (`proponerAcuerdo`, `votarAcuerdo`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
+**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-60 Sortear los turnos (`consultarPrimeraCuota`, `comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-63 Proponer y votar un acuerdo (`proponerAcuerdo`, `votarAcuerdo`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`, `consultarEtapasDePersonas`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `organizador.organizador`. La referencian `acuerdo`, `aportes.obligacion_aporte`, `aportes.politica_mora`, `auditoria.alerta_cumplimiento`, `auditoria.ejecucion_reporte`, `catalogo.dia_no_habil`, `comun.bitacora_evento`, `configuracion_grupo`, `cupo`, `enlace_grupo`, `entregas.entrega_fondo`, `entregas.oferta_turno`, `entregas.subasta_cupo`, `garantia.alerta_temprana`, `garantia.aval_participante`, `garantia.cobertura_respaldo`, `garantia.deuda_participante`, `garantia.disolucion_anticipada`, `garantia.fondo_garantia`, `garantia.plan_contingencia`, `garantia.politica_cobertura`, `garantia.politica_sancion`, `garantia.reemplazo_participante`, `garantia.registro_incumplimiento`, `garantia.reserva_respaldo`, `garantia.score_riesgo_incumplimiento`, `historial_estado_grupo`, `invitacion`, `notificaciones.programacion_recordatorio`, `nucleo_financiero.asiento_contable`, `nucleo_financiero.cuenta_billetera`, `nucleo_financiero.cuenta_contable`, `nucleo_financiero.transaccion_billetera`, `nucleo_financiero.transferencia_p2p`, `organizador.tarea_automatizada`, `participante`, `periodo`, `propuesta_grupo`, `reglamento_grupo`, `solicitud_ingreso`, `sorteo_turnos`, `tarifas.asignacion_tarifario`, `tarifas.devengo_comision`, `tarifas.exencion_comision`, `tarifas.tarifa_congelada_grupo`, `transparencia.bloque_transparencia`, `transparencia.evento_reputacion`, `transparencia.metrica_grupo`, `transparencia.resena_participante`, `turno`.
 
@@ -5417,7 +5417,7 @@ El caso que justifica toda la separación: **un participante abandona en el per�
 
 **Por qué existe.** El campo `estado` dice dónde está el grupo hoy; esta tabla dice cómo llegó ahí. Ante un reclamo colectivo, es lo primero que se mira.
 
-**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
+**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`, `consultarEtapasDePersonas`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupo`, `identidad.usuario`.
 
@@ -5478,7 +5478,7 @@ El caso que justifica toda la separación: **un participante abandona en el per�
 
 **Por qué existe.** Porque el mismo usuario está en varios grupos con estados distintos: al día en uno, en mora en otro. El estado es propiedad de la relación, no de la persona.
 
-**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-63 Proponer y votar un acuerdo (`proponerAcuerdo`, `votarAcuerdo`) · CU-64 Traspasar un cupo (`traspasarCupo`, `consultarPuntaje`) · CU-65 Retirarse de un grupo (`solicitarRetiro`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
+**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-60 Sortear los turnos (`consultarPrimeraCuota`, `comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-63 Proponer y votar un acuerdo (`proponerAcuerdo`, `votarAcuerdo`) · CU-64 Traspasar un cupo (`listarAcuerdos`, `traspasarCupo`) · CU-65 Retirarse de un grupo (`solicitarRetiro`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`, `consultarEtapasDePersonas`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupo`, `identidad.usuario`, `participante`. La referencian `aceptacion_reglamento`, `aportes.obligacion_aporte`, `aportes.plan_regularizacion`, `cupo`, `entregas.cesion_derecho`, `entregas.entrega_fondo`, `entregas.oferta_turno`, `entregas.subasta_cupo`, `garantia.aval_participante`, `garantia.descargo_participante`, `garantia.deuda_participante`, `garantia.devolucion_fondo`, `garantia.liquidacion_participante`, `garantia.reemplazo_participante`, `garantia.registro_incumplimiento`, `garantia.sancion`, `nucleo_financiero.cuenta_contable`, `participante`, `solicitud_permuta`, `solicitud_retiro`, `tarifas.devengo_comision`, `transparencia.evento_reputacion`, `transparencia.resena_participante`, `traspaso_cupo`, `voto_participante`. Reglas nombradas: `uq_participante_vigente_grupo_usuario`.
 
@@ -5510,7 +5510,7 @@ Las tres fechas (`fechaLimitePago`, `fechaFinGracia`, `fechaEntregaPrevista`) ex
 
 **Por qué existe.** Sin períodos materializados, el calendario sería un cálculo en tiempo de ejecución y no se podría registrar qué pasó realmente en cada uno: cuánto entró, quién falló, si se entregó a tiempo.
 
-**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-72 Sellar el bloque de transparencia (`listarBloques`, `sellarBloque`) · CU-81 Programar recordatorios de aporte
+**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-60 Sortear los turnos (`consultarPrimeraCuota`, `comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-72 Sellar el bloque de transparencia (`listarBloques`, `sellarBloque`) · CU-81 Programar recordatorios de aporte
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupo`. La referencian `aportes.obligacion_aporte`, `entregas.entrega_fondo`, `garantia.cobertura_incumplimiento`, `garantia.cobertura_respaldo`, `garantia.registro_incumplimiento`, `transparencia.metrica_grupo`, `turno`.
 
@@ -5536,7 +5536,7 @@ Las tres fechas (`fechaLimitePago`, `fechaFinGracia`, `fechaEntregaPrevista`) ex
 
 **Por qué existe.** Sin postulaciones no hay pool de demanda y el emparejamiento no tiene con qué trabajar. `vigenteHasta` evita proponer grupos a gente que ya perdió el interés hace meses.
 
-**Casos de uso que la nombran.** CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
+**Casos de uso que la nombran.** CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`, `consultarEtapasDePersonas`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `propuesta_postulacion`.
 
@@ -5564,7 +5564,7 @@ Las tres fechas (`fechaLimitePago`, `fechaFinGracia`, `fechaEntregaPrevista`) ex
 
 **Por qué existe.** Sin propuesta como entidad separada, un emparejamiento fallido (5 aceptaron, 7 no) dejaría grupos a medio armar en la tabla real.
 
-**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
+**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`, `consultarEtapasDePersonas`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `criterio_emparejamiento`, `grupo`. La referencian `propuesta_postulacion`.
 
@@ -5587,7 +5587,7 @@ Las tres fechas (`fechaLimitePago`, `fechaFinGracia`, `fechaEntregaPrevista`) ex
 
 **Para qué sirve.** Guarda quién aceptó y quién no, y cuándo. Permite medir la tasa de conversión del emparejamiento y reintentar con los que no respondieron.
 
-**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
+**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`, `consultarEtapasDePersonas`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `postulacion_emparejamiento`, `propuesta_grupo`.
 
@@ -5648,7 +5648,7 @@ El versionado (`version`, `vigenteDesde/Hasta`) importa porque los reglamentos s
 
 **Por qué existe.** El sorteo publica primero el hash de la semilla y después la revela (CU-60). Si el plantel o las reglas cambiaran entre esos dos momentos, el resultado dejaría de ser verificable. La foto es lo que hace que el sorteo sea reproducible.
 
-**Casos de uso que la nombran.** CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`)
+**Casos de uso que la nombran.** CU-60 Sortear los turnos (`consultarPrimeraCuota`, `comprometerSorteo`, `revelarSorteo`, `verificarSorteo`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Reglas nombradas: `ck_snapshot_sorteo_hash`, `ck_snapshot_sorteo_roster`.
 
@@ -5673,7 +5673,7 @@ El versionado (`version`, `vigenteDesde/Hasta`) importa porque los reglamentos s
 
 **Por qué existe.** Un grupo con desconocidos necesita una puerta. Sin solicitud formal, o el grupo es cerrado (y la plataforma no puede crecer más allá de las redes existentes) o es abierto sin filtro (y se llena de morosos que ya fallaron en otros grupos).
 
-**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`) · CU-69 Invitar a un contacto y registrar sus referencias (`buscarPorTelefono`, `emitirTokenDeInvitacion`, `validarTokenDeInvitacion`, `consultarSupresion`)
+**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`, `consultarEtapasDePersonas`) · CU-69 Invitar a un contacto y registrar sus referencias (`buscarPorTelefono`, `emitirTokenDeInvitacion`, `validarTokenDeInvitacion`, `consultarSupresion`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `enlace_grupo`, `grupo`, `identidad.usuario`. Reglas nombradas: `uq_solicitud_ingreso_pendiente`, `ck_solicitud_ingreso_resuelta`.
 
@@ -5765,7 +5765,7 @@ El mecanismo:
 
 **Por qué existe.** Sin verificabilidad, el sorteo es "confiá en nosotros", que es exactamente lo que la plataforma promete reemplazar. La entidad no es un lujo criptográfico: es el argumento comercial.
 
-**Casos de uso que la nombran.** CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-61 Verificar públicamente el sorteo (`consultarPaqueteDelSorteo`)
+**Casos de uso que la nombran.** CU-60 Sortear los turnos (`consultarPrimeraCuota`, `comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-61 Verificar públicamente el sorteo (`consultarPaqueteDelSorteo`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupo`, `identidad.usuario`. Reglas nombradas: `uq_sorteo_grupo`, `ck_sorteo_revelado`, `ck_sorteo_compromiso`.
 
@@ -5794,7 +5794,7 @@ El mecanismo:
 
 **Por qué existe.** Sin ella, el cambio de administrador sería un `UPDATE` sobre el participante y se perdería quién lo decidió, por qué y qué conservó el saliente.
 
-**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
+**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`, `consultarEtapasDePersonas`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Reglas nombradas: `ck_sustitucion_administrador_distintos`, `ck_sustitucion_administrador_motivo`.
 
@@ -5823,7 +5823,7 @@ Los tres motivos (`VENTA`, `REEMPLAZO_POR_MORA`, `RETIRO`) tienen consecuencias 
 
 **Por qué existe.** Sin esta tabla, un traspaso es un `UPDATE` de `cupo.participante_id` y se pierde toda la historia económica: quién debía qué, quién asumió qué, quién lo autorizó.
 
-**Casos de uso que la nombran.** CU-64 Traspasar un cupo (`traspasarCupo`, `consultarPuntaje`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`)
+**Casos de uso que la nombran.** CU-64 Traspasar un cupo (`listarAcuerdos`, `traspasarCupo`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `acuerdo`, `cupo`, `participante`.
 
@@ -5852,7 +5852,7 @@ Los tres motivos (`VENTA`, `REEMPLAZO_POR_MORA`, `RETIRO`) tienen consecuencias 
 
 **Por qué existe.** Es el calendario de derechos de cobro. Sin él no hay plataforma: es literalmente el producto.
 
-**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-61 Verificar públicamente el sorteo (`consultarPaqueteDelSorteo`) · CU-62 Permutar turnos entre participantes (`solicitarPermuta`) · CU-64 Traspasar un cupo (`traspasarCupo`, `consultarPuntaje`)
+**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-60 Sortear los turnos (`consultarPrimeraCuota`, `comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-61 Verificar públicamente el sorteo (`consultarPaqueteDelSorteo`) · CU-62 Permutar turnos entre participantes (`solicitarPermuta`) · CU-64 Traspasar un cupo (`listarAcuerdos`, `traspasarCupo`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `cupo`, `grupo`, `periodo`, `turno`. La referencian `entregas.cesion_derecho`, `entregas.entrega_fondo`, `entregas.fondeo_entrega`, `entregas.oferta_turno`, `garantia.cobertura_respaldo`, `solicitud_permuta`, `turno`. Reglas nombradas: `uq_turno_periodo`, `uq_turno_orden`.
 
@@ -6008,7 +6008,7 @@ Los tres motivos (`VENTA`, `REEMPLAZO_POR_MORA`, `RETIRO`) tienen consecuencias 
 
 **Por qué existe.** Es requisito de la normativa de protección de datos y es la única defensa ante una disputa sobre las condiciones pactadas.
 
-**Casos de uso que la nombran.** CU-05 Aceptar contrato de adhesión y tarifario · CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`)
+**Casos de uso que la nombran.** CU-05 Aceptar contrato de adhesión y tarifario · CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `cambiarMiFotoDePerfil`, `consultarMiPerfil`, `revocarCertificado`)
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`.
 
@@ -6269,7 +6269,7 @@ Los tres motivos (`VENTA`, `REEMPLAZO_POR_MORA`, `RETIRO`) tienen consecuencias 
 
 **Por qué existe.** Es información autodeclarada y de baja frecuencia de cambio, con implicaciones legales distintas a las de los datos de contacto. Se mantiene separada para poder auditar cuándo se declaró qué, y para poder retenerla o anonimizarla con reglas propias (M9).
 
-**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
+**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`, `consultarEtapasDePersonas`)
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`.
 
@@ -6398,7 +6398,7 @@ En la cobranza también es determinante: la etapa temprana del módulo 8 contemp
 
 **Por qué existe.** Es deliberadamente una **proyección**, no la fuente de la verdad. La fuente es `evento_reputacion` + `puntaje_reputacion` en M6. Esta tabla se mantiene sincronizada como espejo. Confundir ambas —y editar el número aquí— rompería la trazabilidad de por qué alguien tiene el puntaje que tiene.
 
-**Casos de uso que la nombran.** CU-36 Segmentar comercialmente y aplicar precio diferenciado (`resolverPrecio`, `crearSegmento`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`) · CU-75 Emitir un certificado de reputación verificable (`emitirCertificado`, `verificarCertificado`)
+**Casos de uso que la nombran.** CU-36 Segmentar comercialmente y aplicar precio diferenciado (`resolverPrecio`, `crearSegmento`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`, `consultarEtapasDePersonas`) · CU-75 Emitir un certificado de reputación verificable (`emitirCertificado`, `verificarCertificado`)
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`.
 
@@ -6426,7 +6426,7 @@ Y a diferencia del bloqueo, la persona sí puede seguir entrando: puede ver su d
 
 **Por qué existe.** Sin ella, la consecuencia del incumplimiento se queda encerrada en el módulo 8 y no afecta el comportamiento del sistema. La reputación informa; la restricción impide.
 
-**Casos de uso que la nombran.** CU-27 Restringir al deudor e incluirlo en la lista interna (`levantarRestriccion`, `restringirDeudor`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`) · CU-90 Postular a organizador y habilitarse (`activarRolOrganizador`, `postularOrganizador`, `aprobarPostulacion`, `consultarHabilitacionBasica`, `aceptarHabilitacionBasica`, `habilitarOrganizador`)
+**Casos de uso que la nombran.** CU-27 Restringir al deudor e incluirlo en la lista interna (`levantarRestriccion`, `restringirDeudor`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`, `consultarEtapasDePersonas`) · CU-90 Postular a organizador y habilitarse (`activarRolOrganizador`, `postularOrganizador`, `aprobarPostulacion`, `consultarHabilitacionBasica`, `aceptarHabilitacionBasica`, `habilitarOrganizador`)
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`. Reglas nombradas: `ck_restriccion_levantamiento`, `ck_restriccion_vigencia`, `uq_restriccion_usuario_vigente`.
 
@@ -7423,7 +7423,7 @@ La diferencia con el opt-out del `CanalVinculado` es importante: la supresión e
 
 **Por qué existe.** Una tasa alta de quejas hace que el proveedor limite o suspenda la cuenta de envío. Cuando eso pasa, **ningún** usuario recibe recordatorios, y la cobranza de toda la plataforma se cae.
 
-**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`) · CU-69 Invitar a un contacto y registrar sus referencias (`buscarPorTelefono`, `emitirTokenDeInvitacion`, `validarTokenDeInvitacion`, `consultarSupresion`) · CU-80 Despachar una notificación (`emitirNotificacion`, `consultarAvisosInternos`, `emitirAvisoInterno`, `marcarTodosAvisosLeidos`, `marcarAvisoLeido`, `listarPlantillas`, `verificarSupresion`) · CU-82 Procesar una respuesta entrante (`procesarRespuestaEntrante`)
+**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `cambiarMiFotoDePerfil`, `consultarMiPerfil`, `revocarCertificado`) · CU-69 Invitar a un contacto y registrar sus referencias (`buscarPorTelefono`, `emitirTokenDeInvitacion`, `validarTokenDeInvitacion`, `consultarSupresion`) · CU-80 Despachar una notificación (`emitirNotificacion`, `consultarAvisosInternos`, `emitirAvisoInterno`, `marcarTodosAvisosLeidos`, `marcarAvisoLeido`, `listarPlantillas`, `verificarSupresion`) · CU-82 Procesar una respuesta entrante (`procesarRespuestaEntrante`)
 
 **Sistema.** Vive en el esquema `notificaciones`; la escribe y la lee solo el servicio `notificaciones` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos.
 
@@ -7652,7 +7652,7 @@ La diferencia con el opt-out del `CanalVinculado` es importante: la supresión e
 
 **Por qué existe.** Es lo que convierte un montón de filas de pagos en información financiera confiable y auditable.
 
-**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-11 Retirar saldo (`solicitarRetiro`) · CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`) · CU-14 Reversar una transacción (`reversarTransaccion`, `listarReversos`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-24 Registrar el asiento contable de una operación · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`) · CU-33 Devolver comisión y emitir nota de crédito (`devolverComision`) · CU-35 Cerrar la liquidación mensual de ingresos (`cerrarLiquidacion`) · CU-51 Ejecutar el cierre diario (`consultarRecaudoDiario`, `listarCierresDiarios`) · CU-65 Retirarse de un grupo (`solicitarRetiro`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`) · CU-100 Abrir y cerrar el período contable (`listarEjerciciosFiscales`, `abrirEjercicioFiscal`, `listarPeriodosDelEjercicio`, `consultarPeriodoVigente`, `cerrarPeriodoContable`) · CU-103 Registrar y pagar una factura de proveedor (`listarFacturasDeProveedor`, `registrarFacturaDeProveedor`, `pagarFacturaDeProveedor`) · CU-104 Cobrar una cuenta por cobrar (`listarCuentasPorCobrar`, `abrirCuentaPorCobrar`, `registrarCobro`) · CU-105 Depreciar un activo fijo (`listarActivosFijos`, `depreciarActivo`, `correrDepreciacionDelPeriodo`) · CU-106 Generar el estado financiero del período (`descargarEstadoFinanciero`, `generarEstadoFinanciero`, `validarPlantillaDeAsiento`)
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`, `pagarRecargaDePrueba`) · CU-11 Retirar saldo (`solicitarRetiro`) · CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`) · CU-14 Reversar una transacción (`reversarTransaccion`, `listarReversos`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-24 Registrar el asiento contable de una operación · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`) · CU-33 Devolver comisión y emitir nota de crédito (`devolverComision`) · CU-35 Cerrar la liquidación mensual de ingresos (`cerrarLiquidacion`) · CU-51 Ejecutar el cierre diario (`consultarRecaudoDiario`, `listarCierresDiarios`) · CU-65 Retirarse de un grupo (`solicitarRetiro`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`) · CU-100 Abrir y cerrar el período contable (`listarEjerciciosFiscales`, `abrirEjercicioFiscal`, `listarPeriodosDelEjercicio`, `consultarPeriodoVigente`, `cerrarPeriodoContable`) · CU-103 Registrar y pagar una factura de proveedor (`listarFacturasDeProveedor`, `registrarFacturaDeProveedor`, `pagarFacturaDeProveedor`) · CU-104 Cobrar una cuenta por cobrar (`listarCuentasPorCobrar`, `abrirCuentaPorCobrar`, `registrarCobro`) · CU-105 Depreciar un activo fijo (`listarActivosFijos`, `depreciarActivo`, `correrDepreciacionDelPeriodo`) · CU-106 Generar el estado financiero del período (`descargarEstadoFinanciero`, `generarEstadoFinanciero`, `validarPlantillaDeAsiento`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `asiento_contable`, `erp.periodo_contable`, `grupos.grupo`, `identidad.usuario`. La referencian `asiento_contable`, `erp.cobro_cuenta_por_cobrar`, `erp.depreciacion_activo`, `erp.factura_proveedor`, `erp.pago_a_proveedor`, `garantia.castigo_deuda`, `garantia.cobertura_incumplimiento`, `garantia.movimiento_fondo`, `movimiento_contable`, `tarifas.devengo_comision`, `tarifas.liquidacion_ingresos`, `transaccion_billetera`. Reglas nombradas: `ck_asiento_reversa_distinta`, `ck_asiento_reversado_enlazado`.
 
@@ -7814,7 +7814,7 @@ Cuando el ratio baja de 1, el sistema entra en modo restringido de forma automá
 
 **Por qué existe.** Sin cuenta de grupo, el dinero del pasanaku vuelve a depender de que alguien lo tenga en su cuenta personal —que es exactamente el problema que el producto promete resolver. Sin cuenta de plataforma separada, los ingresos por comisión se mezclan con el dinero de los usuarios y el encaje deja de ser demostrable.
 
-**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-02 Elevar nivel de debida diligencia (`consultarEstadoDeVerificacion`, `iniciarVerificacion`) · CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`) · CU-13 Retener y liberar saldo (`debitarInversion`, `retenerSaldo`, `cerrarRetencion`, `pagarAlTercero`, `consultarSaldo`) · CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`) · CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-50 Conciliar la custodia y verificar el encaje (`ejecutarCierreDiario`, `listarConciliaciones`, `conciliarCustodia`)
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-02 Elevar nivel de debida diligencia (`consultarEstadoDeVerificacion`, `iniciarVerificacion`) · CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`, `pagarRecargaDePrueba`) · CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`) · CU-13 Retener y liberar saldo (`debitarInversion`, `retenerSaldo`, `cerrarRetencion`, `pagarAlTercero`, `consultarSaldo`) · CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`) · CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-50 Conciliar la custodia y verificar el encaje (`ejecutarCierreDiario`, `listarConciliaciones`, `conciliarCustodia`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `cuenta_contable`, `grupos.grupo`, `identidad.usuario`, `politica_billetera`. La referencian `bloqueo_saldo`, `certificado_saldo`, `consumo_limite`, `cumplimiento.alerta_monitoreo_lft`, `estado_cuenta_billetera`, `evaluacion_antifraude`, `movimiento_billetera`, `orden_recarga`, `orden_retiro`, `qr_transferencia`, `retencion_saldo`, `saldo_diario_billetera`, `solicitud_cierre_billetera`, `transferencia_p2p`. Reglas nombradas: `ck_cuenta_saldo_no_negativo`, `ck_cuenta_retenido_no_negativo`, `uq_cuenta_usuario_moneda`, `uq_cuenta_grupo_moneda`, `ck_cuenta_titularidad`, `uq_cuenta_custodia_inversion_moneda`.
 
@@ -7931,7 +7931,7 @@ La cuenta corriente por participante (`participanteId`) es la que sostiene el es
 
 **Por qué existe.** No es lo mismo que un proveedor que no contesta. Un timeout deja el resultado desconocido y se vuelve a consultar; una firma que no coincide es evidencia y se conserva.
 
-**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-11 Retirar saldo (`solicitarRetiro`)
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`, `pagarRecargaDePrueba`) · CU-11 Retirar saldo (`solicitarRetiro`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Reglas nombradas: `ck_discrepancia_moneda`.
 
@@ -8071,7 +8071,7 @@ Guardar la evaluación importa por dos razones opuestas: cuando el motor **acert
 
 **Por qué existe.** Es también el punto donde se decide qué se guarda y qué no: se persiste `token_proveedor` y `hash_identificador`, **nunca el número completo de tarjeta ni de cuenta en claro**.
 
-**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-11 Retirar saldo (`solicitarRetiro`) · CU-18 Registrar y verificar una cuenta bancaria de destino (`registrarCuentaDestino`, `consultarDisponibilidad`, `designarCuentaPrincipal`, `verificarCuentaDestino`)
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`, `pagarRecargaDePrueba`) · CU-11 Retirar saldo (`solicitarRetiro`) · CU-18 Registrar y verificar una cuenta bancaria de destino (`registrarCuentaDestino`, `consultarDisponibilidad`, `designarCuentaPrincipal`, `verificarCuentaDestino`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `orden_recarga`, `orden_retiro`. Reglas nombradas: `ck_instrumento_sin_pan`.
 
@@ -8102,7 +8102,7 @@ Guardar la evaluación importa por dos razones opuestas: cuando el motor **acert
 
 **Por qué existe.** Es el registro primario del que se deriva todo lo demás. Si se elimina, no hay sistema.
 
-**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-11 Retirar saldo (`solicitarRetiro`) · CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`) · CU-14 Reversar una transacción (`reversarTransaccion`, `listarReversos`) · CU-15 Emitir extracto y certificado de saldo (`emitirExtracto`, `listarMovimientosBilletera`) · CU-53 Elevar un reclamo a segunda instancia
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`, `pagarRecargaDePrueba`) · CU-11 Retirar saldo (`solicitarRetiro`) · CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`) · CU-14 Reversar una transacción (`reversarTransaccion`, `listarReversos`) · CU-15 Emitir extracto y certificado de saldo (`emitirExtracto`, `listarMovimientosBilletera`) · CU-53 Elevar un reclamo a segunda instancia
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `cuenta_billetera`, `transaccion_billetera`. Reglas nombradas: `ix_movimiento_cuenta_fecha`.
 
@@ -8129,7 +8129,7 @@ Guardar la evaluación importa por dos razones opuestas: cuando el motor **acert
 
 **Casos de uso que la nombran.** CU-24 Registrar el asiento contable de una operación · CU-100 Abrir y cerrar el período contable (`listarEjerciciosFiscales`, `abrirEjercicioFiscal`, `listarPeriodosDelEjercicio`, `consultarPeriodoVigente`, `cerrarPeriodoContable`)
 
-**Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `asiento_contable`, `cuenta_contable`.
+**Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `asiento_contable`, `cuenta_contable`. Reglas nombradas: `ck_movimiento_contable_un_lado`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
@@ -8147,7 +8147,7 @@ Guardar la evaluación importa por dos razones opuestas: cuando el motor **acert
 
 **Para qué sirve.** Es el lado "banco" de la conciliación. Se enlaza con [[movimiento_bancario]] (M3) para reutilizar la ingesta de extractos que ya existe: no hay dos pipelines de conciliación, hay uno.
 
-**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`) · CU-50 Conciliar la custodia y verificar el encaje (`ejecutarCierreDiario`, `listarConciliaciones`, `conciliarCustodia`) · CU-57 Operar un punto de atención y arquear el efectivo
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`, `pagarRecargaDePrueba`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`) · CU-50 Conciliar la custodia y verificar el encaje (`ejecutarCierreDiario`, `listarConciliaciones`, `conciliarCustodia`) · CU-57 Operar un punto de atención y arquear el efectivo
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `aportes.movimiento_bancario`, `cuenta_custodia`.
 
@@ -8176,7 +8176,7 @@ Guardar la evaluación importa por dos razones opuestas: cuando el motor **acert
 
 **Por qué existe.** Porque esas entidades hablan de *obligaciones del grupo*; estas hablan de *saldo del titular*. Un retiro no es una entrega de fondo: es una persona sacando su propio dinero, sin relación con ningún pasanaku.
 
-**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`)
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`, `pagarRecargaDePrueba`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `aportes.pago`, `aportes.proveedor_pago`, `cuenta_billetera`, `instrumento_fondeo`, `transaccion_billetera`. Reglas nombradas: `uq_recarga_idem`, `uq_recarga_referencia`.
 
@@ -8327,7 +8327,7 @@ Guardar la evaluación importa por dos razones opuestas: cuando el motor **acert
 
 **Por qué existe.** La regla 91.1.4 exige idempotencia en toda operación de dinero. Sin la respuesta guardada, el reintento solo podría rechazarse, y la app no sabría si la primera vez salió bien.
 
-**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-11 Retirar saldo (`solicitarRetiro`)
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`, `pagarRecargaDePrueba`) · CU-11 Retirar saldo (`solicitarRetiro`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. Reglas nombradas: `ck_respuesta_idem_hash`, `ck_respuesta_idem_expira`, `ck_respuesta_idem_http`, `ix_respuesta_idem_expiradas`.
 
@@ -8480,7 +8480,7 @@ Que la transacción sea una entidad separada de sus movimientos es lo que permit
 
 **Por qué existe.** Sin sobre transaccional, cada movimiento sería independiente y no habría forma de garantizar que un aporte deje la bolsa cuadrada: podría acreditarse el crédito al grupo y fallar el débito al participante.
 
-**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-11 Retirar saldo (`solicitarRetiro`) · CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`) · CU-13 Retener y liberar saldo (`debitarInversion`, `retenerSaldo`, `cerrarRetencion`, `pagarAlTercero`, `consultarSaldo`) · CU-14 Reversar una transacción (`reversarTransaccion`, `listarReversos`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`) · CU-33 Devolver comisión y emitir nota de crédito (`devolverComision`) · CU-41 Detectar umbral y registrar formulario PCC-01 · CU-42 Detectar umbral y registrar ROG · CU-52 Atender un reclamo en plazo (`listarBandejaDeReclamos`, `consultarEfectoDeReclamos`, `consultarReclamo`, `responderReclamo`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`)
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`, `pagarRecargaDePrueba`) · CU-11 Retirar saldo (`solicitarRetiro`) · CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`) · CU-13 Retener y liberar saldo (`debitarInversion`, `retenerSaldo`, `cerrarRetencion`, `pagarAlTercero`, `consultarSaldo`) · CU-14 Reversar una transacción (`reversarTransaccion`, `listarReversos`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`) · CU-33 Devolver comisión y emitir nota de crédito (`devolverComision`) · CU-41 Detectar umbral y registrar formulario PCC-01 · CU-42 Detectar umbral y registrar ROG · CU-52 Atender un reclamo en plazo (`listarBandejaDeReclamos`, `consultarEfectoDeReclamos`, `consultarReclamo`, `responderReclamo`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `asiento_contable`, `grupos.grupo`, `identidad.dispositivo`, `identidad.sesion`, `identidad.usuario`. La referencian `cumplimiento.alerta_monitoreo_lft`, `cumplimiento.declaracion_origen_fondos`, `cumplimiento.registro_operacion_relevante`, `evaluacion_antifraude`, `movimiento_billetera`, `orden_recarga`, `orden_retiro`, `qr_transferencia`, `retencion_saldo`, `reverso_transaccion`, `tarifas.cargo_comision`, `tarifas.costo_proveedor_operacion`, `tarifas.devolucion_comision`, `transferencia_p2p`. Reglas nombradas: `uq_tx_idem`, `uq_tx_inversion_origen`, `uq_tx_rescate_origen`, `uq_tx_compra_mercado_origen`, `ix_transaccion_ocurrida`.
 
@@ -10135,7 +10135,7 @@ La raíz Merkle permite algo más fino: `pruebaDeInclusion(eventoId)` le da a un
 
 **Por qué existe.** Sin sello, la transparencia es una promesa: "confiá en que no editamos nada". Con sello, es verificable por cualquiera, incluso contra la plataforma misma. **Esa diferencia es la propuesta de valor del módulo.**
 
-**Casos de uso que la nombran.** CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-72 Sellar el bloque de transparencia (`listarBloques`, `sellarBloque`) · CU-73 Verificar la cadena de transparencia (`verificarCadena`)
+**Casos de uso que la nombran.** CU-60 Sortear los turnos (`consultarPrimeraCuota`, `comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-72 Sellar el bloque de transparencia (`listarBloques`, `sellarBloque`) · CU-73 Verificar la cadena de transparencia (`verificarCadena`)
 
 **Sistema.** Vive en el esquema `transparencia`; la escribe y la lee solo el servicio `transparencia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.grupo`. La referencian `registro_sellado`. Reglas nombradas: `uq_bloque_grupo_numero`, `ck_bloque_genesis`.
 
@@ -10310,7 +10310,7 @@ Los 19 tipos cubren todo el ciclo: desde `APORTE_ANTICIPADO` (que **suma**, porq
 
 **Por qué existe.** Sin eventos, el puntaje es un número que alguien escribió y que no se puede explicar, auditar ni recalcular con un modelo nuevo.
 
-**Casos de uso que la nombran.** CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-62 Permutar turnos entre participantes (`solicitarPermuta`) · CU-64 Traspasar un cupo (`traspasarCupo`, `consultarPuntaje`) · CU-65 Retirarse de un grupo (`solicitarRetiro`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`) · CU-70 Registrar un evento de reputación (`registrarEventoReputacion`, `compensarEventoReputacion`) · CU-71 Recalcular el puntaje de reputación (`recalcularPuntaje`, `tomarSnapshotReputacion`) · CU-74 Otorgar y revocar una insignia (`evaluarInsignias`, `revocarInsignia`) · CU-76 Reseñar a un participante y moderar la reseña (`publicarResena`, `moderarResena`)
+**Casos de uso que la nombran.** CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-62 Permutar turnos entre participantes (`solicitarPermuta`) · CU-64 Traspasar un cupo (`listarAcuerdos`, `traspasarCupo`) · CU-65 Retirarse de un grupo (`solicitarRetiro`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`) · CU-70 Registrar un evento de reputación (`registrarEventoReputacion`, `compensarEventoReputacion`) · CU-71 Recalcular el puntaje de reputación (`recalcularPuntaje`, `tomarSnapshotReputacion`) · CU-74 Otorgar y revocar una insignia (`evaluarInsignias`, `revocarInsignia`) · CU-76 Reseñar a un participante y moderar la reseña (`publicarResena`, `moderarResena`)
 
 **Sistema.** Vive en el esquema `transparencia`; la escribe y la lee solo el servicio `transparencia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `evento_reputacion`, `grupos.grupo`, `grupos.participante`, `identidad.usuario`. La referencian `evento_reputacion`. Reglas nombradas: `uq_evento_reputacion_hecho`.
 

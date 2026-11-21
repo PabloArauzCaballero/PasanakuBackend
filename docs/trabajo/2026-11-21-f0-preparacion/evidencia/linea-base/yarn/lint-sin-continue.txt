@@ -1,0 +1,28 @@
+$ yarn lint   (# HEAD f1bee730)
+• turbo 2.10.11
+
+   • Packages in scope: @aportaya/backoffice, @aportaya/diseno-flutter, @aportaya/dominio-cliente, @aportaya/movil, @aportaya/simulado, @aportaya/tokens, @aportaya/tutoriales, @aportaya/ui, @aportaya/web
+   • Running lint in 9 packages
+   • Remote caching disabled
+
+@aportaya/web:contenido: cache miss, executing d53365f40ca45782
+@aportaya/ui:lint: cache miss, executing 543d13d49d1cfcfe
+@aportaya/backoffice:lint: cache miss, executing a9985bd1c381c1b3
+@aportaya/simulado:lint: cache miss, executing 451e24c2edef6dcc
+@aportaya/movil:lint: cache miss, executing 7d5573f72d8246f6
+@aportaya/tokens:lint: cache miss, executing a9412999e2b9d468
+@aportaya/tutoriales:lint: cache miss, executing ade1b9a9780d5cc3
+@aportaya/diseno-flutter:lint: cache miss, executing 1b35be5d5ff26b3b
+@aportaya/dominio-cliente:lint: cache miss, executing 224ab06c8bea1a9f
+@aportaya/movil:lint: command not found: dart
+@aportaya/diseno-flutter:lint: command not found: dart
+@aportaya/web:contenido: contenido: 10 páginas · 10 indexables · robots.txt, sitemap.xml, llms.txt y llms-full.txt generados
+@aportaya/movil#lint:  ERROR  command (/home/user/PasanakuBackend/apps/movil) /tmp/xfs-62fc11a2/yarn run lint exited (127)
+
+ Tasks:    0 successful, 9 total
+Cached:    0 cached, 9 total
+  Time:    1.664s 
+Failed:    @aportaya/movil#lint
+
+ ERROR  run failed: command  exited (127)
+rc=127

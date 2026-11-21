@@ -168,6 +168,7 @@ paths:
           # AP-CU04-03 FACTOR_REQUERIDO   · AP-CU04-04 TOKEN_VENCIDO
           # AP-CU04-05 DEMASIADOS_INTENTOS · AP-CU04-06 FACTOR_NO_ENROLADO
           # AP-CU04-07 FACTOR_NO_ADMISIBLE (R-SEG-10)
+          # AP-CU04-02 tambien para cuenta no habilitada (SUSPENDIDO, BLOQUEADO_SEGURIDAD, BAJA_VOLUNTARIA, ELIMINADO)
           # AP-CU04-10 FACTOR_ENVIADO_POR_CORREO: el codigo ya salio al correo verificado (vence en 10 minutos)
       # Con `plataforma: WEB` la respuesta 200 trae ademas `Set-Cookie: aportaya_refresco`
       # (HttpOnly; Secure; SameSite=Strict; Path=/api/v1/sesion), el refresh de ADR-010.
@@ -217,6 +218,61 @@ paths:
       responses:
         '204': { description: Sesión revocada o ya revocada }
         '401': { $ref: '#/components/responses/NoAutenticado' }
+
+  /sesion/factores/totp:
+    post:
+      operationId: iniciarEnrolamientoTotp     # CU-04 (F1.S3.M2)
+      summary: Iniciar el enrolamiento del segundo factor TOTP del titular de la sesion
+      description: >-
+        El titular sale del token (`sub`), nunca del cuerpo: no hay cuerpo. Genera una
+        semilla, la guarda cifrada (AES-256-GCM, con version de llave) y la devuelve UNA
+        sola vez para que la app de autenticacion la lea. El factor queda inactivo hasta
+        confirmarlo con un codigo. Repetir antes de confirmar reemplaza el pendiente. Si el
+        titular ya tiene un TOTP confirmado, se rechaza: cambiarlo no se hace por aca.
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Enrolamiento pendiente de confirmacion
+          headers:
+            Cache-Control:
+              description: La respuesta lleva la semilla; no se guarda en ningun cache.
+              schema: { type: string }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaInicioEnrolamientoTotp' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+          # AP-CU04-09 FACTOR_YA_ENROLADO
+
+  /sesion/factores/totp/{factorId}/confirmacion:
+    post:
+      operationId: confirmarEnrolamientoTotp   # CU-04 (F1.S3.M2)
+      summary: Confirmar el TOTP con un codigo calculado por la app
+      description: >-
+        Activa el factor solo si el codigo de seis digitos corresponde a la semilla, en una
+        ventana de un paso de 30 s. El factor tiene que ser del titular del token.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: factorId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaConfirmacionTotp' }
+      responses:
+        '200':
+          description: Factor confirmado y activo
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaConfirmacionTotp' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+          # AP-CU04-04 CODIGO_INVALIDO · AP-CU04-08 ENROLAMIENTO_INEXISTENTE_AJENO_O_CONFIRMADO
 
   /sesiones/desafios:
     post:
@@ -1202,6 +1258,27 @@ components:
       required: [proposito]
       properties:
         proposito: { type: string, enum: [RETIRO, CAMBIO_CUENTA, ADMIN] }
+    SalidaInicioEnrolamientoTotp:
+      type: object
+      additionalProperties: false
+      required: [factorId, semilla, uriOtpauth]
+      properties:
+        factorId:   { type: string, format: uuid }
+        semilla:    { type: string, description: 'Base32 sin relleno. Se muestra una sola vez.', maxLength: 64 }
+        uriOtpauth: { type: string, description: 'otpauth://totp/... para el codigo QR de la app.', maxLength: 512 }
+    EntradaConfirmacionTotp:
+      type: object
+      additionalProperties: false
+      required: [codigo]
+      properties:
+        codigo: { type: string, pattern: '^[0-9]{6}$' }
+    SalidaConfirmacionTotp:
+      type: object
+      additionalProperties: false
+      required: [factorId, confirmadoEn]
+      properties:
+        factorId:     { type: string, format: uuid }
+        confirmadoEn: { type: string, format: date-time }
     SalidaDesafioDeStepUp:
       type: object
       additionalProperties: false

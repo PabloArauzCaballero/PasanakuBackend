@@ -1,0 +1,37 @@
+BEGIN
+SET
+INSERT 0 3
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+SET
+--- estadoDe (lo que lee PuedeAutenticarse) del suspendido
+   estado   
+------------
+ SUSPENDIDO
+(1 row)
+
+--- revocacion de la sesion en RenovarSesion (misma sentencia que el codigo)
+UPDATE 1
+                  id                  | revocada |  motivo_revocacion   
+--------------------------------------+----------+----------------------
+ f1000000-0000-4000-8000-0000000000a1 | t        | CUENTA_NO_HABILITADA
+(1 row)
+
+--- segunda corrida: idempotente (0 filas)
+UPDATE 0
+--- tieneBloqueoVigente ANTES (true esperado)
+ bloqueo_vigente 
+-----------------
+ t
+(1 row)
+
+UPDATE 1
+--- tieneBloqueoVigente DESPUES (false esperado)
+ bloqueo_vigente 
+-----------------
+ f
+(1 row)
+
+RESET
+ROLLBACK

@@ -1,0 +1,12 @@
+$ psql -d reg_final -f evidencia/verificar_mensajes_pruebas_java.sql
+INSERT 0 1
+SET
+BEGIN
+INSERT 0 1
+INSERT 0 2
+psql:docs/trabajo/2026-11-21-f1-integridad-mayor/evidencia/verificar_mensajes_pruebas_java.sql:15: ERROR:  R-AUD-12: el asiento 00000000-0000-0000-0000-0000000000e1 mezcla 2 monedas
+BEGIN
+INSERT 0 1
+INSERT 0 1
+psql:docs/trabajo/2026-11-21-f1-integridad-mayor/evidencia/verificar_mensajes_pruebas_java.sql:21: ERROR:  R-AUD-05: asiento 00000000-0000-0000-0000-0000000000e2 en firme con 1 lineas; necesita al menos dos
+RESET

@@ -45,6 +45,9 @@ class ArranquePuertaDeEntradaTest {
         registro.add("spring.kafka.bootstrap-servers", () -> "localhost:9092");
         registro.add("aportaya.jwt.jwks-uri", () -> "http://identidad:8080/.well-known/jwks.json");
         registro.add("SEGURIDAD_PIMIENTA", () -> "pimienta-de-prueba");
+        // Llave SINTETICA de prueba para el secreto TOTP (F1.S3.M2): sin ella el contexto no arranca.
+        registro.add("MFA_LLAVES", () -> "1:llave-sintetica-de-prueba-de-32-caracteres-o-mas");
+        registro.add("MFA_LLAVE_VIGENTE", () -> "1");
         // El servidor de archivos: desde que el alta sube la foto del carnet, el contexto
         // no levanta sin estas tres. Apuntan a un MinIO que no existe a proposito — esta
         // prueba comprueba que el contexto ARRANCA, no que se pueda guardar un archivo.

@@ -682,10 +682,10 @@ entity "obligacion_aporte" as oblig {
   tipo : VARCHAR(30) <<CK>>
   monto_esperado : DECIMAL(14,2) <<CK: > 0>>
   moneda : CHAR(3)
-  monto_pagado : DECIMAL(14,2)
-  monto_recargo : DECIMAL(14,2)
-  monto_condonado : DECIMAL(14,2)
-  monto_cubierto_garantia : DECIMAL(14,2)
+  monto_pagado : DECIMAL(14,2) <<CK: >= 0>>
+  monto_recargo : DECIMAL(14,2) <<CK: >= 0>>
+  monto_condonado : DECIMAL(14,2) <<CK: >= 0>>
+  monto_cubierto_garantia : DECIMAL(14,2) <<CK: >= 0>>
   saldo_pendiente : DECIMAL(14,2) <<GENERATED>>
   estado : VARCHAR(30) <<CK, IDX>>
   fecha_vencimiento : DATE <<IDX>>
@@ -727,7 +727,7 @@ entity "orden_cobro" as orden {
   --
   # obligacion_id : UUID <<FK, IDX>>
   # proveedor_id : UUID <<FK>>
-  monto_exacto : DECIMAL(14,2)
+  monto_exacto : DECIMAL(14,2) <<CK: >= 0>>
   moneda : CHAR(3)
   permite_monto_abierto : BOOLEAN
   referencia_unica : VARCHAR(60) <<UQ>>
@@ -782,8 +782,8 @@ entity "pago" as pago {
   # proveedor_id : UUID <<FK, NULL, IDX>>
   monto : DECIMAL(14,2) <<CK: > 0>>
   moneda : CHAR(3)
-  monto_comision_proveedor : DECIMAL(10,2)
-  monto_neto_acreditado : DECIMAL(14,2)
+  monto_comision_proveedor : DECIMAL(10,2) <<CK: >= 0>>
+  monto_neto_acreditado : DECIMAL(14,2) <<CK: >= 0>>
   canal : VARCHAR(30) <<CK>>
   estado : VARCHAR(15) <<CK, IDX>>
   fecha_hora_pago : TIMESTAMPTZ <<IDX>>
@@ -825,7 +825,7 @@ entity "reembolso" as reemb {
   * id : UUID <<PK>>
   --
   # pago_id : UUID <<FK, IDX>>
-  monto : DECIMAL(14,2)
+  monto : DECIMAL(14,2) <<CK: > 0>>
   motivo : VARCHAR(30) <<CK>>
   estado : VARCHAR(15) <<CK>>
   referencia_proveedor : VARCHAR(80) <<NULL>>
@@ -841,7 +841,7 @@ entity "disputa_pago" as disp {
   # pago_id : UUID <<FK, IDX>>
   tipo : VARCHAR(25) <<CK>>
   descripcion : TEXT
-  monto_disputado : DECIMAL(14,2)
+  monto_disputado : DECIMAL(14,2) <<CK: >= 0>>
   estado : VARCHAR(25) <<CK>>
   evidencias : JSONB
   abierta_en : TIMESTAMPTZ

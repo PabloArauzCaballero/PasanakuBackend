@@ -28,8 +28,9 @@
 #   IDENTIDAD_CONTENEDOR=<nombre>    (por omision: el unico contenedor cuyo nombre empieza con «identidad-»)
 #   PYTHON_BIN=python3  ARGON2_PYLIB=<dir con argon2-cffi>
 #
-# Fuera de TEST no sirve ni debe correrse: aborta si identidad no corre con el perfil `local` (el que trae
-# el segundo factor de desarrollo) y no existen en produccion.
+# Fuera de TEST no sirve ni debe correrse: aborta si identidad no corre con el perfil `local` (el de TEST)
+# y no existen en produccion. El segundo factor real (TOTP) de A y B lo pone despues arrancar_totp_test.sh:
+# el codigo fijo de desarrollo ya no existe (F1.S3.M2).
 
 CODIGOS=(SINT-E2E-A SINT-E2E-B)
 LISTA_SQL="'SINT-E2E-A','SINT-E2E-B'"
@@ -130,8 +131,7 @@ SQL
   fi
 
   # ---- sembrar --------------------------------------------------------------------------------------
-  # Guarda 1: el perfil. Estas cuentas dependen del segundo factor de desarrollo; donde no corre el perfil
-  # `local` no deben existir.
+  # Guarda 1: el perfil. Estas cuentas son de TEST; donde no corre el perfil `local` no deben existir.
   local idc="${IDENTIDAD_CONTENEDOR:-}"
   if [ -z "$idc" ]; then
     local candidatos; candidatos="$(docker ps --format '{{.Names}}' | grep -E '^identidad-' || true)"

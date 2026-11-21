@@ -3,9 +3,9 @@ package bo.aportaya.nucleofinanciero;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo.EntradaSolicitud;
 import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo.SalidaSolicitud;
 import bo.aportaya.nucleofinanciero.aplicacion.CU15EmitirExtracto.EntradaExtracto;
+import bo.aportaya.nucleofinanciero.aplicacion.SolicitudDeRecarga;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
@@ -198,7 +198,7 @@ class AutorizacionNegativaTest extends BaseDeBilletera {
         Escenario a = deA();
         Escenario b = deB();
         SalidaSolicitud orden = transaccion.execute(t -> recargaCU.solicitar(
-                new EntradaSolicitud("idor-recarga", a.cuenta(), bob("300.00"), bob("0.00"), "QR", Optional.empty()),
+                new SolicitudDeRecarga("idor-recarga", a.cuenta(), bob("300.00"), bob("0.00"), "QR", Optional.empty()),
                 a.ctx()));
 
         assertThat(contarComo(
@@ -229,7 +229,8 @@ class AutorizacionNegativaTest extends BaseDeBilletera {
                 .isInstanceOf(ErrorDeNegocio.class);
     }
 
-    private static final String COPIA_DE_UN_MOVIMIENTO =
+    /** Copia una linea del libro de la cuenta: la usa tambien {@link LibroComoSistemaTest}. */
+    static final String COPIA_DE_UN_MOVIMIENTO =
             """
             INSERT INTO nucleo_financiero.movimiento_billetera
                 (id, transaccion_id, cuenta_billetera_id, orden, sentido, monto,
@@ -272,28 +273,5 @@ class AutorizacionNegativaTest extends BaseDeBilletera {
                 }))
                 .isInstanceOf(SQLException.class)
                 .hasMessageContaining("row-level security");
-    }
-
-    @Test
-    @DisplayName(
-            "Datos.comoSistema: dentro del bloque el libro se puede escribir, y el rol de la sesion se restaura despues")
-    void comoSistemaEscribeYRestaura() throws SQLException {
-        Escenario a = deA();
-        fixtura.acreditar(a.cuenta(), new BigDecimal("50.00"));
-        String[] rolDespues = {null};
-        int[] filas = {-1};
-
-        comoUsuario(a.usuario(), conexion -> {
-            var dsl = org.jooq.impl.DSL.using(conexion, org.jooq.SQLDialect.POSTGRES);
-            filas[0] = bo.aportaya.plataforma.datos.Datos.comoSistema(
-                    dsl, () -> dsl.execute(COPIA_DE_UN_MOVIMIENTO.replace("?", "'" + a.cuenta() + "'::uuid")));
-            rolDespues[0] =
-                    dsl.fetchOne("select current_setting('app.rol', true)").get(0, String.class);
-        });
-
-        assertThat(filas[0]).isEqualTo(1);
-        assertThat(rolDespues[0])
-                .as("el privilegio de sistema no queda abierto")
-                .isEqualTo("PARTICIPANTE");
     }
 }

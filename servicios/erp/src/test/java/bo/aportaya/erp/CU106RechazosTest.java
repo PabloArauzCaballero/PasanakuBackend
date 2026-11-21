@@ -96,16 +96,18 @@ class CU106RechazosTest extends BaseDeErp {
         assertThatThrownBy(() -> transaccion.execute(t -> estadoCU.validarPlantilla(plantilla, ctx)))
                 .satisfies(e -> assertThat(raizDe(e)).contains("R-CTB-02"));
 
-        UUID enero = mesCerrado(1);
+        // La linea va a un asiento en BORRADOR de un periodo ABIERTO: asi la unica regla
+        // que puede rechazarla es R-CTB-02. Contra un asiento en firme la rechazaria antes
+        // R-AUD-14 (los triggers BEFORE corren en orden alfabetico) y la prueba dejaria de
+        // demostrar que la base protege la sumarizadora.
+        UUID borrador = fixtura.asientoBorrador(periodo(2), ctx.usuarioId());
         assertThat(rechazaLaBase(
                         """
                         INSERT INTO nucleo_financiero.movimiento_contable (asiento_id, cuenta_id, debe, haber, descripcion)
-                        SELECT a.id, ?, 100, 0, 'Contra sumarizadora'
-                          FROM nucleo_financiero.asiento_contable a
-                         WHERE a.periodo_contable_id = ? LIMIT 1
+                        VALUES (?, ?, 100, 0, 'Contra sumarizadora')
                         """,
-                        sumarizadora,
-                        enero))
+                        borrador,
+                        sumarizadora))
                 .contains("R-CTB-02");
     }
 

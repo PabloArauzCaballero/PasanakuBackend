@@ -81,7 +81,8 @@ public final class CifradorSimetrico {
             throw new IllegalArgumentException("El secreto de cifrado no puede ser nulo ni vacío");
         }
         if (!textoCifrado.startsWith(PREFIJO)) {
-            throw new IllegalArgumentException("El formato del texto cifrado no es reconocido: debe iniciar con " + PREFIJO);
+            throw new IllegalArgumentException(
+                    "El formato del texto cifrado no es reconocido: debe iniciar con " + PREFIJO);
         }
 
         String cargaBase64 = textoCifrado.substring(PREFIJO.length());
@@ -111,7 +112,8 @@ public final class CifradorSimetrico {
             byte[] descifrado = cipher.doFinal(ciphertextConTag);
             return new String(descifrado, StandardCharsets.UTF_8);
         } catch (GeneralSecurityException e) {
-            throw new SecurityException("Error de autenticación o integridad al descifrar: clave incorrecta o dato manipulado", e);
+            throw new SecurityException(
+                    "Error de autenticación o integridad al descifrar: clave incorrecta o dato manipulado", e);
         }
     }
 

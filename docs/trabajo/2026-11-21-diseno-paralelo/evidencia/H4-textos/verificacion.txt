@@ -1,0 +1,26 @@
+## Muestra de 15 filas del inventario verificadas contra dev (sed -n <linea>p <ruta>)
+$ for r in $(shuf -n 15 filas); do sed -n "${l}p" "$f"; done
+apps/web/src/app/paginas/inicio/secciones/producto.ts:73 => { icono: 'mensaje', titulo: 'Te avisamos a tiempo', texto: 'Recordatorio antes del ven
+apps/movil/lib/pantallas/pasanaku/textos.dart:132 => static const organizasEsteGrupo = 'Organizás este grupo';
+apps/backoffice/src/app/rutas/operacion/retiros/textos.ts:39 => vacio: 'No hay retiros esperando una segunda firma.',
+apps/movil/lib/pantallas/pasanaku/textos.dart:110 => static const referenciaDelPago = 'Referencia del pago';
+apps/web/contenido/paginas/preguntas.md:20 => Un fondo de garantía cubre esa falta para que el resto del grupo no se vea afectado. Quie
+apps/movil/lib/pantallas/pasanaku/textos_de_la_subasta.dart:18 => 'Al cierre gana la oferta más alta: el cupo y su turno pasan a esa persona.',
+apps/backoffice/src/app/rutas/postulaciones/textos.ts:47 => revisarAyuda: 'Confirmá que la habilitación sigue vigente o revocala. Revocar suspende
+seeders/minimos/15-eventos-y-plantillas.json:2206 => "cuerpo": "Tu cuenta de AportaYa quedó bloqueada el {{fecha_hora}} por {{motivo
+apps/movil/lib/pantallas/pasanaku/textos.dart:16 => static const permitePermutas = 'Permite intercambiar turnos entre socios';
+seeders/minimos/15-eventos-y-plantillas.json:2271 => "cuerpo": "{{nombre}}: tu pago de Bs {{monto}} al grupo {{grupo}} no se pudo pro
+apps/movil/lib/pantallas/pasanaku/textos.dart:60 => static const enviandoPermuta = 'Enviando la propuesta…';
+apps/movil/lib/pantallas/pasanaku/textos_de_la_subasta.dart:6 => static const cuposEnSubasta = 'Cupos en subasta';
+apps/movil/lib/pantallas/pasanaku/textos.dart:8 => static const tituloCrearGrupo = 'Organizar un grupo';
+apps/movil/lib/pantallas/pasanaku/textos_de_la_subasta.dart:17 => 'A todos les llega tu cupo y ofrecen con su saldo, que queda retenido.',
+apps/movil/lib/pantallas/pasanaku/textos_de_la_subasta.dart:42 => 'ADJUDICADA': 'Cerrada · pasando el cupo',
+
+## Generación de la tabla
+$ python3 gen.py
+filas 389 {'REESCRIBIR': 105, 'ELIMINAR': 279, 'SIN CAMBIO': 1, 'AJUSTE PARCIAL': 4}
+defaults sensibles: []
+ids en P/E que no existen: []
+
+## Control de frases prohibidas en las propuestas REESCRIBIR
+propuestas REESCRIBIR con frases prohibidas: ninguna

@@ -24,9 +24,19 @@ CREATE TABLE IF NOT EXISTS aportes.pago (
   clave_idempotencia                 VARCHAR(80) NOT NULL,
   CONSTRAINT pk_pago PRIMARY KEY (id),
   CONSTRAINT ck_pago_monto CHECK (monto > 0),
+  CONSTRAINT ck_pago_monto_comision_proveedor CHECK (monto_comision_proveedor >= 0),
+  CONSTRAINT ck_pago_monto_neto_acreditado CHECK (monto_neto_acreditado >= 0),
   CONSTRAINT ck_pago_canal CHECK (canal IN ('BILLETERA_MOVIL', 'COMPENSACION_INTERNA', 'EFECTIVO_AL_ORGANIZADOR', 'FONDO_GARANTIA', 'QR_INTEROPERABLE', 'TARJETA', 'TRANSFERENCIA_BANCARIA')),
   CONSTRAINT ck_pago_estado CHECK (estado IN ('ACREDITADO', 'ANULADO', 'EN_DISPUTA', 'EN_PROCESO', 'INICIADO', 'RECHAZADO', 'REVERSADO'))
 );
+
+-- Evolucion: CHECK ampliado (ver CK_AMPLIADOS en modelo.py).
+ALTER TABLE aportes.pago DROP CONSTRAINT IF EXISTS ck_pago_monto_comision_proveedor;
+ALTER TABLE aportes.pago ADD CONSTRAINT ck_pago_monto_comision_proveedor CHECK (monto_comision_proveedor >= 0);
+
+-- Evolucion: CHECK ampliado (ver CK_AMPLIADOS en modelo.py).
+ALTER TABLE aportes.pago DROP CONSTRAINT IF EXISTS ck_pago_monto_neto_acreditado;
+ALTER TABLE aportes.pago ADD CONSTRAINT ck_pago_monto_neto_acreditado CHECK (monto_neto_acreditado >= 0);
 
 COMMENT ON TABLE aportes.pago IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Plata que efectivamente se movió. El hecho económico.';
 COMMENT ON COLUMN aportes.pago.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';

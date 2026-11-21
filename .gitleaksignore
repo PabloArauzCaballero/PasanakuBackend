@@ -25,3 +25,9 @@ b2d91e70e141cbbac48aa6e1e741be7127ef522b:packages/simulado/ejemplos/identidad/em
 # `SHOWN_INPUTS` contiene identificadores públicos de campos del modelo, no credenciales;
 # fingerprint exacto (no se ignora el archivo ni la regla completa), hallado por CI #61.
 0922bade94f4dd531b6175011e045e4062e4de33:docs/trabajo/2026-10-11-alta-atlas-sesion-premium/PLAN.md:generic-api-key:52141
+# 2026-11-21 (F1.S3.M2, PR #412): falso positivo de generic-api-key. El literal es la
+# semilla PUBLICA de los vectores de prueba de RFC 6238 (apendice B): el ASCII
+# "12345678901234567890" en Base32. No autentica nada: la misma constante ya vive en
+# CodigoTotpTest y CredencialPorLoginContratoTest. Fingerprint exacto (no se ignora el
+# archivo ni la regla), hallado por CI run 44865471346, job 136728176735.
+c21797e9996a319fc4cf767abf2cbdd729a6ee8a:servicios/identidad/src/test/java/bo/aportaya/identidad/SemillaTotpTest.java:generic-api-key:48

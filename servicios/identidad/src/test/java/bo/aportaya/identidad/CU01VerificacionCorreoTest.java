@@ -44,6 +44,9 @@ class CU01VerificacionCorreoTest {
         registro.add("spring.kafka.bootstrap-servers", () -> "localhost:9092");
         registro.add("aportaya.jwt.jwks-uri", () -> "http://identidad:8080/.well-known/jwks.json");
         registro.add("SEGURIDAD_PIMIENTA", () -> "pimienta-de-prueba-correo");
+        // Llave SINTETICA de prueba para el secreto TOTP (F1.S3.M2): sin ella el contexto no arranca.
+        registro.add("MFA_LLAVES", () -> "1:llave-sintetica-de-prueba-de-32-caracteres-o-mas");
+        registro.add("MFA_LLAVE_VIGENTE", () -> "1");
         registro.add("ARCHIVOS_URL", () -> "http://archivos-de-prueba:9000");
         registro.add("ARCHIVOS_USUARIO", () -> "prueba");
         registro.add("ARCHIVOS_CLAVE", () -> "prueba");

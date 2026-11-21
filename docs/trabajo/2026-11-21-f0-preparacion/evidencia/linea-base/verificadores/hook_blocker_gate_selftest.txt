@@ -1,0 +1,16 @@
+$ python3 .claude/hooks/blocker_gate.py --self-test
+blocker_gate: evento ilegible (stdin vacio); se deja pasar
+PASS  bloquea un BLOQUEADO sin simular
+PASS  bloquea un EN CURSO sin simular
+PASS  deja pasar si declara los tres niveles
+PASS  deja pasar con la marca SIMULACION-65
+PASS  deja pasar si el bloqueo es de negocio
+PASS  no bloquea un plan ya cerrado
+PASS  dos de tres niveles NO alcanza
+PASS  el mensaje nombra la regla
+PASS  el mensaje dice como salir
+PASS  el mensaje nombra la via de escape
+PASS  evento ilegible deja pasar
+
+blocker_gate self-test: 11 PASS, 0 FAIL
+rc=0

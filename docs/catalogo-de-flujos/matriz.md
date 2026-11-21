@@ -7,36 +7,39 @@
 
 | Servicio | Endpoints | Con prueba web | Con CU | CU con prueba de integración | En algún flujo |
 |---|---:|---:|---:|---:|---:|
-| aportes | 12 | 12 | 11 | 10 | 2 |
-| auditoria | 20 | 14 | 11 | 11 | 0 |
+| aportes | 15 | 15 | 12 | 10 | 2 |
+| auditoria | 22 | 16 | 11 | 11 | 0 |
 | cumplimiento | 28 | 20 | 14 | 13 | 0 |
-| entregas | 16 | 16 | 11 | 11 | 5 |
+| entregas | 21 | 16 | 11 | 11 | 5 |
 | erp | 24 | 16 | 24 | 24 | 0 |
-| garantia | 20 | 20 | 14 | 13 | 5 |
-| grupos | 36 | 24 | 17 | 13 | 0 |
-| identidad | 36 | 33 | 17 | 16 | 0 |
+| garantia | 20 | 20 | 14 | 13 | 1 |
+| grupos | 44 | 31 | 18 | 14 | 0 |
+| identidad | 38 | 34 | 18 | 17 | 0 |
 | inversiones | 20 | 16 | 20 | 20 | 0 |
-| notificaciones | 10 | 10 | 10 | 9 | 0 |
-| nucleo-financiero | 27 | 27 | 24 | 23 | 4 |
+| notificaciones | 12 | 12 | 10 | 9 | 0 |
+| nucleo-financiero | 29 | 28 | 25 | 24 | 4 |
 | organizador | 25 | 18 | 19 | 18 | 0 |
 | publicidad | 17 | 9 | 14 | 14 | 0 |
-| tarifas | 13 | 9 | 13 | 13 | 0 |
-| transparencia | 19 | 10 | 18 | 15 | 0 |
-| **Total** | 323 | 254 | 237 | 223 | 16 |
+| tarifas | 14 | 10 | 13 | 13 | 0 |
+| transparencia | 21 | 12 | 18 | 15 | 0 |
+| **Total** | 350 | 273 | 241 | 226 | 12 |
 
 ## Por endpoint
 
 | Servicio | Método | Ruta | operationId | Prueba web | CU | Integración del CU | Flujos |
 |---|---|---|---|---|---|---|---|
 | aportes | GET | `/aportes/grupos/{grupoId}/morosos` | `contarMorosos` | sí | CU-68 | **no** | — |
+| aportes | GET | `/aportes/grupos/{grupoId}/primera-cuota` | `consultarPrimeraCuota` | sí | CU-60 | **no** | — |
 | aportes | POST | `/aportes/obligaciones/{obligacionId}/pagos` | `cobrarAporte` | sí | CU-21 | sí | aporte-mora-cobertura |
 | aportes | GET | `/aportes/participantes/{participanteId}/estado` | `consultarEstadoDelParticipante` | sí | CU-21 | sí | — |
 | aportes | POST | `/aportes/periodos/{periodoId}/obligaciones` | `generarObligacionesDelPeriodo` | sí | CU-21 | sí | aporte-mora-cobertura |
 | aportes | GET | `/aportes/periodos/{periodoId}/recaudo` | `consultarRecaudoDelPeriodo` | sí | CU-21 | sí | — |
 | aportes | GET | `/aportes/recaudo-diario` | `consultarRecaudoDiario` | sí | CU-51 | sí | — |
 | aportes | POST | `/pagos/enrutamiento` | `enrutarCobro` | sí | CU-99 | sí | — |
+| aportes | GET | `/pagos/proveedores` | `listarProveedoresDePago` | sí | — | — | — |
 | aportes | POST | `/pagos/proveedores` | `darDeAltaProveedor` | sí | CU-99 | sí | — |
 | aportes | POST | `/pagos/reembolsos/{reembolsoId}/aprobacion` | `aprobarReembolso` | sí | CU-19 | sí | — |
+| aportes | GET | `/pagos/webhooks-recibidos` | `listarWebhooksRecibidos` | sí | — | — | — |
 | aportes | POST | `/pagos/webhooks/{proveedorCodigo}` | `recibirWebhookPasarela` | sí | — | — | — |
 | aportes | POST | `/pagos/{pagoId}/disputas` | `registrarDisputa` | sí | CU-19 | sí | — |
 | aportes | POST | `/pagos/{pagoId}/reembolsos` | `solicitarReembolso` | sí | CU-19 | sí | — |
@@ -55,6 +58,8 @@
 | auditoria | PUT | `/indicadores/catalogo-de-datos/{esquema}/{tabla}/columnas/{columna}/revision` | `revisarColumna` | **no** | CU-131 | sí | — |
 | auditoria | PUT | `/indicadores/catalogo-de-datos/{esquema}/{tabla}/gobierno` | `guardarFichaDeGobierno` | **no** | CU-130 | sí | — |
 | auditoria | GET | `/indicadores/operacion/endpoints` | `listarEndpointsDelDia` | sí | CU-98 | sí | — |
+| auditoria | GET | `/indicadores/operacion/incidentes` | `listarIncidentesOperativos` | sí | — | — | — |
+| auditoria | GET | `/indicadores/operacion/outbox` | `consultarOutboxPorServicio` | sí | — | — | — |
 | auditoria | GET | `/indicadores/operacion/servicios` | `consultarSaludDeServicios` | sí | — | — | — |
 | auditoria | GET | `/reportes` | `listarDefinicionesDeReporte` | sí | CU-58 | sí | — |
 | auditoria | GET | `/reportes/ejecuciones` | `listarEjecucionesDeReporte` | sí | CU-58 | sí | — |
@@ -102,6 +107,11 @@
 | entregas | POST | `/entregas/mercado/ofertas/{ofertaId}/cancelacion` | `cancelarOferta` | sí | — | — | — |
 | entregas | POST | `/entregas/mercado/ofertas/{ofertaId}/compra` | `comprarOferta` | sí | — | — | — |
 | entregas | POST | `/entregas/pozo-completo` | `fondearPozo` | sí | CU-22 | sí | entrega-del-turno |
+| entregas | GET | `/entregas/subastas` | `listarSubastasDeCupo` | **no** | — | — | — |
+| entregas | POST | `/entregas/subastas` | `abrirSubastaDeCupo` | **no** | — | — | — |
+| entregas | GET | `/entregas/subastas/{subastaId}` | `consultarSubastaDeCupo` | **no** | — | — | — |
+| entregas | POST | `/entregas/subastas/{subastaId}/cancelacion` | `cancelarSubastaDeCupo` | **no** | — | — | — |
+| entregas | POST | `/entregas/subastas/{subastaId}/pujas` | `pujarEnSubasta` | **no** | — | — | — |
 | entregas | POST | `/entregas/{entregaId}/autorizacion` | `autorizarEntrega` | sí | CU-22 | sí | entrega-del-turno |
 | entregas | POST | `/entregas/{entregaId}/ejecucion` | `ejecutarEntrega` | sí | CU-22 | sí | entrega-del-turno |
 | erp | GET | `/erp/activos` | `listarActivosFijos` | sí | CU-105 | sí | — |
@@ -131,16 +141,16 @@
 | garantia | GET | `/cobranza/restricciones/vigentes/{usuarioId}` | `consultarRestriccion` | sí | CU-68 | **no** | — |
 | garantia | POST | `/cobranza/restricciones/{restriccionId}/levantamiento` | `levantarRestriccion` | sí | CU-27 | sí | — |
 | garantia | POST | `/garantia/disoluciones/{disolucionId}/cierre` | `cerrarDisolucion` | sí | CU-67 | sí | — |
-| garantia | POST | `/garantia/fondos/{grupoId}/devolucion` | `devolverFondo` | sí | CU-29 | sí | entrega-del-turno |
+| garantia | POST | `/garantia/fondos/{grupoId}/devolucion` | `devolverFondo` | sí | CU-29 | sí | — |
 | garantia | POST | `/garantia/grupos/{grupoId}/disolucion` | `iniciarDisolucion` | sí | CU-67 | sí | — |
 | garantia | POST | `/garantia/reemplazos/{reemplazoId}/aprobacion` | `aprobarReemplazo` | sí | CU-66 | sí | — |
 | garantia | POST | `/garantia/reemplazos/{reemplazoId}/ejecucion` | `ejecutarReemplazo` | sí | CU-66 | sí | — |
-| garantia | POST | `/garantia/respaldo/coberturas` | `cubrirConRespaldo` | sí | — | — | aporte-mora-cobertura |
+| garantia | POST | `/garantia/respaldo/coberturas` | `cubrirConRespaldo` | sí | — | — | — |
 | garantia | POST | `/garantia/respaldo/coberturas/{coberturaId}/reversa` | `reversarCoberturaRespaldo` | sí | — | — | — |
-| garantia | POST | `/garantia/respaldo/recuperaciones` | `recuperarRespaldo` | sí | — | — | aporte-mora-cobertura |
+| garantia | POST | `/garantia/respaldo/recuperaciones` | `recuperarRespaldo` | sí | — | — | — |
 | garantia | POST | `/garantia/respaldo/reservas` | `reservarRespaldo` | sí | — | — | — |
 | garantia | POST | `/garantia/respaldo/reservas/{reservaId}/ampliacion` | `ampliarRespaldo` | sí | — | — | — |
-| garantia | POST | `/garantia/respaldo/reservas/{reservaId}/liberacion` | `liberarRespaldo` | sí | — | — | entrega-del-turno |
+| garantia | POST | `/garantia/respaldo/reservas/{reservaId}/liberacion` | `liberarRespaldo` | sí | — | — | — |
 | garantia | POST | `/incumplimientos` | `declararIncumplimiento` | sí | CU-25 | sí | aporte-mora-cobertura |
 | garantia | POST | `/incumplimientos/{expedienteId}/aval/ejecucion` | `ejecutarAval` | sí | CU-26 | sí | — |
 | garantia | POST | `/incumplimientos/{expedienteId}/cobertura` | `cubrirIncumplimiento` | sí | CU-23 | sí | — |
@@ -148,9 +158,12 @@
 | garantia | POST | `/incumplimientos/{expedienteId}/descargo/resolucion` | `resolverDescargo` | sí | CU-25 | sí | — |
 | garantia | POST | `/incumplimientos/{expedienteId}/reemplazo` | `proponerReemplazo` | sí | CU-66 | sí | — |
 | garantia | POST | `/incumplimientos/{expedienteId}/restriccion` | `restringirDeudor` | sí | CU-27 | sí | — |
+| grupos | GET | `/acuerdos` | `listarAcuerdos` | sí | CU-64 | sí | — |
 | grupos | POST | `/acuerdos` | `proponerAcuerdo` | sí | CU-63 | sí | — |
 | grupos | POST | `/acuerdos/{acuerdoId}/votos` | `votarAcuerdo` | sí | CU-63 | sí | — |
 | grupos | POST | `/grupos` | `crearGrupo` | sí | CU-20 | sí | — |
+| grupos | GET | `/grupos/backoffice` | `listarGruposDeBackoffice` | sí | — | — | — |
+| grupos | GET | `/grupos/backoffice/{grupoId}` | `consultarGrupoDeBackoffice` | sí | — | — | — |
 | grupos | GET | `/grupos/calendario/calcular` | `calcularPlazoHabil` | sí | CU-59 | sí | — |
 | grupos | GET | `/grupos/calendario/vencimiento` | `calcularVencimientoLocal` | sí | CU-59 | sí | — |
 | grupos | POST | `/grupos/enlace-del-grupo/consultar` | `consultarEnlaceDelGrupo` | sí | — | — | — |
@@ -163,16 +176,21 @@
 | grupos | GET | `/grupos/participantes/alias/{alias}` | `resolverAlias` | sí | CU-12 | **no** | — |
 | grupos | GET | `/grupos/participantes/{usuarioId}/actividad` | `consultarActividad` | **no** | CU-16 | **no** | — |
 | grupos | GET | `/grupos/periodos/{periodoId}/calendario-de-aportes` | `consultarCalendarioDeAportes` | sí | — | — | — |
+| grupos | GET | `/grupos/solicitudes` | `listarBandejaDeAdmisiones` | sí | — | — | — |
 | grupos | POST | `/grupos/solicitudes/{solicitudId}/decision` | `decidirSolicitudDeIngreso` | sí | — | — | — |
 | grupos | GET | `/grupos/solicitudes/{solicitudId}/decisiones` | `historialAdmision` | sí | — | — | — |
 | grupos | POST | `/grupos/solicitudes/{solicitudId}/propuestas` | `proponerAdmision` | sí | — | — | — |
 | grupos | POST | `/grupos/solicitudes/{solicitudId}/resoluciones` | `resolverAdmision` | **no** | — | — | — |
 | grupos | GET | `/grupos/sorteos/{sorteoId}/paquete` | `consultarPaqueteDelSorteo` | **no** | CU-61 | **no** | — |
 | grupos | POST | `/grupos/{grupoId}/administrador/sustitucion` | `sustituirAdministrador` | **no** | — | — | — |
+| grupos | GET | `/grupos/{grupoId}/cupos/{cupoId}/subastabilidad` | `consultarSubastabilidadDelCupo` | sí | — | — | — |
 | grupos | POST | `/grupos/{grupoId}/cupos/{cupoId}/traspasos` | `traspasarCupo` | **no** | CU-64 | sí | — |
+| grupos | POST | `/grupos/{grupoId}/cupos/{cupoId}/traspasos-por-subasta` | `traspasarCupoPorSubasta` | **no** | — | — | — |
 | grupos | GET | `/grupos/{grupoId}/detalle` | `consultarDetalleDelGrupo` | sí | — | — | — |
+| grupos | GET | `/grupos/{grupoId}/elegibilidad-para-subasta` | `consultarElegibilidadParaSubasta` | sí | — | — | — |
 | grupos | POST | `/grupos/{grupoId}/enlace-del-grupo` | `generarEnlaceDelGrupo` | sí | CU-68 | sí | — |
 | grupos | POST | `/grupos/{grupoId}/enlace-del-grupo/anulacion` | `anularEnlaceDelGrupo` | sí | — | — | — |
+| grupos | POST | `/grupos/{grupoId}/inicio` | `iniciarGrupo` | sí | — | — | — |
 | grupos | GET | `/grupos/{grupoId}/integrantes/{usuarioId}/comparte` | `consultarSiCompartenGrupo` | sí | — | — | — |
 | grupos | POST | `/grupos/{grupoId}/invitaciones` | `invitarAlGrupo` | sí | — | — | — |
 | grupos | POST | `/grupos/{grupoId}/invitaciones/{invitacionId}/canje` | `canjearInvitacion` | sí | — | — | — |
@@ -212,6 +230,8 @@
 | identidad | POST | `/usuarios/verificaciones/correo` | `solicitarVerificacionCorreo` | sí | CU-01 | sí | — |
 | identidad | PUT | `/usuarios/verificaciones/correo/{verificacionId}/borrador` | `guardarBorradorOnboarding` | sí | CU-01 | sí | — |
 | identidad | POST | `/usuarios/verificaciones/correo/{verificacionId}/confirmacion` | `confirmarVerificacionCorreo` | sí | CU-01 | sí | — |
+| identidad | GET | `/usuarios/yo/foto-de-perfil` | `verMiFotoDePerfil` | sí | — | — | — |
+| identidad | PUT | `/usuarios/yo/foto-de-perfil` | `cambiarMiFotoDePerfil` | **no** | CU-07 | sí | — |
 | identidad | GET | `/usuarios/yo/perfil` | `consultarMiPerfil` | **no** | CU-07 | sí | — |
 | identidad | PUT | `/usuarios/{usuarioId}/documento/fecha-expiracion` | `actualizarFechaExpiracionDocumento` | sí | — | — | — |
 | identidad | POST | `/usuarios/{usuarioId}/documentos` | `subirDocumento` | **no** | — | — | — |
@@ -247,8 +267,10 @@
 | notificaciones | POST | `/notificaciones/avisos-internos/{id}/leido` | `marcarAvisoLeido` | sí | CU-80 | sí | — |
 | notificaciones | GET | `/notificaciones/envios` | `listarEnvios` | sí | CU-83 | sí | — |
 | notificaciones | GET | `/notificaciones/plantillas` | `listarPlantillas` | sí | CU-80 | sí | — |
+| notificaciones | GET | `/notificaciones/proveedores` | `listarProveedoresDeMensajeria` | sí | — | — | — |
 | notificaciones | GET | `/notificaciones/supresion` | `consultarSupresion` | sí | CU-69 | **no** | — |
 | notificaciones | POST | `/notificaciones/supresion/consultas` | `verificarSupresion` | sí | CU-80 | sí | — |
+| notificaciones | GET | `/notificaciones/webhooks-recibidos` | `listarEventosDeEntregaRecibidos` | sí | — | — | — |
 | notificaciones | POST | `/notificaciones/webhooks/{proveedor}` | `procesarRespuestaEntrante` | sí | CU-82 | sí | — |
 | nucleo-financiero | POST | `/billetera/bloqueos` | `bloquearPorAutoridad` | sí | CU-17 | sí | — |
 | nucleo-financiero | POST | `/billetera/cierres` | `solicitarCierreBilletera` | sí | CU-16 | sí | — |
@@ -263,6 +285,7 @@
 | nucleo-financiero | POST | `/billetera/recargas/{ordenId}/acreditacion` | `acreditarRecarga` | sí | CU-10 | sí | recarga-y-retiro |
 | nucleo-financiero | POST | `/billetera/retenciones` | `retenerSaldo` | sí | CU-13 | sí | — |
 | nucleo-financiero | POST | `/billetera/retenciones/{retencionId}/cierre` | `cerrarRetencion` | sí | CU-13 | sí | — |
+| nucleo-financiero | POST | `/billetera/retenciones/{retencionId}/liberacion-de-mercado` | `liberarRetencionDelMercado` | **no** | — | — | — |
 | nucleo-financiero | POST | `/billetera/retenciones/{retencionId}/pago-a-tercero` | `pagarAlTercero` | sí | CU-13 | sí | — |
 | nucleo-financiero | GET | `/billetera/retiros` | `listarRetirosEnRevision` | sí | — | — | — |
 | nucleo-financiero | POST | `/billetera/retiros` | `solicitarRetiro` | sí | CU-11 | sí | recarga-y-retiro |
@@ -277,6 +300,7 @@
 | nucleo-financiero | GET | `/contabilidad/reversos` | `listarReversos` | sí | CU-14 | sí | — |
 | nucleo-financiero | GET | `/custodia/conciliaciones` | `listarConciliaciones` | sí | CU-50 | sí | — |
 | nucleo-financiero | POST | `/custodia/conciliaciones` | `conciliarCustodia` | sí | CU-50 | sí | — |
+| nucleo-financiero | POST | `/recargas-de-prueba/{ordenId}/pago` | `pagarRecargaDePrueba` | sí | CU-10 | sí | — |
 | organizador | POST | `/automatizacion/reglas` | `definirRegla` | sí | CU-95 | sí | — |
 | organizador | POST | `/automatizacion/reglas/{reglaId}/activacion` | `activarRegla` | sí | CU-95 | sí | — |
 | organizador | POST | `/automatizacion/tareas` | `programarTarea` | sí | CU-96 | sí | — |
@@ -325,6 +349,7 @@
 | tarifas | POST | `/comisiones/devengos/{devengoId}/cobros` | `anotarCobroDeComision` | **no** | CU-31 | sí | — |
 | tarifas | POST | `/comisiones/{devengoId}/devoluciones` | `devolverComision` | sí | CU-33 | sí | — |
 | tarifas | POST | `/facturas` | `emitirFactura` | sí | CU-32 | sí | — |
+| tarifas | GET | `/tarifas/costos-de-proveedor` | `listarCostosDeProveedor` | sí | — | — | — |
 | tarifas | POST | `/tarifas/liquidaciones/{periodo}/cierre` | `cerrarLiquidacion` | **no** | CU-35 | sí | — |
 | tarifas | POST | `/tarifas/precios/resolver` | `resolverPrecio` | sí | CU-36 | sí | — |
 | tarifas | POST | `/tarifas/segmentos` | `crearSegmento` | **no** | CU-36 | sí | — |
@@ -338,6 +363,8 @@
 | transparencia | POST | `/reputacion/bloques` | `sellarBloque` | sí | CU-72 | sí | — |
 | transparencia | POST | `/reputacion/certificados` | `emitirCertificado` | sí | CU-75 | sí | — |
 | transparencia | POST | `/reputacion/certificados/{codigo}/revocacion` | `revocarCertificado` | **no** | CU-07 | **no** | — |
+| transparencia | GET | `/reputacion/etapas` | `listarEtapas` | sí | — | — | — |
+| transparencia | GET | `/reputacion/etapas/de-personas` | `consultarEtapasDePersonas` | sí | CU-68 | **no** | — |
 | transparencia | POST | `/reputacion/eventos` | `registrarEventoReputacion` | **no** | CU-70 | sí | — |
 | transparencia | POST | `/reputacion/eventos/{eventoId}/compensacion` | `compensarEventoReputacion` | **no** | CU-70 | sí | — |
 | transparencia | POST | `/reputacion/insignias/evaluacion` | `evaluarInsignias` | **no** | CU-74 | sí | — |
@@ -349,5 +376,5 @@
 | transparencia | POST | `/reputacion/riesgo/evaluacion` | `evaluarRiesgo` | sí | CU-97 | sí | — |
 | transparencia | POST | `/reputacion/snapshots` | `tomarSnapshotReputacion` | **no** | CU-71 | sí | — |
 | transparencia | GET | `/reputacion/{usuarioId}/perfil-en-grupo/{grupoId}` | `consultarPerfilEnGrupo` | sí | — | — | — |
-| transparencia | GET | `/reputacion/{usuarioId}/puntaje` | `consultarPuntaje` | sí | CU-64 | **no** | — |
+| transparencia | GET | `/reputacion/{usuarioId}/puntaje` | `consultarPuntaje` | sí | — | — | — |
 | transparencia | GET | `/verificar/{codigo}` | `verificarCertificado` | sí | CU-75 | sí | — |

@@ -1,6 +1,7 @@
 package bo.aportaya.identidad.infraestructura;
 
 import static bo.aportaya.identidad.generado.Tables.ASIGNACION_ROL;
+import static bo.aportaya.identidad.generado.Tables.BLOQUEO_CUENTA;
 import static bo.aportaya.identidad.generado.Tables.PERMISO;
 import static bo.aportaya.identidad.generado.Tables.ROL;
 import static bo.aportaya.identidad.generado.Tables.ROL_PERMISO;
@@ -118,6 +119,21 @@ public class AccesosRepositorio {
                 .from(ASIGNACION_ROL)
                 .where(ASIGNACION_ROL.ID.eq(asignacionId))
                 .fetchOptional(ASIGNACION_ROL.USUARIO_ID);
+    }
+
+    /**
+     * Libera los bloqueos vigentes de la cuenta en {@code bloqueo_cuenta}, que es lo que lee el
+     * ingreso (IDCU-SEG-089). Antes, desbloquear a un interno limpiaba
+     * {@code usuario_interno.bloqueado_hasta}, que el login no lee, y el interno seguia afuera.
+     * Quien libera sale de la sesion del operador, nunca del cuerpo.
+     */
+    public int liberarBloqueos(DSLContext dsl, UUID usuarioId, UUID liberadoPor, OffsetDateTime ahora) {
+        return dsl.update(BLOQUEO_CUENTA)
+                .set(BLOQUEO_CUENTA.LIBERADA_EN, ahora)
+                .set(BLOQUEO_CUENTA.LIBERADA_POR, liberadoPor)
+                .where(BLOQUEO_CUENTA.USUARIO_ID.eq(usuarioId))
+                .and(BLOQUEO_CUENTA.LIBERADA_EN.isNull())
+                .execute();
     }
 
     /**

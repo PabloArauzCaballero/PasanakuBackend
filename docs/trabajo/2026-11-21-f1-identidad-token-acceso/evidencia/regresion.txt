@@ -1,0 +1,18 @@
+$ ./gradlew :plataforma:comun-web:test :plataforma:comun-web:webTest :servicios:identidad:test :servicios:identidad:webTest :plataforma:comun-web:spotlessJavaCheck :servicios:identidad:spotlessJavaCheck --continue
+plataforma/comun-web test: tests=24 skipped=0 failures=0 errors=0
+plataforma/comun-web webTest: tests=53 skipped=0 failures=0 errors=0
+servicios/identidad test: tests=87 skipped=0 failures=0 errors=0
+servicios/identidad webTest: tests=160 skipped=0 failures=0 errors=0
+--- spotless: rojo SOLO en 4 archivos que este trabajo no toca (preexistente en dev):
+> Task :plataforma:comun-web:spotlessJavaCheck FAILED
+> Task :servicios:identidad:spotlessJavaCheck FAILED
+      src/main/java/bo/aportaya/plataforma/web/observabilidad/EnmascaradorPii.java
+      src/main/java/bo/aportaya/identidad/aplicacion/ConfirmarVerificacionCorreo.java
+      src/main/java/bo/aportaya/identidad/aplicacion/SolicitarVerificacionCorreo.java
+      src/main/java/bo/aportaya/identidad/infraestructura/EmisorDeAcceso.java
+BUILD FAILED in 39s
+
+$ grep -rn "\"000000\"" servicios/identidad/src/main  -> sin resultados (exit 1)
+$ ./gradlew :servicios:nucleo-financiero:webTest   (consumidor de ContextoWebDePrueba, que ahora registra CuatroOjos)
+BUILD SUCCESSFUL in 28s
+nucleo-financiero webTest: tests=82 skipped=0 failures=0 errors=0

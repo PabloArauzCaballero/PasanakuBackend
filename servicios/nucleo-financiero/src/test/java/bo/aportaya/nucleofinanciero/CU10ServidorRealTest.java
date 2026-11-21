@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor;
+import bo.aportaya.nucleofinanciero.aplicacion.SolicitudDeRecarga;
 import bo.aportaya.nucleofinanciero.infraestructura.RecargasProveedorSimulado;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Dinero;
@@ -66,7 +67,7 @@ class CU10ServidorRealTest extends BaseDeBilletera {
 
     private UUID solicitar(String clave, String monto) {
         return flujo.solicitar(
-                        new CU10RecargarSaldo.EntradaSolicitud(
+                        new SolicitudDeRecarga(
                                 clave,
                                 cuenta,
                                 Dinero.de(monto, Moneda.BOB),
