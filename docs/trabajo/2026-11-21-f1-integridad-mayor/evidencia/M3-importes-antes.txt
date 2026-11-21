@@ -1,0 +1,39 @@
+$ psql -d reg_base2 -f evidencia/verificar_importes.sql   # ANTES: esquema de origin/dev 850e0f51 con semillas dev
+ n  |       tabla       |         columna          | valor  | esperado  | obtenido | veredicto 
+----+-------------------+--------------------------+--------+-----------+----------+-----------
+  1 | obligacion_aporte | monto_pagado             | -0.01  | RECHAZADO | ACEPTADO | FAIL
+  2 | obligacion_aporte | monto_pagado             | 0.00   | ACEPTADO  | ACEPTADO | PASS
+  3 | obligacion_aporte | monto_pagado             | 0.01   | ACEPTADO  | ACEPTADO | PASS
+  4 | obligacion_aporte | monto_recargo            | -0.01  | RECHAZADO | ACEPTADO | FAIL
+  5 | obligacion_aporte | monto_recargo            | 0.00   | ACEPTADO  | ACEPTADO | PASS
+  6 | obligacion_aporte | monto_recargo            | 0.01   | ACEPTADO  | ACEPTADO | PASS
+  7 | obligacion_aporte | monto_condonado          | -0.01  | RECHAZADO | ACEPTADO | FAIL
+  8 | obligacion_aporte | monto_condonado          | 0.00   | ACEPTADO  | ACEPTADO | PASS
+  9 | obligacion_aporte | monto_condonado          | 0.01   | ACEPTADO  | ACEPTADO | PASS
+ 10 | obligacion_aporte | monto_cubierto_garantia  | -0.01  | RECHAZADO | ACEPTADO | FAIL
+ 11 | obligacion_aporte | monto_cubierto_garantia  | 0.00   | ACEPTADO  | ACEPTADO | PASS
+ 12 | obligacion_aporte | monto_cubierto_garantia  | 0.01   | ACEPTADO  | ACEPTADO | PASS
+ 13 | orden_cobro       | monto_exacto             | -0.01  | RECHAZADO | ACEPTADO | FAIL
+ 14 | orden_cobro       | monto_exacto             | 0.00   | ACEPTADO  | ACEPTADO | PASS
+ 15 | orden_cobro       | monto_exacto             | 0.01   | ACEPTADO  | ACEPTADO | PASS
+ 16 | pago              | monto_comision_proveedor | -0.01  | RECHAZADO | ACEPTADO | FAIL
+ 17 | pago              | monto_comision_proveedor | 0.00   | ACEPTADO  | ACEPTADO | PASS
+ 18 | pago              | monto_comision_proveedor | 0.01   | ACEPTADO  | ACEPTADO | PASS
+ 19 | pago              | monto_neto_acreditado    | -0.01  | RECHAZADO | ACEPTADO | FAIL
+ 20 | pago              | monto_neto_acreditado    | 0.00   | ACEPTADO  | ACEPTADO | PASS
+ 21 | pago              | monto_neto_acreditado    | 0.01   | ACEPTADO  | ACEPTADO | PASS
+ 22 | reembolso         | monto                    | -50.00 | RECHAZADO | ACEPTADO | FAIL
+ 23 | reembolso         | monto                    | -0.01  | RECHAZADO | ACEPTADO | FAIL
+ 24 | reembolso         | monto                    | 0.00   | RECHAZADO | ACEPTADO | FAIL
+ 25 | reembolso         | monto                    | 0.01   | ACEPTADO  | ACEPTADO | PASS
+ 26 | reembolso         | monto                    | 100.00 | ACEPTADO  | ACEPTADO | PASS
+ 27 | disputa_pago      | monto_disputado          | -0.01  | RECHAZADO | ACEPTADO | FAIL
+ 28 | disputa_pago      | monto_disputado          | 0.00   | ACEPTADO  | ACEPTADO | PASS
+ 29 | disputa_pago      | monto_disputado          | 10.00  | ACEPTADO  | ACEPTADO | PASS
+(29 rows)
+
+ pass | fail 
+------+------
+   18 |   11
+(1 row)
+

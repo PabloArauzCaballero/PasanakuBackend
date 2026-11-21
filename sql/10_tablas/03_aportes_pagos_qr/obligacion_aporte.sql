@@ -28,8 +28,28 @@ CREATE TABLE IF NOT EXISTS aportes.obligacion_aporte (
   CONSTRAINT pk_obligacion_aporte PRIMARY KEY (id),
   CONSTRAINT ck_obligacion_aporte_tipo CHECK (tipo IN ('AJUSTE_MANUAL', 'APORTE_FONDO_GARANTIA', 'APORTE_PERIODICO', 'COMISION_PLATAFORMA', 'RECARGO_MORA', 'REPOSICION_COBERTURA')),
   CONSTRAINT ck_obligacion_aporte_monto_esperado CHECK (monto_esperado > 0),
+  CONSTRAINT ck_obligacion_aporte_monto_pagado CHECK (monto_pagado >= 0),
+  CONSTRAINT ck_obligacion_aporte_monto_recargo CHECK (monto_recargo >= 0),
+  CONSTRAINT ck_obligacion_aporte_monto_condonado CHECK (monto_condonado >= 0),
+  CONSTRAINT ck_obligacion_aporte_monto_cubierto_garantia CHECK (monto_cubierto_garantia >= 0),
   CONSTRAINT ck_obligacion_aporte_estado CHECK (estado IN ('ANULADO', 'CONDONADO', 'CUBIERTO_POR_GARANTIA', 'EN_MORA', 'EN_VERIFICACION', 'EXONERADO', 'PAGADO', 'PAGADO_PARCIAL', 'PENDIENTE', 'PROGRAMADO', 'REPORTADO_POR_USUARIO', 'REPROGRAMADO', 'VENCIDO'))
 );
+
+-- Evolucion: CHECK ampliado (ver CK_AMPLIADOS en modelo.py).
+ALTER TABLE aportes.obligacion_aporte DROP CONSTRAINT IF EXISTS ck_obligacion_aporte_monto_pagado;
+ALTER TABLE aportes.obligacion_aporte ADD CONSTRAINT ck_obligacion_aporte_monto_pagado CHECK (monto_pagado >= 0);
+
+-- Evolucion: CHECK ampliado (ver CK_AMPLIADOS en modelo.py).
+ALTER TABLE aportes.obligacion_aporte DROP CONSTRAINT IF EXISTS ck_obligacion_aporte_monto_recargo;
+ALTER TABLE aportes.obligacion_aporte ADD CONSTRAINT ck_obligacion_aporte_monto_recargo CHECK (monto_recargo >= 0);
+
+-- Evolucion: CHECK ampliado (ver CK_AMPLIADOS en modelo.py).
+ALTER TABLE aportes.obligacion_aporte DROP CONSTRAINT IF EXISTS ck_obligacion_aporte_monto_condonado;
+ALTER TABLE aportes.obligacion_aporte ADD CONSTRAINT ck_obligacion_aporte_monto_condonado CHECK (monto_condonado >= 0);
+
+-- Evolucion: CHECK ampliado (ver CK_AMPLIADOS en modelo.py).
+ALTER TABLE aportes.obligacion_aporte DROP CONSTRAINT IF EXISTS ck_obligacion_aporte_monto_cubierto_garantia;
+ALTER TABLE aportes.obligacion_aporte ADD CONSTRAINT ck_obligacion_aporte_monto_cubierto_garantia CHECK (monto_cubierto_garantia >= 0);
 
 COMMENT ON TABLE aportes.obligacion_aporte IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Lo que un cupo debe, en un período, por un concepto. Es la deuda formal que la plataforma le reconoce a un participante.';
 COMMENT ON COLUMN aportes.obligacion_aporte.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
