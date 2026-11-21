@@ -231,10 +231,15 @@ public class GruposController extends RutasAOtrosServicios {
         // reintento del mismo traspaso, que devuelve el original (regla 96.3.3).
         // La etapa del entrante es de OTRA persona: se lee con la identidad de servicio de grupos, nunca su puntaje
         // exacto (regla 90.2.8). El reintento no pregunta nada: CU-64 devuelve el traspaso original antes de mirarla.
-        var entrante = cu64.yaTraspasado(cupoId, Optional.ofNullable(cuerpo.getAcuerdoId()), entranteParticipante, ctx)
+        boolean reintento =
+                cu64.yaTraspasado(cupoId, Optional.ofNullable(cuerpo.getAcuerdoId()), entranteParticipante, ctx);
+        var entrante = reintento
                 ? EtapaDelIngreso.SIN_CONSULTAR
                 : EtapaDelIngreso.alTraspasar(
                         afuera, consultas.condicionesDeIngreso(grupoId, ctx), cuerpo.getUsuarioEntranteId());
+        // F1.L3.M05: el KYC del entrante lo dice `identidad`, no el minimo del grupo. Sin respuesta vale NINGUNO
+        // (degradacion declarada del puerto): falla cerrado. El reintento devuelve el original antes de mirarlo.
+        String kycDelEntrante = reintento ? "NINGUNO" : afuera.nivelDeKyc(cuerpo.getUsuarioEntranteId());
         var saliente = afuera.estadoDePagos(titular);
 
         UUID traspasoId = cu64.ejecutar(
@@ -243,9 +248,7 @@ public class GruposController extends RutasAOtrosServicios {
                         entranteParticipante,
                         cuerpo.getMotivo(),
                         saliente.alDia(),
-                        // El nivel de diligencia del entrante lo decide cumplimiento al
-                        // aceptar la postulacion; aca alcanza con el minimo del grupo.
-                        politica.kycMinimo(),
+                        kycDelEntrante,
                         politica.kycMinimo(),
                         entrante.puntaje().intValue(),
                         politica.reputacionMinima(),
