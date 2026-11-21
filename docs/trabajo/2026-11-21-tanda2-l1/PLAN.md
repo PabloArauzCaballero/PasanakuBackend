@@ -31,9 +31,9 @@
 | F1.L1.M05 | Secreto del webhook obligatorio, sin literal en `src/main` | arranque sin variable falla | prueba de arranque + grep | HECHO — PR #450 (`evidencia/M05-*`); ArranqueTest con Docker NO COMPROBADO |
 | F1.L1.M13 | Sello del cierre diario con saldos, moneda y sello anterior | alterar saldo cambia el sello | prueba unitaria | HECHO — PR #436 (`evidencia/M13-*`) |
 | F1.L1.M10 | Bloqueo judicial con permisos propios y segregación | sin permiso → 403; mismo registrador no levanta | pruebas web | TODO |
-| F1.L1.M09 | Idempotencia real del reembolso | dos envíos con la misma clave → un reembolso, mismo id | prueba de integración (psql + Java) | A MEDIAS — PR #447 (apilado en #425): solicitud idempotente; falta clave en aprobación y alta de proveedor |
-| F1.L1.M12 | Moneda en reembolso y tablas de importe | reembolso de pago USD queda en USD | psql + prueba | A MEDIAS — PR #449 (apilado en #447): reembolso y disputa; faltan conciliacion, excepcion_conciliacion, extracto_bancario |
-| F1.L1.M08 | Hechos de dinero de `aportes` inmutables | `UPDATE aportes.pago` como `svc_aportes` → permission denied | psql con `SET ROLE` | TODO |
+| F1.L1.M09 | Idempotencia real del reembolso | dos envíos con la misma clave → un reembolso, mismo id | prueba de integración (psql + Java) | HECHO — PR #447 (solicitud) + PR #456 (aprobación y alta de proveedor) (`evidencia/M09-*`, `evidencia/M09b-*`) |
+| F1.L1.M12 | Moneda en reembolso y tablas de importe | reembolso de pago USD queda en USD | psql + prueba | HECHO — PR #449 (reembolso, disputa) + PR #454 (conciliacion, excepcion, extracto) (`evidencia/M12-*`, `evidencia/M12b-*`); columnas nullable (fase expandir, regla 97.3.5) |
+| F1.L1.M08 | Hechos de dinero de `aportes` inmutables | `UPDATE aportes.pago` como `svc_aportes` → permission denied | psql con `SET ROLE` | A MEDIAS — PR #455: pago y reembolso sellados con historial de estados (R-BIL-30); falta webhook_pasarela (exige particionarla por su retención de 24 meses) |
 | F1.L1.M04 | `nucleo-financiero` arranca sin dobles de desarrollo (adaptador fail-closed) | `ArranqueProduccionTest` sin `@MockitoBean` del puerto | `./gradlew :servicios:nucleo-financiero:test --tests '*ArranqueProduccion*'` | HECHO — PR #451 (`evidencia/M04-*`) |
 | F1.S4.M2 | Destino de transferencia por identificador único | alias duplicado no desvía la transferencia | prueba dirigida | DESCARTADO para L1 — vive en `grupos` (F1.L3.M03, lote L3); decidido por el alcance de la tanda ("si vive en tus servicios") |
 
