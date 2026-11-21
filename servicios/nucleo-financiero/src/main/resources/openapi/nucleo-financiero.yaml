@@ -45,6 +45,10 @@ info:
     consumidor (`entregas.comprarOferta`) ya responde 410. Contraccion (regla 98.1.3): se borra del contrato
     junto con las operaciones del mercado de `entregas`; la fecha la fija Pablo al mergear.
 
+
+    1.2.0 (2026-11-21) · F1.L1.M10: nueva `levantarBloqueoPorAutoridad` (aditiva). El registro del bloqueo
+    pasa a exigir BLOQUEO_AUTORIDAD_REGISTRAR en vez de DATOS_SENSIBLES_LEER (permiso propio de la accion).
+
 servers:
   - url: /api/v1
 
@@ -750,6 +754,34 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
+  /billetera/bloqueos/{bloqueoId}/levantamiento:
+    post:
+      operationId: levantarBloqueoPorAutoridad  # CU-17
+      summary: Levantar un bloqueo por orden de autoridad (otra persona que quien lo registro)
+      description: >-
+        F1.L1.M10 (R-BIL-32). Exige BLOQUEO_AUTORIDAD_LEVANTAR y una persona distinta de quien registro el
+        bloqueo, ambas tomadas del token: quien lo registro recibe 422 AP-CU17-04. El saldo retenido vuelve a
+        estar disponible en la misma transaccion. No lleva cuerpo: quien levanta no se declara, es el token.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - name: bloqueoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Bloqueo levantado y saldo liberado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaLevantamientoBloqueo' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU17-04 MISMA_PERSONA_LEVANTA · AP-CU17-05 BLOQUEO_NO_VIGENTE
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutenticado'
+
   /billetera/qr:
     post:
       tags: [qr]
@@ -1058,6 +1090,13 @@ components:
         alcance: { type: string, enum: [PARCIAL, TOTAL] }
         documentoUrl: { type: string, format: uri }
         hashDocumento: { type: string, minLength: 64, maxLength: 64 }
+    SalidaLevantamientoBloqueo:
+      type: object
+      additionalProperties: false
+      required: [bloqueoId, estado]
+      properties:
+        bloqueoId: { type: string, format: uuid }
+        estado: { type: string, enum: [LEVANTADO] }
     SalidaBloqueo:
       type: object
       additionalProperties: false

@@ -471,7 +471,6 @@ package "Gestion de Cobranza" {
 package "Cobertura, Deuda y Recuperacion" {
 
   enum EstadoCobertura {
-    SOLICITADA
     APROBADA
     APLICADA
     RECHAZADA

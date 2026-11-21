@@ -20,8 +20,13 @@ CREATE TABLE IF NOT EXISTS garantia.cobertura_incumplimiento (
   solicitada_en                      TIMESTAMPTZ DEFAULT now() NOT NULL,
   aplicada_en                        TIMESTAMPTZ,
   CONSTRAINT pk_cobertura_incumplimiento PRIMARY KEY (id),
-  CONSTRAINT ck_cobertura_incumplimiento_estado CHECK (estado IN ('APLICADA', 'APROBADA', 'EN_RECUPERACION', 'INCOBRABLE', 'RECHAZADA', 'RECUPERADA_PARCIAL', 'RECUPERADA_TOTAL', 'REVERSADA', 'SOLICITADA'))
+  CONSTRAINT ck_cobertura_incumplimiento_estado CHECK (estado IN ('APLICADA', 'APROBADA', 'EN_RECUPERACION', 'INCOBRABLE', 'RECHAZADA', 'RECUPERADA_PARCIAL', 'RECUPERADA_TOTAL', 'REVERSADA'))
 );
+
+-- Evolucion: CHECK ESTRECHADO (ver CK_ESTRECHADOS en modelo.py). El ADD revalida
+-- las filas existentes: falla si queda alguna con un valor retirado, sin tocar el CHECK viejo.
+ALTER TABLE garantia.cobertura_incumplimiento DROP CONSTRAINT IF EXISTS ck_cobertura_incumplimiento_estado,
+  ADD CONSTRAINT ck_cobertura_incumplimiento_estado CHECK (estado IN ('APLICADA', 'APROBADA', 'EN_RECUPERACION', 'INCOBRABLE', 'RECHAZADA', 'RECUPERADA_PARCIAL', 'RECUPERADA_TOTAL', 'REVERSADA'));
 
 COMMENT ON TABLE garantia.cobertura_incumplimiento IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El acto de que el fondo ponga la plata que un participante no puso.';
 COMMENT ON COLUMN garantia.cobertura_incumplimiento.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';

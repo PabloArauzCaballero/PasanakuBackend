@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AportaYa · nucleo-financiero",
-    "description": "# AportaYa · nucleo-financiero\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**30 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
+    "description": "# AportaYa · nucleo-financiero\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**31 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -1768,7 +1768,7 @@
           ],
           "variable": []
         },
-        "description": "## Registrar un bloqueo por orden de autoridad\n\nEl unico caso en que una retencion no tiene fecha de fin: la levanta la misma autoridad que la puso, y ponerle vencimiento propio seria decidir por un juez cuando se acaba su orden. El documento de respaldo es obligatorio — inmovilizar la plata de alguien sin poder mostrar el papel es indefendible.\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `bloquearPorAutoridad` |\n| **Ruta** | `POST /api/v1/billetera/bloqueos` |\n| **Permiso** | `DATOS_SENSIBLES_LEER` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU17-01` | Oficio duplicado |\n| `AP-CU17-02` | Cuenta inexistente |\n| `AP-CU17-03` | Sin documento de respaldo |\n| `AP-CU17-04` | Misma persona levanta |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Registrar un bloqueo por orden de autoridad\n\nEl unico caso en que una retencion no tiene fecha de fin: la levanta la misma autoridad que la puso, y ponerle vencimiento propio seria decidir por un juez cuando se acaba su orden. El documento de respaldo es obligatorio — inmovilizar la plata de alguien sin poder mostrar el papel es indefendible.\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `bloquearPorAutoridad` |\n| **Ruta** | `POST /api/v1/billetera/bloqueos` |\n| **Permiso** | `BLOQUEO_AUTORIDAD_REGISTRAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU17-01` | Oficio duplicado |\n| `AP-CU17-02` | Cuenta inexistente |\n| `AP-CU17-03` | Sin documento de respaldo |\n| `AP-CU17-04` | Misma persona levanta |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"autoridad\": \"ASFI\",\n  \"tipoOrden\": \"CONGELAMIENTO\",\n  \"numeroOficio\": \"numeroOficio-de-prueba\",\n  \"montoBloqueado\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"alcance\": \"PARCIAL\",\n  \"documentoUrl\": \"https://ejemplo.aportaya.bo/documento.pdf\",\n  \"hashDocumento\": \"0000000000000000000000000000000000000000000000000000000000000000\"\n}",
@@ -1788,6 +1788,85 @@
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
               "const esperadas = [201, 401, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "levantarBloqueoPorAutoridad · Levantar un bloqueo por orden de autoridad (otra persona que quien lo registro)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/billetera/bloqueos/:bloqueoId/levantamiento",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "billetera",
+            "bloqueos",
+            ":bloqueoId",
+            "levantamiento"
+          ],
+          "variable": [
+            {
+              "key": "bloqueoId",
+              "value": "{{bloqueoId}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## Levantar un bloqueo por orden de autoridad (otra persona que quien lo registro)\n\nF1.L1.M10 (R-BIL-32). Exige BLOQUEO_AUTORIDAD_LEVANTAR y una persona distinta de quien registro el bloqueo, ambas tomadas del token: quien lo registro recibe 422 AP-CU17-04. El saldo retenido vuelve a estar disponible en la misma transaccion. No lleva cuerpo: quien levanta no se declara, es el token.\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `levantarBloqueoPorAutoridad` |\n| **Ruta** | `POST /api/v1/billetera/bloqueos/{bloqueoId}/levantamiento` |\n| **Permiso** | `BLOQUEO_AUTORIDAD_LEVANTAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422`, `401`, `403` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU17-04` | Misma persona levanta |\n| `AP-CU17-05` | Bloqueo no vigente |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 401, 403, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",
@@ -2529,6 +2608,10 @@
     },
     {
       "key": "base_url",
+      "value": ""
+    },
+    {
+      "key": "bloqueoId",
       "value": ""
     },
     {

@@ -49,7 +49,7 @@ los pisos de cobertura sin cambios. **Estado:** A MEDIAS
 | F1.L2.M07 | `numeroCifrado` fuera del contrato de entrada; cifrado solo en servidor con clave propia | Un cuerpo con `numeroCifrado` → 400; ida y vuelta del cifrado coincide | `webTest` del rechazo + unitaria de ida y vuelta + arranque sin llave | HECHO (#421 + #463; evidencia/F1.L2.M07-llave-cifrado.txt) |
 | F1.L2.M05 | Retirar `POST /desembolsos/{id}/respuesta` (acreditación humana) | 410 y sin `desembolso_acreditado` | `webTest` | HECHO (evidencia/F1.L2.M05-desembolso-sin-humano.txt) |
 | F1.L2.M09 | Retirar `POST /entregas` legacy y `EFECTIVO_ORGANIZADOR` | 410; el método no existe en contrato ni modelo ni en bases existentes | `webTest` + psql | HECHO (#424 + #463; evidencia/punto2-check-estrechado.txt) |
-| F1.L2.M02 | Retirar la cobertura manual del fondo con datos del cuerpo | 410, sin escritura | `webTest` garantía | A MEDIAS (endpoint 410 y código retirado, evidencia/F1.L2.M02-cu23-sin-cobertura-manual.txt; falta contraer el modelo: `SOLICITADA`, `politica_cobertura` y el esquema `EntradaCobertura`) |
+| F1.L2.M02 | Retirar la cobertura manual del fondo con datos del cuerpo | 410, sin escritura | `webTest` garantía | A MEDIAS (endpoint 410 y código retirado #472; `SOLICITADA` fuera del CHECK #477, evidencia/F1.L2.M02-check-estrechado.txt; falta `aprobadaPor`/`EntradaCobertura` del contrato y la tabla `politica_cobertura`, que es DECISION_REQUIRED: destructiva sobre datos compartidos, la eleva el coordinador) |
 | F1.L2.M03 | Devolución del fondo sin `grupoCerrado`/`deudasVivas` del cuerpo | La API no decide con esos campos | `webTest` | A MEDIAS (endpoint 410; disparo por el sistema en F3.L2.M06) |
 | F1.L2.M10 | `saldoRetenido` fuera de la entrada del desembolso | Campo fuera del contrato | `webTest` | TODO (diseño en REPORTE; falta la operación de L1) |
 | F1.L2.M04 | Importes de entrada sin signo; disolución y reemplazo con cifras de sus dueños | Un negativo → 400; los totales salen de sus dueños | `webTest` | A MEDIAS (sin signo HECHO; cifras de sus dueños pendiente) |
@@ -62,7 +62,7 @@ los pisos de cobertura sin cambios. **Estado:** A MEDIAS
 | P3.M1 | CU-22: la entrega nace solo del fondeo; retiro de `CU22LiquidarEntrega.liquidar/ejecutar`, `LiquidacionDeEntrega` y la ficha CU-22 reescrita | `grep -rn "liquidar(\|LiquidacionDeEntrega" servicios/entregas/src` vacío; los 3 escenarios de CU-22 con su prueba | `test` + `webTest` + verificadores locales; `integrationTest` en el CI del PR | HECHO (#471 mergeado con CI verde, incluidos «Los cinco corredores»; evidencia/punto3-cu22-sin-liquidacion.txt) |
 | F2.L2.M09 | Mercado de ofertas | Se resuelve con L2.S1.M1 | — | HECHO (con L2.S1.M1) |
 | F2.L2.M01 | Respaldo empresarial en entregas | `grep -rn Respaldo servicios/entregas/src` vacío | suites | A MEDIAS (local verde, evidencia/F2.L2.M01-sin-respaldo-entregas.txt; integración NO COMPROBADO local, la valida el CI del PR) |
-| F2.L2.M02 | Respaldo empresarial en garantía | Rutas `/garantia/respaldo/*` 410 | suites | TODO (después de F2.L2.M01) |
+| F2.L2.M02 | Respaldo empresarial en garantía | Rutas `/garantia/respaldo/*` 410 | suites | A MEDIAS (local verde, evidencia/F2.L2.M02-sin-respaldo-garantia.txt; integración NO COMPROBADO local; precondición en TEST: evidencia/F2.L2.M02-vigentes-respaldo.sql) |
 | F2.L2.M04 | Aval entre participantes | 410 y sin código | suites | A MEDIAS (código retirado y CU-26 marcado RETIRADO, evidencia/F2.L2.M04-cu26-retirado.txt; faltan las tablas) |
 
 ## Riesgos y bloqueos previstos
