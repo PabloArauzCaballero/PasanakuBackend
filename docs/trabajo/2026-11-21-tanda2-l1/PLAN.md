@@ -23,19 +23,19 @@
 | ID | Microtarea | CA (binario) | DoD (comando) | Estado |
 |---|---|---|---|---|
 | L1.M00 | CU10/CU12/CU21 sin importes en logs; CU10 bajo 300 líneas formateado (F4.L1.M02 parte, pedido explícito) | Ningún `monto={}` en logs de los dos servicios; `spotlessCheck` y `testBarrido` en verde en `nucleo-financiero` | `grep -rn 'monto={}' servicios/{aportes,nucleo-financiero}/src/main` vacío · `./gradlew :servicios:nucleo-financiero:spotlessCheck :servicios:nucleo-financiero:testBarrido :servicios:aportes:testBarrido` | HECHO (`evidencia/M00-logs-sin-importes.txt`; CU10 ya estaba en 281 líneas y formateado en `dev` por f7f83a97) |
-| F1.L1.M03 | Reverso en dos pasos: solicitar y autorizar desde dos tokens (`CuatroOjos`) | `autorizadaPor` no existe en el contrato; el mismo usuario no autoriza su solicitud | pruebas web de matriz negativa + `grep autorizadaPor contratos/nucleo-financiero*` vacío | TODO |
-| F1.L1.M11 | Cobro sin canal/monto/referencia/recargo/proveedor del cuerpo | cuerpo con `monto` → 400 por campo no declarado | prueba web por campo prohibido | TODO |
-| F1.L1.M01 | Esquema `Importe` en los contratos de entrada | `monto` negativo → 400 en reembolso | prueba web `PagosController` | TODO |
-| F1.L1.M07 | BOLA en `aportes` | recurso ajeno → 404 | matriz negativa web | TODO |
-| F1.L1.M06 | La firma del webhook cubre el timestamp | reenvío con timestamp nuevo → 401 | prueba unitaria tres niveles + web CU100 | TODO |
+| F1.L1.M03 | Reverso en dos pasos: solicitar y autorizar desde dos tokens (`CuatroOjos`) | `autorizadaPor` no existe en el contrato; el mismo usuario no autoriza su solicitud | pruebas web de matriz negativa + `grep autorizadaPor contratos/nucleo-financiero*` vacío | HECHO — PR #425 (`evidencia/M03-*`) |
+| F1.L1.M11 | Cobro sin canal/monto/referencia/recargo/proveedor del cuerpo | cuerpo con `monto` → 400 por campo no declarado | prueba web por campo prohibido | TODO — cambia el contrato que usa `apps/movil/.../cu21_cobrar_aporte.dart` (L6): coordinar |
+| F1.L1.M01 | Esquema `Importe` en los contratos de entrada | `monto` negativo → 400 en reembolso | prueba web `PagosController` | A MEDIAS — PR #445: `Importe` en reembolso y disputa, borde 400 en el resto; falta `Importe` en nucleo (app L6) |
+| F1.L1.M07 | BOLA en `aportes` | recurso ajeno → 404 | matriz negativa web | A MEDIAS — PR #441: estado y reembolso; morosos, primera-cuota y recaudo requieren identidad de servicio en grupos/entregas/garantia |
+| F1.L1.M06 | La firma del webhook cubre el timestamp | reenvío con timestamp nuevo → 401 | prueba unitaria tres niveles + web CU100 | HECHO — PR #430 (`evidencia/M06-*`) |
 | F1.L1.M05 | Secreto del webhook obligatorio, sin literal en `src/main` | arranque sin variable falla | prueba de arranque + grep | TODO |
-| F1.L1.M13 | Sello del cierre diario con saldos, moneda y sello anterior | alterar saldo cambia el sello | prueba unitaria | TODO |
+| F1.L1.M13 | Sello del cierre diario con saldos, moneda y sello anterior | alterar saldo cambia el sello | prueba unitaria | HECHO — PR #436 (`evidencia/M13-*`) |
 | F1.L1.M10 | Bloqueo judicial con permisos propios y segregación | sin permiso → 403; mismo registrador no levanta | pruebas web | TODO |
-| F1.L1.M09 | Idempotencia real del reembolso | dos envíos con la misma clave → un reembolso, mismo id | prueba de integración (psql + Java) | TODO |
+| F1.L1.M09 | Idempotencia real del reembolso | dos envíos con la misma clave → un reembolso, mismo id | prueba de integración (psql + Java) | A MEDIAS — PR #447 (apilado en #425): solicitud idempotente; falta clave en aprobación y alta de proveedor |
 | F1.L1.M12 | Moneda en reembolso y tablas de importe | reembolso de pago USD queda en USD | psql + prueba | TODO |
 | F1.L1.M08 | Hechos de dinero de `aportes` inmutables | `UPDATE aportes.pago` como `svc_aportes` → permission denied | psql con `SET ROLE` | TODO |
 | F1.L1.M04 | `nucleo-financiero` arranca sin dobles de desarrollo (adaptador fail-closed) | `ArranqueProduccionTest` sin `@MockitoBean` del puerto | `./gradlew :servicios:nucleo-financiero:test --tests '*ArranqueProduccion*'` | TODO |
-| F1.S4.M2 | Destino de transferencia por identificador único | alias duplicado no desvía la transferencia | prueba dirigida | TODO |
+| F1.S4.M2 | Destino de transferencia por identificador único | alias duplicado no desvía la transferencia | prueba dirigida | DESCARTADO para L1 — vive en `grupos` (F1.L3.M03, lote L3); decidido por el alcance de la tanda ("si vive en tus servicios") |
 
 ## H2 — F2 del lote L1
 **CA:** ningún camino de respaldo empresarial ni canal manual en `aportes`/`nucleo-financiero`.
