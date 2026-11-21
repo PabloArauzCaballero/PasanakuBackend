@@ -1,0 +1,126 @@
+$ psql -d reg_m1 -f evidencia/verificar_append_only.sql   # esquema regenerado
+--- resumen por resultado (esperado: solo permission denied)
+     resultado     |   op   | intentos | tablas 
+-------------------+--------+----------+--------
+ permission denied | DELETE |      825 |     97
+ permission denied | UPDATE |      825 |     97
+(2 rows)
+
+--- combinaciones PERMITIDAS (esperado: 0 filas)
+ tabla | rol | op | resultado 
+-------+-----+----+-----------
+(0 rows)
+
+--- detalle por tabla (rol dueño)
+                   tabla                   |          rol          |                      resultado                       
+-------------------------------------------+-----------------------+------------------------------------------------------
+ auditoria.indicador_kpi                   | svc_auditoria         | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento                     |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202601              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202602              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202603              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202604              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202605              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202606              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202607              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202608              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202609              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202610              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202611              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202612              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202701              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202702              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202703              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202704              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202705              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202706              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202707              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202708              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202709              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202710              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202711              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_202712              |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.bitacora_evento_desborde            |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos               |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202601        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202602        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202603        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202604        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202605        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202606        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202607        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202608        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202609        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202610        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202611        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202612        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202701        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202702        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202703        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202704        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202705        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202706        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202707        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202708        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202709        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202710        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202711        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_202712        |                       | DELETE=permission denied · UPDATE=permission denied
+ comun.registro_acceso_datos_desborde      |                       | DELETE=permission denied · UPDATE=permission denied
+ cumplimiento.acta_comite                  | svc_cumplimiento      | DELETE=permission denied · UPDATE=permission denied
+ cumplimiento.evento_riesgo_operativo      | svc_cumplimiento      | DELETE=permission denied · UPDATE=permission denied
+ cumplimiento.registro_operacion_relevante | svc_cumplimiento      | DELETE=permission denied · UPDATE=permission denied
+ erp.cierre_periodo_contable               | svc_erp               | DELETE=permission denied · UPDATE=permission denied
+ erp.cobro_cuenta_por_cobrar               | svc_erp               | DELETE=permission denied · UPDATE=permission denied
+ erp.cuenta_por_cobrar                     | svc_erp               | DELETE=permission denied · UPDATE=permission denied
+ erp.depreciacion_activo                   | svc_erp               | DELETE=permission denied · UPDATE=permission denied
+ erp.estado_financiero_generado            | svc_erp               | DELETE=permission denied · UPDATE=permission denied
+ erp.factura_proveedor                     | svc_erp               | DELETE=permission denied · UPDATE=permission denied
+ erp.pago_a_proveedor                      | svc_erp               | DELETE=permission denied · UPDATE=permission denied
+ garantia.abono_recuperacion               | svc_garantia          | DELETE=permission denied · UPDATE=permission denied
+ garantia.historial_estado_incumplimiento  | svc_garantia          | DELETE=permission denied · UPDATE=permission denied
+ garantia.movimiento_fondo                 | svc_garantia          | DELETE=permission denied · UPDATE=permission denied
+ garantia.movimiento_reserva               | svc_garantia          | DELETE=permission denied · UPDATE=permission denied
+ garantia.recuperacion_respaldo            | svc_garantia          | DELETE=permission denied · UPDATE=permission denied
+ garantia.registro_incumplimiento          | svc_garantia          | DELETE=permission denied · UPDATE=permission denied
+ grupos.alta_grupo                         | svc_grupos            | DELETE=permission denied · UPDATE=permission denied
+ grupos.decision_ingreso                   | svc_grupos            | DELETE=permission denied · UPDATE=permission denied
+ grupos.snapshot_sorteo                    | svc_grupos            | DELETE=permission denied · UPDATE=permission denied
+ grupos.sustitucion_administrador          | svc_grupos            | DELETE=permission denied · UPDATE=permission denied
+ inversiones.comision_exito                | svc_inversiones       | DELETE=permission denied · UPDATE=permission denied
+ inversiones.comprobante_inversion         | svc_inversiones       | DELETE=permission denied · UPDATE=permission denied
+ inversiones.conciliacion_interes          | svc_inversiones       | DELETE=permission denied · UPDATE=permission denied
+ inversiones.consentimiento_inversion      | svc_inversiones       | DELETE=permission denied · UPDATE=permission denied
+ inversiones.devengo_dpf                   | svc_inversiones       | DELETE=permission denied · UPDATE=permission denied
+ inversiones.distribucion_interes          | svc_inversiones       | DELETE=permission denied · UPDATE=permission denied
+ inversiones.valor_cuota                   | svc_inversiones       | DELETE=permission denied · UPDATE=permission denied
+ inversiones.version_condiciones           | svc_inversiones       | DELETE=permission denied · UPDATE=permission denied
+ nucleo_financiero.asiento_contable        | svc_nucleo_financiero | DELETE=permission denied · UPDATE=permission denied
+ nucleo_financiero.discrepancia_proveedor  | svc_nucleo_financiero | DELETE=permission denied · UPDATE=permission denied
+ nucleo_financiero.evidencia_mfa_consumida | svc_nucleo_financiero | DELETE=permission denied · UPDATE=permission denied
+ nucleo_financiero.movimiento_billetera    | svc_nucleo_financiero | DELETE=permission denied · UPDATE=permission denied
+ nucleo_financiero.movimiento_contable     | svc_nucleo_financiero | DELETE=permission denied · UPDATE=permission denied
+ nucleo_financiero.movimiento_custodia     | svc_nucleo_financiero | DELETE=permission denied · UPDATE=permission denied
+ nucleo_financiero.saldo_diario_billetera  | svc_nucleo_financiero | DELETE=permission denied · UPDATE=permission denied
+ nucleo_financiero.transaccion_billetera   | svc_nucleo_financiero | DELETE=permission denied · UPDATE=permission denied
+ organizador.decision_habilitacion         | svc_organizador       | DELETE=permission denied · UPDATE=permission denied
+ publicidad.clic_anuncio                   | svc_publicidad        | DELETE=permission denied · UPDATE=permission denied
+ publicidad.conversion_anuncio             | svc_publicidad        | DELETE=permission denied · UPDATE=permission denied
+ publicidad.factura_publicidad             | svc_publicidad        | DELETE=permission denied · UPDATE=permission denied
+ publicidad.impresion_anuncio              | svc_publicidad        | DELETE=permission denied · UPDATE=permission denied
+ tarifas.devengo_comision                  | svc_tarifas           | DELETE=permission denied · UPDATE=permission denied
+ transparencia.evento_reputacion           | svc_transparencia     | DELETE=permission denied · UPDATE=permission denied
+ transparencia.registro_sellado            | svc_transparencia     | DELETE=permission denied · UPDATE=permission denied
+(97 rows)
+
+--- regla 91.1.3: categorias que deben estar selladas (esperado: todas true)
+          cat          |                 tabla                 | sellada 
+-----------------------+---------------------------------------+---------
+ asiento               | nucleo_financiero.asiento_contable    | t
+ movimiento contable   | nucleo_financiero.movimiento_contable | t
+ bitacora              | comun.bitacora_evento                 | t
+ evento de reputacion  | transparencia.evento_reputacion       | t
+ movimiento de fondo   | garantia.movimiento_fondo             | t
+ abono de recuperacion | garantia.abono_recuperacion           | t
+(6 rows)
+
