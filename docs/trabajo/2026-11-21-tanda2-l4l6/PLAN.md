@@ -57,6 +57,7 @@
 |---|---|---|
 | F1.L6.M04 | Patrón de importe de `cumplimiento.yaml` válido y sin negativos. CA: «100.00» valida, «-1.00» no. DoD: `yarn vitest run` en `packages/simulado` | HECHO (`evidencia/f1-l6-m04-patron-importe.txt`) |
 | F1.L6.M12 | App: clave por intento (formulario + contenido), liberada ante 4xx, conservada ante timeout/5xx/429. CA: 422 → corregir → se procesa; timeout reintentado no duplica. DoD: `flutter test test/unidad/idempotencia_por_intento_test.dart` | HECHO (`evidencia/f1-l6-m12-idempotencia-app.txt`) |
+| TOK.M1 | (Regresión de #426, encontrada al levantar `ng serve` para una prueba visual) Vite no resolvía `./interpretar` re-exportado desde `@aportaya/tokens/dinero`; el servidor de desarrollo y el E2E f6 no arrancaban. CA: `ng serve` arranca en frío y `CampoMonto` sigue con los vectores. DoD: Playwright del backoffice arranca + vitest de tokens + `test:front` de ui | HECHO (`evidencia/tokens-interpretar-vite.txt`) |
 | F1.L6.M05 a M11 | Ver anexo L6 | TODO |
 
 ## H2 — F2 de L4 y L6
