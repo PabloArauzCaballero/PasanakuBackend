@@ -9,9 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import bo.aportaya.garantia.aplicacion.CU23CubrirIncumplimiento;
 import bo.aportaya.garantia.aplicacion.CU25DeclararIncumplimiento;
-import bo.aportaya.garantia.aplicacion.CU26EjecutarAval;
 import bo.aportaya.garantia.aplicacion.CU27RestringirDeudor;
 import bo.aportaya.garantia.aplicacion.CU66ReemplazarParticipante;
 import bo.aportaya.garantia.aplicacion.ReclamosEnCurso;
@@ -42,13 +40,7 @@ class IncumplimientosReemplazoWebTest {
     private MockMvc mvc;
 
     @MockitoBean
-    private CU23CubrirIncumplimiento cu23;
-
-    @MockitoBean
     private CU25DeclararIncumplimiento cu25;
-
-    @MockitoBean
-    private CU26EjecutarAval cu26;
 
     @MockitoBean
     private CU27RestringirDeudor cu27;

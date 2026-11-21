@@ -32,12 +32,15 @@
 #   AP-CU28-05  ORDEN_YA_EXISTE       · la orden no existe (el duplicado devuelve la que hay)
 #   AP-CU28-06  RECHAZO_DEFINITIVO    · error que no se reintenta
 #   AP-CU28-07  FILTRO_DE_LISTADO_INVALIDO · estado desconocido o cursor a medias (backoffice carril A · H8)
+#   AP-CU28-08  RESPUESTA_MANUAL_RETIRADA · 410: la respuesta del proveedor ya no la anota una persona (F1.L2.M05)
 #
 # CU-22 (pozo completo) · Fondear el pozo: caja confirmada + respaldo empresarial (carril C, H8)
 #   AP-CU22-06  RECAUDO_NO_DISPONIBLE  · aportes no responde: no se fondea nada
 #   AP-CU22-07  PEDIDO_NO_COINCIDE     · el periodo no es del grupo, o el respaldo cubrio otro importe
 #   AP-CU22-08  RESPALDO_NO_DISPONIBLE · garantia no responde: no se sabe si cubrio, se reintenta
 #   AP-CU22-09  FONDEO_EN_CONFLICTO    · otro pedido movio el fondeo, o el turno ya se liquido por el camino anterior
+#   AP-CU22-10  LIQUIDACION_RETIRADA   · 410: POST /entregas ya no existe; la entrega sale del fondeo (F1.L2.M09)
+#   AP-CU22-11  EJECUCION_RETIRADA     · 410: la entrega no se cierra a mano; la cierra la acreditacion (F1.L2.M08)
 #
 # Mercado del derecho a cobrar un turno (carril C, H9). NO existe caso de uso en la boveda:
 # la numeracion AP-CU130-nn es PROVISIONAL (confirmar con quien gobierna docs/CasosDeUso).
@@ -57,7 +60,7 @@
 openapi: 3.1.0
 info:
   title: entregas
-  version: 1.1.0
+  version: 2.2.0
   description: >-
     Servicio entregas. Un caso de uso = una operacion, con el codigo CU en el
     operationId. Los importes viajan como CADENA decimal, nunca como number.
@@ -73,6 +76,22 @@ info:
     nucleo-financiero: ya no hay oferta que pagar. Contraccion (regla 98.1.3): se borran del contrato cuando la
     app movil deje de llamarlas y nucleo-financiero retire su consumidor; la fecha la fija Pablo al mergear
     esos cambios.
+
+
+    2.0.0 (2026-11-21) · SEG-007, cambio INCOMPATIBLE de seguridad (regla 98.1.3): `EntradaRegistroCuenta`
+    ya no tiene `numeroCifrado`. El servidor cifra el numero de cuenta desde `numeroCuenta`, el mismo del
+    que salen el enmascarado y el hash; un cuerpo que todavia mande `numeroCifrado` recibe 400 (campo no
+    declarado). Sin convivencia a proposito: aceptar el campo es justo la vulnerabilidad. Ningun cliente del
+    monorepo lo enviaba (busqueda en apps/, packages/ y clientes/ sin resultados).
+
+
+    2.1.0 (2026-11-21) · F1.L2.M05 (SEG-005): `anotarRespuestaDesembolso` queda `deprecated` y responde 410
+    AP-CU28-08. Ninguna persona marca un desembolso como acreditado; lo hara el aviso firmado del proveedor.
+
+
+    2.2.0 (2026-11-21) · F1.L2.M09 y F1.L2.M08: `liquidarEntrega` (POST /entregas) y `ejecutarEntrega`
+    quedan `deprecated` y responden 410 (AP-CU22-10, AP-CU22-11). `EFECTIVO_ORGANIZADOR` sale del enum de
+    `EntradaLiquidacion`: el organizador no es caja (RN-18).
 
 servers:
   - url: /api/v1
@@ -179,8 +198,11 @@ paths:
   /entregas:
     post:
       operationId: liquidarEntrega              # CU-22
+      deprecated: true
       summary: Liquidar la entrega del turno
       description: >-
+        RETIRADA en 2.2.0 (F1.L2.M09: la unica fuente de una entrega es el fondeo del pozo; el bruto y el recaudado no los afirma el cliente): responde 410 AP-CU22-10 sin efecto.
+
         Una entrega por turno (R-GRP-01) y el neto NUNCA negativo: que las deducciones
         superen la bolsa significa que el beneficiario terminaria debiendo por cobrar
         su turno. Cada deduccion viaja con su tipo y su origen.
@@ -192,6 +214,9 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/EntradaLiquidacion' }
       responses:
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU22-10
         '201':
           description: Entrega liquidada, en estado PROGRAMADA
           content:
@@ -222,8 +247,11 @@ paths:
   /entregas/{entregaId}/ejecucion:
     post:
       operationId: ejecutarEntrega              # CU-22
+      deprecated: true
       summary: Ejecutar la entrega
       description: >-
+        RETIRADA en 2.2.0 (F1.L2.M08: la entrega queda ENTREGADA solo al acreditarse su desembolso, no con un monto del pedido): responde 410 AP-CU22-11 sin efecto.
+
         Quien autoriza NO ejecuta (R-SEG-04). Una sola persona que hace las dos cosas
         puede sacar el fondo entero de un grupo sin que nadie mas lo vea pasar.
       parameters:
@@ -242,6 +270,9 @@ paths:
               properties:
                 montoEntregado: { $ref: '#/components/schemas/Dinero' }
       responses:
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU22-11
         '200':
           description: Entrega ejecutada
           content:
@@ -313,8 +344,13 @@ paths:
   /desembolsos/{ordenId}/respuesta:
     post:
       operationId: anotarRespuestaDesembolso    # CU-28
-      summary: Registrar lo que contesto el proveedor
+      deprecated: true
+      summary: Registrar lo que contesto el proveedor (RETIRADA, responde 410)
       description: >-
+        RETIRADA en 2.1.0 (F1.L2.M05, SEG-005): una persona no puede afirmar que la plata llego. Responde 410
+        AP-CU28-08 sin efecto. La unica via a ACREDITADA es el aviso firmado del proveedor (F3.L2.M02). Se borra
+        del contrato cuando el backoffice deje de llamarla.
+
         La llamada al proveedor la hace quien orquesta, FUERA de esta transaccion
         (invariante 6). Un error definitivo NO se reintenta: insistir contra una cuenta
         que no existe solo demora el momento en que alguien mira el caso, mientras la
@@ -335,6 +371,9 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/SalidaIntentoDesembolso' }
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU28-08: retirada por F1.L2.M05 (2026-11-21), sin efecto
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
   /entregas/pozo-completo:
@@ -848,7 +887,7 @@ components:
     EntradaRegistroCuenta:
       type: object
       additionalProperties: false
-      required: [tipoCuenta, entidadFinanciera, numeroCuenta, numeroCifrado, titularNombre, titularDocumento, moneda]
+      required: [tipoCuenta, entidadFinanciera, numeroCuenta, titularNombre, titularDocumento, moneda]
       properties:
         tipoCuenta:        { type: string, enum: [AHORRO, CORRIENTE, BILLETERA] }
         entidadFinanciera: { type: string, maxLength: 60 }
@@ -860,12 +899,9 @@ components:
             El numero en claro, y **nunca se persiste asi** (CU-18, R-SEG-01). Entra
             solo para derivar el enmascarado que se muestra y el hash con el que se
             detecta la cuenta repetida; las dos derivaciones ocurren ANTES de tocar la
-            base, asi que el numero no llega a ninguna consulta.
-        numeroCifrado:
-          type: string
-          description: >-
-            ya cifrado por el almacen de llaves. **El numero en claro nunca viaja en
-            este campo ni se persiste** (R-SEG-01)
+            base, asi que el numero no llega a ninguna consulta. El cifrado que se guarda
+            tambien sale de este numero, en el servidor (SEG-007): el cliente no manda
+            ningun cifrado.
         titularNombre:    { type: string, maxLength: 120 }
         titularDocumento: { type: string, maxLength: 30 }
         moneda:           { type: string, enum: [BOB, USD] }
@@ -937,8 +973,8 @@ components:
           items: { $ref: '#/components/schemas/DeduccionEntrega' }
         metodoDesembolso:
           type: string
-          enum: [BILLETERA_MOVIL, COMPENSACION_INTERNA, EFECTIVO_ORGANIZADOR, QR_ENVIO,
-                 TRANSFERENCIA_BANCARIA]
+          # Sin EFECTIVO_ORGANIZADOR desde 2.2.0: el organizador no es caja (RN-18, regla 91.5).
+          enum: [BILLETERA_MOVIL, COMPENSACION_INTERNA, QR_ENVIO, TRANSFERENCIA_BANCARIA]
         fechaProgramada: { type: string, format: date }
     SalidaLiquidacion:
       type: object

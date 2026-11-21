@@ -50,15 +50,7 @@ abstract class EscenarioDeDesembolso extends BaseDeEntregas {
 
         var cuenta = transaccion.execute(t -> cuentaCU.registrar(
                 new EntradaRegistro(
-                        "AHORRO",
-                        "Banco de Prueba",
-                        "4012345678",
-                        "cifrado:x",
-                        NOMBRE,
-                        DOCUMENTO,
-                        NOMBRE,
-                        DOCUMENTO,
-                        "BOB"),
+                        "AHORRO", "Banco de Prueba", "4012345678", NOMBRE, DOCUMENTO, NOMBRE, DOCUMENTO, "BOB"),
                 ctx));
         if (cuentaVerificada) {
             transaccion.execute(t -> cuentaCU.verificar(cuenta.cuentaId(), "MICRODEPOSITO", ctx));

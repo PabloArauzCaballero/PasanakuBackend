@@ -11,8 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import bo.aportaya.entregas.aplicacion.CU28EmitirDesembolso;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.Sesiones;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -151,50 +149,30 @@ class DesembolsosControllerWebTest {
         }
 
         @Test
-        @DisplayName("CU-28 · un fallo reintentable dice CUÁNDO se puede volver a intentar")
-        void falloConVentanaDeReintento() throws Exception {
-            when(cu28.anotarRespuesta(any(), any()))
-                    .thenReturn(new CU28EmitirDesembolso.SalidaIntento(
-                            ORDEN, "RECHAZADA", 2, OffsetDateTime.of(2026, 3, 15, 14, 45, 0, 0, ZoneOffset.UTC), true));
-
-            anotar(
-                            """
-                            {"iniciado":"2026-03-15T14:30:00Z","exitoso":false,
-                             "codigoError":"TIEMPO_AGOTADO","mensajeProveedor":"el banco no respondio"}
-                            """)
-                    // 201 y no 200: el contrato declara 200 para esta operacion y el
-                    // codigo devuelve 201. Se fija la conducta REAL, que es la que ve el
-                    // cliente, y la divergencia queda anotada en la deuda de
-                    // scripts/verificar_pruebas_web.py — cambiarla es una decision de
-                    // contrato, no de prueba.
-                    .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.estado").value("RECHAZADA"))
-                    .andExpect(jsonPath("$.numeroIntento").value(2))
-                    // Sin ventana, el reintento es un bucle que llena la cola sola.
-                    .andExpect(jsonPath("$.reintentableEn").exists());
-        }
-
-        @Test
-        @DisplayName("CU-28 · un éxito lleva la referencia con la que después cruza el extracto")
-        void exitoConReferencia() throws Exception {
-            when(cu28.anotarRespuesta(any(), any()))
-                    .thenReturn(new CU28EmitirDesembolso.SalidaIntento(ORDEN, "ACREDITADA", 1, null, true));
-
+        @DisplayName("F1.L2.M05 · un éxito anotado por una persona responde 410 y no acredita ni publica nada")
+        void exitoAnotadoPorPersonaRetirado() throws Exception {
             anotar(
                             """
                             {"iniciado":"2026-03-15T14:30:00Z","exitoso":true,
                              "referenciaProveedor":"BNB-77123"}
                             """)
-                    .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.estado").value("ACREDITADA"));
+                    .andExpect(status().isGone())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU28-08"));
+            // Sin llamada al caso de uso no hay ACREDITADA ni `desembolso_acreditado` en el outbox.
+            verifyNoInteractions(cu28);
+        }
 
-            var capturada = ArgumentCaptor.forClass(CU28EmitirDesembolso.EntradaRespuesta.class);
-            verify(cu28).anotarRespuesta(capturada.capture(), any());
-            org.assertj.core.api.Assertions.assertThat(capturada.getValue().referenciaProveedor())
-                    .as("es contra lo que se cruza el extracto bancario")
-                    .isEqualTo("BNB-77123");
-            org.assertj.core.api.Assertions.assertThat(capturada.getValue().ordenId())
-                    .isEqualTo(ORDEN);
+        @Test
+        @DisplayName("F1.L2.M05 · tampoco se anota un fallo a mano: la respuesta solo la trae el webhook firmado")
+        void falloAnotadoPorPersonaRetirado() throws Exception {
+            anotar(
+                            """
+                            {"iniciado":"2026-03-15T14:30:00Z","exitoso":false,
+                             "codigoError":"TIEMPO_AGOTADO","mensajeProveedor":"el banco no respondio"}
+                            """)
+                    .andExpect(status().isGone())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU28-08"));
+            verifyNoInteractions(cu28);
         }
 
         @Test

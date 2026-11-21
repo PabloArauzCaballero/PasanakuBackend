@@ -66,14 +66,13 @@ class CUIndicadoresFinancierosTest extends BaseDeAportes {
         var antes = aportesDeHoy();
         UUID tx = aplicado.transaccionId().orElseThrow();
 
-        transaccion.execute(x -> reversoCU.ejecutar(
+        Reversos.pedirYAutorizar(
+                transaccion,
+                reversoCU,
                 new EntradaReverso(
-                        "rev-ind-" + tx,
-                        tx,
-                        "ERROR_OPERATIVO",
-                        "Aporte cobrado dos veces por error del canal",
-                        fixtura.usuario()),
-                contextoDe(a.usuario())));
+                        "rev-ind-" + tx, tx, "ERROR_OPERATIVO", "Aporte cobrado dos veces por error del canal"),
+                contextoDe(a.usuario()),
+                fixtura.usuario());
 
         var despues = aportesDeHoy();
         assertThat(antes.total().monto().subtract(despues.total().monto())).isEqualByComparingTo("300.00");

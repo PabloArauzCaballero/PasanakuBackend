@@ -29,16 +29,7 @@ class CU18Test extends BaseDeEntregas {
 
     private EntradaRegistro registro(String numeroEnClaro, String titularNombre, String titularDocumento) {
         return new EntradaRegistro(
-                "AHORRO",
-                "Banco de Prueba",
-                numeroEnClaro,
-                // El cifrado lo hace el almacen de llaves; aca viaja ya cifrado.
-                "cifrado:" + Integer.toHexString(numeroEnClaro.hashCode()),
-                titularNombre,
-                titularDocumento,
-                NOMBRE,
-                DOCUMENTO,
-                "BOB");
+                "AHORRO", "Banco de Prueba", numeroEnClaro, titularNombre, titularDocumento, NOMBRE, DOCUMENTO, "BOB");
     }
 
     @Test
@@ -55,7 +46,7 @@ class CU18Test extends BaseDeEntregas {
         assertThat(contar(
                         """
                         SELECT count(*)::int FROM entregas.cuenta_bancaria_beneficiario
-                         WHERE id = ? AND length(hash_numero_cuenta) = 64 AND numero_cuenta_cifrado LIKE 'cifrado:%'
+                         WHERE id = ? AND length(hash_numero_cuenta) = 64 AND numero_cuenta_cifrado LIKE 'enc:v1:%'
                         """,
                         salida.cuentaId()))
                 .isEqualTo(1);
