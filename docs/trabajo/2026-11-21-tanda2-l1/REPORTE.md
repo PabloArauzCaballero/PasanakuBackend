@@ -33,11 +33,17 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 
 - **Qué falta exactamente:** que `grupos` (L3) consulte `morosos` y `primera-cuota` con identidad de servicio, y que `entregas` y `garantia` (L2) consulten `recaudo` también con identidad de servicio. Después, `aportes` exige `SERVICIO_*` o pertenencia. Hoy `grupos` las consulta con el token de un postulante que todavía no es miembro (`MapeoDePostulacion.java:45`) y en el sorteo.
 - **Dónde quedó:** rama `correcciones/tanda2-l1-bola-aportes`. Compila y las suites de `aportes` están en verde.
 
-### F1.L1.M01 — Importe nunca negativo, parte API (PR #458 (antes #445))
-- **Qué anda:** en `aportes`, el esquema `Importe` en reembolso y disputa devuelve 400 `AP-VAL-01` con el campo. En el cobro y en todas las entradas de `nucleo-financiero`, un importe negativo da 400 `AP-VAL-02` en el borde. El mutante hace fallar 4 pruebas.
-- **Qué no anda:** en `nucleo-financiero` y en el cobro, el 400 es genérico y no señala el campo.
-- **Qué falta exactamente:** usar `Importe` en esas entradas. Eso cambia el tipo que construye la app en `apps/movil/lib/dominio/cu10_recargar_saldo.dart:41`, `cu11_retirar_saldo.dart:37`, `cu12_transferir_saldo.dart:42` y `pantallas/pasanaku/dominio/cu21_cobrar_aporte.dart:39` (L6). Además falta el tipo `Importe` en `plataforma/comun-dominio`.
-- **Dónde quedó:** rama `correcciones/tanda2-l1-importe-contrato`. Compila y está en verde.
+### F1.L1.M01 — Importe nunca negativo, parte API (PR #458 en `dev`; parte `nucleo-financiero` en la rama `correcciones/tanda2-l1-importe-nucleo`, sin PR)
+- **Qué anda:**
+  - En `aportes` (ya en `dev`): `Importe` en reembolso y disputa, que da 400 `AP-VAL-01` con el campo. El cobro dejó de recibir el importe por el cuerpo en la operación nueva de M11.
+  - En la rama `correcciones/tanda2-l1-importe-nucleo` (commit ef39fd33): `nucleo-financiero.yaml` 1.3.0 usa `Importe` en los 13 campos de importe de las 11 entradas, y un negativo da 400 `AP-VAL-01` con el campo.
+  - Lo prueban: `ImporteDeEntradaTest`, que recorre el contrato; las pruebas web de recarga, transferencia y retención negativas; `webTest` 91/91; `integrationTest` en verde salvo 25 pruebas que necesitan Docker. Evidencia en `evidencia/M01b-importe-en-nucleo-financiero.txt`.
+- **Qué no anda:** la rama no está en `dev`. Sin el cambio de la app, el job de Flutter de la CI queda en rojo, porque la clase Dart pasa de `Dinero` a `Importe`.
+- **Qué falta exactamente:**
+  1. Cambiar `Dinero(...)` por `Importe(..., moneda: ImporteMonedaEnum.BOB)` en `apps/movil/lib/dominio/cu10_recargar_saldo.dart:41`, `cu11_retirar_saldo.dart:40` y `cu12_transferir_saldo.dart:45`. Lo hace L4L6, o esta sesión si el coordinador lo autoriza (pregunta enviada).
+  2. Abrir el PR.
+  3. Después de #476, resolver el conflicto de la línea `version` del contrato.
+- **Dónde quedó:** rama `correcciones/tanda2-l1-importe-nucleo`, pusheada. Compila y la regresión está en verde.
 
 ### F1.L1.M08 — Hechos de dinero inmutables (PR #458 (antes #455), apilado sobre #454)
 - **Qué anda:**
