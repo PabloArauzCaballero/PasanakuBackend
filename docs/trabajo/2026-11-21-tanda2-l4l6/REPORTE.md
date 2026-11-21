@@ -50,6 +50,8 @@
 
 | ID | Estado | Qué lo destraba |
 |---|---|---|
+| L1-pedido-bloqueos (b) — pantalla de bloqueos por autoridad en el backoffice | BLOQUEADO | **Necesita `GET /billetera/bloqueos` (L1).** Ni `dev` ni #476 lo tienen: #476 solo agrega `POST /billetera/bloqueos/{bloqueoId}/levantamiento`. La especificación (`docs/Flujo de pantallas · backoffice administrador.md:263`) dice que levantar es una decisión humana (CU-17), pero no define una pantalla de bloqueos. Cuando exista el listado: pantalla con los 4 estados, errores por campo y cuatro ojos (quien registra no levanta), con `BLOQUEO_AUTORIDAD_REGISTRAR` y `_LEVANTAR`. |
+| L1-pedido-bloqueos (a) — mock y clientes con el generador | BLOQUEADO | Se hace apenas #476 entre en `dev`. |
 | F1.L4.M06 (LFT: analista del token, decisión con otro permiso) | TODO | Toca el contrato, el formulario del backoffice y `CU44Test`/`CU44RechazosTest` (Testcontainers). El permiso nuevo `CUMPLIMIENTO_CASOS_DECIDIR` vive en `seeders/minimos/10-roles-y-permisos.json`, que es compartido |
 | F1.L4.M05, M07, M08, M11, M20, M24 (cambios de esquema en `docs/entidades` de identidad/cumplimiento) | TODO | Siguiente sesión del carril; dependen de F0.L4.M04 |
 | F1.L4.M04, M09, M10, M12–M14, M16–M19, M21–M23, M26 | TODO | Siguiente sesión del carril (M15, M17, M21–M23 coordinan con L1 o con `plataforma`) |
