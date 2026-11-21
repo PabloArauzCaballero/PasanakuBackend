@@ -1,0 +1,25 @@
+$ grep -c "\[L-11\]" docs/poder-de-compra/contrato-tipo-comercio.md
+8
+$ grep -n "\[L-11\]" docs/poder-de-compra/contrato-tipo-comercio.md | cut -c1-90
+3:estado: borrador — lo revisa el abogado; las cláusulas marcadas [L-11] dependen de su
+14:> - Las cláusulas marcadas **`[L-11]`** dependen de la opinión legal sobre cómo clas
+32:1.2 **`[L-11]`** La naturaleza jurídica de la relación (venta con pago diferido por e
+79:4.3 **`[L-11]` `[DR]`** El plazo máximo entre el turno y el canje, y qué pasa si venc
+104:el participante puede pedir la anulación. **`[L-11]`** Cómo se restituye el dinero s
+112:[plazo]. **`[L-11]`** La Plataforma no retiene fondos del participante ni del Comercio
+117:7.1 **`[L-11]`** Si, para turnos tempranos, el producto puede quedar como garantía ha
+122:7.2 **`[L-11]` `[DR]`** Turno temprano para personas sin historial pagando cuotas por 
+$ grep -c "98.7" "docs/Arquitectura/ADR-057 Poder de compra · dónde vive el comercio aliado.md"
+5
+$ grep -oE "RF-PX10-0[1-6]" docs/poder-de-compra/pantallas.md | sort -u
+RF-PX10-01
+RF-PX10-02
+RF-PX10-03
+RF-PX10-04
+RF-PX10-05
+RF-PX10-06
+$ git diff --stat origin/dev
+ ...02\267 d\303\263nde vive el comercio aliado.md" | 156 +++++++++++++++++
+ docs/poder-de-compra/contrato-tipo-comercio.md     | 189 +++++++++++++++++++++
+ docs/poder-de-compra/pantallas.md                  | 163 ++++++++++++++++++
+ 3 files changed, 508 insertions(+)

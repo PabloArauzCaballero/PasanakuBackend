@@ -37,63 +37,78 @@ punto vive en una rama hija con ese prefijo, todas desde `origin/dev`:
 ## H1 — Plantilla de RFP y matriz de evaluación (PX0.M10)
 **CA:** Dado un proveedor a contratar, cuando Pablo arma su RFP, entonces parte de una plantilla única con los
 siete criterios comunes, los RM aplicables y una matriz con escala anclada y pesos marcados `DECISION_REQUIRED`.
-**DoD:** `python3 evidencia/cruce_rfp.py plantilla` → los 7 criterios y RM-01..RM-20 presentes. **Estado:** TODO
+**DoD:** `python3 evidencia/cruce_rfp.py plantilla` → los 7 criterios y RM-01..RM-20 presentes. **Estado:** A MEDIAS — microtareas HECHO; falta la revisión y aprobación de Pablo en el PR
+
+### H1.S1 — Documentos de PX0.M10
+**Estado:** HECHO (todas sus microtareas)
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H1.M1 | `docs/proveedores/00-plantilla-rfp.md` | Contiene las secciones fijas y los RM-01..RM-20 | `cruce_rfp.py plantilla` → 0 faltantes | HECHO |
-| H1.M2 | `docs/proveedores/01-matriz-de-evaluacion.md` con los 7 criterios, escala 0–4 anclada, eliminatorios y pesos `DECISION_REQUIRED` | Los 7 criterios de PLAN-PROVEEDORES «Selección» aparecen con su pregunta | `cruce_rfp.py matriz` → 0 faltantes | HECHO |
+| H1.S1.M1 | `docs/proveedores/00-plantilla-rfp.md` | Contiene las secciones fijas y los RM-01..RM-20 | `cruce_rfp.py plantilla` → 0 faltantes | HECHO |
+| H1.S1.M2 | `docs/proveedores/01-matriz-de-evaluacion.md` con los 7 criterios, escala 0–4 anclada, eliminatorios y pesos `DECISION_REQUIRED` | Los 7 criterios de PLAN-PROVEEDORES «Selección» aparecen con su pregunta | `cruce_rfp.py matriz` → 0 faltantes | HECHO |
 
 ## H2 — Ocho RFP listas para enviar
 **CA:** Dado el mercado abierto, cuando Pablo envía la RFP de PX-n, entonces el proveedor recibe todos los RF
 de su sección, los RM aplicables, los casos obligatorios de prueba y lo exigido en seguridad, datos y
 continuidad, sin nombres de empresas ni normas ajenas al repo; PX-1 y PX-2 exigen segundo proveedor.
-**DoD:** `python3 evidencia/cruce_rfp.py rfp` → tabla de cruce sin faltantes, pegada en el PR. **Estado:** TODO
+**DoD:** `python3 evidencia/cruce_rfp.py rfp` → tabla de cruce sin faltantes, pegada en el PR. **Estado:** A MEDIAS — microtareas HECHO; falta la revisión y aprobación de Pablo en el PR
+
+### H2.S1 — Una RFP por proveedor
+**Estado:** HECHO (todas sus microtareas)
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H2.M1 | RFP PX-1 pasarela QR | RF-PX1-01..10 + RM + casos de 3 niveles + segundo proveedor | `cruce_rfp.py rfp PX-1` | HECHO |
-| H2.M2 | RFP PX-2 desembolso | RF-PX2-01..09 + RM + casos + segundo proveedor | `cruce_rfp.py rfp PX-2` | HECHO |
-| H2.M3 | RFP PX-3 banco custodio | RF-PX3-01..07 + RM | `cruce_rfp.py rfp PX-3` | HECHO |
-| H2.M4 | RFP PX-4 KYC | RF-PX4-01..10 + RM + casos | `cruce_rfp.py rfp PX-4` | HECHO |
-| H2.M5 | RFP PX-5 listas y PEP | RF-PX5-01..05 + RM + casos | `cruce_rfp.py rfp PX-5` | HECHO |
-| H2.M6 | RFP PX-6 titularidad | RF-PX6-01..03 + RM + casos | `cruce_rfp.py rfp PX-6` | HECHO |
-| H2.M7 | RFP PX-7 mensajería (SMS principal y respaldo, push, correo; sin WhatsApp) | RF-PX7-01..07 + RM + casos; ninguna mención a WhatsApp salvo la exclusión | `cruce_rfp.py rfp PX-7` | HECHO |
-| H2.M8 | RFP PX-8 facturación autorizada | RF-PX8-01..04 + RM + casos | `cruce_rfp.py rfp PX-8` | HECHO |
-| H2.M9 | Control de contenido prohibido | Sin «WhatsApp» como canal ofrecido, sin nombres de empresas | `grep` documentado en evidencia | HECHO |
+| H2.S1.M1 | RFP PX-1 pasarela QR | RF-PX1-01..10 + RM + casos de 3 niveles + segundo proveedor | `cruce_rfp.py rfp PX-1` | HECHO |
+| H2.S1.M2 | RFP PX-2 desembolso | RF-PX2-01..09 + RM + casos + segundo proveedor | `cruce_rfp.py rfp PX-2` | HECHO |
+| H2.S1.M3 | RFP PX-3 banco custodio | RF-PX3-01..07 + RM | `cruce_rfp.py rfp PX-3` | HECHO |
+| H2.S1.M4 | RFP PX-4 KYC | RF-PX4-01..10 + RM + casos | `cruce_rfp.py rfp PX-4` | HECHO |
+| H2.S1.M5 | RFP PX-5 listas y PEP | RF-PX5-01..05 + RM + casos | `cruce_rfp.py rfp PX-5` | HECHO |
+| H2.S1.M6 | RFP PX-6 titularidad | RF-PX6-01..03 + RM + casos | `cruce_rfp.py rfp PX-6` | HECHO |
+| H2.S1.M7 | RFP PX-7 mensajería (SMS principal y respaldo, push, correo; sin WhatsApp) | RF-PX7-01..07 + RM + casos; ninguna mención a WhatsApp salvo la exclusión | `cruce_rfp.py rfp PX-7` | HECHO |
+| H2.S1.M8 | RFP PX-8 facturación autorizada | RF-PX8-01..04 + RM + casos | `cruce_rfp.py rfp PX-8` | HECHO |
+| H2.S1.M9 | Control de contenido prohibido | Sin «WhatsApp» como canal ofrecido, sin nombres de empresas | `grep` documentado en evidencia | HECHO |
 
 ## H3 — «Poder de compra» (F5), solo diseño
 **CA:** Dado el piloto aceptado como dirección (tandas 5 y 6), cuando Pablo y el abogado revisan, entonces
 encuentran el ADR-057 con la ubicación del agregado del comercio justificada por la regla 98.7, el contrato
 tipo con las cláusulas dependientes de L-11 marcadas, y el diseño de pantallas (canje por QR, precio
 congelado, opción de recibir el dinero siempre disponible).
-**DoD:** revisión de Pablo; `grep -c "L-11"` sobre el contrato > 0 y lista de cláusulas marcadas. **Estado:** TODO
+**DoD:** revisión de Pablo; `grep -c "L-11"` sobre el contrato > 0 y lista de cláusulas marcadas. **Estado:** A MEDIAS — microtareas HECHO; falta la revisión y aprobación de Pablo en el PR
+
+### H3.S1 — Documentos de diseño de F5
+**Estado:** HECHO (todas sus microtareas)
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H3.M1 | ADR-057 (estado `propuesta`) | Opciones evaluadas contra los cuatro criterios de 98.7 y decisión recomendada | Revisión + `grep "98.7"` | TODO |
-| H3.M2 | Contrato tipo con comercios | Cada cláusula que depende de L-11 lleva la marca `[L-11]` | `grep -n "\[L-11\]"` | TODO |
-| H3.M3 | Diseño funcional de pantallas (participante y panel del comercio) | Cubre canje por QR, precio congelado, opción de dinero siempre visible, cuatro estados | Revisión + lista de estados por pantalla | TODO |
+| H3.S1.M1 | ADR-057 (estado `propuesta`) | Opciones evaluadas contra los cuatro criterios de 98.7 y decisión recomendada | Revisión + `grep "98.7"` | HECHO |
+| H3.S1.M2 | Contrato tipo con comercios | Cada cláusula que depende de L-11 lleva la marca `[L-11]` | `grep -n "\[L-11\]"` | HECHO |
+| H3.S1.M3 | Diseño funcional de pantallas (participante y panel del comercio) | Cubre canje por QR, precio congelado, opción de dinero siempre visible, cuatro estados | Revisión + lista de estados por pantalla | HECHO |
 
 ## H4 — Textos nuevos (F3.S8.M1, borrador)
 **CA:** Dado cada texto visible que promete respaldo, revisión humana, WhatsApp u organizador, cuando Pablo
 revisa la tabla, entonces ve su ruta:línea en `dev`, el texto actual y una propuesta alineada a A + D.
-**DoD:** inventario verificado con `sed -n` sobre una muestra; tabla en `docs/textos/`. **Estado:** TODO
+**DoD:** inventario verificado con `sed -n` sobre una muestra; tabla en `docs/textos/`. **Estado:** A MEDIAS — microtareas HECHO; falta la revisión y aprobación de Pablo en el PR
+
+### H4.S1 — Inventario y tabla
+**Estado:** HECHO (todas sus microtareas)
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H4.M1 | Inventario de textos (agente de solo lectura) | Cada fila verificable con `sed -n '<l>p' <ruta>` | Muestra de 15 filas verificada, salida en evidencia | TODO |
-| H4.M2 | Tabla con texto propuesto | Toda fila del inventario tiene propuesta o «eliminar» con motivo | Conteo filas inventario = filas tabla | TODO |
+| H4.S1.M1 | Inventario de textos (agente de solo lectura) | Cada fila verificable con `sed -n '<l>p' <ruta>` | Muestra de 15 filas verificada, salida en evidencia | HECHO |
+| H4.S1.M2 | Tabla con texto propuesto | Toda fila del inventario tiene propuesta o «eliminar» con motivo | Conteo filas inventario = filas tabla | HECHO |
 
 ## H5 — Central de riesgo (PX9.M02), solo diseño
 **CA:** Dado L-04 abierta, cuando Pablo lee el diseño, entonces encuentra el consentimiento (expreso, separado,
 versionado, revocable), el contenido del reporte (solo hechos, nunca antes de `FIRME`), la rectificación y la
 bitácora, todo condicionado a L-04.
-**DoD:** `cruce_rfp.py px9` → RF-PX9-01..04 presentes. **Estado:** TODO
+**DoD:** `cruce_rfp.py px9` → RF-PX9-01..04 presentes. **Estado:** A MEDIAS — microtareas HECHO; falta la revisión y aprobación de Pablo en el PR
+
+### H5.S1 — Documento de diseño PX-9
+**Estado:** HECHO (todas sus microtareas)
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H5.M1 | Diseño del consentimiento y del reporte | RF-PX9-01..04 cubiertos y marcados «condicionado a L-04» | `cruce_rfp.py px9` | HECHO |
+| H5.S1.M1 | Diseño del consentimiento y del reporte | RF-PX9-01..04 cubiertos y marcados «condicionado a L-04» | `cruce_rfp.py px9` | HECHO |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
