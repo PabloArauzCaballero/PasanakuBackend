@@ -36,7 +36,7 @@ if hasattr(sys.stdout, "reconfigure"):
 from collections import defaultdict
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
-from modelo import (MODULOS, FOCO, APPEND_ONLY, PARTICIONADAS, CK_AMPLIADOS,  # noqa: E402
+from modelo import (MODULOS, FOCO, APPEND_ONLY, PARTICIONADAS, CK_AMPLIADOS, CK_ESTRECHADOS,  # noqa: E402
 
                     ESQUEMA, ESQUEMA_CATALOGO, CATALOGO, CATALOGO_ESCRITOR,
                     LIBRO_CONTABLE,
@@ -78,6 +78,9 @@ COLUMNAS_AGREGADAS = {
     ("conciliacion", "moneda"),
     ("excepcion_conciliacion", "moneda"),
     ("extracto_bancario", "moneda"),
+    # 2026-11-21 · F1.L1.M09: la clave del alta de proveedor (CU-99). NULL solo en las
+    # filas de antes; R-BIL-31 la hace unica.
+    ("proveedor_pago", "clave_idempotencia"),
 }
 COMENTARIO_AGREGADA = {}
 
@@ -606,11 +609,19 @@ def generar():
                     "  END LOOP;",
                     "END $$;", ""]
             ampliadas = {ident("ck", tabla, c) for c in CK_AMPLIADOS.get(tabla, [])}
+            estrechadas = {ident("ck", tabla, c) for c in CK_ESTRECHADOS.get(tabla, [])}
             for nombre_ck, expr in checks:
                 if nombre_ck in ampliadas:
                     sql += [f"-- Evolucion: CHECK ampliado (ver CK_AMPLIADOS en modelo.py).",
                             f"ALTER TABLE {q(tabla)} DROP CONSTRAINT IF EXISTS {nombre_ck};",
                             f"ALTER TABLE {q(tabla)} ADD CONSTRAINT {nombre_ck} CHECK ({expr});", ""]
+                elif nombre_ck in estrechadas:
+                    # Un solo ALTER: si el ADD falla por una fila vieja, el DROP se deshace con el y la tabla
+                    # conserva su CHECK anterior. Dos sentencias la dejarian sin CHECK hasta la proxima corrida.
+                    sql += [f"-- Evolucion: CHECK ESTRECHADO (ver CK_ESTRECHADOS en modelo.py). El ADD revalida",
+                            f"-- las filas existentes: falla si queda alguna con un valor retirado, sin tocar el CHECK viejo.",
+                            f"ALTER TABLE {q(tabla)} DROP CONSTRAINT IF EXISTS {nombre_ck},",
+                            f"  ADD CONSTRAINT {nombre_ck} CHECK ({expr});", ""]
             que_es = narrativas.get(tabla, {}).get("queEs")
             desc = comentario(que_es) if que_es else FOCO[k].replace("'", "''")
             marca = " [append-only]" if tabla in APPEND_ONLY else ""

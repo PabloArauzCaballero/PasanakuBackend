@@ -1248,7 +1248,7 @@ components:
             required: [concepto, ventana]
             properties:
               concepto: { type: string }
-              monto:    { type: string, pattern: '^-?\\d+\\.\\d{2}$' }
+              monto:    { type: string, pattern: '^\d+\.\d{2}$' }   # 91.2.2: sin negativos
               ventana:  { type: string }
     EntradaPep:
       type: object
@@ -1336,7 +1336,7 @@ components:
           required: [usuarios, montoOperacion]
           properties:
             usuarios:       { type: integer }
-            montoOperacion: { type: string, pattern: '^-?\\d+\\.\\d{2}$' }
+            montoOperacion: { type: string, pattern: '^\d+\.\d{2}$' }   # 91.2.2: sin negativos
         motivo: { type: string, nullable: true }
     EntradaCasoLft:
       type: object

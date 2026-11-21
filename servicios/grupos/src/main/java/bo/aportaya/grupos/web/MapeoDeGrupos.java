@@ -50,17 +50,25 @@ final class MapeoDeGrupos {
      * del servicio que lleva los pagos.
      */
     static bo.aportaya.grupos.aplicacion.CU65Retirarse.EntradaRetiro entradaDeRetiro(
+            java.util.UUID participanteId,
             bo.aportaya.grupos.web.generado.modelo.EntradaRetiro cuerpo,
             bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios.EstadoDePagos pagos,
             boolean yaCobroSuTurno) {
         var moneda = bo.aportaya.plataforma.dominio.Moneda.valueOf(pagos.moneda());
         return new bo.aportaya.grupos.aplicacion.CU65Retirarse.EntradaRetiro(
-                cuerpo.getParticipanteId(),
+                participanteId,
                 cuerpo.getMotivo(),
                 yaCobroSuTurno,
                 bo.aportaya.plataforma.dominio.Dinero.de(pagos.totalAportado(), moneda),
                 bo.aportaya.plataforma.dominio.Dinero.de(pagos.deudaVigente(), moneda),
                 bo.aportaya.plataforma.dominio.Dinero.de(pagos.porAportar(), moneda));
+    }
+
+    /** Lee el campo deprecado solo para rechazarlo si nombra a otro; se borra con el campo (2027-02-28). */
+    @SuppressWarnings("deprecation")
+    static boolean otroTitularEnElCuerpo(
+            bo.aportaya.grupos.web.generado.modelo.EntradaRetiro cuerpo, java.util.UUID participanteId) {
+        return cuerpo.getParticipanteId() != null && !cuerpo.getParticipanteId().equals(participanteId);
     }
 
     /** El plazo habil, con los dias que salteo y por que los salteo. */

@@ -56,6 +56,9 @@ class _CampoMontoGrandeState extends State<CampoMontoGrande> {
     final t = Tokens.of(context);
     final simbolo = widget.moneda == 'BOB' ? 'Bs' : widget.moneda;
     final cifra = Tipo.cifraGrande.copyWith(color: t.text);
+    // F1.S4.M1: se muestra al vuelo lo que se va a enviar, o el error de formato.
+    final lectura = CampoMonto.lecturaDe(_controlador.text, widget.moneda);
+    final error = widget.error ?? lectura.error;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -122,21 +125,20 @@ class _CampoMontoGrandeState extends State<CampoMontoGrande> {
             width: Espacio.s7 * 3,
             child: Divider(
               height: Espacio.s3,
-              thickness: widget.error == null
-                  ? Borde.fino
-                  : Borde.foco - Borde.fino,
-              color: widget.error == null ? t.border : t.err,
+              thickness: error == null ? Borde.fino : Borde.foco - Borde.fino,
+              color: error == null ? t.border : t.err,
             ),
           ),
         ),
         const SizedBox(height: Espacio.s1),
         Text(
-          widget.error ??
+          error ??
+              lectura.ayuda ??
               widget.ayuda ??
               'Con coma para los centavos: 1.240,50',
           textAlign: TextAlign.center,
           style: Tipo.cuerpoChico.copyWith(
-            color: widget.error == null ? t.text3 : t.errTexto,
+            color: error == null ? t.text3 : t.errTexto,
           ),
         ),
         if (widget.sugeridos.isNotEmpty) ...[

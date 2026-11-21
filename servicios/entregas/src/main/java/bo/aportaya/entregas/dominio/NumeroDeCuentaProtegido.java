@@ -9,9 +9,14 @@ import bo.aportaya.plataforma.dominio.CifradorSimetrico;
  */
 public record NumeroDeCuentaProtegido(CuentaEnmascarada enmascarada, String cifrado) {
 
-    public static NumeroDeCuentaProtegido de(String numeroEnClaro, String pimienta, int versionLlave) {
+    /**
+     * @param pimienta el pepper del hash que deduplica
+     * @param llaveDeCifrado la llave del cifrado que se guarda; propia y distinta de la pimienta (F1.L2.M07)
+     */
+    public static NumeroDeCuentaProtegido de(
+            String numeroEnClaro, String pimienta, int versionLlave, String llaveDeCifrado) {
         return new NumeroDeCuentaProtegido(
                 CuentaEnmascarada.de(numeroEnClaro, pimienta, versionLlave),
-                CifradorSimetrico.cifrar(numeroEnClaro, pimienta));
+                CifradorSimetrico.cifrar(numeroEnClaro, llaveDeCifrado));
     }
 }

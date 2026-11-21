@@ -138,7 +138,12 @@ class CU19Test extends BaseDeAportes {
         assertThat(contar("SELECT monto_pagado::int FROM aportes.obligacion_aporte WHERE id = ?", c.obligacion()))
                 .isZero();
         assertThat(contar(
-                        "SELECT count(*)::int FROM aportes.reembolso WHERE pago_id = ? AND estado = ?",
+                        // F1.L1.M08 · el reembolso es append-only: EJECUTADO vive en su historial (R-BIL-30).
+                        """
+                        SELECT count(*)::int FROM aportes.reembolso r
+                          JOIN aportes.historial_estado_reembolso h ON h.reembolso_id = r.id
+                         WHERE r.pago_id = ? AND h.estado_nuevo = ?
+                        """,
                         c.pago(),
                         "EJECUTADO"))
                 .isEqualTo(1);
@@ -173,9 +178,14 @@ class CU19Test extends BaseDeAportes {
                 soporte));
         ContextoSesion aprobador = contextoDe(fixtura.usuario());
 
-        transaccion.execute(t -> reembolsoCU.aprobar(solicitud.reembolsoId(), aprobador));
+        var primera = transaccion.execute(t -> reembolsoCU.aprobar(solicitud.reembolsoId(), aprobador));
 
-        assertThatThrownBy(() -> transaccion.execute(t -> reembolsoCU.aprobar(solicitud.reembolsoId(), aprobador)))
+        // F1.L1.M09: el reintento de quien ya aprobo es idempotente (misma respuesta, sin efecto nuevo);
+        // cualquier otra aprobacion sobre el reembolso ya ejecutado se rechaza.
+        var reintento = transaccion.execute(t -> reembolsoCU.aprobar(solicitud.reembolsoId(), aprobador));
+        assertThat(reintento).isEqualTo(primera);
+        ContextoSesion otro = contextoDe(fixtura.usuario());
+        assertThatThrownBy(() -> transaccion.execute(t -> reembolsoCU.aprobar(solicitud.reembolsoId(), otro)))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("ya no esta solicitado");
         assertThat(contar("SELECT monto_pagado::int FROM aportes.obligacion_aporte WHERE id = ?", c.obligacion()))

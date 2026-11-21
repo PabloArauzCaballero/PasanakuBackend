@@ -31,10 +31,10 @@
 ### H1.S1 — F1 del anexo L3 (servicio `grupos`)
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| F1.L3.M04 | Retiro de un grupo solo para quien llama (SEG-001) | El creador pidiendo el retiro de otro → 403/404, sin fila | Prueba web negativa (otro usuario, otro grupo, sin token, rol insuficiente) | TODO |
-| F1.L3.M06 | Estados vivos del grupo únicos (DEFECTO-002) | Participante de grupo `EN_CURSO` cuenta ≥ 1 | Prueba de paridad enum↔`CHECK` + unitaria | TODO |
-| F1.L3.M07 | Resolver acuerdo con precondición en el `UPDATE` (DEFECTO-003) | Dos votos decisivos → un solo `acuerdo_resuelto` | Prueba contra PostgreSQL local | TODO |
-| F1.L3.M05 | Traspaso de cupo con KYC real (SEG-004) | KYC no aprobado → 422; identidad caída → 503 | Unitaria con doble en tres niveles | TODO |
+| F1.L3.M04 | Retiro de un grupo solo para quien llama (SEG-001) | El creador pidiendo el retiro de otro → 403/404, sin fila | `./gradlew :servicios:grupos:webTest --tests '*GruposRetiroWebTest'` (matriz negativa) | A MEDIAS (app HECHO; RLS en base pendiente: bloque genérico compartido) |
+| F1.L3.M06 | Estados vivos del grupo únicos (DEFECTO-002) | Participante de grupo `EN_CURSO` cuenta ≥ 1 | `EstadosContraElModeloTest` + consulta vieja/nueva por `psql` | HECHO |
+| F1.L3.M07 | Resolver acuerdo con precondición en el `UPDATE` (DEFECTO-003) | Dos votos decisivos → un solo `acuerdo_resuelto` | Carrera con dos conexiones `psql` + `ResolucionDeAcuerdoTest` | HECHO |
+| F1.L3.M05 | Traspaso de cupo con KYC real (SEG-004) | KYC no aprobado → 422; identidad caída → 503 | `TraspasoKycDelEntranteWebTest` (tres niveles + reintento) | A MEDIAS (caída → 422 fail-closed, no 503) |
 | F1.L3.M03 | Destino de transferencia por identificador único (DINERO-002) | Homónimos → 422 | Toca `nucleo-financiero` e `identidad`: solo la parte de `grupos` | TODO |
 | F1.L3.M08 | Importes con moneda y `CHECK >= 0` en `grupos` (DINERO-003) | `INSERT` negativo falla en la base | `generar_ddl.py` + psql | TODO |
 | F1.L3.M09 | Secreto de invitación fuera del path | — | Toca `apps/movil`: fuera de alcance | TODO |

@@ -15,7 +15,7 @@
         "limitesNuevos": [
           {
             "concepto": "concepto",
-            "monto": "\\d\\O\\dd",
+            "monto": "15000.00",
             "ventana": "ventana"
           }
         ]
@@ -41,7 +41,7 @@
         "limitesNuevos": [
           {
             "concepto": "concepto",
-            "monto": "\\d\\O\\dd",
+            "monto": "15000.00",
             "ventana": "ventana"
           }
         ]
@@ -58,7 +58,7 @@
         "limitesNuevos": [
           {
             "concepto": "concepto",
-            "monto": "\\d\\O\\dd",
+            "monto": "15000.00",
             "ventana": "ventana"
           }
         ]

@@ -152,6 +152,17 @@ class GarantiaControllerWebTest {
         }
 
         @Test
+        @DisplayName("F1.L2.M04 · 400: un importe negativo en la disolucion no llega al caso de uso")
+        void importeNegativo() throws Exception {
+            mvc.perform(post("/garantia/grupos/{id}/disolucion", GRUPO)
+                            .with(Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(CUERPO.replace("\"monto\":\"3000.00\"", "\"monto\":\"-3000.00\"")))
+                    .andExpect(status().isBadRequest());
+            verifyNoInteractions(cu67);
+        }
+
+        @Test
         @DisplayName("CU-67 · 400: una causal de disolución que el contrato no enumera")
         void causalFueraDelContrato() throws Exception {
             mvc.perform(post("/garantia/grupos/{id}/disolucion", GRUPO)

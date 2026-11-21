@@ -91,8 +91,11 @@ abstract class BaseDeCompensacion extends BaseDeAportes {
     }
 
     protected String estadoDelPago(UUID pago) {
-        return (String) dsl.fetchOne("SELECT estado FROM aportes.pago WHERE id = ?", pago)
-                .get(0);
+        // F1.L1.M08 · el estado vigente sale del historial (R-BIL-30), no de la columna de alta.
+        return new bo.aportaya.aportes.infraestructura.PagoRepositorio()
+                .ver(dsl, pago)
+                .orElseThrow()
+                .estado();
     }
 
     protected BigDecimal pagadoDe(UUID obligacion) {
@@ -108,7 +111,13 @@ abstract class BaseDeCompensacion extends BaseDeAportes {
     /** Cuadre: lo pagado de la obligacion es la suma de sus pagos que siguen en pie (no reversados). */
     protected BigDecimal pagosVigentes(UUID obligacion) {
         return (BigDecimal) dsl.fetchOne(
-                        "SELECT COALESCE(SUM(monto), 0) FROM aportes.pago WHERE obligacion_id = ? AND estado = 'ACREDITADO'",
+                        // F1.L1.M08 · vigente = la ultima fila del historial (R-BIL-30), no la columna de alta.
+                        """
+                        SELECT COALESCE(SUM(p.monto), 0) FROM aportes.pago p
+                         WHERE p.obligacion_id = ?
+                           AND COALESCE((SELECT h.estado_nuevo FROM aportes.historial_estado_pago h WHERE h.pago_id = p.id
+                                          ORDER BY h.fecha_hora DESC, h.id DESC LIMIT 1), p.estado) = 'ACREDITADO'
+                        """,
                         obligacion)
                 .get(0);
     }

@@ -41,6 +41,9 @@ abstract class BaseDeEntregas {
      */
     protected static final String PIMIENTA = "pimienta-de-prueba-no-es-la-de-produccion";
 
+    /** La llave del cifrado del numero de cuenta: de prueba y distinta de la pimienta (F1.L2.M07). */
+    protected static final String LLAVE_DE_CIFRADO = "llave-de-cifrado-de-prueba-no-es-la-de-produccion";
+
     protected static final int VERSION_LLAVE = 1;
     protected static final int MAXIMO_DE_CUENTAS = 3;
     protected static final Duration ENFRIAMIENTO = Duration.ofHours(24);
@@ -78,7 +81,15 @@ abstract class BaseDeEntregas {
         var entregas = new EntregaRepositorio();
 
         cuentaCU = new CU18RegistrarCuentaDestino(
-                datos, cuentas, outbox, Reloj.delSistema(), PIMIENTA, VERSION_LLAVE, MAXIMO_DE_CUENTAS, ENFRIAMIENTO);
+                datos,
+                cuentas,
+                outbox,
+                Reloj.delSistema(),
+                PIMIENTA,
+                LLAVE_DE_CIFRADO,
+                VERSION_LLAVE,
+                MAXIMO_DE_CUENTAS,
+                ENFRIAMIENTO);
         entregaCU = new CU22LiquidarEntrega(datos, entregas, outbox, Reloj.delSistema());
         // En produccion Spring abre la transaccion en @Transactional; aca se arma a mano, asi que el
         // doble la abre alrededor de la escritura LOCAL y nada mas: las preguntas a otros servicios

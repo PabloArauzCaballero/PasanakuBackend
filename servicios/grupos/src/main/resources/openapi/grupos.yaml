@@ -576,6 +576,11 @@ paths:
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU65-01 PARTICIPANTE_NO_ACTIVO · AP-CU65-02 POSICION_DEUDORA_SIN_PLAN
           # AP-CU65-03 RETIRO_RECHAZADO_POR_GRUPO
+        '403':
+          description: Quien llama no es participante activo del grupo, o el `participanteId` deprecado no es el suyo (AP-SEG-01)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
 
   /grupos/{grupoId}/cupos/{cupoId}/traspasos:
     post:
@@ -1460,9 +1465,15 @@ components:
     EntradaRetiro:
       type: object
       additionalProperties: false
-      required: [participanteId, motivo]
+      required: [motivo]
       properties:
-        participanteId:   { type: string, format: uuid }
+        participanteId:
+          type: string
+          format: uuid
+          deprecated: true
+          description: >-
+            DEPRECADO (F1.L3.M04, retiro 2027-02-28). Se retira siempre quien llama, del grupo de la
+            ruta. Si se envía y no es el participante de quien llama, la respuesta es 403.
         motivo:           { type: string, minLength: 10, maxLength: 400 }
         aceptaPlanDePago: { type: boolean, default: false }
     SalidaRetiro:
