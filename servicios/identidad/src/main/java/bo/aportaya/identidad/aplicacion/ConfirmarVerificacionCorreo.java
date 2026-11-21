@@ -3,12 +3,12 @@ package bo.aportaya.identidad.aplicacion;
 import bo.aportaya.identidad.dominio.ResultadoConfirmacionCorreo;
 import bo.aportaya.identidad.infraestructura.VerificacionCorreoRepositorio;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
+import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Reloj;
 import java.time.ZoneOffset;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 
 /** Valida el OTP exacto y lo consume para que pueda respaldar una sola alta. */
 @Service
