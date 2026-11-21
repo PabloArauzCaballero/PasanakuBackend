@@ -34,7 +34,7 @@ normas: [Regla 91 (dinero), ADR-056 §6, DECISIONES tandas 1, 6 y 7]
    monto (`R-TAR-15`).
 3. Al iniciar un grupo, el sistema escribe una fila de [[parametro_congelado_grupo]] por parámetro y nivel con la
    versión aprobada vigente (`R-TAR-17`). Un cambio posterior solo rige para grupos nuevos (ADR-056 §6), igual que
-   la tarifa congelada (`R-TAR-07`).
+   la tarifa congelada de [[CU-20 Crear grupo y congelar tarifario]].
 
 ## Flujos alternativos
 
@@ -79,7 +79,7 @@ normas: [Regla 91 (dinero), ADR-056 §6, DECISIONES tandas 1, 6 y 7]
 
 ## Restricciones aplicables
 
-`R-TAR-07` · `R-TAR-14` · `R-TAR-15` · `R-TAR-16` · `R-TAR-17`
+`R-TAR-14` · `R-TAR-15` · `R-TAR-16` · `R-TAR-17`
 
 ## Evidencia que deja
 
@@ -87,10 +87,14 @@ normas: [Regla 91 (dinero), ADR-056 §6, DECISIONES tandas 1, 6 y 7]
 
 ## Criterios de aceptación
 
-Hoy los sostiene la base (`docs/trabajo/2026-11-21-tanda2-l3l5/evidencia/F3.S8.M2a-modelo-parametros.txt`); las
-pruebas de la aplicación llegan con F3.S8.M2b y M6.
+Los prueba `CU132Test` contra PostgreSQL (F3.S8.M2b); la base los sostiene además por su cuenta
+(`docs/trabajo/2026-11-21-tanda2-l3l5/evidencia/F3.S8.M2a-modelo-parametros.txt`).
 
 ```gherkin
+Dada una versión de parámetro propuesta por una persona
+Cuando otra persona la aprueba con su propio token
+Entonces la versión queda APROBADA y rige desde su vigencia
+
 Dada una versión de parámetro propuesta por una persona
 Cuando la misma persona intenta aprobarla
 Entonces la aprobación se rechaza y la versión sigue PROPUESTA

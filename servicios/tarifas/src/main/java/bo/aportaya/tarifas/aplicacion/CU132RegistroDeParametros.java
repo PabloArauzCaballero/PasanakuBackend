@@ -34,7 +34,7 @@ public class CU132RegistroDeParametros {
     private static final CodigoError INCOHERENTE = CodigoError.de(132, 2);
     private static final CodigoError MISMA_PERSONA = CodigoError.de(132, 3);
     private static final CodigoError YA_RESUELTA = CodigoError.de(132, 4);
-    private static final CodigoError CLAVE_REUTILIZADA = CodigoError.de(132, 5);
+    private static final CodigoError REINTENTO_DISTINTO = CodigoError.de(132, 5);
 
     private final Datos datos;
     private final ParametroRepositorio parametros;
@@ -118,7 +118,8 @@ public class CU132RegistroDeParametros {
             // Sin id: la clave ya estaba. Es la misma propuesta (reintento) o una distinta con la clave reutilizada.
             VersionDelParametro previa = parametros.porClave(dsl, clave).orElseThrow();
             if (!esLaMisma(previa, nueva)) {
-                throw new ErrorDeNegocio(CLAVE_REUTILIZADA, "Esa clave de idempotencia ya se usó para otra propuesta.");
+                throw new ErrorDeNegocio(
+                        REINTENTO_DISTINTO, "Esa clave de idempotencia ya se usó para otra propuesta.");
             }
             return previa;
         });
