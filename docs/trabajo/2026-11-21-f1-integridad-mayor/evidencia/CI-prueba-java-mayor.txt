@@ -1,0 +1,16 @@
+$ python3 scripts/verificar_criterios.py
+casos de uso implementados y verificados: 108
+pendientes de implementar (3): CU-05 (identidad), CU-51 (aportes), CU-57 (nucleo-financiero)
+Sin divergencias entre la boveda y el codigo.
+
+$ ./gradlew :servicios:nucleo-financiero:spotlessJavaCheck   # CU24MayorInviolableTest NO aparece; los 3 listados son heredados de dev
+> The following files had format violations:
+      src/main/java/bo/aportaya/nucleofinanciero/aplicacion/CU10RecargarSaldo.java
+      src/main/java/bo/aportaya/nucleofinanciero/aplicacion/CU12TransferirSaldo.java
+      src/main/java/bo/aportaya/nucleofinanciero/aplicacion/CU24RegistrarAsiento.java
+  Run './gradlew :servicios:nucleo-financiero:spotlessApply' to fix these violations.
+BUILD FAILED in 13s
+
+$ ./gradlew :servicios:nucleo-financiero:compileTestJava
+> Task :servicios:nucleo-financiero:compileTestJava
+BUILD SUCCESSFUL in 9s

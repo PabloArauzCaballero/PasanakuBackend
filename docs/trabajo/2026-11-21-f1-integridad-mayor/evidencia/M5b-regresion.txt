@@ -1,0 +1,10 @@
+$ evidencia/regresion.sh reg_final   # esquema regenerado final (HEAD de la rama): aplicar + semillas + dev + humo + verificaciones
+aplicar.sql exit=0
+60_semillas/sembrar.sql exit=0
+61_dev/sembrar_dev.sql exit=0
+humo: OK=165 FALLA=0 ERROR=1
+verificaciones: lineas_no_vacias=0
+$ diff <(grep -v ^psql humo_origin_dev) <(grep -v ^psql humo_rama) && echo humo-identico
+humo-identico
+$ grep ERROR humo_rama
+psql:50_verificacion/prueba_humo.sql:99: ERROR:  R-BIL-01: transacción 33333333-3333-3333-3333-333333333333 descuadrada (D=0.00, C=100.00)

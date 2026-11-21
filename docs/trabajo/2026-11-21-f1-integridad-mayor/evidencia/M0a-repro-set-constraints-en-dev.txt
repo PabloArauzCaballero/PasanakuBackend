@@ -1,0 +1,14 @@
+$ psql -f evidencia/repro_set_constraints.sql   # origin/dev
+SET
+BEGIN
+INSERT 0 1
+INSERT 0 2
+SET CONSTRAINTS
+INSERT 0 1
+COMMIT
+RESET
+                  id                  | lineas |  debe   | haber  
+--------------------------------------+--------+---------+--------
+ 00000000-0000-0000-0000-0000000000b1 |      3 | 1099.00 | 100.00
+(1 row)
+
