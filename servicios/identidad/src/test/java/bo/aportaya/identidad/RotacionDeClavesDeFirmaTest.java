@@ -157,13 +157,21 @@ class RotacionDeClavesDeFirmaTest {
     }
 
     @Test
-    @DisplayName("rechaza: clave-firma vacía en perfil de producción falla al arrancar (fail closed)")
-    void claveVaciaEnProduccionFalla() {
-        var entorno = new org.springframework.mock.env.MockEnvironment();
-        entorno.setActiveProfiles("production");
-
-        assertThatThrownBy(() -> new EmisorDeAcceso("", "", entorno))
+    @DisplayName("rechaza: clave-firma vacía fuera de un entorno descartable falla al arrancar, sea cual sea el perfil")
+    void claveVaciaFueraDeEntornoDescartableFalla() {
+        // F1.L4.M03: antes solo fallaba con los perfiles staging/production y TEST corre con
+        // `local`. Ahora decide la declaracion explicita, no el nombre del perfil.
+        assertThatThrownBy(() -> new EmisorDeAcceso("", "", false))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("Fail closed");
+                .hasMessageContaining("Fail closed")
+                .hasMessageContaining("entorno descartable");
+    }
+
+    @Test
+    @DisplayName("en un entorno descartable declarado, la clave vacía se genera en memoria")
+    void claveVaciaEnEntornoDescartableArranca() {
+        var emisor = new EmisorDeAcceso("", "", true);
+
+        assertThat((List<?>) emisor.jwks().get("keys")).hasSize(1);
     }
 }

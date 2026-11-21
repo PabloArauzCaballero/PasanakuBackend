@@ -389,6 +389,7 @@ ALTER TABLE expediente_cliente
 | R-BIL-29 | Reembolso, disputa, conciliación, excepción de conciliación y extracto bancario llevan su moneda ISO-4217 al lado del importe | Ningún importe sin moneda (regla 91.1.2) | [[CU-19 Reembolsar un pago y atender una disputa]] |
 | R-BIL-30 | El pago y el reembolso no se editan: su estado vigente es la última fila de su historial append-only, y desde cada estado se sale una sola vez | Hechos de dinero inmutables (regla 91.1.3, R-AUD-01) | [[CU-19 Reembolsar un pago y atender una disputa]] |
 | R-BIL-31 | Un alta de proveedor por clave de idempotencia: reintentar el alta devuelve el mismo proveedor | Idempotencia de las operaciones con efecto (regla 91.1.4, 91.2.4) | [[CU-99 Dar de alta un proveedor de pago y enrutar el cobro]] |
+| R-BIL-32 | El bloqueo de saldo por autoridad lo levanta una persona distinta de quien lo registró, cada una desde su token, y al levantarlo vuelve el saldo retenido | Segregación de funciones (R-SEG-04, regla 91.4) | [[CU-17 Bloquear saldo por orden de autoridad]] |
 
 ```sql
 -- R-BIL-01 · partida doble interna (diferido: se valida al COMMIT)
@@ -864,6 +865,12 @@ CREATE UNIQUE INDEX uq_historial_estado_reembolso_salida
 CREATE UNIQUE INDEX uq_proveedor_pago_clave
   ON proveedor_pago (clave_idempotencia)
   WHERE clave_idempotencia IS NOT NULL;
+
+-- R-BIL-32 · cuatro ojos en el bloqueo por autoridad (F1.L1.M10). registrado_por llega
+-- por 15_infra/columnas_agregadas.sql; NULL solo en las filas de antes.
+ALTER TABLE bloqueo_saldo
+  ADD CONSTRAINT ck_bloqueo_saldo_cuatro_ojos
+  CHECK (levantada_por IS NULL OR registrado_por IS NULL OR levantada_por <> registrado_por);
 ```
 
 ---

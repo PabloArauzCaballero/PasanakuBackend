@@ -10,7 +10,6 @@ import bo.aportaya.cumplimiento.dominio.HabilitacionDeServicio;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import java.math.BigDecimal;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
@@ -53,10 +52,10 @@ class CU46Test extends BaseDeCumplimiento {
         fixtura.licencia("OTORGADA", ALCANCE_COMPLETO, null);
         fixtura.sandbox("TRANSFERENCIA_P2P", 500, new BigDecimal("1000.00"));
 
-        SalidaAlcance quinientos = transaccion.execute(
-                e -> alcanceCU.ejecutar(new EntradaAlcance("TRANSFERENCIA_P2P", Optional.empty(), 499), contexto()));
-        SalidaAlcance quinientosUno = transaccion.execute(
-                e -> alcanceCU.ejecutar(new EntradaAlcance("TRANSFERENCIA_P2P", Optional.empty(), 500), contexto()));
+        SalidaAlcance quinientos =
+                transaccion.execute(e -> alcanceCU.ejecutar(new EntradaAlcance("TRANSFERENCIA_P2P", 499), contexto()));
+        SalidaAlcance quinientosUno =
+                transaccion.execute(e -> alcanceCU.ejecutar(new EntradaAlcance("TRANSFERENCIA_P2P", 500), contexto()));
 
         assertThat(quinientos.habilitado()).isTrue();
         assertThat(quinientos.via()).isEqualTo("SANDBOX");

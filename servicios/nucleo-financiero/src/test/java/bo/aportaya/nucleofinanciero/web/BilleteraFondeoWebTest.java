@@ -48,6 +48,16 @@ class BilleteraFondeoWebTest extends BaseDeOperacionesWeb {
                     .formatted(CUENTA);
 
     @Test
+    @DisplayName("F1.L1.M01 · recarga con importe negativo: 400 en el borde, sin llegar al caso de uso")
+    void recargaNegativa() throws Exception {
+        mvc.perform(operar(post("/billetera/recargas"), RECARGA.replace("500.00", "-500.00"), "BILLETERA_OPERAR"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.codigo").value("AP-VAL-02"));
+        verifyNoInteractions(recargas);
+        verifyNoInteractions(cu10);
+    }
+
+    @Test
     @DisplayName("recarga · 201 con lo que se acreditará y el QR dinámico; la Idempotency-Key llega como clave")
     void recarga() throws Exception {
         when(recargas.solicitarConQr(any(), any()))

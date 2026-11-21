@@ -1,0 +1,20 @@
+$ git stash (código de dev) && ./gradlew :servicios:nucleo-financiero:testBarrido :servicios:aportes:testBarrido --continue
+SinImportesEnLogsBarridoTest > sin-importes-en-logs: ningun log de este servicio escribe un importe (regla 90.2.1) FAILED
+    Expecting empty but was: ["src/main/java/bo/aportaya/nucleofinanciero/aplicacion/CU12TransferirSaldo.java: BITACORA.info( "CU-12 · Transferencia P2P ejecutada: transaccion={}, origen={}, destino={}, monto={}", transaccionId, origen.id(), destino.id(), ent
+4 tests completed, 1 failed
+SinImportesEnLogsBarridoTest > sin-importes-en-logs: ningun log de este servicio escribe un importe (regla 90.2.1) FAILED
+    Expecting empty but was: ["src/main/java/bo/aportaya/aportes/aplicacion/CU21CobrarAporte.java: BITACORA.info( "CU-21 · Aporte cobrado registrado: pago={}, obligacion={}, monto={}, estado={}", pagoId, obligacion.id(), entrada.monto(), estadoNuevo);"]
+4 tests completed, 1 failed
+BUILD FAILED in 8s
+
+$ (con el cambio) ./gradlew :servicios:{nucleo-financiero,aportes}:spotlessApply spotlessCheck testBarrido --max-workers=1
+BUILD SUCCESSFUL in 1m 10s
+$ (re-corrida) ./gradlew :servicios:nucleo-financiero:testBarrido :servicios:aportes:testBarrido
+exit=0
+testsuite name="bo.aportaya.aportes.BarridoTest" tests="2" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.aportes.SinImportesEnLogsBarridoTest" tests="2" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.nucleofinanciero.BarridoTest" tests="2" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.nucleofinanciero.SinImportesEnLogsBarridoTest" tests="2" skipped="0" failures="0" errors="0"
+
+$ grep -rn 'monto={}' servicios/aportes/src/main servicios/nucleo-financiero/src/main
+(sin resultados, exit=1)

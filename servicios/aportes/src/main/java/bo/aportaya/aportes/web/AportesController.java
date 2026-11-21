@@ -82,7 +82,12 @@ public class AportesController implements AportesApi {
     public ResponseEntity<EstadoDelParticipante> consultarEstadoDelParticipante(UUID participanteId) {
         Traza.marcarCasoDeUso("CU-21", participanteId.toString());
 
-        var estado = estados.ejecutar(participanteId, sesion.actual());
+        // F1.L1.M07 (BOLA): el estado de otro participante es 404, sin confirmar que existe.
+        var encontrado = estados.delUsuario(participanteId, sesion.actual());
+        if (encontrado.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        var estado = encontrado.get();
 
         var respuesta = new EstadoDelParticipante();
         respuesta.setAlDia(estado.alDia());

@@ -436,6 +436,24 @@
           "exige_motivo": true
         },
         {
+          "codigo": "BLOQUEO_AUTORIDAD_REGISTRAR",
+          "descripcion": "Registrar un bloqueo de saldo ordenado por una autoridad",
+          "recurso": "bloqueo_saldo",
+          "accion": "REGISTRAR",
+          "requiere_mfa": true,
+          "nivel_riesgo": "CRITICO",
+          "exige_motivo": true
+        },
+        {
+          "codigo": "BLOQUEO_AUTORIDAD_LEVANTAR",
+          "descripcion": "Levantar un bloqueo de saldo por autoridad (otra persona que quien lo registro)",
+          "recurso": "bloqueo_saldo",
+          "accion": "LEVANTAR",
+          "requiere_mfa": true,
+          "nivel_riesgo": "CRITICO",
+          "exige_motivo": true
+        },
+        {
           "codigo": "ENTREGA_AUTORIZAR",
           "descripcion": "Autorizar una entrega de fondo",
           "recurso": "entrega_fondo",
@@ -1011,6 +1029,26 @@
           },
           "permiso_id": {
             "$ref": "permiso",
+            "codigo": "BLOQUEO_AUTORIDAD_REGISTRAR"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "OFICIAL_CUMPLIMIENTO"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "BLOQUEO_AUTORIDAD_LEVANTAR"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "OFICIAL_CUMPLIMIENTO"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
             "codigo": "BILLETERA_VER_TERCEROS"
           }
         },
@@ -1042,6 +1080,16 @@
           "permiso_id": {
             "$ref": "permiso",
             "codigo": "DATOS_SENSIBLES_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "ANALISTA_CUMPLIMIENTO"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "BLOQUEO_AUTORIDAD_REGISTRAR"
           }
         },
         {

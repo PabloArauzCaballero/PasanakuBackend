@@ -628,6 +628,7 @@ ALTER TABLE nucleo_financiero.asiento_contable ALTER COLUMN registrado_por DROP 
 ALTER TABLE nucleo_financiero.bloqueo_saldo ALTER COLUMN levantada_por DROP NOT NULL;
 ALTER TABLE nucleo_financiero.bloqueo_saldo ALTER COLUMN levantado_en DROP NOT NULL;
 ALTER TABLE nucleo_financiero.bloqueo_saldo ALTER COLUMN monto_bloqueado DROP NOT NULL;
+ALTER TABLE nucleo_financiero.bloqueo_saldo ALTER COLUMN registrado_por DROP NOT NULL;
 ALTER TABLE nucleo_financiero.bloqueo_saldo ALTER COLUMN retencion_id DROP NOT NULL;
 ALTER TABLE nucleo_financiero.bloqueo_saldo ALTER COLUMN vence_en DROP NOT NULL;
 ALTER TABLE nucleo_financiero.cierre_diario ALTER COLUMN reabierto_en DROP NOT NULL;

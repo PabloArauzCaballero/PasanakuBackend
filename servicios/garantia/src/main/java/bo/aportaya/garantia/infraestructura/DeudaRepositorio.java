@@ -3,7 +3,6 @@ package bo.aportaya.garantia.infraestructura;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.Moneda;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 import org.jooq.DSLContext;
@@ -24,43 +23,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class DeudaRepositorio {
-
-    /** La deuda que la cobertura deja: el fondo pago, y alguien la debe. */
-    public UUID registrarDeuda(
-            DSLContext dsl,
-            UUID usuarioId,
-            UUID participanteId,
-            UUID grupoId,
-            UUID registroId,
-            UUID coberturaId,
-            String acreedor,
-            Dinero capital,
-            LocalDate exigibilidad,
-            LocalDate prescripcion) {
-
-        UUID id = UUID.randomUUID();
-        dsl.insertInto(DSL.table(DSL.name("garantia", "deuda_participante")))
-                .set(DSL.field("id", UUID.class), id)
-                .set(DSL.field("usuario_id", UUID.class), usuarioId)
-                .set(DSL.field("participante_id", UUID.class), participanteId)
-                .set(DSL.field("grupo_id", UUID.class), grupoId)
-                .set(DSL.field("registro_id", UUID.class), registroId)
-                .set(DSL.field("cobertura_id", UUID.class), coberturaId)
-                .set(DSL.field("acreedor", String.class), acreedor)
-                .set(DSL.field("capital_original", BigDecimal.class), capital.monto())
-                .set(DSL.field("recargos_acumulados", BigDecimal.class), BigDecimal.ZERO)
-                .set(DSL.field("total_abonado", BigDecimal.class), BigDecimal.ZERO)
-                .set(DSL.field("saldo_actual", BigDecimal.class), capital.monto())
-                .set(DSL.field("moneda", String.class), capital.moneda().name())
-                .set(DSL.field("estado", String.class), "VIGENTE")
-                .set(DSL.field("es_subrogada", Boolean.class), false)
-                .set(DSL.field("fecha_exigibilidad", LocalDate.class), exigibilidad)
-                .set(DSL.field("fecha_prescripcion", LocalDate.class), prescripcion)
-                .set(DSL.field("dias_vencida", Short.class), (short) 0)
-                .set(DSL.field("version", Integer.class), 0)
-                .execute();
-        return id;
-    }
 
     public Optional<Deuda> deudaDe(DSLContext dsl, UUID registroId) {
         return dsl.select(

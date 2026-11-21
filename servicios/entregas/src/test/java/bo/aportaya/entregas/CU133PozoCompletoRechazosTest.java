@@ -13,27 +13,26 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * H8.S1.M2/M4/M6 · El pozo completo: el limite sin reserva, los dependidos caidos, el periodo
- * ajeno, el respaldo inconsistente y lo que la base exige por su cuenta.
+ * H8.S1.M2/M4/M6 · El pozo completo: el limite de un centavo, aportes caido, la escritura local que
+ * falla, el periodo ajeno y lo que la base exige por su cuenta.
  *
- * <p>Complementa a {@link CU133PozoCompletoTest}; aportes y garantia son los mismos dobles de tres
- * niveles (regla 65).
+ * <p>Complementa a {@link CU133PozoCompletoTest}; aportes es el mismo doble de tres niveles (regla 65).
+ * El respaldo empresarial se retiro (F2.L2.M01): no hay garantia caida ni respaldo inconsistente que probar.
  */
 class CU133PozoCompletoRechazosTest extends BaseDePozoCompleto {
 
     @Test
     @DisplayName(
-            "LIMITE · Dado un grupo sin reserva vigente · Cuando se fondea · Entonces CON_PENDIENTE por el faltante completo")
-    void sinReserva() {
+            "LIMITE · Dado un faltante de un centavo · Cuando se fondea · Entonces CON_PENDIENTE por ese centavo y la empresa no cubre nada")
+    void faltaUnCentavo() {
         var c = caso();
-        aportesConfirma(c, "5000.00");
-        garantiaDoble.conDisponible(bob("8000.00"));
-        garantiaDoble.sinReserva(true);
+        aportesConfirma(c, "5999.99");
 
         var salida = fondear(c, "fondeo-7-" + c.e().turnoId());
 
+        // Nadie redondea a favor de la entrega: un centavo que falta es un centavo de deuda conservada.
         assertThat(salida.estadoDelFondeo()).isEqualTo("CON_PENDIENTE");
-        assertThat(salida.cifras().pendiente()).isEqualTo(bob("1000.00"));
+        assertThat(salida.cifras().pendiente()).isEqualTo(bob("0.01"));
         assertThat(salida.cifras().cubiertoEmpresa().esCero()).isTrue();
     }
 
@@ -43,14 +42,12 @@ class CU133PozoCompletoRechazosTest extends BaseDePozoCompleto {
     void aportesCaido() {
         var c = caso();
         aportesDoble.seCae();
-        garantiaDoble.conDisponible(bob("8000.00"));
 
         assertThatThrownBy(() -> fondear(c, "fondeo-8-" + c.e().turnoId()))
                 .isInstanceOfSatisfying(
                         ErrorDeNegocio.class,
                         e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU22-06"));
         assertThat(entregasDelTurno(c)).isZero();
-        assertThat(garantiaDoble.llamadas.get()).isZero();
 
         aportesConfirma(c, "6000.00");
         assertThat(fondear(c, "fondeo-8-" + c.e().turnoId()).estadoDelFondeo()).isEqualTo("FONDEADO");
@@ -58,33 +55,11 @@ class CU133PozoCompletoRechazosTest extends BaseDePozoCompleto {
 
     @Test
     @DisplayName(
-            "INVALIDO · GARANTIA CAIDA · Dado que garantia no responde y hay faltante · Cuando se fondea · Entonces AP-CU22-08 sin escribir nada; al volver, el reintento cubre una sola vez")
-    void garantiaCaida() {
+            "INVALIDO · LA ESCRITURA LOCAL FALLA · Dado que la escritura del fondeo revienta · Cuando se reintenta con el pedido correcto · Entonces no quedo nada a medias y la entrega nace una sola vez")
+    void escrituraLocalFalla() {
         var c = caso();
-        aportesConfirma(c, "5000.00");
-        garantiaDoble.conDisponible(bob("8000.00"));
-        garantiaDoble.seCae(true);
-
-        assertThatThrownBy(() -> fondear(c, "fondeo-9-" + c.e().turnoId()))
-                .isInstanceOfSatisfying(
-                        ErrorDeNegocio.class,
-                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU22-08"));
-        assertThat(entregasDelTurno(c)).isZero();
-
-        garantiaDoble.seCae(false);
-        var salida = fondear(c, "fondeo-9-" + c.e().turnoId());
-        assertThat(salida.estadoDelFondeo()).isEqualTo("FONDEADO");
-        assertThat(garantiaDoble.coberturasNuevas.get()).isEqualTo(1);
-    }
-
-    @Test
-    @DisplayName(
-            "INVALIDO · CAIDA DEL CONSUMIDOR TRAS LA COBERTURA · Dado que garantia cubrio pero la escritura local falla · Cuando se reintenta · Entonces la cobertura no se repite y la entrega nace una sola vez")
-    void caidaTrasCubrir() {
-        var c = caso();
-        aportesConfirma(c, "5000.00");
-        garantiaDoble.conDisponible(bob("8000.00"));
-        // El beneficiario no existe: la escritura local revienta DESPUES de que garantia cubrio.
+        aportesConfirma(c, "6000.00");
+        // El beneficiario no existe: la escritura local revienta dentro de la transaccion.
         var roto = new Entrada(
                 c.e().grupoId(),
                 c.e().periodoId(),
@@ -97,11 +72,11 @@ class CU133PozoCompletoRechazosTest extends BaseDePozoCompleto {
 
         assertThatThrownBy(() -> pozoCU.fondear(roto, c.ctx())).isInstanceOf(RuntimeException.class);
         assertThat(entregasDelTurno(c)).isZero();
-        assertThat(garantiaDoble.coberturasNuevas.get()).isEqualTo(1);
+        assertThat(contar("SELECT count(*)::int FROM entregas.fondeo_entrega WHERE turno_id = ?", c.e().turnoId()))
+                .isZero();
 
         var salida = fondear(c, "fondeo-10-" + c.e().turnoId());
         assertThat(salida.estadoDelFondeo()).isEqualTo("FONDEADO");
-        assertThat(garantiaDoble.coberturasNuevas.get()).isEqualTo(1);
         assertThat(entregasDelTurno(c)).isEqualTo(1);
     }
 
@@ -127,38 +102,25 @@ class CU133PozoCompletoRechazosTest extends BaseDePozoCompleto {
 
     @Test
     @DisplayName(
-            "INVALIDO · RESPALDO INCONSISTENTE · Dado que garantia dice haber cubierto un importe distinto al faltante · Cuando se fondea · Entonces AP-CU22-07 y no se escribe nada")
-    void respaldoCubreOtroImporte() {
-        var c = caso();
-        aportesConfirma(c, "5000.00");
-        garantiaDoble.conDisponible(bob("8000.00"));
-        garantiaDoble.cubreUnImporteDistinto(bob("999.99"));
-
-        assertThatThrownBy(() -> fondear(c, "fondeo-12-" + c.e().turnoId()))
-                .isInstanceOfSatisfying(
-                        ErrorDeNegocio.class,
-                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU22-07"));
-        assertThat(entregasDelTurno(c)).isZero();
-    }
-
-    @Test
-    @DisplayName(
             "Dado un turno ya liquidado por el camino anterior · Cuando se intenta fondear · Entonces AP-CU22-09: no hay dos entregas del mismo turno")
     void turnoYaLiquidadoPorElCaminoAnterior() {
         var c = caso();
-        transaccion.execute(t -> entregaCU.liquidar(
-                new bo.aportaya.entregas.aplicacion.CU22LiquidarEntrega.EntradaLiquidacion(
-                        c.e().grupoId(),
-                        c.e().periodoId(),
-                        c.e().turnoId(),
-                        c.e().cupoId(),
-                        c.e().participanteId(),
-                        bob("6000.00"),
-                        bob("6000.00"),
-                        java.util.List.of(),
-                        "BILLETERA_MOVIL",
-                        LocalDate.now()),
-                c.ctx()));
+        // La liquidacion vieja se retiro (F1.L2.M09): su entrega llega como dato de antes, escrito directo en la base.
+        dslFixtura.execute(
+                """
+                INSERT INTO entregas.entrega_fondo
+                    (id, grupo_id, periodo_id, turno_id, cupo_id, beneficiario_participante_id,
+                     monto_bolsa_bruto, total_deducciones, monto_neto_a_entregar,
+                     monto_efectivamente_entregado, moneda, estado, metodo_desembolso,
+                     fecha_programada, version)
+                VALUES (gen_random_uuid(), ?, ?, ?, ?, ?, 6000.00, 0, 6000.00, 0,
+                        'BOB', 'PROGRAMADA', 'BILLETERA_MOVIL', current_date, 0)
+                """,
+                c.e().grupoId(),
+                c.e().periodoId(),
+                c.e().turnoId(),
+                c.e().cupoId(),
+                c.e().participanteId());
         aportesConfirma(c, "6000.00");
 
         assertThatThrownBy(() -> fondear(c, "fondeo-13-" + c.e().turnoId()))

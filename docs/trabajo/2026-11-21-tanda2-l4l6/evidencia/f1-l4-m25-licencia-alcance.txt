@@ -1,0 +1,28 @@
+# F1.L4.M25 — GET /licencia/alcance no escribe y no acepta el usuario del query
+## Relocalizado en origin/dev 50cf3be9
+servicios/cumplimiento/.../web/LicenciaController.java:40  verificarAlcance(String servicio, UUID usuarioId)  <- usuarioId del query
+servicios/cumplimiento/.../aplicacion/CU46VerificarAlcance.java:62  @Transactional ejecutar(...) -> outbox.emitir(...) en cada rechazo
+  (y exigirHabilitado, la operacion real, emitia y lanzaba: el evento se revertia; solo el GET dejaba rastro)
+
+## Prueba dirigida (dobles declarados de repositorios y outbox; regla de habilitacion real)
+$ ./gradlew :servicios:cumplimiento:test --tests '*AlcanceSinEfectos*'
+  AlcanceSinEfectosTest: «diez consultas rechazadas no escriben nada en el outbox» PASS
+                         «la operacion real rechazada registra el rechazo una vez, con el actor del token» PASS
+## Mutante: ejecutar() vuelve a emitir al outbox
+7 tests completed, 1 failed  -> BUILD FAILED
+## Matriz web (LicenciaControllerWebTest + AutorizacionNegativaWebTest + SeguridadWebTest)
+  - query con el usuarioId de OTRA persona -> 200 y al caso de uso llega EntradaAlcance.de("BILLETERA") (se ignora)
+  - sin token / rol insuficiente -> cubiertos por los barridos existentes (verdes)
+
+## Regresion
+$ ./gradlew :servicios:cumplimiento:spotlessApply test webTest testBarrido
+rc=0
+servicios/cumplimiento test: tests=16 skipped=0 failures=0 errors=0
+servicios/cumplimiento webTest: tests=87 skipped=0 failures=0 errors=0
+servicios/cumplimiento testBarrido: tests=2 skipped=0 failures=0 errors=0
+$ python3 scripts/generar_postman.py -> postman/{coleccion,humo}/cumplimiento.* sin el parametro usuarioId
+$ verificar_boveda / seguridad / carriles / maqueta / criterios / contratos_limites -> TODO OK
+
+## NO COMPROBADO — requiere Docker (maquina de Pablo)
+./gradlew :servicios:cumplimiento:integrationTest --tests '*CU46Test*'
+(CU46Test adaptado a la firma nueva de EntradaAlcance; «compensa» sigue afirmando que exigirHabilitado no deja eventos a medias)

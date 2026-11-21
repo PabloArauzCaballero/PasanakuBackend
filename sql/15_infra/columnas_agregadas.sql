@@ -21,3 +21,5 @@ ALTER TABLE aportes.reembolso ADD COLUMN IF NOT EXISTS moneda CHAR(3);
 COMMENT ON COLUMN aportes.reembolso.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 ALTER TABLE grupos.acuerdo ADD COLUMN IF NOT EXISTS entrante_participante_id UUID;
 COMMENT ON COLUMN grupos.acuerdo.entrante_participante_id IS 'NULL';
+ALTER TABLE nucleo_financiero.bloqueo_saldo ADD COLUMN IF NOT EXISTS registrado_por UUID;
+COMMENT ON COLUMN nucleo_financiero.bloqueo_saldo.registrado_por IS 'FK, NULL';

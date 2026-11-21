@@ -1,5 +1,6 @@
 package bo.aportaya.nucleofinanciero.aplicacion;
 
+import bo.aportaya.nucleofinanciero.dominio.SelloDelDia;
 import bo.aportaya.nucleofinanciero.infraestructura.CierreDiarioRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.ConciliacionRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.CuentaBilleteraRepositorio;
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -104,6 +106,10 @@ public class CU51EjecutarCierreDiario {
             // se emite cada extracto y se concilia la custodia.
             for (UUID cuentaId : cierres.cuentasActivas(dsl)) {
                 var cuenta = cuentas.ver(dsl, cuentaId).orElseThrow();
+                // F1.L1.M13: el sello cubre saldos, moneda y el sello del dia anterior (cadena).
+                String anterior = conciliaciones
+                        .selloAnterior(dsl, cuentaId, entrada.fecha())
+                        .orElse(null);
                 conciliaciones.cerrarSaldoDelDia(
                         dsl,
                         cuentaId,
@@ -111,7 +117,14 @@ public class CU51EjecutarCierreDiario {
                         cuenta.disponible(),
                         cuenta.retenido(),
                         0,
-                        selloDe(cuentaId, entrada.fecha()),
+                        SelloDelDia.sellar(
+                                cuentaId,
+                                entrada.fecha(),
+                                cuenta.disponible().moneda().name(),
+                                cuenta.disponible().monto(),
+                                cuenta.retenido().monto(),
+                                anterior),
+                        anterior,
                         ahora);
             }
 
@@ -169,20 +182,14 @@ public class CU51EjecutarCierreDiario {
                 ctx);
     }
 
-    /** El sello del saldo del dia: lo que permite detectar despues una alteracion. */
-    private String selloDe(UUID cuentaId, LocalDate fecha) {
-        String material = cuentaId + "|" + fecha;
-        try {
-            byte[] resumen = java.security.MessageDigest.getInstance("SHA-256")
-                    .digest(material.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-            StringBuilder texto = new StringBuilder(resumen.length * 2);
-            for (byte b : resumen) {
-                texto.append(Character.forDigit((b >> 4) & 0xF, 16)).append(Character.forDigit(b & 0xF, 16));
-            }
-            return texto.toString();
-        } catch (java.security.NoSuchAlgorithmException imposible) {
-            throw new IllegalStateException("Toda JVM trae SHA-256", imposible);
-        }
+    /**
+     * Recalcula la cadena de sellos de una cuenta y devuelve la fecha del primer dia alterado, si hay uno.
+     * Sin ruptura, la foto de cada dia es la que se sello al cerrarlo.
+     */
+    @Transactional(readOnly = true)
+    public Optional<LocalDate> primeraRuptura(UUID cuentaId, ContextoSesion ctx) {
+        return datos.conContexto(ctx, dsl -> SelloDelDia.primeraRuptura(conciliaciones.cadena(dsl, cuentaId))
+                .map(SelloDelDia.Eslabon::fecha));
     }
 
     public record EntradaCierre(

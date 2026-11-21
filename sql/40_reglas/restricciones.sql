@@ -811,6 +811,13 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_proveedor_pago_clave
   ON proveedor_pago (clave_idempotencia)
   WHERE clave_idempotencia IS NOT NULL;
 
+-- R-BIL-32 · cuatro ojos en el bloqueo por autoridad (F1.L1.M10). registrado_por llega
+-- por 15_infra/columnas_agregadas.sql; NULL solo en las filas de antes.
+ALTER TABLE bloqueo_saldo DROP CONSTRAINT IF EXISTS ck_bloqueo_saldo_cuatro_ojos;
+ALTER TABLE bloqueo_saldo
+  ADD CONSTRAINT ck_bloqueo_saldo_cuatro_ojos
+  CHECK (levantada_por IS NULL OR registrado_por IS NULL OR levantada_por <> registrado_por);
+
 
 -- ---------------------------------------------------------------------
 -- R-LIM — Límites operativos

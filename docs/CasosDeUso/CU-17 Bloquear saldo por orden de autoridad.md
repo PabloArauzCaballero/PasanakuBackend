@@ -81,6 +81,8 @@ export const ErroresCU17 = {
   OFICIO_DUPLICADO: 'AP-CU17-01',
   CUENTA_INEXISTENTE: 'AP-CU17-02',
   SIN_DOCUMENTO_DE_RESPALDO: 'AP-CU17-03',
+  MISMA_PERSONA_LEVANTA: 'AP-CU17-04',
+  BLOQUEO_NO_VIGENTE: 'AP-CU17-05',
 } as const
 ```
 
@@ -89,6 +91,8 @@ export const ErroresCU17 = {
 | `OFICIO_DUPLICADO` | Ya existe un bloqueo con ese número (R-BIL-14) |
 | `CUENTA_INEXISTENTE` | No se identificó al titular |
 | `SIN_DOCUMENTO_DE_RESPALDO` | No se ejecuta una orden sin el oficio y su hash |
+| `MISMA_PERSONA_LEVANTA` | Quien registró el bloqueo no puede levantarlo: lo levanta otra persona, desde su propio token (R-BIL-32) |
+| `BLOQUEO_NO_VIGENTE` | Se pidió levantar un bloqueo que ya no está vigente (ya levantado o inexistente) |
 
 ## Descomposición atómica
 
@@ -114,7 +118,7 @@ export const ErroresCU17 = {
 
 ## Restricciones aplicables
 
-`R-BIL-08` · `R-BIL-14` · `R-BIL-13` · `R-SEG-02` · `R-AUD-04`
+`R-BIL-08` · `R-BIL-14` · `R-BIL-32` · `R-BIL-13` · `R-SEG-02` · `R-AUD-04`
 
 ## Evidencia que deja
 

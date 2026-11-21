@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, lote L2 (garantía y entregas)
 
-> **AVANCE: 5 / 14 — 35,7 %.**
+> **AVANCE: 6 / 15 — 40,0 %.**
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · PR mergeados en `dev`: #419, #421, #422, #424, #429, #459, #462
   y #463, todos con CI verde, incluidos los cinco corredores. #464 se consolidó en #463 por el tope de 3 PR abiertos.
@@ -17,11 +17,23 @@
 | F1.L2.M07 | El número de cuenta se cifra solo en el servidor (`numeroCifrado` fuera del contrato: 400) y con una llave propia, `ENTREGAS_LLAVE_CIFRADO_CUENTAS`, distinta de la pimienta; sin ella entregas no arranca | `./gradlew :servicios:entregas:test :servicios:entregas:webTest` | PASS — [evidencia](./evidencia/F1.L2.M07-llave-cifrado.txt) (#421, #463) |
 | F1.L2.M09 | `POST /entregas` y la ejecución manual responden 410; `EFECTIVO_ORGANIZADOR` no existe en el contrato, en el modelo ni en las bases existentes (`CK_ESTRECHADOS`) | psql contra una base existente y una nueva | PASS — [evidencia](./evidencia/punto2-check-estrechado.txt) (#424, #463) |
 | F1.L2.M05 | Ninguna persona anota la respuesta del proveedor: `POST /desembolsos/{id}/respuesta` responde 410 `AP-CU28-08` sin llamar al caso de uso (sin ACREDITADA ni `desembolso_acreditado`). `CU28EmitirDesembolso.anotarRespuesta` se conserva para el webhook firmado de F3.L2.M02 | `./gradlew :servicios:entregas:webTest` | PASS — [evidencia](./evidencia/F1.L2.M05-desembolso-sin-humano.txt) |
+| P3.M1 | La entrega nace solo del fondeo: `CU22LiquidarEntrega.liquidar`/`ejecutar` y `LiquidacionDeEntrega` no existen; la ficha CU-22 tiene tres criterios probados | `test` + `webTest` locales; `integrationTest` en el CI | PASS — [evidencia](./evidencia/punto3-cu22-sin-liquidacion.txt) (#471, CI verde con los cinco corredores) |
 
 ## A medias
 
-Además de lo que sigue, `CU22LiquidarEntrega.liquidar`/`ejecutar` y `CU23CubrirIncumplimiento` todavía existen, sin
-camino HTTP. Se borran con el punto 3 (Pendiente).
+`CU22LiquidarEntrega.liquidar`/`ejecutar` ya no existen (#471). `CU23CubrirIncumplimiento` se retira en #472.
+
+### F2.L2.M01 — El fondeo ya no le pide el respaldo a `garantia`
+- Qué anda: `RespaldoEmpresarial`, `RespaldoPorHttp`, la rama de cobertura del fondeo, la configuración
+  `aportaya.servicios.garantia` y sus pruebas (`RespaldoCaidaTest`, las del adaptador, las ramas del doble) se
+  retiraron. Con faltante, la entrega queda BLOQUEADA con el pozo como principal y la deuda conservada, a la espera del
+  fondo del grupo (F3.L2.M05). `cubiertoEmpresa` sigue en la respuesta y en el evento, siempre en cero, hasta la
+  contracción del contrato. `test`, `webTest`, `check`, `testBarrido` y el job de bóveda en verde
+  ([evidencia](./evidencia/F2.L2.M01-sin-respaldo-entregas.txt)).
+- Qué no anda: nada observado; las pruebas de integración del fondeo reescritas no corrieron acá (sin Docker).
+- Qué falta exactamente: el verde de `integrationTest` y de jacoco en el CI del PR; contraer `cubiertoEmpresa`,
+  `monto_cubierto_empresa` y `cobertura_respaldo_id` del contrato y del modelo cuando nadie los lea.
+- Dónde quedó: rama `correcciones/tanda2-l2-sin-respaldo-entregas`; compila.
 
 ### F1.L2.M04 — Importes de entrada sin signo; disolución y reemplazo con cifras de sus dueños
 - Qué anda: `garantia.yaml` 1.2.0 define `DineroEntrada` (monto `^\d+\.\d{2}$`, sin signo) y lo usan los importes que
@@ -42,18 +54,26 @@ camino HTTP. Se borran con el punto 3 (Pendiente).
   aval se retiró de raíz del código: `CU26EjecutarAval`, `TopeDelAval`, la ejecución y la subrogación al avalista
   en `GestionRepositorio`, la configuración `aportaya.aval` y sus pruebas
   ([evidencia](./evidencia/F1.L2.M02-M03-F2.L2.M04-garantia.txt)).
-- Qué no anda: `CU23CubrirIncumplimiento` (con su estado `SOLICITADA` y el umbral `politica_cobertura`) y
-  `CU29DevolverFondo` siguen en el código sin camino HTTP. Las tablas `aval_participante` y `ejecucion_aval`
+- Qué anda además (punto 3): `CU23CubrirIncumplimiento`, `CoberturaAplicable`, los métodos de repositorio que solo
+  ella usaba, el tópico `cobertura_requiere_aprobacion` y la configuración `aportaya.deuda` se retiraron; la ficha
+  CU-23 describe el camino vigente (respaldo, transitorio) y el retiro, con sus tres criterios probados
+  (`CU23Test`, `web/CU23CoberturaManualRetiradaWebTest`). Las pruebas de CU-27, CU-66 y tableros arman el deudor
+  con `FixturaDeDeudor` ([evidencia](./evidencia/F1.L2.M02-cu23-sin-cobertura-manual.txt)).
+- Qué no anda: `CU29DevolverFondo` sigue en el código sin camino HTTP. Nada escribe hoy `cobertura_incumplimiento`
+  ni `deuda_participante` hasta la cobertura del modelo A (F3.L2.M05); CU-27 y CU-66 operan sobre deudas existentes. Las tablas `aval_participante` y `ejecucion_aval`
   siguen en el modelo.
 - Qué falta exactamente:
-  1. M02: retirar `CU23CubrirIncumplimiento`, el estado `SOLICITADA`, el tópico `cobertura_requiere_aprobacion` y
-     `politica_cobertura` del `.puml`. Requiere ajustar los criterios de `docs/CasosDeUso/CU-23` (fuera de alcance),
-     porque `verificar_criterios.py` exige sus pruebas mientras exista una clase `CU23*`.
+  1. M02: `SOLICITADA` ya sale del CHECK (#477, con `CK_ESTRECHADOS`; precondición en TEST: `SELECT count(*) FROM
+     garantia.cobertura_incumplimiento WHERE estado = 'SOLICITADA'` = 0). `APROBADA` se queda: el anexo solo nombra
+     `SOLICITADA` (confirmado por el coordinador). Falta quitar `aprobadaPor`/`EntradaCobertura` del contrato (la
+     operación ya responde 410) y la tabla `politica_cobertura` (ver Pendiente: decisión del dueño).
   2. M03: la devolución la dispara el evento de cierre de ciclo, con el estado del grupo leído de `grupos` y las
      deudas contadas en el propio esquema (F3.L2.M06).
   3. F2.L2.M04: quitar `aval_participante` y `ejecucion_aval` de `docs/entidades` y R-GAR-04 de
      `docs/Restricciones.md` (la cifra de restricciones cambia en `docs/Seguridad.md` y `planes/*`, fuera de
-     alcance). Marcar retirado `docs/CasosDeUso/CU-26` (hoy figura «pendiente de implementar»).
+     alcance). `docs/CasosDeUso/CU-26` ya está marcado RETIRADO (`estado: retirado` y aviso en la ficha y en
+     el índice); `verificar_criterios.py` lo sigue listando como «pendiente» porque no distingue retirados: es un
+     cambio en ese script, fuera del alcance de L2.
      `identidad.referencia_personal.acepta_ser_avalista` es de L4.
 - Dónde quedó: rama `correcciones/tanda2-l2-garantia-cuerpo`; compila, `test`/`webTest` en verde.
 
@@ -80,10 +100,12 @@ camino HTTP. Se borran con el punto 3 (Pendiente).
 |---|---|---|
 | F1.L2.M10 | TODO | Siguiente PR del lote |
 | F1.L2.M01, M04, M06, M08, M11–M14 | TODO | M13/M14 necesitan `plataforma/comun-web` (cliente único y token de servicio): fuera de alcance |
+| Contracción `politica_cobertura` | DECISION_REQUIRED | Borrar la tabla es destructivo sobre datos compartidos: lo eleva el coordinador a Pablo junto con la migración. Hoy la referencia `garantia.fondo_garantia.politica_cobertura_id` (`fk_fondo_garantia_politica_cobertura_id`, ON DELETE RESTRICT), y `FondoRepositorio.Fondo.politicaId` la sigue leyendo. Consulta de uso en TEST: `SELECT count(*) FROM garantia.politica_cobertura;` · `SELECT count(*) FROM garantia.fondo_garantia WHERE politica_cobertura_id IS NOT NULL;` · `SELECT conrelid::regclass, conname FROM pg_constraint WHERE confrelid = 'garantia.politica_cobertura'::regclass;`. Con la tabla se van la columna `requirio_aprobacion_manual` de `cobertura_incumplimiento` y `fondo_garantia.politica_cobertura_id` (expandir/contraer: primero el código que deja de leerla) |
+| Contracción de las tablas del aval (F2.L2.M04) | DECISION_REQUIRED | Borrar `aval_participante` y `ejecucion_aval` es destructivo sobre datos compartidos: decide Pablo, junto con `politica_cobertura`. Nada las escribe (el aval se retiró del código). Única FK: `ejecucion_aval.fk_ejecucion_aval_aval_id → aval_participante`; columnas ligadas en otros servicios: `identidad.referencia_personal.acepta_ser_avalista` (L4) y `grupos.configuracion_grupo.requiere_avalista`. Consulta de uso para TEST: [`evidencia/F2.L2.M04-uso-tablas-aval.sql`](./evidencia/F2.L2.M04-uso-tablas-aval.sql) (filas y montos por estado, grupos y referencias que las usan, FK) |
+| F3.S3 / F3.L2.M04–M06 (modelo A) | DECISION_REQUIRED | ADR-056 y el plan ponen la opinión de Cumplimiento (F3.S3.M7: L-01, L-02, L-03) antes de implementar. El diseño quedó como propuesta, sin aplicar: [`evidencia/F3.S3-propuesta-modelo-A.md`](./evidencia/F3.S3-propuesta-modelo-A.md) (límites entre servicios, entidades a reusar y contraer, flujos, asientos lógicos sin códigos de cuenta, restricciones, parámetros y orden). Se aplica cuando Cumplimiento responda o si Pablo decide avanzar asumiendo L-01 |
 | F2.L2.M02 | TODO | Después de F2.L2.M01 y del retiro del consumidor de tópicos de respaldo en `nucleo-financiero` (L1) |
 | L2.S1.M2 | TODO | Precondición: L6 y L1 sueltan los consumidores (ver A medias). No es un bloqueo de ejecución: es el paso «contraer» y se hace apenas mergeen |
 | F1.L2.M10 | TODO | Diseño listo, sin código: puerto `RetencionDelPozo.retener(entregaId, neto, clave) → Concedida(retencionId) / SaldoInsuficiente / NoDisponible`, doble en tres niveles (regla 65) y adaptador que falla cerrado hasta que L1 publique la operación en `nucleo-financiero`. La llamada va FUERA de la transacción de `CU28EmitirDesembolso` (invariante 6), así que la emisión se parte en «leer neto» → «retener» → «escribir orden». Depende además de F2.L2.M06 (la emisión deja de ser humana) |
-| F2.L2.M01 | TODO | Corrección: no existe ficha `CU-133`, así que nada lo ata a la bóveda. Lo que falta es reescribir `CU133PozoCompleto*Test` (integración, Docker) para el fondeo sin respaldo: el faltante queda pendiente a la espera del fondo del grupo |
 | Punto 3 (bóveda) | TODO | Reescribir CU-22 según ADR-055/056 (pozo completo por fondeo, sin liquidación con deducciones ni cuatro ojos: va junto con F2.L2.M06), sacar de CU-23 la cobertura manual y marcar CU-26 RETIRADO; después borrar `CU22LiquidarEntrega.liquidar`/`ejecutar` y `CU23CubrirIncumplimiento` y reemplazar sus pruebas de integración por las de los criterios nuevos. Conviene hacerlo en una sesión con Docker para correr esas pruebas antes del PR |
 
 ## Evidencia
@@ -135,6 +157,10 @@ camino HTTP. Se borran con el punto 3 (Pendiente).
   (entradas `src-*`); no lo verifica el CI y se revirtió. Queda anotado para el dueño de auditoría.
 
 ## Riesgos residuales
+
+- F2.L2.M01: desde el despliegue, un turno con faltante queda BLOQUEADO hasta que lleguen los aportes que faltan; nadie
+  lo cubre hasta F3.L2.M05 (fondo del grupo). Es lo que pide el plan, pero en `test` cambia lo que ve quien pruebe un
+  pozo incompleto: antes lo cubría la reserva. `garantia` sigue exponiendo el respaldo hasta F2.L2.M02.
 
 - En TEST pueden quedar subastas ABIERTAS con pujas retenidas o compras a medias con saldo retenido en la billetera
   (datos sintéticos, P-14). El trabajo que cerraba subastas se retiró. Consulta previa a promover a `test`:

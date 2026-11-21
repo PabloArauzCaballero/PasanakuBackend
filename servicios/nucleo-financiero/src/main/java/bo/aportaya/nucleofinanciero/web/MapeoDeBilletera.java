@@ -14,10 +14,20 @@ final class MapeoDeBilletera {
 
     private MapeoDeBilletera() {}
 
+    /**
+     * Un importe que ENTRA por el contrato. F1.L1.M01 · nunca negativo (regla 91.2.2): el signo lo da la
+     * operacion. El esquema {@code Dinero} sigue admitiendo signo porque tambien describe saldos de salida
+     * (las cuentas de sistema con {@code permite_saldo_negativo}); por eso la regla de entrada vive aca, en
+     * el unico punto por donde un importe del cliente pasa al dominio, y sale como 400 (AP-VAL-02).
+     */
     static bo.aportaya.plataforma.dominio.Dinero dinero(Dinero valor) {
+        BigDecimal monto = new BigDecimal(valor.getMonto());
+        if (monto.signum() < 0) {
+            throw new jakarta.validation.ConstraintViolationException(
+                    "monto: un importe de entrada no puede ser negativo", java.util.Set.of());
+        }
         return bo.aportaya.plataforma.dominio.Dinero.de(
-                new BigDecimal(valor.getMonto()),
-                Moneda.valueOf(valor.getMoneda().getValue()));
+                monto, Moneda.valueOf(valor.getMoneda().getValue()));
     }
 
     static Optional<bo.aportaya.plataforma.dominio.Dinero> dineroOpcional(Dinero valor) {

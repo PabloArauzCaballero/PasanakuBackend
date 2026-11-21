@@ -223,22 +223,18 @@ class InversionesWebTest {
 
         @Test
         @DisplayName(
-                "POST /billetera/retenciones/{id}/pago-a-tercero: BILLETERA_OPERAR no alcanza (403) y no admite cuerpo con beneficiario")
-        void pagoATercero() throws Exception {
-            mvc.perform(post("/billetera/retenciones/{id}/pago-a-tercero", RETENCION)
-                            .with(Sesiones.como("PARTICIPANTE", "BILLETERA_OPERAR"))
-                            .header("Idempotency-Key", CLAVE)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("{\"beneficiarioUsuarioId\":\"eeeeeeee-0000-4000-8000-0000000000bb\"}"))
-                    .andExpect(status().isForbidden());
-            verifyNoInteractions(movimientos);
-
-            when(movimientos.pagarAlTercero(any(), any(), any())).thenReturn(ok());
+                "POST /billetera/retenciones/{id}/pago-a-tercero: retirada con la cesion de turnos (D-L2-1), 410 AP-CU13-10 sin efecto")
+        void pagoATerceroRetirado() throws Exception {
             mvc.perform(post("/billetera/retenciones/{id}/pago-a-tercero", RETENCION)
                             .with(Sesiones.como("SERVICIO_ENTREGAS"))
                             .header("Idempotency-Key", CLAVE))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.transaccionId").value(TRANSACCION.toString()));
+                    .andExpect(status().isGone())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU13-10"));
+            mvc.perform(post("/billetera/retenciones/{id}/pago-a-tercero", RETENCION)
+                            .with(Sesiones.como("PARTICIPANTE", "BILLETERA_OPERAR"))
+                            .header("Idempotency-Key", CLAVE))
+                    .andExpect(status().isForbidden());
+            verifyNoInteractions(movimientos);
         }
 
         @Test

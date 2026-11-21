@@ -1,0 +1,15 @@
+# F2.L1.M01 (parte) · sin consumidor de respaldo ni cobertura empresarial — salidas (2026-11-21)
+
+$ ./gradlew :servicios:nucleo-financiero:spotlessCheck test webTest testBarrido
+BUILD SUCCESSFUL in 30s
+ConsumidorDeAsientosKafkaTest 3/3 (incluye: @KafkaListener.topics == [aportaya.entregas.desembolso_acreditado], sin respaldo_ ni cobertura_empresarial)
+
+$ grep -rn "cobertura_empresarial\|respaldo_\|CAJA_EMPRESA" servicios/nucleo-financiero/src/main docker-compose.coolify.yml
+servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/dominio/puertos/CuentasLogicas.java:9: * <p>Los servicios que proponen un asiento (garantia, entregas) hablan de bolsillos —CAJ
+servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/consumo/ConsumidorDeAsientosKafka.java:47:            // pago, asi que los eventos garantia.respaldo_* y garantia.cobertura_empre
+servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/aplicacion/ConsumoDeAsientos.java:95:            // Un evento sin partidas (p. ej. respaldo_insuficiente) no es un error: no hay 
+(solo comentarios: el del propio retiro en el listener y uno historico en ConsumoDeAsientos; ninguna suscripcion ni mapeo)
+
+$ python3 scripts/validar_flujos.py → Sin fallas.
+
+NO COMPROBADO — requiere Docker/Kafka: publicar garantia.cobertura_empresarial_aplicada en un broker real y verificar que el mayor no cambia.

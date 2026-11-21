@@ -154,8 +154,8 @@
    "descripcion": "Billetera, Custodia y Dinero Electrónico. El saldo no se guarda: se deriva, y todos los días cuadra contra el banco.",
    "tablas": 34,
    "tablasDeNegocio": 31,
-   "columnas": 395,
-   "relaciones": 78,
+   "columnas": 396,
+   "relaciones": 79,
    "appendOnly": 8,
    "conDatosPersonales": 5,
    "servicio": "nucleo-financiero"
@@ -775,36 +775,6 @@
     "derivados": 1
    },
    "operaciones": [
-    {
-     "casoDeUso": "CU-22",
-     "titulo": "Liquidar y entregar el fondo",
-     "endpoints": [
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas",
-       "operationId": "liquidarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/pozo-completo",
-       "operationId": "fondearPozo"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/autorizacion",
-       "operationId": "autorizarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/ejecucion",
-       "operationId": "ejecutarEntrega"
-      }
-     ]
-    },
     {
      "casoDeUso": "CU-57",
      "titulo": "Operar un punto de atención y arquear el efectivo",
@@ -24059,36 +24029,6 @@
    },
    "operaciones": [
     {
-     "casoDeUso": "CU-22",
-     "titulo": "Liquidar y entregar el fondo",
-     "endpoints": [
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas",
-       "operationId": "liquidarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/pozo-completo",
-       "operationId": "fondearPozo"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/autorizacion",
-       "operationId": "autorizarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/ejecucion",
-       "operationId": "ejecutarEntrega"
-      }
-     ]
-    },
-    {
      "casoDeUso": "CU-31",
      "titulo": "Devengar y cobrar la comisión",
      "endpoints": [
@@ -25336,6 +25276,36 @@
    },
    "operaciones": [
     {
+     "casoDeUso": "CU-22",
+     "titulo": "Liquidar y entregar el fondo",
+     "endpoints": [
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas",
+       "operationId": "liquidarEntrega"
+      },
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas/pozo-completo",
+       "operationId": "fondearPozo"
+      },
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas/{entregaId}/autorizacion",
+       "operationId": "autorizarEntrega"
+      },
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas/{entregaId}/ejecucion",
+       "operationId": "ejecutarEntrega"
+      }
+     ]
+    },
+    {
      "casoDeUso": "CU-28",
      "titulo": "Emitir la orden de desembolso y ejecutar el intento",
      "endpoints": [
@@ -25566,6 +25536,36 @@
     "derivados": 0
    },
    "operaciones": [
+    {
+     "casoDeUso": "CU-22",
+     "titulo": "Liquidar y entregar el fondo",
+     "endpoints": [
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas",
+       "operationId": "liquidarEntrega"
+      },
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas/pozo-completo",
+       "operationId": "fondearPozo"
+      },
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas/{entregaId}/autorizacion",
+       "operationId": "autorizarEntrega"
+      },
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas/{entregaId}/ejecucion",
+       "operationId": "ejecutarEntrega"
+      }
+     ]
+    },
     {
      "casoDeUso": "CU-28",
      "titulo": "Emitir la orden de desembolso y ejecutar el intento",
@@ -31170,18 +31170,6 @@
    },
    "operaciones": [
     {
-     "casoDeUso": "CU-23",
-     "titulo": "Cubrir un incumplimiento con el fondo",
-     "endpoints": [
-      {
-       "servicio": "garantia",
-       "metodo": "POST",
-       "ruta": "/incumplimientos/{expedienteId}/cobertura",
-       "operationId": "cubrirIncumplimiento"
-      }
-     ]
-    },
-    {
      "casoDeUso": "CU-29",
      "titulo": "Devolver los aportes del fondo de garantía",
      "endpoints": [
@@ -32655,18 +32643,6 @@
    },
    "operaciones": [
     {
-     "casoDeUso": "CU-23",
-     "titulo": "Cubrir un incumplimiento con el fondo",
-     "endpoints": [
-      {
-       "servicio": "garantia",
-       "metodo": "POST",
-       "ruta": "/incumplimientos/{expedienteId}/cobertura",
-       "operationId": "cubrirIncumplimiento"
-      }
-     ]
-    },
-    {
      "casoDeUso": "CU-67",
      "titulo": "Disolver el grupo anticipadamente",
      "endpoints": [
@@ -33618,18 +33594,6 @@
     "derivados": 0
    },
    "operaciones": [
-    {
-     "casoDeUso": "CU-23",
-     "titulo": "Cubrir un incumplimiento con el fondo",
-     "endpoints": [
-      {
-       "servicio": "garantia",
-       "metodo": "POST",
-       "ruta": "/incumplimientos/{expedienteId}/cobertura",
-       "operationId": "cubrirIncumplimiento"
-      }
-     ]
-    },
     {
      "casoDeUso": "CU-25",
      "titulo": "Declarar el incumplimiento con descargo y evidencia",
@@ -35659,18 +35623,6 @@
        "metodo": "POST",
        "ruta": "/pagos/{pagoId}/reembolsos",
        "operationId": "solicitarReembolso"
-      }
-     ]
-    },
-    {
-     "casoDeUso": "CU-23",
-     "titulo": "Cubrir un incumplimiento con el fondo",
-     "endpoints": [
-      {
-       "servicio": "garantia",
-       "metodo": "POST",
-       "ruta": "/incumplimientos/{expedienteId}/cobertura",
-       "operationId": "cubrirIncumplimiento"
       }
      ]
     },
@@ -40895,18 +40847,6 @@
        "metodo": "GET",
        "ruta": "/tarifas/vigentes/{codigo}",
        "operationId": "consultarTarifarioVigente"
-      }
-     ]
-    },
-    {
-     "casoDeUso": "CU-23",
-     "titulo": "Cubrir un incumplimiento con el fondo",
-     "endpoints": [
-      {
-       "servicio": "garantia",
-       "metodo": "POST",
-       "ruta": "/incumplimientos/{expedienteId}/cobertura",
-       "operationId": "cubrirIncumplimiento"
       }
      ]
     },
@@ -54817,6 +54757,16 @@
       "obligatoria": false
      },
      {
+      "columna": "registrado_por",
+      "tabla": "bloqueo_saldo",
+      "esquema": "nucleo_financiero",
+      "columnaDestino": "id",
+      "restriccion": "fk_bloqueo_saldo_registrado_por",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
+     },
+     {
       "columna": "solicitado_por",
       "tabla": "certificado_saldo",
       "esquema": "nucleo_financiero",
@@ -63376,36 +63326,6 @@
      ]
     },
     {
-     "casoDeUso": "CU-22",
-     "titulo": "Liquidar y entregar el fondo",
-     "endpoints": [
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas",
-       "operationId": "liquidarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/pozo-completo",
-       "operationId": "fondearPozo"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/autorizacion",
-       "operationId": "autorizarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/ejecucion",
-       "operationId": "ejecutarEntrega"
-      }
-     ]
-    },
-    {
      "casoDeUso": "CU-23",
      "titulo": "Cubrir un incumplimiento con el fondo",
      "endpoints": [
@@ -63709,7 +63629,8 @@
    },
    "notaDeSistema": "UNIQUE (numero_oficio). Un bloqueo vigente impide cerrar la cuenta y bloquea el retiro por el monto afectado, no por el total (salvo alcance TOTAL).",
    "reglas": [
-    "uq_bloqueo_oficio"
+    "uq_bloqueo_oficio",
+    "ck_bloqueo_saldo_cuatro_ojos"
    ],
    "columnas": [
     {
@@ -63748,6 +63669,18 @@
     },
     {
      "nombre": "levantada_por",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "referencia": "usuario",
+     "negocio": "Referencia por clave foránea a la entidad usuario.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, opcional, referencia a usuario.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "registrado_por",
      "tipo": "UUID",
      "nulable": true,
      "pk": false,
@@ -63900,6 +63833,16 @@
       "alBorrar": "SET NULL",
       "cardinalidad": "N:1",
       "obligatoria": false
+     },
+     {
+      "columna": "registrado_por",
+      "tabla": "usuario",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_bloqueo_saldo_registrado_por",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
      }
     ],
     "entrantes": [
@@ -63915,7 +63858,7 @@
      }
     ]
    },
-   "sistema": "Vive en el esquema nucleo_financiero; la escribe y la lee solo el servicio nucleo-financiero (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de cuenta_billetera, identidad.usuario, retencion_saldo. La referencian cumplimiento.requerimiento_autoridad. Reglas nombradas: uq_bloqueo_oficio.",
+   "sistema": "Vive en el esquema nucleo_financiero; la escribe y la lee solo el servicio nucleo-financiero (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de cuenta_billetera, identidad.usuario, retencion_saldo. La referencian cumplimiento.requerimiento_autoridad. Reglas nombradas: uq_bloqueo_oficio, ck_bloqueo_saldo_cuatro_ojos.",
    "clasificacion": {
     "personales": 1,
     "financieros": 1,
@@ -71590,48 +71533,6 @@
      ]
     },
     {
-     "casoDeUso": "CU-22",
-     "titulo": "Liquidar y entregar el fondo",
-     "endpoints": [
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas",
-       "operationId": "liquidarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/pozo-completo",
-       "operationId": "fondearPozo"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/autorizacion",
-       "operationId": "autorizarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/ejecucion",
-       "operationId": "ejecutarEntrega"
-      }
-     ]
-    },
-    {
-     "casoDeUso": "CU-23",
-     "titulo": "Cubrir un incumplimiento con el fondo",
-     "endpoints": [
-      {
-       "servicio": "garantia",
-       "metodo": "POST",
-       "ruta": "/incumplimientos/{expedienteId}/cobertura",
-       "operationId": "cubrirIncumplimiento"
-      }
-     ]
-    },
-    {
      "casoDeUso": "CU-26",
      "titulo": "Ejecutar el aval y subrogar la deuda",
      "endpoints": [
@@ -78965,36 +78866,6 @@
      ]
     },
     {
-     "casoDeUso": "CU-22",
-     "titulo": "Liquidar y entregar el fondo",
-     "endpoints": [
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas",
-       "operationId": "liquidarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/pozo-completo",
-       "operationId": "fondearPozo"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/autorizacion",
-       "operationId": "autorizarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/ejecucion",
-       "operationId": "ejecutarEntrega"
-      }
-     ]
-    },
-    {
      "casoDeUso": "CU-31",
      "titulo": "Devengar y cobrar la comisión",
      "endpoints": [
@@ -80796,36 +80667,6 @@
     "derivados": 0
    },
    "operaciones": [
-    {
-     "casoDeUso": "CU-22",
-     "titulo": "Liquidar y entregar el fondo",
-     "endpoints": [
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas",
-       "operationId": "liquidarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/pozo-completo",
-       "operationId": "fondearPozo"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/autorizacion",
-       "operationId": "autorizarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/ejecucion",
-       "operationId": "ejecutarEntrega"
-      }
-     ]
-    },
     {
      "casoDeUso": "CU-31",
      "titulo": "Devengar y cobrar la comisión",
@@ -83886,36 +83727,6 @@
        "metodo": "GET",
        "ruta": "/tarifas/vigentes/{codigo}",
        "operationId": "consultarTarifarioVigente"
-      }
-     ]
-    },
-    {
-     "casoDeUso": "CU-22",
-     "titulo": "Liquidar y entregar el fondo",
-     "endpoints": [
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas",
-       "operationId": "liquidarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/pozo-completo",
-       "operationId": "fondearPozo"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/autorizacion",
-       "operationId": "autorizarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/ejecucion",
-       "operationId": "ejecutarEntrega"
       }
      ]
     },

@@ -28,10 +28,9 @@ class CU133EntregaConsistenteTest extends BaseDePozoCompleto {
 
     private record Entregada(UUID entregaId, UUID ordenId, ContextoSesion ctx) {}
 
-    /** Pozo 6.000 con 5.000 confirmados + 1.000 de la empresa, autorizado, ordenado y acreditado por el proveedor. */
+    /** Pozo 6.000 con todo confirmado (la empresa ya no cubre: F2.L2.M01), autorizado, ordenado y acreditado. */
     private Entregada entregarElPozo(Caso c, String referencia) {
-        aportesConfirma(c, "5000.00");
-        garantiaDoble.conDisponible(bob("8000.00"));
+        aportesConfirma(c, "6000.00");
         var fondeo = fondear(c, "fondeo-" + c.e().turnoId());
         var cuenta = transaccion.execute(t -> cuentaCU.registrar(
                 new EntradaRegistro(
@@ -73,7 +72,7 @@ class CU133EntregaConsistenteTest extends BaseDePozoCompleto {
 
     @Test
     @DisplayName(
-            "Dado fondeo completo (Bs 5.000 confirmados + Bs 1.000 de la empresa) · Cuando el proveedor confirma el desembolso · Entonces ledger propuesto, confirmacion externa y comprobante coinciden en Bs 6.000 de principal, una sola vez")
+            "Dado fondeo completo (Bs 6.000 confirmados) · Cuando el proveedor confirma el desembolso · Entonces ledger propuesto, confirmacion externa y comprobante coinciden en Bs 6.000 de principal, una sola vez")
     void ledgerConfirmacionYComprobanteCoinciden() {
         var c = caso();
         var e = entregarElPozo(c, "REF-BANCO-6000");

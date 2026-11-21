@@ -3,8 +3,6 @@ package bo.aportaya.nucleofinanciero;
 import bo.aportaya.nucleofinanciero.aplicacion.CU12AcreditarRescate;
 import bo.aportaya.nucleofinanciero.aplicacion.CU13EjecutarConDestino;
 import bo.aportaya.nucleofinanciero.aplicacion.CU13RetenerSaldo.EntradaRetencion;
-import bo.aportaya.nucleofinanciero.aplicacion.PagoDeCompraEnMercado;
-import bo.aportaya.nucleofinanciero.dominio.puertos.OfertasDelMercado;
 import bo.aportaya.nucleofinanciero.infraestructura.CuentaBilleteraRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.CuentasDeSistemaRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.LibroDeBilletera;
@@ -16,23 +14,18 @@ import bo.aportaya.plataforma.dominio.Moneda;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.dominio.Traza;
 import bo.aportaya.plataforma.mensajeria.Outbox;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 
 /**
- * Las operaciones que llaman OTROS SERVICIOS (inversiones y entregas): armadas a mano, con
- * {@code entregas} reemplazado por un doble declarado ({@link Ofertas}).
+ * Las operaciones que llaman OTROS SERVICIOS (inversiones): armadas a mano.
  */
 abstract class BaseDeInversiones extends BaseDeBilletera {
 
     protected static FixturaDeSistema sistemaFx;
     protected static CU13EjecutarConDestino ejecucionCU;
     protected static CU12AcreditarRescate rescateCU;
-    protected static PagoDeCompraEnMercado pagoCU;
-    protected static Ofertas ofertas;
 
     @BeforeAll
     static void armarInversiones() {
@@ -54,8 +47,6 @@ abstract class BaseDeInversiones extends BaseDeBilletera {
                 new LibroDeBilletera(),
                 new Outbox("nucleo_financiero"),
                 Reloj.delSistema());
-        ofertas = new Ofertas();
-        pagoCU = new PagoDeCompraEnMercado(ejecucionCU, ofertas);
     }
 
     protected ContextoSesion comoServicio(String servicio) {
@@ -94,33 +85,5 @@ abstract class BaseDeInversiones extends BaseDeBilletera {
                         "ret-" + ofertaId,
                         contextoDe(usuario)))
                 .retencionId();
-    }
-
-    /** DOBLE de {@code entregas}: el contrato propuesto {@code GET /entregas/mercado/ofertas/{id}}. */
-    static final class Ofertas implements OfertasDelMercado {
-        private final Map<UUID, Oferta> porId = new HashMap<>();
-        private boolean caido;
-
-        /** Una oferta sin cargos: el vendedor cobra todo el precio. */
-        void publica(UUID ofertaId, UUID vendedor, String precio, String estado) {
-            publica(ofertaId, vendedor, precio, "0.00", estado);
-        }
-
-        /** Carril Q: la oferta trae los cargos que {@code entregas} cobra al vendedor (precio - cargos para el vendedor). */
-        void publica(UUID ofertaId, UUID vendedor, String precio, String cargos, String estado) {
-            porId.put(
-                    ofertaId,
-                    new Oferta(
-                            ofertaId, vendedor, Dinero.de(precio, Moneda.BOB), Dinero.de(cargos, Moneda.BOB), estado));
-        }
-
-        void seCae(boolean caido) {
-            this.caido = caido;
-        }
-
-        @Override
-        public Optional<Oferta> oferta(UUID ofertaId) {
-            return caido ? Optional.empty() : Optional.ofNullable(porId.get(ofertaId));
-        }
     }
 }

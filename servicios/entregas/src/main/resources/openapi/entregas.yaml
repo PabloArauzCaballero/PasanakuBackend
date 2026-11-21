@@ -34,10 +34,10 @@
 #   AP-CU28-07  FILTRO_DE_LISTADO_INVALIDO · estado desconocido o cursor a medias (backoffice carril A · H8)
 #   AP-CU28-08  RESPUESTA_MANUAL_RETIRADA · 410: la respuesta del proveedor ya no la anota una persona (F1.L2.M05)
 #
-# CU-22 (pozo completo) · Fondear el pozo: caja confirmada + respaldo empresarial (carril C, H8)
+# CU-22 (pozo completo) · Fondear el pozo con la caja confirmada (el respaldo empresarial se retiro, F2.L2.M01)
 #   AP-CU22-06  RECAUDO_NO_DISPONIBLE  · aportes no responde: no se fondea nada
-#   AP-CU22-07  PEDIDO_NO_COINCIDE     · el periodo no es del grupo, o el respaldo cubrio otro importe
-#   AP-CU22-08  RESPALDO_NO_DISPONIBLE · garantia no responde: no se sabe si cubrio, se reintenta
+#   AP-CU22-07  PEDIDO_NO_COINCIDE     · el periodo no es del grupo
+#   AP-CU22-08  RESPALDO_NO_DISPONIBLE · RETIRADO (F2.L2.M01): el fondeo ya no le pregunta a garantia
 #   AP-CU22-09  FONDEO_EN_CONFLICTO    · otro pedido movio el fondeo, o el turno ya se liquido por el camino anterior
 #   AP-CU22-10  LIQUIDACION_RETIRADA   · 410: POST /entregas ya no existe; la entrega sale del fondeo (F1.L2.M09)
 #   AP-CU22-11  EJECUCION_RETIRADA     · 410: la entrega no se cierra a mano; la cierra la acreditacion (F1.L2.M08)
@@ -382,10 +382,10 @@ paths:
       summary: Fondear el pozo completo del turno
       description: >-
         Recibir mesa es recibir el pozo completo. El pedido trae SOLO identificadores:
-        el pozo y lo confirmado los afirma `aportes`, y lo que falte lo cubre `garantia`
-        con la reserva del ciclo (todo o nada, idempotente por turno). Si el respaldo no
-        alcanza, la entrega queda BLOQUEADA conservando el pozo como principal y el
-        faltante como deuda pendiente, y se abre una incidencia critica. Reintentar con
+        el pozo y lo confirmado los afirma `aportes`. Si falta plata, la entrega queda
+        BLOQUEADA conservando el pozo como principal y el faltante como deuda pendiente,
+        y se abre una incidencia critica; la cubre el fondo del grupo (F3.L2.M05). La
+        empresa no cubre nada (F2.L2.M01): `cubiertoEmpresa` responde siempre cero. Reintentar con
         la misma clave completa el mismo fondeo; nunca crea otra entrega.
       parameters:
         - $ref: '#/components/parameters/ClaveIdempotencia'

@@ -1,0 +1,18 @@
+BEGIN
+SET
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+  estado   | monto_cubierto | aplicada 
+-----------+----------------+----------
+ APLICADA  |         500.00 | t
+ RECHAZADA |           0.00 | f
+(2 rows)
+
+ coalesce | count 
+----------+-------
+   500.00 |     1
+(1 row)
+
+ROLLBACK

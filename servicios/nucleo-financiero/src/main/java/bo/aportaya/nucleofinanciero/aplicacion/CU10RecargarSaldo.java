@@ -140,11 +140,8 @@ public class CU10RecargarSaldo {
                                     "medio", entrada.medio()),
                             UUID.fromString(ctx.traza().id())));
 
-            BITACORA.info(
-                    "CU-10 · Orden de recarga creada: id={}, cuenta={}, monto={}",
-                    ordenId,
-                    cuenta.id(),
-                    entrada.monto());
+            // Regla 90.2.1: solo identificadores; el importe es atribuible a una persona.
+            BITACORA.info("CU-10 · Orden de recarga creada: id={}, cuenta={}", ordenId, cuenta.id());
             return new SalidaSolicitud(ordenId, "PENDIENTE", expira, acreditado);
         });
     }

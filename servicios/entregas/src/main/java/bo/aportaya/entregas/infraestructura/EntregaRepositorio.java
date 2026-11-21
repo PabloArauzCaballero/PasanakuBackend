@@ -1,6 +1,5 @@
 package bo.aportaya.entregas.infraestructura;
 
-import bo.aportaya.entregas.dominio.LiquidacionDeEntrega;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.Moneda;
 import java.math.BigDecimal;
@@ -28,18 +27,6 @@ public class EntregaRepositorio {
         return dsl.select(campos())
                 .from(DSL.table(DSL.name("entregas", "entrega_fondo")))
                 .where(DSL.field("id", UUID.class).eq(id))
-                .fetchOptional(this::aEntrega);
-    }
-
-    /**
-     * La entrega de un turno, si ya se liquido. La base permite una por turno
-     * ({@code uq_entrega_turno}): es la clave natural con la que repetir la liquidacion
-     * devuelve la misma entrega en vez de chocar con el indice.
-     */
-    public Optional<Entrega> deTurno(DSLContext dsl, UUID turnoId) {
-        return dsl.select(campos())
-                .from(DSL.table(DSL.name("entregas", "entrega_fondo")))
-                .where(DSL.field("turno_id", UUID.class).eq(turnoId))
                 .fetchOptional(this::aEntrega);
     }
 
@@ -84,21 +71,6 @@ public class EntregaRepositorio {
         return id;
     }
 
-    /** Las deducciones las escribe una a una; el trigger recalcula la cabecera. */
-    public UUID agregarDeduccion(DSLContext dsl, UUID entregaId, LiquidacionDeEntrega.Deduccion deduccion) {
-        UUID id = UUID.randomUUID();
-        dsl.insertInto(DSL.table(DSL.name("entregas", "deduccion_entrega")))
-                .set(DSL.field("id", UUID.class), id)
-                .set(DSL.field("entrega_id", UUID.class), entregaId)
-                .set(DSL.field("tipo", String.class), deduccion.tipo())
-                .set(DSL.field("descripcion", String.class), deduccion.descripcion())
-                .set(DSL.field("monto", BigDecimal.class), deduccion.monto().monto())
-                .set(DSL.field("referencia_origen_id", UUID.class), deduccion.referenciaOrigenId())
-                .set(DSL.field("es_obligatoria", Boolean.class), deduccion.esObligatoria())
-                .execute();
-        return id;
-    }
-
     /** Mueve el estado desde el que se espera. Version optimista encima. */
     public boolean cambiarEstado(DSLContext dsl, UUID id, List<String> desde, String hacia, int versionLeida) {
         return dsl.update(DSL.table(DSL.name("entregas", "entrega_fondo")))
@@ -121,22 +93,6 @@ public class EntregaRepositorio {
                         .where(DSL.field("id", UUID.class)
                                 .eq(id)
                                 .and(DSL.field("estado", String.class).in("PROGRAMADA", "LISTA_PARA_ENTREGA"))
-                                .and(DSL.field("version", Integer.class).eq(versionLeida)))
-                        .execute()
-                == 1;
-    }
-
-    public boolean marcarEntregada(
-            DSLContext dsl, UUID id, UUID ejecutadaPor, Dinero entregado, OffsetDateTime ahora, int versionLeida) {
-        return dsl.update(DSL.table(DSL.name("entregas", "entrega_fondo")))
-                        .set(DSL.field("estado", String.class), "ENTREGADA")
-                        .set(DSL.field("ejecutada_por", UUID.class), ejecutadaPor)
-                        .set(DSL.field("monto_efectivamente_entregado", BigDecimal.class), entregado.monto())
-                        .set(DSL.field("fecha_entrega", OffsetDateTime.class), ahora)
-                        .set(DSL.field("version", Integer.class), versionLeida + 1)
-                        .where(DSL.field("id", UUID.class)
-                                .eq(id)
-                                .and(DSL.field("estado", String.class).in("AUTORIZADA", "EN_PROCESO_DESEMBOLSO"))
                                 .and(DSL.field("version", Integer.class).eq(versionLeida)))
                         .execute()
                 == 1;

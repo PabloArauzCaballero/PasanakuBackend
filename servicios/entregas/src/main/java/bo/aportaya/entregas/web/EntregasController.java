@@ -94,7 +94,7 @@ public class EntregasController implements EntregasApi {
                 "La entrega ya no se cierra a mano: queda entregada al acreditarse el desembolso.");
     }
 
-    /** Recibir mesa es recibir el pozo completo: el importe lo afirman aportes y garantia, no el cliente. */
+    /** Recibir mesa es recibir el pozo completo: el importe lo afirma aportes, no el cliente. */
     @Override
     @Permiso("ENTREGA_EJECUTAR")
     public ResponseEntity<SalidaFondeoDelPozo> fondearPozo(UUID idempotencyKey, EntradaFondeoDelPozo cuerpo) {
