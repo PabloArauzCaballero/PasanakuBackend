@@ -1,0 +1,30 @@
+# F1.L5.M26 — Avisos internos filtrados por destinatario (2026-11-21)
+
+## Relocalización en origin/dev
+AvisoInternoRepositorio.marcarLeido: selectFrom(AVISO_INTERNO).where(ID.eq(id)) y store(), sin destinatario -> el operador B marcaba y recibía el aviso de A. Vigente.
+(listar, contar y marcar todos ya filtraban por usuario o rol.)
+
+## SQL contra PostgreSQL 16 local (datos sintéticos, transacción revertida)
+--- B (roles: OTRO_ROL) marca el aviso de A con el UPDATE corregido ---
+UPDATE 0
+--- B con rol ROL_X marca el aviso del rol ---
+UPDATE 1
+--- A marca su propio aviso ---
+UPDATE 1
+--- comportamiento de origin/dev: SELECT por id sin destinatario (lo que B obtenía y marcaba) ---
+ titulo 
+--------
+ para A
+(1 row)
+
+ROLLBACK
+
+## Pruebas
+$ ./gradlew :servicios:notificaciones:webTest --tests '*AvisosInternosWebTest' --rerun -> exit=0, 8 casos, 0 fallos (incluye: operador B -> 404 y el filtro recibe SU usuario y SUS roles)
+$ ./gradlew :servicios:notificaciones:spotlessCheck test webTest testBarrido --rerun -> exit=0
+test: 5 casos, 0 fallos
+webTest: 47 casos, 0 fallos
+testBarrido: 2 casos, 0 fallos
+
+NO COMPROBADO — requiere Docker: AvisoInternoRepositorioTest (casos nuevos: otro operador no marca el aviso ajeno; el rol destinatario sí). Comando: ./gradlew :servicios:notificaciones:integrationTest --tests '*AvisoInternoRepositorioTest'
+No cubierto: política RLS por destinatario (bloque genérico compartido).

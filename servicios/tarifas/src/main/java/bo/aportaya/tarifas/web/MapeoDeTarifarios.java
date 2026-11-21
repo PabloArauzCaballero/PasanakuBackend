@@ -51,4 +51,19 @@ final class MapeoDeTarifarios {
         r.setEjecutadaEn(s.ejecutadaEn());
         return r;
     }
+
+    /**
+     * El aprobador de la publicacion: el actor de la sesion (F1.L5.M28). Lee el campo deprecado del cuerpo solo para
+     * rechazarlo si nombra a otra persona; se borra con el campo (2027-02-28).
+     */
+    @SuppressWarnings("deprecation")
+    static java.util.UUID aprobadorDeLaSesion(
+            bo.aportaya.tarifas.web.generado.modelo.EntradaPublicacion cuerpo, java.util.UUID actor) {
+        if (cuerpo.getAprobadoPor() != null && !cuerpo.getAprobadoPor().equals(actor)) {
+            throw new bo.aportaya.plataforma.dominio.ErrorDeNegocio(
+                    bo.aportaya.plataforma.dominio.CodigoError.de(34, 6),
+                    "Quien aprueba la publicacion es quien la firma con su sesion.");
+        }
+        return actor;
+    }
 }

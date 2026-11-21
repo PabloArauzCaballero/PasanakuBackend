@@ -184,28 +184,31 @@ class ReputacionControllerWebTest {
         }
 
         @Test
-        @DisplayName("CU-75 · lo disponible y lo elegido llegan separados al caso de uso")
-        void loElegidoLlegaSeparadoDeLoDisponible() throws Exception {
+        @DisplayName("CU-75 · F1.L5.M21: los valores y la «identidad verificada» del cuerpo NO llegan al caso de uso")
+        void loDelCuerpoNoDecideLoQueSeFirma() throws Exception {
+            // Reemplaza a «lo disponible y lo elegido llegan separados»: antes el caso de uso firmaba los `disponibles`
+            // del cuerpo y creia su `identidadVerificada`. Ahora solo llega lo que el titular ELIGE; los valores salen
+            // de
+            // su foto y la verificacion, de identidad (CertificadoConDatosDelServidorTest).
             when(cu75.emitir(any(), any()))
                     .thenReturn(new CU75EmitirCertificado.SalidaCertificado(
                             CERTIFICADO, "APY-1", "url", "ab".repeat(32), null, null, Map.of()));
 
-            emitir(CUERPO).andExpect(status().isCreated());
+            emitir(CUERPO.replace("\"87.50\"", "\"999.99\"")).andExpect(status().isCreated());
 
             var capturada = ArgumentCaptor.forClass(CU75EmitirCertificado.EntradaCertificado.class);
             verify(cu75).emitir(capturada.capture(), any());
             var entrada = capturada.getValue();
 
-            // El caso de uso necesita las dos listas: con `incluir` arma el contenido y
-            // el hash; `disponibles` es de donde saca los valores. Confundirlas es
-            // publicar lo que nadie eligio.
             org.assertj.core.api.Assertions.assertThat(entrada.incluir())
                     .containsExactlyInAnyOrder("puntaje", "grupos");
-            org.assertj.core.api.Assertions.assertThat(entrada.disponibles())
-                    .containsKeys("puntaje", "grupos", "documento");
             org.assertj.core.api.Assertions.assertThat(entrada.vigenciaDias()).isEqualTo(90);
-            org.assertj.core.api.Assertions.assertThat(entrada.identidadVerificada())
-                    .isTrue();
+            // La entrada del caso de uso ya no tiene donde llevar valores ni la verificacion.
+            org.assertj.core.api.Assertions.assertThat(entrada.toString()).doesNotContain("999.99");
+            org.assertj.core.api.Assertions.assertThat(
+                            CU75EmitirCertificado.EntradaCertificado.class.getRecordComponents())
+                    .extracting(java.lang.reflect.RecordComponent::getName)
+                    .containsExactly("usuarioId", "snapshotId", "incluir", "vigenciaDias");
         }
 
         @Test
