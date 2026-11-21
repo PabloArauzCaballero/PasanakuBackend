@@ -1,6 +1,9 @@
 # Reporte — F0 Preparación del plan de correcciones (hito H0)
 
-> **AVANCE: __HECHAS__ / 13 — __PCT__ %.** Línea base: __RESUMEN_GRADLE__.
+> **AVANCE: 11 / 11 — 100,0 %** de las microtareas del carril (`plan_status.py`). **El hito H0 del plan maestro NO
+> está cerrado:** ningún PR está mergeado, F0.M2 (Docker) no se ejecutó, y la línea base no incluye `integrationTest`
+> ni Flutter. Línea base en `dev`: Gradle `test` 15/15 servicios en verde (559 pruebas, 0 fallidas); 1 verificador en
+> rojo (`verificar_rutas_frontend.py`); los 2 paquetes Flutter, NO COMPROBADO.
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Base: `origin/dev` 850e0f51
 - Ramas y PR (todos hacia `dev`, ninguno mergeado):
@@ -12,7 +15,7 @@
   | [#403](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/403) | `…-adr056` (apilada sobre `-adr055`) | H0.S2.M2 — F0.M4 ADR-056 |
   | [#404](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/404) | `…-adr058` (apilada sobre `-adr056`) | H0.S2.M3 — PX0.M01 ADR-058 |
   | [#405](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/405) | `…-flujos` | H0.S3.M1 — F0.M5 catálogo de flujos |
-  | __PR_LB__ | `…-linea-base` | H0.S4 — F0.M6 línea base + este plan y reporte |
+  | [#406](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/406) | `…-linea-base` | H0.S4 — F0.M6 línea base + este plan y reporte |
 - Peldaño de evidencia: **documentación `VERIFIED`** contra sus verificadores (`verificar_boveda.py`,
   `validar_flujos.py`, `blocker_gate.py`, con salida pegada). **Línea base `RUNS`/`TESTED`** según la tabla.
   Nada de esto es `REGRESSION_VERIFIED`: Pablo revisa y mergea.
@@ -28,13 +31,22 @@
 | H0.S2.M3 | PX0.M01: ADR-058 con RM-01..RM-20; ADR-035 enmendada (sin WhatsApp) | `verificar_boveda.py` + `grep -c "^| RM-"` | PASS: `TODO OK`, 55 ADR, 20 filas · `evidencia/PX0.M01-adr058.txt` |
 | H0.S3.M1 | F0.M5: catálogo vivo sin respaldo ni fondo viejo; flujo objetivo en `objetivo-modelo-A.md` | `python3 scripts/validar_flujos.py` + `grep` de pasos de respaldo | PASS: «Sin fallas.», grep vacío · `evidencia/F0.M5-flujos.txt` |
 | H0.S4.M1 | F0.M6: 16 verificadores de solo lectura + 4 self-tests de candados corridos una vez y guardados | ver tabla de la línea base | PASS como ejecución (19 rc=0, 1 rc=1 registrado) · `evidencia/linea-base/verificadores/` |
-__COMPLETADO_GRADLE__
+| H0.S4.M2 | F0.M6: `./gradlew :servicios:<s>:test` en los 15 servicios, de a uno, contra PostgreSQL local | ver tabla de Gradle | PASS: 15/15 rc=0, 559 pruebas, 0 fallidas · `evidencia/linea-base/gradle/` |
+| H0.S4.M3 | F0.M6: `yarn lint` y `yarn typecheck` con dependencias instaladas | ver §`yarn` | PASS como ejecución: los fallos son de entorno (Flutter) y quedan NO COMPROBADO · `evidencia/linea-base/yarn/` |
 | H0.S4.M4 | F0.M2: procedimiento Docker para la máquina de Pablo escrito (abajo), sin ejecutar por instrucción | lectura de §«F0.M2» | PASS (documento) |
 | H0.S5.M1 | Las 18 `F0.Lx.Mnn` de los anexos clasificadas con destino | `grep -c "F0.L" REPORTE.md` | PASS (ver §«Anexos») |
 
 ## A medias
 
-__A_MEDIAS__
+### H0 (hito del plan maestro) — Preparación
+- **Qué anda:** las 11 microtareas del carril tienen su DoD ejecutado y su PR abierto (#400 a #406).
+- **Qué no anda:** nada está en `dev` todavía; mientras #401 no se mergee, cualquier rama que salga de `dev` sigue
+  trabada por `blocker_gate` (pasó en esta sesión). F0.M2 no se ejecutó.
+- **Qué falta exactamente:** (1) que Pablo revise y mergee, en este orden: #400, #401, #402 → #403 → #404, #405 y
+  #406; (2) correr F0.M2 en la máquina de Pablo con el procedimiento de abajo; (3) sumar a la línea base
+  `webTest` + `integrationTest` por servicio y `flutter analyze`, en esa misma máquina.
+- **Dónde quedó:** ramas `correcciones/f0-preparacion-2026-11-21*`; solo documentación y evidencia, nada que
+  compilar.
 
 ## Pendiente
 
@@ -76,7 +88,29 @@ Leí cada script antes de correrlo: ninguno escribe archivos en el modo usado (`
 
 ### Gradle `test` por servicio (PostgreSQL 16 local, puerto 5433, `sql/aplicar.sql` rc=0)
 
-__TABLA_GRADLE__
+| Servicio | rc | BUILD | Clases | Pruebas | Fallidas | Errores | Omitidas 
+|---|---|---|---|---|---|---|---|
+| aportes | 0 | BUILD SUCCESSFUL in 2m 13s | 11 | 53 | 0 | 0 | 0 |
+| auditoria | 0 | BUILD SUCCESSFUL in 20s | 13 | 58 | 0 | 0 | 0 |
+| cumplimiento | 0 | BUILD SUCCESSFUL in 17s | 2 | 14 | 0 | 0 | 0 |
+| entregas | 0 | BUILD SUCCESSFUL in 26s | 9 | 40 | 0 | 0 | 0 |
+| erp | 0 | BUILD SUCCESSFUL in 13s | 1 | 5 | 0 | 0 | 0 |
+| garantia | 0 | BUILD SUCCESSFUL in 25s | 8 | 43 | 0 | 0 | 0 |
+| grupos | 0 | BUILD SUCCESSFUL in 30s | 18 | 114 | 0 | 0 | 0 |
+| identidad | 0 | BUILD SUCCESSFUL in 36s | 9 | 46 | 0 | 0 | 0 |
+| inversiones | 0 | BUILD SUCCESSFUL in 15s | 4 | 36 | 0 | 0 | 0 |
+| notificaciones | 0 | BUILD SUCCESSFUL in 11s | 1 | 5 | 0 | 0 | 0 |
+| nucleo-financiero | 0 | BUILD SUCCESSFUL in 26s | 19 | 94 | 0 | 0 | 0 |
+| organizador | 0 | BUILD SUCCESSFUL in 15s | 2 | 15 | 0 | 0 | 0 |
+| publicidad | 0 | BUILD SUCCESSFUL in 10s | 1 | 5 | 0 | 0 | 0 |
+| tarifas | 0 | BUILD SUCCESSFUL in 14s | 2 | 7 | 0 | 0 | 0 |
+| transparencia | 0 | BUILD SUCCESSFUL in 11s | 3 | 24 | 0 | 0 | 0 |
+| **Total** | | | 103 | 559 | 0 | 0 | 0 |
+
+`identidad` necesitó un segundo intento por un 429 de Maven Central (salida del primero en
+`identidad-intento1-429.txt`). La primera tanda completa se cortó al primer servicio por el mismo 429 (en
+`_primer-intento/`), así que se repitió con `--max-workers=1 -Dorg.gradle.parallel=false` y hasta tres intentos
+con espera. Los conteos salen de los XML de JUnit de `servicios/<s>/build/test-results/test/`.
 
 `webTest` (MockMvc, sin contenedor) e `integrationTest` (Testcontainers) **no** se corrieron en esta línea base: el
 primero no lo pedía la instrucción y alargaba la sesión; el segundo necesita Docker. Comando exacto para la
@@ -92,7 +126,22 @@ done
 
 ### `yarn lint` y `yarn typecheck`
 
-__YARN__
+No había `node_modules`. `corepack` no pudo bajar Yarn 4.18.0: primero salía sin proxy (`ENOTFOUND`) y, con
+`NODE_USE_ENV_PROXY=1`, el proxy del entorno respondió **403** para `repo.yarnpkg.com`. Se usó el mismo Yarn 4.18.0
+publicado en npm (`@yarnpkg/cli-dist`, en una carpeta temporal fuera del repo). `yarn install --immutable`: rc=0,
+lockfile intacto.
+
+| Tarea | Resultado | Detalle |
+|---|---|---|
+| `yarn lint --continue` | 8/10 PASS | Fallan `@aportaya/movil` y `@aportaya/diseno-flutter`: exit 127, no hay Flutter/Dart en el contenedor → **NO COMPROBADO** (`ENVIRONMENT`) |
+| `yarn typecheck --continue` sin clientes generados | 9/14 | `web` y `backoffice` con 104 `error TS`, casi todos `Cannot find module 'clientes/angular/…'`: los clientes están en `.gitignore` y la CI los genera antes (`ci.yml:259-288`). No es un defecto del producto, es un paso previo |
+| `./gradlew generarClientes` (paso previo de la CI) | PASS | Regenerarlo modifica 3 fragmentos Dart **versionados** (`clientes/dart/{aportes,notificaciones,tarifas}/lib/…`): confirma F0.L6.M02. Restaurados con `git checkout`, no se commitean |
+| `yarn typecheck --continue` con clientes generados | 11/14 PASS | `web` y `backoffice` en verde; fallan solo los 2 paquetes Flutter (exit 127) → **NO COMPROBADO** |
+
+**Efecto secundario encontrado:** el `build` de `@aportaya/simulado` (dependencia de `typecheck`) **escribe en el
+repo** un archivo nuevo, `packages/simulado/ejemplos/aportes/consultarPrimeraCuota.json` («1 creados · 349
+conservados»). Lo borré después de cada corrida. Es un desfase entre el contrato de `aportes` y los ejemplos del
+simulado en `dev`; queda anotado, no se arregló.
 
 ## F0.M2 — Procedimiento Docker para la máquina de Pablo (no ejecutado)
 
@@ -169,7 +218,7 @@ Todo en [`evidencia/`](./evidencia/):
 - `F0.M1-blocker-gate.txt`, `F0.M3-adr055.txt`, `F0.M4-adr056.txt`, `PX0.M01-adr058.txt`, `F0.M5-flujos.txt`.
 - `linea-base/verificadores/*.txt` (uno por verificador, con comando, HEAD y `rc`).
 - `linea-base/gradle/*.txt` (uno por servicio) y `_resumen.txt`; `linea-base/postgres-local.txt`.
-- `linea-base/yarn/` si corrió.
+- `linea-base/yarn/` (`install`, `lint`, `typecheck` con y sin clientes, `generarClientes`, fragmentos desfasados).
 
 ```text
 $ python3 .claude/hooks/blocker_gate.py --self-test
@@ -204,13 +253,19 @@ Sin fallas.
 4. **Banners agregados** en ADR-052 (DD-2) y ADR-035 (WhatsApp), que la instrucción no nombraba, porque DECISIONES
    también los cambia. Declarados en #402 y #404.
 5. **`matriz.md` regenerada** en #405: el diff incluye un desfase que ya existía en `dev`.
-6. **Línea base:** se corrió `test` (lo pedido); no `webTest`.
+6. **Línea base:** se corrió `test` (lo pedido); no `webTest`. Para `typecheck` se corrió además `generarClientes`, el
+   paso previo que hace la CI, porque sin él el resultado no medía nada. Yarn se tomó de npm porque el proxy niega
+   `repo.yarnpkg.com`.
 
 ## Riesgos residuales y deuda
 
 - Conflictos de merge si alguien más toca `_Arquitectura.md` o la cifra de ADR antes que la pila.
 - `verificar_rutas_frontend.py` en rojo en `dev` (lista de conocidas vieja): cualquier gate que lo exija ya falla.
 - `matriz.md` desfasada en `dev` hasta que se mergee #405.
+- El `build` de `@aportaya/simulado` ensucia el árbol (crea un ejemplo nuevo); tres fragmentos de `clientes/dart`
+  versionados están desfasados del contrato (F0.L6.M02).
+- La red del entorno niega `repo.yarnpkg.com`: `corepack` no puede bajar Yarn. Si se quiere `yarn` sin el rodeo, hay
+  que permitir ese host en el entorno (no lo propuse: la instrucción pedía yarn solo «si hay dependencias»).
 - El texto «Diez ADR quedaron superados» de `_Arquitectura.md` ya era falso (hay 13, 14 con ADR-051).
 - El `PLAN.md` del plan maestro no tiene IDs que `plan_lib` reconozca (lo marca «malformado»); no bloquea, pero su
   avance no se puede calcular con `plan_status.py`.

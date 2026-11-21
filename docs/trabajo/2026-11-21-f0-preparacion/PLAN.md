@@ -36,14 +36,14 @@
 **CA:** Dado `dev`, cuando una sesión del plan arranca, entonces lee el plan desde `dev`, los ADR coinciden con
 DECISIONES, ningún candado viejo la traba y existe la línea base.
 **DoD:** cada PR con su salida pegada; `verificar_boveda.py` y `validar_flujos.py` sin fallas nuevas.
-**Estado:** TODO
+**Estado:** A MEDIAS — las 11 microtareas del carril tienen su DoD; el hito no cierra hasta que Pablo mergee los PR, se ejecute F0.M2 en su máquina y la línea base sume `integrationTest` y Flutter
 
 ### H0.S1 — Plan visible y candado destrabado
 
 **CA:** Dado `dev` con los PR mergeados, cuando se abre `docs/trabajo/`, entonces están el plan y las decisiones, y
 `blocker_gate` no bloquea.
 **DoD:** `ls` de las carpetas + `blocker_gate.py --self-test` + corrida real.
-**Estado:** TODO
+**Estado:** HECHO (sus microtareas tienen el DoD ejecutado; PR sin mergear)
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
@@ -55,7 +55,7 @@ DECISIONES, ningún candado viejo la traba y existe la línea base.
 **CA:** Dado `docs/Arquitectura/`, cuando una sesión busca la regla vigente de aprobaciones, garantía o proveedores,
 entonces encuentra ADR-055, ADR-056 y ADR-058, y los ADR viejos dicen qué quedó reemplazado.
 **DoD:** `python3 scripts/verificar_boveda.py` sin fallas nuevas en la sección ARQUITECTURA + grep de banners.
-**Estado:** TODO
+**Estado:** HECHO (sus microtareas tienen el DoD ejecutado; PR sin mergear)
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
@@ -67,7 +67,7 @@ entonces encuentra ADR-055, ADR-056 y ADR-058, y los ADR viejos dicen qué qued�
 
 **CA:** Dado el catálogo, cuando se lo valida, entonces no nombra respaldo ni aprobaciones eliminadas y pasa.
 **DoD:** `python3 scripts/validar_flujos.py` → «Sin fallas.»
-**Estado:** TODO
+**Estado:** HECHO (sus microtareas tienen el DoD ejecutado; PR sin mergear)
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
@@ -78,20 +78,20 @@ entonces encuentra ADR-055, ADR-056 y ADR-058, y los ADR viejos dicen qué qued�
 **CA:** Dado `dev`, cuando una fase quiere medir regresión, entonces tiene la salida de cada verificador y de cada
 suite por servicio.
 **DoD:** archivos en `evidencia/linea-base/` + tabla PASS/FAIL/NO COMPROBADO en el `REPORTE.md`.
-**Estado:** TODO
+**Estado:** HECHO (sus microtareas tienen el DoD ejecutado; PR sin mergear)
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H0.S4.M1 | F0.M6: verificadores de solo lectura (`scripts/verificar_*.py` y afines), uno por uno, salida guardada | Cada verificador tiene su archivo de salida con código de salida | `ls evidencia/linea-base/verificadores/` | TODO |
-| H0.S4.M2 | F0.M6: `./gradlew :servicios:<s>:test` de a uno contra la base Postgres local de EJECUCION.md | Cada servicio tiene su salida y su veredicto | `ls evidencia/linea-base/gradle/` | TODO |
-| H0.S4.M3 | F0.M6: `yarn lint` y `yarn typecheck` si hay dependencias | Salida guardada o motivo de NO COMPROBADO | `ls evidencia/linea-base/yarn/` | TODO |
-| H0.S4.M4 | F0.M2: procedimiento Docker para la máquina de Pablo escrito en el `REPORTE.md` (no se ejecuta por instrucción) | El procedimiento nombra el compose, los servicios y los healthchecks reales del repo | Lectura del `REPORTE.md` §F0.M2 | TODO |
+| H0.S4.M1 | F0.M6: verificadores de solo lectura (`scripts/verificar_*.py` y afines), uno por uno, salida guardada | Cada verificador tiene su archivo de salida con código de salida | `ls evidencia/linea-base/verificadores/` | HECHO — 20 salidas: 19 rc=0, `verificar_rutas_frontend` rc=1 (registrado, no arreglado) |
+| H0.S4.M2 | F0.M6: `./gradlew :servicios:<s>:test` de a uno contra la base Postgres local de EJECUCION.md | Cada servicio tiene su salida y su veredicto | `ls evidencia/linea-base/gradle/` | HECHO — 15/15 rc=0, 559 pruebas, 0 fallidas (`_conteo-junit.txt`) |
+| H0.S4.M3 | F0.M6: `yarn lint` y `yarn typecheck` si hay dependencias | Salida guardada o motivo de NO COMPROBADO | `ls evidencia/linea-base/yarn/` | HECHO — lint 8/10 y typecheck 11/14; los fallos son los 2 paquetes Flutter (exit 127, sin Flutter) → NO COMPROBADO |
+| H0.S4.M4 | F0.M2: procedimiento Docker para la máquina de Pablo escrito en el `REPORTE.md` (no se ejecuta por instrucción) | El procedimiento nombra el compose, los servicios y los healthchecks reales del repo | Lectura del `REPORTE.md` §F0.M2 | HECHO (documento; la ejecución queda para la máquina de Pablo) |
 
 ### H0.S5 — Anexos
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H0.S5.M1 | Clasificar las 18 `F0.Lx.Mnn` de los anexos: documentales (se cubren en H0.S2/H0.S3) y de código (lista para la próxima tanda) | Las 18 aparecen en el `REPORTE.md` con destino | `grep -c "F0.L" REPORTE.md` ≥ 18 | TODO |
+| H0.S5.M1 | Clasificar las 18 `F0.Lx.Mnn` de los anexos: documentales (se cubren en H0.S2/H0.S3) y de código (lista para la próxima tanda) | Las 18 aparecen en el `REPORTE.md` con destino | `grep -c "F0.L" REPORTE.md` ≥ 18 | HECHO |
 
 ## Riesgos y bloqueos previstos
 
