@@ -1,16 +1,12 @@
 package bo.aportaya.entregas;
 
 import bo.aportaya.entregas.aplicacion.CU18RegistrarCuentaDestino.EntradaRegistro;
-import bo.aportaya.entregas.aplicacion.CU22LiquidarEntrega.EntradaLiquidacion;
 import bo.aportaya.entregas.aplicacion.CU28EmitirDesembolso.EntradaOrden;
-import bo.aportaya.entregas.dominio.LiquidacionDeEntrega;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.Moneda;
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 
@@ -63,24 +59,11 @@ abstract class EscenarioDeDesembolso extends BaseDeEntregas {
             }
         }
 
-        var entrega = transaccion.execute(t -> entregaCU.liquidar(
-                new EntradaLiquidacion(
-                        escenario.grupoId(),
-                        escenario.periodoId(),
-                        escenario.turnoId(),
-                        escenario.cupoId(),
-                        escenario.participanteId(),
-                        bob("6000.00"),
-                        bob("6000.00"),
-                        List.of(new LiquidacionDeEntrega.Deduccion(
-                                "COMISION_PLATAFORMA", "Comision", bob("18.00"), UUID.randomUUID(), true)),
-                        "TRANSFERENCIA_BANCARIA",
-                        LocalDate.now()),
-                ctx));
+        UUID entregaId = entregaFondeada(escenario, "TRANSFERENCIA_BANCARIA", ctx);
         ContextoSesion supervisor = contextoDe(fixtura.usuario());
-        transaccion.execute(t -> entregaCU.autorizar(entrega.entregaId(), supervisor));
+        transaccion.execute(t -> entregaCU.autorizar(entregaId, supervisor));
 
-        return new Caso(usuario, entrega.entregaId(), cuenta.cuentaId(), fixtura.proveedor(), ctx);
+        return new Caso(usuario, entregaId, cuenta.cuentaId(), fixtura.proveedor(), ctx);
     }
 
     protected EntradaOrden orden(Caso c, String clave) {

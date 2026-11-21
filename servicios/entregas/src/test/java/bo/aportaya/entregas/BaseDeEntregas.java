@@ -127,6 +127,32 @@ abstract class BaseDeEntregas {
                 Duration.ofMinutes(15));
     }
 
+    /**
+     * Una entrega como nace hoy: del fondeo del pozo completo, con aportes confirmando Bs 6.000 en caja (el doble de
+     * aportes, regla 65). La liquidacion con importes del pedido se retiro (F1.L2.M09).
+     */
+    protected UUID entregaFondeada(FixturaDeEntregas.Escenario e, String metodo, ContextoSesion ctx) {
+        aportesDoble.responde(new bo.aportaya.entregas.dominio.puertos.RecaudoDelPozo.Recaudo(
+                e.periodoId(),
+                e.grupoId(),
+                java.time.OffsetDateTime.now(),
+                bo.aportaya.plataforma.dominio.Dinero.de("6000.00", bo.aportaya.plataforma.dominio.Moneda.BOB),
+                bo.aportaya.plataforma.dominio.Dinero.de("6000.00", bo.aportaya.plataforma.dominio.Moneda.BOB),
+                bo.aportaya.plataforma.dominio.Dinero.de("0.00", bo.aportaya.plataforma.dominio.Moneda.BOB)));
+        return pozoCU.fondear(
+                        new CU22EntregarPozoCompleto.Entrada(
+                                e.grupoId(),
+                                e.periodoId(),
+                                e.turnoId(),
+                                e.cupoId(),
+                                e.participanteId(),
+                                metodo,
+                                java.time.LocalDate.now(),
+                                "fondeo-" + e.turnoId()),
+                        ctx)
+                .entregaId();
+    }
+
     protected ContextoSesion contextoDe(UUID usuarioId) {
         return ContextoSesion.de(
                 usuarioId, "PARTICIPANTE", new Traza(UUID.randomUUID().toString()));
