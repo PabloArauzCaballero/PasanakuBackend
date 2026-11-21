@@ -3,7 +3,7 @@ package bo.aportaya.nucleofinanciero;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo.EntradaSolicitud;
+import bo.aportaya.nucleofinanciero.aplicacion.SolicitudDeRecarga;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
@@ -42,8 +42,8 @@ class CU10IdempotenciaTest extends BaseDeBilletera {
         fixtura.limpiarBilleteras();
     }
 
-    private EntradaSolicitud pedido(String clave, String monto, String medio, Optional<UUID> instrumento) {
-        return new EntradaSolicitud(
+    private SolicitudDeRecarga pedido(String clave, String monto, String medio, Optional<UUID> instrumento) {
+        return new SolicitudDeRecarga(
                 clave, cuenta, Dinero.de(monto, Moneda.BOB), Dinero.de("5.00", Moneda.BOB), medio, instrumento);
     }
 
@@ -101,7 +101,7 @@ class CU10IdempotenciaTest extends BaseDeBilletera {
     @DisplayName("rechaza agregar o cambiar la cotizacion aceptada con la misma clave")
     void cambiarLaCotizacionSeRechaza() {
         UUID cotizacion = UUID.randomUUID();
-        var con = new EntradaSolicitud(
+        var con = new SolicitudDeRecarga(
                 "k4",
                 cuenta,
                 Dinero.de("300.00", Moneda.BOB),
@@ -126,7 +126,7 @@ class CU10IdempotenciaTest extends BaseDeBilletera {
         assertThatThrownBy(() -> enTransaccion(
                         () -> recargaCU.solicitar(pedido("k5", "301.00", "QR", Optional.empty()), titular)))
                 .isInstanceOf(ErrorDeNegocio.class);
-        var otroCosto = new EntradaSolicitud(
+        var otroCosto = new SolicitudDeRecarga(
                 "k5", cuenta, Dinero.de("300.00", Moneda.BOB), Dinero.de("6.00", Moneda.BOB), "QR", Optional.empty());
         assertThatThrownBy(() -> enTransaccion(() -> recargaCU.solicitar(otroCosto, titular)))
                 .isInstanceOf(ErrorDeNegocio.class);
@@ -142,7 +142,7 @@ class CU10IdempotenciaTest extends BaseDeBilletera {
         var mia = enTransaccion(
                 () -> recargaCU.solicitar(pedido("compartida", "300.00", "QR", Optional.empty()), titular));
         var suya = enTransaccion(() -> recargaCU.solicitar(
-                new EntradaSolicitud(
+                new SolicitudDeRecarga(
                         "compartida",
                         otraCuenta,
                         Dinero.de("300.00", Moneda.BOB),

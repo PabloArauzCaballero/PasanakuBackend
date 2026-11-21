@@ -83,6 +83,28 @@ class FixturaDeErp {
         });
     }
 
+    /**
+     * Un asiento en BORRADOR, sin lineas, en el periodo dado. Sirve para probar una regla
+     * de la LINEA (por ejemplo R-CTB-02) sin que la tape R-AUD-14, que rechaza cualquier
+     * linea nueva en un asiento ya en firme.
+     */
+    UUID asientoBorrador(UUID periodoId, UUID registradoPor) {
+        UUID id = UUID.randomUUID();
+        dsl.execute(
+                """
+                INSERT INTO nucleo_financiero.asiento_contable
+                    (id, numero, fecha, glosa, origen_tipo, origen_id, periodo_contable_id,
+                     estado, registrado_por)
+                VALUES (?, ?, current_date, 'Borrador del carril', 'AJUSTE', gen_random_uuid(), ?,
+                        'BORRADOR', ?)
+                """,
+                id,
+                (long) SECUENCIA.incrementAndGet(),
+                periodoId,
+                registradoPor);
+        return id;
+    }
+
     private void movimiento(DSLContext t, UUID asientoId, UUID cuentaId, String debe, String haber) {
         t.execute(
                 """

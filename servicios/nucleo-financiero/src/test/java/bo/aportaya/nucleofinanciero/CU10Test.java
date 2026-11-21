@@ -3,9 +3,9 @@ package bo.aportaya.nucleofinanciero;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo.EntradaSolicitud;
 import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo.SalidaAcreditacion;
 import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo.SalidaSolicitud;
+import bo.aportaya.nucleofinanciero.aplicacion.SolicitudDeRecarga;
 import bo.aportaya.nucleofinanciero.dominio.CostoDeOperacion;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Dinero;
@@ -51,7 +51,7 @@ class CU10Test extends BaseDeBilletera {
 
     private SalidaSolicitud solicitar(UUID cuenta, String monto, String clave, ContextoSesion ctx) {
         return transaccion.execute(e -> recargaCU.solicitar(
-                new EntradaSolicitud(clave, cuenta, bob(monto), bob("0.00"), "QR", Optional.empty()), ctx));
+                new SolicitudDeRecarga(clave, cuenta, bob(monto), bob("0.00"), "QR", Optional.empty()), ctx));
     }
 
     @Test

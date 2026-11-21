@@ -16,6 +16,7 @@ import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU11RetirarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion;
 import bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor;
+import bo.aportaya.nucleofinanciero.aplicacion.SolicitudDeRecarga;
 import bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRecargas.CobroQr;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.Sesiones;
@@ -59,7 +60,7 @@ class BilleteraFondeoWebTest extends BaseDeOperacionesWeb {
                 .andExpect(jsonPath("$.cobroQr.contenido").value("PASANAKU-PRUEBA|NO-PAGABLE|ref=x"))
                 .andExpect(jsonPath("$.cobroQr.origen").value("PRUEBA"));
 
-        var entrada = ArgumentCaptor.forClass(CU10RecargarSaldo.EntradaSolicitud.class);
+        var entrada = ArgumentCaptor.forClass(SolicitudDeRecarga.class);
         verify(recargas).solicitarConQr(entrada.capture(), any());
         assertThat(entrada.getValue().claveIdempotencia()).isEqualTo(CLAVE);
     }
