@@ -51,7 +51,7 @@ public final class CredencialPorLogin implements CredencialDeServicio {
     /**
      * @param servicio quien pide la credencial («inversiones», «entregas»): viaja como huella del dispositivo para que
      *     la bitacora de identidad distinga las sesiones de cada cuenta de servicio.
-     * @param factor el segundo factor para un instante: un TOTP calculado o el codigo fijo de TEST.
+     * @param factor el segundo factor para un instante: el TOTP calculado con la semilla de la cuenta.
      */
     public CredencialPorLogin(
             URI identidad,
@@ -76,10 +76,6 @@ public final class CredencialPorLogin implements CredencialDeServicio {
 
     public static Function<Instant, String> totp(String semillaBase32) {
         return ahora -> CodigoTotp.de(semillaBase32, ahora);
-    }
-
-    public static Function<Instant, String> fijo(String codigo) {
-        return ahora -> codigo;
     }
 
     @Override

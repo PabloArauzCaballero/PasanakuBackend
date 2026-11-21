@@ -1,0 +1,27 @@
+# Retiro de *_SERVICIO_FACTOR_FIJO (autorizado por el coordinador; base: rama de #483, que agrega garantía)
+Fecha: 2026-11-21
+
+## Qué cambió
+- comun-web: CredencialDeServicioConfigurada.de(...) ya no recibe factorFijo; una cuenta de servicio exige teléfono, clave y TOTP_SEMILLA.
+  CredencialPorLogin.fijo(...) se borra. En CredencialPorLoginContratoTest el factor es un doble local (lambda): la prueba ejercita el ingreso, no el TOTP.
+- grupos, entregas, inversiones: sale @Value(...factor-fijo) y la clave factor-fijo de application.yml. garantia: sale el "" del argumento.
+- despliegue/ensayos/arranque/lib.sh: genera ENTREGAS_SERVICIO_TOTP_SEMILLA (base32, 160 bits) en vez de FACTOR_FIJO=000000 y la enmascara.
+- servicios/inversiones/README.md: documenta solo TOTP.
+
+## Pruebas
+$ ./gradlew :plataforma:comun-web:test --tests "*CredencialDeServicioConfiguradaTest"  → tests="3" failures="0" errors="0"
+  correcto: teléfono+clave+semilla → CredencialPorLogin · límite: solo token emitido / nada · inválido: sin clave, sin semilla (mensaje nombra TOTP_SEMILLA y no FACTOR_FIJO), semilla sola
+$ ./gradlew :plataforma:comun-web:contractTest --tests "*CredencialPorLoginContratoTest"  → tests="9" failures="0" errors="0"
+$ ./gradlew :plataforma:comun-web:test :plataforma:comun-web:contractTest + spotlessCheck (comun-web y los 4 servicios)
+BUILD SUCCESSFUL in 11s
+comun-web: tests=33 failures=0 errors=0 skipped=0
+$ ./gradlew :servicios:{grupos,entregas,inversiones,garantia}:compileTestJava
+BUILD SUCCESSFUL in 17s
+
+## lib.sh (completar_entorno en aislamiento, dos corridas sobre un entorno viejo con FACTOR_FIJO)
+X=<valor> · ENTREGAS_SERVICIO_FACTOR_FIJO=<valor> (queda, sin efecto) · ENTREGAS_SERVICIO_TELEFONO · ENTREGAS_SERVICIO_CLAVE · ENTREGAS_SERVICIO_TOTP_SEMILLA
+semilla con 32 caracteres base32: 1 línea (la segunda corrida no agrega nada). bash -n: OK. shellcheck: no instalado en este contenedor (no corrido).
+
+## generar_compose.py
+$ python3 scripts/generar_compose.py → sin diferencias en docker-compose.coolify.yml ni despliegue/compose/servicios.yml
+Las *_SERVICIO_FACTOR_FIJO siguen declaradas por el diccionario del script (líneas 102, 109, 117, 249, 256, 264 en la base de #483): son inertes.

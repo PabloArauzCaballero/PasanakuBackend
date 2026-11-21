@@ -63,13 +63,16 @@ ENV
 }
 
 # Variables que llegaron DESPUES de que se genero un entorno viejo (se agregan, nunca se pisan): la cuenta de servicio con
-# que entregas le paga al vendedor de un turno (carril G). Telefono y clave sinteticos; el factor fijo es el del perfil
-# `local` (DesafioDeDesarrollo acepta 000000) y SOLO sirve ahi. El usuario lo siembra despliegue/ensayos/integracion.
+# que entregas le paga al vendedor de un turno (carril G). Telefono, clave y semilla TOTP sinteticos: el rol
+# SERVICIO_ENTREGAS es GLOBAL, identidad trata la cuenta como operador y solo le admite TOTP (el codigo fijo 000000 dejo
+# de existir con #412). El usuario lo siembra despliegue/ensayos/integracion; su factor tiene que cifrar ESTA semilla.
+# Un entorno viejo con ENTREGAS_SERVICIO_FACTOR_FIJO lo conserva sin efecto: ningun servicio la lee ya.
 completar_entorno() {
   local f="$1"
   grep -q '^ENTREGAS_SERVICIO_TELEFONO=' "$f" || echo "ENTREGAS_SERVICIO_TELEFONO=+59172100001" >> "$f"
   grep -q '^ENTREGAS_SERVICIO_CLAVE=' "$f" || echo "ENTREGAS_SERVICIO_CLAVE=$(openssl rand -hex 24)" >> "$f"
-  grep -q '^ENTREGAS_SERVICIO_FACTOR_FIJO=' "$f" || echo "ENTREGAS_SERVICIO_FACTOR_FIJO=000000" >> "$f"
+  grep -q '^ENTREGAS_SERVICIO_TOTP_SEMILLA=' "$f" \
+    || echo "ENTREGAS_SERVICIO_TOTP_SEMILLA=$(head -c 20 /dev/urandom | base32 | tr -d '=')" >> "$f"
 }
 
 # Variante del entorno para un escenario: quita variables (quedan en blanco, que es lo que hace
@@ -90,7 +93,7 @@ entorno_de_escenario() {
 enmascarar() { # lee stdin, tapa cualquier valor secreto del entorno
   local f="$ENVF" sed_args=() k v
   while IFS='=' read -r k v; do
-    case "$k" in BD_CLAVE*|ARCHIVOS_CLAVE|SEGURIDAD_PIMIENTA|WEBHOOK_SECRETO|CERTIFICADOS_CLAVE_FIRMA|INVITACIONES_CLAVE|QR_INTERNO_CLAVE|JWT_CLAVE_FIRMA|ENTREGAS_SERVICIO_CLAVE)
+    case "$k" in BD_CLAVE*|ARCHIVOS_CLAVE|SEGURIDAD_PIMIENTA|WEBHOOK_SECRETO|CERTIFICADOS_CLAVE_FIRMA|INVITACIONES_CLAVE|QR_INTERNO_CLAVE|JWT_CLAVE_FIRMA|ENTREGAS_SERVICIO_CLAVE|ENTREGAS_SERVICIO_TOTP_SEMILLA)
       [ -n "$v" ] && sed_args+=(-e "s/$v/<$k>/g") ;; esac
   done < "$f"
   sed "${sed_args[@]}"

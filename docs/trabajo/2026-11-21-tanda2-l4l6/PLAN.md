@@ -66,6 +66,7 @@
 | F2.L4.M02 | Retirar el organizador profesional de identidad y backoffice de cumplimiento | TODO |
 | F2.L6.M13 | Shell del backoffice sin aprobaciones eliminables | TODO |
 | F2.L2-pedido | (Pedido de L2 vía coordinador) App sin subasta; mock sin éxitos de operaciones que responden 410. CA: no queda pantalla ni ruta de subasta y el simulado responde 410. DoD: `dart analyze` + `flutter test` + vitest de simulado | HECHO en PR #460 (`evidencia/f2-retiro-subasta-app-y-mock.txt`, en esa rama) |
+| RFF.M1 | (Autorizado por el coordinador; base: #483) Retirar `*_SERVICIO_FACTOR_FIJO`: comun-web (`CredencialDeServicioConfigurada`, `CredencialPorLogin.fijo`), grupos/entregas/inversiones/garantia (`ConfiguracionDeCredencialDeServicio` y `application.yml`), `despliegue/ensayos/arranque/lib.sh`, README de inversiones. CA: una cuenta de servicio solo se configura con TOTP; con teléfono y clave sin semilla no arranca y el mensaje nombra `_TOTP_SEMILLA`. DoD: `CredencialDeServicioConfiguradaTest` + `CredencialPorLoginContratoTest` + compilación de los 4 servicios + `generar_compose.py` | HECHO (`evidencia/retiro-factor-fijo.txt`); PR cuando #483 esté en dev |
 | F2.L6.M14 | Mock, clientes y catálogo regenerados sin respaldo ni aprobaciones | TODO |
 
 ## Riesgos y bloqueos previstos

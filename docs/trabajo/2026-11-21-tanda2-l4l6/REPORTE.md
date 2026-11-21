@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, carril L4L6: identidad, cumplimiento y frontends compartidos
 
-> **AVANCE: 7 / 8 — 87,5 %** de las microtareas abiertas hasta ahora (T2.M1–T2.M4, F1.L6.M04, F1.L4.M25, F1.L6.M12 HECHO; F1.L4.M03 A MEDIAS). El resto de F1/F2 de L4 y L6 sigue en TODO.
+> **AVANCE: 8 / 9 — 88,9 %** de las microtareas abiertas hasta ahora en esta rama (T2.M1–T2.M4, F1.L6.M04, F1.L4.M25, F1.L6.M12, RFF.M1 HECHO; F1.L4.M03 A MEDIAS). El resto de F1/F2 de L4 y L6 sigue en TODO.
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Base: `origin/dev` 50cf3be9
 - Ramas y PR (apilados, se mergean en orden):
@@ -25,6 +25,7 @@
 | F1.L6.M04 | Los dos patrones rotos de `cumplimiento.yaml` (`'^-?\\d+…'` en comillas simples, que rechazaba «100.00») pasan a `'^\d+\.\d{2}$'`, sin negativos. Se reemplazan los 6 ejemplos basura del mock. Una prueba nueva barre todos los contratos. | `yarn vitest run` (simulado) | PASS 380/380; mutante → 4 fallos. [`evidencia/f1-l6-m04-patron-importe.txt`](./evidencia/f1-l6-m04-patron-importe.txt) |
 | F1.L4.M25 | `GET /licencia/alcance` es una consulta pura (`readOnly`): no emite nada al outbox y no recibe `usuarioId` por query (se quitó del contrato; si alguien lo manda, se ignora). El rechazo se registra solo en `exigirHabilitado`, con el actor del token. | `./gradlew :servicios:cumplimiento:test --tests '*AlcanceSinEfectos*'` + webTest | PASS 2/2 + 87/87; mutante → 1 fallo. [`evidencia/f1-l4-m25-licencia-alcance.txt`](./evidencia/f1-l4-m25-licencia-alcance.txt) |
 | F1.L6.M12 | La app genera la clave de idempotencia por intento (formulario + contenido normalizado) en recargar, retirar y transferir. Un 4xx la libera; timeout, 5xx, 408, 425 y 429 la conservan. | `flutter test test/unidad/idempotencia_por_intento_test.dart` | PASS 7/7 (los tres niveles contra un doble declarado); mutante → 1 fallo; app 919 en verde. [`evidencia/f1-l6-m12-idempotencia-app.txt`](./evidencia/f1-l6-m12-idempotencia-app.txt) |
+| RFF.M1 | Las cuentas de servicio solo se configuran con TOTP: sale `*_SERVICIO_FACTOR_FIJO` de comun-web, grupos, entregas, inversiones y garantía; el ensayo de arranque genera una semilla TOTP sintética. | `CredencialDeServicioConfiguradaTest` (3) + `CredencialPorLoginContratoTest` (9) + comun-web 33/33 + `compileTestJava` de los 4 servicios + spotless | PASS. [`evidencia/retiro-factor-fijo.txt`](./evidencia/retiro-factor-fijo.txt) |
 | T2.M1 (F1.S3.M1, resto) | La vida del token de acceso es `15 min − 60 s` (tolerancia por omisión de `JwtTimestampValidator`, verificada en el jar 6.5.11). Un servidor de recurso con el validador por omisión rechaza el token al minuto 15 + 1 s. Con eso, sumado a lo de #412 (suspender revoca sesiones, el refresco se niega con `PuedeAutenticarse`), una cuenta suspendida o dada de baja pierde todo acceso en ≤ 15 min. | `./gradlew :servicios:identidad:test --tests '*VidaDelAcceso*'` | PASS 2/2; mutante (15 min) → 2 fallos. [`evidencia/t2-m1-token-vigente.txt`](./evidencia/t2-m1-token-vigente.txt) |
 
 ## A medias
@@ -45,6 +46,12 @@
   4. El pool alineado con `descriptor.yml` (anexo) no se tocó.
 - Avance fuera de este carril: el punto 1 (compose local) lo resolvió el coordinador en **#457**, que se mergea antes que #439. El guion de servidor verifica además que identidad tenga `JWT_CLAVE_FIRMA` en TEST antes de promover. Quedan pendientes los puntos 2 y 3. **#457 ya está en `dev`: #439 queda destrabado.**
 - Dónde quedó: rama `correcciones/tanda2-l4l6-f1l4m03-arranque-fail-closed`; compila y sus pruebas están en verde. TEST no se ve afectado: ya tiene cargados `JWT_CLAVE_FIRMA` e `INVITACIONES_CLAVE` (`despliegue/TEST.md:466-478`).
+
+### RFF.M1 — lo que queda fuera de los archivos autorizados
+- Qué anda: ningún servicio lee ya `*_SERVICIO_FACTOR_FIJO`; sin semilla TOTP la cuenta de servicio no arranca (probado).
+- Qué no anda: (1) el compose sigue declarando las tres `*_SERVICIO_FACTOR_FIJO` (inertes). (2) El ensayo de integración `despliegue/ensayos/integracion/lib.py` abre sesión de operadores con el código fijo `000000` y siembra `factor_mfa` con `enc:v1:int-sintetico`: está roto para todo operador desde #412, con o sin este cambio.
+- Qué falta exactamente: (1) `scripts/generar_compose.py`: borrar las entradas `INVERSIONES_/ENTREGAS_/GRUPOS_SERVICIO_FACTOR_FIJO` (líneas 102, 109, 117, 249, 256, 264 en la base de #483) y regenerar los dos compose. (2) `integracion/lib.py`: sembrar el factor TOTP cifrado con la llave MFA del entorno (formato `enc:v1:` de `CifradorSimetrico`, como hace `aprovisionar_cuentas_servicio_test.sh`) usando `ENTREGAS_SERVICIO_TOTP_SEMILLA` para la cuenta de servicio y una semilla por persona, y calcular el TOTP en `Cuenta.token()`. Los dos son archivos compartidos, fuera del alcance autorizado: decisión de la coordinación.
+- Dónde quedó: rama `correcciones/tanda2-l4l6-retiro-factor-fijo` (sobre `correcciones/tanda2-l1-identidad-servicio`, #483); compila y sus pruebas están en verde.
 
 ## Pendiente
 
