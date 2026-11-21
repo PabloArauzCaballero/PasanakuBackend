@@ -85,7 +85,7 @@ class Autenticacion {
       final refresco = salida.tokenRefresco;
       if (refresco == null || refresco.isEmpty) {
         // Nunca usar sesionId como refresh: es un identificador, no una credencial.
-        // Sin refresh la sesión se conserva hasta que venza el acceso (15 min).
+        // Sin refresh la sesión se conserva hasta que venza el acceso (14 min, F1.S3.M1).
         registrarAvisoRefrescoAusente();
       }
       await _ref.read(sesionProvider).abrir(acceso: token, refresco: refresco);

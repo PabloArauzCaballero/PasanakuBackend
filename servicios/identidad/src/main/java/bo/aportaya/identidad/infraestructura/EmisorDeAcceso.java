@@ -42,7 +42,7 @@ import org.springframework.stereotype.Component;
  * otros catorce servicios dejan de poder verificarlos). Por eso el JWKS publica DOS claves:
  * la vigente, con la que se firma, y opcionalmente {@code aportaya.jwt.clave-firma-anterior},
  * que solo se publica para que los tokens firmados antes sigan validando hasta que venzan
- * (15 minutos) — nunca firma. Rotacion: pasar la vigente a «anterior», poner la nueva como
+ * (14 minutos, ver VIGENCIA) — nunca firma. Rotacion: pasar la vigente a «anterior», poner la nueva como
  * vigente, reiniciar; pasada la vida del token, vaciar la «anterior». Cada token lleva el
  * {@code kid} de la clave que lo firmo, que es lo que permite elegir sin probar una por una.
  */
@@ -52,7 +52,18 @@ public class EmisorDeAcceso {
     /** ADR-024: vida corta, porque un token firmado no se puede revocar. */
     private static final org.slf4j.Logger BITACORA = org.slf4j.LoggerFactory.getLogger(EmisorDeAcceso.class);
 
-    private static final Duration VIGENCIA = Duration.ofMinutes(15);
+    /**
+     * F1.S3.M1: un token de una cuenta suspendida o dada de baja deja de servir en 15
+     * minutos como maximo. Los servidores de recurso aceptan {@code exp} con la tolerancia
+     * de reloj por omision de Spring ({@code JwtTimestampValidator}, 60 s), asi que la vida
+     * del token es el tope menos esa tolerancia. Al suspender se revocan las sesiones y el
+     * refresco se niega ({@code PuedeAutenticarse}); lo unico vivo es este token.
+     */
+    public static final Duration TOPE_TRAS_REVOCAR = Duration.ofMinutes(15);
+
+    public static final Duration TOLERANCIA_DEL_DECODIFICADOR = Duration.ofSeconds(60);
+
+    static final Duration VIGENCIA = TOPE_TRAS_REVOCAR.minus(TOLERANCIA_DEL_DECODIFICADOR);
 
     private static final int TAMANO_DE_CLAVE = 2048;
 
