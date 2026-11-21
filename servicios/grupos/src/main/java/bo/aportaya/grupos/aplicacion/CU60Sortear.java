@@ -222,6 +222,8 @@ public class CU60Sortear {
                             sorteoId,
                             Map.of("grupoId", sorteo.grupoId().toString(), "semilla", semillaUsada),
                             UUID.fromString(ctx.traza().id())));
+            PublicacionDeTurnos.emitir(
+                    dsl, outbox, sorteo.grupoId(), UUID.fromString(ctx.traza().id()));
 
             return new Revelacion(sorteoId, enOrden, true, semillaUsada);
         });
