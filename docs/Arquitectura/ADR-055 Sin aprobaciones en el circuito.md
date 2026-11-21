@@ -20,9 +20,9 @@ fecha: 2026-11-21
 > **Constancia de aceptación (veraz).** Redactado el 2026-11-21 a partir de las decisiones de Pablo, dueño
 > del producto, registradas en
 > [`DECISIONES.md`](../trabajo/2026-11-20-auditoria-consolidado/DECISIONES.md) (P-06, P-07, P-08, P-09,
-> P-10, P-11, P-12, P-13, P-18 y las tandas 5 y 7). Este ADR **no agrega ninguna regla de negocio**: transcribe
+> P-10, P-11, P-12, P-13, P-18 y las tandas 5, 7 y 9). Este ADR **no agrega ninguna regla de negocio**: transcribe
 > esas decisiones y marca qué partes de ADR-049, ADR-052 y ADR-054 dejan de regir. Lo que DECISIONES no
-> resuelve queda como `DECISION_REQUIRED` al final. **Pendiente de la aprobación de Pablo en el PR** y de la
+> resolvía quedó como `DECISION_REQUIRED` y Pablo lo resolvió en la tanda 9 (ver el final). **Pendiente de la aprobación de Pablo en el PR** y de la
 > validación de Cumplimiento en los puntos de [`PREGUNTAS-LEGALES.md`](../trabajo/2026-11-21-plan-correcciones/PREGUNTAS-LEGALES.md).
 > **No habilita dinero real** (P-14: todo sigue condicionado al dossier H15).
 
@@ -60,9 +60,9 @@ controles automáticos con umbrales es la forma de cumplirlo.
 | E1 | Cobro de la cuota | **Solo** el webhook firmado de la pasarela (o el débito de saldo de billetera recargado por QR) cambia una cuota a cobrada. Se elimina el comprobante manual: pantalla, endpoint, tabla y canales manuales (`EFECTIVO_AL_ORGANIZADOR`, transferencia declarada, `REPORTADO_POR_USUARIO`, `EN_VERIFICACION`) | P-07, P-06, regla 91.3.1 | Firma verificada siempre (también en desarrollo), ventana temporal, orden vigente, monto y moneda exactos, idempotencia por id de evento (ADR-058 RM-04) |
 | E2 | Saldo de billetera | Pagar la cuota con saldo recargado por QR **cuenta como pago por QR** y habilita el pago automático | P-06 | El dinero entró por un QR confirmado por webhook; débito y crédito en un solo asiento idempotente |
 | E3 | Generación de cuotas del periodo | Automática por calendario del grupo | CONSOLIDADO §5 (L1 AP-02) | Trabajo programado idempotente con ShedLock |
-| E4 | Admisión a un grupo | **Solo por invitación** de un miembro, con token de propósito único y vencimiento. Requisitos verificados en el servidor: KYC aprobado, reglamento aceptado en su versión exacta y sin deudas vivas. **No hay grupos públicos** ni emparejamiento | Tanda 5 «Entrada a los grupos», tanda 4 «Admisión» | Verificación en el servidor; 422 con el motivo si falta un requisito |
-| E5 | Organizador | **No existe.** Todos los grupos los gestiona el sistema. Se quitan postulaciones, habilitación (básica y profesional), contrato, evaluación de desempeño y el rol `ORGANIZADOR` | P-11 | — |
-| E6 | Inicio del grupo y sorteo | **Automáticos al completarse los cupos**, con sorteo verificable (compromiso y revelación). El orden de turnos va por nivel de puntualidad y, dentro de cada nivel, por sorteo (detalle en ADR-056) | Tanda 4 «Inicio y sorteo», tanda 5 «Orden de turnos» | Trabajo programado con ShedLock, timeout y reintento; herramienta pública de verificación del sorteo |
+| E4 | Admisión a un grupo | **Solo por invitación** de un miembro, con token de propósito único y vencimiento. Requisitos verificados en el servidor: KYC aprobado, reglamento aceptado en su versión exacta y sin deudas vivas. **No hay grupos públicos** ni emparejamiento. El creador puede además revocar invitaciones mientras haya cupos (§1-bis) | Tanda 5 «Entrada a los grupos», tanda 4 «Admisión», tanda 9 | Verificación en el servidor; 422 con el motivo si falta un requisito |
+| E5 | Organizador | **El organizador profesional no existe.** El circuito lo opera el sistema. Se quitan postulaciones, habilitación (básica y profesional), contrato, evaluación de desempeño y el rol `ORGANIZADOR`. El grupo sí tiene un **creador**, que administra su configuración con los poderes y límites de §1-bis: es un participante, no un organizador ni una caja | P-11, tanda 9 | — |
+| E6 | Inicio del grupo y sorteo | **Automáticos al completarse los cupos**, con sorteo verificable (compromiso y revelación). El orden de turnos va por nivel de puntualidad y, dentro de cada nivel, por sorteo (detalle en ADR-056). **Si a la fecha límite no se llenó, decide el creador:** achicar el grupo a los que ya entraron (si todos aceptan el nuevo pozo), extender la fecha o cancelar; si no hace nada en el plazo parametrizado, el grupo se cancela. Hasta el arranque nadie pagó nada. Reemplaza el arranque con el 75 % de ADR-054 | Tanda 4 «Inicio y sorteo», tanda 5 «Orden de turnos», tanda 9 «Grupo sin llenar» | Trabajo programado con ShedLock, timeout y reintento; herramienta pública de verificación del sorteo |
 | E7 | Cobertura de una cuota impaga | Automática con el **fondo del grupo** al vencer el plazo de gracia (modelo A, ADR-056). La empresa no cubre nada | P-01/P-02, P-04 | Idempotencia por obligación, límite igual al saldo del fondo verificado en la transacción |
 | E8 | Entrega del pozo | **Automática** a la cuenta verificada del beneficiario, confirmada por webhook firmado del proveedor de desembolso. Se eliminan los cuatro ojos de la entrega, su ejecución y fondeo manual y la confirmación manual del desembolso | P-10 | Cuenta verificada (titularidad), enfriamiento tras un cambio de cuenta, webhook firmado, monitoreo UIF (ADR-058) |
 | E9 | Retiros de la billetera | **Automáticos con controles**: segundo factor ligado a la operación, cuenta destino verificada, enfriamiento tras un cambio de cuenta, límites por ventana con moneda y monitoreo UIF. Cumplimiento revisa **solo** lo que dispara una alerta | P-09 | Los cinco controles; la orden con alerta queda retenida con su motivo visible |
@@ -70,6 +70,24 @@ controles automáticos con umbrales es la forma de cumplirlo.
 | E11 | Declaración del incumplimiento | **La declara el sistema** al vencer el plazo de gracia y abre el expediente con plazo de descargo | P-12 | Reloj del reglamento congelado del grupo |
 | E12 | Cobro de la comisión | Por el evento de pago confirmado, en el mismo QR de la cuota como línea aparte (ADR-056). Se elimina el cobro marcado a mano | Tanda 7 D-L5-1/D-L5-2, P-07 | Evento de pago verificado |
 | E13 | Retiro voluntario de un participante | No queda en `PENDIENTE` esperando a nadie: quien no cobró recupera al cierre del ciclo lo que aportó (cuotas y aporte al fondo); su cupo lo puede tomar un reemplazo invitado | Tanda 7 D-L3-3 | Cálculo desde el mayor |
+| E14 | Disolución automática por mora | Si el fondo del grupo se agota **y** la mora supera un umbral (parámetro), el grupo se disuelve solo y cada uno se liquida desde el mayor. Convive con la disolución por votación (C6) | Tanda 9 «Disolución automática por mora» | Umbral parametrizado; liquidación calculada desde el mayor |
+
+### 1-bis. El creador del grupo (tanda 9)
+
+Quien crea el grupo es su administrador de configuración. Es un participante más: **no es el organizador
+profesional** (eliminado por P-11), no aprueba ningún paso del circuito y no custodia ni mueve dinero (regla 91.5).
+
+| Puede | Límite |
+|---|---|
+| Fijar el tamaño exacto del grupo | Antes de arrancar lo cambia libremente. Con el grupo en marcha solo se agregan cupos al final del calendario, por votación (C6) y sin tocar turnos asignados |
+| Invitar y revocar invitaciones | Mientras haya cupos |
+| Configurar monto, periodicidad, fecha de inicio y nombre | **Solo antes de arrancar** |
+| Fijar la fecha límite, y decidir qué pasa si a esa fecha el grupo no se llenó (achicar, extender o cancelar) | **Solo antes de arrancar**. Achicar exige que todos acepten el nuevo pozo. Sin decisión en el plazo parametrizado, se cancela |
+| Pasar el rol a otro participante | El otro tiene que aceptarlo |
+
+**No puede:** aprobar pagos ni entregas, mover dinero, expulsar a nadie ni cambiar turnos. Lo que afecta a otros va
+por votación (C6). Sus poderes se validan en el servidor con la identidad del token, como cualquier autorización
+(regla 90.1).
 
 ### 2. Lo que se conserva con una persona (cuatro ojos reales)
 
@@ -83,7 +101,7 @@ quien propone no puede aprobar (F1.S2.M1 del plan de correcciones).
 | C3 | Bloqueo judicial y requerimientos de la autoridad | Lo exige la norma; el detalle de qué acciones LFT son cautelares inmediatas lo decide Cumplimiento | CONSOLIDADO §5; `PREGUNTAS-LEGALES.md` (AMB-L4-1) |
 | C4 | Descargo y apelación del expediente de incumplimiento | Debido proceso (regla 91.4): el descargo lo resuelve Soporte o Riesgos y la apelación otra persona. La sanción y la reputación esperan al expediente `FIRME`; el reclamo abierto suspende los efectos | P-12, regla 91.4 |
 | C5 | Cambio de un parámetro financiero | Una persona lo propone y otra distinta lo aprueba; rige solo para grupos nuevos | Tanda 7 «Quién cambia un parámetro» |
-| C6 | Votaciones del grupo | Solo el reemplazo de un participante por invitación y la disolución; quórum del reglamento aceptado; nunca se aprueba por silencio. No hay permuta ni condonación | Tanda 7 D-L2-2, D-L3-1 |
+| C6 | Votaciones del grupo | El reemplazo de un participante por invitación, la disolución y, con el grupo en marcha, **agregar cupos al final del calendario** sin tocar los turnos asignados; quórum del reglamento aceptado; nunca se aprueba por silencio. No hay permuta ni condonación. Todo lo que el creador no puede hacer solo y afecta a otros va por votación | Tanda 7 D-L2-2, D-L3-1; tanda 9 |
 | C7 | Gobierno interno fuera del circuito (comités, ERP, publicidad, roles internos) | No mueve el flujo del pasanaku | CONSOLIDADO §5 |
 | C8 | Interruptor manual de un proveedor en el backoffice | Conmutar o apagar un proveedor de dinero es una acción de riesgo | ADR-058 RM-09 |
 
@@ -94,12 +112,14 @@ quien propone no puede aprobar (F1.S2.M1 del plan de correcciones).
 | ADR-049 | La doble aprobación humana de cada retiro desde un umbral y el umbral como disparador de `EN_REVISION` | **Reemplazada** por E9. Se conserva la máquina de estados `AUTORIZADA`/`EN_REVISION` y el `UPDATE` condicionado por estado, ahora para la orden retenida por alerta |
 | ADR-052 | DD-2 «admisión humana obligatoria» | **Reemplazada** por E4 |
 | ADR-054 | D1 en lo que dice «lo demás de ADR-051 sigue vigente» | **Reemplazada**: ADR-051 queda superada por ADR-056 |
+| ADR-054 | D1 en el «anfitrión» que solo puede anular el enlace | **Reemplazada** por el creador con los poderes y límites de §1-bis (tanda 9) |
 | ADR-054 | D2 (el enlace es la admisión) | **Vigente con un agregado**: el requisito «sin deudas vivas» y la invitación de un miembro (E4) |
-| ADR-054 | D3 y D4 (inicio a la fecha límite con ≥ 75 % y cancelación) | **A confirmar**: DECISIONES dice «al completarse los cupos» y no menciona el 75 %. Ver `DECISION_REQUIRED` 1 |
+| ADR-054 | D3 y D4 (inicio a la fecha límite con ≥ 75 % y cancelación) | **Reemplazada** por E6 y §1-bis (tanda 9): a la fecha límite decide el creador; sin decisión, se cancela. Como nadie pagó antes del arranque, no hay devolución que hacer |
 | ADR-054 | D3 en el orden del sorteo | **Reemplazada** por E6 (orden por nivel y sorteo dentro de cada nivel) |
 | ADR-054 | D5 (emparejamiento por algoritmo con admisión humana) | **Reemplazada** por E4: solo invitación |
 | ADR-054 | D6 (organizador habilitado para profesionales) | **Reemplazada** por E5 |
-| ADR-054 | D7 (reglamento plantilla) en permutas y retiro | **Reemplazada** por C6 y E13. La causal de disolución automática por mora generalizada queda en `DECISION_REQUIRED` 2 |
+| ADR-054 | D7 (reglamento plantilla) en permutas y retiro | **Reemplazada** por C6 y E13 |
+| ADR-054 | D7 en la disolución automática por mora generalizada | **Vigente, con la condición de la tanda 9** (E14): fondo agotado y mora sobre el umbral |
 | ADR-054 | D8 (devolución «por donde vino») en lo que se apoya en el tope de ADR-049 | **Reemplazada** por E9; el resto de D8 sigue condicionado al proveedor |
 | ADR-054 | D9 en `visibilidad` | **Reemplazada**: no hay grupos públicos |
 | ADR-054 | D10 (orden de carriles) | **Reemplazada** por las fases del plan de correcciones (P-18) |
@@ -164,15 +184,12 @@ Su texto en `docs/Restricciones.md` es fuente del DDL (`scripts/generar_ddl.py`)
 - Inventario: al cerrar F2.M8, cada fila del CONSOLIDADO §5 tiene su estado (eliminada con su microtarea o
   conservada con su control C1–C8).
 
-## DECISION_REQUIRED
+## Decisiones que quedaban abiertas
 
-No se resuelven acá porque DECISIONES no las cubre. Las decide Pablo.
-
-1. **Inicio con cupos incompletos.** DECISIONES dice «inicio automático al completarse los cupos». ADR-054 D3 y
-   D4 permitían iniciar en la fecha límite con ≥ 75 % y, si no, cancelar y devolver. ¿Sigue valiendo la regla del
-   75 % con fecha límite, o el grupo solo arranca lleno? Mientras no se decida, el código no cambia R-GRP-20.
-2. **Disolución automática por mora generalizada** (ADR-054 D7). La tanda 7 fija la disolución **votada**. ¿Se
-   conserva además la causal automática?
+Las dos `DECISION_REQUIRED` de la primera versión de este ADR las resolvió Pablo en la tanda 9 de DECISIONES:
+el inicio con cupos incompletos (E6 y §1-bis) y la disolución automática por mora (E14). Quedan pendientes solo los
+**valores** de los parámetros nuevos —el plazo para que el creador decida y el umbral de mora de la disolución
+automática—, que fijan Pablo y Cumplimiento como el resto (plan F3.S8.M3).
 
 ## Referencias
 
