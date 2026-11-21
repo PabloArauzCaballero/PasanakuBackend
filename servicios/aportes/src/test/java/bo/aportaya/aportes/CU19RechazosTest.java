@@ -59,8 +59,9 @@ class CU19RechazosTest extends BaseDeAportes {
     }
 
     private SalidaSolicitud solicitud(Caso c, String monto, ContextoSesion soporte) {
-        return transaccion.execute(
-                t -> reembolsoCU.solicitar(new EntradaReembolso(c.pago(), bob(monto), "DUPLICADO"), soporte));
+        return transaccion.execute(t -> reembolsoCU.solicitar(
+                new EntradaReembolso(c.pago(), bob(monto), "DUPLICADO", "reemb-" + java.util.UUID.randomUUID()),
+                soporte));
     }
 
     @Test
@@ -229,8 +230,10 @@ class CU19RechazosTest extends BaseDeAportes {
         Caso c = caso("500.00");
         ContextoSesion soporte = contextoDe(fixtura.usuario());
 
-        assertThatThrownBy(() -> transaccion.execute(t ->
-                        reembolsoCU.solicitar(new EntradaReembolso(c.pago(), bob("100.00"), "MONTO_ERRONEO"), soporte)))
+        assertThatThrownBy(() -> transaccion.execute(t -> reembolsoCU.solicitar(
+                        new EntradaReembolso(
+                                c.pago(), bob("100.00"), "MONTO_ERRONEO", "reemb-" + java.util.UUID.randomUUID()),
+                        soporte)))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("no admitido");
         assertThat(rechazaLaBase(

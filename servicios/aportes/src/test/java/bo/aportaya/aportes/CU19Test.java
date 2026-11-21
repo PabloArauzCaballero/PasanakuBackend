@@ -60,8 +60,10 @@ class CU19Test extends BaseDeAportes {
         Caso c = caso("500.00");
         ContextoSesion soporte = contextoDe(fixtura.usuario());
 
-        assertThatThrownBy(() -> transaccion.execute(t ->
-                        reembolsoCU.solicitar(new EntradaReembolso(c.pago(), bob("600.00"), "DUPLICADO"), soporte)))
+        assertThatThrownBy(() -> transaccion.execute(t -> reembolsoCU.solicitar(
+                        new EntradaReembolso(
+                                c.pago(), bob("600.00"), "DUPLICADO", "reemb-" + java.util.UUID.randomUUID()),
+                        soporte)))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("excede el pago");
         assertThat(contar("SELECT count(*)::int FROM aportes.reembolso")).isZero();
@@ -73,8 +75,9 @@ class CU19Test extends BaseDeAportes {
     void criterio2() {
         Caso c = caso("500.00");
         ContextoSesion soporte = contextoDe(fixtura.usuario());
-        SalidaSolicitud solicitud = transaccion.execute(
-                t -> reembolsoCU.solicitar(new EntradaReembolso(c.pago(), bob("500.00"), "DUPLICADO"), soporte));
+        SalidaSolicitud solicitud = transaccion.execute(t -> reembolsoCU.solicitar(
+                new EntradaReembolso(c.pago(), bob("500.00"), "DUPLICADO", "reemb-" + java.util.UUID.randomUUID()),
+                soporte));
         ContextoSesion aprobador = contextoDe(fixtura.usuario());
 
         var ejecucion = transaccion.execute(t -> reembolsoCU.aprobar(solicitud.reembolsoId(), aprobador));
@@ -121,8 +124,9 @@ class CU19Test extends BaseDeAportes {
         Caso c = caso("500.00");
         ContextoSesion soporte = contextoDe(fixtura.usuario());
         ContextoSesion aprobador = contextoDe(fixtura.usuario());
-        SalidaSolicitud solicitud = transaccion.execute(
-                t -> reembolsoCU.solicitar(new EntradaReembolso(c.pago(), bob("500.00"), "DUPLICADO"), soporte));
+        SalidaSolicitud solicitud = transaccion.execute(t -> reembolsoCU.solicitar(
+                new EntradaReembolso(c.pago(), bob("500.00"), "DUPLICADO", "reemb-" + java.util.UUID.randomUUID()),
+                soporte));
         UUID webhook = UUID.randomUUID();
 
         transaccion.execute(t -> reembolsoCU.aprobar(solicitud.reembolsoId(), aprobador));
@@ -164,8 +168,9 @@ class CU19Test extends BaseDeAportes {
         // vez. El WHERE estado = 'SOLICITADO' decide.
         Caso c = caso("500.00");
         ContextoSesion soporte = contextoDe(fixtura.usuario());
-        SalidaSolicitud solicitud = transaccion.execute(
-                t -> reembolsoCU.solicitar(new EntradaReembolso(c.pago(), bob("200.00"), "ERROR_MONTO"), soporte));
+        SalidaSolicitud solicitud = transaccion.execute(t -> reembolsoCU.solicitar(
+                new EntradaReembolso(c.pago(), bob("200.00"), "ERROR_MONTO", "reemb-" + java.util.UUID.randomUUID()),
+                soporte));
         ContextoSesion aprobador = contextoDe(fixtura.usuario());
 
         transaccion.execute(t -> reembolsoCU.aprobar(solicitud.reembolsoId(), aprobador));
@@ -186,13 +191,16 @@ class CU19Test extends BaseDeAportes {
         ContextoSesion soporte = contextoDe(fixtura.usuario());
         ContextoSesion aprobador = contextoDe(fixtura.usuario());
 
-        var primera = transaccion.execute(
-                t -> reembolsoCU.solicitar(new EntradaReembolso(c.pago(), bob("300.00"), "ERROR_MONTO"), soporte));
+        var primera = transaccion.execute(t -> reembolsoCU.solicitar(
+                new EntradaReembolso(c.pago(), bob("300.00"), "ERROR_MONTO", "reemb-" + java.util.UUID.randomUUID()),
+                soporte));
         transaccion.execute(t -> reembolsoCU.aprobar(primera.reembolsoId(), aprobador));
 
         assertThat(primera.disponibleRestante()).isEqualByComparingTo(bob("200.00"));
-        assertThatThrownBy(() -> transaccion.execute(t ->
-                        reembolsoCU.solicitar(new EntradaReembolso(c.pago(), bob("200.01"), "ERROR_MONTO"), soporte)))
+        assertThatThrownBy(() -> transaccion.execute(t -> reembolsoCU.solicitar(
+                        new EntradaReembolso(
+                                c.pago(), bob("200.01"), "ERROR_MONTO", "reemb-" + java.util.UUID.randomUUID()),
+                        soporte)))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("excede el pago");
     }
@@ -215,8 +223,9 @@ class CU19Test extends BaseDeAportes {
         // Sin cuatro ojos no se aprueba, y la obligacion no se toca.
         Caso c = caso("500.00");
         ContextoSesion soporte = contextoDe(fixtura.usuario());
-        SalidaSolicitud solicitud = transaccion.execute(
-                t -> reembolsoCU.solicitar(new EntradaReembolso(c.pago(), bob("100.00"), "ERROR_MONTO"), soporte));
+        SalidaSolicitud solicitud = transaccion.execute(t -> reembolsoCU.solicitar(
+                new EntradaReembolso(c.pago(), bob("100.00"), "ERROR_MONTO", "reemb-" + java.util.UUID.randomUUID()),
+                soporte));
 
         assertThatThrownBy(() -> transaccion.execute(t -> reembolsoCU.aprobar(solicitud.reembolsoId(), soporte)))
                 .isInstanceOf(ErrorDeNegocio.class)

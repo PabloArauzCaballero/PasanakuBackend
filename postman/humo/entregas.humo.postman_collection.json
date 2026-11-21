@@ -108,7 +108,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipoCuenta\": \"AHORRO\",\n  \"entidadFinanciera\": \"entidadFinanciera-de-prueba\",\n  \"numeroCuenta\": \"numeroCuenta-de-prueba\",\n  \"numeroCifrado\": \"numeroCifrado-de-prueba\",\n  \"titularNombre\": \"titularNombre-de-prueba\",\n  \"titularDocumento\": \"titularDocumento-de-prueba\",\n  \"moneda\": \"BOB\"\n}",
+              "raw": "{\n  \"tipoCuenta\": \"AHORRO\",\n  \"entidadFinanciera\": \"entidadFinanciera-de-prueba\",\n  \"numeroCuenta\": \"numeroCuenta-de-prueba\",\n  \"titularNombre\": \"titularNombre-de-prueba\",\n  \"titularDocumento\": \"titularDocumento-de-prueba\",\n  \"moneda\": \"BOB\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -199,7 +199,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipoCuenta\": \"BILLETERA\",\n  \"entidadFinanciera\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"numeroCuenta\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"numeroCifrado\": \"x\",\n  \"titularNombre\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"titularDocumento\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"moneda\": \"USD\"\n}",
+              "raw": "{\n  \"tipoCuenta\": \"BILLETERA\",\n  \"entidadFinanciera\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"numeroCuenta\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"titularNombre\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"titularDocumento\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"moneda\": \"USD\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -256,7 +256,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipoCuenta\": \"AHORRO\",\n  \"entidadFinanciera\": \"entidadFinanciera-de-prueba\",\n  \"numeroCuenta\": \"numeroCuenta-de-prueba\",\n  \"numeroCifrado\": \"numeroCifrado-de-prueba\",\n  \"titularNombre\": \"titularNombre-de-prueba\",\n  \"titularDocumento\": \"titularDocumento-de-prueba\",\n  \"moneda\": \"BOB\"\n}",
+              "raw": "{\n  \"tipoCuenta\": \"AHORRO\",\n  \"entidadFinanciera\": \"entidadFinanciera-de-prueba\",\n  \"numeroCuenta\": \"numeroCuenta-de-prueba\",\n  \"titularNombre\": \"titularNombre-de-prueba\",\n  \"titularDocumento\": \"titularDocumento-de-prueba\",\n  \"moneda\": \"BOB\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -317,7 +317,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"entidadFinanciera\": \"entidadFinanciera-de-prueba\",\n  \"numeroCuenta\": \"numeroCuenta-de-prueba\",\n  \"numeroCifrado\": \"numeroCifrado-de-prueba\",\n  \"titularNombre\": \"titularNombre-de-prueba\",\n  \"titularDocumento\": \"titularDocumento-de-prueba\",\n  \"moneda\": \"BOB\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "raw": "{\n  \"entidadFinanciera\": \"entidadFinanciera-de-prueba\",\n  \"numeroCuenta\": \"numeroCuenta-de-prueba\",\n  \"titularNombre\": \"titularNombre-de-prueba\",\n  \"titularDocumento\": \"titularDocumento-de-prueba\",\n  \"moneda\": \"BOB\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1207,7 +1207,7 @@
                   "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
                   "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
                   "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
-                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([201, 400, 404, 409, 422]);",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([201, 400, 404, 409, 410, 422]);",
                   "});",
                   "",
                   "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
@@ -1707,7 +1707,7 @@
                   "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
                   "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
                   "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
-                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 404, 409, 422]);",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 404, 409, 410, 422]);",
                   "});",
                   "",
                   "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
@@ -2409,7 +2409,7 @@
       "description": "Humo de `emitirOrdenDesembolso`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
     },
     {
-      "name": "anotarRespuestaDesembolso · Registrar lo que contesto el proveedor",
+      "name": "anotarRespuestaDesembolso · Registrar lo que contesto el proveedor (RETIRADA, responde 410)",
       "item": [
         {
           "name": "1 · valido",
@@ -2562,7 +2562,7 @@
                   "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
                   "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
                   "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
-                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 404, 409, 422]);",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 404, 409, 410, 422]);",
                   "});",
                   "",
                   "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",

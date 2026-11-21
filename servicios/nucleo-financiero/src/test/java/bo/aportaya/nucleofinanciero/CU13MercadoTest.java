@@ -152,14 +152,16 @@ class CU13MercadoTest extends BaseDeMercado {
     void reversa() {
         BigDecimal ingresosAntes = sistemaFx.saldoDelLibro(ingresos);
         var pago = pagar("pag-r", servicio);
-        var reverso = transaccion.execute(t -> reversoCU.ejecutar(
+        var reverso = Reversos.pedirYAutorizar(
+                transaccion,
+                reversoCU,
                 new bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion.EntradaReverso(
                         "rev-" + pago.transaccionId(),
                         pago.transaccionId(),
                         "ERROR_OPERATIVO",
-                        "La cesion se anulo despues del pago por una orden del comite",
-                        fixtura.usuario()),
-                contextoDe(comprador)));
+                        "La cesion se anulo despues del pago por una orden del comite"),
+                contextoDe(comprador),
+                fixtura.usuario());
         assertThat(reverso.generaObligacionDeRestitucion()).isFalse();
         assertThat(sistemaFx.saldoDelLibro(cuentaComprador)).isEqualByComparingTo("1000.00");
         assertThat(sistemaFx.saldoDelLibro(cuentaVendedor)).isEqualByComparingTo("0.00");

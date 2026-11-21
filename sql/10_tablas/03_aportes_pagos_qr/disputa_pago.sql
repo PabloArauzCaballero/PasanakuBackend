@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS aportes.disputa_pago (
   tipo                               VARCHAR(25) NOT NULL,
   descripcion                        TEXT NOT NULL,
   monto_disputado                    NUMERIC(14,2) DEFAULT 0 NOT NULL,
+  moneda                             CHAR(3),
   estado                             VARCHAR(25) NOT NULL,
   evidencias                         JSONB NOT NULL,
   abierta_en                         TIMESTAMPTZ DEFAULT now() NOT NULL,
