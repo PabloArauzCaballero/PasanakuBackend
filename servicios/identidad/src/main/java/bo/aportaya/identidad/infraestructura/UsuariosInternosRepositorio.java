@@ -1,6 +1,5 @@
 package bo.aportaya.identidad.infraestructura;
 
-import static bo.aportaya.identidad.generado.Tables.BLOQUEO_CUENTA;
 import static bo.aportaya.identidad.generado.Tables.CREDENCIAL_ACCESO;
 import static bo.aportaya.identidad.generado.Tables.FACTOR_MFA;
 import static bo.aportaya.identidad.generado.Tables.ROL;
@@ -259,15 +258,8 @@ public class UsuariosInternosRepositorio {
             DSLContext dsl, UUID usuarioId, String motivo, UUID operadorId, OffsetDateTime ahora) {
         UUID uId = resolverUsuarioId(dsl, usuarioId);
 
-        // IDCU-SEG-089: el ingreso lee `bloqueo_cuenta`, no `usuario_interno.bloqueado_hasta`.
-        // Desbloquear solo esa columna dejaba al interno afuera igual. Se liberan los bloqueos
-        // vigentes en el modelo que lee el login, con quien libero tomado de la sesion.
-        dsl.update(BLOQUEO_CUENTA)
-                .set(BLOQUEO_CUENTA.LIBERADA_EN, ahora)
-                .set(BLOQUEO_CUENTA.LIBERADA_POR, operadorId)
-                .where(BLOQUEO_CUENTA.USUARIO_ID.eq(uId))
-                .and(BLOQUEO_CUENTA.LIBERADA_EN.isNull())
-                .execute();
+        // IDCU-SEG-089: se libera el modelo que lee el login (`bloqueo_cuenta`).
+        accesos.liberarBloqueos(dsl, uId, operadorId, ahora);
 
         // La columna vieja se sigue limpiando hasta que el cambio de esquema la retire
         // (F1.L4.M01 / F0.L4.M04): la vista de detalle todavia la muestra.
