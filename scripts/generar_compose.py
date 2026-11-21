@@ -54,6 +54,10 @@ COMUNES = {
 # de aca. Ahi los pone el almacen de secretos, y el servicio no levanta sin ellos.
 DE_DESARROLLO = {
     "SEGURIDAD_PIMIENTA": "pimienta-local-no-es-la-de-produccion",
+    # Llaves del secreto TOTP (identidad, F1.S3.M2): formato "<version>:<llave de 32+>". Valor de
+    # desarrollo a la vista a proposito; en el desplegado lo pone el almacen de secretos.
+    "MFA_LLAVES": "1:llave-local-mfa-no-es-la-de-produccion-0001",
+    "MFA_LLAVE_VIGENTE": "1",
     # El servidor de archivos (ADR-034). La cedula, la selfie y los comprobantes van
     # ahi, no al disco del contenedor: un contenedor se reemplaza y la evidencia
     # legal no. En la columna queda una clave de objeto, nunca una URL publica.
@@ -194,6 +198,10 @@ DE_ENTORNO = {
     "ARCHIVOS_USUARIO": "${ARCHIVOS_USUARIO}",
     "ARCHIVOS_CLAVE": "${ARCHIVOS_CLAVE}",
     "SEGURIDAD_PIMIENTA": "${SEGURIDAD_PIMIENTA}",
+    # Llaves del secreto TOTP (identidad, F1.S3.M2). Se cargan en Coolify desde el almacen de
+    # secretos; sin ellas identidad NO arranca (regla 90.3.4). Nunca un valor en el repositorio.
+    "MFA_LLAVES": "${MFA_LLAVES}",
+    "MFA_LLAVE_VIGENTE": "${MFA_LLAVE_VIGENTE}",
     "WEBHOOK_SECRETO": "${WEBHOOK_SECRETO}",
     "CERTIFICADOS_CLAVE_FIRMA": "${CERTIFICADOS_CLAVE_FIRMA}",
     "CUENTA_PUENTE_CUSTODIA": "${CUENTA_PUENTE_CUSTODIA}",
