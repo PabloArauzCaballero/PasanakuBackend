@@ -38,30 +38,8 @@ dependencies {
     testImplementation(project(":plataforma:comun-pruebas"))
     testImplementation(libs.spring.boot.jdbc)
     testImplementation(libs.bundles.pruebas)   // JUnit 5, AssertJ, Testcontainers, ArchUnit
-    // API de `LauncherSessionListener` (MockitoAlAbrirLaSesion): ya esta en el catalogo y
-    // Gradle la carga igual al correr las pruebas; aca solo se compila contra ella.
-    testImplementation(libs.junit.platform.launcher)
 }
 
 // JPA esta PROHIBIDO (ADR-016): compite con sql/ por la propiedad del esquema y
 // su dirty checking es incompatible con append-only. La convencion falla el build
 // si alguien lo agrega, pero dejarlo escrito acá ahorra la discusion.
-
-// Mockito entra como agente al ARRANCAR la JVM de prueba, no dentro de la primera
-// prueba que mockea. Sin esto, Mockito se auto-adjunta (attach dinamico de
-// byte-buddy-agent) en el primer `mock()`, y ese costo cae dentro del `@BeforeEach`
-// de esa clase, que tiene el limite de 5s de los atomos. Con la CPU del runner
-// compartida, `AdmisionDelGrupoSustitucionTest.armar()` pasaba de 1,5s a mas de 5s
-// y fallaba de forma intermitente (causa demostrada en
-// docs/trabajo/2026-11-21-tanda2-l3l5/evidencia/). Es la configuracion que pide la
-// documentacion de Mockito 5 para JDK 21 (Mockito#0.3). No cambia ningun limite.
-// El resto del arranque (ByteBuddy, Objenesis) lo paga MockitoAlAbrirLaSesion.
-tasks.withType<Test>().configureEach {
-    val clases = configurations.named("testRuntimeClasspath")
-    jvmArgumentProviders.add(
-        CommandLineArgumentProvider {
-            val agente = clases.get().files.single { it.name.startsWith("mockito-core-") }
-            listOf("-javaagent:${agente.absolutePath}")
-        },
-    )
-}
