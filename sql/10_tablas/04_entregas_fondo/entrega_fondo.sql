@@ -31,6 +31,11 @@ CREATE TABLE IF NOT EXISTS entregas.entrega_fondo (
   CONSTRAINT ck_entrega_fondo_metodo_desembolso CHECK (metodo_desembolso IN ('BILLETERA_MOVIL', 'COMPENSACION_INTERNA', 'QR_ENVIO', 'TRANSFERENCIA_BANCARIA'))
 );
 
+-- Evolucion: CHECK ESTRECHADO (ver CK_ESTRECHADOS en modelo.py). El ADD revalida
+-- las filas existentes: falla si queda alguna con un valor retirado, sin tocar el CHECK viejo.
+ALTER TABLE entregas.entrega_fondo DROP CONSTRAINT IF EXISTS ck_entrega_fondo_metodo_desembolso,
+  ADD CONSTRAINT ck_entrega_fondo_metodo_desembolso CHECK (metodo_desembolso IN ('BILLETERA_MOVIL', 'COMPENSACION_INTERNA', 'QR_ENVIO', 'TRANSFERENCIA_BANCARIA'));
+
 COMMENT ON TABLE entregas.entrega_fondo IS 'Módulo 04 — Entregas de Fondo. El acto de entregar la bolsa de un período al beneficiario del turno.';
 COMMENT ON COLUMN entregas.entrega_fondo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN entregas.entrega_fondo.grupo_id IS 'FK, IDX';

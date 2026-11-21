@@ -1,0 +1,29 @@
+$ python3 scripts/generar_ddl.py && git diff -- sql
++-- Evolucion: CHECK ESTRECHADO (ver CK_ESTRECHADOS en modelo.py). El ADD revalida
++-- las filas existentes: falla si queda alguna con un valor retirado, sin tocar el CHECK viejo.
++ALTER TABLE entregas.entrega_fondo DROP CONSTRAINT IF EXISTS ck_entrega_fondo_metodo_desembolso,
++  ADD CONSTRAINT ck_entrega_fondo_metodo_desembolso CHECK (metodo_desembolso IN ('BILLETERA_MOVIL', 'COMPENSACION_INTERNA', 'QR_ENVIO', 'TRANSFERENCIA_BANCARIA'));
++
+
+Prueba contra una base EXISTENTE (CHECK viejo, como TEST) y una nueva — PostgreSQL 16 local, sql/aplicar.sql:
+== 0. se repone el CHECK VIEJO (con EFECTIVO_ORGANIZADOR) para simular TEST
+== 1. con una fila EFECTIVO_ORGANIZADOR, aplicar.sql FALLA
+psql:10_tablas/04_entregas_fondo/entrega_fondo.sql:37: ERROR:  check constraint "ck_entrega_fondo_metodo_desembolso" of relation "entrega_fondo" is violated by some row
+aplicar exit=3
+== 1b. y el CHECK viejo sigue vivo (no quedo la tabla sin CHECK)
+1
+== 2. sin la fila: aplicar.sql estrecha el CHECK
+aplicar exit=0
+CHECK (((metodo_desembolso)::text = ANY ((ARRAY['BILLETERA_MOVIL'::character varying, 'COMPENSACION_INTERNA'::character varying, 'QR_ENVIO'::character varying, 'TRANSFERENCIA_BANCARIA'::character varying])::text[])))
+== 3. segunda corrida: idempotente
+aplicar exit=0
+== 4. fila nueva con EFECTIVO_ORGANIZADOR: rechazada
+ERROR:  new row for relation "entrega_fondo" violates check constraint "ck_entrega_fondo_metodo_desembolso"
+== 5. base nueva
+aplicar exit=0
+
+$ python3 scripts/verificar_boveda.py -> exit 0
+$ python3 scripts/verificar_seguridad.py -> exit 0
+$ python3 scripts/verificar_criterios.py -> exit 0
+$ python3 -I scripts/verificar_narrativas.py -> exit 0
+$ python3 -I scripts/test_catalogo_de_datos.py -> exit 0
