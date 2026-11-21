@@ -1,0 +1,4 @@
+ clientes/dart/aportes/lib/aportaya_cliente_aportes.dart               | 3 +++
+ clientes/dart/notificaciones/lib/aportaya_cliente_notificaciones.dart | 2 ++
+ clientes/dart/tarifas/lib/aportaya_cliente_tarifas.dart               | 1 +
+ 3 files changed, 6 insertions(+)

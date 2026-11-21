@@ -9,6 +9,7 @@ import bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion;
 import bo.aportaya.nucleofinanciero.aplicacion.PagoDeRecargaDePrueba;
 import bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor;
 import bo.aportaya.nucleofinanciero.aplicacion.RegistrarDiscrepancia;
+import bo.aportaya.nucleofinanciero.aplicacion.SolicitudDeRecarga;
 import bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRecargas;
 import bo.aportaya.nucleofinanciero.dominio.puertos.SimuladorDePagoDeRecarga;
 import bo.aportaya.nucleofinanciero.infraestructura.CuentaBilleteraRepositorio;
@@ -194,8 +195,8 @@ class CU10QrDinamicoTest extends BaseDeBilletera {
         return fabrica.getBeanProvider(SimuladorDePagoDeRecarga.class);
     }
 
-    private CU10RecargarSaldo.EntradaSolicitud entrada(String clave, String monto) {
-        return new CU10RecargarSaldo.EntradaSolicitud(
+    private SolicitudDeRecarga entrada(String clave, String monto) {
+        return new SolicitudDeRecarga(
                 clave, cuenta, Dinero.de(monto, Moneda.BOB), Dinero.de("0.00", Moneda.BOB), "QR", Optional.empty());
     }
 

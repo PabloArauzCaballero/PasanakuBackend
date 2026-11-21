@@ -1,0 +1,85 @@
+$ ./gradlew :servicios:grupos:test --console=plain --max-workers=1 -Dorg.gradle.parallel=false   (intento 1)
+# HEAD 46ba39ee · BD jdbc:postgresql://127.0.0.1:5433/pasanaku · 2026-11-21T04:15:04Z
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=43427 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+Picked up _JAVA_OPTIONS: -XX:+UnlockDiagnosticVMOptions -XX:DisableIntrinsic=_base64_encodeBlock,_base64_decodeBlock
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources UP-TO-DATE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+
+> Task :servicios:grupos:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+Failed to get the schema name: null
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /home/user/PasanakuBackend/servicios/grupos/build/generated/openapi
+
+> Task :servicios:grupos:generateJooq
+Ambiguous key name       : The one-to-many key grupos.fk_decision_ingreso_propuesta generates an inbound key method name decisionIngreso on table grupos.decision_ingreso which conflicts with the previously generated key method name for key grupos.fk_decision_ingreso_propuesta. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+Ambiguous key name       : The one-to-many key grupos.fk_participante_invitado_por_id generates an inbound key method name participante on table grupos.participante which conflicts with the previously generated key method name for key grupos.fk_participante_invitado_por_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+Ambiguous key name       : The one-to-many key grupos.fk_turno_permutado_con_turno_id generates an inbound key method name turno on table grupos.turno which conflicts with the previously generated key method name for key grupos.fk_turno_permutado_con_turno_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+
+> Task :servicios:grupos:compileJava
+> Task :servicios:grupos:processResources
+> Task :servicios:grupos:classes
+> Task :servicios:grupos:compileTestJava
+> Task :servicios:grupos:processTestResources
+> Task :servicios:grupos:testClasses
+
+> Task :servicios:grupos:test
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=43427 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+Picked up _JAVA_OPTIONS: -XX:+UnlockDiagnosticVMOptions -XX:DisableIntrinsic=_base64_encodeBlock,_base64_decodeBlock
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+BUILD SUCCESSFUL in 30s
+33 actionable tasks: 7 executed, 26 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+rc=0

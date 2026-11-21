@@ -1,5 +1,6 @@
 package bo.aportaya.identidad.aplicacion;
 
+import bo.aportaya.identidad.dominio.PuedeAutenticarse;
 import bo.aportaya.identidad.infraestructura.UsuarioRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
@@ -124,6 +125,21 @@ public class RenovarSesion {
                     && fila.get("revocada_en", OffsetDateTime.class) == null
                     && fila.get("sesion_expira_en", OffsetDateTime.class).isAfter(ahora);
             if (!vivo) {
+                return Renovacion.rechazada();
+            }
+
+            // IDCU-SEG-075: el refresh de una cuenta suspendida, bloqueada o de baja no
+            // renueva nada y revoca la sesion entera. Se devuelve como resultado (no se
+            // lanza) para que la revocacion quede escrita con el COMMIT.
+            if (!PuedeAutenticarse.segun(usuarios.estadoDe(dsl, fila.get("usuario_id", UUID.class)))) {
+                dsl.execute(
+                        """
+                        UPDATE identidad.sesion
+                           SET revocada_en = ?::timestamptz, motivo_revocacion = 'CUENTA_NO_HABILITADA'
+                         WHERE id = ? AND revocada_en IS NULL
+                        """,
+                        ahora,
+                        fila.get("sesion_id", UUID.class));
                 return Renovacion.rechazada();
             }
 

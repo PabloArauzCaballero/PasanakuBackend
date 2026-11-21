@@ -50,6 +50,12 @@ aportaya:
     # Fuera de la base a proposito: filtrar la tabla de credenciales no alcanza si
     # la pimienta no esta ahi. Si falta la variable, el proceso NO levanta.
     pimienta: ${SEGURIDAD_PIMIENTA}
+  mfa:
+    # F1.S3.M2: llaves con que se cifra el secreto TOTP (factor_mfa.secreto_cifrado), por
+    # version ("1:<llave>,2:<llave>"). OBLIGATORIAS y sin valor por omision: si faltan, el
+    # proceso NO levanta (regla 90.3.4). Del almacen de secretos, nunca del repositorio.
+    llaves: ${MFA_LLAVES}
+    version-vigente: ${MFA_LLAVE_VIGENTE}
   titularidad:
     # CU-18: tope de verificaciones de titularidad (si/no) por actor y por minuto. SINTETICO: lo fija Seguridad con el
     # trafico real de entregas; con N replicas el tope efectivo es N veces este.

@@ -84,11 +84,30 @@ repositorio — el «gestor de secretos» que el propio esquema describe.
 Hay un operador de plataforma; sus credenciales están en
 `/opt/aportaya/credenciales-admin-test.txt` del VPS, nunca en el repositorio.
 
-TEST corre con el perfil `local`, que trae el segundo factor de desarrollo: **el código es
-`000000` para cualquiera**. Es lo único que hace entrable el backoffice mientras no haya
-SMS ni correo de verdad, y es una decisión consciente para un entorno de pruebas. El día
-que haya un canal real, se cambia la variable `PERFIL_SPRING` en Coolify y este párrafo
-deja de ser cierto.
+**Desde F1.S3.M2 (PR #412) no hay código fijo en ningún perfil**: el `000000` del perfil `local`
+ya no existe. El operador entra con su contraseña y un **TOTP real** de una app autenticadora.
+TEST sigue con `PERFIL_SPRING=local` (lo exige `nucleo-financiero`, ver «Secretos…»), pero ese
+perfil ya no trae segundo factor de desarrollo.
+
+**Primer factor del operador (una vez).** Enrolar el TOTP desde la app exige una sesión, y la
+sesión del operador ya exige TOTP. El ciclo se rompe con `despliegue/ensayos/arrancar_totp_test.sh`,
+que siembra un TOTP confirmado y muestra la semilla UNA vez en tu terminal:
+
+```bash
+ssh root@161.97.85.216 'bash -s -- <CODIGO_PUBLICO_DEL_OPERADOR>' < despliegue/ensayos/arrancar_totp_test.sh
+```
+
+El código público del operador está en el mismo archivo de credenciales del VPS. El guion:
+
+- aborta si identidad no corre con el perfil `local` (solo TEST);
+- lee `MFA_LLAVES` y `MFA_LLAVE_VIGENTE` del contenedor de identidad con `docker exec … printenv`, sin
+  imprimirlas ni guardarlas, y cifra la semilla igual que `CifradorSimetrico` (AES-256-GCM, `enc:v1:`);
+- no reemplaza un TOTP que ya exista: la segunda corrida dice `sembrados: 0`;
+- muestra la semilla y el URI `otpauth://` solo en tu terminal. Cargalos en la app y cerrá la terminal:
+  no van a ningún log ni archivo, y no se pegan en chats ni tickets.
+
+`--estado` solo cuenta quién tiene TOTP. Si el operador pierde su app, el camino de recuperación
+todavía no está decidido (DECISION_REQUIRED D1 del REPORTE de F1).
 
 ## Cuentas sintéticas de prueba en TEST (2026-10-11)
 
@@ -128,8 +147,19 @@ Argon2id de `contraseña + pimienta` con la pimienta que lee del contenedor de i
 (`docker exec … printenv`, nunca impresa), y termina con una sonda que no abre sesión: sin segundo
 factor debe responder `422 AP-CU04-03` (credencial correcta). Es idempotente (ids estables,
 `ON CONFLICT DO NOTHING`, la credencial solo si falta): la segunda corrida dice `cambios: 0`. Aborta si
-identidad no corre con el perfil `local`, que es el que acepta `000000` como segundo factor. El SQL que
+identidad no corre con el perfil `local` (el de TEST). El SQL que
 lleva el guion lo escribe `scripts/generar_semillas.py` entre las marcas `SQL-GENERADO`; no se edita.
+
+**Segundo factor de A y B (desde F1.S3.M2).** El factor SMS que siembra el seeder es un marcador: antes
+entraba con `000000`, que ya no existe. Después de sembrarlas, se les da un TOTP real (idempotente; muestra
+cada semilla UNA vez en tu terminal, para cargarla en la app autenticadora o en `cuentas-test.txt`, que
+vive fuera del repositorio):
+
+```bash
+ssh root@161.97.85.216 'bash -s' < despliegue/ensayos/arrancar_totp_test.sh
+```
+
+El TOTP queda como factor principal; el SMS marcador sigue activo pero deja de ser principal.
 
 **Cómo comprobarlas y retirarlas.**
 
@@ -151,8 +181,8 @@ Medido contra la imagen real de identidad (`evidencia/carril-S/21-login-clave-eq
 comportamiento del servicio, no de las cuentas, y queda anotado, no corregido.
 
 **No existen en producción.** Viven en `seeders/dev/` (nunca en `minimos/`): `sembrar_dev.sql` aborta
-sin `app.entorno = 'dev'`, y `sembrar_test.sh` aborta si identidad no corre con el perfil `local` (el de
-producción no acepta el segundo factor fijo). Producción no corre ninguno de los dos.
+sin `app.entorno = 'dev'`, y `sembrar_test.sh` y `arrancar_totp_test.sh` abortan si identidad no corre con
+el perfil `local` (el de TEST). Producción no corre ninguno de ellos.
 
 ## Sandbox de licencia para GRUPO_PASANAKU en TEST (sintético)
 
@@ -435,6 +465,7 @@ openssl rand -hex 32     # 64 caracteres hex; el servicio exige al menos 32
 | Variable | La lee | Sin ella | Como se ve el fallo |
 | --- | --- | --- | --- |
 | `QR_INTERNO_CLAVE` | `nucleo-financiero` | **no arranca** (`ContenidoDeQr`: «necesita al menos 32 bytes», bean `qrInterno`) | contenedor en `restarting`; la ola 3 del compose no queda sana y **las olas siguientes (publicidad, tarifas, transparencia) nunca arrancan**; las rutas `/api/v1/billetera`, `/contabilidad`, `/custodia` dan 503 |
+| `MFA_LLAVES` (formato `1:<llave>`, la llave de 32+ caracteres) y `MFA_LLAVE_VIGENTE` (`1`) — desde F1.S3.M2 | `identidad` | **no arranca** (`LlavesDeFactor`: «aportaya.mfa.llaves es obligatoria») | contenedor de identidad en `restarting`; como va en la primera ola, **ningún otro servicio valida tokens**. Cifran el secreto TOTP en `factor_mfa`: **rotar la llave exige agregar una versión nueva** (`1:<vieja>,2:<nueva>` y vigente `2`), nunca reemplazarla, o los TOTP enrolados dejan de verificar |
 | `INVITACIONES_CLAVE` | `identidad` | arranca (UP) pero **toda invitacion falla en runtime** con 500: `SecretoDeInvitacion.firmar` lanza `IllegalStateException` si la clave tiene menos de 32 caracteres | readiness verde: el problema solo aparece al emitir/validar/consumir una invitacion |
 
 Ninguna de las dos tiene valor por omision a proposito (regla 90.3.4). **`INVITACIONES_CLAVE`

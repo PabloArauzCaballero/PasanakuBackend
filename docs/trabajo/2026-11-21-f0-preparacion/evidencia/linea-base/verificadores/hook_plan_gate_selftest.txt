@@ -1,0 +1,15 @@
+$ python3 .claude/hooks/plan_gate.py --self-test
+PASS  sin plan: bloquea codigo .ts
+PASS  sin plan: bloquea codigo sin extension conocida
+PASS  sin plan: permite .md
+PASS  sin plan: permite bajo docs/
+PASS  sin plan: permite bajo .claude/
+PASS  sin plan: permite ruta fuera del proyecto
+PASS  sin plan: ignora herramienta fuera de alcance
+PASS  sin plan: evento sin file_path no bloquea
+PASS  mensaje de bloqueo nombra la regla
+PASS  con plan: permite codigo
+PASS  plan ilegible: igual permite (no bloquea por formato)
+
+plan_gate self-test: 11 PASS, 0 FAIL
+rc=0

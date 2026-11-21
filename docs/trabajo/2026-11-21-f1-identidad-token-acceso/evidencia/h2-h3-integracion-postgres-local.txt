@@ -1,0 +1,20 @@
+$ APORTAYA_TEST_DB_URL=jdbc:postgresql://127.0.0.1:5433/pasanaku ./gradlew :servicios:identidad:integrationTest --rerun-tasks <las 9 clases que extienden BaseDeCU04>
+(codigo final; base local recreada desde sql/aplicar.sql; conexion como pasanaku, superusuario: NO ejercita RLS — RLS va en h2-psql.txt y h3-rls-psql.txt)
+BUILD SUCCESSFUL in 31s
+testsuite name="bo.aportaya.identidad.CU04CodigoPorCorreoTest" tests="5" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.identidad.CU04CuentaNoHabilitadaTest" tests="8" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.identidad.CU04CuentaSinDocumentoTest" tests="1" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.identidad.CU04IngresoConCorreoTest" tests="3" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.identidad.CU04RechazosTest" tests="9" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.identidad.CU04RenovacionTest" tests="9" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.identidad.CU04Test" tests="15" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.identidad.CU04TotpTest" tests="6" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.identidad.CU90RolOrganizadorTest" tests="5" skipped="0" failures="0" errors="0"
+
+--- contraprueba previa con mutantes (DesafioPorTipo acepta 000000; CU04 sin chequeo de estado), despues restaurados:
+CU04CuentaNoHabilitadaTest > invalido: con la clave correcta, una cuenta no habilitada no abre sesion (AP-CU04-02) > [1] estado=SUSPENDIDO FAILED
+CU04CuentaNoHabilitadaTest > invalido: con la clave correcta, una cuenta no habilitada no abre sesion (AP-CU04-02) > [2] estado=BLOQUEADO_SEGURIDAD FAILED
+CU04CuentaNoHabilitadaTest > invalido: con la clave correcta, una cuenta no habilitada no abre sesion (AP-CU04-02) > [3] estado=BAJA_VOLUNTARIA FAILED
+CU04CuentaNoHabilitadaTest > invalido: con la clave correcta, una cuenta no habilitada no abre sesion (AP-CU04-02) > [4] estado=ELIMINADO FAILED
+CU04TotpTest > correcto: enrola, se vuelve operador y entra con el codigo vigente; 000000 y el codigo reusado no entran FAILED
+> Task :servicios:identidad:integrationTest FAILED

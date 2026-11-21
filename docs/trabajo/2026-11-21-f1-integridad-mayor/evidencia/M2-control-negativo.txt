@@ -1,0 +1,18 @@
+$ psql -d reg_base -c "GRANT UPDATE ON nucleo_financiero.movimiento_contable TO svc_nucleo_financiero"   # control negativo, base desechable
+GRANT
+$ psql -d reg_base -f evidencia/verificar_append_only.sql
+--- resumen por resultado (esperado: solo permission denied)
+     resultado     |   op   | intentos | tablas 
+-------------------+--------+----------+--------
+ PERMITIDO         | UPDATE |        1 |      1
+ permission denied | DELETE |      825 |     97
+ permission denied | UPDATE |      824 |     96
+(3 rows)
+
+--- combinaciones PERMITIDAS (esperado: 0 filas)
+                 tabla                 |          rol          |   op   | resultado 
+---------------------------------------+-----------------------+--------+-----------
+ nucleo_financiero.movimiento_contable | svc_nucleo_financiero | UPDATE | PERMITIDO
+(1 row)
+
+REVOKE

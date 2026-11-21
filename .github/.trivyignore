@@ -18,7 +18,11 @@
 # el 2026-10-16 que no existe 6.2.20 ni Spring Boot 3.5.17. Cada advisory exige un mecanismo que el
 # codigo NO usa, y SpringSinSuperficieVulnerableBarridoTest (plataforma/comun-pruebas) falla si empieza
 # a usarlo. Misma fecha de revision que OSV. Se quitan junto con las de OSV al migrar a Spring 7.
+# 2026-11-21 · Renovado por decision de Pablo (DECISIONES.md, tanda 10) tras re-verificar al vencer: Maven
+# Central sigue sin 6.2.20 (ultima 6.2.19) ni Spring Boot 3.5.17 (ultima 3.5.16); el unico arreglo es 7.0.x.
+# SpringSinSuperficieVulnerableBarridoTest en verde (3/3). La migracion a Spring Boot 4 queda en el plan con
+# fecha anterior a este vencimiento.
 # CVE-2026-47884: path traversal en XsltView con mapeo /** (el backend no usa XsltView ni ViewResolver).
-CVE-2026-47884 exp:2026-11-11
+CVE-2026-47884 exp:2026-12-21
 # CVE-2026-47890: corrupcion de streams SSE al renderizar fragmentos de vistas (el backend no usa SSE ni vistas).
-CVE-2026-47890 exp:2026-11-11
+CVE-2026-47890 exp:2026-12-21

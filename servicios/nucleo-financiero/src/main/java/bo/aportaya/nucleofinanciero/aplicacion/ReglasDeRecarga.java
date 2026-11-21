@@ -25,7 +25,7 @@ final class ReglasDeRecarga {
      * <p>El medio de una orden anterior a que se guardara (nulo) no se compara: no hay con
      * que.
      */
-    static void exigirMismaSolicitud(Orden orden, CU10RecargarSaldo.EntradaSolicitud entrada) {
+    static void exigirMismaSolicitud(Orden orden, SolicitudDeRecarga entrada) {
         boolean igual = orden.cuentaId().equals(entrada.cuentaBilleteraId())
                 && orden.bruto().equals(entrada.monto())
                 && orden.acreditado().equals(CostoDeOperacion.acreditacion(entrada.monto(), entrada.costoProveedor()))
