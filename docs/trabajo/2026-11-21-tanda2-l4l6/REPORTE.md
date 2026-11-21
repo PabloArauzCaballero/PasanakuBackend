@@ -9,7 +9,7 @@
   3. `correcciones/tanda2-l4l6-f1l6m04-patron-importe` — F1.L6.M04 · PR #427
   4. `correcciones/tanda2-l4l6-f1l4m25-licencia-alcance` — F1.L4.M25 · PR #432
   5. `correcciones/tanda2-l4l6-f1l4m03-arranque-fail-closed` — F1.L4.M03 · PR #439
-  6. `correcciones/tanda2-l4l6-f1l6m12-idempotencia-app` — F1.L6.M12
+  6. `correcciones/tanda2-l4l6-f1l6m12-idempotencia-app` — F1.L6.M12 · PR #442
   - Independiente, sobre `origin/dev`: `correcciones/tanda2-l4l6-osv-npm` (avisos OSV en npm) · PR #435, incorporado en 2–4.
 - Peldaño por área: frontends (`packages/tokens`, `packages/ui`, `packages/diseno_flutter`) **TESTED**; identidad **TESTED** (unitarias, web y barrido verdes; mutante detectado). No VERIFIED: no se levantó el servicio con dos procesos reales.
 
@@ -47,7 +47,16 @@
 
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| Resto de F1.L4, F1.L6, F2.L4, F2.L6 | TODO | Se toman en el orden del PLAN |
+| F1.L4.M06 (LFT: analista del token, decisión con otro permiso) | TODO | Toca el contrato, el formulario del backoffice y `CU44Test`/`CU44RechazosTest` (Testcontainers). El permiso nuevo `CUMPLIMIENTO_CASOS_DECIDIR` vive en `seeders/minimos/10-roles-y-permisos.json`, que es compartido |
+| F1.L4.M05, M07, M08, M11, M20, M24 (cambios de esquema en `docs/entidades` de identidad/cumplimiento) | TODO | Siguiente sesión del carril; dependen de F0.L4.M04 |
+| F1.L4.M04, M09, M10, M12–M14, M16–M19, M21–M23, M26 | TODO | Siguiente sesión del carril (M15, M17, M21–M23 coordinan con L1 o con `plataforma`) |
+| F1.L6.M05–M11 | TODO | M07 (gateway) y M08 (SSR) tocan `plataforma`; M06 depende de F4.L5.M52; M11 es la otra mitad de M12 |
+| F2.L4.M01–M02, F2.L6.M13–M14 | TODO | Después de cerrar F1 |
+
+## Estado del CI al cerrar esta sesión
+- #420: todos los jobs en verde salvo «Los cinco corredores». Falló `./gradlew contractTest` en **`servicios:inversiones`** (`AliadoSimuladoFlujosContratoTest.fondoDePuntaAPunta`: `IOException: HTTP/1.1 header parser received no bytes`, por una conexión del pool cerrada localmente). Este PR no toca ese módulo, y `identidad` pasó su `contractTest`. Clase: ajeno a este carril, probablemente intermitente (keep-alive entre el cliente de prueba y el servidor simulado). **No reproducido ni corregido**: es de otro carril y queda registrado para él. `test`, `webTest` e `integrationTest` dieron BUILD SUCCESSFUL.
+- #426: el job OSV falló por avisos npm que ya estaban en `dev`. Se arregla con #435, que ya está incorporado en #426, #427 y #432.
+- #427, #432, #435, #439 y #442: el CI seguía corriendo al cerrar.
 
 ## Evidencia
 - [`evidencia/t2-m1-token-vigente.txt`](./evidencia/t2-m1-token-vigente.txt)
