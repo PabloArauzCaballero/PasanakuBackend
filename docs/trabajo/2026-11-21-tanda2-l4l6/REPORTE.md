@@ -10,6 +10,7 @@
   4. `correcciones/tanda2-l4l6-f1l4m25-licencia-alcance` — F1.L4.M25 · PR #432
   5. `correcciones/tanda2-l4l6-f1l4m03-arranque-fail-closed` — F1.L4.M03 · PR #439
   6. `correcciones/tanda2-l4l6-f1l6m12-idempotencia-app` — F1.L6.M12 · PR #442
+  - Independiente, sobre `origin/dev`: `correcciones/tanda2-l4l6-deep-link-diagnostico` (diagnóstico del intermitente de iOS) · PR #465.
   - Independiente, sobre `origin/dev`: `correcciones/tanda2-l4l6-f2-retiro-subasta-app` (pedido de L2: subasta fuera de la app y 410 en el mock) · PR #460.
   - Independiente, sobre `origin/dev`: `correcciones/tanda2-l4l6-osv-npm` (avisos OSV en npm) · PR #435, incorporado en 2–4.
 - Peldaño por área: frontends (`packages/tokens`, `packages/ui`, `packages/diseno_flutter`) **TESTED**; identidad **TESTED** (unitarias, web y barrido verdes; mutante detectado). No VERIFIED: no se levantó el servicio con dos procesos reales.
@@ -42,7 +43,7 @@
   2. `docker-compose.coolify.yml` / generador `--coolify`: `JWT_CLAVE_FIRMA: ${JWT_CLAVE_FIRMA:?}` e `INVITACIONES_CLAVE: ${INVITACIONES_CLAVE:?}`, para que el error aparezca en `docker compose config`.
   3. `despliegue/TEST.md:469`: la fila de `INVITACIONES_CLAVE` pasa a decir «no arranca».
   4. El pool alineado con `descriptor.yml` (anexo) no se tocó.
-- Avance fuera de este carril: el punto 1 (compose local) lo resolvió el coordinador en **#457**, que se mergea antes que #439. El guion de servidor verifica además que identidad tenga `JWT_CLAVE_FIRMA` en TEST antes de promover. Quedan pendientes los puntos 2 y 3.
+- Avance fuera de este carril: el punto 1 (compose local) lo resolvió el coordinador en **#457**, que se mergea antes que #439. El guion de servidor verifica además que identidad tenga `JWT_CLAVE_FIRMA` en TEST antes de promover. Quedan pendientes los puntos 2 y 3. **#457 ya está en `dev`: #439 queda destrabado.**
 - Dónde quedó: rama `correcciones/tanda2-l4l6-f1l4m03-arranque-fail-closed`; compila y sus pruebas están en verde. TEST no se ve afectado: ya tiene cargados `JWT_CLAVE_FIRMA` e `INVITACIONES_CLAVE` (`despliegue/TEST.md:466-478`).
 
 ## Pendiente
@@ -59,6 +60,18 @@
 - #420: todos los jobs en verde salvo «Los cinco corredores». Falló `./gradlew contractTest` en **`servicios:inversiones`** (`AliadoSimuladoFlujosContratoTest.fondoDePuntaAPunta`: `IOException: HTTP/1.1 header parser received no bytes`, por una conexión del pool cerrada localmente). Este PR no toca ese módulo, y `identidad` pasó su `contractTest`. Clase: ajeno a este carril, probablemente intermitente (keep-alive entre el cliente de prueba y el servidor simulado). **No reproducido ni corregido**: es de otro carril y queda registrado para él. `test`, `webTest` e `integrationTest` dieron BUILD SUCCESSFUL.
 - #426: el job OSV falló por avisos npm que ya estaban en `dev`. Se arregla con #435, que ya está incorporado en #426, #427 y #432.
 - #427, #432, #435, #439 y #442: el CI seguía corriendo al cerrar.
+
+## Intermitente de iOS: deep link con la app abierta
+- Prueba: `apps/movil/integration_test/deep_link_test.dart`, test «02 deep link con la app abierta navega sin reiniciar». Paso «release-ios · deep link (simulador)».
+- Resultado: falló en #420 (run 44922850920) y pasó en #427 (run 44922860877) con el mismo código.
+- **Clase: ENVIRONMENT probable, NO demostrado.**
+  - La secuencia nativa de `openUrl` es idéntica en las dos corridas, sin diálogos.
+  - En la corrida roja el simulador iba entre 3,5 y 10 veces más lento (relanzamiento: 16,9 s contra 1,7 s).
+  - En la corrida verde, la navegación en caliente ya consumía 3,3 s de los 10 s del plazo.
+  - En el código no hay ninguna carrera ni capa que tape la ruta sin sesión.
+- No se pudo demostrar dentro de la app: CI no guardaba el log de esa ventana.
+- Instrumentación, sin subir el plazo: #465 (`esperarVisibleConDiagnostico`) y #466 del coordinador (log completo del simulador como artefacto). La próxima falla trae la causa.
+- Evidencia: `evidencia/intermitente-deep-link-ios.txt` (en la rama de #465).
 
 ## Evidencia
 - [`evidencia/t2-m1-token-vigente.txt`](./evidencia/t2-m1-token-vigente.txt)
