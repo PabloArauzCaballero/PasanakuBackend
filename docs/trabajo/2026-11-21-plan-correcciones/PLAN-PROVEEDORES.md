@@ -32,7 +32,7 @@ Cualquiera de estas situaciones demuestra que el plan no se cumplió:
 | PX-4 | **Verificación de identidad (KYC)**: documento, prueba de vida y comparación biométrica | Alta automática; solo las excepciones y los PEP los revisa una persona | `identidad` | P-08 | Sí (biometría) |
 | PX-5 | **Control de listas y PEP** (sanciones, listas de la UIF) | Control al alta y periódico; alertas para Cumplimiento | `cumplimiento` | P-08, P-09 | Sí |
 | PX-6 | **Verificación de titularidad de la cuenta bancaria** | Que la cuenta destino sea del beneficiario antes de desembolsar | `entregas` / `identidad` | L2 SEG-006, F3.S2.M3 | Sí |
-| PX-7 | **Mensajería** (WhatsApp, SMS, correo y push) | Códigos de verificación (OTP), invitaciones, recordatorios de pago, enlace de pago rápido, avisos de mora, descargo y nivel | `notificaciones` | Invitación (tanda 5), D, debido proceso | Sí para OTP; no para avisos |
+| PX-7 | **Mensajería** (SMS, push y correo; **sin WhatsApp**) | Códigos de verificación (OTP), invitaciones, recordatorios de pago, enlace de pago rápido, avisos de mora, descargo y nivel | `notificaciones` | Invitación (tanda 5), D, debido proceso | Sí para OTP; no para avisos |
 | PX-8 | **Facturación electrónica** | Factura de la comisión de la empresa | `tarifas` | Comisión con porcentaje único | Sí (fiscal) |
 | PX-9 | **Central de riesgo crediticio** | Reporte del historial de pago con el consentimiento del usuario (capa 3 de «Poder de compra») | `transparencia` | F5; L-04 abierta | Sí; condicionado |
 | PX-10 | **Comercios aliados** | Venta con descuento y canje por QR en la tienda | nuevo agregado en un servicio a decidir por ADR-057 (regla 98.7) | F5 | Sí; condicionado |
@@ -81,7 +81,7 @@ caso de uso → Puerto de dominio (p. ej. Pasarela, ProveedorDeDesembolso, Verif
 | RM-16 | Observabilidad por llamada: `correlationId`, proveedor, operación, latencia, resultado mapeado y clave de idempotencia, sin datos personales. Hay un tablero de salud por proveedor | Regla 98.5 |
 | RM-17 | **Doble por puerto en tres niveles** (regla 65): correcto, límite e inválido. Firma real, latencia y fallos programables. Se usa en local, en CI y en TEST, y nunca se presenta como el proveedor real | Regla 65; regla 80.5.10 |
 | RM-18 | **Prueba de contrato** del adaptador contra el contrato publicado del proveedor (consumer-driven), más una prueba de humo contra su sandbox. El sandbox no reemplaza al doble | Regla 98.1.4 |
-| RM-19 | **Continuidad:** cada proveedor crítico tiene un plan con RTO/RPO (`plan_continuidad`) y una prueba vigente (`prueba_continuidad`). Para pasarela y desembolso se busca un **segundo proveedor** antes de producción, o se declara por escrito la degradación sin él | R-RIS-03; ISO 22301 |
+| RM-19 | **Continuidad:** cada proveedor crítico tiene un plan con RTO/RPO (`plan_continuidad`) y una prueba vigente (`prueba_continuidad`). Para pasarela y desembolso, un **segundo proveedor contratado es obligatorio** antes de producción (decisión de Pablo, tanda 8) | R-RIS-03; ISO 22301 |
 | RM-20 | Ningún parámetro de proveedor (umbrales, porcentaje de tráfico, timeouts de negocio, ventanas) queda fijo en el código: va al registro de parámetros del backoffice (F3.S8.M2), con cuatro ojos y vigencia | Tanda 6 y 7 |
 
 ### Microtareas del marco
@@ -109,6 +109,8 @@ caso de uso → Puerto de dominio (p. ej. Pasarela, ProveedorDeDesembolso, Verif
 4. contrato_tercero VIGENTE  →  5. adaptador contra el doble + prueba de contrato  →
 6. casos obligatorios en entorno_prueba_regulado (sandbox)  →  7. activación con tráfico bajo  →  8. sube por salud medida
 ```
+
+**Mercado:** no hay proveedores ni contactos previos; todas las RFP salen al mercado abierto (decisión de Pablo, tanda 8).
 
 **Criterios de evaluación comunes.** Los pesos los fija Pablo (`DECISION_REQUIRED`); estos son los criterios:
 
@@ -139,7 +141,7 @@ caso de uso → Puerto de dominio (p. ej. Pasarela, ProveedorDeDesembolso, Verif
 | RF-PX1-05 | Recarga de billetera por QR con el mismo flujo; el saldo recargado sirve para pagar cuotas (P-06) |
 | RF-PX1-06 | Reembolso de un pago (cuatro ojos reales, P-13), contra la pasarela si lo soporta; si no, por PX-2 |
 | RF-PX1-07 | Pago tardío (después del corte): se acepta y se aplica primero a la deuda con el fondo del grupo (F3.S1.M6) |
-| RF-PX1-08 | Enlace de pago rápido (desde WhatsApp) con un token de propósito único, de un solo uso y con vencimiento, que no autentica: solo permite pagar esa obligación |
+| RF-PX1-08 | Enlace de pago rápido (por push, SMS o correo) con un token de propósito único, de un solo uso y con vencimiento, que no autentica: solo permite pagar esa obligación |
 | RF-PX1-09 | Los motivos de rechazo de la pasarela se mapean a un catálogo cerrado propio |
 | RF-PX1-10 | Compatibilidad con el estándar de QR interoperable que rija en Bolivia (a identificar por Cumplimiento), para que se pueda pagar desde la app de cualquier banco |
 
@@ -300,7 +302,15 @@ Microtareas: **PX6.M01** puerto + doble (titular coincide, no coincide, no verif
 
 ---
 
-## PX-7 — Mensajería (WhatsApp, SMS, correo y push)
+## PX-7 — Mensajería (SMS, push y correo)
+
+**Decisión de Pablo (tanda 8):** los canales son **SMS, notificaciones push y correo. No se usa WhatsApp.** Reparto por propósito:
+- **SMS:** códigos de verificación (OTP) y avisos críticos para quien no tiene la app abierta.
+- **Push:** recordatorios, invitaciones, enlace de pago, nivel, rachas y «Grupo perfecto».
+- **Correo:** comprobantes, facturas (PX-8) y avisos formales con plazo (mora, descargo y apelación).
+- **OTP de respaldo:** un segundo proveedor de SMS o el correo verificado.
+
+El requisito RF-PX7-05 sobre plantillas aprobadas «por el canal» deja de aplicar a WhatsApp; queda para los remitentes de SMS registrados si la norma lo exige.
 
 **Puerto:** el existente en `notificaciones` (CU-83 enruta el envío y CU-80 despacha). Hoy solo existe `MensajeriaSimulada`.
 
@@ -311,10 +321,10 @@ Microtareas: **PX6.M01** puerto + doble (titular coincide, no coincide, no verif
 | RF-PX7-03 | Consentimiento por canal y por propósito (`consent-management`); horarios y frecuencia acotados para recordatorios y cobranza |
 | RF-PX7-04 | **Contenido mínimo:** sin montos atribuibles ni datos de terceros en el texto del mensaje; los detalles se ven dentro de la app (regla 90.2) |
 | RF-PX7-05 | Plantillas versionadas y aprobadas por el proveedor del canal cuando el canal lo exige; los textos los redacta Claude y los aprueba Pablo (P-16) |
-| RF-PX7-06 | Si falla un canal, no se aborta el resto ni se duplican los envíos que ya salieron (regla 96.7.1); conmutación del OTP al canal de respaldo |
+| RF-PX7-06 | Si falla un canal, no se aborta el resto ni se duplican los envíos que ya salieron (regla 96.7.1); el OTP conmuta del SMS principal al segundo proveedor de SMS o al correo verificado |
 | RF-PX7-07 | Webhooks de estado de entrega firmados, por el ingreso común (RM-04) |
 
-Microtareas: **PX7.M01** doble por canal (entregado, demorado, rechazado, webhook duplicado) · **PX7.M02** plantillas nuevas del modelo A + D · **PX7.M03** conmutación del OTP · **PX7.M04** elección de canales y proveedores (`DECISION_REQUIRED`, ver preguntas).
+Microtareas: **PX7.M01** doble por canal (entregado, demorado, rechazado, webhook duplicado) · **PX7.M02** plantillas nuevas del modelo A + D · **PX7.M03** conmutación del OTP · **PX7.M04** RFP de SMS (principal y respaldo), push y correo; contratos vigentes (`DECISION_REQUIRED` hasta tener los contratos) · **PX7.M05** eliminar del código y de las plantillas toda referencia a WhatsApp.
 
 ---
 
@@ -329,7 +339,7 @@ Microtareas: **PX7.M01** doble por canal (entregado, demorado, rechazado, webhoo
 | RF-PX8-03 | Contingencia: si el servicio fiscal no responde, se registra el evento significativo y las facturas se regularizan dentro del plazo que fija la norma. `docs/Cumplimiento.md` §4 recoge el CUFD (24 h, extensible a 72), el CUF por documento, la firma digital y los eventos significativos con plazo de hasta 48 h. El detalle de la contingencia lo confirma Cumplimiento |
 | RF-PX8-04 | El NIT o los datos fiscales del participante se piden solo si la norma los exige, con un valor por defecto para consumidor final, según lo que confirme Cumplimiento |
 
-Microtareas: **PX8.M01** doble (emitida, rechazada, servicio caído → contingencia) · **PX8.M02** emisión por evento de cobro confirmado · **PX8.M03** si la emisión es directa o con un proveedor intermediario (`DECISION_REQUIRED`).
+Microtareas: **PX8.M01** doble (emitida, rechazada, servicio caído → contingencia) · **PX8.M02** emisión por evento de cobro confirmado · **PX8.M03** RFP y contrato con un **proveedor de facturación autorizado** (decisión de Pablo: no se integra directo con el SIN).
 
 ---
 
@@ -382,7 +392,7 @@ Microtareas: **PX11.M01** inventario de los terceros de infraestructura actuales
 | F1 | PX0.M02 (ingreso de webhooks) y PX0.M06 (secretos), porque cierran S1 de seguridad |
 | F3 | Puertos, dobles y flujos de PX-1 a PX-8 (dentro de H3); PX0.M03 a M05, M07 a M09 |
 | F3 (diseño en paralelo) | PX-9 y PX-10 |
-| Pre-producción (H15) | Adaptadores reales, sandbox y `contrato_tercero` VIGENTE de PX-1, PX-2, PX-3, PX-4, PX-5, PX-6, PX-7 y PX-8; segundo proveedor de PX-1 y PX-2 o degradación aceptada por escrito; pruebas de continuidad |
+| Pre-producción (H15) | Adaptadores reales, sandbox y `contrato_tercero` VIGENTE de PX-1, PX-2, PX-3, PX-4, PX-5, PX-6, PX-7 y PX-8; **segundo proveedor de PX-1 y de PX-2 contratado (obligatorio, decisión de Pablo)**; pruebas de continuidad |
 
 ## Evidencia exigida para cerrar cada proveedor
 

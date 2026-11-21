@@ -74,3 +74,12 @@ Siguen abiertas: P-19 (dónde correr Docker) y P-20 (el candado `blocker_gate`).
 | AMB-L1-2: transferencias P2P | **Se permite transferir a otra persona por su identificador único. No se permite pagar la cuota de otro.** |
 
 Lo que queda abierto es solo para el abogado o Cumplimiento: [`PREGUNTAS-LEGALES.md`](../2026-11-21-plan-correcciones/PREGUNTAS-LEGALES.md).
+
+## Tanda 8 (proveedores externos)
+
+| Tema | Decisión |
+|---|---|
+| Canales de mensajería | **SMS, notificaciones push y correo. Sin WhatsApp.** |
+| Segundo proveedor de cobro QR y de desembolso | **Obligatorio antes de producción.** |
+| Contactos con proveedores | **Ninguno.** Las RFP salen al mercado abierto. |
+| Facturación de la comisión | **Con un proveedor de facturación autorizado**, no integrada directo con el SIN. |
