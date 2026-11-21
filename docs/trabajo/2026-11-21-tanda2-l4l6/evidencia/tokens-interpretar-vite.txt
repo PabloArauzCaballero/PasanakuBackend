@@ -1,0 +1,31 @@
+# Vite no resolvía el re-export relativo de @aportaya/tokens/dinero (regresión de #426)
+Fecha: 2026-11-21 · Clase (regla 80.4): PRODUCT_BUG — introducido por F1.S4.M1 (#426).
+
+## Reproducción (antes del arreglo, código de dev en packages/tokens y packages/ui)
+$ npx playwright test e2e/visual-bloqueos.e2e.ts   # levanta `ng serve` en frío
+[WebServer] Error: Error during dependency optimization:
+[WebServer] [UNRESOLVED_IMPORT] Could not resolve './interpretar' in ../../packages/tokens/dinero/formatear.ts
+[WebServer]  96 │ export { interpretarMontoEscrito } from './interpretar'
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+Causa: `@aportaya/tokens/dinero` se sirve como dependencia (.ts vía `exports`); el pre-empaquetado de Vite (rolldown)
+no resuelve un import relativo sin extensión dentro de ese archivo. `ng build` y vitest no pasan por ese camino, por eso
+la suite unitaria quedó verde. Afecta a `ng serve` del backoffice y del sitio, y al paso f6 (E2E del backoffice) del CI.
+
+## Arreglo
+- packages/tokens/package.json: entrada `./dinero/interpretar` → `./dinero/interpretar.ts`.
+- packages/tokens/dinero/formatear.ts: sale el re-export relativo.
+- packages/ui/src/campo-monto/campo-monto.ts: importa `@aportaya/tokens/dinero/interpretar`.
+
+## Después del arreglo
+$ rm -rf .angular/cache && npx playwright test e2e/visual-bloqueos.e2e.ts --trace off --retries=0
+  19 passed (1.1m)
+(0 apariciones de UNRESOLVED_IMPORT en la salida)
+$ (packages/tokens) yarn vitest run
+ Test Files  4 passed (4)
+      Tests  52 passed (52)
+$ (packages/tokens) yarn typecheck → exit 0 · yarn lint → exit 0
+$ (packages/ui) yarn test:front
+ Test Files  39 passed (39)
+      Tests  231 passed (231)
+$ (packages/ui) yarn lint → exit 0 · (apps/web) yarn typecheck → exit 0
