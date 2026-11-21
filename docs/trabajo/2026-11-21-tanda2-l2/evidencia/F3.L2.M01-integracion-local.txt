@@ -1,0 +1,18 @@
+NOTA: corrida LOCAL contra una copia descartable de la base local (Postgres 16, puerto 5433, base pasanaku_it creada con TEMPLATE desde la base de desarrollo). Para correrla se cambio SOLO en disco, sin commitear, la URL de BaseDeEntregas; el archivo se restauro despues (git status al final). El CI la corre con Testcontainers.
+$ ./gradlew :servicios:entregas:test :servicios:entregas:integrationTest --tests bo.aportaya.entregas.CU133* --tests bo.aportaya.entregas.CU22* --tests bo.aportaya.entregas.CU28*
+EXIT=0
+$ git status --short BaseDeEntregas.java -> ''
+"bo.aportaya.entregas.CU133EntregaAutomaticaTest" tests="6" skipped="0" failures="0" errors="0"
+"bo.aportaya.entregas.CU133EntregaConsistenteTest" tests="3" skipped="0" failures="0" errors="0"
+"bo.aportaya.entregas.CU133PozoCompletoConcurrenciaTest" tests="1" skipped="0" failures="0" errors="0"
+"bo.aportaya.entregas.CU133PozoCompletoRechazosTest" tests="6" skipped="0" failures="0" errors="0"
+"bo.aportaya.entregas.CU133PozoCompletoTest" tests="6" skipped="0" failures="0" errors="0"
+"bo.aportaya.entregas.CU22PozoYMercadoRechazosTest" tests="4" skipped="0" failures="0" errors="0"
+"bo.aportaya.entregas.CU22Test" tests="6" skipped="0" failures="0" errors="0"
+"bo.aportaya.entregas.CU28DesembolsosTest" tests="4" skipped="0" failures="0" errors="0"
+"bo.aportaya.entregas.CU28RechazosTest" tests="9" skipped="0" failures="0" errors="0"
+"bo.aportaya.entregas.CU28Test" tests="9" skipped="0" failures="0" errors="0"
+"bo.aportaya.entregas.aplicacion.EntregaAutomaticaTest" tests="11" skipped="0" failures="0" errors="0"
+"bo.aportaya.entregas.consumo.PactosDeLaEntregaAutomaticaTest" tests="5" skipped="0" failures="0" errors="0"
+"bo.aportaya.entregas.consumo.PactosDeLaEntregaAutomaticaTest" tests="5" skipped="0" failures="0" errors="0"
+"bo.aportaya.entregas.aplicacion.AplicarTurnosAsignadosTest" tests="2" skipped="0" failures="0" errors="0"

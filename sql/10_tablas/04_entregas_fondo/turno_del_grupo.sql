@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS entregas.turno_del_grupo (
   CONSTRAINT ck_turno_del_grupo_version CHECK (version >= 0)
 );
 
-COMMENT ON TABLE entregas.turno_del_grupo IS 'Módulo 04 — Entregas de Fondo. Que la bolsa llegue completa, a la persona correcta, una sola vez';
+COMMENT ON TABLE entregas.turno_del_grupo IS 'Módulo 04 — Entregas de Fondo. La copia que guarda entregas de los turnos que publica grupos: qué turno cobra el pozo de cada periodo, de qué cupo y quién era el titular cuando grupos lo publicó.';
 COMMENT ON COLUMN entregas.turno_del_grupo.turno_id IS 'PK';
 COMMENT ON COLUMN entregas.turno_del_grupo.grupo_id IS 'IDX';
 COMMENT ON COLUMN entregas.turno_del_grupo.periodo_id IS 'UQ';

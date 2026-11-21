@@ -54,6 +54,15 @@ aportaya:
     # F1.L2.M07 (SEG-007): la llave que cifra el numero de cuenta, distinta de la pimienta del hash. Sin valor por
     # defecto a proposito: si falta, o si es igual a la pimienta, el proceso NO levanta (regla 90.3.4).
     llave-cifrado-cuentas: ${ENTREGAS_LLAVE_CIFRADO_CUENTAS}
+  # F3.L2.M01: entrega automatica al cobrarse el turno (consumidores de aportes.periodo_recaudado y
+  # grupos.turnos_asignados + barrido de la saga). APAGADA por omision: los productores no existen todavia y el metodo
+  # de desembolso es DECISION_REQUIRED. Encendida sin metodo-desembolso, el proceso NO levanta (regla 90.3.4).
+  entrega-automatica:
+    habilitada: false
+    metodo-desembolso: ""
+    intervalo-del-barrido: PT1M     # cada cuanto se retoman las sagas que esperan
+    espera-entre-intentos: PT5M     # cuanto se deja pasar entre dos intentos de la misma saga
+    tanda: 50                       # sagas por barrido
   cuentas:
     # Diez destinos distintos para la misma persona son un patron, no una comodidad.
     maximo-por-usuario: 3

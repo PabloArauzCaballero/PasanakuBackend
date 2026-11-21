@@ -3191,7 +3191,7 @@ Son dos conversaciones completamente distintas con dos personas distintas. Un so
 | `tipo` | VARCHAR(35) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(35), obligatoria. | NINGUNA |
 | `severidad` | VARCHAR(10) | Nivel de gravedad o criticidad asignado al incidente, alerta o evento. | VARCHAR(10), obligatoria. | NINGUNA |
 | `descripcion` | TEXT | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | TEXT, obligatoria. | NINGUNA |
-| `reportada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `reportada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `asignada_a` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
 | `sla_horas` | SMALLINT | Atributo que representa sla horas en el modelo de `incidencia_entrega`. | SMALLINT, obligatoria. | NINGUNA |
@@ -3383,6 +3383,12 @@ Son dos conversaciones completamente distintas con dos personas distintas. Un so
 | `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
 
 ### `turno_del_grupo`
+
+**Qué es.** La copia que guarda `entregas` de los turnos que publica `grupos`: qué turno cobra el pozo de cada periodo, de qué cupo y quién era el titular cuando `grupos` lo publicó.
+
+**Para qué sirve.** Que la entrega se arme sola cuando `aportes` avisa que el recaudo del periodo está listo, sin que nadie la pida a mano y sin que `entregas` tenga que preguntarle a `grupos` en el camino del dinero.
+
+**Por qué existe.** Un servicio no lee la base de otro (regla 98.1.1). Sin esta copia, la entrega automática tendría que llamar a `grupos` en cada fondeo (una cadena de tres saltos, regla 98.2.5) o adivinar el turno del periodo.
 
 **Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos.
 

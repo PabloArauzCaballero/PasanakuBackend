@@ -171,6 +171,8 @@ class FixturaDeEntregas {
             {"entregas", "cuenta_bancaria_beneficiario"},
             {"entregas", "evento_dominio"},
             {"entregas", "evento_consumido"},
+            {"entregas", "estado_saga"},
+            {"entregas", "turno_del_grupo"},
             {"aportes", "proveedor_pago"},
             {"grupos", "turno"},
             {"grupos", "periodo"},

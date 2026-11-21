@@ -122,7 +122,7 @@ ALTER TABLE entregas.incidencia_entrega
 ALTER TABLE entregas.incidencia_entrega DROP CONSTRAINT IF EXISTS fk_incidencia_entrega_reportada_por;
 ALTER TABLE entregas.incidencia_entrega
   ADD CONSTRAINT fk_incidencia_entrega_reportada_por
-  FOREIGN KEY (reportada_por) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY (reportada_por) REFERENCES identidad.usuario (id) ON DELETE SET NULL ON UPDATE CASCADE;
 
 ALTER TABLE entregas.intento_desembolso DROP CONSTRAINT IF EXISTS fk_intento_desembolso_orden_desembolso_id;
 ALTER TABLE entregas.intento_desembolso

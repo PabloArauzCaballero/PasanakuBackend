@@ -540,7 +540,7 @@ entity "incidencia_entrega" as incid {
   tipo : VARCHAR(35) <<CK>>
   severidad : VARCHAR(10) <<CK>>
   descripcion : TEXT
-  # reportada_por : UUID <<FK>>
+  # reportada_por : UUID <<FK, NULL>>
   # asignada_a : UUID <<FK, NULL>>
   estado : VARCHAR(15) <<CK, IDX>>
   sla_horas : SMALLINT

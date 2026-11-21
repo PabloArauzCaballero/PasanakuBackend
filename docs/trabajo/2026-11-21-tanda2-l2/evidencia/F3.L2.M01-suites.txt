@@ -1,0 +1,5 @@
+$ ./gradlew :servicios:entregas:spotlessCheck :servicios:entregas:test :servicios:entregas:webTest :servicios:entregas:testBarrido
+EXIT=0
+test tests 40 skipped 0 failures 0 errors 0
+webTest tests 65 skipped 0 failures 0 errors 0
+testBarrido tests 2 skipped 0 failures 0 errors 0

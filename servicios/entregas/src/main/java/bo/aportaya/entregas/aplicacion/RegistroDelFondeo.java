@@ -148,7 +148,8 @@ public class RegistroDelFondeo {
                 .orElseGet(() -> fondeos.abrirIncidencia(
                         dsl,
                         entregaId,
-                        ctx.usuarioId(),
+                        // La abre el sistema (entrega automatica, F3.L2.M01): no hay persona que la reporte.
+                        ContextoSesion.ROL_SISTEMA.equals(ctx.rol()) ? null : ctx.usuarioId(),
                         "Falta de caja: faltan " + pendiente
                                 + " para el pozo. La entrega queda bloqueada y la deuda se conserva hasta que la"
                                 + " cubra el fondo del grupo.",
