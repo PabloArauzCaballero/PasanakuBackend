@@ -12,10 +12,11 @@ import org.junit.jupiter.api.Test;
 /**
  * H8.S1.M2/M4/M6 · El pozo completo, una sola vez, contra PostgreSQL real.
  *
- * <p>aportes y garantia van como DOBLES de tres niveles (regla 65): lo que queda verificado es
- * la orquestacion de este servicio y su persistencia, no los servicios vecinos. Los limites y los
- * invalidos (dependidos caidos, periodo ajeno, respaldo inconsistente, restricciones de la base)
- * estan en {@link CU133PozoCompletoRechazosTest}, separada por la regla de tamano de archivo.
+ * <p>aportes va como DOBLE de tres niveles (regla 65): lo que queda verificado es la orquestacion de
+ * este servicio y su persistencia, no el servicio vecino. El respaldo empresarial se retiro (F2.L2.M01):
+ * el faltante queda pendiente hasta la cobertura con el fondo del grupo (F3.L2.M05). Los limites y los
+ * invalidos (aportes caido, periodo ajeno, restricciones de la base) estan en
+ * {@link CU133PozoCompletoRechazosTest}, separada por la regla de tamano de archivo.
  */
 class CU133PozoCompletoTest extends BaseDePozoCompleto {
 
@@ -25,13 +26,11 @@ class CU133PozoCompletoTest extends BaseDePozoCompleto {
     void pozoCompletoSinFaltante() {
         var c = caso();
         aportesConfirma(c, "6000.00");
-        garantiaDoble.conDisponible(bob("8000.00"));
 
         var salida = fondear(c, "fondeo-1-" + c.e().turnoId());
 
         assertThat(salida.estadoDelFondeo()).isEqualTo("FONDEADO");
         assertThat(salida.cifras().pendiente()).isEqualTo(bob("0.00"));
-        assertThat(garantiaDoble.llamadas.get()).isZero();
         var fila = dsl.fetchOne(
                 "SELECT estado, monto_bolsa_bruto, total_deducciones, monto_neto_a_entregar FROM entregas.entrega_fondo WHERE id = ?",
                 salida.entregaId());
@@ -43,18 +42,16 @@ class CU133PozoCompletoTest extends BaseDePozoCompleto {
 
     @Test
     @DisplayName(
-            "CORRECTO · Dado pozo Bs 6.000 y Bs 5.000 confirmados · Cuando se fondea · Entonces pide Bs 1.000 a la empresa, la entrega queda con el principal COMPLETO y el fondeo cuadra en la base")
+            "CORRECTO · Dado pozo Bs 6.000 y Bs 5.000 confirmados · Cuando se fondea · Entonces la empresa no cubre nada: los Bs 1.000 quedan pendientes, el principal sigue COMPLETO y el fondeo cuadra en la base")
     void ejemploDelPlan() {
         var c = caso();
         aportesConfirma(c, "5000.00");
-        garantiaDoble.conDisponible(bob("8000.00"));
 
         var salida = fondear(c, "fondeo-2-" + c.e().turnoId());
 
-        assertThat(salida.estadoDelFondeo()).isEqualTo("FONDEADO");
-        assertThat(salida.cifras().cubiertoEmpresa()).isEqualTo(bob("1000.00"));
-        assertThat(garantiaDoble.coberturasAplicadas()).isEqualTo(1);
-        // Cuadre desde la fuente: pozo = confirmado + mutual + faltante; faltante = empresa + pendiente.
+        assertThat(salida.estadoDelFondeo()).isEqualTo("CON_PENDIENTE");
+        assertThat(salida.cifras().cubiertoEmpresa()).isEqualTo(bob("0.00"));
+        // Cuadre desde la fuente: pozo = confirmado + mutual + faltante; faltante = empresa (cero) + pendiente.
         var f = dsl.fetchOne(
                 """
                 SELECT monto_pozo, monto_confirmado, monto_cubierto_mutual, monto_faltante,
@@ -67,14 +64,14 @@ class CU133PozoCompletoTest extends BaseDePozoCompleto {
                         .add(f.get(2, BigDecimal.class))
                         .add(f.get(3, BigDecimal.class)));
         assertThat(f.get(3, BigDecimal.class)).isEqualByComparingTo("1000.00");
-        assertThat(f.get(4, BigDecimal.class)).isEqualByComparingTo("1000.00");
-        assertThat(f.get(5, BigDecimal.class)).isEqualByComparingTo("0.00");
-        assertThat(f.get(6, String.class)).isEqualTo("FONDEADO");
-        assertThat(f.get(7, UUID.class)).isNotNull();
+        assertThat(f.get(4, BigDecimal.class)).isEqualByComparingTo("0.00");
+        assertThat(f.get(5, BigDecimal.class)).isEqualByComparingTo("1000.00");
+        assertThat(f.get(6, String.class)).isEqualTo("CON_PENDIENTE");
+        assertThat(f.get(7, UUID.class)).isNull();
         assertThat(numero("SELECT monto_bolsa_bruto FROM entregas.entrega_fondo WHERE id = ?", salida.entregaId()))
                 .isEqualByComparingTo("6000.00");
         assertThat(contar(
-                        "SELECT count(*)::int FROM entregas.evento_dominio WHERE tipo = 'entregas.pozo_fondeado' AND agregado_id = ?",
+                        "SELECT count(*)::int FROM entregas.evento_dominio WHERE tipo = 'entregas.pozo_con_faltante' AND agregado_id = ?",
                         salida.entregaId()))
                 .isEqualTo(1);
     }
@@ -84,8 +81,7 @@ class CU133PozoCompletoTest extends BaseDePozoCompleto {
             "Dado un pozo fondeado y autorizado · Cuando se vuelve a fondear el mismo turno · Entonces no nace otra entrega y el principal sigue siendo Bs 6.000")
     void seEntregaUnaSolaVez() {
         var c = caso();
-        aportesConfirma(c, "5000.00");
-        garantiaDoble.conDisponible(bob("8000.00"));
+        aportesConfirma(c, "6000.00");
         var salida = fondear(c, "fondeo-3-" + c.e().turnoId());
 
         transaccion.execute(t -> entregaCU.autorizar(salida.entregaId(), c.ctx()));
@@ -102,11 +98,10 @@ class CU133PozoCompletoTest extends BaseDePozoCompleto {
 
     @Test
     @DisplayName(
-            "Dada la misma clave dos veces · Cuando se fondea · Entonces hay una entrega, un fondeo y una sola cobertura aunque garantia se haya consultado dos veces (idempotencia)")
+            "Dada la misma clave dos veces con faltante · Cuando se fondea · Entonces hay una entrega, un fondeo y una sola incidencia (idempotencia)")
     void idempotente() {
         var c = caso();
         aportesConfirma(c, "5000.00");
-        garantiaDoble.conDisponible(bob("8000.00"));
 
         var primera = fondear(c, "fondeo-4-" + c.e().turnoId());
         var segunda = fondear(c, "fondeo-4-" + c.e().turnoId());
@@ -117,20 +112,18 @@ class CU133PozoCompletoTest extends BaseDePozoCompleto {
         assertThat(entregasDelTurno(c)).isEqualTo(1);
         assertThat(contar("SELECT count(*)::int FROM entregas.fondeo_entrega WHERE turno_id = ?", c.e().turnoId()))
                 .isEqualTo(1);
-        assertThat(garantiaDoble.coberturasNuevas.get()).isEqualTo(1);
         assertThat(contar(
-                        "SELECT count(*)::int FROM entregas.evento_dominio WHERE tipo = 'entregas.pozo_fondeado' AND agregado_id = ?",
+                        "SELECT count(*)::int FROM entregas.incidencia_entrega WHERE entrega_id = ? AND tipo = 'FONDO_INCOMPLETO'",
                         primera.entregaId()))
                 .isEqualTo(1);
     }
 
     @Test
     @DisplayName(
-            "Dada una reserva de Bs 800 para un faltante de Bs 1.000 · Cuando se fondea · Entonces la entrega queda BLOQUEADA con el pozo completo, la deuda de Bs 1.000 conservada y una incidencia CRITICA abierta; autorizarla se rechaza")
+            "Dado un faltante de Bs 1.000 sin quien lo cubra · Cuando se fondea · Entonces la entrega queda BLOQUEADA con el pozo completo, la deuda de Bs 1.000 conservada y una incidencia CRITICA abierta; autorizarla se rechaza")
     void faltaExtraordinariaDeCaja() {
         var c = caso();
         aportesConfirma(c, "5000.00");
-        garantiaDoble.conDisponible(bob("800.00"));
 
         var salida = fondear(c, "fondeo-5-" + c.e().turnoId());
         // reintento sin cambios: no duplica incidencia ni entrega
@@ -157,14 +150,13 @@ class CU133PozoCompletoTest extends BaseDePozoCompleto {
 
     @Test
     @DisplayName(
-            "Dada la contingencia (la reserva se amplia) · Cuando se reintenta el MISMO pedido · Entonces se completa el mismo fondeo, la entrega se destraba y la incidencia queda RESUELTA")
-    void contingenciaYReintento() {
+            "Dado que los aportes tardios completan el pozo · Cuando se reintenta el MISMO pedido · Entonces se completa el mismo fondeo, la entrega se destraba y la incidencia queda RESUELTA")
+    void aportesTardiosYReintento() {
         var c = caso();
         aportesConfirma(c, "5000.00");
-        garantiaDoble.conDisponible(bob("800.00"));
         var bloqueada = fondear(c, "fondeo-6-" + c.e().turnoId());
 
-        garantiaDoble.conDisponible(bob("1000.00")); // el responsable amplio la reserva
+        aportesConfirma(c, "6000.00"); // llegaron los aportes que faltaban
         var completada = fondear(c, "fondeo-6-" + c.e().turnoId());
 
         assertThat(completada.entregaId()).isEqualTo(bloqueada.entregaId());
