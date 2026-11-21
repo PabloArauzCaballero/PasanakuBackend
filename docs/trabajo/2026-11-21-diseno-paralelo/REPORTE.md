@@ -8,7 +8,7 @@
 
 | Punto | Rama | PR |
 |---|---|---|
-| 1 · PX0.M10 + plan y reporte | `correcciones/diseno-paralelo-2026-11-21` | ver el PR de esta rama (punto 1) |
+| 1 · PX0.M10 + plan y reporte | `correcciones/diseno-paralelo-2026-11-21` | https://github.com/PabloArauzCaballero/PasanakuBackend/pull/410 |
 | 2 · RFP PX-1 a PX-8 | `correcciones/diseno-paralelo-2026-11-21-rfp` | https://github.com/PabloArauzCaballero/PasanakuBackend/pull/406 |
 | 3 · F5 «Poder de compra» | `correcciones/diseno-paralelo-2026-11-21-poder-de-compra` | https://github.com/PabloArauzCaballero/PasanakuBackend/pull/407 |
 | 4 · F3.S8.M1 textos | `correcciones/diseno-paralelo-2026-11-21-textos` | https://github.com/PabloArauzCaballero/PasanakuBackend/pull/408 |
