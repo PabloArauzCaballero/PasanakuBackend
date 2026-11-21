@@ -2,8 +2,9 @@
 
 > **AVANCE: 3 / 13 — 23,1 %.** (F1.L2.M07 en A MEDIAS: no suma)
 
-- Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Rama(s): `correcciones/tanda2-l2-retiro-subasta` (#419),
-  `correcciones/tanda2-l2-seg007-cifrado` (apilada sobre #419)
+- Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · PR apilados, mergear en este orden: #419
+  (`correcciones/tanda2-l2-retiro-subasta`) → #421 (`-seg007-cifrado`) → #422 (`-desembolso-sin-humano`) →
+  #424 (`-entrega-legacy`) → #429 (`-garantia-cuerpo`)
 - Peldaño de evidencia alcanzado: `TESTED` en L2.S1.M1 (`test` + `webTest` + gates estáticos locales en verde).
   `integrationTest` (Testcontainers) no corre en esta nube: lo corre el CI del PR. Todo lo demás del lote: `UNKNOWN`.
 
@@ -97,8 +98,10 @@
 |---|---|---|
 | F1.L2.M10 | TODO | Siguiente PR del lote |
 | F1.L2.M01, M04, M06, M08, M11–M14 | TODO | M13/M14 necesitan `plataforma/comun-web` (cliente único y token de servicio): fuera de alcance |
-| F2.L2.M01, M02 | TODO | Siguientes PR del lote |
-| L2.S1.M2 | BLOQUEADO | L6 y L1 (ver A medias) |
+| F2.L2.M02 | TODO | Después de F2.L2.M01 y del retiro del consumidor de tópicos de respaldo en `nucleo-financiero` (L1) |
+| L2.S1.M2 | TODO | Precondición: L6 y L1 sueltan los consumidores (ver A medias). No es un bloqueo de ejecución: es el paso «contraer» y se hace apenas mergeen |
+| F1.L2.M10 | TODO | Diseño listo, sin código: puerto `RetencionDelPozo.retener(entregaId, neto, clave) → Concedida(retencionId) / SaldoInsuficiente / NoDisponible`, doble en tres niveles (regla 65) y adaptador que falla cerrado hasta que L1 publique la operación en `nucleo-financiero`. La llamada va FUERA de la transacción de `CU28EmitirDesembolso` (invariante 6), así que la emisión se parte en «leer neto» → «retener» → «escribir orden». Depende además de F2.L2.M06 (la emisión deja de ser humana) |
+| F2.L2.M01 | TODO | Retirar `RespaldoEmpresarial`/`RespaldoPorHttp` cambia la conducta del fondeo con faltante y reescribe `CU133PozoCompleto*Test`, cuyos nombres son los criterios gherkin de `docs/CasosDeUso/CU-133` (fuera de alcance, `verificar_criterios.py`). Esas pruebas necesitan Docker. Orden: actualizar CU-133 y después este lote |
 
 ## Evidencia
 
@@ -121,6 +124,14 @@
 - La app móvil sigue llamando a la subasta: hoy recibe 410 y muestra un error genérico (L6).
 
 ## Desvíos del plan
+
+- **CI de #419, job Frontend en rojo** (clasificación `PRODUCT_BUG` de este lote, regla 80.4): con `deprecated: true` en
+  las operaciones de subasta, el cliente Dart generado marcó los métodos y `apps/movil` (que todavía los llama) falló
+  `dart analyze --fatal-infos` con 6 `deprecated_member_use`. Corregido en #419 (commit «las operaciones de subasta y
+  mercado retiradas no llevan deprecated»): sin el flag, con el retiro declarado en el summary, la versión y el 410.
+  Verificado que el cliente Dart regenerado ya no anota esos métodos (Flutter no está en esta nube). Propagado a toda
+  la pila. Las operaciones retiradas en #422, #424 y #429 sí llevan `deprecated`, porque ningún cliente compilado
+  del monorepo las llama (solo `packages/simulado` y un ensayo en Python).
 
 - El anexo pedía 404/410 «retirando del OpenAPI». Se eligió 410 manteniendo las operaciones `deprecated` (AMB-1):
   borrarlas rompía el build de la app (cliente Dart generado) y la prueba de pacto de nucleo, ambos fuera de alcance.
