@@ -48,6 +48,12 @@ aportaya:
     # declaracion quede firme. Es debido proceso, no un parametro tecnico.
     plazo-de-descargo: P5D
 
+  modelo-a:
+    # Interruptor del modelo A (ADR-056): apagado hasta la opinion de Cumplimiento (F3.S3.M7). Encendido, garantia
+    # NO ARRANCA sin sus parametros financieros (ParametrosDelModeloA): no tienen valor por defecto ni viven aca;
+    # los sirve el registro central cuando exista (F3.S8.M2).
+    habilitado: ${MODELO_A_HABILITADO:false}
+
 management:
   endpoint:
     health:

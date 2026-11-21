@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, lote L2 (garantía y entregas)
 
-> **AVANCE: 6 / 15 — 40,0 %.**
+> **AVANCE: 6 / 16 — 37,5 %.**
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · PR mergeados en `dev`: #419, #421, #422, #424, #429, #459, #462
   y #463, todos con CI verde, incluidos los cinco corredores. #464 se consolidó en #463 por el tope de 3 PR abiertos.
@@ -34,6 +34,21 @@
 - Qué falta exactamente: el verde de `integrationTest` y de jacoco en el CI del PR; contraer `cubiertoEmpresa`,
   `monto_cubierto_empresa` y `cobertura_respaldo_id` del contrato y del modelo cuando nadie los lea.
 - Dónde quedó: rama `correcciones/tanda2-l2-sin-respaldo-entregas`; compila.
+
+### F3.L2.M14 — Parámetros del modelo A obligatorios y sin valor por defecto (parte de garantía)
+- Qué anda: `ParametrosDelModeloA` declara en un solo lugar los parámetros que va a usar el modelo A (porcentaje del
+  fondo por nivel, días de gracia, tasa y tope del recargo, umbrales de solvencia y de disolución). Con
+  `aportaya.modelo-a.habilitado=true` garantía no arranca si falta uno o no es válido, y el error nombra la clave;
+  apagado (por omisión) arranca como hoy. Decimal exacto, moneda ISO 4217 en las medidas en `MONTO`, sin topes
+  inventados. Los valores de prueba viven en el perfil SINTÉTICO `application-modelo-a-sintetico.yml`. La semilla
+  mínima ya no siembra el `politica_cobertura` inferido: pasó a dev como SINTÉTICO, porque el fondo de demo lo
+  necesita (`NOT NULL`). Contrato para el registro central en `tarifas` escrito
+  ([evidencia](./evidencia/F3.L2.M14-parametros-garantia.txt)).
+- Qué no anda: nada observado.
+- Qué falta exactamente: el productor en `tarifas` (L3L5) y que `ParametrosDelModeloA` lea por grupo desde ahí;
+  definir las unidades del tope y de los umbrales y los valores (DECISION_REQUIRED). En entregas, `factor-fijo` es de
+  M07 de L1 y el SLA sintético se va con F3.L2.M05.
+- Dónde quedó: rama `correcciones/tanda2-l2-parametros-modelo-a`; compila.
 
 ### F1.L2.M04 — Importes de entrada sin signo; disolución y reemplazo con cifras de sus dueños
 - Qué anda: `garantia.yaml` 1.2.0 define `DineroEntrada` (monto `^\d+\.\d{2}$`, sin signo) y lo usan los importes que
