@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, lote L3L5
 
-> **AVANCE: 5 / 24 — 20,8 %.** (F1.L3.M04 en A MEDIAS)
+> **AVANCE: 6 / 24 — 25,0 %.** (F1.L3.M04 en A MEDIAS)
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Rama(s): `correcciones/tanda2-l3l5-test-admision` (#423), `correcciones/tanda2-l3l5-f1-retiro`
 - Peldaño de evidencia alcanzado: T2.M0 `TESTED` (reproducción bajo carga antes/después + suites del servicio).
@@ -14,6 +14,7 @@
 | F1.L3.M07 | Un acuerdo se resuelve una vez: precondición `estado = 'ABIERTO'` en el `UPDATE`; quien pierde la carrera no reemite | dos conexiones `psql` (vieja `UPDATE 1`/`UPDATE 1`, nueva `UPDATE 1`/`UPDATE 0`) + `ResolucionDeAcuerdoTest` | PASS · [evidencia](./evidencia/F1.L3.M07-acuerdo-precondicion.txt) |
 | F1.L5.M26 | Marcar leído un aviso interno exige ser su destinatario (usuario o rol), en la escritura; ajeno → 404 | `psql` (B: `UPDATE 0`) + `AvisosInternosWebTest` | PASS · [evidencia](./evidencia/F1.L5.M26-avisos-destinatario.txt) — integración `NO COMPROBADO` (Docker); RLS por destinatario pendiente (bloque genérico) |
 | F1.L5.M27 | El contrato de `notificaciones` no tiene ninguna operación con el contacto en la ruta o la query: se retiró el `GET /notificaciones/supresion` | verificación del contrato con PyYAML + `webTest` (el GET no contesta ni con permiso) | PASS · [evidencia](./evidencia/F1.L5.M27-supresion-url.txt) |
+| F1.L5.M23 | Webhook CU-82: remitente, contenido, canal e id salen de la carga firmada; fuera de ventana (5 min) se rechaza; el `idMensaje` firmado deduplica | `WebhookDeMensajeriaTest` (doble con HMAC real, tres niveles) | PASS contra doble · [evidencia](./evidencia/F1.L5.M23-webhook-mensajeria.txt) — `CU82Test` `NO COMPROBADO` (Docker) |
 
 ## A medias
 ### T2.M0b — El mismo arreglo para todos los servicios
@@ -75,6 +76,9 @@
   clase (mockear cuatro tipos del proyecto).
 
 ## Decisiones y ambigüedades
+- F1.L5.M23: ventana del webhook de mensajería = 5 minutos (`aportaya.webhook.ventana: PT5M` en `application.yml`).
+  No es un parámetro financiero; es un valor de seguridad elegido por esta sesión, a confirmar con Pablo. El formato
+  de la carga firmada es el del puerto propio (no hay proveedor contratado, P-15).
 - F1.L3.M06: «vinculados» = `ACEPTADO_PENDIENTE_FIRMA`, `ACTIVO`, `EN_MORA`, `SUSPENDIDO`. Un `EXPULSADO` que
   todavía debe al fondo no cuenta como grupo activo: su deuda la custodia `garantia` (deudas vivas), no este conteo.
   Supuesto a confirmar con Pablo: que el cierre de billetera también consulte deudas vivas.

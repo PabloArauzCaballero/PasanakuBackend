@@ -1,6 +1,7 @@
 package bo.aportaya.notificaciones.aplicacion;
 
 import bo.aportaya.notificaciones.dominio.Canal;
+import bo.aportaya.notificaciones.dominio.CargaFirmada;
 import bo.aportaya.notificaciones.dominio.FirmaDeWebhook;
 import bo.aportaya.notificaciones.dominio.IntencionEntrante;
 import bo.aportaya.notificaciones.dominio.IntencionEntrante.Intencion;
@@ -14,6 +15,7 @@ import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.mensajeria.Consumidos;
 import bo.aportaya.plataforma.mensajeria.EventoDominio;
 import bo.aportaya.plataforma.mensajeria.Outbox;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Map;
@@ -44,6 +46,7 @@ public class CU82ProcesarRespuesta {
     private final Outbox outbox;
     private final Reloj reloj;
     private final String secretoWebhook;
+    private final Duration ventana;
 
     public CU82ProcesarRespuesta(
             Datos datos,
@@ -52,7 +55,8 @@ public class CU82ProcesarRespuesta {
             Consumidos consumidos,
             Outbox outbox,
             Reloj reloj,
-            @Value("${aportaya.webhook.secreto}") String secretoWebhook) {
+            @Value("${aportaya.webhook.secreto}") String secretoWebhook,
+            @Value("${aportaya.webhook.ventana}") Duration ventana) {
         this.datos = datos;
         this.respuestas = respuestas;
         this.supresiones = supresiones;
@@ -60,6 +64,7 @@ public class CU82ProcesarRespuesta {
         this.outbox = outbox;
         this.reloj = reloj;
         this.secretoWebhook = secretoWebhook;
+        this.ventana = ventana;
     }
 
     @Transactional
@@ -70,19 +75,28 @@ public class CU82ProcesarRespuesta {
             throw new ErrorDeNegocio(CodigoError.de(82, 1), "La firma del webhook no valida.");
         }
 
+        // F1.L5.M23: todo sale de lo FIRMADO. Lo que viaja afuera de la carga es deprecado, y si viene tiene que
+        // coincidir: si no, es un par (carga, firma) capturado y reenviado con otros datos.
+        CargaFirmada carga = CargaFirmada.leer(entrada.cargaUtil())
+                .filter(c -> coincideLoDeAfuera(entrada, c))
+                .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(82, 1), "La firma del webhook no valida."));
+        if (!carga.dentroDeVentana(reloj.ahora(), ventana)) {
+            throw new ErrorDeNegocio(CodigoError.de(82, 4), "El mensaje esta fuera de la ventana aceptada.");
+        }
+
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
-        Canal canal = Canal.valueOf(entrada.canal());
+        Canal canal = Canal.valueOf(carga.canal());
 
         return datos.conContexto(ctx, dsl -> {
-            // AP-CU82-03. El id del mensaje del proveedor es la clave: el mismo webhook
-            // reintentado no vuelve a ejecutar la accion.
-            UUID idMensaje = UUID.nameUUIDFromBytes(
-                    entrada.claveIdempotencia().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            // AP-CU82-03. El id del mensaje FIRMADO es la clave: el mismo webhook reintentado —o repetido por quien
+            // lo capturo— no vuelve a ejecutar la accion.
+            UUID idMensaje =
+                    UUID.nameUUIDFromBytes(carga.idMensaje().getBytes(java.nio.charset.StandardCharsets.UTF_8));
             if (!consumidos.registrar(dsl, idMensaje, "proveedor-mensajeria")) {
                 return new SalidaRespuesta(null, Intencion.DESCONOCIDA.name(), "TICKET_ABIERTO", null);
             }
 
-            var remitente = respuestas.porIdentificador(dsl, entrada.remitente(), canal.name());
+            var remitente = respuestas.porIdentificador(dsl, carga.remitente(), canal.name());
             if (remitente.isEmpty()) {
                 // AP-CU82-02: se registra el intento y se responde lo mismo que a un
                 // duplicado. Nada en la respuesta distingue un caso del otro.
@@ -97,14 +111,14 @@ public class CU82ProcesarRespuesta {
                 return new SalidaRespuesta(null, Intencion.DESCONOCIDA.name(), "TICKET_ABIERTO", null);
             }
 
-            Intencion intencion = IntencionEntrante.clasificar(entrada.contenido());
+            Intencion intencion = IntencionEntrante.clasificar(carga.contenido());
             String accion = IntencionEntrante.accionPara(intencion);
 
             UUID respuestaId = respuestas.registrar(
                     dsl,
                     remitente.get().canalVinculadoId(),
-                    entrada.notificacionRelacionadaId(),
-                    entrada.contenido(),
+                    carga.notificacionRelacionadaId(),
+                    carga.contenido(),
                     IntencionEntrante.comoLoGuardaLaBase(intencion),
                     accion,
                     ahora,
@@ -114,7 +128,7 @@ public class CU82ProcesarRespuesta {
                 // La baja se aplica ya, en esta transaccion. Diferirla a un evento
                 // dejaria una ventana en la que se le sigue escribiendo a quien acaba
                 // de pedir que no lo hagan.
-                supresiones.suprimir(dsl, entrada.remitente(), canal, "SOLICITUD_LEGAL", "TODAS", false, ahora);
+                supresiones.suprimir(dsl, carga.remitente(), canal, "SOLICITUD_LEGAL", "TODAS", false, ahora);
             }
 
             outbox.emitir(
@@ -131,6 +145,21 @@ public class CU82ProcesarRespuesta {
 
             return new SalidaRespuesta(respuestaId, intencion.name(), accion, null);
         });
+    }
+
+    /** Cada campo de afuera, si vino, es igual al firmado. Ausente vale: el proveedor manda solo la carga. */
+    private static boolean coincideLoDeAfuera(EntradaRespuesta e, CargaFirmada c) {
+        return igualSiVino(e.canal(), c.canal())
+                && igualSiVino(e.remitente(), c.remitente())
+                && igualSiVino(e.contenido(), c.contenido())
+                && igualSiVino(e.claveIdempotencia(), c.idMensaje())
+                && (e.notificacionRelacionadaId() == null
+                        || e.notificacionRelacionadaId().isEmpty()
+                        || e.notificacionRelacionadaId().equals(c.notificacionRelacionadaId()));
+    }
+
+    private static boolean igualSiVino(String deAfuera, String firmado) {
+        return deAfuera == null || deAfuera.equals(firmado);
     }
 
     public record EntradaRespuesta(

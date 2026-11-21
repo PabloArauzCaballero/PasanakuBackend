@@ -135,15 +135,15 @@ public class NotificacionesController implements NotificacionesApi {
 
         var salida = cu82.ejecutar(
                 new CU82ProcesarRespuesta.EntradaRespuesta(
-                        cuerpo.getCanal() == null
-                                ? proveedor
-                                : cuerpo.getCanal().getValue(),
-                        cuerpo.getRemitente(),
+                        // F1.L5.M23: lo de afuera de la carga es deprecado y solo se compara con lo firmado; la ruta
+                        // no esta firmada y ya no aporta el canal.
+                        MapeoDelWebhook.canal(cuerpo),
+                        MapeoDelWebhook.remitente(cuerpo),
                         cuerpo.getFirma(),
                         cuerpo.getCargaUtil(),
-                        cuerpo.getContenido(),
-                        cuerpo.getClaveIdempotencia(),
-                        Optional.ofNullable(cuerpo.getNotificacionRelacionadaId())),
+                        MapeoDelWebhook.contenido(cuerpo),
+                        MapeoDelWebhook.clave(cuerpo),
+                        MapeoDelWebhook.relacionada(cuerpo)),
                 // Sin sesion de usuario: el proveedor no la tiene. `deSistema` no es
                 // una excepcion a las politicas de fila, es un rol con las suyas.
                 ContextoSesion.deSistema(

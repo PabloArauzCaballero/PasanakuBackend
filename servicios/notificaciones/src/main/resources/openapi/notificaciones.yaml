@@ -74,7 +74,7 @@ paths:
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU82-01 FIRMA_INVALIDA - AP-CU82-02 REMITENTE_DESCONOCIDO
-          # AP-CU82-03 MENSAJE_DUPLICADO
+          # AP-CU82-03 MENSAJE_DUPLICADO - AP-CU82-04 FUERA_DE_VENTANA
 
   # Los otros tres casos de uso del carril NO tienen endpoint, y es a proposito:
   #
@@ -357,15 +357,21 @@ components:
     EntradaRespuesta:
       type: object
       additionalProperties: false
-      required: [remitente, firma, cargaUtil, claveIdempotencia]
+      required: [firma, cargaUtil]
+      description: >-
+        F1.L5.M23. Todo sale de `cargaUtil`, que es lo firmado (HMAC-SHA256): un JSON con `idMensaje`,
+        `canal`, `remitente`, `contenido`, `emitidoEn` (ISO-8601) y, opcional, `notificacionRelacionadaId`.
+        Fuera de la ventana de `emitidoEn` se rechaza (AP-CU82-04) y el `idMensaje` firmado deduplica.
+        Los campos de afuera son DEPRECADOS (retiro 2027-02-28): si vienen y no coinciden con lo
+        firmado, la peticion se rechaza como firma invalida (AP-CU82-01).
       properties:
-        canal:      { type: string, enum: [IN_APP, CORREO, PUSH, WHATSAPP, SMS, LLAMADA_VOZ] }
-        remitente:  { type: string, maxLength: 200 }
+        canal:      { type: string, enum: [IN_APP, CORREO, PUSH, WHATSAPP, SMS, LLAMADA_VOZ], deprecated: true }
+        remitente:  { type: string, maxLength: 200, deprecated: true }
         firma:      { type: string }
-        cargaUtil:  { type: string }
-        contenido:  { type: string }
-        claveIdempotencia: { type: string, maxLength: 120 }
-        notificacionRelacionadaId: { type: string, format: uuid }
+        cargaUtil:  { type: string, maxLength: 8000 }
+        contenido:  { type: string, deprecated: true }
+        claveIdempotencia: { type: string, maxLength: 120, deprecated: true }
+        notificacionRelacionadaId: { type: string, format: uuid, deprecated: true }
     SalidaRespuesta:
       type: object
       additionalProperties: false
