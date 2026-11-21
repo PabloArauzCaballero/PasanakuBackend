@@ -9,10 +9,10 @@ import '../proveedores/sesion.dart';
 /// confirma el proveedor por webhook (flujo 3 del CU); acá solo se crea la orden con
 /// su clave de idempotencia, nunca se ajusta el saldo en memoria.
 ///
-/// Un provider por pantalla (no por cuenta, siguiendo `altaProvider` de M1): el
-/// identificador del formulario de idempotencia sí es fijo por cuenta, así que un
-/// reintento (doble toque, reconexión) reusa la MISMA clave y el servidor responde
-/// sin duplicar (`R-BIL-06`, invariante 7).
+/// La clave es por intento (F1.L6.M12): cuenta + importe + medio. Reenviar lo mismo
+/// (doble toque, reconexión, timeout) reusa la MISMA clave y el servidor responde sin
+/// duplicar (`R-BIL-06`, invariante 7). Si el servidor rechaza (4xx) la clave se
+/// libera, y corregir el importe es otro intento con otra clave.
 class RecargarSaldo extends AsyncNotifier<SalidaRecarga?> {
   static String formularioId(String cuentaId) => 'cu10-recarga-$cuentaId';
 
@@ -32,7 +32,7 @@ class RecargarSaldo extends AsyncNotifier<SalidaRecarga?> {
     final dio = ref.read(dioProvider);
     final clave = ref
         .read(idempotenciaProvider.notifier)
-        .claveDe(formularioId(cuentaId));
+        .claveDe(formularioId(cuentaId), contenido: '$monto|$medio');
     try {
       final r = await DefaultApi(dio).solicitarRecarga(
         idempotencyKey: clave,
@@ -45,6 +45,11 @@ class RecargarSaldo extends AsyncNotifier<SalidaRecarga?> {
       ref.read(idempotenciaProvider.notifier).cerrar(formularioId(cuentaId));
       state = AsyncData(r.data);
     } catch (e) {
+      // F1.L6.M12: un 4xx libera la clave (corregir y reenviar es otro intento);
+      // un timeout o un 5xx la conserva (el reintento no duplica).
+      ref
+          .read(idempotenciaProvider.notifier)
+          .trasElFallo(formularioId(cuentaId), e);
       state = AsyncError(errorDeDominio(e), StackTrace.current);
     }
   }

@@ -29,7 +29,10 @@ class TransferirSaldo extends AsyncNotifier<SalidaTransferencia?> {
     final dio = ref.read(dioProvider);
     final clave = ref
         .read(idempotenciaProvider.notifier)
-        .claveDe(formularioId(cuentaOrigenId));
+        .claveDe(
+          formularioId(cuentaOrigenId),
+          contenido: '$monto|${tipoDestino.name}|$valorDestino|$concepto',
+        );
     try {
       final r = await DefaultApi(dio).transferirSaldo(
         idempotencyKey: clave,
@@ -48,6 +51,11 @@ class TransferirSaldo extends AsyncNotifier<SalidaTransferencia?> {
           .cerrar(formularioId(cuentaOrigenId));
       state = AsyncData(r.data);
     } catch (e) {
+      // F1.L6.M12: un 4xx libera la clave (corregir y reenviar es otro intento);
+      // un timeout o un 5xx la conserva (el reintento no duplica).
+      ref
+          .read(idempotenciaProvider.notifier)
+          .trasElFallo(formularioId(cuentaOrigenId), e);
       state = AsyncError(errorDeDominio(e), StackTrace.current);
     }
   }

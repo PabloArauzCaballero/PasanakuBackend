@@ -56,7 +56,8 @@
 | ID | Microtarea | Estado |
 |---|---|---|
 | F1.L6.M04 | Patrón de importe de `cumplimiento.yaml` válido y sin negativos. CA: «100.00» valida, «-1.00» no. DoD: `yarn vitest run` en `packages/simulado` | HECHO (`evidencia/f1-l6-m04-patron-importe.txt`) |
-| F1.L6.M05 a M12 | Ver anexo L6 | TODO |
+| F1.L6.M12 | App: clave por intento (formulario + contenido), liberada ante 4xx, conservada ante timeout/5xx/429. CA: 422 → corregir → se procesa; timeout reintentado no duplica. DoD: `flutter test test/unidad/idempotencia_por_intento_test.dart` | HECHO (`evidencia/f1-l6-m12-idempotencia-app.txt`) |
+| F1.L6.M05 a M11 | Ver anexo L6 | TODO |
 
 ## H2 — F2 de L4 y L6
 | ID | Microtarea | Estado |
