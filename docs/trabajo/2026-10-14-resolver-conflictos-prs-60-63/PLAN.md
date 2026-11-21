@@ -48,7 +48,7 @@ Hallazgo: #60 y #63 quedaron MERGED/MERGEABLE; mientras tanto Leonardolv21 y Jus
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
 | H3.S1.M1 | Fast-forward de dev a test | mismo SHA | `git rev-parse origin/dev origin/test` | HECHO (f783db9b) |
-| H3.S1.M2 | Esperar tanda del host para f783db9 y verificar | `listo en f783db9` | log + `docker ps` + curl | EN CURSO |
+| H3.S1.M2 | Esperar tanda del host para f783db9 y verificar | `listo en f783db9` | log + `docker ps` + curl | DESCARTADO — reemplazadas por el plan de correcciones del 2026-11-21 (decisión P-20 de Pablo, `docs/trabajo/2026-11-20-auditoria-consolidado/DECISIONES.md`). Antes estaba abierta sin cerrar. |
 | H3.S1.M3 | Imágenes de fronts/móvil-web al día respecto del commit | fecha de imagen ≥ cambio de `apps/` | `docker images` | TODO |
 
 ## H4 — Pendientes delegados a la Mac (RELEVO-CODEX §6, PROGRESO H10.S1.M6/M7)
