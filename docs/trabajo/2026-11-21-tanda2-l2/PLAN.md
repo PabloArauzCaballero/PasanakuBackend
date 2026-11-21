@@ -49,8 +49,8 @@ los pisos de cobertura sin cambios. **Estado:** EN CURSO
 | F1.L2.M07 | `numeroCifrado` fuera del contrato de entrada; cifrado solo en servidor con clave propia | Un cuerpo con `numeroCifrado` → 400; ida y vuelta del cifrado coincide | `webTest` del rechazo + unitaria de ida y vuelta | A MEDIAS (contrato y cifrado en servidor HECHO; clave propia pendiente de `generar_compose.py`) |
 | F1.L2.M05 | Retirar `POST /desembolsos/{id}/respuesta` (acreditación humana) | 410 y sin `desembolso_acreditado` | `webTest` | HECHO (evidencia/F1.L2.M05-desembolso-sin-humano.txt) |
 | F1.L2.M09 | Retirar `POST /entregas` legacy y `EFECTIVO_ORGANIZADOR` | 410; el método no existe en contrato ni modelo | `webTest` + psql | A MEDIAS (bases existentes: falta evolución del CHECK) |
-| F1.L2.M02 | Retirar la cobertura manual del fondo con datos del cuerpo | 410, sin escritura | `webTest` garantía | TODO |
-| F1.L2.M03 | Devolución del fondo sin `grupoCerrado`/`deudasVivas` del cuerpo | Campos fuera del contrato | `webTest` | TODO |
+| F1.L2.M02 | Retirar la cobertura manual del fondo con datos del cuerpo | 410, sin escritura | `webTest` garantía | A MEDIAS (endpoint 410; falta modelo `SOLICITADA`/`politica_cobertura`) |
+| F1.L2.M03 | Devolución del fondo sin `grupoCerrado`/`deudasVivas` del cuerpo | La API no decide con esos campos | `webTest` | A MEDIAS (endpoint 410; disparo por el sistema en F3.L2.M06) |
 | F1.L2.M10 | `saldoRetenido` fuera de la entrada del desembolso | Campo fuera del contrato | `webTest` | TODO |
 | F1.L2.M01, M04, M06, M08, M11–M14 | Ver anexo; dependen de plataforma (token de servicio, cliente único) o del rediseño | — | — | TODO |
 
@@ -61,7 +61,7 @@ los pisos de cobertura sin cambios. **Estado:** EN CURSO
 | F2.L2.M09 | Mercado de ofertas | Se resuelve con L2.S1.M1 | — | HECHO (con L2.S1.M1) |
 | F2.L2.M01 | Respaldo empresarial en entregas | `grep -rn Respaldo servicios/entregas/src` vacío | suites | TODO |
 | F2.L2.M02 | Respaldo empresarial en garantía | Rutas `/garantia/respaldo/*` 410 | suites | TODO |
-| F2.L2.M04 | Aval entre participantes | 410 | suites | TODO |
+| F2.L2.M04 | Aval entre participantes | 410 y sin código | suites | A MEDIAS (código retirado; faltan tablas y CU-26) |
 
 ## Riesgos y bloqueos previstos
 

@@ -4,7 +4,6 @@ import bo.aportaya.garantia.aplicacion.CU23CubrirFaltanteDelCorte;
 import bo.aportaya.garantia.aplicacion.CU23RecuperarRespaldo;
 import bo.aportaya.garantia.aplicacion.CU23ReservarRespaldo;
 import bo.aportaya.garantia.aplicacion.CU23ReversarCobertura;
-import bo.aportaya.garantia.aplicacion.CU29DevolverFondo;
 import bo.aportaya.garantia.aplicacion.CU66ReemplazarParticipante;
 import bo.aportaya.garantia.aplicacion.CU67DisolverGrupo;
 import bo.aportaya.garantia.aplicacion.ReclamosEnCurso;
@@ -44,9 +43,6 @@ abstract class BaseDeRespaldoWeb {
     protected CU23RecuperarRespaldo recuperar;
 
     // El controlador de /garantia tambien sirve fondo, reemplazo y disolucion: aca no se prueban.
-    @MockitoBean
-    protected CU29DevolverFondo cu29;
-
     @MockitoBean
     protected CU66ReemplazarParticipante cu66;
 

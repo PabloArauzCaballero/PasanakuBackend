@@ -17,6 +17,28 @@
 
 ## A medias
 
+### F1.L2.M02, F1.L2.M03 y F2.L2.M04 — `garantia`: cobertura manual, devolución a pedido y aval
+- Qué anda: `cubrirIncumplimiento` (410 `AP-CU23-14`), `devolverFondo` (410 `AP-CU29-06`) y `ejecutarAval`
+  (410 `AP-CU26-08`) quedan `deprecated` (garantia.yaml 1.1.0) y no llaman a ningún caso de uso, así que ya no
+  existe camino HTTP donde el cliente afirme la mora, el monto, el aprobador, `grupoCerrado` o `deudasVivas`. El
+  aval se retiró de raíz del código: `CU26EjecutarAval`, `TopeDelAval`, la ejecución y la subrogación al avalista
+  en `GestionRepositorio`, la configuración `aportaya.aval` y sus pruebas
+  ([evidencia](./evidencia/F1.L2.M02-M03-F2.L2.M04-garantia.txt)).
+- Qué no anda: `CU23CubrirIncumplimiento` (con su estado `SOLICITADA` y el umbral `politica_cobertura`) y
+  `CU29DevolverFondo` siguen en el código sin camino HTTP. Las tablas `aval_participante` y `ejecucion_aval`
+  siguen en el modelo.
+- Qué falta exactamente:
+  1. M02: retirar `CU23CubrirIncumplimiento`, el estado `SOLICITADA`, el tópico `cobertura_requiere_aprobacion` y
+     `politica_cobertura` del `.puml`. Requiere ajustar los criterios de `docs/CasosDeUso/CU-23` (fuera de alcance),
+     porque `verificar_criterios.py` exige sus pruebas mientras exista una clase `CU23*`.
+  2. M03: la devolución la dispara el evento de cierre de ciclo, con el estado del grupo leído de `grupos` y las
+     deudas contadas en el propio esquema (F3.L2.M06).
+  3. F2.L2.M04: quitar `aval_participante` y `ejecucion_aval` de `docs/entidades` y R-GAR-04 de
+     `docs/Restricciones.md` (la cifra de restricciones cambia en `docs/Seguridad.md` y `planes/*`, fuera de
+     alcance). Marcar retirado `docs/CasosDeUso/CU-26` (hoy figura «pendiente de implementar»).
+     `identidad.referencia_personal.acepta_ser_avalista` es de L4.
+- Dónde quedó: rama `correcciones/tanda2-l2-garantia-cuerpo`; compila, `test`/`webTest` en verde.
+
 ### F1.L2.M09 — Retirar `POST /entregas` legacy y `EFECTIVO_ORGANIZADOR` (y primera parte de F1.L2.M08)
 - Qué anda: `liquidarEntrega` (POST /entregas) responde 410 `AP-CU22-10` y `ejecutarEntrega` (cierre con monto libre,
   F1.L2.M08) 410 `AP-CU22-11`, ambos sin llamar al caso de uso. `EFECTIVO_ORGANIZADOR` salió del enum del contrato
@@ -73,9 +95,9 @@
 
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| F1.L2.M02, M03, M10 | TODO | Siguientes PR del lote |
+| F1.L2.M10 | TODO | Siguiente PR del lote |
 | F1.L2.M01, M04, M06, M08, M11–M14 | TODO | M13/M14 necesitan `plataforma/comun-web` (cliente único y token de servicio): fuera de alcance |
-| F2.L2.M01, M02, M04 | TODO | Siguientes PR del lote |
+| F2.L2.M01, M02 | TODO | Siguientes PR del lote |
 | L2.S1.M2 | BLOQUEADO | L6 y L1 (ver A medias) |
 
 ## Evidencia
@@ -118,4 +140,9 @@
 
 - AMB-1 (expandir/contraer con 410) y AMB-2 (el fondeo sigue pagándole al cesionario de una cesión LIQUIDADA o con
   título asignado, para no pagar dos veces el turno): supuestos tomados; confirmar con Pablo en el PR.
-- Códigos nuevos: `AP-CU130-10` y `AP-CU136-09` (410). No se reusa ningún código.
+- Códigos nuevos: `AP-CU130-10`, `AP-CU136-09`, `AP-CU28-08`, `AP-CU22-10`, `AP-CU22-11` (entregas) y
+  `AP-CU23-14`, `AP-CU26-08`, `AP-CU29-06` (garantía), todos 410. No se reusa ningún código.
+- `OperacionRetirada` y `RetiroDeOperaciones` quedan duplicadas en `entregas` y `garantia`: su lugar es
+  `plataforma/comun-web` (el manejador común no conoce el 410), fuera de alcance. Deuda anotada.
+- Se borró `CU27ReclamoEnCursoTest.reclamoEnCursoNoEjecutaElAval`: probaba la guarda de reclamos para el aval
+  (código 26), que ya no tiene quien la llame. La guarda sigue probada para CU-27.

@@ -182,19 +182,6 @@ class CU27ReclamoEnCursoTest extends BaseDeGarantia {
     }
 
     @Test
-    @DisplayName("rechaza: ejecutar el aval con un reclamo en curso responde AP-CU26-07 antes de tocar nada")
-    void reclamoEnCursoNoEjecutaElAval() {
-        Caso27 c = expediente();
-        try (var cumplimiento =
-                new EfectoDeReclamosDeEnsayo().conCasos(c.usuario(), Caso.queFrenaTodo("EN_REVISION"))) {
-            assertThatThrownBy(() -> guardia(cumplimiento).exigirQueNoFrene(c.expedienteId(), 26, c.gestor()))
-                    .satisfies(e -> assertThat(codigo(e)).isEqualTo("AP-CU26-07"));
-        }
-        assertThat(contar("SELECT count(*)::int FROM garantia.ejecucion_aval WHERE registro_id = ?", c.expedienteId()))
-                .isZero();
-    }
-
-    @Test
     @DisplayName(
             "rechaza: un expediente que no existe no se pregunta a cumplimiento: lo rechaza el caso de uso con su codigo")
     void expedienteInexistenteNoLlamaAfuera() {
