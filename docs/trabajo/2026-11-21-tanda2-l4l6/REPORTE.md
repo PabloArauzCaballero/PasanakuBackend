@@ -39,6 +39,7 @@
   2. `docker-compose.coolify.yml` / generador `--coolify`: `JWT_CLAVE_FIRMA: ${JWT_CLAVE_FIRMA:?}` e `INVITACIONES_CLAVE: ${INVITACIONES_CLAVE:?}`, para que el error aparezca en `docker compose config`.
   3. `despliegue/TEST.md:469`: la fila de `INVITACIONES_CLAVE` pasa a decir «no arranca».
   4. El pool alineado con `descriptor.yml` (anexo) no se tocó.
+- Avance fuera de este carril: el punto 1 (compose local) lo resolvió el coordinador en **#457**, que se mergea antes que #439. El guion de servidor verifica además que identidad tenga `JWT_CLAVE_FIRMA` en TEST antes de promover. Quedan pendientes los puntos 2 y 3.
 - Dónde quedó: rama `correcciones/tanda2-l4l6-f1l4m03-arranque-fail-closed`; compila y sus pruebas están en verde. TEST no se ve afectado: ya tiene cargados `JWT_CLAVE_FIRMA` e `INVITACIONES_CLAVE` (`despliegue/TEST.md:466-478`).
 
 ## Pendiente
