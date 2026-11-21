@@ -9,6 +9,12 @@ fecha: 2026-08-19
 
 # ADR-035 — Canales por defecto
 
+> [!warning] Enmendada por ADR-058 (2026-11-21).
+> WhatsApp sale del producto (DECISIONES, tanda 8). Los canales son SMS, push y correo: el SMS pasa a ser el
+> canal de los códigos de verificación y de los avisos críticos cuando haya un proveedor contratado. Sin contrato,
+> sigue valiendo lo de este ADR: bandeja, correo y push. Ver
+> [[ADR-058 Integración con proveedores externos|ADR-058]].
+
 > Aplica [[ADR-033 Puertos y adaptadores]] al puerto de mensajería, y fija cuáles
 > de sus adaptadores están encendidos mientras no haya contrato con ningún
 > proveedor.

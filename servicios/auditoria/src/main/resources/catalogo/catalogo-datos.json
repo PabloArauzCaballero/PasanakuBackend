@@ -67428,7 +67428,9 @@
     "porQue": "Sin las líneas no hay doble partida, solo un total."
    },
    "notaDeSistema": "Cardinalidad mínima 2 por asiento: un asiento con una sola línea no puede cuadrar.",
-   "reglas": [],
+   "reglas": [
+    "ck_movimiento_contable_un_lado"
+   ],
    "columnas": [
     {
      "nombre": "id",
@@ -67530,7 +67532,7 @@
     ],
     "entrantes": []
    },
-   "sistema": "Vive en el esquema nucleo_financiero; la escribe y la lee solo el servicio nucleo-financiero (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de asiento_contable, cuenta_contable.",
+   "sistema": "Vive en el esquema nucleo_financiero; la escribe y la lee solo el servicio nucleo-financiero (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de asiento_contable, cuenta_contable. Reglas nombradas: ck_movimiento_contable_un_lado.",
    "clasificacion": {
     "personales": 0,
     "financieros": 0,

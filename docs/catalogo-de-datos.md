@@ -8129,7 +8129,7 @@ Guardar la evaluación importa por dos razones opuestas: cuando el motor **acert
 
 **Casos de uso que la nombran.** CU-24 Registrar el asiento contable de una operación · CU-100 Abrir y cerrar el período contable (`listarEjerciciosFiscales`, `abrirEjercicioFiscal`, `listarPeriodosDelEjercicio`, `consultarPeriodoVigente`, `cerrarPeriodoContable`)
 
-**Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `asiento_contable`, `cuenta_contable`.
+**Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `asiento_contable`, `cuenta_contable`. Reglas nombradas: `ck_movimiento_contable_un_lado`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
