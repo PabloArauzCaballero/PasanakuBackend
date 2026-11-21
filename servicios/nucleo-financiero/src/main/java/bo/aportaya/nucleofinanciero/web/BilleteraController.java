@@ -41,6 +41,7 @@ import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaRetencion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaRetiro;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaReverso;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaTransferencia;
+import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
@@ -199,12 +200,15 @@ public class BilleteraController extends RutasDelMercadoDeLaBilletera {
         return ResponseEntity.ok(MapeoDeBilletera.cierre(salida));
     }
 
+    /**
+     * Retirada (D-L2-1: la cesion y la subasta de turnos se eliminan): ya no hay compra del mercado que pagar. Sigue
+     * publicada hasta la contraccion del contrato (regla 98.1.3) y responde 410 sin efecto.
+     */
     @Override
     @Permiso("SERVICIO_ENTREGAS")
     public ResponseEntity<SalidaEjecucionDeRetencion> pagarAlTercero(UUID retencionId, UUID idempotencyKey) {
-        Traza.marcarCasoDeUso("CU-13", retencionId.toString());
-        return movimientos.pagarAlTercero(
-                retencionId, idempotencyKey, IdentidadDeServicio.como(sesion, "SERVICIO_ENTREGAS"));
+        throw new OperacionRetirada(
+                CodigoError.de(13, 10), "El pago de una compra del mercado de turnos fue retirado: no tiene efecto.");
     }
 
     // Servicio a servicio (inversiones): una sesion de usuario final, aunque tenga BILLETERA_OPERAR, recibe 403.

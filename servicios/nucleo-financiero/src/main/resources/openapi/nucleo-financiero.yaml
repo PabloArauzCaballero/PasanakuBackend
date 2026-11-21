@@ -32,10 +32,16 @@
 openapi: 3.1.0
 info:
   title: nucleo-financiero
-  version: 1.0.0
+  version: 1.1.0
   description: >-
     Servicio nucleo-financiero. Un caso de uso = una operacion, con el codigo CU en el
     operationId. Los importes viajan como CADENA decimal, nunca como number.
+
+
+    1.1.0 (2026-11-21) · RETIRO DEL PAGO DE COMPRAS DEL MERCADO DE TURNOS (D-L2-1: la cesion y la subasta de
+    turnos se eliminan). `pagarAlTercero` queda RETIRADA y responde 410 sin efecto (AP-CU13-10); su unico
+    consumidor (`entregas.comprarOferta`) ya responde 410. Contraccion (regla 98.1.3): se borra del contrato
+    junto con las operaciones del mercado de `entregas`; la fecha la fija Pablo al mergear.
 
 servers:
   - url: /api/v1
@@ -312,8 +318,9 @@ paths:
   /billetera/retenciones/{retencionId}/pago-a-tercero:
     post:
       operationId: pagarAlTercero              # CU-13
-      summary: Ejecuta una retencion de compra del mercado a favor del vendedor
+      summary: RETIRADA (410) · ejecutaba una retencion de compra del mercado a favor del vendedor
       description: >-
+        RETIRADA en 1.1.0 (D-L2-1): responde 410 AP-CU13-10 sin efecto. Lo que sigue describe lo que hacia.
         [CONTRATO · SOLO SERVICIO] Lo pide `entregas` (identidad de servicio `SERVICIO_ENTREGAS`; una
         sesion de usuario final recibe 403 aunque tenga `BILLETERA_OPERAR`). NO lleva cuerpo: el
         beneficiario y el reparto NO los dicta quien llama. Se derivan en el servidor: la retencion
@@ -343,6 +350,9 @@ paths:
           # AP-CU13-05 MOTIVO_INCOMPATIBLE · AP-CU13-06 MONTO_DISTINTO_DE_LO_RETENIDO
           # AP-CU13-07 CUENTA_DE_SISTEMA_NO_CONFIGURADA · AP-CU13-08 DESTINATARIO_INVALIDO
           # AP-CU13-09 SOLO_SERVICIO
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU13-10 OPERACION_RETIRADA
         '401':
           $ref: '#/components/responses/NoAutenticado'
         '403':
@@ -1535,6 +1545,13 @@ components:
         glosa: { type: string, maxLength: 160 }
         registradoEn: { type: string, format: date-time }
   responses:
+    Retirada:
+      description: >-
+        La operacion fue retirada del producto y ya no tiene efecto (410, no 404: existio y no hay que
+        reintentar). El codigo dice cual.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
     ReglaDeNegocio:
       description: Regla de negocio de la aplicacion (422, no 400)
       content:
