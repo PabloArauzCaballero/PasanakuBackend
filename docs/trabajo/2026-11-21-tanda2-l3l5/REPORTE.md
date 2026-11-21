@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, lote L3L5
 
-> **AVANCE: 10 / 27 — 37,0 %.** A MEDIAS: F1.L3.M04, F1.L3.M05, F1.L5.M28. Abiertos: #448 y #486. Retoma: ver «Para quien retome».
+> **AVANCE: 11 / 27 — 40,7 %.** A MEDIAS: F1.L3.M04, F1.L3.M05, F1.L5.M28. Abiertos: #448, #486 y #492 (tope de 3). Retoma: ver «Para quien retome».
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md)
 - PR hacia `dev`: mergeados #428 (F1.L3.M04), #431 (F1.L3.M06), #434 (F1.L3.M07), #437 (F1.L3.M05), #453 (T2.M1);
@@ -17,19 +17,20 @@
 
 ## Para quien retome este lote (traspaso de coordinación, 2026-11-21)
 
-- **Estado:** 10/27 (ver primera línea). Todo está empujado a `origin`; no queda nada solo en local.
+- **Estado:** 11/27 (ver primera línea). Todo está empujado a `origin`; no queda nada solo en local.
 - **PR abiertos (tope: 3 por sesión):**
   - **#448** · rama `correcciones/tanda2-l3l5-f1-tarifario` · F1.L5.M26, M27, M23, M21 y M28 (parcial). Es la punta
     de la pila: acá viven `PLAN.md` y `REPORTE.md` al día. Absorbe a #438, #440, #443 y #446 (cerrados).
   - **#486** · rama `correcciones/tanda2-l3l5-f3-parametros` · F3.S8.M2a: modelo del registro de parámetros en
     `tarifas` + siembra de los 7 códigos sin valores (unidades: DECISIONES tanda 11, #489). Su copia de
     `PLAN.md`/`REPORTE.md` es la de `dev`; la vigente es la de #448.
+  - **#492** · rama `correcciones/tanda2-l3l5-f3-parametros-api` · F3.S8.M2b: API de CU-132 (catálogo, proponer,
+    aprobar con cuatro ojos del token). Apilado sobre #486: se mergea después.
 - **Mergeados:** #428, #431, #434, #437, #453; #423 dentro de #444.
-- **Siguiente, en orden:** F3.S8.M2b (API en `tarifas`: proponer, aprobar con `CuatroOjos` de `plataforma/comun-web`,
-  consultar vigentes y `GET /tarifas/parametros/grupos/{grupoId}` según el contrato de L2 en
+- **Siguiente, en orden:** F3.S8.M6, apilado sobre #492 y sin PR hasta que haya cupo: `GET /tarifas/parametros/grupos/{grupoId}` según el contrato de L2 en
   `docs/trabajo/2026-11-21-tanda2-l2/evidencia/F3.L2.M14-contrato-parametros-tarifas.md`: 200 / 404 sin congelamiento
-  / 422 con el código que falta), después F3.S8.M6 (consumidor idempotente de `grupos.grupo_iniciado` que escribe
-  `parametro_congelado_grupo`) y F3.S8.M4 (pantalla del backoffice). Luego, lo pendiente de la tabla «Pendiente».
+  / 422 con el código que falta) y el consumidor idempotente de `grupos.grupo_iniciado` que escribe
+  `parametro_congelado_grupo` y F3.S8.M4 (pantalla del backoffice). Luego, lo pendiente de la tabla «Pendiente».
 - **Archivos vedados por aviso de otros lotes:** `servicios/grupos/.../HechosPorHttp.java`, `PrimerAportePorHttp.java`
   y su credencial de servicio, hasta que entre el PR de L1 (M07). F1.L3.M05 (503) espera ese PR.
 - **Cómo verificar en la nube:** receta de PostgreSQL en 5433 de
@@ -53,6 +54,7 @@
 | F1.L5.M21 | El certificado firma los valores de la foto del propio titular y la identidad la dice `identidad` (falla cerrado); `disponibles` e `identidadVerificada` del cuerpo se ignoran (deprecados) | `CertificadoConDatosDelServidorTest` + `psql` + `webTest` | PASS contra doble · [evidencia](./evidencia/F1.L5.M21-certificado-servidor.txt) — `CU75*Test` `NO COMPROBADO` (Docker) |
 | T2.M1 | `inversiones · AliadoSimuladoFlujosContratoTest`: el simulador del aliado respondía HTTP/1.0 y cerraba el socket sin decirlo; el `HttpClient` de Java reutilizaba la conexión cerrada. Ahora habla HTTP/1.1 | diagnóstico bajo carga (29/60 → 0/60 con A y con B) + `contractTest` ×3 con carga + 27 pruebas Python | PASS · [evidencia](./evidencia/T2.M1-inversiones-aliado-http.txt) · #453 |
 | F3.S8.M2a | Modelo del registro de parámetros en `tarifas`: catálogo sin valores, versiones con cuatro ojos e inmutables, congelamiento único por grupo, parámetro y nivel (R-TAR-14 a 17), CU-132 | `generar_ddl.py` + `aplicar.sql` ×2 + `psql` con cada violación + verificadores de bóveda | PASS · [evidencia](./evidencia/F3.S8.M2a-modelo-parametros.txt) · #486 |
+| F3.S8.M2b | API de CU-132 en `tarifas`: catálogo con vigentes, propuesta idempotente por clave, aprobación solo por otra persona con su token (borde + caso de uso + `CHECK`), precondición en el `UPDATE` | `./gradlew :servicios:tarifas:test :servicios:tarifas:webTest` (23/23, 45/45) + `psql` con reintento, misma persona, carrera y edición | PASS · [evidencia](./evidencia/F3.S8.M2b-api-parametros.txt) · #492 |
 
 ## A medias
 ### F1.L3.M04 — El retiro lo pide solo su titular
@@ -102,13 +104,17 @@
 | F1.S2.M3 (matriz BOLA en `scripts/verificar_seguridad.py`) | TODO | Ampliar el script con las matrices ya escritas en los `*WebTest` de este lote |
 | F2.M6 (retirar el organizador profesional) | TODO | Empieza por el inventario de consumidores (`inventario_endpoints.py`, `listar_topicos.py`) |
 | F2.M8 (retirar aprobaciones eliminables en el lote) | TODO | F2.L3.M10 depende de F3.L3.M17; F2.L3.M15 se mergea después de F3.L3.M18 |
-| F3.S8.M2b/M6/M4 (API, congelamiento, pantalla) | TODO | Modelo en #486; dueño `tarifas` a confirmar con Pablo; siembra de códigos espera las unidades DECISION_REQUIRED |
+| F3.S8.M6/M4 (congelamiento, pantalla) | TODO | Se ejecutan en orden en esta sesión; M6 sin PR hasta que haya cupo (tope 3) |
 | Corridas con Docker (`integrationTest` de `grupos`, `notificaciones`, `transparencia`) | BLOQUEADO (P-19) | Máquina de Pablo; comandos en cada evidencia |
 
 ## Evidencia
 - [`evidencia/T2.M0-mockito-arranque.txt`](./evidencia/T2.M0-mockito-arranque.txt)
 
 ## No cubierto
+- F3.S8.M2b: `CU132Test` (repositorio jOOQ contra PostgreSQL con Testcontainers) no corrió local, sin Docker; corre
+  en CI (`integrationTest`). La jacoco local queda incompleta por eso (`ENVIRONMENT`); el umbral lo juzga CI.
+- F3.S8.M2b: un `valor` enviado como número JSON se acepta por la coacción escalar de Jackson (`CuerposEstrictos`, en
+  `plataforma/comun-web`, fuera del lote). Sin pérdida de precisión, pero contradice el contrato. Cambio exacto en #492.
 - Corredores con Testcontainers (`integrationTest`) de `grupos`, `notificaciones` y `transparencia`: no corren sin
   Docker. Se actualizaron `AvisoInternoRepositorioTest`, `CU82Test`, `CU75Test`, `CU75RechazosTest` y
   `BaseDeTransparencia`; compilan, `NO COMPROBADO` en ejecución.
@@ -130,6 +136,8 @@
   clase (mockear cuatro tipos del proyecto).
 
 ## Decisiones y ambigüedades
+- F3.S8.M2b: `TARIFARIO_ADMINISTRAR` propone y aprueba; la separación la da el cuatro-ojos (dos personas, dos
+  tokens), no dos permisos. A confirmar con Pablo (anotado en #492).
 - F1.L5.M23: ventana del webhook de mensajería = 5 minutos (`aportaya.webhook.ventana: PT5M` en `application.yml`).
   No es un parámetro financiero; es un valor de seguridad elegido por esta sesión, a confirmar con Pablo. El formato
   de la carga firmada es el del puerto propio (no hay proveedor contratado, P-15).
