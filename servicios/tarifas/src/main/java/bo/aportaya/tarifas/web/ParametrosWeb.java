@@ -6,6 +6,8 @@ import bo.aportaya.plataforma.web.seguridad.CuatroOjos;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import bo.aportaya.tarifas.aplicacion.CU132RegistroDeParametros;
+import bo.aportaya.tarifas.aplicacion.ConsultarParametrosDelGrupo;
+import bo.aportaya.tarifas.web.generado.modelo.CongelamientoDeGrupo;
 import bo.aportaya.tarifas.web.generado.modelo.EntradaVersionParametro;
 import bo.aportaya.tarifas.web.generado.modelo.ParametroFinanciero;
 import bo.aportaya.tarifas.web.generado.modelo.VersionDeParametro;
@@ -29,9 +31,15 @@ class ParametrosWeb {
     private final CU132RegistroDeParametros cu132;
     private final SesionDeLaPeticion sesion;
     private final CuatroOjos cuatroOjos;
+    private final ConsultarParametrosDelGrupo delGrupo;
 
-    ParametrosWeb(CU132RegistroDeParametros cu132, SesionDeLaPeticion sesion, CuatroOjos cuatroOjos) {
+    ParametrosWeb(
+            CU132RegistroDeParametros cu132,
+            SesionDeLaPeticion sesion,
+            CuatroOjos cuatroOjos,
+            ConsultarParametrosDelGrupo delGrupo) {
         this.cu132 = cu132;
+        this.delGrupo = delGrupo;
         this.sesion = sesion;
         this.cuatroOjos = cuatroOjos;
     }
@@ -66,5 +74,11 @@ class ParametrosWeb {
         // AP-CU132-03: otra persona, con su propio token (R-TAR-14).
         cuatroOjos.segundaFirma(ActorAutenticado.registrado(propuso, null), MISMA_PERSONA);
         return MapeoDeParametros.version(cu132.aprobar(versionId, ctx));
+    }
+
+    /** F3.S8.M6: lo congelado del grupo; vacío si no tiene congelamiento (404). */
+    Optional<CongelamientoDeGrupo> delGrupo(UUID grupoId) {
+        Traza.marcarCasoDeUso("CU-132", grupoId.toString());
+        return delGrupo.delGrupo(grupoId, sesion.actual()).map(c -> MapeoDeParametros.congelamiento(grupoId, c));
     }
 }

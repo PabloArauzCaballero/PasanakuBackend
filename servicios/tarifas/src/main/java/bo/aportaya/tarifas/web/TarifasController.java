@@ -11,6 +11,7 @@ import bo.aportaya.tarifas.aplicacion.ConsultarCostosDeProveedor;
 import bo.aportaya.tarifas.aplicacion.ConsultarTarifarioVigente;
 import bo.aportaya.tarifas.aplicacion.ConsultarTarifarios;
 import bo.aportaya.tarifas.web.generado.TarifasApi;
+import bo.aportaya.tarifas.web.generado.modelo.CongelamientoDeGrupo;
 import bo.aportaya.tarifas.web.generado.modelo.CostoDeProveedor;
 import bo.aportaya.tarifas.web.generado.modelo.EntradaLiquidacion;
 import bo.aportaya.tarifas.web.generado.modelo.EntradaPublicacion;
@@ -255,5 +256,12 @@ public class TarifasController implements TarifasApi {
     @Permiso("TARIFARIO_ADMINISTRAR")
     public ResponseEntity<VersionDeParametro> aprobarVersionDeParametro(UUID versionId, UUID idempotencyKey) {
         return ResponseEntity.ok(parametros.aprobar(versionId));
+    }
+
+    // F3.S8.M6: solo la identidad de servicio de garantia lee lo congelado de un grupo (regla 98.6).
+    @Override
+    @Permiso("SERVICIO_GARANTIA")
+    public ResponseEntity<CongelamientoDeGrupo> consultarParametrosDelGrupo(UUID grupoId) {
+        return ResponseEntity.of(parametros.delGrupo(grupoId));
     }
 }

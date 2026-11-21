@@ -466,6 +466,40 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
+  /tarifas/parametros/grupos/{grupoId}:
+    get:
+      operationId: consultarParametrosDelGrupo    # CU-132 · F3.S8.M6
+      summary: Los parametros financieros congelados de un grupo al iniciar
+      description: >-
+        La copia de la version APROBADA que regia cuando el grupo inicio (ADR-056 §6), una por
+        parametro y nivel. Solo para la identidad de servicio de garantia (SERVICIO_GARANTIA):
+        sin ese rol, 403 (regla 98.6). 404 sin cuerpo si el grupo no tiene congelamiento (no
+        inicio, o es anterior al registro); 422 AP-CU132-06 si quedo incompleto, nombrando los
+        codigos que faltan. En los dos casos garantia falla cerrado. Sin identidades ni
+        procedencia (respuesta minima, regla 90.2).
+      parameters:
+        - { name: grupoId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: El congelamiento completo del grupo
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CongelamientoDeGrupo' }
+        '404':
+          description: El grupo no tiene congelamiento
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU132-06 CONGELAMIENTO_INCOMPLETO
+        '403':
+          description: Sin SERVICIO_GARANTIA
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: Sin token valido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
   /tarifas/precios/resolver:
     post:
       operationId: resolverPrecio              # CU-36
@@ -875,6 +909,27 @@ components:
         fuente:     { type: string, minLength: 1, maxLength: 200 }
         referencia: { type: string, minLength: 1, maxLength: 300 }
         fecha:      { type: string, format: date }
+    CongelamientoDeGrupo:
+      type: object
+      additionalProperties: false
+      required: [grupoId, congeladoEn, parametros]
+      properties:
+        grupoId:     { type: string, format: uuid }
+        congeladoEn: { type: string, format: date-time }
+        parametros:
+          type: array
+          items: { $ref: '#/components/schemas/ParametroCongeladoDelGrupo' }
+    ParametroCongeladoDelGrupo:
+      type: object
+      additionalProperties: false
+      required: [codigo, valor, versionId]
+      properties:
+        codigo:    { type: string }
+        nivel:     { type: [string, 'null'] }
+        valor:     { type: string }    # CADENA decimal exacta, nunca number (regla 91.1.1)
+        unidad:    { type: [string, 'null'], enum: [PORCENTAJE, DIAS, MONTO, CONTEO, null] }
+        moneda:    { type: [string, 'null'] }
+        versionId: { type: string, format: uuid }
     VersionDeParametro:
       type: object
       additionalProperties: false

@@ -50,6 +50,7 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
             CU34PublicarTarifario.class,
             CU35CerrarLiquidacion.class,
             CU36ResolverPrecio.class,
+            bo.aportaya.tarifas.aplicacion.ConsultarParametrosDelGrupo.class,
         })
 class ParametrosWebTest {
 
