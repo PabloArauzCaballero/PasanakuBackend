@@ -167,11 +167,11 @@ public class CU21CobrarAporte {
                                     "tipo", obligacion.tipo()),
                             UUID.fromString(ctx.traza().id())));
 
+            // Regla 90.2.1: solo identificadores; el importe es atribuible a una persona.
             BITACORA.info(
-                    "CU-21 · Aporte cobrado registrado: pago={}, obligacion={}, monto={}, estado={}",
+                    "CU-21 · Aporte cobrado registrado: pago={}, obligacion={}, estado={}",
                     pagoId,
                     obligacion.id(),
-                    entrada.monto(),
                     estadoNuevo);
             return new SalidaCobro(pagoId, obligacion.id(), estadoNuevo, saldoDespues.pendiente(), true);
         });
