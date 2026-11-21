@@ -1,0 +1,32 @@
+# F1.L3.M05 — El traspaso de cupo verifica el KYC real del entrante (2026-11-21)
+
+## Relocalización en origin/dev
+GruposController.traspasarCupo pasaba politica.kycMinimo() como kycDelEntrante ('aca alcanza con el minimo del grupo') -> el control siempre aprobaba. Vigente.
+
+## Prueba dirigida (corregido)
+$ ./gradlew :servicios:grupos:webTest --tests '*TraspasoKycDelEntranteWebTest' --rerun -> exit=0, 5 casos, 0 fallos
+  testcase name="Correcto · el nivel del entrante sale de identidad (INTERMEDIO), no del minimo del grupo"
+  testcase name="Reintento del mismo traspaso: no se consulta el KYC (vuelve el original)"
+  testcase name="Inválido · identidad caida: el puerto degrada a NINGUNO y el traspaso falla cerrado"
+  testcase name="Inválido · KYC no aprobado: el caso de uso recibe NINGUNO y la regla lo rechaza (ENTRANTE_SIN_KYC)"
+  testcase name="Límite · un entrante con justo el nivel minimo del grupo pasa el control"
+
+## Contraexperimento: la misma prueba contra el controlador anterior
+exit=1
+  testcase name="Correcto · el nivel del entrante sale de identidad (INTERMEDIO), no del minimo del grupo"
+  <failure message="org.opentest4j.AssertionFailedError:  expected: "INTERMEDIO"  but was: "BASICO"
+  testcase name="Reintento del mismo traspaso: no se consulta el KYC (vuelve el original)"
+  testcase name="Inválido · identidad caida: el puerto degrada a NINGUNO y el traspaso falla cerrado"
+  <failure message="org.opentest4j.AssertionFailedError:  Expecting value to be false but was true
+  testcase name="Inválido · KYC no aprobado: el caso de uso recibe NINGUNO y la regla lo rechaza (ENTRANTE_SIN_KYC)"
+  <failure message="org.opentest4j.AssertionFailedError:  expected: "NINGUNO"  but was: "BASICO"
+  testcase name="Límite · un entrante con justo el nivel minimo del grupo pasa el control"
+
+## Regresión
+$ ./gradlew :servicios:grupos:spotlessCheck test webTest testBarrido --rerun -> exit=0
+test: 119 casos, 0 fallos
+webTest: 184 casos, 0 fallos
+testBarrido: 2 casos, 0 fallos
+
+Desvío: con identidad caída la respuesta es 422 ENTRANTE_SIN_KYC (degradación declarada del puerto: NINGUNO), no 503 como pedía el anexo. El traspaso no ocurre; distinguir 503 exige cambiar el puerto nivelDeKyc, que comparten 4 llamadores (ver REPORTE).
+No cubierto: integración con identidad apagado (Docker).

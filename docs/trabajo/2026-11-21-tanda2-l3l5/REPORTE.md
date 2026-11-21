@@ -35,6 +35,17 @@
   con `ctx.usuarioId()`; (4) integración con RLS activa (Docker). (1) y (3) sin (2) romperían el alta del titular:
   van juntos.
 - Dónde quedó: rama `correcciones/tanda2-l3l5-f1-retiro`, compila, suites de `grupos` en verde.
+### F1.L3.M05 — El traspaso verifica el KYC real del entrante
+- Qué anda: el controlador pasa a `CU-64` el nivel que dice `identidad` (`afuera.nivelDeKyc`); un entrante sin KYC
+  llega como `NINGUNO` y la regla lo rechaza (`ENTRANTE_SIN_KYC`, 422); con `identidad` caída el puerto degrada a
+  `NINGUNO` y el traspaso falla cerrado ([evidencia](./evidencia/F1.L3.M05-kyc-traspaso.txt); contraexperimento:
+  el código viejo pasaba `BASICO`).
+- Qué no anda: con `identidad` caída la respuesta es 422 y no 503, como pide el CA del anexo.
+- Qué falta exactamente: un método de puerto que distinga «no responde» de «nivel NINGUNO» (p. ej.
+  `Optional<String> nivelDeKycVerificado`) y un mapeo a 503 en el borde; decidir si los otros tres llamadores
+  (`MapeoDeAltaDeGrupo`, `MapeoDePostulacion`, `RutasDeSubastaDelCupo`) adoptan el mismo contrato. Integración con
+  `identidad` apagado (Docker).
+- Dónde quedó: rama `correcciones/tanda2-l3l5-f1-kyc`, compila, suites de `grupos` en verde.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
