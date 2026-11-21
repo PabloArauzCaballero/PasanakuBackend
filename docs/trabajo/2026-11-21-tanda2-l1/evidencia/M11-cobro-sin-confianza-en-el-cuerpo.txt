@@ -1,0 +1,64 @@
+F1.L1.M11 — El cobro deja de aceptar canal, monto, referencia, recargo y proveedor del cuerpo
+Rama: correcciones/tanda2-l1-cobro-contrato · Fecha: 2026-11-21
+
+Cambio de contrato (expandir y contraer, regla 98.1.3) — aportes.yaml 1.0.0 → 1.1.0 (compatible, menor):
+- NUEVA  POST /aportes/obligaciones/{obligacionId}/pago-con-saldo (operationId pagarCuotaConSaldo)
+         Idempotency-Key obligatoria · cuerpo opcional EntradaPagoConSaldo {additionalProperties:false, sin campos}
+         201 nuevo / 200 reintento · SalidaCobro (igual que cobrarAporte).
+- SE RETIRA cobrarAporte (sin borrar todavia): canal != BILLETERA_MOVIL, recargo != 0, proveedorId o esManual=true
+         → 422 AP-CU21-10 LO_FIJA_EL_SERVIDOR; monto != pendiente → 422 AP-CU21-02. La referencia ya no se usa:
+         la fija el servidor ("SALDO-" + obligacionId + "-" + clave, <= 80).
+- El servidor fija: monto = pendiente leido en la misma transaccion del cobro; canal BILLETERA_MOVIL; comision 0;
+  sin proveedor; esManual=false. El reintento con la misma clave devuelve el pago original antes de comparar el monto.
+Codigo: aplicacion/CU21PagarConSaldo.java (nuevo), web/RutasDelCobroDeAportes.java (nuevo, base de AportesController).
+CU21CobrarAporte.java queda sin cambios.
+
+Nota del generador: un esquema sin propiedades se genera como Object (acepta cualquier JSON). La lista blanca se
+aplica en RutasDelCobroDeAportes: solo cuerpo ausente o {} pasa; lo demas es el 400 AP-VAL-02 de los cuerpos
+estrictos (CuerposEstrictos).
+
+$ base limpia && APORTAYA_TEST_DB_URL=… ./gradlew :servicios:aportes:spotlessCheck test webTest testBarrido integrationTest --continue
+test: 59 pruebas, 0 en rojo
+webTest: 83 pruebas, 0 en rojo
+testBarrido: 4 pruebas, 0 en rojo
+integrationTest: 161 pruebas, 3 en rojo
+Las 3 en rojo de integrationTest: AislamientoEsquemaTest (initializationError) y ArranqueTest (2) —
+"Could not find a valid Docker environment" → ENVIRONMENT, NO COMPROBADO (requieren Docker/Testcontainers).
+
+Pruebas nuevas:
+- web/PagoConSaldoWebTest — 21/21 (pagarCuotaConSaldo 14: sin cuerpo 201, {} 201, 8 cuerpos con campo → 400
+  AP-VAL-02, ajena 422 AP-CU21-06, sin clave 400, sin sesion 401, sin BILLETERA_OPERAR 403;
+  cobrarAporte 7: 5 combinaciones → 422 AP-CU21-10, recargo 0 + esManual false → 201, BILLETERA_MOVIL → 201 con
+  el monto declarado al caso de uso).
+- CU21PagoConSaldoTest (PostgreSQL real) — 6/6: registra 100.00 BILLETERA_MOVIL con la referencia del servidor;
+  con 30.00 previos cobra 70.00 y queda PAGADO; monto declarado 1.00 → AP-CU21-02 y 0 pagos; reintento misma clave →
+  mismo pagoId, esNuevo=false, 1 pago; otra clave sobre lo pagado → AP-CU21-01 y 1 pago; inexistente → AP-CU21-01.
+- AportesControllerWebTest adaptada (TEST_BUG por el cambio de camino: el doble esperaba acreditar): 12/12.
+
+Mutantes (control negativo):
+1) sin el control AP-CU21-10 → PagoConSaldoWebTest 21 pruebas, 5 en rojo:
+   invalido · ,"canal":"QR_INTEROPERABLE" → 422 AP-CU21-10 y no se cobra | java.lang.AssertionError: Status expected:<422> but was:<201>
+   invalido · ,"canal":"EFECTIVO_AL_ORGANIZADOR" → 422 AP-CU21-10 y no se cobra | java.lang.AssertionError: Status expected:<422> but was:<201>
+   invalido · ,"canal":"BILLETERA_MOVIL","recargo":{"monto":"50.00","moneda":"BOB"} → 422 AP-CU21-10 y no se cobra | java.lang.AssertionError: Status expected:<422> but was:<201>
+   invalido · ,"canal":"BILLETERA_MOVIL","proveedorId":"c1100000-0000-4000-8000-000000000009" → 422 AP-CU21-10 y no se cobra | java.lang.AssertionError: Status expected:<422> but was:<201>
+   invalido · ,"canal":"BILLETERA_MOVIL","esManual":true → 422 AP-CU21-10 y no se cobra | java.lang.AssertionError: Status expected:<422> but was:<201>
+2) sin la lista blanca del cuerpo de pagarCuotaConSaldo → 21 pruebas, 8 en rojo (los 8 cuerpos con campo).
+3) sin la guarda del reintento (comparar el monto aun con la clave ya usada), base limpia →
+   CU21PagoConSaldoTest > idempotencia · el reintento con la misma clave devuelve el mismo pago aunque ya no haya pendiente FAILED
+   6 tests completed, 1 failed
+   BUILD FAILED in 6s
+
+Verificadores: verificar_pruebas_web exit=0 · verificar_contratos_limites exit=0 · verificar_seguridad exit=0 ·
+verificar_criterios "Sin divergencias" · verificar_boveda "TODO OK" · verificar_narrativas exit=0 ·
+verificar_carriles exit=0 · verificar_maqueta exit=0 · validar_flujos exit=0 ·
+catalogo_de_datos --escribir sin diferencias · generar_postman regenerado (postman/ en el diff).
+Clientes: ./gradlew :servicios:aportes:generarClientes exit=0 (generador del repo); el Dart expone pagarCuotaConSaldo.
+
+Impacto en la app (L4L6, no tocado aca): apps/movil/lib/pantallas/pasanaku/dominio/cu21_cobrar_aporte.dart y
+pantalla_aportar.dart llaman cobrarAporte con el canal elegido por la persona, monto = montoDelPeriodo y referencia
+escrita. Desde este cambio: canal != BILLETERA_MOVIL → 422 AP-CU21-10; monto != pendiente → 422 AP-CU21-02.
+Paso para L6: llamar DefaultApi.pagarCuotaConSaldo(obligacionId, idempotencyKey) sin cuerpo y quitar el selector de
+canal, el campo de referencia y el monto. Cuando la app no use cobrarAporte, se borra (contraer).
+
+No cubierto: ArranqueTest y AislamientoEsquemaTest (Docker); la app movil (no se compilo Flutter aca); el cobro
+QR (F3.L1.M01) y la escritura de referencia/comision por webhook (F3.L1.M02).

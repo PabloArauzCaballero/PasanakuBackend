@@ -65,6 +65,7 @@ normas: [ASFI conciliación y contabilidad, UIF]
 | 3b | El pago salió de la billetera y `nucleo-financiero` no pudo aplicarlo por falta de saldo (`AP-CU12-01`) | `nucleo-financiero` no mueve nada, marca el evento consumido y publica `aporte_no_aplicado`; `aportes` lo consume, el pago pasa a `REVERSADO` y la obligación vuelve a `PENDIENTE` (o `EN_MORA` si ya venció) por ese importe. Una vez por pago, aunque el aviso se repita. Un pago con reembolsos o en disputa no se compensa solo: lo resuelve una persona |
 | 3a | El pago no concilia con el extracto bancario | [[excepcion_conciliacion]] abierta; **bloquea el cierre diario** (`R-BIL-12`) |
 | 6a | Vence el plazo de gracia | Se genera recargo y, superado el umbral, [[registro_incumplimiento]] |
+| 2c | El cliente manda monto, canal, referencia, recargo o proveedor en `pagarCuotaConSaldo` | 400 por campo no declarado: el monto es el pendiente que lee el servidor, el canal es el saldo (P-06) y la referencia la fija el servidor (F1.L1.M11) |
 | — | El participante paga de más | El excedente queda como saldo a favor, no se "pierde" |
 
 ## Postcondiciones
@@ -113,6 +114,7 @@ export const ErroresCU21 = {
   NO_VERIFICABLE: 'AP-CU21-07',
   PERIODO_NO_CONFIRMADO: 'AP-CU21-08',
   CALENDARIO_NO_DISPONIBLE: 'AP-CU21-09',
+  LO_FIJA_EL_SERVIDOR: 'AP-CU21-10',
 } as const
 ```
 
@@ -127,6 +129,7 @@ export const ErroresCU21 = {
 | `NO_VERIFICABLE` | `grupos` no contesta al verificar la obligación: se deniega |
 | `PERIODO_NO_CONFIRMADO` | `grupos` no confirma el período o sus cupos al generar las obligaciones |
 | `CALENDARIO_NO_DISPONIBLE` | No hay calendario de feriados cargado para el año del vencimiento |
+| `LO_FIJA_EL_SERVIDOR` | El cobro (`cobrarAporte`, que se retira) trajo un canal que no es el saldo, un recargo, un proveedor o `esManual`: los fija el servidor (F1.L1.M11) |
 
 ## Descomposición atómica
 
@@ -189,6 +192,14 @@ Dada una obligación de Bs 500 pendiente
 Cuando el participante paga con saldo
 Entonces monto_pagado es 500 y estado es PAGADO
 Y la cuenta del grupo aumentó Bs 500
+
+Dada una obligación de Bs 100 pendiente
+Cuando el participante paga la cuota con saldo sin decir el monto
+Entonces se registra un pago de Bs 100 por BILLETERA_MOVIL con la referencia del servidor
+
+Dada una obligación de Bs 100 con Bs 30 ya pagados
+Cuando el participante paga la cuota con saldo
+Entonces se registra un pago de Bs 70 y la obligación queda PAGADO
 
 Dadas dos obligaciones con la misma clave de idempotencia
 Cuando se acredita cada pago
