@@ -74,7 +74,8 @@ public class CU28EmitirDesembolso {
             // Invariante 7 · R-DES-01: la clave se valida ANTES de escribir.
             var repetida = desembolsos.porClave(dsl, entrada.entregaId(), entrada.claveIdempotencia());
             if (repetida.isPresent()) {
-                BITACORA.info("CU-28 · Orden de desembolso reintento idempotente: clave={}", entrada.claveIdempotencia());
+                BITACORA.info(
+                        "CU-28 · Orden de desembolso reintento idempotente: clave={}", entrada.claveIdempotencia());
                 var previa = repetida.get();
                 return new SalidaOrden(previa.id(), previa.estado(), previa.claveIdempotencia(), 0, false);
             }
@@ -135,7 +136,11 @@ public class CU28EmitirDesembolso {
                                     "intentoId", intentoId.toString()),
                             UUID.fromString(ctx.traza().id())));
 
-            BITACORA.info("CU-28 · Orden de desembolso emitida: orden={}, entrega={}, monto={}", ordenId, entrada.entregaId(), entrega.neto());
+            BITACORA.info(
+                    "CU-28 · Orden de desembolso emitida: orden={}, entrega={}, monto={}",
+                    ordenId,
+                    entrada.entregaId(),
+                    entrega.neto());
             return new SalidaOrden(ordenId, "ENVIADA_A_PROVEEDOR", entrada.claveIdempotencia(), 1, true);
         });
     }

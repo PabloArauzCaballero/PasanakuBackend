@@ -38,8 +38,8 @@ public class SolicitarVerificacionCorreo {
         // El mismo rechazo que da CU-01 al final del alta (AP-CU01-03 con el campo), pero
         // en el paso donde se escribe el correo: mandar un codigo a un correo que ya
         // tiene cuenta hace llenar el formulario entero para rebotar en el ultimo boton.
-        boolean yaActiva = Boolean.TRUE.equals(
-                transaccion.execute(s -> repositorio.correoConCuentaActiva(destino, ctx)));
+        boolean yaActiva =
+                Boolean.TRUE.equals(transaccion.execute(s -> repositorio.correoConCuentaActiva(destino, ctx)));
         if (yaActiva) {
             throw new ErrorDeNegocio(
                     CodigoError.de(1, 3),
@@ -47,8 +47,7 @@ public class SolicitarVerificacionCorreo {
                     Map.of("campo", "correo"));
         }
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
-        var preparada = transaccion.execute(
-                s -> repositorio.preparar(destino, idempotencia, ip, agente, ahora, ctx));
+        var preparada = transaccion.execute(s -> repositorio.preparar(destino, idempotencia, ip, agente, ahora, ctx));
         if (preparada == null || !preparada.nueva()) {
             return resultado(preparada != null ? preparada.salida() : null);
         }
