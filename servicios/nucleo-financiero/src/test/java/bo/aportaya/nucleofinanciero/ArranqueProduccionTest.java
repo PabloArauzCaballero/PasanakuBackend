@@ -13,7 +13,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 /**
  * H2.S1/H2.S3 · con perfil {@code production}, el proceso arranca CON
@@ -27,9 +26,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
  * documentado en el historial de este carril: era la prueba de que la guardia hacia
  * lo que tenia que hacer antes de que el reemplazo apareciera.
  *
- * <p>Estas pruebas aislan el segundo factor con un doble de {@link ProveedorDeRetiro}
- * solo en el contexto de prueba. En production real sigue sin haber proveedor de
- * retiros y el arranque falla cerrado hasta integrar uno.
+ * <p>F1.L1.M04: ya no hace falta un doble de {@link ProveedorDeRetiro} para arrancar. Con perfil
+ * productivo el bean es {@code ProveedorDeRetiroNoConfigurado}, que falla cerrado al instruir.
  */
 class ArranqueProduccionTest {
 
@@ -53,7 +51,8 @@ class ArranqueProduccionTest {
     @ActiveProfiles("production")
     class ConAdaptadorReal {
 
-        @MockitoBean
+        // F1.L1.M04: sin @MockitoBean del puerto. Arranca con el adaptador que falla cerrado.
+        @Autowired
         private ProveedorDeRetiro proveedorDeRetiro;
 
         @Autowired
@@ -62,6 +61,8 @@ class ArranqueProduccionTest {
         @Test
         void arrancaConSegundoFactorStepUp() {
             assertThat(segundoFactor).isInstanceOf(SegundoFactorStepUp.class);
+            assertThat(proveedorDeRetiro)
+                    .isInstanceOf(bo.aportaya.nucleofinanciero.infraestructura.ProveedorDeRetiroNoConfigurado.class);
         }
     }
 
@@ -77,9 +78,6 @@ class ArranqueProduccionTest {
             properties = "aportaya.mfa.doble-local=true")
     @ActiveProfiles("production")
     class ConDobleLocalForzado {
-
-        @MockitoBean
-        private ProveedorDeRetiro proveedorDeRetiro;
 
         @Autowired
         private SegundoFactor segundoFactor;

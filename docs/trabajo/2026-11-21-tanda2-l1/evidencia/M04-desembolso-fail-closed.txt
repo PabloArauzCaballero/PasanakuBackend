@@ -1,0 +1,20 @@
+# F1.L1.M04 · nucleo-financiero arranca con perfil productivo sin dobles de desarrollo — salidas (2026-11-21)
+
+$ ./gradlew :servicios:nucleo-financiero:spotlessCheck test webTest testBarrido compileTestJava
+BUILD SUCCESSFUL in 33s
+ProveedorDeRetiroNoConfiguradoTest 2/2: instruir → ErrorDeNegocio AP-CU11-15 PROVEEDOR_DE_DESEMBOLSO_NO_CONFIGURADO · consultar → TIMEOUT
+
+$ ArranqueProduccionTest (perfil production, SIN @MockitoBean del puerto) contra la PostgreSQL local
+(datasource del test apuntado a 127.0.0.1:5433 solo para la corrida; en el repo sigue usando BaseDePrueba.contenedor())
+BUILD SUCCESSFUL in 16s
+ArranqueProduccionTest$ConAdaptadorReal 1/1 · $ConDobleLocalForzado 1/1 · el bean activo es ProveedorDeRetiroNoConfigurado
+
+--- control negativo: sin ProveedorDeRetiroNoConfigurado
+ArranqueProduccionTest > ConDobleLocalForzado > dobleLocalNoTieneEfectoEnProduccion() FAILED
+ArranqueProduccionTest > ConAdaptadorReal > arrancaConSegundoFactorStepUp() FAILED
+2 tests completed, 2 failed
+causa: No qualifying bean of type 'bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRetiro'
+
+$ python3 scripts/verificar_boveda.py → TODO OK
+$ python3 scripts/verificar_seguridad.py → TODO OK · 7 aviso(s)
+$ python3 scripts/verificar_criterios.py → Sin divergencias entre la boveda y el codigo.
