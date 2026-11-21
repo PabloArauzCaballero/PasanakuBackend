@@ -1,21 +1,15 @@
 package bo.aportaya.garantia;
 
-import bo.aportaya.garantia.aplicacion.CU23CubrirConRespaldo;
-import bo.aportaya.garantia.aplicacion.CU23RecuperarRespaldo;
-import bo.aportaya.garantia.aplicacion.CU23ReservarRespaldo;
-import bo.aportaya.garantia.aplicacion.CU23ReversarCobertura;
 import bo.aportaya.garantia.aplicacion.CU25DeclararIncumplimiento;
 import bo.aportaya.garantia.aplicacion.CU27RestringirDeudor;
 import bo.aportaya.garantia.aplicacion.CU29DevolverFondo;
 import bo.aportaya.garantia.aplicacion.CU66ReemplazarParticipante;
 import bo.aportaya.garantia.aplicacion.CU67DisolverGrupo;
-import bo.aportaya.garantia.infraestructura.CoberturaRespaldoRepositorio;
 import bo.aportaya.garantia.infraestructura.DeudaRepositorio;
 import bo.aportaya.garantia.infraestructura.DisolucionRepositorio;
 import bo.aportaya.garantia.infraestructura.ExpedienteRepositorio;
 import bo.aportaya.garantia.infraestructura.FondoRepositorio;
 import bo.aportaya.garantia.infraestructura.GestionRepositorio;
-import bo.aportaya.garantia.infraestructura.RespaldoRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Reloj;
@@ -48,15 +42,9 @@ abstract class BaseDeGarantia {
     protected static DSLContext dslFixtura;
     protected static TransactionTemplate transaccion;
     protected static FixturaDeGarantia fixtura;
-    protected static FixturaDeRespaldo fixturaDeRespaldo;
     protected static FixturaDeDeudor fixturaDeDeudor;
     protected static Consumidos consumidos;
 
-    protected static CU23ReservarRespaldo reservaCU;
-    protected static CU23CubrirConRespaldo respaldoCU;
-    protected static bo.aportaya.garantia.aplicacion.ContingenciaDeCaja contingencia;
-    protected static CU23RecuperarRespaldo recuperacionCU;
-    protected static CU23ReversarCobertura reversaCU;
     protected static CU25DeclararIncumplimiento expedienteCU;
     protected static CU27RestringirDeudor restriccionCU;
     protected static CU29DevolverFondo devolucionCU;
@@ -72,7 +60,6 @@ abstract class BaseDeGarantia {
         dslFixtura = DSL.using(fuente, SQLDialect.POSTGRES);
         transaccion = new TransactionTemplate(new DataSourceTransactionManager(fuente));
         fixtura = new FixturaDeGarantia(dslFixtura);
-        fixturaDeRespaldo = new FixturaDeRespaldo(dslFixtura, fixtura);
         fixturaDeDeudor = new FixturaDeDeudor(dslFixtura);
         consumidos = new Consumidos("garantia");
 
@@ -82,15 +69,6 @@ abstract class BaseDeGarantia {
         var fondos = new FondoRepositorio();
         var deudas = new DeudaRepositorio();
         var gestion = new GestionRepositorio();
-        var respaldos = new RespaldoRepositorio();
-        var coberturasDeRespaldo = new CoberturaRespaldoRepositorio();
-        contingencia = new bo.aportaya.garantia.aplicacion.ContingenciaDeCaja(
-                new bo.aportaya.garantia.infraestructura.PlanDeContingenciaRepositorio(), outbox);
-        reservaCU = new CU23ReservarRespaldo(datos, respaldos, outbox, Reloj.delSistema(), contingencia);
-        respaldoCU = new CU23CubrirConRespaldo(
-                datos, respaldos, coberturasDeRespaldo, outbox, Reloj.delSistema(), contingencia);
-        recuperacionCU = new CU23RecuperarRespaldo(datos, respaldos, coberturasDeRespaldo, outbox, Reloj.delSistema());
-        reversaCU = new CU23ReversarCobertura(datos, respaldos, coberturasDeRespaldo, outbox, Reloj.delSistema());
 
         expedienteCU =
                 new CU25DeclararIncumplimiento(datos, expedientes, outbox, Reloj.delSistema(), PLAZO_DE_DESCARGO);

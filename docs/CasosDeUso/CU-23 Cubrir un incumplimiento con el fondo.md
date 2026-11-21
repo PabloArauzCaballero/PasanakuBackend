@@ -14,50 +14,50 @@ normas: [Contabilidad, debido proceso, ASFI riesgo]
 > **Objetivo.** Que el grupo no se detenga cuando alguien no aporta, y que esa
 > cobertura **no sea un regalo**: la deuda de quien incumplió se conserva, con expediente.
 
-> **Vigencia ([[ADR-055 Sin aprobaciones en el circuito|ADR-055]] E7 y ADR-056, modelo A).**
-> Ninguna persona decide una cobertura. La **cobertura manual** del fondo mutual —con monto,
-> días de mora y aprobador tomados del pedido, y un umbral de aprobación humana— **se retiró**
-> (F1.L2.M02): `POST /incumplimientos/{id}/cobertura` está `deprecated` y responde **410
-> `AP-CU23-14`** sin efecto. El camino que hoy cubre el faltante del corte es el **respaldo
-> por ciclo** (`CU23ReservarRespaldo` / `CU23CubrirConRespaldo`, ADR-051), **transitorio**:
-> se retira en F2.L2.M02 y la cobertura renace en F3.L2.M05 como acto del sistema con el
-> **fondo del grupo**, al vencer el plazo de gracia, con mora y monto leídos de `aportes`.
-> Las tablas del modelo anterior ([[politica_cobertura]], [[cobertura_incumplimiento]]) siguen
-> en el esquema hasta su contracción; ningún código nuevo las escribe.
+> [!warning] **Pendiente de implementar** ([[ADR-055 Sin aprobaciones en el circuito|ADR-055]] E7 y ADR-056, modelo A)
+> Los dos caminos anteriores se retiraron:
+> - la **cobertura manual** del fondo mutual, con monto, mora y aprobador del pedido (F1.L2.M02):
+>   `POST /incumplimientos/{id}/cobertura` responde **410 `AP-CU23-14`**;
+> - el **respaldo empresarial** por ciclo (F2.L2.M02, ADR-051 reemplazado): las seis rutas
+>   `/garantia/respaldo/*` responden **410 `AP-CU23-15`**. La empresa no reserva ni cubre nada.
+>
+> Lo que sigue describe el **objetivo** (F3.L2.M05): todavía no tiene código. Hasta que llegue, un turno con
+> faltante queda BLOQUEADO con la deuda conservada ([[CU-22 Liquidar y entregar el fondo]]). Las tablas del
+> respaldo y del modelo anterior siguen en el esquema hasta su contracción (F2.L2.M03).
 
 ## Actores y disparador
 
-- **Actor principal:** el sistema, al detectar en el corte un pozo incompleto antes de una entrega.
-- **Sin actor humano:** nadie aprueba ni pide una cobertura (ADR-055).
+- **Actor principal:** el sistema, al vencer el plazo de gracia de una cuota impaga.
+- **Sin actor humano:** nadie pide ni aprueba una cobertura (ADR-055).
 
 ## Precondiciones
 
-1. Existe un turno con [[obligacion_aporte]] faltantes al corte.
-2. El grupo tiene una [[reserva_respaldo]] vigente (camino transitorio).
+1. Existe una [[obligacion_aporte]] impaga con el plazo de gracia vencido (parámetro obligatorio, F3.L2.M14).
+2. El grupo tiene su [[fondo_garantia]].
 
-## Flujo principal
+## Flujo principal (objetivo, F3.L2.M05)
 
-1. `aportes` informa el recaudo del periodo; el faltante es pozo − confirmado − cubierto.
-2. **En la misma transacción**, si la reserva alcanza para **todo** el faltante:
-   - se crea [[cobertura_respaldo]] por el faltante, con una [[cobertura_respaldo_linea]] por obligación;
-   - se registra el [[movimiento_reserva]] de aplicación (append-only);
-   - se emite el hecho para el mayor; el [[asiento_contable]] lo escribe `nucleo-financiero`.
-3. La deuda de quien no aportó se conserva como derecho de recuperación ([[recuperacion_respaldo]]).
-4. La entrega del turno continúa ([[CU-22 Liquidar y entregar el fondo]]).
+1. Al vencer la gracia, el sistema lee de `aportes` el importe y la moneda de la cuota impaga.
+2. **En la misma transacción**, una sola vez por (grupo, periodo, participante):
+   - cubre la cuota con el fondo del grupo ([[movimiento_fondo]], append-only) y propone su
+     [[asiento_contable]] (F3.L2.M04);
+   - crea la [[deuda_participante]] por ese importe con acreedor «fondo del grupo» ([[subrogacion]]).
+3. Publica el evento que destraba la entrega del turno (F3.L2.M01).
+4. Lo que el deudor pague después vuelve al fondo.
 
 ## Flujos alternativos
 
 | # | Situación | Resultado |
 | :-: | --- | --- |
-| 2a | La reserva no alcanza para todo el faltante | No se cubre nada (todo o nada), la reserva queda intacta y se abre la contingencia de caja; la entrega queda `BLOQUEADA_POR_FONDO_INCOMPLETO` |
-| 2b | El grupo no tiene reserva vigente | `SIN_RESERVA`, sin cobertura |
-| 2c | El mismo pedido llega dos veces con la misma clave | Devuelve la misma cobertura, sin segundo efecto |
-| 2d | Alguien pide la cobertura a mano | 410 `AP-CU23-14`, sin efecto (F1.L2.M02) |
+| 2a | El fondo del grupo no alcanza | No se cubre: la entrega queda en espera explícita y visible, sin dinero de la empresa |
+| 2b | El vencimiento se procesa dos veces | No cubre dos veces: unicidad por (grupo, periodo, participante) y clave por `message_id` |
+| 2c | Alguien pide la cobertura a mano | 410 `AP-CU23-14`, sin efecto (F1.L2.M02) |
+| 2d | Alguien llama una ruta del respaldo empresarial | 410 `AP-CU23-15`, sin efecto (F2.L2.M02) |
 
 ## Postcondiciones
 
-- O el faltante quedó cubierto entero y una sola vez, o no se cubrió nada.
-- La deuda del incumplidor existe y es recuperable: cubrir no perdona.
+- O la cuota quedó cubierta una sola vez por el fondo del grupo, con su deuda, o no se cubrió nada.
+- Cubrir no perdona: la deuda del incumplidor existe y es recuperable.
 
 ## Contrato · `openapi/garantia.yaml`
 
@@ -67,9 +67,9 @@ export const ErroresCU23 = {
   TOPE_POR_PARTICIPANTE: 'AP-CU23-02',   // retirado con la cobertura manual
   REQUIERE_ACUERDO: 'AP-CU23-03',        // retirado con la cobertura manual
   OBLIGACION_NO_VENCIDA: 'AP-CU23-04',   // retirado con la cobertura manual
-  CAPACIDAD_INSUFICIENTE: 'AP-CU23-05',
-  CLAVE_REUTILIZADA: 'AP-CU23-06',
-  RESERVA_NO_DISPONIBLE: 'AP-CU23-07',
+  CAPACIDAD_INSUFICIENTE: 'AP-CU23-05',  // retirado con el respaldo (F2.L2.M02)
+  CLAVE_REUTILIZADA: 'AP-CU23-06',       // retirado con el respaldo
+  RESERVA_NO_DISPONIBLE: 'AP-CU23-07',   // retirado con el respaldo
 } as const
 ```
 
@@ -79,82 +79,67 @@ export const ErroresCU23 = {
 | `TOPE_POR_PARTICIPANTE` | Retirado: era de la cobertura manual |
 | `REQUIERE_ACUERDO` | Retirado: era de la cobertura manual |
 | `OBLIGACION_NO_VENCIDA` | Retirado: era de la cobertura manual |
-| `CAPACIDAD_INSUFICIENTE` | No hay capacidad cargada, o no alcanza para la reserva |
-| `CLAVE_REUTILIZADA` | La clave o el turno ya tienen otra operación distinta |
-| `RESERVA_NO_DISPONIBLE` | La reserva no existe, está liberada o toda aplicada |
+| `CAPACIDAD_INSUFICIENTE` | Retirado: era del respaldo empresarial |
+| `CLAVE_REUTILIZADA` | Retirado: era del respaldo empresarial |
+| `RESERVA_NO_DISPONIBLE` | Retirado: era del respaldo empresarial |
 
-El camino del respaldo devuelve además, declarados en `openapi/garantia.yaml`: `AP-CU23-09`
-(las líneas no suman el faltante, o no hay faltante), `AP-CU23-10` (contingencia de caja
-activa), `AP-CU23-11` (cobertura no reversible), `AP-CU23-12` (`aportes` no responde: se
-deniega por omisión) y `AP-CU23-13` (periodo o turno de otro grupo, o faltante distinto). La
-ruta de la cobertura manual responde `AP-CU23-14` (410).
+Declarados en `openapi/garantia.yaml`: `AP-CU23-09` a `AP-CU23-13` eran del respaldo y quedan retirados con él;
+`AP-CU23-14` (410, cobertura manual) y `AP-CU23-15` (410, respaldo) son los que responden hoy. Los códigos de la
+cobertura del modelo A se declaran con F3.L2.M05.
 
-## Descomposición atómica
+## Descomposición atómica (objetivo)
 
 | Nivel | Pieza | Responsabilidad |
 | --- | --- | --- |
-| Molécula | `RespaldoRepositorio` / `CoberturaRespaldoRepositorio` | Reserva, cobertura y su libro de movimientos |
-| Organismo | `CU23CubrirConRespaldo` | Transacción: cobertura todo o nada, líneas y hecho para el mayor |
-| Organismo | `ContingenciaDeCaja` | Plan de contingencia cuando la reserva no alcanza |
-| Página | `POST /garantia/respaldo/coberturas` | Traduce y delega, sin lógica |
+| Puerto | `RecaudoDelPeriodo` (`RecaudoPorHttp`) | Lee de `aportes` la cuota impaga; hoy sin uso |
+| Organismo | Cobertura del fondo del grupo (F3.L2.M05) | Transacción: movimiento del fondo, deuda y asiento propuesto |
+| Consumidor | Vencimiento de la gracia | Dispara la cobertura, idempotente por `message_id` |
 
 ## Eventos, trabajos y permisos
 
 | Emite | Dispara | Exige |
 | --- | --- | --- |
-| `garantia.respaldo_aplicado` | Asiento en el mayor | Token de servicio |
-| `garantia.respaldo_insuficiente` | Incidente y contingencia de caja | — |
+| Cobertura aplicada (F3.L2.M05) | Destraba la entrega del turno | Sistema |
 
 ## Interfaz
 
-- **App:** El grupo ve si el pozo se completó y quién debe reponer.
-- **Backoffice:** Reserva por ciclo: disponible, aplicado y recuperado.
+- **App:** El grupo ve si la cuota quedó cubierta por el fondo y quién la debe reponer.
+- **Backoffice:** Fondo por grupo: saldo, cubierto, recuperado.
 
 ## Restricciones aplicables
 
 `R-GAR-08` · `R-GAR-09` · `R-GAR-10` · `R-GAR-11` · `R-GAR-12` · `R-GAR-13`
 
-Las hace cumplir la base en el camino del **respaldo**:
-
-- `R-GAR-08` · la capacidad empresarial comprometida **nunca supera su tope**. Dos grupos
-  que activan a la vez compiten por la misma fila de capacidad: se bloquea primero y la
-  base lo vuelve a exigir. Sin capacidad cargada se deniega; el tope es un dato.
-- `R-GAR-09` · la reserva se mueve solo con **movimientos inmutables** y nunca se usa más
-  de lo reservado (aplicado + liberado ≤ reservado; recuperado ≤ aplicado).
-- `R-GAR-10` · **una cobertura viva por turno** (la reversada deja de contar) y su
-  faltante cuadra con el pozo.
-- `R-GAR-11` · las líneas de una cobertura **suman exactamente su faltante** y cada línea
-  recupera a lo sumo lo que cubrió.
-- `R-GAR-12` · el turno de una cobertura **es del grupo y del periodo que declara**.
-- `R-GAR-13` · **una contingencia de caja viva por grupo**: si la reserva no alcanza sobre un
-  compromiso que ya existe, se abre un `plan_contingencia` y no se reservan ciclos nuevos
-  mientras dure (`AP-CU23-10`). La deuda se conserva: no se cubre una parte ni se cancela una
-  obligación.
+Son del **respaldo empresarial retirado** y la base las sigue haciendo cumplir sobre sus tablas hasta la
+contracción del esquema (F2.L2.M03), que las retira con ellas: capacidad nunca mayor a su tope (R-GAR-08),
+reserva movida solo por movimientos inmutables (R-GAR-09), una cobertura viva por turno (R-GAR-10), líneas que
+suman el faltante (R-GAR-11), turno del grupo y periodo declarados (R-GAR-12) y una contingencia de caja viva
+por grupo (R-GAR-13). Las restricciones de la cobertura del modelo A se declaran con F3.L2.M05.
 
 ## Evidencia que deja
 
-[[registro_incumplimiento]] · [[capacidad_respaldo]] · [[reserva_respaldo]] ·
-[[movimiento_reserva]] · [[cobertura_respaldo]] · [[cobertura_respaldo_linea]] ·
-[[recuperacion_respaldo]] · [[plan_contingencia]] · [[asiento_contable]]
+[[registro_incumplimiento]] · [[movimiento_fondo]] · [[deuda_participante]] · [[subrogacion]] ·
+[[asiento_contable]]
 
-Del modelo anterior, sin escritor nuevo hasta F3.L2.M05: [[cobertura_incumplimiento]] ·
-[[movimiento_fondo]] · [[deuda_participante]] · [[subrogacion]] · [[politica_cobertura]] ·
-[[gestion_cobranza]] · [[estrategia_cobranza]] · [[acuerdo_quita]].
+Del modelo anterior, sin escritor hasta su contracción: [[cobertura_incumplimiento]] · [[politica_cobertura]] ·
+[[gestion_cobranza]] · [[estrategia_cobranza]] · [[acuerdo_quita]] · [[capacidad_respaldo]] ·
+[[reserva_respaldo]] · [[movimiento_reserva]] · [[cobertura_respaldo]] · [[cobertura_respaldo_linea]] ·
+[[recuperacion_respaldo]] · [[plan_contingencia]]
 
 ## Criterios de aceptación
 
 ```gherkin
-Dado un pozo de Bs 6.000 con Bs 5.000 confirmados y una reserva de Bs 8.000
-Cuando se cubre el faltante del corte
-Entonces se aplica una sola cobertura de Bs 1.000 con una línea por obligación faltante
+Dado un participante que no pagó al vencer la gracia
+Cuando corre el vencimiento
+Entonces la entrega del turno sale completa con dinero del fondo del grupo y existe una deuda a su nombre por ese importe
 
-Dada una reserva de Bs 800 y un faltante de Bs 1.000
-Cuando se cubre el faltante del corte
-Entonces no se cubre nada y la reserva queda intacta
+Dado un vencimiento ya procesado
+Cuando se procesa otra vez
+Entonces no se cubre dos veces
 
-Dado un expediente de incumplimiento
-Cuando alguien pide la cobertura a mano con monto, mora y aprobador
-Entonces responde 410 AP-CU23-14 y no se ejecuta ningún caso de uso
+Dado un fondo del grupo que no alcanza
+Cuando corre el vencimiento
+Entonces la entrega queda en espera visible y no se escribe ningún asiento de la empresa
 ```
 
 ## Ver también
