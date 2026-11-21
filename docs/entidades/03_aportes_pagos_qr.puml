@@ -213,6 +213,7 @@ package "Cobro: QR y ordenes" {
     - soportaConsultaEstado: Boolean
     - activo: Boolean
     - prioridad: Integer
+    - claveIdempotencia: String
     --
     + generarQR(orden): QRCobro
     + consultarEstado(referencia): EstadoTransaccion
@@ -740,6 +741,7 @@ entity "proveedor_pago" as prov {
   soporta_consulta_estado : BOOLEAN
   activo : BOOLEAN
   prioridad : SMALLINT
+  clave_idempotencia : VARCHAR(100) <<NULL>>
 }
 
 entity "orden_cobro" as orden {

@@ -805,6 +805,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_historial_estado_pago_salida
 CREATE UNIQUE INDEX IF NOT EXISTS uq_historial_estado_reembolso_salida
   ON historial_estado_reembolso (reembolso_id, estado_anterior);
 
+-- R-BIL-31 · un alta de proveedor por clave (F1.L1.M09). Parcial por las filas de antes,
+-- que no la tienen; toda alta nueva la escribe (CU-99).
+CREATE UNIQUE INDEX IF NOT EXISTS uq_proveedor_pago_clave
+  ON proveedor_pago (clave_idempotencia)
+  WHERE clave_idempotencia IS NOT NULL;
+
 
 -- ---------------------------------------------------------------------
 -- R-LIM — Límites operativos

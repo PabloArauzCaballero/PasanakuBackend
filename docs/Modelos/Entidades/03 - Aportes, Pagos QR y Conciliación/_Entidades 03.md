@@ -17,7 +17,7 @@ Las **25 tablas** de este módulo. Justificación de negocio en [[03_aportes_pag
 | [[politica_mora]] | 10 | 1 | 2 |
 | [[obligacion_aporte]] | 22 | 7 | 8 |
 | [[plan_regularizacion]] | 7 | 2 | 2 |
-| [[proveedor_pago]] | 12 | 0 | 8 |
+| [[proveedor_pago]] | 13 | 0 | 8 |
 | [[orden_cobro]] | 11 | 2 | 4 |
 | [[qr_cobro]] | 9 | 1 | 0 |
 | [[enlace_pago_rapido]] | 6 | 2 | 0 |

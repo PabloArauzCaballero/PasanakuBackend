@@ -24,7 +24,7 @@
    "descripcion": "Aportes, Pagos QR y Conciliación. Que \"pagué\" signifique \"el banco lo confirmó\".",
    "tablas": 24,
    "tablasDeNegocio": 20,
-   "columnas": 242,
+   "columnas": 243,
    "relaciones": 41,
    "appendOnly": 4,
    "conDatosPersonales": 1,
@@ -4512,7 +4512,9 @@
     "negocio": "Tres cosas que importan comercialmente:\n\n1. Multi-proveedor con respaldo. prioridad y activo permiten que si el QR del banco A falla, el IntentoPago reintente con el proveedor B. En un país donde los servicios bancarios se caen con cierta regularidad, esto es la diferencia entre \"no pude pagar\" y \"pagué\". Y el día de vencimiento es justamente cuando más carga hay.\n2. Costo real por transacción. comisionFija y comisionPorcentual permiten calcular costoDe(monto) y decidir por dónde enrutar. En aportes chicos —que son la mayoría— la comisión fija puede ser un porcentaje enorme del aporte.\n3. Capacidades declaradas. soportaWebhook y soportaConsultaEstado cambian la estrategia: con webhook la acreditación es en segundos; sin él hay que hacer polling, con la latencia y el costo que eso implica.\n\nreferenciaCredenciales es explícitamente un puntero a la bóveda de secretos, nunca la llave. Las credenciales de una pasarela de pagos no viven en la base de datos de la aplicación.",
     "porQue": "Sin abstracción de proveedor, integrar un segundo banco significa reescribir el flujo de cobro."
    },
-   "reglas": [],
+   "reglas": [
+    "uq_proveedor_pago_clave"
+   ],
    "columnas": [
     {
      "nombre": "id",
@@ -4634,6 +4636,16 @@
      "origenNegocio": "convencion",
      "sistema": "SMALLINT, obligatoria.",
      "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "clave_idempotencia",
+     "tipo": "VARCHAR(100)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(100), opcional.",
+     "sensibilidad": "NINGUNA"
     }
    ],
    "relaciones": {
@@ -4721,7 +4733,7 @@
      }
     ]
    },
-   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian entregas.orden_desembolso, extracto_bancario, nucleo_financiero.orden_recarga, nucleo_financiero.orden_retiro, orden_cobro, pago, tarifas.costo_proveedor_operacion, webhook_pasarela.",
+   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian entregas.orden_desembolso, extracto_bancario, nucleo_financiero.orden_recarga, nucleo_financiero.orden_retiro, orden_cobro, pago, tarifas.costo_proveedor_operacion, webhook_pasarela. Reglas nombradas: uq_proveedor_pago_clave.",
    "clasificacion": {
     "personales": 0,
     "financieros": 0,

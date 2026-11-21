@@ -224,6 +224,15 @@ public class PagoRepositorio {
                 == 1;
     }
 
+    /** Quien ejecuto el reembolso, segun su historial (R-BIL-30); vacio si sigue solicitado. */
+    public Optional<UUID> ejecutadoPor(DSLContext dsl, UUID reembolsoId) {
+        return dsl.select(DSL.field("ejecutado_por", UUID.class))
+                .from(DSL.table(DSL.name("aportes", "historial_estado_reembolso")))
+                .where(DSL.field("reembolso_id", UUID.class).eq(reembolsoId))
+                .and(DSL.field("estado_nuevo", String.class).eq("EJECUTADO"))
+                .fetchOptional(r -> r.value1());
+    }
+
     /** F1.L1.M09 · el candado de (pago, clave) hasta el fin de la transaccion: dos reintentos no corren a la vez. */
     public void bloquearIdempotenciaDeReembolso(DSLContext dsl, UUID pagoId, String clave) {
         dsl.execute(

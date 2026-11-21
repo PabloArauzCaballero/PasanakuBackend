@@ -78,6 +78,9 @@ COLUMNAS_AGREGADAS = {
     ("conciliacion", "moneda"),
     ("excepcion_conciliacion", "moneda"),
     ("extracto_bancario", "moneda"),
+    # 2026-11-21 · F1.L1.M09: la clave del alta de proveedor (CU-99). NULL solo en las
+    # filas de antes; R-BIL-31 la hace unica.
+    ("proveedor_pago", "clave_idempotencia"),
 }
 COMENTARIO_AGREGADA = {}
 

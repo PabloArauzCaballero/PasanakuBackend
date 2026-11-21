@@ -388,6 +388,7 @@ ALTER TABLE expediente_cliente
 | R-BIL-28 | Un reembolso por pago y clave de idempotencia: reintentar la solicitud no crea otra | Idempotencia de dinero (regla 91.1.4, 91.2.4) | [[CU-19 Reembolsar un pago y atender una disputa]] |
 | R-BIL-29 | Reembolso, disputa, conciliación, excepción de conciliación y extracto bancario llevan su moneda ISO-4217 al lado del importe | Ningún importe sin moneda (regla 91.1.2) | [[CU-19 Reembolsar un pago y atender una disputa]] |
 | R-BIL-30 | El pago y el reembolso no se editan: su estado vigente es la última fila de su historial append-only, y desde cada estado se sale una sola vez | Hechos de dinero inmutables (regla 91.1.3, R-AUD-01) | [[CU-19 Reembolsar un pago y atender una disputa]] |
+| R-BIL-31 | Un alta de proveedor por clave de idempotencia: reintentar el alta devuelve el mismo proveedor | Idempotencia de las operaciones con efecto (regla 91.1.4, 91.2.4) | [[CU-99 Dar de alta un proveedor de pago y enrutar el cobro]] |
 
 ```sql
 -- R-BIL-01 · partida doble interna (diferido: se valida al COMMIT)
@@ -857,6 +858,12 @@ CREATE UNIQUE INDEX uq_historial_estado_pago_salida
   ON historial_estado_pago (pago_id, estado_anterior);
 CREATE UNIQUE INDEX uq_historial_estado_reembolso_salida
   ON historial_estado_reembolso (reembolso_id, estado_anterior);
+
+-- R-BIL-31 · un alta de proveedor por clave (F1.L1.M09). Parcial por las filas de antes,
+-- que no la tienen; toda alta nueva la escribe (CU-99).
+CREATE UNIQUE INDEX uq_proveedor_pago_clave
+  ON proveedor_pago (clave_idempotencia)
+  WHERE clave_idempotencia IS NOT NULL;
 ```
 
 ---

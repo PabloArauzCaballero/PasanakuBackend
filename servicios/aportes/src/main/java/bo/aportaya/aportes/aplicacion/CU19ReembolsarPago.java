@@ -164,6 +164,12 @@ public class CU19ReembolsarPago {
                         CodigoError.de(19, 4), "Quien aprueba un reembolso no puede ser quien lo solicito.");
             }
             if (!pagos.ejecutarReembolso(dsl, reembolsoId, ctx.usuarioId(), ahora)) {
+                // F1.L1.M09 · el reintento de quien ya lo aprobo recibe la misma respuesta, sin volver a mover nada.
+                if (ctx.usuarioId().equals(pagos.ejecutadoPor(dsl, reembolsoId).orElse(null))) {
+                    var pago = pagos.ver(dsl, reembolso.pagoId()).orElseThrow();
+                    var obligacion = obligaciones.ver(dsl, pago.obligacionId()).orElseThrow();
+                    return new SalidaEjecucion(reembolsoId, "EJECUTADO", obligacion.id(), obligacion.estado());
+                }
                 throw new ErrorDeNegocio(CodigoError.de(19, 3), "Ese reembolso ya no esta solicitado.");
             }
 

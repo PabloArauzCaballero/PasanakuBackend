@@ -6,7 +6,7 @@ tabla: proveedor_pago
 clase: ProveedorPago
 modulo: "03 — Aportes, Pagos QR y Conciliación"
 clave_primaria: [id]
-columnas: 12
+columnas: 13
 fk_salientes: 0
 fk_entrantes: 8
 append_only: false
@@ -32,6 +32,15 @@ append_only: false
 | `soporta_consulta_estado` | BOOLEAN | — | no | — |
 | `activo` | BOOLEAN | — | no | — |
 | `prioridad` | SMALLINT | — | no | — |
+| `clave_idempotencia` | VARCHAR(100) | UQ | sí | NULL |
+
+## Reglas del catálogo
+
+> Declaradas en [[Restricciones]], no en el modelo. El nombre es el que devuelve la base al rechazar.
+
+| Regla | Tipo | Columnas |
+| --- | :-: | --- |
+| `uq_proveedor_pago_clave` | UNIQUE | `clave_idempotencia` |
 
 ## Referenciada por
 

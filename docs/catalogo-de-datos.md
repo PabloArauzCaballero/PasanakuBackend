@@ -535,7 +535,7 @@ Los cinco campos de monto no son redundancia, son la historia económica complet
 
 **Casos de uso que la nombran.** CU-18 Registrar y verificar una cuenta bancaria de destino (`registrarCuentaDestino`, `consultarDisponibilidad`, `designarCuentaPrincipal`, `verificarCuentaDestino`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`) · CU-99 Dar de alta un proveedor de pago y enrutar el cobro (`enrutarCobro`, `darDeAltaProveedor`)
 
-**Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `entregas.orden_desembolso`, `extracto_bancario`, `nucleo_financiero.orden_recarga`, `nucleo_financiero.orden_retiro`, `orden_cobro`, `pago`, `tarifas.costo_proveedor_operacion`, `webhook_pasarela`.
+**Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `entregas.orden_desembolso`, `extracto_bancario`, `nucleo_financiero.orden_recarga`, `nucleo_financiero.orden_retiro`, `orden_cobro`, `pago`, `tarifas.costo_proveedor_operacion`, `webhook_pasarela`. Reglas nombradas: `uq_proveedor_pago_clave`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
@@ -551,6 +551,7 @@ Los cinco campos de monto no son redundancia, son la historia económica complet
 | `soporta_consulta_estado` | BOOLEAN | Atributo que representa soporta consulta estado en el modelo de `proveedor_pago`. | BOOLEAN, obligatoria. | NINGUNA |
 | `activo` | BOOLEAN | Indicador booleano que determina si el registro se encuentra actualmente operativo. | BOOLEAN, obligatoria. | NINGUNA |
 | `prioridad` | SMALLINT | Atributo que representa prioridad en el modelo de `proveedor_pago`. | SMALLINT, obligatoria. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(100) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(100), opcional. | NINGUNA |
 
 ### `qr_cobro`
 

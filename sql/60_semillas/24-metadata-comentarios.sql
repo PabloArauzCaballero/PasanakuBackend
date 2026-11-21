@@ -836,6 +836,7 @@ COMMENT ON COLUMN aportes.proveedor_pago.soporta_webhook IS '[NEGOCIO] Atributo 
 COMMENT ON COLUMN aportes.proveedor_pago.soporta_consulta_estado IS '[NEGOCIO] Atributo que representa soporta consulta estado en el modelo de `proveedor_pago`. [SISTEMA] boolean, obligatoria (NOT NULL).';
 COMMENT ON COLUMN aportes.proveedor_pago.activo IS '[NEGOCIO] Indicador booleano que determina si el registro se encuentra actualmente operativo. [SISTEMA] boolean, obligatoria (NOT NULL).';
 COMMENT ON COLUMN aportes.proveedor_pago.prioridad IS '[NEGOCIO] Atributo que representa prioridad en el modelo de `proveedor_pago`. [SISTEMA] smallint, obligatoria (NOT NULL).';
+COMMENT ON COLUMN aportes.proveedor_pago.clave_idempotencia IS '[NEGOCIO] Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). [SISTEMA] varchar(100), opcional.';
 COMMENT ON TABLE aportes.orden_cobro IS '[NEGOCIO] La instrucción concreta de cobro para una obligación: monto exacto, proveedor, referencia única, vigencia.. Es la traducción de "debés Bs 500" a "acá está el QR para pagar esos Bs 500". Separarla de la obligación resuelve varios problemas prácticos:
 
 - Una obligación puede tener **varias órdenes**: la primera expiró, se generó otra; o la primera era por el banco A y falló, se generó otra por el banco B.
