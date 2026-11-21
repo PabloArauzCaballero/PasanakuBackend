@@ -1,0 +1,58 @@
+{
+  "descripcion": "Catálogo cerrado de parámetros financieros del modelo A + D (F3.S8.M2, CU-132). Solo códigos y unidades: SIN VALORES.",
+  "entorno": "minimo",
+  "nota": "Procedencia: catálogo interno. Códigos: ADR-056 §6 y contrato de garantia (docs/trabajo/2026-11-21-tanda2-l2/evidencia/F3.L2.M14-contrato-parametros-tarifas.md, PR #485). Unidades: DECISIONES tanda 11 (PR #489, Pablo, 2026-11-21). Los valores los cargan Pablo y Cumplimiento en el backoffice con cuatro ojos (version_parametro, R-TAR-14); nunca un seeder.",
+  "bloques": [
+    {
+      "tabla": "parametro_financiero",
+      "conflicto": [
+        "codigo"
+      ],
+      "comentario": "Parámetros financieros: código, unidad y si van por nivel. Sin valores.",
+      "filas": [
+        {
+          "codigo": "APORTE_FONDO_GRUPO",
+          "descripcion": "Aporte al fondo del grupo con cada cuota (modelo A, A1), por nivel de puntualidad",
+          "unidad": "PORCENTAJE",
+          "por_nivel": true
+        },
+        {
+          "codigo": "REDUCCION_APORTE_GRUPO_PERFECTO",
+          "descripcion": "Reducción del aporte al fondo cuando el grupo repite tras un «Grupo perfecto» (D4)",
+          "unidad": "PORCENTAJE",
+          "por_nivel": false
+        },
+        {
+          "codigo": "DIAS_DE_GRACIA",
+          "descripcion": "Días de gracia antes de la cobertura del fondo y del recargo (A3, R1)",
+          "unidad": "DIAS",
+          "por_nivel": false
+        },
+        {
+          "codigo": "TASA_DE_RECARGO",
+          "descripcion": "Tasa del recargo por mora (R1)",
+          "unidad": "PORCENTAJE",
+          "por_nivel": false
+        },
+        {
+          "codigo": "TOPE_DEL_RECARGO",
+          "descripcion": "Tope del recargo por mora, como porcentaje del aporte en mora (R1)",
+          "unidad": "PORCENTAJE",
+          "por_nivel": false
+        },
+        {
+          "codigo": "UMBRAL_DE_SOLVENCIA_DEL_FONDO",
+          "descripcion": "Umbral de solvencia del fondo, como porcentaje del fondo sobre el pozo comprometido",
+          "unidad": "PORCENTAJE",
+          "por_nivel": false
+        },
+        {
+          "codigo": "UMBRAL_DE_DISOLUCION_POR_MORA",
+          "descripcion": "Umbral de disolución automática, como cantidad de cuotas impagas del grupo (A8)",
+          "unidad": "CONTEO",
+          "por_nivel": false
+        }
+      ]
+    }
+  ]
+}

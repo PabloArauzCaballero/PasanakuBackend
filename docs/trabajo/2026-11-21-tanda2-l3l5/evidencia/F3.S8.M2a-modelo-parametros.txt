@@ -76,3 +76,13 @@ $ python3 scripts/verificar_seguridad.py -> TODO OK · 5 aviso(s)
 $ python3 -I scripts/catalogo_de_datos.py --escribir -> solo agrega las tres tablas
 
 No cubierto: casos de uso y API (F3.S8.M2b), consumidor de grupo_iniciado (F3.S8.M6), pantalla (F3.S8.M4), siembra de códigos del catálogo (con las unidades que decida Pablo).
+
+## Siembra del catálogo (agregado tras DECISIONES tanda 11, PR #489: dueño tarifas y unidades decididas)
+Fuente: seeders/minimos/25-parametros-financieros.json -> scripts/generar_semillas.py -> sql/60_semillas/25-parametros-financieros.sql
+Procedencia: códigos ADR-056 §6 + contrato de garantia (#485); unidades DECISIONES tanda 11 (#489). Sin valores.
+$ psql -f 60_semillas/sembrar.sql (base limpia) -> exit 0
+$ psql -f 60_semillas/25-parametros-financieros.sql (segunda y tercera corrida) -> INSERT 0 0 · INSERT 0 0
+APORTE_FONDO_GRUPO PORCENTAJE t · DIAS_DE_GRACIA DIAS f · REDUCCION_APORTE_GRUPO_PERFECTO PORCENTAJE f · TASA_DE_RECARGO PORCENTAJE f
+TOPE_DEL_RECARGO PORCENTAJE f · UMBRAL_DE_DISOLUCION_POR_MORA CONTEO f · UMBRAL_DE_SOLVENCIA_DEL_FONDO PORCENTAJE f  (7 rows)
+versiones_sembradas = 0
+verificar_boveda TODO OK · verificar_narrativas sin fallas · verificar_seguridad TODO OK · verificar_criterios sin divergencias
