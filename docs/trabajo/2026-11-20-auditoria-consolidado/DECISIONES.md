@@ -37,3 +37,14 @@ Respuestas dadas por Pablo en la sesión. Lo que no está acá sigue abierto.
 | — | Revisor | **Pablo** revisa y mergea cada PR. |
 
 Siguen abiertas: P-19 (dónde correr Docker) y P-20 (el candado `blocker_gate`).
+
+## Tanda 5 (producto y operación)
+
+| ID | Tema | Decisión |
+|---|---|---|
+| — | Entrada a los grupos | **Solo por invitación** de un miembro: entre conocidos. Requisitos: KYC aprobado, reglamento aceptado y sin deudas vivas. No hay grupos públicos. Esto reemplaza lo de «grupos públicos» de la tanda 4. |
+| — | Orden de turnos | **Por nivel de puntualidad:** los niveles más altos eligen primero. Dentro del mismo nivel se ordena por sorteo verificable (compromiso y revelación). En el primer ciclo, como todos son «Semilla», el orden sale entero del sorteo. |
+| — | Calificación y gamificación | Pieza D, ampliada. La calificación se calcula solo con hechos (pagos confirmados por QR y su fecha), sin calificaciones entre personas. Incluye niveles con beneficios concretos, rachas, insignias y el logro de grupo «Grupo perfecto». La reputación negativa solo nace de un expediente (regla 91.4). Se construye sobre el servicio `transparencia` existente. |
+| P-19 | Dónde correr Docker y la integración | **En la máquina de Pablo**, por Remote Control, con permiso en cada caso. |
+| P-20 | Las 9 microtareas viejas que traban `blocker_gate` | **Marcarlas DESCARTADO**, con el motivo «reemplazadas por el plan de correcciones del 2026-11-21», en un PR que revisa Pablo. |
+| — | Fase 5 «Poder de compra» | Propuesta aceptada como dirección. Es un piloto condicionado a dos cosas: la opinión legal (ASFI y garantía sobre bienes) y al menos un comercio firmado. Fuera de las fases 1 a 4. |
