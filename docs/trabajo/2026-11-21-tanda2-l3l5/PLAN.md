@@ -78,6 +78,17 @@ nunca ve una versión posterior a su inicio.
 | F3.S8.M6 | Congelamiento al iniciar el grupo y consulta por grupo | El mismo `grupo_iniciado` dos veces congela una vez; una versión nueva no cambia el grupo | prueba de duplicado + `psql` | A MEDIAS (psql y unitarias PASS; `CU132CongelamientoTest` espera CI) |
 | F3.S8.M4 | Pantalla del backoffice | Cuatro estados, error por campo, historial | prueba visual 3 viewports × 2 temas + E2E | TODO |
 
+## H4 — `grupos.turnos_asignados` para la entrega automática (F3.L2.M01, pedido de L2 y del coordinador)
+**CA:** Dado un sorteo revelado, cuando se crean los turnos, entonces sale por outbox un evento con turno, periodo,
+cupo, titular y versión; y cuando cambia el titular de un cupo, se republica el turno con versión mayor.
+**DoD:** prueba de productor contra el pacto de #490 + integración del outbox.
+**Estado:** EN CURSO
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| F3.L2.M01a | Publicar al revelar, versión 1 | Revelar → 1 evento con 6 turnos que coinciden con `turno` y `cupo`; semilla inválida → 0 | `TurnoAsignadoTest` + `TurnosAsignadosRepositorioTest` (CI) | A MEDIAS (unitaria PASS; integración espera CI y PR) |
+| F3.L2.M01b | Republicar con versión mayor al cambiar el titular (traspaso, subasta, reemplazo) | Traspaso → evento del turno con versión 2 | integración por camino | TODO (falta de dónde sale la versión: columna en `turno` o historial) |
+
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
 |---|---|---|

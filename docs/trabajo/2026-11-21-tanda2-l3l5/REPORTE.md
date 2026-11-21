@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, lote L3L5
 
-> **AVANCE: 11 / 27 — 40,7 %.** A MEDIAS: F1.L3.M04, F1.L3.M05, F1.L5.M28, F3.S8.M6. Abiertos: #448, #486 y #492 (tope de 3); M6 empujado sin PR. Retoma: ver «Para quien retome».
+> **AVANCE: 11 / 29 — 37,9 %.** A MEDIAS: F1.L3.M04, F1.L3.M05, F1.L5.M28, F3.S8.M6, F3.L2.M01a. Abiertos: #448, #486 y #492 (tope de 3); M6 empujado sin PR. Retoma: ver «Para quien retome».
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md)
 - PR hacia `dev`: mergeados #428 (F1.L3.M04), #431 (F1.L3.M06), #434 (F1.L3.M07), #437 (F1.L3.M05), #453 (T2.M1);
@@ -17,7 +17,7 @@
 
 ## Para quien retome este lote (traspaso de coordinación, 2026-11-21)
 
-- **Estado:** 11/27 (ver primera línea). Todo está empujado a `origin`; no queda nada solo en local.
+- **Estado:** 11/29 (ver primera línea; +2 microtareas de H4, pedido de L2). Todo está empujado a `origin`; no queda nada solo en local.
 - **PR abiertos (tope: 3 por sesión):**
   - **#448** · rama `correcciones/tanda2-l3l5-f1-tarifario` · F1.L5.M26, M27, M23, M21 y M28 (parcial). Es la punta
     de la pila: acá viven `PLAN.md` y `REPORTE.md` al día. Absorbe a #438, #440, #443 y #446 (cerrados).
@@ -27,7 +27,7 @@
   - **#492** · rama `correcciones/tanda2-l3l5-f3-parametros-api` · F3.S8.M2b: API de CU-132 (catálogo, proponer,
     aprobar con cuatro ojos del token). Apilado sobre #486: se mergea después.
 - **Mergeados:** #428, #431, #434, #437, #453; #423 dentro de #444.
-- **Sin PR (tope de 3):** rama `correcciones/tanda2-l3l5-f3-parametros-congelamiento` (F3.S8.M6), apilada sobre #492.
+- **Sin PR (tope de 3):** `correcciones/tanda2-l3l5-f3-parametros-congelamiento` (F3.S8.M6, apilada sobre #492) y `correcciones/tanda2-l3l5-turnos-asignados` (F3.L2.M01a, desde `dev`).
   Abrir su PR hacia `dev` en cuanto se mergee #486 o #492.
 - **Siguiente, en orden:** F3.S8.M4 (pantalla del backoffice). Lo ya hecho de M6: `GET /tarifas/parametros/grupos/{grupoId}` según el contrato de L2 en
   `docs/trabajo/2026-11-21-tanda2-l2/evidencia/F3.L2.M14-contrato-parametros-tarifas.md`: 200 / 404 sin congelamiento
@@ -59,6 +59,16 @@
 | F3.S8.M2b | API de CU-132 en `tarifas`: catálogo con vigentes, propuesta idempotente por clave, aprobación solo por otra persona con su token (borde + caso de uso + `CHECK`), precondición en el `UPDATE` | `./gradlew :servicios:tarifas:test :servicios:tarifas:webTest` (23/23, 45/45) + `psql` con reintento, misma persona, carrera y edición | PASS · [evidencia](./evidencia/F3.S8.M2b-api-parametros.txt) · #492 |
 
 ## A medias
+### F3.L2.M01a — `grupos.turnos_asignados` al revelar el sorteo
+- Qué anda: `CU60Sortear` publica, en la transacción de la revelación y por outbox, un evento con turnoId, numero,
+  periodoId, cupoId, titularParticipanteId y version 1 (`PublicacionDeTurnos`). `TurnoAsignadoTest` comprueba los
+  campos que exige el pacto de #490 y que no viaja nada más; suites de `grupos` 122/122 y 184/184.
+- Qué no anda: no corrió `TurnosAsignadosRepositorioTest` (Testcontainers, sin Docker): la publicación real en
+  `evento_dominio` está sin demostrar.
+- Qué falta exactamente: PR (hay 3 abiertos) para que CI la corra; cuando #490 entre a `dev`, que
+  `TurnoAsignadoTest` lea los campos del archivo del pacto; F3.L2.M01b.
+- Dónde quedó: rama `correcciones/tanda2-l3l5-turnos-asignados` (5f9c3ad5, desde `dev`), compila, empujada.
+
 ### F3.S8.M6 — Congelamiento de parámetros al iniciar el grupo
 - Qué anda: el consumidor de `grupos.grupo_iniciado` lee solo `grupoId` e `iniciadoEn` (pacto nuevo
   `contratos/pactos/grupos-tarifas-grupo-iniciado.json`) y rechaza lo que falta; congela la versión APROBADA que
