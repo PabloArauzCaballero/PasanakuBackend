@@ -1,0 +1,5 @@
+$ python3 -m pytest -q scripts/test_catalogo_de_datos.py
+# HEAD: 850e0f51 (origin/dev) · 2026-11-21T04:08:21Z
+.............                                                            [100%]
+13 passed in 0.18s
+rc=0

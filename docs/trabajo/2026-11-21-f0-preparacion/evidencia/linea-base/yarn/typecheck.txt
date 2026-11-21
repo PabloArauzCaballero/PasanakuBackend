@@ -1,0 +1,46 @@
+$ yarn typecheck --continue   (con clientes generados; HEAD f1bee730)
+• turbo 2.10.11
+
+   • Packages in scope: @aportaya/backoffice, @aportaya/diseno-flutter, @aportaya/dominio-cliente, @aportaya/movil, @aportaya/simulado, @aportaya/tokens, @aportaya/tutoriales, @aportaya/ui, @aportaya/web
+   • Running typecheck in 9 packages
+   • Remote caching disabled
+
+@aportaya/tokens:build: cache hit, replaying logs 4d86d945df0af02e
+@aportaya/simulado:build: cache hit, replaying logs ad1e9345536fc52f
+@aportaya/web:contenido: cache hit, replaying logs d53365f40ca45782
+@aportaya/web:contenido: contenido: 10 páginas · 10 indexables · robots.txt, sitemap.xml, llms.txt y llms-full.txt generados
+@aportaya/tokens:build: generado/tokens.css · 464 lineas
+@aportaya/tokens:build: generado/tokens.dart · 549 lineas
+@aportaya/tokens:build: vectores/monto.json · 5006 casos
+@aportaya/dominio-cliente:typecheck: cache hit, replaying logs 65aac74cd300f5d3
+@aportaya/tokens:typecheck: cache hit, replaying logs f0859d55761028f3
+@aportaya/simulado:typecheck: cache hit, replaying logs bc9d072e626b129a
+@aportaya/simulado:build: contratos convertidos desde /home/user/PasanakuBackend: aportes (14 rutas) · auditoria (22 rutas) · cumplimiento (22 rutas) · entregas (18 rutas) · erp (20 rutas) · garantia (20 rutas) · grupos (43 rutas) · identidad (34 rutas) · inversiones (20 rutas) · notificaciones (11 rutas) · nucleo-financiero (26 rutas) · organizador (23 rutas) · publicidad (14 rutas) · tarifas (13 rutas) · transparencia (21 rutas)
+@aportaya/simulado:build: ejemplos: 1 creados · 349 conservados (editados a mano, no se pisan) · 0 rechazos alineados al catalogo de errores
+@aportaya/simulado:build: simulado: 1813 ejemplos inyectados · 321 rutas en generado/prism/todos.yaml
+@aportaya/diseno-flutter:typecheck: cache miss, executing 885aee5a5ac60af3
+@aportaya/diseno-flutter:build: cache miss, executing 5793e4ad4fd9fa1d
+@aportaya/ui:typecheck: cache hit, replaying logs 4a9633c9cbf95667
+@aportaya/ui:build: cache hit, replaying logs 9edf26d3231aafbb
+@aportaya/ui:build: ui: se consume por alias de tsconfig; `ng build` empaqueta con ng-packagr cuando haga falta publicar
+@aportaya/tutoriales:typecheck: cache hit, replaying logs bebe23a89d5441c9
+@aportaya/web:typecheck: cache miss, executing 9b67e42a118145a6
+@aportaya/backoffice:typecheck: cache miss, executing 1563a3c5fac211fe
+@aportaya/diseno-flutter:build: command not found: dart
+@aportaya/diseno-flutter#build:  WARNING  command finished with error, but continuing...
+@aportaya/movil:typecheck: cache miss, executing 72c31382c5aaa39e
+@aportaya/diseno-flutter:typecheck: command not found: dart
+@aportaya/diseno-flutter#typecheck:  WARNING  command finished with error, but continuing...
+@aportaya/movil:typecheck: command not found: dart
+@aportaya/movil#typecheck:  WARNING  command finished with error, but continuing...
+@aportaya/diseno-flutter#build:  ERROR  command (/home/user/PasanakuBackend/packages/diseno_flutter) /tmp/xfs-e4a40b14/yarn run build exited (127)
+@aportaya/diseno-flutter#typecheck:  ERROR  command (/home/user/PasanakuBackend/packages/diseno_flutter) /tmp/xfs-e4a40b14/yarn run typecheck exited (127)
+@aportaya/movil#typecheck:  ERROR  command (/home/user/PasanakuBackend/apps/movil) /tmp/xfs-e4a40b14/yarn run typecheck exited (127)
+
+ Tasks:    11 successful, 14 total
+Cached:    9 cached, 14 total
+  Time:    21.767s 
+Failed:    @aportaya/diseno-flutter#build, @aportaya/diseno-flutter#typecheck, @aportaya/movil#typecheck
+
+ ERROR  run failed: command  exited (127)
+rc=127

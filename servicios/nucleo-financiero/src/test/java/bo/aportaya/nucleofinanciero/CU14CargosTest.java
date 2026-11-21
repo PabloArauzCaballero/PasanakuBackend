@@ -3,9 +3,9 @@ package bo.aportaya.nucleofinanciero;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo.EntradaSolicitud;
 import bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion.EntradaReverso;
 import bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion.SalidaReverso;
+import bo.aportaya.nucleofinanciero.aplicacion.SolicitudDeRecarga;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
@@ -52,7 +52,7 @@ class CU14CargosTest extends BaseDeBilletera {
     private Recarga recargar(String monto, String costo) {
         UUID cotizacion = UUID.randomUUID();
         var orden = transaccion.execute(t -> recargaCU.solicitar(
-                new EntradaSolicitud(
+                new SolicitudDeRecarga(
                         "rec-" + UUID.randomUUID(),
                         cuenta,
                         Dinero.de(monto, Moneda.BOB),

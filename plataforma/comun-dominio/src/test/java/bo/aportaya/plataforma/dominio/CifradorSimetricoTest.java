@@ -68,4 +68,26 @@ class CifradorSimetricoTest {
         assertThatThrownBy(() -> CifradorSimetrico.descifrar("enc:v1:algo", ""))
                 .isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    @DisplayName("Un texto sin el prefijo de version se rechaza antes de intentar descifrar")
+    void rechazaPrefijoDesconocido() {
+        assertThatThrownBy(() -> CifradorSimetrico.descifrar("otro:v9:abc", SECRETO))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("Una carga que no es base64 valido falla como problema de integridad")
+    void rechazaCargaIlegible() {
+        assertThatThrownBy(() -> CifradorSimetrico.descifrar("enc:v1:@@no-es-base64@@", SECRETO))
+                .isInstanceOf(SecurityException.class);
+    }
+
+    @Test
+    @DisplayName("Una carga mas corta que IV + etiqueta GCM se rechaza sin llegar al descifrado")
+    void rechazaCargaDemasiadoCorta() {
+        String corta =
+                "enc:v1:" + java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(new byte[8]);
+        assertThatThrownBy(() -> CifradorSimetrico.descifrar(corta, SECRETO)).isInstanceOf(SecurityException.class);
+    }
 }

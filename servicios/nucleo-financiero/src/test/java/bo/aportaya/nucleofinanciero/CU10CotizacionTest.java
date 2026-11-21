@@ -3,10 +3,10 @@ package bo.aportaya.nucleofinanciero;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion;
 import bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion.Operacion;
 import bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor;
+import bo.aportaya.nucleofinanciero.aplicacion.SolicitudDeRecarga;
 import bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRecargas;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Dinero;
@@ -76,8 +76,8 @@ class CU10CotizacionTest extends BaseDeBilletera {
         return Dinero.de(monto, Moneda.BOB);
     }
 
-    private CU10RecargarSaldo.EntradaSolicitud pedido(String clave, String monto, Optional<UUID> cotizacion) {
-        return new CU10RecargarSaldo.EntradaSolicitud(
+    private SolicitudDeRecarga pedido(String clave, String monto, Optional<UUID> cotizacion) {
+        return new SolicitudDeRecarga(
                 clave, cuenta, bob(monto), Dinero.cero(Moneda.BOB), "QR", Optional.empty(), cotizacion);
     }
 

@@ -192,6 +192,25 @@ de Información de Riesgo Operativo (CIRO)**.
 > comité antes de operar con dinero real. Diseño resultante:
 > [[Flujo de pantallas · backoffice administrador]] §3.3.
 
+> [!note] Estado de `R-SEG-04` y `R-ORG-06` desde [[ADR-055 Sin aprobaciones en el circuito|ADR-055]] (2026-11-21)
+>
+> | Restricción | Dónde **deja de regir** | Control que la sustituye | Dónde **se conserva** |
+> |---|---|---|---|
+> | `R-SEG-04` quien autoriza no ejecuta | Entrega del pozo (`ck_entrega_segregacion`, cuatro ojos de la entrega) y doble aprobación de retiros (ADR-049) | Cuenta destino con titularidad verificada por proveedor · enfriamiento tras un cambio de cuenta · webhook firmado del proveedor de desembolso · segundo factor ligado a la operación · límites por ventana · monitoreo UIF | Reembolsos, reversos y cierre de billetera (P-13) · PEP, caso LFT y reporte UIF · bloqueo y requerimientos de la autoridad · descargo y apelación · cambio de parámetros financieros. Siempre con las dos identidades tomadas del token |
+> | `R-ORG-06` las acciones sensibles exigen confirmación humana | Entrega, cobro y cobertura | Cobro solo por webhook firmado · cobertura automática con el fondo del grupo, idempotente por obligación (ADR-056) · entrega automática con los controles de la fila anterior | Sanción y reputación: esperan al expediente `FIRME` (regla 91.4) |
+>
+> El texto de ambas en `docs/Restricciones.md` es fuente del DDL y se ajusta, junto con el esquema, en la
+> microtarea F2.M8 del plan de correcciones. Microtareas de los controles sustitutos: F3.S2.M1–M3 (entrega),
+> F3.S5.M2 (retiros), H3.S1 (cobro) y H3.S3 (cobertura).
+>
+> **Preguntas abiertas para Cumplimiento** (no bloquean la redacción; se suman a
+> `docs/trabajo/2026-11-21-plan-correcciones/PREGUNTAS-LEGALES.md`):
+> 1. ¿Alguna norma ASFI o UIF exige segregación humana de funciones en la **entrega** del pozo o en el
+>    **cobro**, más allá de los niveles y montos de autorización aprobados que describe la fila de arriba?
+> 2. Este documento dice más arriba que declarar un incumplimiento exige una persona. La decisión P-12 de Pablo
+>    es que **el sistema lo declara** al vencer el plazo de gracia y una persona resuelve el descargo. ¿Es
+>    suficiente que la persona intervenga en el descargo y en la apelación, y no en la declaración?
+
 ### 1.5 Gestión de seguridad de la información
 
 ASFI cuenta con un Reglamento para la Gestión de Seguridad de la Información

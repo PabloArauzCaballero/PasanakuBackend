@@ -1,0 +1,17 @@
+$ ./gradlew generarClientes --max-workers=1 -Dorg.gradle.parallel=false   (paso previo de la CI, ci.yml:259)
+> Task :servicios:transparencia:generarClienteDart
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /home/user/PasanakuBackend/clientes/dart/transparencia
+
+> Task :servicios:transparencia:generarClientes
+
+BUILD SUCCESSFUL in 8s
+39 actionable tasks: 30 executed, 9 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+rc=0

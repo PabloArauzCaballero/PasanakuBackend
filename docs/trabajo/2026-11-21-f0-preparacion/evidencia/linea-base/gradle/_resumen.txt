@@ -1,0 +1,16 @@
+aportes rc=0
+auditoria rc=0
+cumplimiento rc=0
+entregas rc=0
+erp rc=0
+garantia rc=0
+grupos rc=0
+identidad rc=0
+inversiones rc=0
+notificaciones rc=0
+nucleo-financiero rc=0
+organizador rc=0
+publicidad rc=0
+tarifas rc=0
+transparencia rc=0
+FIN

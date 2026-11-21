@@ -1,0 +1,4 @@
+$ python3 scripts/verificar_contratos_limites.py --self-test
+# HEAD: 850e0f51 (origin/dev) · 2026-11-21T04:08:09Z
+self-test: 4 PASS (additionalProperties ausente; string sin limite; schema correcto; paginacion sin techo)
+rc=0

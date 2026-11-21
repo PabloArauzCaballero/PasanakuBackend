@@ -7,6 +7,7 @@ import bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion;
 import bo.aportaya.nucleofinanciero.aplicacion.CuentaPropia;
 import bo.aportaya.nucleofinanciero.aplicacion.OrdenesExistentes;
 import bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor;
+import bo.aportaya.nucleofinanciero.aplicacion.SolicitudDeRecarga;
 import bo.aportaya.nucleofinanciero.dominio.puertos.SegundoFactor;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.CobroQrRecarga;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.CuentaDeLaSesion;
@@ -113,7 +114,7 @@ class FondeoDeLaBilletera {
 
     ResponseEntity<SalidaRecarga> solicitarRecarga(UUID clave, EntradaRecarga cuerpo, ContextoSesion ctx) {
         var solicitada = recargas.solicitarConQr(
-                new CU10RecargarSaldo.EntradaSolicitud(
+                new SolicitudDeRecarga(
                         clave.toString(),
                         cuerpo.getCuentaBilleteraId(),
                         MapeoDeBilletera.dinero(cuerpo.getMonto()),

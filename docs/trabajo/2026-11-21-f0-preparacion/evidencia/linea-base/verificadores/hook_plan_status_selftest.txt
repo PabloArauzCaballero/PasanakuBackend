@@ -1,0 +1,35 @@
+$ python3 .claude/hooks/plan_status.py --self-test
+PASS  detecta las 5 microtareas
+PASS  cuenta 1 HECHO
+PASS  porcentaje calculado 1/5
+PASS  activas = solo TODO
+PASS  incompletas = EN CURSO/A MEDIAS/BLOQUEADO
+PASS  lee el estado del hito
+PASS  lee el estado de la subtarea
+PASS  cuenta S0 y no lee filas de los anexos
+PASS  normaliza acentos, backticks y mayusculas
+PASS  plan sin microtareas se marca malformado
+PASS  plan sin microtareas no lanza
+PASS  resumen de plan vacio no divide por cero
+PASS  fila sin estado valido -> DESCONOCIDO
+PASS  fila sin estado valido deja razon
+PASS  detecta las tres secciones
+PASS  detecta seccion faltante
+PASS  acepta encabezados con acento y mayusculas
+PASS  encuentra el plan en disco
+PASS  porcentaje global
+PASS  detecta reporte ausente
+PASS  salida JSON serializa
+PASS  sin planes: global en cero
+PASS  vocabulario de estados cerrado
+PASS  evento JSON limpio
+PASS  evento limpio sin error
+PASS  evento con BOM UTF-8 (PowerShell)
+PASS  evento con BOM + CRLF
+PASS  basura -> evento None
+PASS  basura -> deja motivo para stderr
+PASS  stdin vacio -> motivo explicito
+PASS  JSON que no es objeto -> rechazado
+
+plan_status self-test: 31 PASS, 0 FAIL
+rc=0

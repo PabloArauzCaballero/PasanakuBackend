@@ -113,9 +113,11 @@ ENV SERVICIO=${SERVICIO}
 # libbrotli1, igual: Trivy (2026-10-30) marca CVE-2026-111497 (HIGH, escritura fuera de limites en el decodificador)
 # en 1.1.0-2build2, que es la de este digest; el parche es 1.1.0-2ubuntu0.1. No se verifico la version resultante
 # construyendo la imagen (sin Docker en la sesion): lo confirma el paso 17b2 del CI.
+# apt y libapt-pkg6.0t64, igual: Trivy (2026-11-21) marca CVE-2026-109518 (HIGH) en 2.8.3; el parche es
+# 2.8.4ubuntu0.1. Lo confirma el paso 17b2 del CI.
 RUN groupadd --system app && useradd --system --gid app app \
     && apt-get update \
-    && apt-get install -y --no-install-recommends wget libssl3t64 libbrotli1 \
+    && apt-get install -y --no-install-recommends wget libssl3t64 libbrotli1 apt libapt-pkg6.0t64 \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 

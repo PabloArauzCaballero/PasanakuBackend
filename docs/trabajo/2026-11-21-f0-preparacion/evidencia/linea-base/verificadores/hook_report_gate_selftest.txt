@@ -1,0 +1,18 @@
+$ python3 .claude/hooks/report_gate.py --self-test
+PASS  sin planes: no bloquea
+PASS  plan activo sin reporte: bloquea
+PASS  mensaje nombra el archivo faltante
+PASS  mensaje trae porcentaje calculado
+PASS  mensaje lista las microtareas vivas
+PASS  reporte sin secciones: bloquea
+PASS  mensaje nombra A MEDIAS faltante
+PASS  mensaje nombra PENDIENTE faltante
+PASS  reporte completo: no bloquea
+PASS  plan todo HECHO sin reporte: no bloquea
+PASS  plan ilegible: no bloquea
+PASS  contador de bloqueos incrementa
+PASS  supera el tope tras MAX_BLOQUEOS
+PASS  limpiar sesion reinicia el contador
+
+report_gate self-test: 14 PASS, 0 FAIL
+rc=0
