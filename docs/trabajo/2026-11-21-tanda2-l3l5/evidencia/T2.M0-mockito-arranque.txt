@@ -1,0 +1,59 @@
+# T2.M0 — Causa raíz del intermitente grupos · AdmisionDelGrupoSustitucionTest (2026-11-21)
+# Máquina: contenedor de la nube, 4 CPU, JDK 21, Mockito 5.17.0. Base: origin/dev 50cf3be9.
+
+## 1. Antecedentes (repo)
+docs/trabajo/2026-10-30-arenas-e-inicio-75/REPORTE.md:101  armar() timed out after 5 seconds
+docs/trabajo/2026-10-25-checks-diseno-flutter/evidencia/02-ci-run-40151865521.txt:57  mismo síntoma en dev 4b6800e6
+docs/trabajo/2026-10-29-cerrar-boveda-dev/REPORTE.md:23  clasificado ENVIRONMENT sin causa demostrada
+
+## 2. Orden de clases en la JVM del corredor `test` (timestamps del XML)
+... clientes.PrimerAportePorHttpTest 15:03:54.406  (ninguna clase anterior usa Mockito)
+web.AdmisionDelGrupoSustitucionTest   15:03:56.012  <- PRIMERA clase que llama mock()
+web.EtapaMinimaAdmisionTest, web.SorteoDelGrupoTest (también mockean, después)
+$ grep -ln "mock(\|@Mock\|Mockito" (clases del corredor unitario) -> solo las 3 de web/
+
+## 3. Sin carga: el primer caso paga el arranque, los siguientes no
+entranteHabilitadoDelegaYDevuelveElRegistro()  time="1.682"
+entranteNoHabilitadoSeRechazaSinTocarElGrupo()  time="0.013"
+siElServicioDeHabilitacionFallaNoSeSustituyeNiSeTragaElError()  time="0.013"
+system-err: "Mockito is currently self-attaching to enable the inline-mock-maker ..."
+            "WARNING: A Java agent has been loaded dynamically (.../byte-buddy-agent-1.17.8.jar)"
+
+## 4. Reproducción del fallo de CI (sin cambios de código), CPU repartida: 1 núcleo + 3 procesos ocupados
+$ for i in 1 2 3; do taskset -c 0 sh -c 'while :; do :; done' & done
+$ taskset -c 0 ./gradlew --no-daemon :servicios:grupos:test --tests '*AdmisionDelGrupoSustitucionTest' --rerun
+exit=1
+entranteHabilitadoDelegaYDevuelveElRegistro()  time="7.337"
+<failure message="java.util.concurrent.TimeoutException: armar() timed out after 5 seconds"
+
+## 5. Descomposición del costo (prueba de diagnóstico temporal, borrada; Mockito ya como -javaagent)
+DIAG mock(Runnable) interfaz JDK                 706 ms   | 802 ms   <- arranque único, independiente del tipo
+DIAG mock(ArrayList) clase JDK                   278 ms   | 303 ms
+DIAG mock(CU68AceptarIngreso)                    129 ms   | 113 ms
+DIAG mock(SustituirAdministrador)                 36 ms   |  34 ms
+DIAG mock(HechosDeOtrosServicios)                 72 ms   | 103 ms
+DIAG mock(Consultas)                              64 ms   |  87 ms
+DIAG new AdmisionDelGrupo / ContextoSesion / DTO  0-2 ms
+Solo -javaagent (sin el listener): primer caso 1.33 s (antes 1.68): el attach era ~0,15-0,35 s; el resto es el
+arranque de ByteBuddy/Objenesis, CPU pura, que con la CPU repartida x4 supera 5 s.
+
+CAUSA: un costo de inicialización ÚNICO por JVM (attach dinámico + arranque del mock maker inline, ~1 s de CPU)
+se cobraba dentro del @BeforeEach cronometrado (junit.jupiter.execution.timeout.default=5s) de la primera clase
+que mockea. Por el orden de clases de `grupos`, esa es siempre AdmisionDelGrupoSustitucionTest. Explica todos
+los síntomas: siempre la misma clase, siempre armar(), siempre el primer caso, solo en CI con carga, pasa solo.
+
+## 6. Después de la corrección (misma carga, 3 corridas)
+corrida 1 exit=0  entranteHabilitadoDelegaYDevuelveElRegistro() time="3.021"  (resto 0.058 / 0.02)
+corrida 2 exit=0  entranteHabilitadoDelegaYDevuelveElRegistro() time="2.623"  (resto 0.064 / 0.037)
+corrida 3 exit=0  entranteHabilitadoDelegaYDevuelveElRegistro() time="3.314"  (resto 0.094 / 0.055)
+grep -c "self-attaching" -> 0
+
+## 7. Regresión del servicio (sin carga)
+$ ./gradlew :servicios:grupos:spotlessApply :servicios:grupos:test :servicios:grupos:webTest --rerun
+exit=0
+test: 18 clases, 114 casos, 0 fallos
+webTest: 29 clases, 173 casos, 0 fallos
+
+No cubierto: el resto de los servicios sigue con el auto-attach (mismo riesgo latente); el arreglo general va en
+buildSrc/aportaya.base.gradle.kts y plataforma/comun-pruebas (fuera de este lote). Margen residual bajo la carga
+extrema simulada: 3,3 s de 5 s (lo que queda es trabajo propio de la clase: mockear 4 tipos del proyecto).
