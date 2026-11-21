@@ -1,0 +1,56 @@
+# T2.M1 — Causa raíz del intermitente inversiones · AliadoSimuladoFlujosContratoTest (2026-11-21)
+
+Síntoma en CI (#420, job 136889677750): fondoDePuntaAPunta -> java.io.IOException: HTTP/1.1 header parser received no bytes
+  en ServidorDelAliadoSimulado.control(ServidorDelAliadoSimulado.java:119).
+
+## Diagnóstico (prueba temporal ZzDiagnosticoAliadoContratoTest, borrada): el mismo ciclo del arnés
+(puerto efímero -> arranque -> /health -> 3 x POST /control/valor-cuota con el HttpClient estático), @RepeatedTest(60).
+
+| Condición (1 núcleo + 3 procesos ocupados salvo la primera) | Fallos |
+|---|---|
+| Sin carga, código de origin/dev | 0 / 60 |
+| Con carga, código de origin/dev | 29 / 60 — «HTTP/1.1 header parser received no bytes» (i=0: 7, i=1: 15, i=2: 7) |
+| Con carga, (A) un HttpClient nuevo por petición (sin pool) | 0 / 60 |
+| Con carga, (B) servidor con protocol_version = HTTP/1.1, cliente compartido | 0 / 60 |
+
+servidor.log de cada servidor que falló: solo la línea de arranque, sin traceback -> no es una excepción del handler.
+Cada falla fue contra un servidor recién arrancado en un puerto nuevo -> no es reutilización de puerto.
+
+CAUSA: BaseHTTPRequestHandler responde HTTP/1.0 por defecto y cierra el socket tras cada respuesta sin enviar
+«Connection: close». El HttpClient de Java guarda la conexión en su pool; con la CPU cargada el cierre del servidor
+todavía no se procesó cuando el cliente la reutiliza para la petición siguiente (para i=0, la del /health de
+@BeforeEach), escribe la petición en un socket cerrado y lee EOF. (A) y (B) eliminan la falla por separado, y eso
+explica los síntomas: solo bajo carga, en cualquier petición después de la primera de cada conexión, y sin traza
+del lado servidor.
+
+CORRECCIÓN (B, de raíz): el simulador habla HTTP/1.1 como un aliado real (Content-Length siempre, cierre explícito
+solo al simular una respuesta perdida). Sirve también al adaptador AliadoSimuladoHttp en el entorno simulado.
+Sin reintentos ni timeouts tocados.
+
+## Después del arreglo
+$ python3 -m unittest herramientas.aliado_simulado.test_aliado -> Ran 27 tests ... OK
+$ taskset -c 0 ./gradlew --no-daemon :servicios:inversiones:contractTest --rerun (x3, con 3 procesos ocupados)
+corrida 1 exit=0
+  AliadoSimuladoContratoTest casos 6 fallos 0
+  AliadoSimuladoFlujosContratoTest casos 3 fallos 0
+  LibroPorHttpContratoTest casos 8 fallos 0
+  LibroPorHttpCredencialContratoTest casos 3 fallos 0
+  LibroPorHttpPactoContratoTest casos 3 fallos 0
+corrida 2 exit=0
+  AliadoSimuladoContratoTest casos 6 fallos 0
+  AliadoSimuladoFlujosContratoTest casos 3 fallos 0
+  LibroPorHttpContratoTest casos 8 fallos 0
+  LibroPorHttpCredencialContratoTest casos 3 fallos 0
+  LibroPorHttpPactoContratoTest casos 3 fallos 0
+corrida 3 exit=0
+  AliadoSimuladoContratoTest casos 6 fallos 0
+  AliadoSimuladoFlujosContratoTest casos 3 fallos 0
+  LibroPorHttpContratoTest casos 8 fallos 0
+  LibroPorHttpCredencialContratoTest casos 3 fallos 0
+  LibroPorHttpPactoContratoTest casos 3 fallos 0
+$ ./gradlew :servicios:inversiones:spotlessCheck test webTest testBarrido --rerun -> exit=0
+test: 36 casos, 0 fallos
+webTest: 33 casos, 0 fallos
+testBarrido: 2 casos, 0 fallos
+
+No cubierto: otros simuladores Python del repo con el mismo BaseHTTPRequestHandler (no encontrados con grep de aliado_simulado; no se barrieron otros).

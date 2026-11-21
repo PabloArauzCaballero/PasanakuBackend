@@ -59,6 +59,11 @@ final class FixturaDeAportes {
      * @param diasHastaVencer negativo para que ya este vencida
      */
     Obligacion obligacion(UUID usuarioId, String monto, int diasHastaVencer) {
+        return obligacion(usuarioId, monto, diasHastaVencer, "BOB");
+    }
+
+    /** F1.L1.M12 · la misma obligacion en otra moneda (USD), para probar que nada fija BOB. */
+    Obligacion obligacion(UUID usuarioId, String monto, int diasHastaVencer, String moneda) {
         UUID grupo = grupo();
         UUID participante = UUID.randomUUID();
         dsl.execute(
@@ -103,7 +108,7 @@ final class FixturaDeAportes {
                     (id, grupo_id, periodo_id, cupo_id, participante_id, tipo, monto_esperado,
                      moneda, monto_pagado, monto_recargo, monto_condonado, monto_cubierto_garantia,
                      estado, fecha_vencimiento, fecha_fin_gracia, dias_mora, version)
-                VALUES (?, ?, ?, ?, ?, 'APORTE_PERIODICO', ?, 'BOB', 0, 0, 0, 0,
+                VALUES (?, ?, ?, ?, ?, 'APORTE_PERIODICO', ?, ?, 0, 0, 0, 0,
                         'PENDIENTE', current_date + ?, current_date + ?, 0, 0)
                 """,
                 obligacion,
@@ -112,6 +117,7 @@ final class FixturaDeAportes {
                 cupo,
                 participante,
                 new BigDecimal(monto),
+                moneda,
                 diasHastaVencer,
                 diasHastaVencer);
         return new Obligacion(obligacion, grupo, participante);
@@ -218,15 +224,18 @@ final class FixturaDeAportes {
     }
 
     void limpiar() {
+        dsl.deleteFrom(org.jooq.impl.DSL.table(org.jooq.impl.DSL.name("aportes", "disputa_pago")))
+                .execute();
+        // F1.L1.M08 · R-BIL-30: pago, reembolso y sus historiales son append-only y no se dejan borrar.
+        // Limpiar la base DE PRUEBA exige saltearse esa barrera, solo aca y como superusuario (replica
+        // desactiva los triggers dentro de esta unica sentencia), igual que FixturaDeOrganizador.
+        dsl.execute(
+                """
+                DO $$ BEGIN SET LOCAL session_replication_role = replica;
+                  DELETE FROM aportes.historial_estado_reembolso; DELETE FROM aportes.historial_estado_pago;
+                  DELETE FROM aportes.reembolso; DELETE FROM aportes.pago; END $$""");
         for (String tabla : new String[] {
-            "disputa_pago",
-            "reembolso",
-            "pago",
-            "obligacion_aporte",
-            "politica_mora",
-            "proveedor_pago",
-            "evento_dominio",
-            "evento_consumido"
+            "obligacion_aporte", "politica_mora", "proveedor_pago", "evento_dominio", "evento_consumido"
         }) {
             dsl.deleteFrom(org.jooq.impl.DSL.table(org.jooq.impl.DSL.name("aportes", tabla)))
                     .execute();

@@ -1,0 +1,30 @@
+# F1.L3.M04 — El retiro de un grupo lo pide solo su titular (2026-11-21)
+
+## Relocalización en origin/dev 50cf3be9
+GruposController.solicitarRetiro: cu65.solicitar(MapeoDeGrupos.entradaDeRetiro(cuerpo, afuera.estadoDePagos(cuerpo.getParticipanteId()), ...))
+-> el participante salía del cuerpo y el grupoId de la ruta no se usaba. Hallazgo vigente.
+
+## Prueba dirigida con el código CORREGIDO
+$ ./gradlew :servicios:grupos:webTest --tests '*GruposRetiroWebTest' --rerun   -> exit=0, 6 casos, 0 fallos
+Correcto · el titular se retira sin mandar identidad: el participante sale del token
+Límite · el campo deprecado con su propio participante se acepta (clientes viejos)
+Inválido · el creador pidiendo el retiro de OTRO integrante recibe 403 y no se crea nada
+Inválido · otro usuario, que no participa de ese grupo, recibe 403
+Inválido · rol insuficiente recibe 403
+Inválido · sin token recibe 401
+
+## Contraexperimento: la MISMA prueba contra el controlador y el contrato de origin/dev
+$ ./gradlew :servicios:grupos:webTest --tests '*GruposRetiroWebTest' --rerun   -> exit=1
+Correcto · ...                         Status expected:<201> but was:<400>   (el contrato viejo exigía participanteId)
+Inválido · otro usuario ... 403        Status expected:<403> but was:<400>
+Inválido · OTRO integrante ... 403     Status expected:<403> but was:<500>   (el caso de uso SE INVOCÓ con el ajeno)
+
+## Regresión del servicio
+$ ./gradlew :servicios:grupos:spotlessCheck :servicios:grupos:test :servicios:grupos:webTest --rerun -> exit=0
+test: 114 casos, 0 fallos · webTest: 179 casos, 0 fallos
+$ ./gradlew :servicios:grupos:spotlessApply :servicios:grupos:webTest :servicios:grupos:testBarrido --rerun -> exit=0
+testBarrido: 2 casos, 0 fallos (tope de 300 líneas: GruposController 294)
+$ python3 scripts/verificar_seguridad.py -> TODO OK · 7 aviso(s) (exit 0)
+
+No cubierto: la base no impide el retiro ajeno (sin titular en solicitud_retiro ni RLS propia); integración
+con RLS activa requiere Docker.

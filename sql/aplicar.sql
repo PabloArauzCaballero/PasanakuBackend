@@ -88,6 +88,8 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/03_aportes_pagos_qr/comprobante_manual.sql
 \ir 10_tablas/03_aportes_pagos_qr/constancia_pago.sql
 \ir 10_tablas/03_aportes_pagos_qr/reembolso.sql
+\ir 10_tablas/03_aportes_pagos_qr/historial_estado_pago.sql
+\ir 10_tablas/03_aportes_pagos_qr/historial_estado_reembolso.sql
 \ir 10_tablas/03_aportes_pagos_qr/disputa_pago.sql
 \ir 10_tablas/03_aportes_pagos_qr/extracto_bancario.sql
 \ir 10_tablas/03_aportes_pagos_qr/movimiento_bancario.sql
@@ -236,6 +238,7 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/10_billetera_custodia/movimiento_billetera.sql
 \ir 10_tablas/10_billetera_custodia/retencion_saldo.sql
 \ir 10_tablas/10_billetera_custodia/reverso_transaccion.sql
+\ir 10_tablas/10_billetera_custodia/solicitud_reverso.sql
 \ir 10_tablas/10_billetera_custodia/instrumento_fondeo.sql
 \ir 10_tablas/10_billetera_custodia/evidencia_mfa_consumida.sql
 \ir 10_tablas/10_billetera_custodia/orden_recarga.sql

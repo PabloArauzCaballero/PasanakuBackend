@@ -24,7 +24,7 @@ append_only: false
 | `id` | UUID | PK | no | PK |
 | `obligacion_id` | UUID | FK IDX | no | FK, IDX |
 | `proveedor_id` | UUID | FK | no | FK |
-| `monto_exacto` | DECIMAL(14,2) | — | no | — |
+| `monto_exacto` | DECIMAL(14,2) | — | no | CK: >= 0 |
 | `moneda` | CHAR(3) | — | no | — |
 | `permite_monto_abierto` | BOOLEAN | — | no | — |
 | `referencia_unica` | VARCHAR(60) | UQ | no | UQ |

@@ -56,7 +56,8 @@ public class IndicadoresDeAportesRepositorio {
                 """
                 SELECT COALESCE(SUM(p.monto), 0), count(*)
                   FROM aportes.pago p JOIN aportes.obligacion_aporte o ON o.id = p.obligacion_id
-                 WHERE p.estado = 'ACREDITADO' AND p.moneda = ? AND o.tipo = 'APORTE_PERIODICO'
+                 WHERE COALESCE((SELECT h.estado_nuevo FROM aportes.historial_estado_pago h WHERE h.pago_id = p.id
+                                  ORDER BY h.fecha_hora DESC, h.id DESC LIMIT 1), p.estado) = 'ACREDITADO' AND p.moneda = ? AND o.tipo = 'APORTE_PERIODICO'
                    AND (COALESCE(p.fecha_hora_acreditacion, p.fecha_hora_pago) AT TIME ZONE 'America/La_Paz')::date
                        BETWEEN ? AND ?
                    AND (COALESCE(p.fecha_hora_acreditacion, p.fecha_hora_pago) AT TIME ZONE 'America/La_Paz')::date
@@ -75,7 +76,8 @@ public class IndicadoresDeAportesRepositorio {
                             SELECT o.participante_id,
                                    min(COALESCE(p.fecha_hora_acreditacion, p.fecha_hora_pago)) AS primero
                               FROM aportes.pago p JOIN aportes.obligacion_aporte o ON o.id = p.obligacion_id
-                             WHERE p.estado = 'ACREDITADO' AND o.tipo = 'APORTE_PERIODICO'
+                             WHERE COALESCE((SELECT h.estado_nuevo FROM aportes.historial_estado_pago h WHERE h.pago_id = p.id
+                                  ORDER BY h.fecha_hora DESC, h.id DESC LIMIT 1), p.estado) = 'ACREDITADO' AND o.tipo = 'APORTE_PERIODICO'
                              GROUP BY o.participante_id) x
                          WHERE (x.primero AT TIME ZONE 'America/La_Paz')::date BETWEEN ? AND ?
                         """,

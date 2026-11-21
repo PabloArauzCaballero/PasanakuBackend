@@ -1,16 +1,19 @@
 -- reembolso · módulo 03 — Aportes, Pagos QR y Conciliación
 -- clase de dominio: Reembolso
+-- APPEND-ONLY: sin UPDATE ni DELETE (ver sql/40_reglas)
 -- Generado por scripts/generar_ddl.py — no editar a mano.
 
 CREATE TABLE IF NOT EXISTS aportes.reembolso (
   id                                 UUID DEFAULT gen_random_uuid() NOT NULL,
   pago_id                            UUID NOT NULL,
   monto                              NUMERIC(14,2) NOT NULL,
+  moneda                             CHAR(3),
   motivo                             VARCHAR(30) NOT NULL,
   estado                             VARCHAR(15) NOT NULL,
   referencia_proveedor               VARCHAR(80),
   solicitado_por                     UUID NOT NULL,
   aprobado_por                       UUID,
+  clave_idempotencia                 VARCHAR(100),
   fecha_solicitud                    TIMESTAMPTZ NOT NULL,
   fecha_ejecucion                    TIMESTAMPTZ,
   CONSTRAINT pk_reembolso PRIMARY KEY (id),
@@ -23,7 +26,7 @@ CREATE TABLE IF NOT EXISTS aportes.reembolso (
 ALTER TABLE aportes.reembolso DROP CONSTRAINT IF EXISTS ck_reembolso_monto;
 ALTER TABLE aportes.reembolso ADD CONSTRAINT ck_reembolso_monto CHECK (monto > 0);
 
-COMMENT ON TABLE aportes.reembolso IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. La devolución de un pago, total o parcial.';
+COMMENT ON TABLE aportes.reembolso IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. [append-only] La devolución de un pago, total o parcial.';
 COMMENT ON COLUMN aportes.reembolso.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN aportes.reembolso.pago_id IS 'FK, IDX';
 COMMENT ON COLUMN aportes.reembolso.monto IS 'CK: > 0';

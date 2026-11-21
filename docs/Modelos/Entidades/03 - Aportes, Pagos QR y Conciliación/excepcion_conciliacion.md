@@ -6,7 +6,7 @@ tabla: excepcion_conciliacion
 clase: ExcepcionConciliacion
 modulo: "03 — Aportes, Pagos QR y Conciliación"
 clave_primaria: [id]
-columnas: 10
+columnas: 11
 fk_salientes: 2
 fk_entrantes: 0
 append_only: false
@@ -25,11 +25,20 @@ append_only: false
 | `tipo` | VARCHAR(30) | — | no | CK |
 | `descripcion` | VARCHAR(300) | — | no | — |
 | `monto_diferencia` | DECIMAL(14,2) | — | no | — |
+| `moneda` | CHAR(3) | — | sí | NULL |
 | `estado` | VARCHAR(15) | IDX | no | CK, IDX |
 | `asignada_a` | UUID | FK | sí | FK, NULL |
 | `resolucion` | VARCHAR(300) | — | sí | NULL |
 | `abierta_en` | TIMESTAMPTZ | — | no | — |
 | `resuelta_en` | TIMESTAMPTZ | — | sí | NULL |
+
+## Reglas del catálogo
+
+> Declaradas en [[Restricciones]], no en el modelo. El nombre es el que devuelve la base al rechazar.
+
+| Regla | Tipo | Columnas |
+| --- | :-: | --- |
+| `ck_excepcion_conciliacion_moneda` | CHECK | `moneda` |
 
 ## Claves foráneas salientes
 

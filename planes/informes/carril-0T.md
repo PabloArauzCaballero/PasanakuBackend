@@ -346,7 +346,7 @@ bóveda, sin divergencias.
    BUILD SUCCESSFUL con 27 adentro.
 
    En la misma pasada se cerró la causa de fondo, que era más grande: `sql/aplicar.sql`
-   solo se podía aplicar una vez. 630 claves foráneas, 181 restricciones del catálogo,
+   solo se podía aplicar una vez. 630 claves foráneas, 182 restricciones del catálogo,
    46 disparadores, 45 índices y 2 políticas se emitían sin guarda, y las semillas de
    desarrollo duplicaban en las 113 tablas sin clave natural. Verificado con tres
    pasadas seguidas sobre base virgen: cero errores y los mismos conteos de filas las

@@ -34,12 +34,6 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     private CU22EntregarPozoCompleto cu22EntregarPozoCompleto;
 
     @MockitoBean
-    private MercadoWeb mercadoWeb;
-
-    @MockitoBean
-    private bo.aportaya.entregas.web.SubastasWeb subastasWeb;
-
-    @MockitoBean
     private CU28EmitirDesembolso cu28EmitirDesembolso;
 
     @MockitoBean

@@ -1,8 +1,6 @@
 package bo.aportaya.garantia.infraestructura;
 
-import bo.aportaya.garantia.dominio.TopeDelAval;
 import bo.aportaya.plataforma.dominio.Dinero;
-import bo.aportaya.plataforma.dominio.Moneda;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -12,126 +10,16 @@ import org.jooq.impl.DSL;
 import org.springframework.stereotype.Component;
 
 /**
- * El aval, la subrogacion, la lista de restriccion y el reemplazo.
+ * La lista de restriccion y el reemplazo.
  *
- * <p>Todo lo que pasa **despues** de que el fondo cubrio: quien responde, a quien se le
- * cobra, a quien se restringe y quien ocupa el lugar que quedo vacio. Como termina un
+ * <p>Lo que pasa **despues** de que el fondo cubrio: a quien se restringe y quien ocupa el lugar que quedo vacio.
+ * El aval entre participantes y su subrogacion al avalista se retiraron (P-03, F2.L2.M04): el fondo del grupo cubre
+ * esos casos (modelo A, F3.L2.M05). Como termina un
  * grupo que ya no puede seguir esta en {@link DisolucionRepositorio}, porque disolver
  * no es gestionar un incumplimiento: es cerrar el grupo entero.
  */
 @Component
 public class GestionRepositorio {
-
-    // ---------------------------------------------------------------- aval
-
-    public Optional<Aval> avalVigente(DSLContext dsl, UUID grupoId, UUID participanteAvaladoId) {
-        return dsl.select(
-                        DSL.field("id", UUID.class),
-                        DSL.field("avalista_usuario_id", UUID.class),
-                        DSL.field("monto_maximo_avalado", BigDecimal.class),
-                        DSL.field("porcentaje_responsabilidad", BigDecimal.class),
-                        DSL.field("estado", String.class))
-                .from(DSL.table(DSL.name("garantia", "aval_participante")))
-                .where(DSL.field("grupo_id", UUID.class)
-                        .eq(grupoId)
-                        .and(DSL.field("participante_avalado_id", UUID.class).eq(participanteAvaladoId))
-                        .and(DSL.field("estado", String.class).eq("VIGENTE")))
-                .fetchOptional(f -> new Aval(
-                        f.get("id", UUID.class),
-                        f.get("avalista_usuario_id", UUID.class),
-                        Dinero.de(f.get("monto_maximo_avalado", BigDecimal.class), Moneda.BOB),
-                        f.get("porcentaje_responsabilidad", BigDecimal.class),
-                        f.get("estado", String.class)));
-    }
-
-    /** Lo ya ejecutado de un aval: el tope se mide contra esto, no contra cero. */
-    public Dinero ejecutadoDe(DSLContext dsl, UUID avalId, Moneda moneda) {
-        BigDecimal suma = dsl.select(
-                        DSL.coalesce(DSL.sum(DSL.field("monto_ejecutado", BigDecimal.class)), BigDecimal.ZERO))
-                .from(DSL.table(DSL.name("garantia", "ejecucion_aval")))
-                .where(DSL.field("aval_id", UUID.class).eq(avalId))
-                .fetchOne(0, BigDecimal.class);
-        return Dinero.de(suma, moneda);
-    }
-
-    public TopeDelAval topeDe(DSLContext dsl, Aval aval, Moneda moneda) {
-        return new TopeDelAval(
-                aval.montoMaximoAvalado(), aval.porcentajeResponsabilidad(), ejecutadoDe(dsl, aval.id(), moneda));
-    }
-
-    public Optional<UUID> ejecucionDe(DSLContext dsl, UUID avalId, UUID registroId) {
-        return dsl.select(DSL.field("id", UUID.class))
-                .from(DSL.table(DSL.name("garantia", "ejecucion_aval")))
-                .where(DSL.field("aval_id", UUID.class)
-                        .eq(avalId)
-                        .and(DSL.field("registro_id", UUID.class).eq(registroId)))
-                .fetchOptional(f -> f.get("id", UUID.class));
-    }
-
-    public UUID ejecutarAval(
-            DSLContext dsl,
-            UUID avalId,
-            UUID registroId,
-            UUID deudaId,
-            Dinero monto,
-            OffsetDateTime notificada,
-            OffsetDateTime plazoRespuesta,
-            boolean generaDeudaDelAvalista) {
-
-        UUID id = UUID.randomUUID();
-        dsl.insertInto(DSL.table(DSL.name("garantia", "ejecucion_aval")))
-                .set(DSL.field("id", UUID.class), id)
-                .set(DSL.field("aval_id", UUID.class), avalId)
-                .set(DSL.field("registro_id", UUID.class), registroId)
-                .set(DSL.field("deuda_id", UUID.class), deudaId)
-                .set(DSL.field("monto_ejecutado", BigDecimal.class), monto.monto())
-                .set(DSL.field("estado", String.class), "NOTIFICADA")
-                .set(DSL.field("notificada_en", OffsetDateTime.class), notificada)
-                .set(DSL.field("plazo_respuesta", OffsetDateTime.class), plazoRespuesta)
-                .set(DSL.field("genera_deuda_del_avalista", Boolean.class), generaDeudaDelAvalista)
-                .execute();
-        return id;
-    }
-
-    /**
-     * La subrogacion: quien pago pasa a ser el acreedor.
-     *
-     * <p>Es lo que impide que el deudor se quede sin deber nada porque otro pago por
-     * el. La deuda no desaparece: cambia de acreedor.
-     */
-    public UUID subrogar(
-            DSLContext dsl,
-            UUID coberturaId,
-            UUID deudaId,
-            String acreedorOriginal,
-            String acreedorSubrogado,
-            Dinero monto,
-            OffsetDateTime ahora) {
-
-        UUID id = UUID.randomUUID();
-        dsl.insertInto(DSL.table(DSL.name("garantia", "subrogacion")))
-                .set(DSL.field("id", UUID.class), id)
-                .set(DSL.field("cobertura_id", UUID.class), coberturaId)
-                .set(DSL.field("deuda_id", UUID.class), deudaId)
-                .set(DSL.field("acreedor_original", String.class), acreedorOriginal)
-                .set(DSL.field("acreedor_subrogado", String.class), acreedorSubrogado)
-                .set(DSL.field("monto_subrogado", BigDecimal.class), monto.monto())
-                .set(DSL.field("fecha", OffsetDateTime.class), ahora)
-                .execute();
-        return id;
-    }
-
-    public boolean marcarDeudaSubrogada(DSLContext dsl, UUID deudaId, int versionLeida) {
-        return dsl.update(DSL.table(DSL.name("garantia", "deuda_participante")))
-                        .set(DSL.field("es_subrogada", Boolean.class), true)
-                        .set(DSL.field("version", Integer.class), versionLeida + 1)
-                        .where(DSL.field("id", UUID.class)
-                                .eq(deudaId)
-                                .and(DSL.field("version", Integer.class).eq(versionLeida))
-                                .and(DSL.field("es_subrogada", Boolean.class).isFalse()))
-                        .execute()
-                == 1;
-    }
 
     // --------------------------------------------------------- restriccion
 

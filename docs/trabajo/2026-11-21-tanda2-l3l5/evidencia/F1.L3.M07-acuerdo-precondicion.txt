@@ -1,0 +1,40 @@
+# F1.L3.M07 — Resolver un acuerdo con la precondición en la escritura (2026-11-21)
+
+## Relocalización en origin/dev
+AcuerdoRepositorio.resolver: UPDATE acuerdo SET estado=? ... WHERE id=? (sin condición de estado) -> vigente.
+AcuerdoRepositorio.marcarEjecutado: ya exige estado='APROBADO' en la escritura -> la mitad del consumo ya estaba corregida.
+
+## Carrera real: dos conexiones psql contra PostgreSQL 16 local (fila sintética, borrada al final)
+A: BEGIN; UPDATE ...; pg_sleep(2); COMMIT   ·   B arranca con A dentro de la transacción y espera el candado
+=== UPDATE de origin/dev (sin precondición): WHERE id = ?
+  [A] BEGIN;
+  [A] BEGIN
+  [A] UPDATE grupos.acuerdo SET estado='APROBADO', resuelto_en=now() WHERE id='c6300000-0000-4000-8000-0000000000aa' ;
+  [A] UPDATE 1
+  [A] COMMIT;
+  [A] COMMIT
+  [B] BEGIN
+  [B] UPDATE 1
+  [B] COMMIT
+=== UPDATE corregido: WHERE id = ? AND estado = 'ABIERTO'
+  [A] BEGIN;
+  [A] BEGIN
+  [A] UPDATE grupos.acuerdo SET estado='APROBADO', resuelto_en=now() WHERE id='c6300000-0000-4000-8000-0000000000aa' AND estado='ABIERTO';
+  [A] UPDATE 1
+  [A] COMMIT;
+  [A] COMMIT
+  [B] BEGIN
+  [B] UPDATE 0
+  [B] COMMIT
+
+## Caso de uso
+$ ./gradlew :servicios:grupos:test --tests '*ResolucionDeAcuerdoTest' --rerun -> exit=0, 3 casos, 0 fallos
+  Correcto · el voto que resuelve escribe APROBADO y emite un acuerdo_resuelto
+  Límite · otro voto lo resolvió entre la lectura y la escritura: no se emite un segundo evento
+  Inválido · un acuerdo ya EJECUTADO no se recomputa, no se reescribe ni se reemite
+
+## Regresión
+$ ./gradlew :servicios:grupos:spotlessCheck test webTest testBarrido --rerun -> exit=0
+test: 119 casos, 0 fallos · webTest: 179 casos, 0 fallos · testBarrido: 2 casos, 0 fallos
+
+No cubierto: prueba de concurrencia con dos hilos sobre el caso de uso completo y conteo en outbox = 1 contra Testcontainers (requiere Docker: ./gradlew :servicios:grupos:integrationTest --tests '*CU63*').

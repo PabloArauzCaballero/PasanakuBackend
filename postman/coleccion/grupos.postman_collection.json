@@ -1599,7 +1599,7 @@
             }
           ]
         },
-        "description": "## Solicitar el retiro y ver la posición exacta antes de confirmar\n\nEl numero se calcula y se MUESTRA ANTES de confirmar, con su desglose. Un retiro donde el monto aparece despues es un retiro que alguien va a discutir, y con razon.\nAcreedora sin reemplazo se liquida AL CIERRE DEL CICLO, no antes: sacar plata de la bolsa a mitad de camino perjudica a los que faltan cobrar.\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `solicitarRetiro` |\n| **Ruta** | `POST /api/v1/grupos/{grupoId}/retiros` |\n| **Permiso** | `PARTICIPANTE` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU65-01` | Participante no activo |\n| `AP-CU65-02` | Posicion deudora sin plan |\n| `AP-CU65-03` | Retiro rechazado por grupo |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Solicitar el retiro y ver la posición exacta antes de confirmar\n\nEl numero se calcula y se MUESTRA ANTES de confirmar, con su desglose. Un retiro donde el monto aparece despues es un retiro que alguien va a discutir, y con razon.\nAcreedora sin reemplazo se liquida AL CIERRE DEL CICLO, no antes: sacar plata de la bolsa a mitad de camino perjudica a los que faltan cobrar.\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `solicitarRetiro` |\n| **Ruta** | `POST /api/v1/grupos/{grupoId}/retiros` |\n| **Permiso** | `PARTICIPANTE` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422`, `403` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU65-01` | Participante no activo |\n| `AP-CU65-02` | Posicion deudora sin plan |\n| `AP-CU65-03` | Retiro rechazado por grupo |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"participanteId\": \"{{participanteId}}\",\n  \"motivo\": \"motivo-de-prueba\",\n  \"aceptaPlanDePago\": true\n}",
@@ -1618,7 +1618,7 @@
             "type": "text/javascript",
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
-              "const esperadas = [201, 422];",
+              "const esperadas = [201, 403, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",

@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS aportes.proveedor_pago (
   soporta_consulta_estado            BOOLEAN DEFAULT FALSE NOT NULL,
   activo                             BOOLEAN DEFAULT FALSE NOT NULL,
   prioridad                          SMALLINT NOT NULL,
+  clave_idempotencia                 VARCHAR(100),
   CONSTRAINT pk_proveedor_pago PRIMARY KEY (id),
   CONSTRAINT ck_proveedor_pago_tipo CHECK (tipo IN ('BANCO', 'BILLETERA', 'PASARELA'))
 );
