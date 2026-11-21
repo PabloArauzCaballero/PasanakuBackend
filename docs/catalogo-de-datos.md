@@ -4517,7 +4517,7 @@ La separación `saldoDisponible` / `saldoComprometido` es contabilidad prudente:
 
 **Por qué existe.** Sin fondo, la única respuesta al impago es que el beneficiario cobre menos. Con fondo, el grupo sigue funcionando y la deuda se persigue por separado.
 
-**Casos de uso que la nombran.** CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`) · CU-92 Evaluar el desempeño del organizador (`evaluarDesempeno`)
+**Casos de uso que la nombran.** CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`) · CU-92 Evaluar el desempeño del organizador (`evaluarDesempeno`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.grupo`, `nucleo_financiero.cuenta_contable`, `politica_cobertura`. La referencian `cobertura_incumplimiento`, `devolucion_fondo`, `movimiento_fondo`.
 
