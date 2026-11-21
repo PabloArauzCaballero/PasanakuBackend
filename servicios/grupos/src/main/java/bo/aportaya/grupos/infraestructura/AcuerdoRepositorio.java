@@ -130,15 +130,23 @@ public class AcuerdoRepositorio {
                         Sentido.valueOf(fila.get(VOTO_PARTICIPANTE.SENTIDO)), fila.get(VOTO_PARTICIPANTE.PESO)));
     }
 
-    public void resolver(DSLContext dsl, UUID acuerdoId, String estado, ComputoResumen resumen, OffsetDateTime ahora) {
-        dsl.update(ACUERDO)
-                .set(ACUERDO.ESTADO, estado)
-                .set(ACUERDO.VOTOS_A_FAVOR, resumen.aFavor())
-                .set(ACUERDO.VOTOS_EN_CONTRA, resumen.enContra())
-                .set(ACUERDO.ABSTENCIONES, resumen.abstenciones())
-                .set(ACUERDO.RESUELTO_EN, ahora)
-                .where(ACUERDO.ID.eq(acuerdoId))
-                .execute();
+    /**
+     * Resuelve el acuerdo solo si sigue {@code ABIERTO}: la precondicion va en la escritura (F1.L3.M07). Con dos
+     * votos decisivos a la vez, el segundo {@code UPDATE} espera el candado de la fila, reevalua el {@code WHERE}
+     * y no toca nada. Devuelve si esta llamada fue la que resolvio.
+     */
+    public boolean resolver(
+            DSLContext dsl, UUID acuerdoId, String estado, ComputoResumen resumen, OffsetDateTime ahora) {
+        return dsl.update(ACUERDO)
+                        .set(ACUERDO.ESTADO, estado)
+                        .set(ACUERDO.VOTOS_A_FAVOR, resumen.aFavor())
+                        .set(ACUERDO.VOTOS_EN_CONTRA, resumen.enContra())
+                        .set(ACUERDO.ABSTENCIONES, resumen.abstenciones())
+                        .set(ACUERDO.RESUELTO_EN, ahora)
+                        .where(ACUERDO.ID.eq(acuerdoId))
+                        .and(ACUERDO.ESTADO.eq("ABIERTO"))
+                        .execute()
+                == 1;
     }
 
     /** El acuerdo ya produjo su efecto: no vuelve a autorizar nada. */
