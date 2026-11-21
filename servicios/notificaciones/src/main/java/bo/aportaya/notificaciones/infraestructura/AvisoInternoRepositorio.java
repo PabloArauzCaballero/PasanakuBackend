@@ -51,17 +51,20 @@ public class AvisoInternoRepositorio {
                 dsl.selectFrom(AVISO_INTERNO).where(AVISO_INTERNO.ID.eq(id)).fetchOne());
     }
 
-    public Optional<AvisoInternoRecord> marcarLeido(DSLContext dsl, UUID id, OffsetDateTime ahora) {
-        AvisoInternoRecord record =
-                dsl.selectFrom(AVISO_INTERNO).where(AVISO_INTERNO.ID.eq(id)).fetchOne();
-        if (record == null) {
-            return Optional.empty();
-        }
-        if (record.getLeidoEn() == null) {
-            record.setLeidoEn(ahora);
-            record.store();
-        }
-        return Optional.of(record);
+    /**
+     * Marca leido un aviso SOLO si es de quien llama (por usuario o por uno de sus roles). F1.L5.M26: antes se buscaba
+     * por id sin mirar el destinatario y un operador marcaba —y leia— el aviso de otro (BOLA). La condicion va en la
+     * escritura y en la lectura: un aviso ajeno es indistinguible de uno que no existe (404).
+     */
+    public Optional<AvisoInternoRecord> marcarLeido(
+            DSLContext dsl, UUID id, UUID usuarioId, Collection<String> roles, OffsetDateTime ahora) {
+        Condition suyo = AVISO_INTERNO.ID.eq(id).and(condicionDestinatario(usuarioId, roles));
+        dsl.update(AVISO_INTERNO)
+                .set(AVISO_INTERNO.LEIDO_EN, ahora)
+                .where(suyo)
+                .and(AVISO_INTERNO.LEIDO_EN.isNull())
+                .execute();
+        return Optional.ofNullable(dsl.selectFrom(AVISO_INTERNO).where(suyo).fetchOne());
     }
 
     public int marcarTodosLeidos(DSLContext dsl, UUID usuarioId, Collection<String> roles, OffsetDateTime ahora) {

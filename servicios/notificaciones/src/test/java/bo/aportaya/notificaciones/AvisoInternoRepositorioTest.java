@@ -95,10 +95,12 @@ class AvisoInternoRepositorioTest extends BaseDeNotificaciones {
         AvisoInterno aviso = emitir(operador, null, "Leeme");
         emitir(operador, null, "Sigo sin leer");
 
-        AvisoInterno primera =
-                transaccion.execute(s -> avisos.marcarLeido(aviso.getId(), ctx)).orElseThrow();
-        AvisoInterno segunda =
-                transaccion.execute(s -> avisos.marcarLeido(aviso.getId(), ctx)).orElseThrow();
+        AvisoInterno primera = transaccion
+                .execute(s -> avisos.marcarLeido(aviso.getId(), Set.of(), ctx))
+                .orElseThrow();
+        AvisoInterno segunda = transaccion
+                .execute(s -> avisos.marcarLeido(aviso.getId(), Set.of(), ctx))
+                .orElseThrow();
 
         assertThat(primera.getLeidoEn()).isNotNull();
         assertThat(segunda.getLeidoEn()).isEqualTo(primera.getLeidoEn());
@@ -110,8 +112,34 @@ class AvisoInternoRepositorioTest extends BaseDeNotificaciones {
     @Test
     @DisplayName("rechaza · marcar leido un aviso que no existe devuelve vacio")
     void marcarLeidoInexistente() {
-        Optional<AvisoInterno> ninguno = transaccion.execute(s -> avisos.marcarLeido(UUID.randomUUID(), ctx));
+        Optional<AvisoInterno> ninguno = transaccion.execute(s -> avisos.marcarLeido(UUID.randomUUID(), Set.of(), ctx));
         assertThat(ninguno).isEmpty();
+    }
+
+    @Test
+    @DisplayName("F1.L5.M26 · el operador B no marca ni lee el aviso de A: vacio (404), y el aviso de A sigue sin leer")
+    void otroOperadorNoMarcaElAvisoAjeno() {
+        AvisoInterno deA = emitir(operador, null, "Solo para A");
+        UUID operadorB = fixtura.usuario();
+
+        Optional<AvisoInterno> deB =
+                transaccion.execute(s -> avisos.marcarLeido(deA.getId(), Set.of("OTRO_ROL"), contextoDe(operadorB)));
+
+        assertThat(deB).isEmpty();
+        assertThat(consultar(operador, Set.of(), true).getElementos())
+                .extracting(AvisoInterno::getTitulo)
+                .containsExactly("Solo para A");
+    }
+
+    @Test
+    @DisplayName("F1.L5.M26 · el aviso dirigido a un ROL lo marca quien tiene ese rol")
+    void elRolDestinatarioLoMarca() {
+        AvisoInterno delRol = emitir(null, rol, "Para el rol");
+        UUID operadorDelRol = fixtura.usuario();
+
+        Optional<AvisoInterno> marcado =
+                transaccion.execute(s -> avisos.marcarLeido(delRol.getId(), Set.of(rol), contextoDe(operadorDelRol)));
+        assertThat(marcado).isPresent();
     }
 
     @Test
