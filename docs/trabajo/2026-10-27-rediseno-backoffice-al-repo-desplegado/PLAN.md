@@ -28,7 +28,7 @@
 ### H1.S2 — Entrega
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H1.S2.M1 | PR a `dev` en PasanakuBackend | PR abierto y mergeado | URL del PR + `merged:true` | EN CURSO |
+| H1.S2.M1 | PR a `dev` en PasanakuBackend | PR abierto y mergeado | URL del PR + `merged:true` | DESCARTADO — reemplazadas por el plan de correcciones del 2026-11-21 (decisión P-20 de Pablo, `docs/trabajo/2026-11-20-auditoria-consolidado/DECISIONES.md`). Antes estaba abierta sin cerrar. |
 | H1.S2.M2 | PR `dev` → `test` | PR mergeado | URL del PR + `merged:true` | TODO |
 | H1.S2.M3 | Verificación en el despliegue | menú nuevo visible | captura del backoffice de test tras redeploy | TODO |
 

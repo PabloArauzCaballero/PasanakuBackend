@@ -15,13 +15,14 @@ fecha: 2026-11-21
 > La empresa **nunca** pone plata por quien no paga. El faltante lo cubre un **fondo del grupo**, formado con
 > un aporte chico de cada participante, en una cuenta segregada que nunca es de la empresa. Quien no paga queda
 > debiéndole al fondo; al cierre del ciclo cada uno recupera su aporte menos su parte de lo incobrable. La
-> puntualidad da beneficios concretos: turnos tempranos, menos aporte al fondo y la parte de los recargos.
+> puntualidad da beneficios concretos: turnos tempranos y menos aporte al fondo; el recargo de quien se atrasa
+> vuelve al fondo (o a quien tuvo que esperar) y nunca a la empresa.
 > Reemplaza a [[ADR-051 Garantía del pozo, comisión y autogestión|ADR-051]].
 
 > **Constancia de aceptación (veraz).** Redactado el 2026-11-21 a partir de las decisiones de Pablo, dueño
 > del producto, en [`DECISIONES.md`](../trabajo/2026-11-20-auditoria-consolidado/DECISIONES.md): P-01/P-02
 > (modelo A + D), P-03, P-04, P-05, P-17, la fila «Parámetros financieros», «Ingreso de la empresa» y las tandas
-> 5, 6 y 7. **No agrega reglas de negocio.** Lo que DECISIONES no resuelve queda como `DECISION_REQUIRED`.
+> 5, 6, 7 y 9. **No agrega reglas de negocio.** Lo que DECISIONES no resuelve queda como `DECISION_REQUIRED`.
 > **Pendiente de la aprobación de Pablo en el PR**, del contador (nombres y naturaleza de las cuentas) y de
 > Cumplimiento (preguntas L-01, L-02 y L-03 de
 > [`PREGUNTAS-LEGALES.md`](../trabajo/2026-11-21-plan-correcciones/PREGUNTAS-LEGALES.md)). **No habilita dinero
@@ -41,7 +42,8 @@ Además, varias piezas que ADR-051 dejaba vivas contradicen las decisiones nueva
 - el **aval entre participantes** (`CU26EjecutarAval`) — P-03 lo elimina;
 - el **fondo mutual heredado** (`CU23CubrirIncumplimiento`, canal `FONDO_GARANTIA`, `politica_cobertura`), que
   ADR-051 D-15 dejó como legado sin asiento propio — lo reemplaza el modelo A;
-- el **recargo por mora que va a la reserva de respaldo** (cuentas 9.x) — P-05 lo manda al perjudicado;
+- el **recargo por mora que va a la reserva de respaldo** (cuentas 9.x) — P-05 y la tanda 9 lo mandan al fondo del
+  grupo o a quien tuvo que esperar;
 - la **comisión** sin forma decidida — tanda 7: porcentaje único sobre la cuota, en el mismo QR.
 
 ## Decisión
@@ -54,10 +56,10 @@ Además, varias piezas que ADR-051 dejaba vivas contradicen las decisiones nueva
 | A2 | El fondo es **del grupo**, en una **cuenta segregada** que nunca es de la empresa. Su saldo se lee **del mayor** | P-01/P-02, regla 91.1.5 |
 | A3 | Al vencer el plazo de gracia, el fondo **cubre automáticamente** la cuota impaga, idempotente por obligación y con límite igual al saldo del fondo verificado dentro de la transacción. Sin saldo, no se cubre y la entrega espera con el motivo visible | P-01/P-02, plan H3.S3.M2 |
 | A4 | **Subrogación:** quien no pagó queda debiéndole al fondo. Lo que paga después se imputa **primero** a esa deuda; lo recuperado vuelve al fondo | P-01/P-02, plan F3.S1.M6 |
-| A5 | **Cierre del ciclo:** a cada participante se le devuelve lo que aportó al fondo. La deuda que no se pudo recuperar se descuenta de esa devolución **en partes iguales**. Cada devolución es un desembolso a cuenta verificada (ADR-055 E8) | P-01/P-02 |
+| A5 | **Cierre del ciclo:** a cada participante se le devuelve lo que aportó al fondo. La deuda que no se pudo recuperar **se compensa primero con lo que el fondo le iba a devolver al propio moroso**; el resto se descuenta **en partes iguales solo entre los que cumplieron**. **El moroso no recibe devolución mientras deba.** Cada devolución es un desembolso a cuenta verificada (ADR-055 E8) | P-01/P-02, tanda 9 «Lo incobrable al cierre» |
 | A6 | El castigo de lo incobrable al cierre **no borra la deuda** del moroso | Plan H3.S3 (diseño de cuentas) |
 | A7 | **Retiro sin haber cobrado:** se le devuelve lo aportado (cuotas y aporte al fondo) al final del ciclo; su cupo lo puede tomar un reemplazo invitado | Tanda 7 D-L3-3 |
-| A8 | **Reemplazo** por invitación votado por el grupo y **disolución** votada, con liquidación calculada desde el mayor | Tanda 7 D-L2-2 |
+| A8 | **Reemplazo** por invitación votado por el grupo y **disolución** votada, con liquidación calculada desde el mayor. Además, **disolución automática** si el fondo se agota y la mora supera un umbral (parámetro), con la misma liquidación (ADR-055 E14) | Tanda 7 D-L2-2, tanda 9 |
 | A9 | Sin aval entre participantes, sin subasta ni cesión de turno, sin permuta y sin condonación por voto (lo incobrable se reparte según A5) | P-03, tanda 7 D-L2-1/D-L3-1/D-L3-2 |
 | A10 | La empresa **no cubre, no adelanta y no es acreedora** del moroso. No existen cuentas de respaldo ni de caja de la empresa en el circuito del grupo | P-04 |
 
@@ -71,7 +73,8 @@ del plan de cuentas; se transcribe del plan de correcciones, H3.S3):
 | Nace la deuda del moroso | Cuenta por cobrar al moroso (a favor del fondo) | Fondo del grupo: cobertura por recuperar |
 | El moroso paga su deuda | Caja custodia | Cuenta por cobrar al moroso |
 | Devolución al cierre | Fondo del grupo | Caja custodia → desembolso a cada participante |
-| Incobrable al cierre | Fondo del grupo (reparto en partes iguales) | Cuenta por cobrar al moroso (castigo, que no borra la deuda) |
+| Compensación con la devolución del moroso (tanda 9) | Fondo del grupo (aporte del moroso) | Cuenta por cobrar al moroso |
+| Incobrable al cierre | Fondo del grupo (reparto en partes iguales entre los que cumplieron) | Cuenta por cobrar al moroso (castigo, que no borra la deuda) |
 
 Todo asiento cumple la regla 91: importes en decimal exacto con su moneda ISO 4217, `CHECK monto >= 0`,
 cuadre por asiento garantizado en la base, mayor *append-only* y `clave_idempotencia` con índice `UNIQUE`.
@@ -84,16 +87,16 @@ Ningún asiento del fondo toca cuentas de la empresa.
 | D1 | La **calificación** se calcula **solo con hechos**: pagos confirmados por QR y su fecha, ciclos completos y expedientes firmes. No hay calificaciones entre personas. Dos personas con los mismos hechos tienen la misma calificación, y un error se puede reclamar | Tanda 5 «Calificación y gamificación» |
 | D2 | **Niveles** con beneficios concretos: porcentaje menor de aporte al fondo y prioridad de turno. Nombres y umbrales son parámetros. En el primer ciclo todos empiezan en el nivel inicial («Semilla») | Tanda 5 |
 | D3 | **Orden de turnos por nivel:** los niveles más altos eligen primero; dentro del mismo nivel, sorteo verificable con compromiso y revelación. En el primer ciclo, como todos están en el nivel inicial, el orden sale entero del sorteo | Tanda 5 «Orden de turnos» |
-| D4 | Rachas (recuperables por debido proceso), insignias y el logro de grupo «Grupo perfecto» | Tanda 5 |
+| D4 | Rachas (recuperables por debido proceso), insignias y el logro de grupo **«Grupo perfecto»**: el fondo se devuelve igual al cierre y, si el mismo grupo arma otro ciclo, **aporta un porcentaje menor al fondo** y todos suben de nivel juntos | Tanda 5, tanda 9 |
 | D5 | La **reputación negativa solo nace de un expediente** `FIRME` (regla 91.4), nunca de un cálculo automático | Tanda 5, regla 91.4 |
 | D6 | Se construye sobre el servicio `transparencia` existente | Tanda 5 |
 
-### 3. Recargo por mora — va al perjudicado
+### 3. Recargo por mora — va al fondo o a quien esperó
 
 | # | Regla | Origen |
 |---|---|---|
 | R1 | El recargo se calcula **automáticamente** al vencer el plazo de gracia, con tasa y tope parametrizados | Tanda 7 AMB-L1-1 |
-| R2 | Se acredita **al perjudicado** (quien tuvo que esperar), **nunca** a la empresa ni al fondo | P-05 |
+| R2 | El perjudicado es **el fondo del grupo**: si el fondo cubrió la cuota, el recargo **vuelve al fondo** y se devuelve a todos al cierre. Si alguien tuvo que esperar porque el fondo no alcanzó, el recargo va **a quien esperó**. **Nunca** a la empresa | P-05, tanda 9 «Quién es el perjudicado» |
 | R3 | Es **anulable**: si el descargo prospera, se revierte con un **contra-asiento**. La sanción y la reputación sí esperan al expediente firme | Tanda 7 AMB-L1-1, regla 91.1.3 |
 
 ### 4. Redondeo
@@ -135,7 +138,7 @@ pierde ni se crea un centavo (tanda 7 D-L2-3, regla 91.6.5).
 - **La empresa no asume riesgo de crédito ni custodia**: no necesita capital inmovilizado por grupo, no es
   acreedora de nadie y la regla 91.5 («el organizador no es caja») se extiende a la propia empresa.
 - **La puntualidad tiene un precio positivo**, no solo un castigo: quien paga a tiempo aporta menos al fondo,
-  elige turno antes y cobra el recargo cuando otro lo hace esperar.
+  elige turno antes, y el recargo de quien se atrasa vuelve al fondo que todos recuperan, o a quien tuvo que esperar.
 - **Una sola fuente de verdad:** el saldo del fondo, la deuda del moroso y las devoluciones salen del mayor, no de
   sumas ad hoc (regla 91.1.5).
 
@@ -148,7 +151,7 @@ pierde ni se crea un centavo (tanda 7 D-L2-3, regla 91.6.5).
 | B — turno con precio | Descartada por ahora (P-01/P-02) |
 | C — colchón propio de cada participante | Descartada por ahora (P-01/P-02) |
 | E — fondo que rinde | Descartada por ahora (P-01/P-02). Si el banco paga intereses, no se reparten; su destino es `DECISION_REQUIRED` (ADR-058, PX-3) |
-| Recargo para la empresa o para el fondo | P-05: va al perjudicado |
+| Recargo para la empresa | P-05 y tanda 9: va al fondo del grupo o a quien esperó |
 | Comisión fija en bolivianos o con descuentos | Tanda 7: porcentaje único; P-17: sin descuentos |
 | Parámetros con valor por defecto en el código | Regla 97.5.4 y decisión «Parámetros financieros» |
 
@@ -176,14 +179,17 @@ pierde ni se crea un centavo (tanda 7 D-L2-3, regla 91.6.5).
 
 ### Consecuencias financieras (ejemplo sintético)
 
-Grupo de 10, cuota Bs 500, aporte al fondo del 2 % (porcentaje ilustrativo, **no** es un parámetro propuesto):
-cada participante aporta Bs 10 por periodo al fondo. Un participante deja de pagar dos cuotas y, suponiendo que
-el fondo tiene saldo cuando vence cada una, el fondo las cubre (Bs 1.000): el pozo se entrega completo y el moroso
-queda debiendo Bs 1.000 al fondo. Si al cierre recuperó Bs 400, lo incobrable son Bs 600. Cada uno de los nueve
-participantes puntuales aportó Bs 100 al fondo en el ciclo; si el reparto en partes iguales fuera entre esos nueve,
-a seis les tocarían Bs 66,67 y a tres Bs 66,66 (Bs 600,00 = 9 × 66,66 + 0,06; los seis centavos de residuo se
-asignan según §4), y cada uno recuperaría Bs 33,33 o Bs 33,34. Entre quiénes se reparte exactamente y qué pasa con la devolución del propio moroso son
-`DECISION_REQUIRED` 6. La empresa no movió un centavo en ningún momento.
+Grupo de 10, cuota Bs 500, aporte al fondo del 2 % (porcentaje ilustrativo, **no** es un parámetro propuesto), 10
+periodos y sin recargos para simplificar. Cada participante que cumple aporta Bs 10 por periodo al fondo: Bs 100 en el
+ciclo. Un participante deja de pagar dos cuotas (y con ellas su aporte al fondo de esos dos periodos: aporta Bs 80).
+Suponiendo que el fondo tiene saldo cuando vence cada una, el fondo las cubre (Bs 1.000): el pozo se entrega completo
+y el moroso queda debiendo Bs 1.000 al fondo. Durante el ciclo recupera Bs 400; le quedan Bs 600 de deuda.
+
+Al cierre (A5): primero se compensa la deuda con los Bs 80 que el fondo le iba a devolver al moroso, que no recibe
+nada y sigue debiendo Bs 520. Esos Bs 520 se reparten **solo entre los nueve que cumplieron**: a siete les tocan
+Bs 57,78 y a dos Bs 57,77 (Bs 520,00 = 9 × 57,77 + 0,07; los siete centavos de residuo se asignan según §4), así que
+cada uno recupera Bs 42,22 o Bs 42,23. Cuadre del fondo: entraron 9 × 100 + 80 + 400 = Bs 1.380, salieron 1.000 de
+cobertura y 380 de devoluciones; queda en cero. La empresa no movió un centavo en ningún momento.
 
 ## Cómo se verifica
 
@@ -196,18 +202,15 @@ asignan según §4), y cada uno recuperaría Bs 33,33 o Bs 33,34. Entre quiénes
 
 ## DECISION_REQUIRED
 
-No se resuelven acá porque DECISIONES no las cubre.
+Quedan abiertas solo las que no son de Pablo. Las tres de producto de la primera versión (quién es el perjudicado,
+qué significa «Grupo perfecto» y cómo se reparte lo incobrable) las resolvió Pablo en la tanda 9 y están en R2, D4
+y A5.
 
 1. **Plan de cuentas:** nombres, códigos y naturaleza de las cuentas del modelo A (lo valida el contador).
-2. **Quién es «el perjudicado» cuando el fondo cubrió a tiempo y nadie esperó**, o cuando son varios: P-05 dice
-   «quien tuvo que esperar». ¿Se acredita al beneficiario del turno afectado, se reparte, o no hay recargo si nadie
-   esperó? (Pablo).
-3. **«Grupo perfecto»:** el plan dice que el fondo se devuelve antes. ¿Antes de qué hito exactamente? (Pablo).
-4. **Valores** de todos los parámetros de §6 (Pablo y Cumplimiento, plan F3.S8.M3).
-5. **Validaciones legales** L-01 (fondo segregado y captación), L-02 (cobertura y subrogación sin expediente
-   previo) y L-03 (recargo al perjudicado; tasa o tope legal).
-6. **Reparto de lo incobrable:** «en partes iguales», ¿entre todos los participantes o solo entre quienes no deben
-   nada? ¿La devolución del aporte al fondo del propio moroso se compensa primero con su deuda? (Pablo).
+2. **Valores** de todos los parámetros de §6, incluido el porcentaje menor del fondo para un «Grupo perfecto» y el
+   umbral de la disolución automática (Pablo y Cumplimiento, plan F3.S8.M3).
+3. **Validaciones legales** L-01 (fondo segregado y captación), L-02 (cobertura y subrogación sin expediente
+   previo) y L-03 (recargo al fondo o a quien esperó; tasa o tope legal).
 
 ## Referencias
 

@@ -16,8 +16,10 @@ fecha: 2026-10-31
 > Dejan de regir: D5 (emparejamiento con admisión humana: solo se entra por invitación), D6 (organizador
 > profesional: no existe), D7 en permutas y retiro, D8 en lo que se apoya en el tope de ADR-049, D9 en
 > `visibilidad` (no hay grupos públicos), D10 (orden de carriles) y la frase de D1 que mantenía vigente ADR-051.
-> D2 sigue con el agregado «sin deudas vivas». D3/D4 (75 % y cancelación) y la disolución automática de D7
-> quedan **a confirmar** (`DECISION_REQUIRED` en ADR-055). Detalle fila por fila en
+> D2 sigue con el agregado «sin deudas vivas». También dejan de regir el «anfitrión» de D1 y el arranque con el
+> 75 % de D3/D4: el grupo tiene un **creador** que lo administra con poderes y límites, y a la fecha límite decide
+> él (DECISIONES, tanda 9). La disolución automática de D7 **sigue**, con la condición de la tanda 9 (fondo agotado
+> y mora sobre el umbral). Detalle fila por fila en
 > [[ADR-055 Sin aprobaciones en el circuito|ADR-055]] §3.
 
 > El alta de un grupo exigía un organizador humano habilitado por backoffice que aprobaba a cada
