@@ -1280,6 +1280,7 @@ COMMENT ON COLUMN entregas.incidencia_entrega.tipo IS '[NEGOCIO] Subtipo o modal
 COMMENT ON COLUMN entregas.incidencia_entrega.severidad IS '[NEGOCIO] Nivel de gravedad o criticidad asignado al incidente, alerta o evento. [SISTEMA] varchar(10), obligatoria (NOT NULL).';
 COMMENT ON COLUMN entregas.incidencia_entrega.descripcion IS '[NEGOCIO] Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. [SISTEMA] text, obligatoria (NOT NULL).';
 COMMENT ON COLUMN entregas.incidencia_entrega.reportada_por IS '[NEGOCIO] Referencia por clave foránea a la entidad `usuario`. [SISTEMA] uuid, opcional, clave foránea (FK) hacia `usuario`.';
+COMMENT ON COLUMN entregas.incidencia_entrega.origen IS '[NEGOCIO] Atributo que representa origen en el modelo de `incidencia_entrega`. [SISTEMA] varchar(10), opcional.';
 COMMENT ON COLUMN entregas.incidencia_entrega.asignada_a IS '[NEGOCIO] Referencia por clave foránea a la entidad `usuario`. [SISTEMA] uuid, opcional, clave foránea (FK) hacia `usuario`.';
 COMMENT ON COLUMN entregas.incidencia_entrega.estado IS '[NEGOCIO] Estado operativo o fase del ciclo de vida en que se encuentra el registro. [SISTEMA] varchar(15), obligatoria (NOT NULL), con índice B-tree.';
 COMMENT ON COLUMN entregas.incidencia_entrega.sla_horas IS '[NEGOCIO] Atributo que representa sla horas en el modelo de `incidencia_entrega`. [SISTEMA] smallint, obligatoria (NOT NULL).';

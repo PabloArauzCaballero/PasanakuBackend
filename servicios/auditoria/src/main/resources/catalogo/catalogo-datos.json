@@ -77,7 +77,7 @@
    "descripcion": "Entregas de Fondo. Que la bolsa llegue completa, a la persona correcta, una sola vez.",
    "tablas": 20,
    "tablasDeNegocio": 16,
-   "columnas": 235,
+   "columnas": 236,
    "relaciones": 38,
    "appendOnly": 0,
    "conDatosPersonales": 1,
@@ -25344,7 +25344,9 @@
     "negocio": "Los ocho tipos son el catálogo de todo lo que puede salir mal en el momento más sensible: fondo incompleto, datos bancarios erróneos, desembolso rechazado, monto que no coincide, el beneficiario no recibió, entrega duplicada, reclamo de un tercero, sospecha de fraude.\n\nslaHoras y fechaLimiteSLA son lo que convierte el reclamo en algo con reloj. Una entrega que no llega es la emergencia máxima de la plataforma: la persona esperó meses su turno y contaba con esa plata para algo concreto. Un reclamo así no puede quedar en una bandeja sin dueño ni plazo.\n\nENTREGA_DUPLICADA está tipificada aunque las restricciones de base de datos la hagan improbable: si alguna vez ocurre por una vía inesperada, hay que poder gestionarla, no descubrirla en el cierre contable.",
     "porQue": "Sin incidencias, el problema en una entrega es una conversación de WhatsApp con soporte, sin trazabilidad, sin plazo y sin métrica."
    },
-   "reglas": [],
+   "reglas": [
+    "ck_incidencia_entrega_autor"
+   ],
    "columnas": [
     {
      "nombre": "id",
@@ -25409,6 +25411,16 @@
      "sistema": "UUID, opcional, referencia a usuario.",
      "sensibilidad": "NINGUNA",
      "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "origen",
+     "tipo": "VARCHAR(10)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Atributo que representa origen en el modelo de incidencia_entrega.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(10), opcional.",
+     "sensibilidad": "NINGUNA"
     },
     {
      "nombre": "asignada_a",
@@ -25528,7 +25540,7 @@
     ],
     "entrantes": []
    },
-   "sistema": "Vive en el esquema entregas; la escribe y la lee solo el servicio entregas (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de entrega_fondo, identidad.usuario.",
+   "sistema": "Vive en el esquema entregas; la escribe y la lee solo el servicio entregas (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de entrega_fondo, identidad.usuario. Reglas nombradas: ck_incidencia_entrega_autor.",
    "clasificacion": {
     "personales": 0,
     "financieros": 0,

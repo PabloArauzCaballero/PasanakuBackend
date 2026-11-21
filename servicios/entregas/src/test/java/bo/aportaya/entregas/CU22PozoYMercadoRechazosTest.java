@@ -180,4 +180,26 @@ class CU22PozoYMercadoRechazosTest extends BaseDeEntregas {
                         cesion))
                 .contains("ck_cesion_derecho_partes");
     }
+
+    @Test
+    @DisplayName("rechaza por R-DES-06: una incidencia de persona sin autor, o una del sistema con autor")
+    void rechazaRDES06() {
+        var c = caso();
+        UUID entrega = entregaFondeada(c.e(), "BILLETERA_MOVIL", contextoDe(c.vendedor()));
+        String alta =
+                """
+                INSERT INTO entregas.incidencia_entrega
+                    (id, entrega_id, tipo, severidad, descripcion, reportada_por, origen, estado, sla_horas,
+                     fecha_limite_sla, evidencias, abierta_en)
+                VALUES (gen_random_uuid(), ?, 'FONDO_INCOMPLETO', 'CRITICA', 'prueba', CAST(? AS uuid),
+                        CAST(? AS varchar), 'ABIERTA', 24,
+                        now() + interval '24 hours', '[]'::jsonb, now())
+                """;
+
+        assertThat(rechazaLaBase(alta, entrega, null, "PERSONA")).contains("ck_incidencia_entrega_autor");
+        assertThat(rechazaLaBase(alta, entrega, c.vendedor(), "SISTEMA")).contains("ck_incidencia_entrega_autor");
+        assertThat(rechazaLaBase(alta, entrega, null, null)).contains("ck_incidencia_entrega_autor");
+        assertThat(rechazaLaBase(alta, entrega, null, "SISTEMA")).isEmpty();
+        assertThat(rechazaLaBase(alta, entrega, c.vendedor(), "PERSONA")).isEmpty();
+    }
 }

@@ -1,4 +1,7 @@
 $ ./gradlew :servicios:entregas:spotlessCheck :servicios:entregas:test :servicios:entregas:webTest :servicios:entregas:testBarrido
+catalogo de errores: 281 restricciones -> 151 reglas · errores-restricciones.properties
+mensajes de regla: 181 · errores-reglas.properties
+  AVISO: 3 reglas con restriccion y sin fila en la boveda: R-BIL-21, R-BIL-22, R-UIF-13
 EXIT=0
 test tests 44 skipped 0 failures 0 errors 0
 webTest tests 65 skipped 0 failures 0 errors 0

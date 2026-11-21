@@ -3182,7 +3182,7 @@ Son dos conversaciones completamente distintas con dos personas distintas. Un so
 
 **Casos de uso que la nombran.** CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`)
 
-**Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `entrega_fondo`, `identidad.usuario`.
+**Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `entrega_fondo`, `identidad.usuario`. Reglas nombradas: `ck_incidencia_entrega_autor`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
@@ -3192,6 +3192,7 @@ Son dos conversaciones completamente distintas con dos personas distintas. Un so
 | `severidad` | VARCHAR(10) | Nivel de gravedad o criticidad asignado al incidente, alerta o evento. | VARCHAR(10), obligatoria. | NINGUNA |
 | `descripcion` | TEXT | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | TEXT, obligatoria. | NINGUNA |
 | `reportada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `origen` | VARCHAR(10) | Atributo que representa origen en el modelo de `incidencia_entrega`. | VARCHAR(10), opcional. | NINGUNA |
 | `asignada_a` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
 | `sla_horas` | SMALLINT | Atributo que representa sla horas en el modelo de `incidencia_entrega`. | SMALLINT, obligatoria. | NINGUNA |

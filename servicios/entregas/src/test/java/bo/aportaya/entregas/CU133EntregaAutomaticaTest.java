@@ -158,6 +158,15 @@ class CU133EntregaAutomaticaTest extends BaseDePozoCompleto {
         aportesConfirma(c, "5000.00");
         assertThat(automatica.recibir(aviso(c, "GRACIA_VENCIDA"))).isEqualTo(Resultado.CON_PENDIENTE);
         assertThat(estadoDeLaSaga(c)).isEqualTo("EN_CURSO");
+        // La incidencia la abre el sistema: sin autor y con su origen (R-DES-06).
+        assertThat(contar(
+                        """
+                        SELECT count(*)::int FROM entregas.incidencia_entrega i
+                          JOIN entregas.entrega_fondo e ON e.id = i.entrega_id
+                         WHERE e.turno_id = ? AND i.origen = 'SISTEMA' AND i.reportada_por IS NULL
+                        """,
+                        c.e().turnoId()))
+                .isEqualTo(1);
 
         aportesConfirma(c, "6000.00");
 

@@ -541,6 +541,7 @@ entity "incidencia_entrega" as incid {
   severidad : VARCHAR(10) <<CK>>
   descripcion : TEXT
   # reportada_por : UUID <<FK, NULL>>
+  origen : VARCHAR(10) <<CK: PERSONA|SISTEMA, NULL>>
   # asignada_a : UUID <<FK, NULL>>
   estado : VARCHAR(15) <<CK, IDX>>
   sla_horas : SMALLINT

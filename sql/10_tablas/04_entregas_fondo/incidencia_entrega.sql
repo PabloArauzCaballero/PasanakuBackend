@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS entregas.incidencia_entrega (
   severidad                          VARCHAR(10) NOT NULL,
   descripcion                        TEXT NOT NULL,
   reportada_por                      UUID,
+  origen                             VARCHAR(10),
   asignada_a                         UUID,
   estado                             VARCHAR(15) NOT NULL,
   sla_horas                          SMALLINT NOT NULL,
@@ -20,6 +21,7 @@ CREATE TABLE IF NOT EXISTS entregas.incidencia_entrega (
   CONSTRAINT pk_incidencia_entrega PRIMARY KEY (id),
   CONSTRAINT ck_incidencia_entrega_tipo CHECK (tipo IN ('BENEFICIARIO_NO_RECIBIO', 'DATOS_BANCARIOS_ERRONEOS', 'DESEMBOLSO_RECHAZADO', 'ENTREGA_DUPLICADA', 'FONDO_INCOMPLETO', 'MONTO_NO_COINCIDE', 'RECLAMO_DE_TERCERO', 'SOSPECHA_FRAUDE')),
   CONSTRAINT ck_incidencia_entrega_severidad CHECK (severidad IN ('ALTA', 'BAJA', 'CRITICA', 'MEDIA')),
+  CONSTRAINT ck_incidencia_entrega_origen CHECK (origen IN ('PERSONA', 'SISTEMA')),
   CONSTRAINT ck_incidencia_entrega_estado CHECK (estado IN ('ABIERTA', 'CERRADA', 'EN_GESTION', 'ESCALADA', 'RESUELTA'))
 );
 

@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, lote L2 (garantía y entregas)
 
-> **AVANCE: 11 / 20 — 55,0 %.**
+> **AVANCE: 12 / 21 — 57,1 %.**
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · PR mergeados en `dev`: #419, #421, #422, #424, #429, #459, #462
   y #463, todos con CI verde, incluidos los cinco corredores. #464 se consolidó en #463 por el tope de 3 PR abiertos.
@@ -23,6 +23,7 @@
 | F3.L2.M01.c | `entregas` fondea sola al recibir el aviso de recaudo: una entrega por periodo con clave `fondeo-auto-<periodoId>`; aviso duplicado, aviso antes que los turnos, aportes caído y gracia vencida seguida de completo terminan en UN fondeo | `EntregaAutomaticaTest` (12, tres niveles contra dobles, incluido el del método) + `MetodoDeDesembolsoConfiguradoTest` (3) + `CU133EntregaAutomaticaTest` (6) contra Postgres real | PASS — [evidencia](./evidencia/F3.L2.M01-integracion-local.txt) |
 | F3.L2.M01.d | Los bordes Kafka de `aportes.periodo_recaudado` y `grupos.turnos_asignados` leen los ejemplos de los pactos y rechazan sobre o campo faltante; apagados por omisión | `PactosDeLaEntregaAutomaticaTest` (5) | PASS — [evidencia](./evidencia/F3.L2.M01-suites.txt) |
 | F3.L2.M01.e | La incidencia por faltante que abre el sistema no lleva persona: `incidencia_entrega.reportada_por` admite NULL | `CU133EntregaAutomaticaTest.graciaVencidaYDespuesCompleto` (rojo con `fk_incidencia_entrega_reportada_por` antes, verde después) | PASS — [evidencia](./evidencia/F3.L2.M01-integracion-local.txt) |
+| F3.L2.M01.f | Ninguna incidencia de persona queda sin autor: columna `origen` (`PERSONA`\|`SISTEMA`) y R-DES-06 (`ck_incidencia_entrega_autor`); la fila anterior a la columna cuenta como persona | psql de seis casos (3 aceptados, 3 rechazados) + `rechazaRDES06` + integración local | PASS — [evidencia](./evidencia/F3.L2.M01.f-rdes06-origen.txt) |
 
 ## A medias
 
@@ -190,7 +191,10 @@
   entidades de otros lotes sin caso de uso (`desbloqueo_etapa`, `disponibilidad_servicio_dia`, `etapa`,
   `puja_subasta`, `subasta_cupo`) y una cifra desfasada en el plan maestro. Se revirtió: no lo verifica el CI y es de
   otros dueños. Por eso `docs/Modelos/` todavía no tiene la nota de `turno_del_grupo`.
-- F3.L2.M01.e no estaba en el plan: apareció en la integración y se agregó como microtarea.
+- F3.L2.M01.e no estaba en el plan: apareció en la integración y se agregó como microtarea. F3.L2.M01.f la completa
+  a pedido del coordinador. Las cifras de `planes/` y `docs/Seguridad.md` pasan a 184 restricciones.
+- `ck_incidencia_entrega_origen` (los valores de la columna) nace solo con la tabla nueva: el generador no agrega
+  CHECK de columnas en bases existentes. R-DES-06 sí llega a las existentes, y ya limita los valores posibles.
 
 - **Alcance ampliado por el coordinador** (2026-11-21): `plataforma/comun-web` (410 común, #462),
   `scripts/generar_compose.py` (#463), `scripts/modelo.py` y `generar_ddl.py` (#464). La prueba de #464 destapó que
@@ -245,8 +249,11 @@
   - En producción, un adaptador provisorio (`MetodoDeDesembolsoConfigurado`) usa un solo método por configuración; si
     falta, el servicio no levanta.
   - No se cambió la nulabilidad de `entrega_fondo.metodo_desembolso`. Publicado en el PR #490.
-- F3.L2.M01: la incidencia que abre el sistema queda con `reportada_por` NULL, en vez de inventar un «usuario del
-  sistema» que no existe en las semillas.
+- F3.L2.M01: la incidencia que abre el sistema queda con `reportada_por` NULL y `origen = SISTEMA`; no se siembra un
+  usuario de sistema (pedido del coordinador: la tabla de usuarios no va en seeders). R-DES-06 impide una incidencia
+  de persona sin autor.
+- Hallazgo al probar R-DES-06: la primera versión del CHECK aceptaba una fila con `origen` NULL y sin autor, porque un
+  CHECK que da NULL se acepta. Se corrigió con `COALESCE(origen, 'PERSONA')` y el caso quedó en la prueba psql.
 
 - AMB-1 (expandir/contraer con 410) y AMB-2 (el fondeo sigue pagándole al cesionario de una cesión LIQUIDADA o con
   título asignado, para no pagar dos veces el turno): supuestos tomados; confirmar con Pablo en el PR.
