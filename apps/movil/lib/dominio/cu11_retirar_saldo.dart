@@ -28,7 +28,10 @@ class RetirarSaldo extends AsyncNotifier<SalidaRetiro?> {
     final dio = ref.read(dioProvider);
     final clave = ref
         .read(idempotenciaProvider.notifier)
-        .claveDe(formularioId(cuentaId));
+        .claveDe(
+          formularioId(cuentaId),
+          contenido: '$monto|$instrumentoDestinoId',
+        );
     try {
       final r = await DefaultApi(dio).solicitarRetiro(
         idempotencyKey: clave,
@@ -42,6 +45,11 @@ class RetirarSaldo extends AsyncNotifier<SalidaRetiro?> {
       ref.read(idempotenciaProvider.notifier).cerrar(formularioId(cuentaId));
       state = AsyncData(r.data);
     } catch (e) {
+      // F1.L6.M12: un 4xx libera la clave (corregir y reenviar es otro intento);
+      // un timeout o un 5xx la conserva (el reintento no duplica).
+      ref
+          .read(idempotenciaProvider.notifier)
+          .trasElFallo(formularioId(cuentaId), e);
       state = AsyncError(errorDeDominio(e), StackTrace.current);
     }
   }

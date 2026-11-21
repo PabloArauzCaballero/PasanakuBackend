@@ -240,7 +240,6 @@ services:
       KAFKA_URL: kafka:9092
       SEGURIDAD_PIMIENTA: ${SEGURIDAD_PIMIENTA}
       URL_APORTES: http://aportes:8080
-      URL_GARANTIA: http://garantia:8080
       URL_GRUPOS: http://grupos:8080
       URL_IDENTIDAD: http://identidad:8080
       URL_NUCLEO_FINANCIERO: http://nucleo-financiero:8080

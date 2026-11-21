@@ -72,23 +72,29 @@ public class EmisorDeAcceso {
     /** Solo se publica, nunca firma: es la ventana de solapamiento de una rotacion. */
     private final RSAKey claveAnterior;
 
+    /** Solo para pruebas: un entorno descartable, donde una clave vacia se genera en memoria. */
     public EmisorDeAcceso(String claveJwk, String claveAnteriorJwk) {
-        this(claveJwk, claveAnteriorJwk, null);
+        this(claveJwk, claveAnteriorJwk, true);
     }
 
+    /**
+     * F1.L4.M03: <b>falla cerrado salvo en un entorno descartable declarado</b>. Antes el
+     * fallo dependia de los nombres de perfil ({@code staging}/{@code production}) y TEST corre
+     * con {@code local}: una clave olvidada generaba una en memoria sin que nadie lo notara.
+     * Ahora la unica forma de arrancar sin {@code JWT_CLAVE_FIRMA} es declarar
+     * {@code aportaya.entorno.descartable=true} (maquina de desarrollo, pruebas).
+     */
     @org.springframework.beans.factory.annotation.Autowired
     public EmisorDeAcceso(
             @Value("${aportaya.jwt.clave-firma:}") String claveJwk,
             @Value("${aportaya.jwt.clave-firma-anterior:}") String claveAnteriorJwk,
-            org.springframework.core.env.Environment entorno) {
+            @Value("${aportaya.entorno.descartable:false}") boolean entornoDescartable) {
         boolean generada = claveJwk == null || claveJwk.isBlank();
-        boolean produccion = entorno != null
-                && entorno.acceptsProfiles(org.springframework.core.env.Profiles.of("staging", "production"));
-        if (generada && produccion) {
+        if (generada && !entornoDescartable) {
             throw new IllegalStateException(
-                    "aportaya.jwt.clave-firma vacía en entorno compartido/producción ("
-                            + java.util.Arrays.toString(entorno.getActiveProfiles())
-                            + "). Fail closed (ADR-024 / ADR-037): debe inyectarse JWT_CLAVE_FIRMA desde el almacén de secretos.");
+                    "aportaya.jwt.clave-firma vacía fuera de un entorno descartable. Fail closed (ADR-024 / ADR-037,"
+                            + " F1.L4.M03): inyectar JWT_CLAVE_FIRMA desde el almacén de secretos, o declarar"
+                            + " aportaya.entorno.descartable=true solo en una máquina de desarrollo o de pruebas.");
         }
         this.clave = generada ? generar() : leer(claveJwk, "aportaya.jwt.clave-firma");
         this.claveAnterior = anterior(generada, claveAnteriorJwk, clave);

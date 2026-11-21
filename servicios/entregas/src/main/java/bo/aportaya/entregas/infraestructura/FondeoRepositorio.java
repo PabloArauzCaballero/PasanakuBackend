@@ -23,13 +23,7 @@ import org.springframework.stereotype.Component;
 public class FondeoRepositorio {
 
     public record Fondeo(
-            UUID id,
-            UUID entregaId,
-            UUID turnoId,
-            String estado,
-            FondeoDelPozo.Resultado cifras,
-            UUID coberturaId,
-            int version) {}
+            UUID id, UUID entregaId, UUID turnoId, String estado, FondeoDelPozo.Resultado cifras, int version) {}
 
     public record EntregaDelTurno(UUID id, String estado, int version) {}
 
@@ -51,7 +45,6 @@ public class FondeoRepositorio {
                         DSL.field("monto_faltante", BigDecimal.class),
                         DSL.field("monto_cubierto_empresa", BigDecimal.class),
                         DSL.field("monto_pendiente", BigDecimal.class),
-                        DSL.field("cobertura_respaldo_id", UUID.class),
                         DSL.field("version", Integer.class))
                 .from(DSL.table(DSL.name("entregas", "fondeo_entrega")))
                 .where(DSL.field("turno_id", UUID.class).eq(turnoId))
@@ -70,7 +63,6 @@ public class FondeoRepositorio {
                                     Dinero.de(f.get("monto_faltante", BigDecimal.class), m),
                                     Dinero.de(f.get("monto_cubierto_empresa", BigDecimal.class), m),
                                     Dinero.de(f.get("monto_pendiente", BigDecimal.class), m)),
-                            f.get("cobertura_respaldo_id", UUID.class),
                             f.get("version", Integer.class));
                 });
     }
@@ -92,7 +84,6 @@ public class FondeoRepositorio {
             UUID entregaId,
             UUID turnoId,
             FondeoDelPozo.Resultado c,
-            UUID coberturaId,
             String clave,
             OffsetDateTime corte,
             OffsetDateTime ahora) {
@@ -116,7 +107,6 @@ public class FondeoRepositorio {
                 .set(
                         DSL.field("monto_pendiente", BigDecimal.class),
                         c.pendiente().monto())
-                .set(DSL.field("cobertura_respaldo_id", UUID.class), coberturaId)
                 .set(DSL.field("estado", String.class), c.completo() ? "FONDEADO" : "CON_PENDIENTE")
                 .set(DSL.field("corte_en", OffsetDateTime.class), corte)
                 .set(DSL.field("fondeada_en", OffsetDateTime.class), c.completo() ? ahora : null)
@@ -128,12 +118,7 @@ public class FondeoRepositorio {
 
     /** Reintento de un fondeo con pendiente: la version de lectura es la precondicion de la escritura. */
     public boolean completar(
-            DSLContext dsl,
-            Fondeo previo,
-            FondeoDelPozo.Resultado c,
-            UUID coberturaId,
-            OffsetDateTime corte,
-            OffsetDateTime ahora) {
+            DSLContext dsl, Fondeo previo, FondeoDelPozo.Resultado c, OffsetDateTime corte, OffsetDateTime ahora) {
         return dsl.update(DSL.table(DSL.name("entregas", "fondeo_entrega")))
                         .set(
                                 DSL.field("monto_confirmado", BigDecimal.class),
@@ -150,7 +135,6 @@ public class FondeoRepositorio {
                         .set(
                                 DSL.field("monto_pendiente", BigDecimal.class),
                                 c.pendiente().monto())
-                        .set(DSL.field("cobertura_respaldo_id", UUID.class), coberturaId)
                         .set(DSL.field("estado", String.class), c.completo() ? "FONDEADO" : "CON_PENDIENTE")
                         .set(DSL.field("corte_en", OffsetDateTime.class), corte)
                         .set(DSL.field("fondeada_en", OffsetDateTime.class), c.completo() ? ahora : null)

@@ -62,21 +62,16 @@ class CU22Test extends BaseDePozoCompleto {
     void criterio3() {
         var c = caso();
         aportesConfirma(c, "5000.00");
-        // Nadie cubre: sin reserva del respaldo hoy, y sin fondo del grupo hasta el modelo A (F3.L2.M05).
-        garantiaDoble.sinReserva(true);
-        try {
-            var salida = fondear(c, "cu22-3-" + c.e().turnoId());
+        // Nadie cubre: la empresa ya no (F2.L2.M01) y el fondo del grupo todavia no (F3.L2.M05).
+        var salida = fondear(c, "cu22-3-" + c.e().turnoId());
 
-            assertThat(salida.cifras().pendiente()).isEqualTo(bob("1000.00"));
-            var fila = dsl.fetchOne(
-                    "SELECT estado, monto_bolsa_bruto FROM entregas.entrega_fondo WHERE id = ?", salida.entregaId());
-            assertThat(fila.get(0, String.class)).isEqualTo("BLOQUEADA_POR_FONDO_INCOMPLETO");
-            assertThat(fila.get(1, BigDecimal.class)).isEqualByComparingTo("6000.00");
-            assertThat(numero("SELECT monto_pendiente FROM entregas.fondeo_entrega WHERE id = ?", salida.fondeoId()))
-                    .isEqualByComparingTo("1000.00");
-        } finally {
-            garantiaDoble.sinReserva(false);
-        }
+        assertThat(salida.cifras().pendiente()).isEqualTo(bob("1000.00"));
+        var fila = dsl.fetchOne(
+                "SELECT estado, monto_bolsa_bruto FROM entregas.entrega_fondo WHERE id = ?", salida.entregaId());
+        assertThat(fila.get(0, String.class)).isEqualTo("BLOQUEADA_POR_FONDO_INCOMPLETO");
+        assertThat(fila.get(1, BigDecimal.class)).isEqualByComparingTo("6000.00");
+        assertThat(numero("SELECT monto_pendiente FROM entregas.fondeo_entrega WHERE id = ?", salida.fondeoId()))
+                .isEqualByComparingTo("1000.00");
     }
 
     @Test
@@ -104,6 +99,36 @@ class CU22Test extends BaseDePozoCompleto {
         fondear(c, "cu22-g-" + c.e().turnoId());
 
         assertThat(segundaEntregaDelTurno(c)).contains("uq_entrega_");
+    }
+
+    @Test
+    @DisplayName("rechaza por R-GRP-02")
+    void rechazaRGRP02() {
+        // El neto no se escribe a mano: sale de la bolsa menos las deducciones, y nunca es negativo. Un neto inventado
+        // es entregar un importe que nadie puede explicar.
+        var c = caso();
+
+        assertThat(entregaConNeto(c, "5000.00")).contains("ck_entrega_neto");
+        assertThat(entregaConNeto(c, "-1.00")).contains("ck_entrega_neto");
+    }
+
+    private String entregaConNeto(Caso c, String neto) {
+        return rechazaLaBase(
+                """
+                INSERT INTO entregas.entrega_fondo
+                    (id, grupo_id, periodo_id, turno_id, cupo_id, beneficiario_participante_id,
+                     monto_bolsa_bruto, total_deducciones, monto_neto_a_entregar,
+                     monto_efectivamente_entregado, moneda, estado, metodo_desembolso,
+                     fecha_programada, version)
+                VALUES (gen_random_uuid(), ?, ?, ?, ?, ?, 6000.00, 0, ?, 0,
+                        'BOB', 'PROGRAMADA', 'BILLETERA_MOVIL', current_date, 0)
+                """,
+                c.e().grupoId(),
+                c.e().periodoId(),
+                c.e().turnoId(),
+                c.e().cupoId(),
+                c.e().participanteId(),
+                new BigDecimal(neto));
     }
 
     private String segundaEntregaDelTurno(Caso c) {
