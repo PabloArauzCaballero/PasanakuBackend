@@ -59,10 +59,11 @@ los pisos de cobertura sin cambios. **Estado:** A MEDIAS
 
 | ID | Microtarea | CA (binario) | DoD (comando) | Estado |
 |---|---|---|---|---|
+| P3.M1 | CU-22: la entrega nace solo del fondeo; retiro de `CU22LiquidarEntrega.liquidar/ejecutar`, `LiquidacionDeEntrega` y la ficha CU-22 reescrita | `grep -rn "liquidar(\|LiquidacionDeEntrega" servicios/entregas/src` vacío; los 3 escenarios de CU-22 con su prueba | `test` + `webTest` + verificadores locales; `integrationTest` en el CI del PR | A MEDIAS (local verde, evidencia/punto3-cu22-sin-liquidacion.txt; integración NO COMPROBADO local, la valida el CI del PR) |
 | F2.L2.M09 | Mercado de ofertas | Se resuelve con L2.S1.M1 | — | HECHO (con L2.S1.M1) |
 | F2.L2.M01 | Respaldo empresarial en entregas | `grep -rn Respaldo servicios/entregas/src` vacío | suites | TODO (precondición: CU-133 de la bóveda) |
 | F2.L2.M02 | Respaldo empresarial en garantía | Rutas `/garantia/respaldo/*` 410 | suites | TODO (después de F2.L2.M01) |
-| F2.L2.M04 | Aval entre participantes | 410 y sin código | suites | A MEDIAS (código retirado; faltan tablas y CU-26) |
+| F2.L2.M04 | Aval entre participantes | 410 y sin código | suites | A MEDIAS (código retirado y CU-26 marcado RETIRADO, evidencia/F2.L2.M04-cu26-retirado.txt; faltan las tablas) |
 
 ## Riesgos y bloqueos previstos
 

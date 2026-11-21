@@ -103,12 +103,10 @@ cada una. Si la sesion no es la del titular (un operador, un trabajo programado)
 ilegible, se asume que **si** tiene obligaciones (invariante 9). Riesgo residual: `grupos` solo devuelve participaciones vigentes
 (no `RETIRADO`/`EXPULSADO`/`REEMPLAZADO`, hasta 50): la deuda de quien ya se fue de un grupo no frena el cierre.
 
-### Venta de un turno (carril Q)
+### Venta de un turno (retirada)
 
-`pagarAlTercero` (CU-13/CU-130): el comprador paga el PRECIO (lo retenido), el vendedor cobra `precio - cargos` y la plataforma ingresa los
-`cargos`, cada uno con su linea (regla 91.3.4). Precio y cargos los afirma `entregas` con la oferta (pacto
-`contratos/pactos/nucleo-financiero-entregas.json`, version 2); sin cargos, o con un precio que no es lo retenido, o cargos negativos o
-mayores que el precio (`AP-CU13-06`), no se paga. Decision adoptada por delegacion del dueno, 2026-10-11.
+`pagarAlTercero` se retiro con la cesion de turnos (D-L2-1): responde 410 `AP-CU13-10` sin efecto hasta que el
+contrato se contraiga. El puerto de ofertas de `entregas`, su cliente HTTP y el pacto se borraron.
 
 **Pendiente (declarado):** (1) los limites por concepto de CU-40 no se aplican al aporte (decision de Riesgos); (2) los codigos
 2.1.01/2.1.02 los confirma Contabilidad; (3) recargas y retiros no asientan en el mayor, asi que 2.1.01 queda negativo hasta que se

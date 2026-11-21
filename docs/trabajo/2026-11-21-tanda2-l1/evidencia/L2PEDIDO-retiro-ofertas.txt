@@ -1,0 +1,29 @@
+Pedido de L2 via coordinador (2026-11-21) · retirar el consumidor de la oferta de entregas en nucleo-financiero
+Rama: correcciones/tanda2-l1-retiro-ofertas (desde origin/dev)
+
+--- que se retiro
+Borrados (produccion): aplicacion/PagoDeCompraEnMercado, aplicacion/RepartoDeCompraEnMercado,
+  dominio/puertos/OfertasDelMercado, infraestructura/clientes/OfertasPorHttp; CU13EjecutarConDestino pierde
+  preparar/pagarAlTercero/ofertaDe/EntradaPagoATercero/Preparacion; MovimientosDeLaBilletera pierde pagarAlTercero.
+Borrados (prueba): PactoConEntregasContratoTest, contratos/pactos/nucleo-financiero-entregas.json, CU13MercadoTest,
+  CU13MercadoRechazosTest, el doble Ofertas de BaseDeInversiones y las pruebas de la oferta de
+  ContratosConOtrosServiciosTest. Justificacion escrita (regla 80.5.5): prueban una funcion que el negocio elimino
+  (D-L2-1: la cesion y la subasta de turnos se eliminan); su unico productor (entregas.comprarOferta) ya responde 410.
+Se conserva: la liberacion de retenciones del mercado (CU13LiberarRetencionDelMercado y su prueba): devuelve lo retenido.
+Contrato: nucleo-financiero.yaml 1.1.0 · pagarAlTercero RETIRADA, responde 410 AP-CU13-10 sin efecto (mismo patron que
+  entregas 1.1.0: OperacionRetirada + RetiroDeOperaciones + respuesta Retirada). Contraccion: cuando L2 borre el mercado.
+CU-13: se retira el escenario de pago COMPRA_EN_MERCADO y se agrega OPERACION_RETIRADA (AP-CU13-10).
+Postman regenerado con scripts/generar_postman.py.
+
+--- verificacion
+$ ./gradlew :servicios:nucleo-financiero:spotlessCheck :servicios:nucleo-financiero:test :servicios:nucleo-financiero:webTest
+exit=0 (InversionesWebTest.pagoATerceroRetirado: SERVICIO_ENTREGAS -> 410 AP-CU13-10 sin tocar movimientos;
+  usuario final -> 403)
+$ ./gradlew :servicios:nucleo-financiero:integrationTest --tests '*CU13*' --tests '*CU12*'  (PostgreSQL local)
+97 tests completed, 2 failed: CU13PactoInversionesTest (contexto Spring con Testcontainers: ENVIRONMENT,
+  NO COMPROBADO aca — requiere Docker). CU13LiberacionDelMercadoTest 4/4, CU13InversionTest 11/11, CU12RescateTest 10/10.
+verificar_boveda TODO OK · verificar_seguridad TODO OK · verificar_criterios sin divergencias ·
+verificar_narrativas sin fallas · verificar_contratos_limites OK.
+
+--- no cubierto
+El consumidor de topicos de respaldo/cobertura (F2.L1.M01) va en su propio PR (#452), no aca.

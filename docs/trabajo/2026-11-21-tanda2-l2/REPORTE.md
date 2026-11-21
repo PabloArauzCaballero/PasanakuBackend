@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, lote L2 (garantía y entregas)
 
-> **AVANCE: 5 / 14 — 35,7 %.**
+> **AVANCE: 5 / 15 — 33,3 %.**
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · PR mergeados en `dev`: #419, #421, #422, #424, #429, #459, #462
   y #463, todos con CI verde, incluidos los cinco corredores. #464 se consolidó en #463 por el tope de 3 PR abiertos.
@@ -22,6 +22,12 @@
 
 Además de lo que sigue, `CU22LiquidarEntrega.liquidar`/`ejecutar` y `CU23CubrirIncumplimiento` todavía existen, sin
 camino HTTP. Se borran con el punto 3 (Pendiente).
+
+### P3.M1 — CU-22: la entrega nace solo del fondeo
+- Qué anda: `CU22LiquidarEntrega` queda solo con `autorizar` (transitorio hasta F2.L2.M06); `liquidar`, `ejecutar`, `LiquidacionDeEntrega` y los métodos de repositorio que solo ellos usaban no existen. La ficha CU-22 describe el fondeo con pozo completo, sin deducciones, y su bloqueo con deuda conservada. `test` (27) y `webTest` (65) en verde, `check`, `spotlessCheck`, `testBarrido` y los cinco verificadores en verde (evidencia/punto3-cu22-sin-liquidacion.txt). Las rutas HTTP ya respondían 410 y no cambian.
+- Qué no anda: nada observado; las pruebas de integración reescritas (`CU22Test`, `CU133PozoCompleto*Test`, `CU28RechazosTest`, `EscenarioDeDesembolso`) no corrieron acá (sin Docker).
+- Qué falta exactamente: el verde de `integrationTest` y de `jacocoTestCoverageVerification` en el CI del PR.
+- Dónde quedó: rama `correcciones/tanda2-l2-cu22-sin-liquidacion`; compila.
 
 ### F1.L2.M04 — Importes de entrada sin signo; disolución y reemplazo con cifras de sus dueños
 - Qué anda: `garantia.yaml` 1.2.0 define `DineroEntrada` (monto `^\d+\.\d{2}$`, sin signo) y lo usan los importes que
@@ -58,7 +64,9 @@ camino HTTP. Se borran con el punto 3 (Pendiente).
      deudas contadas en el propio esquema (F3.L2.M06).
   3. F2.L2.M04: quitar `aval_participante` y `ejecucion_aval` de `docs/entidades` y R-GAR-04 de
      `docs/Restricciones.md` (la cifra de restricciones cambia en `docs/Seguridad.md` y `planes/*`, fuera de
-     alcance). Marcar retirado `docs/CasosDeUso/CU-26` (hoy figura «pendiente de implementar»).
+     alcance). `docs/CasosDeUso/CU-26` ya está marcado RETIRADO (`estado: retirado` y aviso en la ficha y en
+     el índice); `verificar_criterios.py` lo sigue listando como «pendiente» porque no distingue retirados: es un
+     cambio en ese script, fuera del alcance de L2.
      `identidad.referencia_personal.acepta_ser_avalista` es de L4.
 - Dónde quedó: rama `correcciones/tanda2-l2-garantia-cuerpo`; compila, `test`/`webTest` en verde.
 

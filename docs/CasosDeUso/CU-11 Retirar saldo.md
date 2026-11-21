@@ -104,6 +104,7 @@ export const ErroresCU11 = {
   COSTO_NO_MENOR_AL_IMPORTE: 'AP-CU11-12',
   CLAVE_DE_OTRA_PETICION: 'AP-CU11-13',
   CURSOR_INCOMPLETO: 'AP-CU11-14',
+  PROVEEDOR_DE_DESEMBOLSO_NO_CONFIGURADO: 'AP-CU11-15',
 } as const
 ```
 
@@ -123,6 +124,7 @@ export const ErroresCU11 = {
 | `COSTO_NO_MENOR_AL_IMPORTE` | La cotización devuelve un costo que iguala o supera el importe del retiro |
 | `CLAVE_DE_OTRA_PETICION` | La `Idempotency-Key` ya identifica otra petición (otro retiro, u otra decisión sobre la orden) |
 | `CURSOR_INCOMPLETO` | La bandeja de revisión recibió `despuesDeFecha` sin `despuesDeId`, o al revés |
+| `PROVEEDOR_DE_DESEMBOLSO_NO_CONFIGURADO` | Fuera de `local`/`test` todavía no hay proveedor de desembolso contratado (P-15): nada sale, la orden queda `AUTORIZADA` con su saldo retenido |
 
 **Bandeja y respuesta de la segunda aprobación (ADR-049, backoffice carril A).** `GET /billetera/retiros`
 (`listarRetirosEnRevision`) lista las órdenes `EN_REVISION` de la más antigua a la más nueva, paginadas

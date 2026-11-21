@@ -3,7 +3,6 @@ package bo.aportaya.entregas;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -82,31 +81,22 @@ class CU133PozoCompletoTest extends BaseDePozoCompleto {
 
     @Test
     @DisplayName(
-            "Dado un pozo fondeado · Cuando se autoriza, se ejecuta y se intenta ejecutar otra vez · Entonces el beneficiario recibe Bs 6.000 UNA sola vez")
+            "Dado un pozo fondeado y autorizado · Cuando se vuelve a fondear el mismo turno · Entonces no nace otra entrega y el principal sigue siendo Bs 6.000")
     void seEntregaUnaSolaVez() {
         var c = caso();
         aportesConfirma(c, "5000.00");
         garantiaDoble.conDisponible(bob("8000.00"));
         var salida = fondear(c, "fondeo-3-" + c.e().turnoId());
-        ContextoSesion supervisor = contextoDe(fixtura.usuario());
 
         transaccion.execute(t -> entregaCU.autorizar(salida.entregaId(), c.ctx()));
-        var ejecutada = transaccion.execute(t -> entregaCU.ejecutar(salida.entregaId(), bob("6000.00"), supervisor));
 
-        assertThat(ejecutada.montoEntregado()).isEqualTo(bob("6000.00"));
-        assertThatThrownBy(() ->
-                        transaccion.execute(t -> entregaCU.ejecutar(salida.entregaId(), bob("6000.00"), supervisor)))
-                .isInstanceOfSatisfying(
-                        ErrorDeNegocio.class,
-                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU22-03"));
-        // Y volver a fondear el turno ya entregado no abre otra entrega.
+        // El cierre manual con un monto libre se retiro (F1.L2.M08): la entrega solo queda ENTREGADA al acreditarse su
+        // desembolso (CU-28). Volver a fondear el turno no abre otra entrega ni cambia el principal.
         var otraVez = fondear(c, "fondeo-3-" + c.e().turnoId());
         assertThat(otraVez.entregaId()).isEqualTo(salida.entregaId());
         assertThat(otraVez.esNuevo()).isFalse();
         assertThat(entregasDelTurno(c)).isEqualTo(1);
-        assertThat(numero(
-                        "SELECT monto_efectivamente_entregado FROM entregas.entrega_fondo WHERE id = ?",
-                        salida.entregaId()))
+        assertThat(numero("SELECT monto_neto_a_entregar FROM entregas.entrega_fondo WHERE id = ?", salida.entregaId()))
                 .isEqualByComparingTo("6000.00");
     }
 

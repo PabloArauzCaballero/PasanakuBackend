@@ -146,19 +146,22 @@ class CU133PozoCompletoRechazosTest extends BaseDePozoCompleto {
             "Dado un turno ya liquidado por el camino anterior · Cuando se intenta fondear · Entonces AP-CU22-09: no hay dos entregas del mismo turno")
     void turnoYaLiquidadoPorElCaminoAnterior() {
         var c = caso();
-        transaccion.execute(t -> entregaCU.liquidar(
-                new bo.aportaya.entregas.aplicacion.CU22LiquidarEntrega.EntradaLiquidacion(
-                        c.e().grupoId(),
-                        c.e().periodoId(),
-                        c.e().turnoId(),
-                        c.e().cupoId(),
-                        c.e().participanteId(),
-                        bob("6000.00"),
-                        bob("6000.00"),
-                        java.util.List.of(),
-                        "BILLETERA_MOVIL",
-                        LocalDate.now()),
-                c.ctx()));
+        // La liquidacion vieja se retiro (F1.L2.M09): su entrega llega como dato de antes, escrito directo en la base.
+        dslFixtura.execute(
+                """
+                INSERT INTO entregas.entrega_fondo
+                    (id, grupo_id, periodo_id, turno_id, cupo_id, beneficiario_participante_id,
+                     monto_bolsa_bruto, total_deducciones, monto_neto_a_entregar,
+                     monto_efectivamente_entregado, moneda, estado, metodo_desembolso,
+                     fecha_programada, version)
+                VALUES (gen_random_uuid(), ?, ?, ?, ?, ?, 6000.00, 0, 6000.00, 0,
+                        'BOB', 'PROGRAMADA', 'BILLETERA_MOVIL', current_date, 0)
+                """,
+                c.e().grupoId(),
+                c.e().periodoId(),
+                c.e().turnoId(),
+                c.e().cupoId(),
+                c.e().participanteId());
         aportesConfirma(c, "6000.00");
 
         assertThatThrownBy(() -> fondear(c, "fondeo-13-" + c.e().turnoId()))

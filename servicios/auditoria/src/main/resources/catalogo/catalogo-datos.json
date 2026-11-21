@@ -776,36 +776,6 @@
    },
    "operaciones": [
     {
-     "casoDeUso": "CU-22",
-     "titulo": "Liquidar y entregar el fondo",
-     "endpoints": [
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas",
-       "operationId": "liquidarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/pozo-completo",
-       "operationId": "fondearPozo"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/autorizacion",
-       "operationId": "autorizarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/ejecucion",
-       "operationId": "ejecutarEntrega"
-      }
-     ]
-    },
-    {
      "casoDeUso": "CU-57",
      "titulo": "Operar un punto de atención y arquear el efectivo",
      "endpoints": []
@@ -24059,36 +24029,6 @@
    },
    "operaciones": [
     {
-     "casoDeUso": "CU-22",
-     "titulo": "Liquidar y entregar el fondo",
-     "endpoints": [
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas",
-       "operationId": "liquidarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/pozo-completo",
-       "operationId": "fondearPozo"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/autorizacion",
-       "operationId": "autorizarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/ejecucion",
-       "operationId": "ejecutarEntrega"
-      }
-     ]
-    },
-    {
      "casoDeUso": "CU-31",
      "titulo": "Devengar y cobrar la comisión",
      "endpoints": [
@@ -25336,6 +25276,36 @@
    },
    "operaciones": [
     {
+     "casoDeUso": "CU-22",
+     "titulo": "Liquidar y entregar el fondo",
+     "endpoints": [
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas",
+       "operationId": "liquidarEntrega"
+      },
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas/pozo-completo",
+       "operationId": "fondearPozo"
+      },
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas/{entregaId}/autorizacion",
+       "operationId": "autorizarEntrega"
+      },
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas/{entregaId}/ejecucion",
+       "operationId": "ejecutarEntrega"
+      }
+     ]
+    },
+    {
      "casoDeUso": "CU-28",
      "titulo": "Emitir la orden de desembolso y ejecutar el intento",
      "endpoints": [
@@ -25566,6 +25536,36 @@
     "derivados": 0
    },
    "operaciones": [
+    {
+     "casoDeUso": "CU-22",
+     "titulo": "Liquidar y entregar el fondo",
+     "endpoints": [
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas",
+       "operationId": "liquidarEntrega"
+      },
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas/pozo-completo",
+       "operationId": "fondearPozo"
+      },
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas/{entregaId}/autorizacion",
+       "operationId": "autorizarEntrega"
+      },
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas/{entregaId}/ejecucion",
+       "operationId": "ejecutarEntrega"
+      }
+     ]
+    },
     {
      "casoDeUso": "CU-28",
      "titulo": "Emitir la orden de desembolso y ejecutar el intento",
@@ -63316,36 +63316,6 @@
      ]
     },
     {
-     "casoDeUso": "CU-22",
-     "titulo": "Liquidar y entregar el fondo",
-     "endpoints": [
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas",
-       "operationId": "liquidarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/pozo-completo",
-       "operationId": "fondearPozo"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/autorizacion",
-       "operationId": "autorizarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/ejecucion",
-       "operationId": "ejecutarEntrega"
-      }
-     ]
-    },
-    {
      "casoDeUso": "CU-23",
      "titulo": "Cubrir un incumplimiento con el fondo",
      "endpoints": [
@@ -71530,36 +71500,6 @@
      ]
     },
     {
-     "casoDeUso": "CU-22",
-     "titulo": "Liquidar y entregar el fondo",
-     "endpoints": [
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas",
-       "operationId": "liquidarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/pozo-completo",
-       "operationId": "fondearPozo"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/autorizacion",
-       "operationId": "autorizarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/ejecucion",
-       "operationId": "ejecutarEntrega"
-      }
-     ]
-    },
-    {
      "casoDeUso": "CU-26",
      "titulo": "Ejecutar el aval y subrogar la deuda",
      "endpoints": [
@@ -78893,36 +78833,6 @@
      ]
     },
     {
-     "casoDeUso": "CU-22",
-     "titulo": "Liquidar y entregar el fondo",
-     "endpoints": [
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas",
-       "operationId": "liquidarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/pozo-completo",
-       "operationId": "fondearPozo"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/autorizacion",
-       "operationId": "autorizarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/ejecucion",
-       "operationId": "ejecutarEntrega"
-      }
-     ]
-    },
-    {
      "casoDeUso": "CU-31",
      "titulo": "Devengar y cobrar la comisión",
      "endpoints": [
@@ -80724,36 +80634,6 @@
     "derivados": 0
    },
    "operaciones": [
-    {
-     "casoDeUso": "CU-22",
-     "titulo": "Liquidar y entregar el fondo",
-     "endpoints": [
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas",
-       "operationId": "liquidarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/pozo-completo",
-       "operationId": "fondearPozo"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/autorizacion",
-       "operationId": "autorizarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/ejecucion",
-       "operationId": "ejecutarEntrega"
-      }
-     ]
-    },
     {
      "casoDeUso": "CU-31",
      "titulo": "Devengar y cobrar la comisión",
@@ -83814,36 +83694,6 @@
        "metodo": "GET",
        "ruta": "/tarifas/vigentes/{codigo}",
        "operationId": "consultarTarifarioVigente"
-      }
-     ]
-    },
-    {
-     "casoDeUso": "CU-22",
-     "titulo": "Liquidar y entregar el fondo",
-     "endpoints": [
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas",
-       "operationId": "liquidarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/pozo-completo",
-       "operationId": "fondearPozo"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/autorizacion",
-       "operationId": "autorizarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/ejecucion",
-       "operationId": "ejecutarEntrega"
       }
      ]
     },
