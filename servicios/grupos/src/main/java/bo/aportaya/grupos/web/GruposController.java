@@ -35,6 +35,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -180,13 +181,23 @@ public class GruposController extends RutasAOtrosServicios {
     @Permiso("PARTICIPANTE")
     public ResponseEntity<SalidaRetiro> solicitarRetiro(UUID grupoId, UUID idempotencyKey, EntradaRetiro cuerpo) {
         var ctx = sesion.actual();
-        Traza.marcarCasoDeUso("CU-65", cuerpo.getParticipanteId().toString());
+        Traza.marcarCasoDeUso("CU-65", grupoId.toString());
+
+        // Se retira quien llama, del grupo de la ruta (F1.L3.M04). El cuerpo no aporta identidad: el
+        // `participanteId` deprecado solo se acepta si es el mismo, para no romper a los clientes viejos.
+        UUID participanteId = consultas
+                .participanteDe(grupoId, ctx.usuarioId(), ctx)
+                .orElseThrow(() -> new AccessDeniedException("No participa del grupo"));
+        if (MapeoDeGrupos.otroTitularEnElCuerpo(cuerpo, participanteId)) {
+            throw new AccessDeniedException("El retiro solo lo pide su titular");
+        }
 
         var salida = cu65.solicitar(
                 MapeoDeGrupos.entradaDeRetiro(
+                        participanteId,
                         cuerpo,
-                        afuera.estadoDePagos(cuerpo.getParticipanteId()),
-                        consultas.yaCobroSuTurno(cuerpo.getParticipanteId(), ctx)),
+                        afuera.estadoDePagos(participanteId),
+                        consultas.yaCobroSuTurno(participanteId, ctx)),
                 ctx);
 
         var respuesta = new SalidaRetiro();
