@@ -28,13 +28,13 @@
 | F1.L1.M01 | Esquema `Importe` en los contratos de entrada | `monto` negativo → 400 en reembolso | prueba web `PagosController` | A MEDIAS — PR #445: `Importe` en reembolso y disputa, borde 400 en el resto; falta `Importe` en nucleo (app L6) |
 | F1.L1.M07 | BOLA en `aportes` | recurso ajeno → 404 | matriz negativa web | A MEDIAS — PR #441: estado y reembolso; morosos, primera-cuota y recaudo requieren identidad de servicio en grupos/entregas/garantia |
 | F1.L1.M06 | La firma del webhook cubre el timestamp | reenvío con timestamp nuevo → 401 | prueba unitaria tres niveles + web CU100 | HECHO — PR #430 (`evidencia/M06-*`) |
-| F1.L1.M05 | Secreto del webhook obligatorio, sin literal en `src/main` | arranque sin variable falla | prueba de arranque + grep | TODO |
+| F1.L1.M05 | Secreto del webhook obligatorio, sin literal en `src/main` | arranque sin variable falla | prueba de arranque + grep | HECHO — PR #450 (`evidencia/M05-*`); ArranqueTest con Docker NO COMPROBADO |
 | F1.L1.M13 | Sello del cierre diario con saldos, moneda y sello anterior | alterar saldo cambia el sello | prueba unitaria | HECHO — PR #436 (`evidencia/M13-*`) |
 | F1.L1.M10 | Bloqueo judicial con permisos propios y segregación | sin permiso → 403; mismo registrador no levanta | pruebas web | TODO |
 | F1.L1.M09 | Idempotencia real del reembolso | dos envíos con la misma clave → un reembolso, mismo id | prueba de integración (psql + Java) | A MEDIAS — PR #447 (apilado en #425): solicitud idempotente; falta clave en aprobación y alta de proveedor |
-| F1.L1.M12 | Moneda en reembolso y tablas de importe | reembolso de pago USD queda en USD | psql + prueba | TODO |
+| F1.L1.M12 | Moneda en reembolso y tablas de importe | reembolso de pago USD queda en USD | psql + prueba | A MEDIAS — PR #449 (apilado en #447): reembolso y disputa; faltan conciliacion, excepcion_conciliacion, extracto_bancario |
 | F1.L1.M08 | Hechos de dinero de `aportes` inmutables | `UPDATE aportes.pago` como `svc_aportes` → permission denied | psql con `SET ROLE` | TODO |
-| F1.L1.M04 | `nucleo-financiero` arranca sin dobles de desarrollo (adaptador fail-closed) | `ArranqueProduccionTest` sin `@MockitoBean` del puerto | `./gradlew :servicios:nucleo-financiero:test --tests '*ArranqueProduccion*'` | TODO |
+| F1.L1.M04 | `nucleo-financiero` arranca sin dobles de desarrollo (adaptador fail-closed) | `ArranqueProduccionTest` sin `@MockitoBean` del puerto | `./gradlew :servicios:nucleo-financiero:test --tests '*ArranqueProduccion*'` | HECHO — PR #451 (`evidencia/M04-*`) |
 | F1.S4.M2 | Destino de transferencia por identificador único | alias duplicado no desvía la transferencia | prueba dirigida | DESCARTADO para L1 — vive en `grupos` (F1.L3.M03, lote L3); decidido por el alcance de la tanda ("si vive en tus servicios") |
 
 ## H2 — F2 del lote L1
@@ -44,7 +44,7 @@
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| F2.L1.M01 | Retirar el consumidor de asientos de cobertura empresarial/respaldo | no hay consumidor de esos tópicos | grep en `servicios/nucleo-financiero/src/main` vacío + suite | TODO |
+| F2.L1.M01 | Retirar el consumidor de asientos de cobertura empresarial/respaldo | no hay consumidor de esos tópicos | grep en `servicios/nucleo-financiero/src/main` vacío + suite | A MEDIAS — PR #452: tópicos y CAJA_EMPRESA fuera; RESERVA_RESPALDO/POZO_GRUPO/DESEMBOLSO los usan caminos vigentes (F3) |
 | F2.L1.M02 | Retirar cuentas 9.x y tipos de cobertura empresarial del esquema/semillas | base nueva sin 9.x | psql de verificación | TODO |
 | F2.L1.M03 | Catálogo de canales de cobro solo QR y billetera | `INSERT` con `FONDO_GARANTIA` falla | psql | TODO |
 | F2.L1.M04 | Cuotas nacen solas al abrirse el periodo | evento duplicado → una cuota por cupo | prueba dirigida | TODO |

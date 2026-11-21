@@ -1,14 +1,14 @@
 # Reporte — Tanda 2, lote L1 (`aportes` y `nucleo-financiero`)
 
-> **AVANCE: 4 / 18 — 22,2 %.** Trabajo en curso. Nada en rojo por código propio; dos fallas del CI de #418 son de módulos ajenos (ver Riesgos).
+> **AVANCE: 6 / 18 — 33,3 %.** Trabajo en curso. Nada en rojo por código propio; dos fallas del CI de #418 son de módulos ajenos (ver Riesgos).
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Base: `origin/dev` 50cf3be9
-- PR abiertos hacia `dev` (sin mergear): #418, #425, #430, #436, #441, #445, #447
+- PR abiertos hacia `dev` (sin mergear): #418, #425, #430, #436, #441, #445, #447, #449, #450, #451, #452
 - Peldaño de evidencia por área:
   - `aportes` y `nucleo-financiero` (código): `TESTED`, con pruebas dirigidas en verde contra PostgreSQL 16 real local y controles negativos (mutantes) que fallan sin el cambio. No llega a `VERIFIED`: el camino HTTP de punta a punta con los servicios levantados no se ejercitó.
   - Integración con Testcontainers: las clases que levantan su propio contenedor (`AislamientoEsquemaTest`, `ArranqueTest`) quedan **NO COMPROBADAS: requieren Docker** (máquina de Pablo).
 
-Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 = 18. `HECHO` = L1.M00, F1.L1.M03, F1.L1.M06 y F1.L1.M13. Las que quedaron `A MEDIAS` no suman. F1.S4.M2 quedó `DESCARTADO` para L1 (no suma y se declara abajo).
+Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 = 18. `HECHO` = L1.M00, F1.L1.M03, F1.L1.M04, F1.L1.M05, F1.L1.M06 y F1.L1.M13. Las que quedaron `A MEDIAS` no suman. F1.S4.M2 quedó `DESCARTADO` para L1 (no suma y se declara abajo).
 
 ## Completado
 
@@ -17,6 +17,8 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 = 18. `HECHO` = L
 | L1.M00 | Los logs de CU-10, CU-12 y CU-21 ya no escriben el importe. Un barrido por servicio lo impide en adelante. | `./gradlew :servicios:{aportes,nucleo-financiero}:testBarrido` | PASS. Con el código de `dev`, el barrido falla (control negativo). `evidencia/M00-logs-sin-importes.txt` · PR #418 |
 | F1.L1.M03 | Un reverso necesita dos actos y dos tokens. `autorizadaPor` desaparece del contrato. La misma persona recibe 422 `AP-CU14-02`. La base lo exige con R-BIL-27. | `webTest ReversoCuatroOjosWebTest` (7/7) + `integrationTest` de 12 clases que reversan (76/76) + psql con `SET ROLE svc_nucleo_financiero` | PASS. El mutante sin la segunda firma hace fallar 2 pruebas. `evidencia/M03-*` · PR #425 |
 | F1.L1.M06 | La firma del webhook cubre `X-Timestamp`. Un reenvío con otro timestamp da `FIRMA_INVALIDA` y no escribe nada. | `test VerificadorDeFirmaWebhookTest` (12/12) + `integrationTest CU100WebhookTest` (9/9) | PASS. El mutante que firma solo el cuerpo hace fallar 4 pruebas. `evidencia/M06-firma-timestamp.txt` · PR #430 |
+| F1.L1.M05 | El secreto del webhook de `aportes` sale de `APORTES_WEBHOOK_SECRETO`, sin valor por omisión. Si falta o es corto, el servicio no arranca. No queda ningún literal en `src/main`. | `test SecretoWebhookDeEntornoTest` (2/2) + grep | PASS. `evidencia/M05-secreto-webhook.txt` · PR #450. **Antes de desplegar hay que cargar la variable en Coolify.** |
+| F1.L1.M04 | `nucleo-financiero` arranca con perfil productivo sin `@MockitoBean`. Instruir un retiro devuelve `AP-CU11-15 PROVEEDOR_DE_DESEMBOLSO_NO_CONFIGURADO`. | `ArranqueProduccionTest` contra la Postgres local (2/2) + `ProveedorDeRetiroNoConfiguradoTest` (2/2) | PASS. Sin el adaptador: «No qualifying bean». `evidencia/M04-desembolso-fail-closed.txt` · PR #451 |
 | F1.L1.M13 | El sello del cierre diario cubre cuenta, fecha, moneda, saldos y el sello anterior. `primeraRuptura` señala el primer día alterado. | `test SelloDelDiaTest` (6/6) + `integrationTest CU51* CU15*` | PASS. El mutante con el sello viejo hace fallar 6 pruebas. `evidencia/M13-sello-cierre.txt` · PR #436 |
 
 ## A medias
@@ -39,17 +41,28 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 = 18. `HECHO` = L
 - **Qué falta exactamente:** agregar la clave a la transición de aprobación y a `proveedor_pago`, y después contraer: `NOT NULL` y `UNIQUE` total cuando no queden filas sin clave.
 - **Dónde quedó:** rama `correcciones/tanda2-l1-reembolso-idempotente`. Compila y está en verde.
 
+### F1.L1.M12 — Moneda en las tablas de importe (PR #449, apilado sobre #447)
+- **Qué anda:** `reembolso` y `disputa_pago` guardan su moneda. R-BIL-29 la restringe a `BOB|USD`. Un reembolso de un pago en USD se escribe y se lee en USD, y uno en otra moneda da `AP-CU19-02`. Ya no queda `Moneda.BOB` fijo. `CU19MonedaTest` 3/3, el mutante falla 3/3 y la migración sobre una base existente se probó.
+- **Qué no anda:** `conciliacion`, `excepcion_conciliacion` y `extracto_bancario` siguen sin moneda.
+- **Qué falta exactamente:** agregar en esas tres tablas la misma columna, con R-BIL y los escritores (`ConciliacionRepositorio`, `RecaudoDiarioRepositorio`, `ConciliarLoteTripartito`). Después, contraer a `NOT NULL`.
+- **Dónde quedó:** rama `correcciones/tanda2-l1-moneda-reembolso`. Compila y está en verde.
+
+### F2.L1.M01 — Consumidor de respaldo y cobertura empresarial (PR #452)
+- **Qué anda:** el listener escucha solo `entregas.desembolso_acreditado`, y una prueba fija esos tópicos. `CAJA_EMPRESA` salió de la configuración y del compose.
+- **Qué no anda:** quedan los mapeos `RESERVA_RESPALDO`, `POZO_GRUPO` y `DESEMBOLSO`, que apuntan a las cuentas 9.x.
+- **Qué falta exactamente:** las cuentas del fondo del grupo del modelo A (F3) para reemplazar esas cuentas. Después, F2.L1.M02. También que L2 retire el productor en `garantia`.
+- **Dónde quedó:** rama `correcciones/tanda2-l1-retiro-consumidor-respaldo`. Compila y está en verde.
+
 ## Pendiente
 
 | ID | Estado | Qué lo destraba |
 |---|---|---|
 | F1.L1.M11 | TODO | Lo ejecuta esta sesión. Cambia el contrato que usa `apps/movil/.../cu21_cobrar_aporte.dart` (L6): hay que coordinar el cambio de la app en el mismo PR o en uno de L6. |
-| F1.L1.M05 | TODO | Lo ejecuta esta sesión. La variable va en `docker-compose.coolify.yml`, que es compartido: se hace la parte del servicio y se describe el cambio exacto del compose. |
-| F1.L1.M04 | TODO | Depende de F0·PUERTOS (puerto de desembolso). Se puede hacer contra un adaptador fail-closed (regla 65). |
 | F1.L1.M10 | TODO | Los permisos nuevos se siembran en `sql/60_semillas`/`seeders` (compartido). AMB-L1-3: confirmar con Cumplimiento. |
-| F1.L1.M12 | TODO | Lo ejecuta esta sesión (cambio de esquema, por expansión). |
 | F1.L1.M08 | TODO | Es el cambio de esquema más grande (tablas de transición). Lo ejecuta esta sesión. |
-| F2.L1.M01–M04 | TODO | Después de F1. M01 está coordinado con el retiro del productor en `garantia` (L2). |
+| F2.L1.M02 | TODO | Depende de F3: el árbol 9.x lo usan `POZO_GRUPO` y `DESEMBOLSO`, que asientan el desembolso vigente. Sacarlo antes rompe ese asiento. |
+| F2.L1.M03 | TODO | Depende de F1.L1.M11 (el contrato del cobro deja de llevar `canal`) y de que la app (L6) no ofrezca los canales retirados. |
+| F2.L1.M04 | TODO | Necesita el evento de apertura de período de `grupos` (L3) y su pacto, o un trabajo con ShedLock, y el ADR de inicio automático (F0·ADR-054). |
 | F1.S4.M2 | DESCARTADO para L1 | Vive en `grupos` (F1.L3.M03, lote L3): el `LIMIT 1` está en `ConsultasRepositorio.usuarioDelAlias`. La parte de `nucleo-financiero` (rechazar un destino ambiguo) depende del contrato nuevo que defina L3. |
 
 ## Evidencia
