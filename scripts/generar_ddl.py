@@ -588,8 +588,24 @@ def generar():
             enc.append("-- Generado por scripts/generar_ddl.py — no editar a mano.")
 
             cierre = f") PARTITION BY RANGE ({particion});" if particion else ");"
-            sql = ["\n".join(enc), "",
-                   f"CREATE TABLE IF NOT EXISTS {q(tabla)} (", cuerpo, cierre, ""]
+            sql = ["\n".join(enc), ""]
+            if particion:
+                # CREATE TABLE IF NOT EXISTS saltea una tabla que ya esta: una base que la tiene SIN particionar
+                # (TEST, antes de que el modelo la particionara) quedaria asi para siempre. Vacia, se suelta y nace
+                # particionada (no se pierde nada). Con filas, la aplicacion se detiene: mover datos es una migracion
+                # con respaldo verificado (regla 97.3.6), nunca un efecto lateral del generador.
+                sql += [
+                    "DO $$",
+                    "BEGIN",
+                    f"  IF to_regclass('{q(tabla)}') IS NOT NULL AND (SELECT c.relkind FROM pg_class c",
+                    f"      WHERE c.oid = to_regclass('{q(tabla)}')) = 'r' THEN",
+                    f"    IF EXISTS (SELECT 1 FROM {q(tabla)}) THEN",
+                    f"      RAISE EXCEPTION '{q(tabla)} tiene filas y no esta particionada: migrarla con respaldo antes de aplicar';",
+                    "    END IF;",
+                    f"    DROP TABLE {q(tabla)} CASCADE;",
+                    "  END IF;",
+                    "END $$;", ""]
+            sql += [f"CREATE TABLE IF NOT EXISTS {q(tabla)} (", cuerpo, cierre, ""]
 
             if particion:
                 # Una partición por mes del año en curso y del siguiente, más la

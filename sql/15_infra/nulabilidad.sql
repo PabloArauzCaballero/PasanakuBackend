@@ -30,6 +30,8 @@ ALTER TABLE aportes.excepcion_conciliacion ALTER COLUMN moneda DROP NOT NULL;
 ALTER TABLE aportes.excepcion_conciliacion ALTER COLUMN resolucion DROP NOT NULL;
 ALTER TABLE aportes.excepcion_conciliacion ALTER COLUMN resuelta_en DROP NOT NULL;
 ALTER TABLE aportes.extracto_bancario ALTER COLUMN moneda DROP NOT NULL;
+ALTER TABLE aportes.historial_estado_webhook ALTER COLUMN error_procesamiento DROP NOT NULL;
+ALTER TABLE aportes.historial_estado_webhook ALTER COLUMN pago_id DROP NOT NULL;
 ALTER TABLE aportes.intento_pago ALTER COLUMN codigo_error DROP NOT NULL;
 ALTER TABLE aportes.intento_pago ALTER COLUMN finalizado_en DROP NOT NULL;
 ALTER TABLE aportes.intento_pago ALTER COLUMN mensaje_proveedor DROP NOT NULL;

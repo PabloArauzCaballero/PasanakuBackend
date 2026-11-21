@@ -4,6 +4,17 @@
 -- PARTICIONADA por rango de fecha_hora (mensual)
 -- Generado por scripts/generar_ddl.py — no editar a mano.
 
+DO $$
+BEGIN
+  IF to_regclass('comun.registro_acceso_datos') IS NOT NULL AND (SELECT c.relkind FROM pg_class c
+      WHERE c.oid = to_regclass('comun.registro_acceso_datos')) = 'r' THEN
+    IF EXISTS (SELECT 1 FROM comun.registro_acceso_datos) THEN
+      RAISE EXCEPTION 'comun.registro_acceso_datos tiene filas y no esta particionada: migrarla con respaldo antes de aplicar';
+    END IF;
+    DROP TABLE comun.registro_acceso_datos CASCADE;
+  END IF;
+END $$;
+
 CREATE TABLE IF NOT EXISTS comun.registro_acceso_datos (
   id                                 UUID DEFAULT gen_random_uuid() NOT NULL,
   usuario_consultor_id               UUID NOT NULL,

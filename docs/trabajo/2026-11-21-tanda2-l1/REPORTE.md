@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, lote L1 (`aportes` y `nucleo-financiero`)
 
-> **AVANCE: 10 / 20 — 50,0 %.** Trabajo en curso: M11, M01, M07 y el listado de bloqueos (M10c, nuevo) a medias, con el código en verde y esperando lugar para su PR (tope 3) o la app de L6; lo que queda está bloqueado por archivos compartidos, por otro lote o por decisiones (ver Pendiente). Nada en rojo por código propio; dos fallas del CI de #418 son de módulos ajenos (ver Riesgos).
+> **AVANCE: 14 / 23 — 60,9 %.** M08 cerrado con la opción A que eligió Pablo (webhook particionado y sellado), en su rama esperando lugar para el PR (tope 3); M11, M01, M07 y M10c a medias, con el código en verde y su PR abierto, mergeado (M11, falta contraer tras la app de L6) o esperando lugar; lo que queda depende de otro lote o de decisiones (ver Pendiente).
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Base: `origin/dev` 50cf3be9
 - PR hacia `dev`: **todos mergeados**. Se mergearon #430, #454 (que trajo a #425, #447 y #449), #456 (que trajo a #455), #418, #461 y #458 (que consolidan al resto). Abierto: el PR de M10 parte 2 (permisos y ruta de levantamiento).
@@ -14,6 +14,10 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 
 
 | ID | Qué se logró (observable) | Comando | Resultado |
 |---|---|---|---|
+| F1.L1.M08 | `pago`, `reembolso` y sus historiales son append-only (en `dev` por #458). `webhook_pasarela`, por la opción A: particionada por mes y sellada; la deduplicación `(proveedor, clave)` vive en `webhook_clave` y el cierre del procesamiento es una fila de `historial_estado_webhook` (R-BIL-33) | `AppendOnlyTest` + `CU99WebhookSelladoTest` + psql | PASS. `evidencia/M08-*`, `evidencia/M08b-*`; el webhook está en la rama `correcciones/tanda2-l1-particion-webhook`, sin PR por el tope de 3 |
+| F1.L1.M08a | Esquema por el pipeline (puml → `generar_ddl`): dos aplicaciones seguidas dan exit=0; la tabla vieja vacía se convierte y una con filas detiene la aplicación (exit=3) sin perder la fila | `generar_ddl.py` + `aplicar.sql` + psql | PASS. `evidencia/M08b-*` |
+| F1.L1.M08b | `WebhookRepositorio` deduplica en `webhook_clave` y cierra con historial; dos altas simultáneas dejan un aviso | `CU99WebhookSelladoTest` 5/5 + `CU100WebhookTest` | PASS. Dos mutantes en rojo. `evidencia/M08b-*` |
+| F1.L1.M08c | `fn_aportes_purgar_webhooks(corte)` suelta los meses enteros vencidos con sus claves e historial, sin `UPDATE`/`DELETE` sobre el aviso; segunda corrida sin efecto | psql + `CU99WebhookSelladoTest` | PASS. Mutante con DELETE en rojo. `evidencia/M08b-*` |
 | L1.M00 | Los logs de CU-10, CU-12 y CU-21 ya no escriben el importe. Un barrido por servicio lo impide en adelante. | `./gradlew :servicios:{aportes,nucleo-financiero}:testBarrido` | PASS. Con el código de `dev`, el barrido falla (control negativo). `evidencia/M00-logs-sin-importes.txt` · PR #418 |
 | F1.L1.M03 | Un reverso necesita dos actos y dos tokens. `autorizadaPor` desaparece del contrato. La misma persona recibe 422 `AP-CU14-02`. La base lo exige con R-BIL-27. | `webTest ReversoCuatroOjosWebTest` (7/7) + `integrationTest` de 12 clases que reversan (76/76) + psql con `SET ROLE svc_nucleo_financiero` | PASS. El mutante sin la segunda firma hace fallar 2 pruebas. `evidencia/M03-*` · PR #425 |
 | F1.L1.M06 | La firma del webhook cubre `X-Timestamp`. Un reenvío con otro timestamp da `FIRMA_INVALIDA` y no escribe nada. | `test VerificadorDeFirmaWebhookTest` (12/12) + `integrationTest CU100WebhookTest` (9/9) | PASS. El mutante que firma solo el cuerpo hace fallar 4 pruebas. `evidencia/M06-firma-timestamp.txt` · PR #430 |
@@ -66,16 +70,6 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 
   3. Después de #476, resolver el conflicto de la línea `version` del contrato.
 - **Dónde quedó:** rama `correcciones/tanda2-l1-importe-nucleo`, pusheada. Compila y la regresión está en verde.
 
-### F1.L1.M08 — Hechos de dinero inmutables (PR #458 (antes #455), apilado sobre #454)
-- **Qué anda:**
-  - `pago`, `reembolso` y sus dos historiales de estado son append-only: trigger R-AUD-01 y `REVOKE UPDATE, DELETE` a `svc_aportes`, generados desde `APPEND_ONLY` (`scripts/modelo.py`).
-  - El estado cambia agregando una fila de historial, y desde cada estado se sale una sola vez (R-BIL-30).
-  - `AppendOnlyTest` 9/9. `UPDATE` como `svc_aportes` da `permission denied` y, como superusuario, `R-AUD-01`. Dos reversos concurrentes dejan una sola fila.
-  - Integración de `aportes`: 141/144, y las 3 en rojo son las de Docker. El mutante hace fallar 5 pruebas. El humo del esquema da 0 FALLA.
-- **Qué no anda:** `webhook_pasarela` sigue cambiando su estado con `UPDATE`.
-- **Qué falta exactamente:** particionar `webhook_pasarela` por fecha, como `bitacora_evento`. Su retención es ELIMINAR a los 24 meses, y una tabla append-only solo se purga con DETACH + DROP de la partición. Después, sellarla y llevar su estado a `webhook_transicion` o `historial_estado_webhook`.
-- **Dónde quedó:** rama `correcciones/tanda2-l1-hechos-inmutables`. Compila y está en verde.
-
 ### F2.L1.M01 — Consumidor de respaldo y cobertura empresarial (PR #461 (antes #452))
 - **Qué anda:** el listener escucha solo `entregas.desembolso_acreditado`, y una prueba fija esos tópicos. `CAJA_EMPRESA` salió de la configuración y del compose.
 - **Qué no anda:** quedan los mapeos `RESERVA_RESPALDO`, `POZO_GRUPO` y `DESEMBOLSO`, que apuntan a las cuentas 9.x.
@@ -111,6 +105,7 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 
 - `L2PEDIDO-retiro-ofertas.txt`: retiro del consumidor de ofertas y del pacto con `entregas`.
 - `M10b-permisos-y-levantamiento.txt`: semillas idempotentes, ruta y matriz negativa.
 - `M11-cobro-sin-confianza-en-el-cuerpo.txt`: contrato 1.1.0, pruebas web y de integración, mutantes, verificadores e impacto en la app.
+- `M08b-particion-webhook.txt`: fuente de verdad cambiada, aplicación doble, conversión de la tabla vieja, invariantes por psql, purga, pruebas, mutantes y regresión.
 - `M10-bloqueo-autoridad.txt`: cuatro ojos, liberación de la retención y mutante.
 - `M08-hechos-inmutables.txt`: sellado, historial, concurrencia, humo del esquema y mutante.
 - `M05-*`, `M04-*`, `F2M01-*`: secreto del webhook, desembolso fail-closed y consumidor de respaldo.
@@ -152,6 +147,9 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 
 - **Filas viejas.** Las filas de `saldo_diario_billetera` cerradas antes de #436 tienen el sello viejo. Si se verifica la cadena sobre ellas, aparece una ruptura en el primer día nuevo.
 
 ## Decisiones y ambigüedades
+
+- **M08 · plazo de retención de los avisos de la pasarela:** la purga recibe el corte como parámetro y ningún trabajo la llama todavía; la propuesta preguntaba si son 24 meses. A confirmar con Pablo y Cumplimiento antes de programarla.
+- **M08 · TEST:** si el `webhook_pasarela` de TEST tiene filas, la aplicación del SQL nuevo se detiene a propósito. Hay que contarlas antes de desplegar y, si hay, migrarlas con respaldo (regla 97.3.6). Lo tiene el coordinador.
 - **AMB-L1-3** (bloqueo judicial como acción humana, con dos personas): supuesto del anexo. Confirmar con Cumplimiento antes de F1.L1.M10.
 - **Idempotencia de la aprobación por estado + actor:** no se persiste el valor del `Idempotency-Key` de la aprobación. La unicidad la da la única salida de `SOLICITADO` (R-BIL-30). Confirmar con Pablo si quiere la clave guardada.
 - **Clave de alta reusada para otro código:** responde `AP-CU99-01`; no hay un código propio en el catálogo de CU-99. Confirmar si se agrega uno.

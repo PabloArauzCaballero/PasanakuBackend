@@ -158,6 +158,11 @@ CREATE TRIGGER tg_historial_estado_reembolso_append_only
   BEFORE UPDATE OR DELETE ON aportes.historial_estado_reembolso
   FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
 
+DROP TRIGGER IF EXISTS tg_historial_estado_webhook_append_only ON aportes.historial_estado_webhook;
+CREATE TRIGGER tg_historial_estado_webhook_append_only
+  BEFORE UPDATE OR DELETE ON aportes.historial_estado_webhook
+  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
+
 DROP TRIGGER IF EXISTS tg_impresion_anuncio_append_only ON publicidad.impresion_anuncio;
 CREATE TRIGGER tg_impresion_anuncio_append_only
   BEFORE UPDATE OR DELETE ON publicidad.impresion_anuncio
@@ -261,4 +266,9 @@ CREATE TRIGGER tg_valor_cuota_append_only
 DROP TRIGGER IF EXISTS tg_version_condiciones_append_only ON inversiones.version_condiciones;
 CREATE TRIGGER tg_version_condiciones_append_only
   BEFORE UPDATE OR DELETE ON inversiones.version_condiciones
+  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
+
+DROP TRIGGER IF EXISTS tg_webhook_pasarela_append_only ON aportes.webhook_pasarela;
+CREATE TRIGGER tg_webhook_pasarela_append_only
+  BEFORE UPDATE OR DELETE ON aportes.webhook_pasarela
   FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();

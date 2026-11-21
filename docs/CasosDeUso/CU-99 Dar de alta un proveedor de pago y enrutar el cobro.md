@@ -153,7 +153,7 @@ export const ErroresCU99 = {
 
 ## Restricciones aplicables
 
-`R-SEG-01` · `R-BIL-06` · `R-BIL-31` · `R-BIL-10` · `R-BIL-12` · `R-LIC-01` · `R-AUD-01` ·
+`R-SEG-01` · `R-BIL-06` · `R-BIL-31` · `R-BIL-33` · `R-BIL-10` · `R-BIL-12` · `R-LIC-01` · `R-AUD-01` ·
 `R-AUD-04` · `R-RIS-03`
 
 ## Evidencia que deja

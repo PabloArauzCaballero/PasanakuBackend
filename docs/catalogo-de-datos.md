@@ -291,6 +291,27 @@
 | `ejecutado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `fecha_hora` | TIMESTAMPTZ | Marca temporal o fecha de hora en `historial_estado_reembolso`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
+### `historial_estado_webhook`
+
+**Qué es.** Cada cambio de estado de un aviso de la pasarela, como una fila nueva: de `RECIBIDO` a `PROCESADO`, `DESCARTADO` o `FALLIDO`, con el pago que generó o el error, y cuándo.
+
+**Para qué sirve.** El aviso firmado de la pasarela es la prueba de que la plata llegó y no se edita (`R-BIL-33`). Cerrar su procesamiento agrega una fila acá en vez de pisar el aviso; el estado vigente es la última fila y, sin filas, `RECIBIDO`.
+
+**Por qué existe.** Sin historial, el cierre del procesamiento era un `UPDATE` sobre un hecho de dinero (R-AUD-01). Con él, desde cada estado se sale una sola vez (`uq_historial_estado_webhook_salida`) y la tabla se parte por la fecha del aviso para soltarse junto con él al vencer su retención.
+
+**Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `pago`. Reglas nombradas: `uq_historial_estado_webhook_salida`.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `webhook_id` | UUID | Identificador de referencia para el concepto de webhook en `historial_estado_webhook`. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `webhook_recibido_en` | TIMESTAMPTZ | Marca temporal o fecha de webhook recibido en `historial_estado_webhook`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `estado_anterior` | VARCHAR(15) | Atributo que representa estado anterior en el modelo de `historial_estado_webhook`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `estado_nuevo` | VARCHAR(15) | Atributo que representa estado nuevo en el modelo de `historial_estado_webhook`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `pago_id` | UUID | Referencia por clave foránea a la entidad `pago`. | UUID, opcional, referencia a `pago`. | NINGUNA |
+| `error_procesamiento` | TEXT | Atributo que representa error procesamiento en el modelo de `historial_estado_webhook`. | TEXT, opcional. | NINGUNA |
+| `fecha_hora` | TIMESTAMPTZ | Marca temporal o fecha de hora en `historial_estado_webhook`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
 ### `intento_pago`
 
 **Qué es.** Cada vez que se trata de ejecutar el cobro de una orden, con su resultado.
@@ -440,7 +461,7 @@ Los cinco campos de monto no son redundancia, son la historia económica complet
 
 **Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`, `pagarRecargaDePrueba`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-51 Ejecutar el cierre diario (`consultarRecaudoDiario`, `listarCierresDiarios`) · CU-82 Procesar una respuesta entrante (`procesarRespuestaEntrante`)
 
-**Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `identidad.usuario`, `intento_pago`, `obligacion_aporte`, `proveedor_pago`. La referencian `comprobante_manual`, `conciliacion`, `constancia_pago`, `disputa_pago`, `garantia.abono_recuperacion`, `garantia.ejecucion_aval`, `garantia.recuperacion_respaldo`, `historial_estado_pago`, `nucleo_financiero.orden_recarga`, `reembolso`, `webhook_pasarela`. Reglas nombradas: `uq_pago_idem`.
+**Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `identidad.usuario`, `intento_pago`, `obligacion_aporte`, `proveedor_pago`. La referencian `comprobante_manual`, `conciliacion`, `constancia_pago`, `disputa_pago`, `garantia.abono_recuperacion`, `garantia.ejecucion_aval`, `garantia.recuperacion_respaldo`, `historial_estado_pago`, `historial_estado_webhook`, `nucleo_financiero.orden_recarga`, `reembolso`, `webhook_pasarela`. Reglas nombradas: `uq_pago_idem`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
@@ -535,7 +556,7 @@ Los cinco campos de monto no son redundancia, son la historia económica complet
 
 **Casos de uso que la nombran.** CU-18 Registrar y verificar una cuenta bancaria de destino (`registrarCuentaDestino`, `consultarDisponibilidad`, `designarCuentaPrincipal`, `verificarCuentaDestino`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`) · CU-99 Dar de alta un proveedor de pago y enrutar el cobro (`enrutarCobro`, `darDeAltaProveedor`)
 
-**Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `entregas.orden_desembolso`, `extracto_bancario`, `nucleo_financiero.orden_recarga`, `nucleo_financiero.orden_retiro`, `orden_cobro`, `pago`, `tarifas.costo_proveedor_operacion`, `webhook_pasarela`. Reglas nombradas: `uq_proveedor_pago_clave`.
+**Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `entregas.orden_desembolso`, `extracto_bancario`, `nucleo_financiero.orden_recarga`, `nucleo_financiero.orden_retiro`, `orden_cobro`, `pago`, `tarifas.costo_proveedor_operacion`, `webhook_clave`, `webhook_pasarela`. Reglas nombradas: `uq_proveedor_pago_clave`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
@@ -625,6 +646,23 @@ El flujo `solicitado → aprobado → ejecutado`, con `solicitadoPor` y `aprobad
 | `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
 
+### `webhook_clave`
+
+**Qué es.** La clave de idempotencia que emitió la pasarela para cada aviso, junto con el proveedor que la emitió y el aviso al que corresponde.
+
+**Para qué sirve.** Un mismo aviso puede llegar dos veces; la segunda vez no puede acreditar otra vez (regla 91.1.4). La clave primaria `(proveedor, clave)` es la que rechaza el duplicado, en todo el tiempo y no solo dentro de un mes (`R-BIL-33`).
+
+**Por qué existe.** El aviso vive en una tabla particionada por mes, y PostgreSQL no admite un índice único sobre ella sin la fecha: el mismo aviso reenviado en otro mes pasaría como nuevo. Esta tabla chica, sin particionar, es la única fuente de esa unicidad. No es un hecho de dinero: cuando vence la retención del aviso se borra con él (`fn_aportes_purgar_webhooks`).
+
+**Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `proveedor_pago`.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `proveedor_id` | UUID | Referencia por clave foránea a la entidad `proveedor_pago`. | UUID, obligatoria, clave primaria, referencia a `proveedor_pago`. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(120) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(120), obligatoria, clave primaria. | NINGUNA |
+| `webhook_id` | UUID | Identificador de referencia para el concepto de webhook en `webhook_clave`. | UUID, obligatoria. | NINGUNA |
+| `webhook_recibido_en` | TIMESTAMPTZ | Marca temporal o fecha de webhook recibido en `webhook_clave`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+
 ### `webhook_pasarela`
 
 **Qué es.** Cada notificación que la pasarela envía al sistema, guardada en crudo antes de procesarla.
@@ -640,7 +678,7 @@ El flujo `solicitado → aprobado → ejecutado`, con `solicitadoPor` y `aprobad
 
 **Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`, `pagarRecargaDePrueba`) · CU-99 Dar de alta un proveedor de pago y enrutar el cobro (`enrutarCobro`, `darDeAltaProveedor`)
 
-**Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `pago`, `proveedor_pago`. Reglas nombradas: `uq_webhook_idem`.
+**Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `pago`, `proveedor_pago`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|

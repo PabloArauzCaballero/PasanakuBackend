@@ -373,6 +373,40 @@ pago no pueden pasar los dos.
 
 ---
 
+### `HistorialEstadoWebhook` / `historial_estado_webhook`
+
+**Qué es.** Cada cambio de estado de un aviso de la pasarela, como una fila nueva: de
+`RECIBIDO` a `PROCESADO`, `DESCARTADO` o `FALLIDO`, con el pago que generó o el error,
+y cuándo.
+
+**Para qué sirve (negocio).** El aviso firmado de la pasarela es la prueba de que la
+plata llegó y no se edita (`R-BIL-33`). Cerrar su procesamiento agrega una fila acá en
+vez de pisar el aviso; el estado vigente es la última fila y, sin filas, `RECIBIDO`.
+
+**Por qué debe existir.** Sin historial, el cierre del procesamiento era un `UPDATE`
+sobre un hecho de dinero (R-AUD-01). Con él, desde cada estado se sale una sola vez
+(`uq_historial_estado_webhook_salida`) y la tabla se parte por la fecha del aviso para
+soltarse junto con él al vencer su retención.
+
+---
+
+### `WebhookClave` / `webhook_clave`
+
+**Qué es.** La clave de idempotencia que emitió la pasarela para cada aviso, junto con
+el proveedor que la emitió y el aviso al que corresponde.
+
+**Para qué sirve (negocio).** Un mismo aviso puede llegar dos veces; la segunda vez no
+puede acreditar otra vez (regla 91.1.4). La clave primaria `(proveedor, clave)` es la
+que rechaza el duplicado, en todo el tiempo y no solo dentro de un mes (`R-BIL-33`).
+
+**Por qué debe existir.** El aviso vive en una tabla particionada por mes, y PostgreSQL
+no admite un índice único sobre ella sin la fecha: el mismo aviso reenviado en otro mes
+pasaría como nuevo. Esta tabla chica, sin particionar, es la única fuente de esa
+unicidad. No es un hecho de dinero: cuando vence la retención del aviso se borra con
+él (`fn_aportes_purgar_webhooks`).
+
+---
+
 ### `HistorialEstadoReembolso` / `historial_estado_reembolso`
 
 **Qué es.** Cada cambio de estado de un reembolso: de qué estado a cuál, quién lo

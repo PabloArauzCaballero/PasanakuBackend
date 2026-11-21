@@ -226,14 +226,17 @@ final class FixturaDeAportes {
     void limpiar() {
         dsl.deleteFrom(org.jooq.impl.DSL.table(org.jooq.impl.DSL.name("aportes", "disputa_pago")))
                 .execute();
-        // F1.L1.M08 · R-BIL-30: pago, reembolso y sus historiales son append-only y no se dejan borrar.
+        // F1.L1.M08 · R-BIL-30 y R-BIL-33: pago, reembolso, el aviso de la pasarela y sus historiales son append-only y
+        // no se dejan borrar.
         // Limpiar la base DE PRUEBA exige saltearse esa barrera, solo aca y como superusuario (replica
         // desactiva los triggers dentro de esta unica sentencia), igual que FixturaDeOrganizador.
         dsl.execute(
                 """
                 DO $$ BEGIN SET LOCAL session_replication_role = replica;
                   DELETE FROM aportes.historial_estado_reembolso; DELETE FROM aportes.historial_estado_pago;
-                  DELETE FROM aportes.reembolso; DELETE FROM aportes.pago; END $$""");
+                  DELETE FROM aportes.reembolso; DELETE FROM aportes.pago;
+                  DELETE FROM aportes.historial_estado_webhook; DELETE FROM aportes.webhook_clave;
+                  DELETE FROM aportes.webhook_pasarela; END $$""");
         for (String tabla : new String[] {
             "obligacion_aporte", "politica_mora", "proveedor_pago", "evento_dominio", "evento_consumido"
         }) {

@@ -315,7 +315,7 @@ paths:
         firma: se verifica ANTES de leer una sola linea del payload). Reenviar un
         webhook capturado con otro timestamp rompe la firma.
 
-        Evento repetido por `(proveedor_id, clave)` (`uq_webhook_idem`, invariante 7):
+        Evento repetido por `(proveedor_id, clave)` (`pk_webhook_clave`, R-BIL-33, invariante 7):
         mismo resultado, sin reprocesar ni duplicar el efecto financiero.
 
         El cuerpo se declara `text/plain` a proposito, no `application/json`: la firma

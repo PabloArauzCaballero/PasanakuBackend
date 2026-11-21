@@ -373,15 +373,14 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_devengo_idem ON devengo_comision (
 -- La misma regla, en el resto del sistema. Cada clave se ampara en el objeto
 -- del que depende la operación. `webhook_pasarela` se ampara en el proveedor
 -- porque la clave la emite él: dos pasarelas distintas pueden mandar el mismo
--- identificador de evento sin que eso signifique que sea el mismo hecho.
+-- identificador de evento sin que eso signifique que sea el mismo hecho. Esa unicidad
+-- vive en la PK de webhook_clave (R-BIL-33): webhook_pasarela esta particionada.
 CREATE UNIQUE INDEX IF NOT EXISTS uq_orden_cobro_idem
   ON orden_cobro (obligacion_id, clave_idempotencia);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_intento_pago_idem
   ON intento_pago (orden_cobro_id, clave_idempotencia);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_pago_idem
   ON pago (obligacion_id, clave_idempotencia);
-CREATE UNIQUE INDEX IF NOT EXISTS uq_webhook_idem
-  ON webhook_pasarela (proveedor_id, clave_idempotencia);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_cotizacion_idem
   ON cotizacion_comision (referencia_id, clave_idempotencia);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_token_verificacion_idem ON token_verificacion (
@@ -817,6 +816,58 @@ ALTER TABLE bloqueo_saldo DROP CONSTRAINT IF EXISTS ck_bloqueo_saldo_cuatro_ojos
 ALTER TABLE bloqueo_saldo
   ADD CONSTRAINT ck_bloqueo_saldo_cuatro_ojos
   CHECK (levantada_por IS NULL OR registrado_por IS NULL OR levantada_por <> registrado_por);
+
+-- R-BIL-33 · el aviso de la pasarela, sellado y particionado por mes (F1.L1.M08, opcion A).
+-- La deduplicacion (proveedor, clave) vive en webhook_clave, que no se particiona: su PK es
+-- unica en todo el tiempo, cosa que un indice sobre la tabla particionada no puede ser sin
+-- la fecha. Las dos tablas hijas apuntan al aviso por (id, recibido_en), la PK de la
+-- particionada; el historial se parte por la misma fecha y se suelta junto con el aviso.
+ALTER TABLE webhook_clave DROP CONSTRAINT IF EXISTS fk_webhook_clave_webhook;
+ALTER TABLE webhook_clave
+  ADD CONSTRAINT fk_webhook_clave_webhook
+  FOREIGN KEY (webhook_id, webhook_recibido_en)
+  REFERENCES webhook_pasarela (id, recibido_en) ON DELETE RESTRICT;
+ALTER TABLE historial_estado_webhook DROP CONSTRAINT IF EXISTS fk_historial_estado_webhook_webhook;
+ALTER TABLE historial_estado_webhook
+  ADD CONSTRAINT fk_historial_estado_webhook_webhook
+  FOREIGN KEY (webhook_id, webhook_recibido_en)
+  REFERENCES webhook_pasarela (id, recibido_en) ON DELETE RESTRICT;
+CREATE UNIQUE INDEX IF NOT EXISTS uq_historial_estado_webhook_salida
+  ON historial_estado_webhook (webhook_id, webhook_recibido_en, estado_anterior);
+
+-- R-BIL-33 · purga de lo vencido sin UPDATE ni DELETE sobre el aviso. Por cada mes ENTERO
+-- anterior al corte: se suelta la particion del historial, se borran las claves de ese mes
+-- (webhook_clave no es un hecho de dinero, es el indice de deduplicacion) y se suelta la
+-- particion del aviso. La de desborde no se toca. El corte lo decide quien opera la
+-- retencion; la funcion no adivina un plazo. Devuelve cuantos meses solto.
+CREATE OR REPLACE FUNCTION fn_aportes_purgar_webhooks(p_corte DATE) RETURNS INTEGER AS $$
+DECLARE
+  r RECORD;
+  v_mes DATE;
+  v_sueltos INTEGER := 0;
+BEGIN
+  FOR r IN
+    SELECT c.relname
+      FROM pg_inherits i
+      JOIN pg_class c ON c.oid = i.inhrelid
+     WHERE i.inhparent = 'aportes.webhook_pasarela'::regclass
+       AND c.relname ~ '^webhook_pasarela_[0-9]{6}$'
+     ORDER BY c.relname
+  LOOP
+    v_mes := to_date(right(r.relname, 6), 'YYYYMM');
+    CONTINUE WHEN (v_mes + INTERVAL '1 month') > date_trunc('month', p_corte);
+    EXECUTE format('DROP TABLE IF EXISTS aportes.%I', 'historial_estado_webhook_' || right(r.relname, 6));
+    DELETE FROM aportes.webhook_clave
+     WHERE webhook_recibido_en >= v_mes AND webhook_recibido_en < v_mes + INTERVAL '1 month';
+    -- DETACH antes del DROP: las FK que apuntan al aviso cuelgan de cada particion. Al
+    -- soltarla, PostgreSQL verifica que nada la referencia (claves e historial ya no estan).
+    EXECUTE format('ALTER TABLE aportes.webhook_pasarela DETACH PARTITION aportes.%I', r.relname);
+    EXECUTE format('DROP TABLE aportes.%I', r.relname);
+    v_sueltos := v_sueltos + 1;
+  END LOOP;
+  RETURN v_sueltos;
+END $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, pg_temp;
+REVOKE ALL ON FUNCTION fn_aportes_purgar_webhooks(DATE) FROM PUBLIC;
 
 
 -- ---------------------------------------------------------------------

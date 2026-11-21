@@ -1,6 +1,19 @@
 -- webhook_pasarela · módulo 03 — Aportes, Pagos QR y Conciliación
 -- clase de dominio: WebhookPasarela
+-- APPEND-ONLY: sin UPDATE ni DELETE (ver sql/40_reglas)
+-- PARTICIONADA por rango de recibido_en (mensual)
 -- Generado por scripts/generar_ddl.py — no editar a mano.
+
+DO $$
+BEGIN
+  IF to_regclass('aportes.webhook_pasarela') IS NOT NULL AND (SELECT c.relkind FROM pg_class c
+      WHERE c.oid = to_regclass('aportes.webhook_pasarela')) = 'r' THEN
+    IF EXISTS (SELECT 1 FROM aportes.webhook_pasarela) THEN
+      RAISE EXCEPTION 'aportes.webhook_pasarela tiene filas y no esta particionada: migrarla con respaldo antes de aplicar';
+    END IF;
+    DROP TABLE aportes.webhook_pasarela CASCADE;
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS aportes.webhook_pasarela (
   id                                 UUID DEFAULT gen_random_uuid() NOT NULL,
@@ -16,11 +29,26 @@ CREATE TABLE IF NOT EXISTS aportes.webhook_pasarela (
   clave_idempotencia                 VARCHAR(120) NOT NULL,
   error_procesamiento                TEXT,
   pago_id                            UUID,
-  CONSTRAINT pk_webhook_pasarela PRIMARY KEY (id),
+  CONSTRAINT pk_webhook_pasarela PRIMARY KEY (id, recibido_en),
   CONSTRAINT ck_webhook_pasarela_estado CHECK (estado IN ('DESCARTADO', 'DUPLICADO', 'FALLIDO', 'PROCESADO', 'RECIBIDO'))
-);
+) PARTITION BY RANGE (recibido_en);
 
-COMMENT ON TABLE aportes.webhook_pasarela IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Cada notificación que la pasarela envía al sistema, guardada en crudo antes de procesarla.';
+CREATE TABLE IF NOT EXISTS aportes.webhook_pasarela_desborde
+  PARTITION OF aportes.webhook_pasarela DEFAULT;
+
+DO $$
+DECLARE d DATE := date_trunc('year', current_date)::date;
+BEGIN
+  FOR i IN 0..23 LOOP
+    EXECUTE format(
+      'CREATE TABLE IF NOT EXISTS aportes.webhook_pasarela_%s PARTITION OF aportes.webhook_pasarela FOR VALUES FROM (%L) TO (%L)',
+      to_char(d + (i || ' month')::interval, 'YYYYMM'),
+      d + (i || ' month')::interval,
+      d + ((i + 1) || ' month')::interval);
+  END LOOP;
+END $$;
+
+COMMENT ON TABLE aportes.webhook_pasarela IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. [append-only] Cada notificación que la pasarela envía al sistema, guardada en crudo antes de procesarla.';
 COMMENT ON COLUMN aportes.webhook_pasarela.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN aportes.webhook_pasarela.proveedor_id IS 'FK, IDX';
 COMMENT ON COLUMN aportes.webhook_pasarela.recibido_en IS 'IDX';

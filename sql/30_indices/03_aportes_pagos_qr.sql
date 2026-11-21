@@ -88,6 +88,12 @@ CREATE INDEX IF NOT EXISTS ix_historial_estado_pago_pago_id
 CREATE INDEX IF NOT EXISTS ix_historial_estado_reembolso_reembolso_id
   ON aportes.historial_estado_reembolso (reembolso_id);
 
+CREATE INDEX IF NOT EXISTS ix_historial_estado_webhook_webhook_id
+  ON aportes.historial_estado_webhook (webhook_id);
+
+CREATE INDEX IF NOT EXISTS ix_webhook_clave_webhook_recibido_en
+  ON aportes.webhook_clave (webhook_recibido_en);
+
 CREATE INDEX IF NOT EXISTS ix_disputa_pago_pago_id
   ON aportes.disputa_pago (pago_id);
 

@@ -329,6 +329,9 @@ APPEND_ONLY = {
     # F1.L1.M08 (R-BIL-30): el pago y el reembolso son hechos de dinero; su estado
     # cambia agregando una fila a su historial, nunca con UPDATE sobre el hecho.
     "pago", "reembolso", "historial_estado_pago", "historial_estado_reembolso",
+    # F1.L1.M08 (opcion A): el aviso de la pasarela y su historial. webhook_clave NO: es el indice de
+    # deduplicacion (no un hecho de dinero) y se purga con DELETE junto con la particion de su mes.
+    "webhook_pasarela", "historial_estado_webhook",
 }
 
 # --- tablas particionadas por rango de fecha -----------------------------
@@ -350,6 +353,11 @@ APPEND_ONLY = {
 PARTICIONADAS = {
     "bitacora_evento": "fecha_hora",
     "registro_acceso_datos": "fecha_hora",
+    # F1.L1.M08 (opcion A, decision de Pablo 2026-11-21): el aviso de la pasarela se guarda sellado y lo
+    # vencido se va soltando la particion del mes (DETACH/DROP), nunca con UPDATE ni DELETE. Su historial
+    # se parte por la MISMA fecha (la del aviso) para que la particion de los dos se suelte junta.
+    "webhook_pasarela": "recibido_en",
+    "historial_estado_webhook": "webhook_recibido_en",
 }
 
 # CHECK de enumerado que se AMPLIO despues de que existieran bases. El CREATE TABLE

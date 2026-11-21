@@ -1,0 +1,117 @@
+F1.L1.M08 · webhook_pasarela sellada y particionada (opcion A, decision de Pablo 2026-11-21 via coordinador)
+Rama: correcciones/tanda2-l1-particion-webhook (desde origin/dev) · Fecha: 2026-11-21
+
+Que cambio en la fuente de verdad (puml → generar_ddl, regla 97.1):
+- docs/entidades/03_aportes_pagos_qr.puml: entidades webhook_clave y historial_estado_webhook (+ clases y relaciones).
+- scripts/modelo.py: PARTICIONADAS += webhook_pasarela (recibido_en), historial_estado_webhook (webhook_recibido_en);
+  APPEND_ONLY += webhook_pasarela, historial_estado_webhook (webhook_clave NO: es el indice de deduplicacion).
+- scripts/generar_ddl.py: toda tabla particionada lleva antes del CREATE un bloque idempotente: si existe SIN
+  particionar y vacia se suelta y nace particionada; con filas, la aplicacion se detiene (migrar con respaldo,
+  regla 97.3.6). Con bitacora_evento/registro_acceso_datos (ya particionadas) no hace nada.
+- docs/Restricciones.md (seccion R-BIL, propia): R-BIL-33; fuera uq_webhook_idem (imposible en una tabla
+  particionada sin la fecha); FK compuestas (webhook_id, webhook_recibido_en) → webhook_pasarela (id, recibido_en);
+  uq_historial_estado_webhook_salida; fn_aportes_purgar_webhooks(corte) SECURITY DEFINER, sin EXECUTE a PUBLIC.
+- CU-99 cita R-BIL-33; fichas de negocio de las dos tablas en docs/entidades/03_aportes_pagos_qr.md;
+  cifras de README/planes/Seguridad.md (352 tablas, 184 restricciones).
+Codigo: WebhookRepositorio (alta del aviso + clave en la misma transaccion; cierre = fila de historial con
+ON CONFLICT DO NOTHING; lectura del estado vigente desde el historial), PlataformaDePagosRepositorio (estado y
+procesado desde el historial; un aviso de antes conserva lo de su fila), CU100 (comentarios).
+
+--- M08a · aplicacion del cambio (97.7.2)
+generar_ddl: "sql/ generado: 352 tablas · 702 claves foráneas · 808 índices · 556 CHECK · Sin pendientes a nivel de datos."
+base limpia: aplicar.sql exit=0 · segunda aplicacion sobre la misma base: exit=0
+Conversion desde una base armada con el SQL de origin/dev (tabla comun):
+  vacia → relkind antes 'r', despues 'p' (nuevo aplicado exit=0)
+  con UNA fila → "ERROR: aportes.webhook_pasarela tiene filas y no esta particionada: migrarla con respaldo antes
+  de aplicar" (exit=3) y la fila sigue ahi (relkind 'r', 1 fila): nada se pierde en silencio.
+Invariantes contra PostgreSQL (psql, base limpia):
+  -- 1 particion donde cayo el aviso
+  webhook_pasarela_202611
+  -- 2 segunda alta con la misma (proveedor, clave): duplicado
+  ERROR:  duplicate key value violates unique constraint "pk_webhook_clave"
+  -- 3 una clave que apunta a un aviso inexistente: FK compuesta
+  ERROR:  insert or update on table "webhook_clave" violates foreign key constraint "fk_webhook_clave_webhook"
+  -- 4 UPDATE y DELETE del aviso: R-AUD-01
+  ERROR:  R-AUD-01: webhook_pasarela_202611 es append-only; corrija con el movimiento inverso
+  ERROR:  R-AUD-01: webhook_pasarela_202611 es append-only; corrija con el movimiento inverso
+  -- 5 el rol de la aplicacion no tiene UPDATE ni DELETE sobre el aviso ni su historial
+  f|f|f|f
+  -- 6 historial: una sola salida por estado
+  ERROR:  duplicate key value violates unique constraint "historial_estado_webhook_202_webhook_id_webhook_recibido__idx10"
+  historial_estado_webhook_202611|1
+  -- 7 el aviso sigue igual
+  RECIBIDO|1
+
+--- M08c · purga (psql, base limpia; un aviso de enero y uno vigente, cada uno con clave e historial)
+  -- antes: avisos | claves | historial | particiones del aviso | del historial
+  2|2|2|25|25
+  -- svc_aportes no puede ejecutar la purga
+  ERROR:  permission denied for function fn_aportes_purgar_webhooks
+  -- purga con corte = primer dia del mes en curso: meses enteros anteriores soltados
+  10
+  -- despues: avisos | claves | historial | particiones del aviso | del historial
+  1|1|1|15|15
+  -- lo que queda: el aviso vigente, su clave y su historial
+  evt-nuevo|evt-nuevo|PROCESADO
+  -- segunda corrida: no suelta nada
+  0
+  -- el aviso vigente sigue sellado
+  ERROR:  R-AUD-01: webhook_pasarela_202611 es append-only; corrija con el movimiento inverso
+Nota: la primera version hacia DROP sin DETACH y PostgreSQL lo rechazo ("other objects depend on it": las FK que
+apuntan al aviso cuelgan de cada particion). Con DETACH antes del DROP funciona, y PostgreSQL verifica que nada la
+referencia.
+
+--- M08b · pruebas
+CU99WebhookSelladoTest (PostgreSQL) 5/5: rechaza por R-BIL-33 (UPDATE/DELETE → R-AUD-01; svc_aportes sin UPDATE ni
+DELETE en aviso e historial); duplicado → pk_webhook_clave y el segundo aviso se deshace (otro proveedor con la
+misma clave si entra); cuadre del cierre (una sola fila de historial, la segunda salida no hace nada, la fila del
+aviso intacta); concurrencia (dos altas simultaneas → un aviso, una clave); purga (enero suelto con su clave, julio
+intacto, segunda corrida 0).
+CU100WebhookTest: ahora verifica el cierre en el historial y que el aviso queda RECIBIDO; el duplicado deja una
+clave y una fila de historial. FixturaDeAportes limpia aviso, clave e historial en el bloque que ya salteaba la
+barrera para pago y reembolso (solo base de prueba).
+Mutantes (los tres en rojo):
+1) el alta sin la fila de webhook_clave →
+   CU100WebhookTest > correcto: el mismo evento entregado dos veces es DUPLICADO — un solo pago, una sola fila FAILED
+   CU99WebhookSelladoTest > concurrencia: dos altas simultaneas del mismo aviso dejan un solo aviso y una sola clave FAILED
+   CU99WebhookSelladoTest > cuadre: cerrar el procesamiento agrega una fila de historial, el estado vigente es el nuevo y la segunda salida no hace nada FAILED
+   CU99WebhookSelladoTest > rechaza el segundo alta de la misma (proveedor, clave): choca en pk_webhook_clave y no deja el aviso FAILED
+   13 tests completed, 4 failed
+   BUILD FAILED in 7s
+2) el cierre vuelve a ser UPDATE del aviso →
+   CU100WebhookTest > correcto: firma valida + ventana vigente + monto igual al pago -> PROCESADO FAILED
+   CU100WebhookTest > invalido: firma valida pero ningun pago tiene esa referencia de proveedor -> DESCARTADO FAILED
+   CU100WebhookTest > invalido: firma valida pero el monto del webhook no coincide con el pago -> DESCARTADO, no acredita FAILED
+   CU100WebhookTest > limite: timestamp a 4 minutos 59 segundos (dentro de +-5 min) -> PROCESADO FAILED
+   CU100WebhookTest > correcto: el mismo evento entregado dos veces es DUPLICADO — un solo pago, una sola fila FAILED
+   CU99WebhookSelladoTest > cuadre: cerrar el procesamiento agrega una fila de historial, el estado vigente es el nuevo y la segunda salida no hace nada FAILED
+   13 tests completed, 6 failed
+   BUILD FAILED in 7s
+3) la purga con DELETE en vez de DETACH/DROP (corrida con --rerun) →
+   CU99WebhookSelladoTest > cuadre: la purga suelta el mes vencido con su clave y su historial, sin UPDATE ni DELETE sobre el aviso, y la segunda vez no hace nada FAILED
+   5 tests completed, 1 failed
+   BUILD FAILED in 5s
+
+Regresion de aportes (base limpia, --rerun; spotlessCheck OK):
+aportes test: 59 pruebas, 0 en rojo (Docker 0, otras 0)
+aportes webTest: 83 pruebas, 0 en rojo (Docker 0, otras 0)
+aportes testBarrido: 4 pruebas, 0 en rojo (Docker 0, otras 0)
+aportes integrationTest: 166 pruebas, 3 en rojo (Docker 3, otras 0)
+Las 3: ArranqueTest y AislamientoEsquemaTest → Docker, NO COMPROBADO.
+Verificadores: verificar_boveda, verificar_narrativas, verificar_seguridad, verificar_criterios,
+verificar_pruebas_web, verificar_contratos_limites, validar_flujos → OK. catalogo_de_datos --escribir y Postman
+regenerados.
+
+Deriva (97.2): generar_ddl "Sin pendientes a nivel de datos"; el codigo jOOQ se genera de la base aplicada en cada
+compilacion (compileJava OK). 
+
+Decisiones y abiertos:
+- El corte de la purga es un parametro: el plazo de retencion de los avisos no esta decidido aca (la propuesta
+  preguntaba si 24 meses); no hay trabajo programado que la llame. A confirmar con Pablo/Cumplimiento.
+- Las columnas mutables del aviso (estado, procesado_en, intentos, error, pago_id) quedan en la tabla y ya no se
+  escriben: se retiran en una contraccion posterior.
+- La particion de desborde no se purga (avisos fuera de la ventana de 24 meses creada).
+- webhook_clave.proveedor_id hereda del generador un DEFAULT gen_random_uuid() por ser la primera columna de la PK;
+  la app siempre lo escribe y la FK a proveedor_pago rechaza uno inventado.
+No cubierto: TEST real (si su webhook_pasarela tiene filas, la aplicacion se detiene a proposito: hay que mirar
+antes de desplegar), Docker.

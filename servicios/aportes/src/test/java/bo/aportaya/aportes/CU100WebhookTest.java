@@ -39,8 +39,8 @@ class CU100WebhookTest extends BaseDeAportes {
 
     @AfterEach
     void limpiar() {
-        dsl.deleteFrom(org.jooq.impl.DSL.table(org.jooq.impl.DSL.name("aportes", "webhook_pasarela")))
-                .execute();
+        // El aviso y su historial son append-only (R-BIL-33): los borra la fixtura, saltando la barrera solo en la base
+        // de prueba.
         fixtura.limpiar();
     }
 
@@ -107,9 +107,17 @@ class CU100WebhookTest extends BaseDeAportes {
 
         assertThat(r.estado()).isEqualTo(Resultado.Estado.PROCESADO);
         assertThat(r.pagoId()).isEqualTo(pagoId);
+        // R-BIL-33: el aviso queda como llego; el cierre es una fila de historial con el pago.
         assertThat(contar(
-                        "SELECT count(*)::int FROM aportes.webhook_pasarela WHERE estado = 'PROCESADO' AND pago_id = ?",
+                        """
+                        SELECT count(*)::int FROM aportes.historial_estado_webhook
+                         WHERE estado_anterior = 'RECIBIDO' AND estado_nuevo = 'PROCESADO' AND pago_id = ?
+                        """,
                         pagoId))
+                .isEqualTo(1);
+        assertThat(
+                        contar(
+                                "SELECT count(*)::int FROM aportes.webhook_pasarela WHERE estado = 'RECIBIDO' AND pago_id IS NULL"))
                 .isEqualTo(1);
     }
 
@@ -129,6 +137,10 @@ class CU100WebhookTest extends BaseDeAportes {
         assertThat(segunda.estado()).isEqualTo(Resultado.Estado.DUPLICADO);
         assertThat(segunda.pagoId()).isEqualTo(pagoId);
         assertThat(contar("SELECT count(*)::int FROM aportes.webhook_pasarela WHERE clave_idempotencia = 'evt-dup-1'"))
+                .isEqualTo(1);
+        assertThat(contar("SELECT count(*)::int FROM aportes.webhook_clave WHERE clave_idempotencia = 'evt-dup-1'"))
+                .isEqualTo(1);
+        assertThat(contar("SELECT count(*)::int FROM aportes.historial_estado_webhook"))
                 .isEqualTo(1);
     }
 

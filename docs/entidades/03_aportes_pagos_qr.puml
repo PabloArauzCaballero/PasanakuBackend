@@ -307,6 +307,24 @@ package "Ejecucion del Pago" {
     - fechaHora: DateTime
   }
 
+  class HistorialEstadoWebhook {
+    - id: UUID
+    - webhookId: UUID
+    - webhookRecibidoEn: DateTime
+    - estadoAnterior: String
+    - estadoNuevo: String
+    - pagoId: UUID
+    - errorProcesamiento: String
+    - fechaHora: DateTime
+  }
+
+  class WebhookClave {
+    - proveedorId: UUID
+    - claveIdempotencia: String
+    - webhookId: UUID
+    - webhookRecibidoEn: DateTime
+  }
+
   class HistorialEstadoReembolso {
     - id: UUID
     - reembolsoId: UUID
@@ -588,6 +606,8 @@ Conciliacion "1" *-- "0..*" ExcepcionConciliacion
 ExtractoBancario "1" *-- "0..*" MovimientoBancario
 ProveedorPago "1" *-- "0..*" WebhookPasarela
 WebhookPasarela ..> Pago : crea / actualiza >
+WebhookPasarela "1" *-- "0..*" HistorialEstadoWebhook
+WebhookPasarela "1" *-- "0..1" WebhookClave
 
 AsientoContable "1" *-- "2..*" MovimientoContable
 MovimientoContable "*" --> "1" CuentaContable
@@ -879,6 +899,26 @@ entity "historial_estado_reembolso" as histreemb {
   fecha_hora : TIMESTAMPTZ
 }
 
+entity "historial_estado_webhook" as histwebh {
+  * id : UUID <<PK>>
+  --
+  webhook_id : UUID <<IDX>>
+  webhook_recibido_en : TIMESTAMPTZ
+  estado_anterior : VARCHAR(15)
+  estado_nuevo : VARCHAR(15)
+  # pago_id : UUID <<FK, NULL>>
+  error_procesamiento : TEXT <<NULL>>
+  fecha_hora : TIMESTAMPTZ
+}
+
+entity "webhook_clave" as webhclave {
+  * # proveedor_id : UUID <<PK, FK>>
+  * clave_idempotencia : VARCHAR(120) <<PK>>
+  --
+  webhook_id : UUID
+  webhook_recibido_en : TIMESTAMPTZ <<IDX>>
+}
+
 entity "disputa_pago" as disp {
   * id : UUID <<PK>>
   --
@@ -1057,6 +1097,8 @@ conc }o--o| movban : "cruza con"
 conc ||--o{ excep : "levanta"
 extracto ||--o{ movban : "contiene"
 webh }o--o| pago : "genera"
+webh ||--o{ histwebh : "transiciona"
+webh ||--o| webhclave : "deduplica"
 asiento ||--|{ movcta : "detalla"
 cta ||--o{ movcta : "afecta"
 cta |o--o{ cta : "agrupa (plan de cuentas)"

@@ -90,6 +90,8 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/03_aportes_pagos_qr/reembolso.sql
 \ir 10_tablas/03_aportes_pagos_qr/historial_estado_pago.sql
 \ir 10_tablas/03_aportes_pagos_qr/historial_estado_reembolso.sql
+\ir 10_tablas/03_aportes_pagos_qr/historial_estado_webhook.sql
+\ir 10_tablas/03_aportes_pagos_qr/webhook_clave.sql
 \ir 10_tablas/03_aportes_pagos_qr/disputa_pago.sql
 \ir 10_tablas/03_aportes_pagos_qr/extracto_bancario.sql
 \ir 10_tablas/03_aportes_pagos_qr/movimiento_bancario.sql

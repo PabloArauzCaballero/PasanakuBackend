@@ -34,10 +34,20 @@ public class PlataformaDePagosRepositorio {
     public List<Webhook> webhooks(DSLContext dsl, int limite) {
         return dsl.fetch(
                         """
-                        select w.id, p.codigo, w.evento, w.estado, w.firma_valida, w.recibido_en, w.procesado_en,
-                               w.intentos_procesamiento
+                        select w.id, p.codigo, w.evento, coalesce(h.estado_nuevo, w.estado) as estado,
+                               w.firma_valida, w.recibido_en, coalesce(h.fecha_hora, w.procesado_en) as procesado_en,
+                               greatest(w.intentos_procesamiento,
+                                        (select count(*)::int from aportes.historial_estado_webhook c
+                                          where c.webhook_id = w.id and c.webhook_recibido_en = w.recibido_en))
+                                 as intentos_procesamiento
                           from aportes.webhook_pasarela w
                           join aportes.proveedor_pago p on p.id = w.proveedor_id
+                          -- R-BIL-33: el aviso no se edita; su estado vigente es la ultima fila del historial. Un
+                          -- aviso escrito antes del historial conserva lo que dice su fila.
+                          left join lateral (
+                                select estado_nuevo, fecha_hora from aportes.historial_estado_webhook
+                                 where webhook_id = w.id and webhook_recibido_en = w.recibido_en
+                                 order by fecha_hora desc, id desc limit 1) h on true
                          order by w.recibido_en desc, w.id
                          limit ?
                         """,

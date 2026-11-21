@@ -32,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
  *       escribe una sola fila — ni para auditar. Un atacante que prueba firmas no
  *       puede aprender nada del sistema mirando la base.
  *   <li>Deduplicación por {@code (proveedor_id, clave_idempotencia)}
- *       ({@code uq_webhook_idem}, invariante 7): el mismo evento entregado dos veces
+ *       ({@code pk_webhook_clave}, R-BIL-33, invariante 7): el mismo evento entregado dos veces
  *       (la pasarela reintenta) no se reprocesa ni duplica el efecto financiero.
  *   <li>La regla de negocio: el monto y la moneda del evento tienen que coincidir con
  *       el {@code pago} ya registrado por su referencia de proveedor. Si no hay pago
@@ -130,7 +130,7 @@ public class CU100RecibirWebhookPasarela {
                 return Resultado.descartado(null, "falta idEvento");
             }
 
-            // Paso 2 — deduplicacion por la MISMA identidad que uq_webhook_idem.
+            // Paso 2 — deduplicacion por la MISMA identidad que pk_webhook_clave (R-BIL-33).
             var existente = webhooks.porClaveDeEvento(dsl, proveedor.get().id(), claveEvento);
             if (existente.isPresent()) {
                 return Resultado.duplicado(existente.get().id(), existente.get().pagoId());
