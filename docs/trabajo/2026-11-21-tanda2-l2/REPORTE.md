@@ -17,6 +17,26 @@
 
 ## A medias
 
+### F1.L2.M09 — Retirar `POST /entregas` legacy y `EFECTIVO_ORGANIZADOR` (y primera parte de F1.L2.M08)
+- Qué anda: `liquidarEntrega` (POST /entregas) responde 410 `AP-CU22-10` y `ejecutarEntrega` (cierre con monto libre,
+  F1.L2.M08) 410 `AP-CU22-11`, ambos sin llamar al caso de uso. `EFECTIVO_ORGANIZADOR` salió del enum del contrato
+  (400) y del modelo `04_entregas_fondo.puml`: una base creada desde el modelo lo rechaza
+  (`ck_entrega_fondo_metodo_desembolso`, [evidencia](./evidencia/F1.L2.M09-entrega-legacy.txt)).
+- Qué no anda: en una base que ya existe (TEST), el CHECK viejo sigue admitiendo `EFECTIVO_ORGANIZADOR`, porque el
+  DDL de tabla es `CREATE TABLE IF NOT EXISTS`. `CU22LiquidarEntrega.liquidar`/`ejecutar` siguen en el código: el
+  CU-22 de la bóveda tiene sus criterios gherkin y `verificar_criterios.py` exige sus pruebas.
+- Qué falta exactamente:
+  1. Fuera de alcance: registrar `ck_entrega_fondo_metodo_desembolso` como CHECK que evoluciona en
+     `scripts/modelo.py` (`CK_AMPLIADOS` o su equivalente para estrechar), para que el generador emita
+     `DROP/ADD CONSTRAINT` sobre bases existentes. Antes, consulta en TEST:
+     `SELECT count(*) FROM entregas.entrega_fondo WHERE metodo_desembolso = 'EFECTIVO_ORGANIZADOR';` (si hay filas,
+     se cierran por su camino, nunca con `UPDATE`). Probé la alternativa de una regla nueva `R-DES-06` en
+     `docs/Restricciones.md` y funciona en ambas bases, pero obliga a cambiar la cifra de restricciones en
+     `docs/Seguridad.md` y en `planes/*`, y a citarla en `docs/CasosDeUso/CU-22` (fuera de alcance).
+  2. Fuera de alcance: actualizar `docs/CasosDeUso/CU-22` para retirar los criterios de la liquidación y la
+     ejecución manual; después, en este lote, borrar `CU22LiquidarEntrega.liquidar`/`ejecutar` y sus pruebas.
+- Dónde quedó: rama `correcciones/tanda2-l2-entrega-legacy`; compila, `test`/`webTest` en verde.
+
 ### F1.L2.M07 — El número de cuenta se cifra solo en el servidor, con clave dedicada (SEG-007)
 - Qué anda: `numeroCifrado` ya no existe en `EntradaRegistroCuenta` (OpenAPI 2.0.0); un cuerpo que lo manda recibe 400
   sin llegar al caso de uso. `CU18RegistrarCuentaDestino` cifra siempre desde `numeroEnClaro`, el mismo número del
@@ -53,7 +73,7 @@
 
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| F1.L2.M09, M02, M03, M10 | TODO | Siguientes PR del lote |
+| F1.L2.M02, M03, M10 | TODO | Siguientes PR del lote |
 | F1.L2.M01, M04, M06, M08, M11–M14 | TODO | M13/M14 necesitan `plataforma/comun-web` (cliente único y token de servicio): fuera de alcance |
 | F2.L2.M01, M02, M04 | TODO | Siguientes PR del lote |
 | L2.S1.M2 | BLOQUEADO | L6 y L1 (ver A medias) |
