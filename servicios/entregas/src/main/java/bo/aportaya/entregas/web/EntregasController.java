@@ -23,6 +23,8 @@ import bo.aportaya.entregas.web.generado.modelo.SalidaOferta;
 import bo.aportaya.entregas.web.generado.modelo.SalidaPuja;
 import bo.aportaya.entregas.web.generado.modelo.VistaDeSubasta;
 import bo.aportaya.plataforma.dominio.ClaveIdempotencia;
+import bo.aportaya.plataforma.dominio.CodigoError;
+import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
@@ -43,20 +45,11 @@ public class EntregasController implements EntregasApi {
 
     private final CU22LiquidarEntrega cu22;
     private final CU22EntregarPozoCompleto pozo;
-    private final MercadoWeb mercado;
-    private final SubastasWeb subastas;
     private final SesionDeLaPeticion sesion;
 
-    public EntregasController(
-            CU22LiquidarEntrega cu22,
-            CU22EntregarPozoCompleto pozo,
-            MercadoWeb mercado,
-            SubastasWeb subastas,
-            SesionDeLaPeticion sesion) {
+    public EntregasController(CU22LiquidarEntrega cu22, CU22EntregarPozoCompleto pozo, SesionDeLaPeticion sesion) {
         this.cu22 = cu22;
         this.pozo = pozo;
-        this.mercado = mercado;
-        this.subastas = subastas;
         this.sesion = sesion;
     }
 
@@ -156,73 +149,85 @@ public class EntregasController implements EntregasApi {
                 .body(respuesta);
     }
 
-    // --- mercado del derecho a cobrar un turno (carril C): el permiso vive aca, la traduccion en MercadoWeb ---
+    // --- Cesion de turno retirada (D-L2-1, DECISIONES tanda 7: «subasta y cesion de turno: se elimina») ---
+    // El orden lo fijan el nivel de puntualidad y el sorteo; un turno no se vende ni se subasta. Las operaciones siguen
+    // publicadas solo hasta que la app y nucleo-financiero las suelten (regla 98.1.3): responden 410 sin
+    // efecto. El permiso se sigue exigiendo para no contarle a un anonimo que existieron.
 
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<SalidaOferta> publicarOferta(UUID idempotencyKey, EntradaOferta cuerpo) {
-        return mercado.publicarOferta(idempotencyKey, cuerpo);
+        throw mercadoRetirado();
     }
 
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<PaginaDeOfertas> listarOfertas(Integer limite, Integer pagina) {
-        return mercado.listarOfertas(limite, pagina);
+        throw mercadoRetirado();
     }
 
     /**
-     * H9.S1.M5: lo pide `nucleo-financiero` al pagar al vendedor. El token que viaja es el de la identidad de servicio
-     * de `entregas` (la operacion de nucleo solo la ejecuta ella), no el de un participante.
+     * El hecho que `nucleo-financiero` pide antes de pagarle al vendedor (pacto `nucleo-financiero-entregas.json`). Sin
+     * mercado ya no hay oferta que pagar: responde lo que el pacto define para una oferta inexistente, y nucleo no
+     * paga (falla cerrado). Se retira cuando nucleo retire su consumidor.
      */
     @Override
     @Permiso("SERVICIO_ENTREGAS")
     public ResponseEntity<OfertaParaPago> consultarOfertaParaPago(UUID ofertaId) {
-        // CU-64 por subasta: la billetera paga al saliente preguntando por el id de la subasta (lo nombra la
-        // retencion).
-        return subastas.paraElPago(ofertaId).orElseGet(() -> mercado.consultarOfertaParaPago(ofertaId));
+        throw new ErrorDeNegocio(CodigoError.de(130, 5), "Esa oferta no esta disponible.");
     }
 
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<SalidaCancelacionDeOferta> cancelarOferta(UUID ofertaId) {
-        return mercado.cancelarOferta(ofertaId);
+        throw mercadoRetirado();
     }
 
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<SalidaCompra> comprarOferta(UUID ofertaId, UUID idempotencyKey) {
-        return mercado.comprarOferta(ofertaId, idempotencyKey);
+        throw mercadoRetirado();
     }
-
-    // ------------------------------------------------- CU-64 por subasta (2026-10-30)
 
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<VistaDeSubasta> abrirSubastaDeCupo(UUID idempotencyKey, EntradaSubasta cuerpo) {
-        return subastas.abrir(idempotencyKey, cuerpo);
+        throw subastaRetirada();
     }
 
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<PaginaDeSubastas> listarSubastasDeCupo(UUID cupoId, Integer limite, Integer pagina) {
-        return subastas.listar(cupoId, limite, pagina);
+        throw subastaRetirada();
     }
 
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<VistaDeSubasta> consultarSubastaDeCupo(UUID subastaId) {
-        return subastas.ver(subastaId);
+        throw subastaRetirada();
     }
 
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<SalidaPuja> pujarEnSubasta(UUID subastaId, UUID idempotencyKey, EntradaPuja cuerpo) {
-        return subastas.pujar(subastaId, idempotencyKey, cuerpo);
+        throw subastaRetirada();
     }
 
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<VistaDeSubasta> cancelarSubastaDeCupo(UUID subastaId) {
-        return subastas.cancelar(subastaId);
+        throw subastaRetirada();
+    }
+
+    private static OperacionRetirada mercadoRetirado() {
+        return new OperacionRetirada(
+                CodigoError.de(130, 10),
+                "La venta de turnos ya no existe: el orden lo fijan la puntualidad y el sorteo.");
+    }
+
+    private static OperacionRetirada subastaRetirada() {
+        return new OperacionRetirada(
+                CodigoError.de(136, 9),
+                "La subasta de cupos ya no existe: el orden lo fijan la puntualidad y el sorteo.");
     }
 }
