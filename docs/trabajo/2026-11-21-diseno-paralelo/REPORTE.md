@@ -155,3 +155,17 @@ No se tomó ninguna decisión de negocio. Lo que sigue queda registrado.
   (`seeders/minimos/15-eventos-y-plantillas.json`).
 
 **Procesos:** ningún proceso quedó corriendo. Los worktrees temporales están en `/tmp/w-*` y no se versionan.
+
+## Candado `blocker_gate` al cerrar el turno
+Al cerrar, `blocker_gate.py` bloqueó dos veces por 9 microtareas en `BLOQUEADO` o `EN CURSO` de **planes ajenos a
+este carril**, todos del 2026-10-03 al 2026-10-30:
+- `2026-10-03-alta-fecha-actividad-autocaptura` (4)
+- `2026-10-14-resolver-conflictos-prs-60-63`
+- `2026-10-16-ci-formato-test`
+- `2026-10-27-rediseno-backoffice-al-repo-desplegado`
+- `2026-10-28-admision-directa-backoffice`
+- `2026-10-30-arreglos-test-y-espejo`
+
+Ya están decididas: P-20 (`DECISIONES.md`, tanda 5) manda marcarlas `DESCARTADO` en un PR propio. En el plan de
+correcciones eso es **F0.M1**, de la sesión de la fase 0. Este carril no las toca, porque quedan fuera de su
+alcance (regla 00 §3). El plan de este carril no tiene microtareas bloqueadas ni en curso.
