@@ -92,6 +92,13 @@ public class CU19ReembolsarPago {
                         CodigoError.de(19, 1), "Ese pago esta " + pago.estado() + ": todavia no se puede reembolsar.");
             }
 
+            // F1.L1.M12 · AP-CU19-02: se devuelve en la moneda en que se pago, sin conversion implicita.
+            if (entrada.monto().moneda() != pago.monto().moneda()) {
+                throw new ErrorDeNegocio(
+                        CodigoError.de(19, 2),
+                        "El reembolso tiene que ser en " + pago.monto().moneda() + ", la moneda del pago.");
+            }
+
             // AP-CU19-02: contra lo YA reembolsado, no contra el monto original. Dos
             // reembolsos parciales que juntos superan el pago devuelven de mas.
             Dinero yaDevuelto = pagos.reembolsadoDe(dsl, pago.id(), pago.monto().moneda());

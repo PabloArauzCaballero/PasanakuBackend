@@ -939,6 +939,7 @@ El flujo `solicitado → aprobado → ejecutado`, con `solicitadoPor` y `aprobad
 COMMENT ON COLUMN aportes.reembolso.id IS '[NEGOCIO] Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. [SISTEMA] uuid, obligatoria (NOT NULL), clave primaria (PK).';
 COMMENT ON COLUMN aportes.reembolso.pago_id IS '[NEGOCIO] Referencia por clave foránea a la entidad `pago`. [SISTEMA] uuid, obligatoria (NOT NULL), clave foránea (FK) hacia `pago`, con índice B-tree.';
 COMMENT ON COLUMN aportes.reembolso.monto IS '[NEGOCIO] Importe monetario principal de la transacción o concepto financiero. [SISTEMA] decimal(14,2), obligatoria (NOT NULL), sensibilidad FINANCIERO.';
+COMMENT ON COLUMN aportes.reembolso.moneda IS '[NEGOCIO] Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). [SISTEMA] char(3), opcional.';
 COMMENT ON COLUMN aportes.reembolso.motivo IS '[NEGOCIO] Justificación declarada o causal que originó la creación, rechazo o transición del registro. [SISTEMA] varchar(30), obligatoria (NOT NULL).';
 COMMENT ON COLUMN aportes.reembolso.estado IS '[NEGOCIO] Estado operativo o fase del ciclo de vida en que se encuentra el registro. [SISTEMA] varchar(15), obligatoria (NOT NULL).';
 COMMENT ON COLUMN aportes.reembolso.referencia_proveedor IS '[NEGOCIO] Atributo que representa referencia proveedor en el modelo de `reembolso`. [SISTEMA] varchar(80), opcional.';
@@ -955,6 +956,7 @@ COMMENT ON COLUMN aportes.disputa_pago.pago_id IS '[NEGOCIO] Referencia por clav
 COMMENT ON COLUMN aportes.disputa_pago.tipo IS '[NEGOCIO] Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. [SISTEMA] varchar(25), obligatoria (NOT NULL).';
 COMMENT ON COLUMN aportes.disputa_pago.descripcion IS '[NEGOCIO] Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. [SISTEMA] text, obligatoria (NOT NULL).';
 COMMENT ON COLUMN aportes.disputa_pago.monto_disputado IS '[NEGOCIO] Importe monetario correspondiente a disputado en `disputa_pago`. [SISTEMA] decimal(14,2), obligatoria (NOT NULL), sensibilidad FINANCIERO.';
+COMMENT ON COLUMN aportes.disputa_pago.moneda IS '[NEGOCIO] Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). [SISTEMA] char(3), opcional.';
 COMMENT ON COLUMN aportes.disputa_pago.estado IS '[NEGOCIO] Estado operativo o fase del ciclo de vida en que se encuentra el registro. [SISTEMA] varchar(25), obligatoria (NOT NULL).';
 COMMENT ON COLUMN aportes.disputa_pago.evidencias IS '[NEGOCIO] Atributo que representa evidencias en el modelo de `disputa_pago`. [SISTEMA] jsonb, obligatoria (NOT NULL).';
 COMMENT ON COLUMN aportes.disputa_pago.abierta_en IS '[NEGOCIO] Marca temporal o fecha de abierta en `disputa_pago`. [SISTEMA] timestamptz, obligatoria (NOT NULL).';

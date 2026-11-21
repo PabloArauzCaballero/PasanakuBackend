@@ -6,7 +6,7 @@ tabla: reembolso
 clase: Reembolso
 modulo: "03 — Aportes, Pagos QR y Conciliación"
 clave_primaria: [id]
-columnas: 11
+columnas: 12
 fk_salientes: 3
 fk_entrantes: 0
 append_only: false
@@ -23,6 +23,7 @@ append_only: false
 | `id` | UUID | PK | no | PK |
 | `pago_id` | UUID | FK IDX | no | FK, IDX |
 | `monto` | DECIMAL(14,2) | — | no | CK: > 0 |
+| `moneda` | CHAR(3) | — | sí | NULL |
 | `motivo` | VARCHAR(30) | — | no | CK |
 | `estado` | VARCHAR(15) | — | no | CK |
 | `referencia_proveedor` | VARCHAR(80) | — | sí | NULL |
@@ -38,6 +39,7 @@ append_only: false
 
 | Regla | Tipo | Columnas |
 | --- | :-: | --- |
+| `ck_reembolso_moneda` | CHECK | `moneda` |
 | `uq_reembolso_clave` | UNIQUE | `pago_id`, `clave_idempotencia` |
 
 ## Claves foráneas salientes

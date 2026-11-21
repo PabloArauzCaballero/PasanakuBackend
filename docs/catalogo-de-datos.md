@@ -92,7 +92,7 @@
 
 **Casos de uso que la nombran.** CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`)
 
-**Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `pago`.
+**Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `pago`. Reglas nombradas: `ck_disputa_pago_moneda`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
@@ -101,6 +101,7 @@
 | `tipo` | VARCHAR(25) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(25), obligatoria. | NINGUNA |
 | `descripcion` | TEXT | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | TEXT, obligatoria. | NINGUNA |
 | `monto_disputado` | DECIMAL(14,2) | Importe monetario correspondiente a disputado en `disputa_pago`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), opcional. | NINGUNA |
 | `estado` | VARCHAR(25) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(25), obligatoria. | NINGUNA |
 | `evidencias` | JSONB | Atributo que representa evidencias en el modelo de `disputa_pago`. | JSONB, obligatoria. | NINGUNA |
 | `abierta_en` | TIMESTAMPTZ | Marca temporal o fecha de abierta en `disputa_pago`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -546,13 +547,14 @@ El flujo `solicitado → aprobado → ejecutado`, con `solicitadoPor` y `aprobad
 
 **Casos de uso que la nombran.** CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`)
 
-**Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `pago`. Reglas nombradas: `uq_reembolso_clave`.
+**Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `pago`. Reglas nombradas: `uq_reembolso_clave`, `ck_reembolso_moneda`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `pago_id` | UUID | Referencia por clave foránea a la entidad `pago`. | UUID, obligatoria, referencia a `pago`, índice b-tree. | NINGUNA |
 | `monto` | DECIMAL(14,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), opcional. | NINGUNA |
 | `motivo` | VARCHAR(30) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(30), obligatoria. | NINGUNA |
 | `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
 | `referencia_proveedor` | VARCHAR(80) | Atributo que representa referencia proveedor en el modelo de `reembolso`. | VARCHAR(80), opcional. | NINGUNA |

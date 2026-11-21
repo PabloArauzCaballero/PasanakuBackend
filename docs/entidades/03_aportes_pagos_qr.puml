@@ -826,6 +826,7 @@ entity "reembolso" as reemb {
   --
   # pago_id : UUID <<FK, IDX>>
   monto : DECIMAL(14,2) <<CK: > 0>>
+  moneda : CHAR(3) <<NULL>>
   motivo : VARCHAR(30) <<CK>>
   estado : VARCHAR(15) <<CK>>
   referencia_proveedor : VARCHAR(80) <<NULL>>
@@ -843,6 +844,7 @@ entity "disputa_pago" as disp {
   tipo : VARCHAR(25) <<CK>>
   descripcion : TEXT
   monto_disputado : DECIMAL(14,2) <<CK: >= 0>>
+  moneda : CHAR(3) <<NULL>>
   estado : VARCHAR(25) <<CK>>
   evidencias : JSONB
   abierta_en : TIMESTAMPTZ

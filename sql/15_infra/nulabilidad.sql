@@ -22,6 +22,7 @@ ALTER TABLE aportes.comprobante_manual ALTER COLUMN segunda_revision_por DROP NO
 ALTER TABLE aportes.conciliacion ALTER COLUMN conciliado_por DROP NOT NULL;
 ALTER TABLE aportes.conciliacion ALTER COLUMN fecha_conciliacion DROP NOT NULL;
 ALTER TABLE aportes.conciliacion ALTER COLUMN movimiento_bancario_id DROP NOT NULL;
+ALTER TABLE aportes.disputa_pago ALTER COLUMN moneda DROP NOT NULL;
 ALTER TABLE aportes.disputa_pago ALTER COLUMN resuelta_en DROP NOT NULL;
 ALTER TABLE aportes.excepcion_conciliacion ALTER COLUMN asignada_a DROP NOT NULL;
 ALTER TABLE aportes.excepcion_conciliacion ALTER COLUMN resolucion DROP NOT NULL;
@@ -45,6 +46,7 @@ ALTER TABLE aportes.politica_mora ALTER COLUMN grupo_id DROP NOT NULL;
 ALTER TABLE aportes.reembolso ALTER COLUMN aprobado_por DROP NOT NULL;
 ALTER TABLE aportes.reembolso ALTER COLUMN clave_idempotencia DROP NOT NULL;
 ALTER TABLE aportes.reembolso ALTER COLUMN fecha_ejecucion DROP NOT NULL;
+ALTER TABLE aportes.reembolso ALTER COLUMN moneda DROP NOT NULL;
 ALTER TABLE aportes.reembolso ALTER COLUMN referencia_proveedor DROP NOT NULL;
 ALTER TABLE aportes.webhook_pasarela ALTER COLUMN error_procesamiento DROP NOT NULL;
 ALTER TABLE aportes.webhook_pasarela ALTER COLUMN pago_id DROP NOT NULL;

@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS aportes.reembolso (
   id                                 UUID DEFAULT gen_random_uuid() NOT NULL,
   pago_id                            UUID NOT NULL,
   monto                              NUMERIC(14,2) NOT NULL,
+  moneda                             CHAR(3),
   motivo                             VARCHAR(30) NOT NULL,
   estado                             VARCHAR(15) NOT NULL,
   referencia_proveedor               VARCHAR(80),

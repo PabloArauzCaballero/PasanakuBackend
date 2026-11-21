@@ -777,6 +777,17 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_reembolso_clave
   ON reembolso (pago_id, clave_idempotencia)
   WHERE clave_idempotencia IS NOT NULL;
 
+-- R-BIL-29 · moneda al lado del importe (F1.L1.M12). Se declara aca y no en el modelo
+-- porque la columna llega a las bases existentes por 15_infra/columnas_agregadas.sql,
+-- que corre DESPUES de las tablas: este bloque corre despues de los dos. NULL solo en
+-- las filas de antes; CU-19 copia la moneda del pago en toda fila nueva.
+ALTER TABLE reembolso DROP CONSTRAINT IF EXISTS ck_reembolso_moneda;
+ALTER TABLE reembolso
+  ADD CONSTRAINT ck_reembolso_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
+ALTER TABLE disputa_pago DROP CONSTRAINT IF EXISTS ck_disputa_pago_moneda;
+ALTER TABLE disputa_pago
+  ADD CONSTRAINT ck_disputa_pago_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
+
 
 -- ---------------------------------------------------------------------
 -- R-LIM — Límites operativos

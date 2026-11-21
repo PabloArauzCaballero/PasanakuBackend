@@ -386,6 +386,7 @@ ALTER TABLE expediente_cliente
 | R-BIL-26 | Una retención de inversión o de compra del mercado nombra la orden u oferta que la motiva | Trazabilidad | [[CU-13 Retener y liberar saldo]] |
 | R-BIL-27 | El reverso lo pide una persona y lo autoriza otra, cada una desde su token; una sola solicitud viva por transacción | Cuatro ojos reales (R-SEG-04, P-13) | [[CU-14 Reversar una transacción]] |
 | R-BIL-28 | Un reembolso por pago y clave de idempotencia: reintentar la solicitud no crea otra | Idempotencia de dinero (regla 91.1.4, 91.2.4) | [[CU-19 Reembolsar un pago y atender una disputa]] |
+| R-BIL-29 | Un reembolso y una disputa de pago llevan su moneda ISO-4217 al lado del importe | Ningún importe sin moneda (regla 91.1.2) | [[CU-19 Reembolsar un pago y atender una disputa]] |
 
 ```sql
 -- R-BIL-01 · partida doble interna (diferido: se valida al COMMIT)
@@ -832,6 +833,15 @@ CREATE UNIQUE INDEX uq_solicitud_reverso_viva
 CREATE UNIQUE INDEX uq_reembolso_clave
   ON reembolso (pago_id, clave_idempotencia)
   WHERE clave_idempotencia IS NOT NULL;
+
+-- R-BIL-29 · moneda al lado del importe (F1.L1.M12). Se declara aca y no en el modelo
+-- porque la columna llega a las bases existentes por 15_infra/columnas_agregadas.sql,
+-- que corre DESPUES de las tablas: este bloque corre despues de los dos. NULL solo en
+-- las filas de antes; CU-19 copia la moneda del pago en toda fila nueva.
+ALTER TABLE reembolso
+  ADD CONSTRAINT ck_reembolso_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
+ALTER TABLE disputa_pago
+  ADD CONSTRAINT ck_disputa_pago_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
 ```
 
 ---

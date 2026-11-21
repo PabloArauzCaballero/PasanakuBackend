@@ -24,7 +24,7 @@
    "descripcion": "Aportes, Pagos QR y Conciliación. Que \"pagué\" signifique \"el banco lo confirmó\".",
    "tablas": 22,
    "tablasDeNegocio": 18,
-   "columnas": 225,
+   "columnas": 227,
    "relaciones": 38,
    "appendOnly": 0,
    "conDatosPersonales": 1,
@@ -813,7 +813,9 @@
     "negocio": "Los contracargos son una realidad de cualquier sistema con tarjetas, y tienen plazo legal de respuesta (fechaLimiteRespuesta). Perder ese plazo significa perder la plata automáticamente, sin importar quién tenga razón. Esta entidad existe en buena medida para que ese reloj sea visible y accionable.\n\nevidencias acumula lo que se va a presentar: la constancia, el registro de escaneo del QR, la confirmación de recepción.",
     "porQue": "Sin gestión de disputas, cada contracargo es una pérdida silenciosa y una potencial descuadratura de la bolsa de un grupo."
    },
-   "reglas": [],
+   "reglas": [
+    "ck_disputa_pago_moneda"
+   ],
    "columnas": [
     {
      "nombre": "id",
@@ -866,6 +868,16 @@
      "origenNegocio": "convencion",
      "sistema": "DECIMAL(14,2), obligatoria, sensibilidad financiero.",
      "sensibilidad": "FINANCIERO"
+    },
+    {
+     "nombre": "moneda",
+     "tipo": "CHAR(3)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).",
+     "origenNegocio": "convencion",
+     "sistema": "CHAR(3), opcional.",
+     "sensibilidad": "NINGUNA"
     },
     {
      "nombre": "estado",
@@ -933,7 +945,7 @@
     ],
     "entrantes": []
    },
-   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de pago.",
+   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de pago. Reglas nombradas: ck_disputa_pago_moneda.",
    "clasificacion": {
     "personales": 0,
     "financieros": 1,
@@ -4755,7 +4767,8 @@
     "porQue": "Sin reembolso modelado, \"devolver plata\" se haría con un ajuste manual sobre el saldo, sin rastro, sin aprobación y sin asiento contable. Es el hueco por donde se va la plata en sistemas mal diseñados."
    },
    "reglas": [
-    "uq_reembolso_clave"
+    "uq_reembolso_clave",
+    "ck_reembolso_moneda"
    ],
    "columnas": [
     {
@@ -4789,6 +4802,16 @@
      "origenNegocio": "convencion",
      "sistema": "DECIMAL(14,2), obligatoria, sensibilidad financiero.",
      "sensibilidad": "FINANCIERO"
+    },
+    {
+     "nombre": "moneda",
+     "tipo": "CHAR(3)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).",
+     "origenNegocio": "convencion",
+     "sistema": "CHAR(3), opcional.",
+     "sensibilidad": "NINGUNA"
     },
     {
      "nombre": "motivo",
@@ -4910,7 +4933,7 @@
     ],
     "entrantes": []
    },
-   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de identidad.usuario, pago. Reglas nombradas: uq_reembolso_clave.",
+   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de identidad.usuario, pago. Reglas nombradas: uq_reembolso_clave, ck_reembolso_moneda.",
    "clasificacion": {
     "personales": 0,
     "financieros": 1,
