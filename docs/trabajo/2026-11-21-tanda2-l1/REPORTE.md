@@ -1,9 +1,9 @@
 # Reporte — Tanda 2, lote L1 (`aportes` y `nucleo-financiero`)
 
-> **AVANCE: 8 / 18 — 44,4 %.** Trabajo en curso. Nada en rojo por código propio; dos fallas del CI de #418 son de módulos ajenos (ver Riesgos).
+> **AVANCE: 8 / 18 — 44,4 %.** Trabajo en curso; lo que queda está bloqueado por archivos compartidos, por otro lote o por decisiones (ver Pendiente). Nada en rojo por código propio; dos fallas del CI de #418 son de módulos ajenos (ver Riesgos).
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Base: `origin/dev` 50cf3be9
-- PR hacia `dev`: #430 mergeado. Abiertos (sin mergear): #418, #425, #436, #441, #445, #447, #449, #450, #451, #452, #454, #455, #456. Pila a mergear en orden: #425 → #447 → #449 → #454 → #455 → #456.
+- PR hacia `dev`: #430 mergeado. Abiertos (sin mergear): #418, #425, #436, #441, #445, #447, #449, #450, #451, #452, #454, #455, #456, #458. Pila a mergear en orden: #425 → #447 → #449 → #454 → #455 → #456 → #458.
 - Peldaño de evidencia por área:
   - `aportes` y `nucleo-financiero` (código): `TESTED`, con pruebas dirigidas en verde contra PostgreSQL 16 real local y controles negativos (mutantes) que fallan sin el cambio. No llega a `VERIFIED`: el camino HTTP de punta a punta con los servicios levantados no se ejercitó.
   - Integración con Testcontainers: las clases que levantan su propio contenedor (`AislamientoEsquemaTest`, `ArranqueTest`) quedan **NO COMPROBADAS: requieren Docker** (máquina de Pablo).
@@ -47,6 +47,20 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 = 18. `HECHO` = L
 - **Qué falta exactamente:** particionar `webhook_pasarela` por fecha, como `bitacora_evento`. Su retención es ELIMINAR a los 24 meses, y una tabla append-only solo se purga con DETACH + DROP de la partición. Después, sellarla y llevar su estado a `webhook_transicion` o `historial_estado_webhook`.
 - **Dónde quedó:** rama `correcciones/tanda2-l1-hechos-inmutables`. Compila y está en verde.
 
+### F1.L1.M10 — Bloqueo judicial con segregación (PR #458, apilado sobre #456)
+- **Qué anda:**
+  - `bloqueo_saldo.registrado_por` sale del token.
+  - Si quien registró el bloqueo intenta levantarlo, recibe 422 `AP-CU17-04`, y la base lo exige con R-BIL-32.
+  - Al levantarlo, la retención se libera en la misma transacción. Antes la cuenta quedaba retenida sin orden.
+  - `CU17CuatroOjosTest` 3/3, CU17Test 9/9 y CU17RechazosTest 4/4. El mutante hace fallar 2 de 3.
+- **Qué no anda:** el registro todavía se autoriza con `DATOS_SENSIBLES_LEER`, y levantar no tiene ruta HTTP.
+- **Qué falta exactamente:**
+  - Sembrar `BLOQUEO_AUTORIDAD_REGISTRAR` y `BLOQUEO_AUTORIDAD_LEVANTAR` en `sql/60_semillas/10-roles-y-permisos.sql` (compartido), con asignación a `OFICIAL_CUMPLIMIENTO`.
+  - Cambiar el `@Permiso` de `BilleteraController.bloquearPorAutoridad`.
+  - Agregar la operación `POST /billetera/bloqueos/{bloqueoId}/levantamiento`.
+  - Confirmar AMB-L1-3 con Cumplimiento.
+- **Dónde quedó:** rama `correcciones/tanda2-l1-bloqueo-autoridad`. Compila y está en verde.
+
 ### F2.L1.M01 — Consumidor de respaldo y cobertura empresarial (PR #452)
 - **Qué anda:** el listener escucha solo `entregas.desembolso_acreditado`, y una prueba fija esos tópicos. `CAJA_EMPRESA` salió de la configuración y del compose.
 - **Qué no anda:** quedan los mapeos `RESERVA_RESPALDO`, `POZO_GRUPO` y `DESEMBOLSO`, que apuntan a las cuentas 9.x.
@@ -58,7 +72,6 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 = 18. `HECHO` = L
 | ID | Estado | Qué lo destraba |
 |---|---|---|
 | F1.L1.M11 | TODO | Lo ejecuta esta sesión. Cambia el contrato que usa `apps/movil/.../cu21_cobrar_aporte.dart` (L6): hay que coordinar el cambio de la app en el mismo PR o en uno de L6. |
-| F1.L1.M10 | TODO | Los permisos nuevos se siembran en `sql/60_semillas`/`seeders` (compartido). AMB-L1-3: confirmar con Cumplimiento. |
 | F2.L1.M02 | TODO | Depende de F3: el árbol 9.x lo usan `POZO_GRUPO` y `DESEMBOLSO`, que asientan el desembolso vigente. Sacarlo antes rompe ese asiento. |
 | F2.L1.M03 | TODO | Depende de F1.L1.M11 (el contrato del cobro deja de llevar `canal`) y de que la app (L6) no ofrezca los canales retirados. |
 | F2.L1.M04 | TODO | Necesita el evento de apertura de período de `grupos` (L3) y su pacto, o un trabajo con ShedLock, y el ADR de inicio automático (F0·ADR-054). |
@@ -75,6 +88,7 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 = 18. `HECHO` = L
 - `M09-reembolso-idempotente.txt`: idempotencia en serie y concurrente, más la migración sobre una base existente.
 - `M09b-idempotencia-aprobacion-proveedor.txt`: aprobación y alta de proveedor, con mutantes.
 - `M12-moneda-reembolso.txt` y `M12b-moneda-conciliacion.txt`: moneda al lado del importe, migración y mutantes.
+- `M10-bloqueo-autoridad.txt`: cuatro ojos, liberación de la retención y mutante.
 - `M08-hechos-inmutables.txt`: sellado, historial, concurrencia, humo del esquema y mutante.
 - `M05-*`, `M04-*`, `F2M01-*`: secreto del webhook, desembolso fail-closed y consumidor de respaldo.
 
@@ -104,6 +118,12 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 = 18. `HECHO` = L
   - Primera corrida: `plataforma:gateway` `ArranqueRateLimitGatewayTest` es intermitente, porque depende del tiempo de reposición del balde. Al relanzar el job pasó.
   - Re-ejecución: `servicios:entregas` cobertura de ramas 0,70 < 0,71.
   - Ninguno de los dos módulos lo toca el PR. Los dejo registrados para los dueños de `plataforma` y de L2. No bajé umbrales ni subí timeouts.
+- **CI de #436, #441 y #445.**
+  - `Los cinco corredores` falla por la misma cobertura de ramas de `servicios:entregas` (0,70 < 0,71). Ninguno de esos PR toca `entregas` (L2).
+  - #445 tuvo además un rojo EXTERNAL en `Dependencias, secretos e imagen`: el repositorio de plugins de Gradle no resolvió `kotlin-stdlib:2.4.0`.
+  - No bajé umbrales. Para el dueño de L2.
+- **`CU40Test` de `nucleo-financiero`.** En local falla con `fn_lim_evaluar` también sin mis cambios (verificado con `git stash`): es previo.
+- **`webhook_pasarela` sigue mutable.** Particionarla choca con la unicidad `uq_webhook_idem`, porque en una tabla particionada el `UNIQUE` debe incluir la clave de partición. La deduplicación tendría que vivir en una tabla aparte. Es una decisión de diseño a registrar antes de F1.L1.M08 parte 2.
 - **Fallo cerrado de `grupos`.** Con #441, `grupos` recibe 404 cuando pide el estado de otra persona: la contraparte de una permuta o el titular en un traspaso. Cae a «no al día» (falla cerrado). Esas rutas están decididas para eliminarse (tanda 7).
 - **Filas viejas.** Las filas de `saldo_diario_billetera` cerradas antes de #436 tienen el sello viejo. Si se verifica la cadena sobre ellas, aparece una ruptura en el primer día nuevo.
 
