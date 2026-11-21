@@ -1,11 +1,10 @@
 # Reporte — Tanda 2, lote L2 (garantía y entregas)
 
-> **AVANCE: 3 / 14 — 21,4 %.** (F1.L2.M07 en A MEDIAS: no suma)
+> **AVANCE: 5 / 14 — 35,7 %.**
 
-- Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · PR mergeados en `dev`: #419, #421, #422, #424 y #429 (CI de la
-  punta 100 % verde, incluidos los cinco corredores y Frontend). Abiertos, independientes entre sí: #459 (F1.L2.M04),
-  #462 (410 en plataforma, punto 5), #463 (llave de cifrado propia, F1.L2.M07 y punto 1) y #464 (CHECK estrechado en
-  bases existentes, F1.L2.M09 y punto 2). Los puntos 1, 2 y 5 son el alcance que amplió el coordinador.
+- Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · PR mergeados en `dev`: #419, #421, #422, #424, #429, #459, #462
+  y #463, todos con CI verde, incluidos los cinco corredores. #464 se consolidó en #463 por el tope de 3 PR abiertos.
+  #463 todavía no está en `test`: espera a que se cargue `ENTREGAS_LLAVE_CIFRADO_CUENTAS` en Coolify.
 - Peldaño de evidencia alcanzado: `TESTED` en L2.S1.M1 (`test` + `webTest` + gates estáticos locales en verde).
   `integrationTest` (Testcontainers) no corre en esta nube: lo corre el CI del PR. Todo lo demás del lote: `UNKNOWN`.
 
@@ -15,9 +14,14 @@
 |---|---|---|---|
 | L2.S1.M1 | La subasta de cupos y el mercado de turnos de `entregas` ya no existen: sus 9 operaciones responden 410 con `AP-CU136-09` / `AP-CU130-10` y sin efecto; `GET /entregas/mercado/ofertas/{id}` responde el 422 `AP-CU130-05` del pacto con nucleo. Se borraron 24 clases de producción y 23 de prueba | `./gradlew :servicios:entregas:test :servicios:entregas:webTest` + grep | PASS — [evidencia](./evidencia/L2.S1.M1-retiro-cesion.txt) |
 | F2.L2.M09 | Mercado de ofertas (código muerto) retirado | ídem | PASS (con L2.S1.M1) |
+| F1.L2.M07 | El número de cuenta se cifra solo en el servidor (`numeroCifrado` fuera del contrato: 400) y con una llave propia, `ENTREGAS_LLAVE_CIFRADO_CUENTAS`, distinta de la pimienta; sin ella entregas no arranca | `./gradlew :servicios:entregas:test :servicios:entregas:webTest` | PASS — [evidencia](./evidencia/F1.L2.M07-llave-cifrado.txt) (#421, #463) |
+| F1.L2.M09 | `POST /entregas` y la ejecución manual responden 410; `EFECTIVO_ORGANIZADOR` no existe en el contrato, en el modelo ni en las bases existentes (`CK_ESTRECHADOS`) | psql contra una base existente y una nueva | PASS — [evidencia](./evidencia/punto2-check-estrechado.txt) (#424, #463) |
 | F1.L2.M05 | Ninguna persona anota la respuesta del proveedor: `POST /desembolsos/{id}/respuesta` responde 410 `AP-CU28-08` sin llamar al caso de uso (sin ACREDITADA ni `desembolso_acreditado`). `CU28EmitirDesembolso.anotarRespuesta` se conserva para el webhook firmado de F3.L2.M02 | `./gradlew :servicios:entregas:webTest` | PASS — [evidencia](./evidencia/F1.L2.M05-desembolso-sin-humano.txt) |
 
 ## A medias
+
+Además de lo que sigue, `CU22LiquidarEntrega.liquidar`/`ejecutar` y `CU23CubrirIncumplimiento` todavía existen, sin
+camino HTTP. Se borran con el punto 3 (Pendiente).
 
 ### F1.L2.M04 — Importes de entrada sin signo; disolución y reemplazo con cifras de sus dueños
 - Qué anda: `garantia.yaml` 1.2.0 define `DineroEntrada` (monto `^\d+\.\d{2}$`, sin signo) y lo usan los importes que
@@ -29,7 +33,7 @@
 - Qué falta exactamente: leer el total aportado y la deuda viva de `aportes` y el mayor, y lo entregado de `entregas`,
   con clientes con timeout y circuito (regla 65: dobles en tres niveles), y quitar esos campos de la entrada.
   Depende del cliente HTTP único y del token de servicio en `plataforma` (F1.L2.M13/M14).
-- Dónde quedó: rama `correcciones/tanda2-l2-dinero-entrada`; compila, `test`/`webTest` en verde.
+- Dónde quedó: mergeado en `dev` (#459) con CI verde; la segunda mitad no se empezó.
 
 ### F1.L2.M02, F1.L2.M03 y F2.L2.M04 — `garantia`: cobertura manual, devolución a pedido y aval
 - Qué anda: `cubrirIncumplimiento` (410 `AP-CU23-14`), `devolverFondo` (410 `AP-CU29-06`) y `ejecutarAval`
@@ -52,41 +56,6 @@
      alcance). Marcar retirado `docs/CasosDeUso/CU-26` (hoy figura «pendiente de implementar»).
      `identidad.referencia_personal.acepta_ser_avalista` es de L4.
 - Dónde quedó: rama `correcciones/tanda2-l2-garantia-cuerpo`; compila, `test`/`webTest` en verde.
-
-### F1.L2.M09 — Retirar `POST /entregas` legacy y `EFECTIVO_ORGANIZADOR` (y primera parte de F1.L2.M08)
-- Qué anda: `liquidarEntrega` (POST /entregas) responde 410 `AP-CU22-10` y `ejecutarEntrega` (cierre con monto libre,
-  F1.L2.M08) 410 `AP-CU22-11`, ambos sin llamar al caso de uso. `EFECTIVO_ORGANIZADOR` salió del enum del contrato
-  (400) y del modelo `04_entregas_fondo.puml`: una base creada desde el modelo lo rechaza
-  (`ck_entrega_fondo_metodo_desembolso`, [evidencia](./evidencia/F1.L2.M09-entrega-legacy.txt)).
-- Qué no anda: en una base que ya existe (TEST), el CHECK viejo sigue admitiendo `EFECTIVO_ORGANIZADOR`, porque el
-  DDL de tabla es `CREATE TABLE IF NOT EXISTS`. `CU22LiquidarEntrega.liquidar`/`ejecutar` siguen en el código: el
-  CU-22 de la bóveda tiene sus criterios gherkin y `verificar_criterios.py` exige sus pruebas.
-- Qué falta exactamente:
-  1. Fuera de alcance: registrar `ck_entrega_fondo_metodo_desembolso` como CHECK que evoluciona en
-     `scripts/modelo.py` (`CK_AMPLIADOS` o su equivalente para estrechar), para que el generador emita
-     `DROP/ADD CONSTRAINT` sobre bases existentes. Antes, consulta en TEST:
-     `SELECT count(*) FROM entregas.entrega_fondo WHERE metodo_desembolso = 'EFECTIVO_ORGANIZADOR';` (si hay filas,
-     se cierran por su camino, nunca con `UPDATE`). Probé la alternativa de una regla nueva `R-DES-06` en
-     `docs/Restricciones.md` y funciona en ambas bases, pero obliga a cambiar la cifra de restricciones en
-     `docs/Seguridad.md` y en `planes/*`, y a citarla en `docs/CasosDeUso/CU-22` (fuera de alcance).
-  2. Fuera de alcance: actualizar `docs/CasosDeUso/CU-22` para retirar los criterios de la liquidación y la
-     ejecución manual; después, en este lote, borrar `CU22LiquidarEntrega.liquidar`/`ejecutar` y sus pruebas.
-- Dónde quedó: rama `correcciones/tanda2-l2-entrega-legacy`; compila, `test`/`webTest` en verde.
-
-### F1.L2.M07 — El número de cuenta se cifra solo en el servidor, con clave dedicada (SEG-007)
-- Qué anda: `numeroCifrado` ya no existe en `EntradaRegistroCuenta` (OpenAPI 2.0.0); un cuerpo que lo manda recibe 400
-  sin llegar al caso de uso. `CU18RegistrarCuentaDestino` cifra siempre desde `numeroEnClaro`, el mismo número del
-  que salen el enmascarado y el hash. Prueba unitaria de ida y vuelta (`NumeroDeCuentaProtegidoTest`) en verde
-  ([evidencia](./evidencia/F1.L2.M07-numero-cifrado.txt)).
-- Qué no anda: la clave de cifrado sigue siendo `aportaya.seguridad.pimienta`, la misma que el pepper del hash.
-- Qué falta exactamente:
-  1. Fuera de alcance (`scripts/generar_compose.py` y los `docker-compose*.yml` generados): agregar el secreto
-     `ENTREGAS_LLAVE_CIFRADO_CUENTAS` a la lista de secretos del generador y regenerar el compose.
-  2. En este lote, después de 1: `aportaya.seguridad.llave-cifrado-cuentas: ${ENTREGAS_LLAVE_CIFRADO_CUENTAS}` en
-     `application.yml` sin valor por defecto (el servicio no arranca sin ella, con su prueba de arranque), usarla en
-     `CU18RegistrarCuentaDestino` y en quien descifra, y recifrar las cuentas existentes (datos sintéticos, P-14)
-     descifrando con la pimienta y cifrando con la llave nueva.
-- Dónde quedó: rama `correcciones/tanda2-l2-seg007-cifrado`; compila y `test`/`webTest` en verde.
 
 ### L2.S1.M2 — Contracción del contrato y del esquema de la cesión
 - Qué anda: el código ya no crea ofertas, cesiones, subastas ni pujas; las operaciones son `deprecated` (OpenAPI 1.1.0).
