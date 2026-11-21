@@ -212,3 +212,10 @@ El texto del segundo cambió (antes decía «descuadrado»); las pruebas solo ve
 
 ## Procesos al cerrar
 PostgreSQL local apagado con `pg_ctl stop` (ver la salida al final de la sesión). Gradle: el daemon queda vivo (es el comportamiento normal de `./gradlew`); se detiene con `./gradlew --stop`.
+
+## Candado `blocker_gate` al cerrar
+Al cerrar el turno, `blocker_gate.py` señaló 9 microtareas en `BLOQUEADO`/`EN CURSO` de planes **viejos** y ajenos
+a este carril (2026-10-03, 10-14, 10-16, 10-27, 10-28 y 10-30). Este plan no tiene ninguna en esos estados.
+Pablo ya decidió qué hacer con esas 9 (DECISIONES.md, P-20): marcarlas `DESCARTADO` con el motivo «reemplazadas
+por el plan de correcciones del 2026-11-21», en su propio PR. Es la microtarea **F0.M1** de otra sesión. No se
+tocaron desde acá, porque están fuera del alcance de archivos de este carril (regla 00 §3).
