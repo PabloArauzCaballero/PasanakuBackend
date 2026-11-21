@@ -1,0 +1,37 @@
+### origin/dev, antes
+  OK    · aporte-mora-cobertura.yaml: 12 pasos, 6 validos, 7 limite, 7 invalidos
+  OK    · entrega-del-turno.yaml: 7 pasos, 4 validos, 5 limite, 6 invalidos
+  OK    · recarga-y-retiro.yaml: 6 pasos, 3 validos, 5 limite, 6 invalidos
+  AVISO · recarga-y-retiro.yaml: paso `instruir-pago` SIN CABLEAR — H8-01 · Ningún trabajo, endpoint ni consumidor llama a RetirosConProveedor.despachar ni a CU11RetirarSaldo.instruirPago en producción; el evento nucleo_financiero.retiro_autorizado se publica y nadie lo consume. Una orden AUTORIZADA queda retenida sin instruirse. Decisión pendiente (A9): instrucción automática o de un operador.
+
+Sin fallas.
+
+### rama -flujos, después
+$ python3 scripts/validar_flujos.py
+  OK    · aporte-mora-cobertura.yaml: 7 pasos, 2 validos, 1 limite, 2 invalidos
+  OK    · entrega-del-turno.yaml: 5 pasos, 1 validos, 2 limite, 5 invalidos
+  OK    · recarga-y-retiro.yaml: 6 pasos, 3 validos, 5 limite, 6 invalidos
+  AVISO · recarga-y-retiro.yaml: paso `instruir-pago` SIN CABLEAR — H8-01 · Ningún trabajo, endpoint ni consumidor llama a RetirosConProveedor.despachar ni a CU11RetirarSaldo.instruirPago en producción; el evento nucleo_financiero.retiro_autorizado se publica y nadie lo consume. Una orden AUTORIZADA queda retenida sin instruirse. Decisión tomada (P-09, ADR-055 E9): instrucción automática con controles; falta el código (F3.S5.M2).
+
+Sin fallas.
+rc=0
+
+$ python3 scripts/validar_flujos.py --self-test
+self-test OK
+
+$ grep -nE "cubrirConRespaldo|recuperarRespaldo|liberarRespaldo|devolverFondo|cubrir-faltante|recuperar-respaldo|liberar-reserva" docs/catalogo-de-flujos/*.yaml
+(rc=1 → 1 = sin coincidencias)
+
+### Cómo valida pasos que ya no están decididos: el catálogo VIEJO de origin/dev, con cubrir-faltante y recuperar-respaldo, pasa igual
+$ python3 scripts/validar_flujos.py <copia de origin/dev:aporte-mora-cobertura.yaml>
+  OK    · aporte-mora-cobertura-viejo.yaml: 12 pasos, 6 validos, 7 limite, 7 invalidos
+
+Sin fallas.
+rc=0
+
+$ python3 scripts/matriz_de_pruebas.py
+
+350 endpoints → docs/catalogo-de-flujos/matriz.md
+
+$ python3 scripts/verificar_boveda.py
+TODO OK

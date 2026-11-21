@@ -1,0 +1,7 @@
+$ python3 -I scripts/verificar_narrativas.py
+# HEAD: 850e0f51 (origin/dev) · 2026-11-21T04:08:10Z
+  OK    · tablas con ficha: 397/397
+  OK    · columnas con explicación de negocio: 3823/4196 (piso 3734)
+
+Sin fallas.
+rc=0
