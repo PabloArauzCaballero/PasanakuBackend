@@ -66,6 +66,8 @@ DE_DESARROLLO = {
     "ARCHIVOS_CLAVE": "aportaya-local",
     "ARCHIVOS_BUCKET": "aportaya-archivos",
     "WEBHOOK_SECRETO": "secreto-local-no-es-el-de-produccion",
+    # F1.L1.M05: el secreto del webhook de la pasarela en aportes (>= 32 caracteres o no arranca).
+    "APORTES_WEBHOOK_SECRETO": "secreto-local-del-webhook-de-aportes-no-es-el-real",
     "CERTIFICADOS_CLAVE_FIRMA": "clave-local-no-es-la-de-produccion",
     "CUENTA_PUENTE_CUSTODIA": "00000000-0000-0000-0000-0000000000c0",
     "BASE_URL_PUBLICA": "http://localhost",
@@ -203,6 +205,7 @@ DE_ENTORNO = {
     "MFA_LLAVES": "${MFA_LLAVES}",
     "MFA_LLAVE_VIGENTE": "${MFA_LLAVE_VIGENTE}",
     "WEBHOOK_SECRETO": "${WEBHOOK_SECRETO}",
+    "APORTES_WEBHOOK_SECRETO": "${APORTES_WEBHOOK_SECRETO}",
     "CERTIFICADOS_CLAVE_FIRMA": "${CERTIFICADOS_CLAVE_FIRMA}",
     "CUENTA_PUENTE_CUSTODIA": "${CUENTA_PUENTE_CUSTODIA}",
     "BASE_URL_PUBLICA": "${BASE_URL_PUBLICA}",
