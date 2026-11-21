@@ -3,8 +3,8 @@ tags:
   - moc
   - indice
 titulo: "AportaYa — modelo de datos"
-entidades: 334
-relaciones_fk: 678
+entidades: 336
+relaciones_fk: 681
 modulos: 14
 ---
 
@@ -21,11 +21,11 @@ modulos: 14
 docs/
 ├── Index.md                 ← estás acá
 ├── Modelos/
-│   ├── Entidades/           ← una nota por tabla (334), en 14 carpetas
+│   ├── Entidades/           ← una nota por tabla (336), en 14 carpetas
 │   │   ├── 01 - Identidad, Usuarios y Seguridad/
 │   │   ├── 02 - Grupos, Cupos, Turnos y Gobernanza/
 │   │   └── ...
-│   └── Relaciones/          ← una nota por clave foránea (678), en 14 carpetas
+│   └── Relaciones/          ← una nota por clave foránea (681), en 14 carpetas
 │       ├── 01 - Identidad, Usuarios y Seguridad/
 │       └── ...
 ├── CasosDeUso/              ← un caso de uso por flujo (111), con criterios de aceptación
@@ -59,7 +59,7 @@ Casi todo el modelo se explica con cinco ideas. Si vas a leer solo cinco notas, 
 | :-: | --- | --- | --: | --: | --- |
 | 01 | Identidad, Usuarios y Seguridad | Saber con certeza a quién le estás confiando plata ajena | 27 | 34 | [[01_identidad_usuarios\|negocio]] |
 | 02 | Grupos, Cupos, Turnos y Gobernanza | Reglas del juego, orden de cobro y decisiones colectivas | 27 | 52 | [[02_grupos_turnos\|negocio]] |
-| 03 | Aportes, Pagos QR y Conciliación | Que "pagué" signifique "el banco lo confirmó" | 23 | 48 | [[03_aportes_pagos_qr\|negocio]] |
+| 03 | Aportes, Pagos QR y Conciliación | Que "pagué" signifique "el banco lo confirmó" | 25 | 51 | [[03_aportes_pagos_qr\|negocio]] |
 | 04 | Entregas de Fondo | Que la bolsa llegue completa, a la persona correcta, una sola vez | 15 | 38 | [[04_entregas_fondo\|negocio]] |
 | 05 | Notificaciones y Comunicaciones | WhatsApp como canal real de cobro, sin spam ni doble aviso | 16 | 22 | [[05_notificaciones\|negocio]] |
 | 06 | Transparencia y Reputación | Que nadie tenga que "creerle" al organizador | 18 | 24 | [[06_transparencia_reputacion\|negocio]] |
@@ -78,7 +78,7 @@ El grado (FK entrantes + salientes) es un buen proxy de importancia estructural:
 
 | Entidad | Módulo | FK salientes | FK entrantes | Grado |
 | --- | :-: | --: | --: | --: |
-| [[usuario]] | 01 | 0 | 221 | **221** |
+| [[usuario]] | 01 | 0 | 222 | **222** |
 | [[grupo]] | 02 | 1 | 50 | **51** |
 | [[participante]] | 02 | 3 | 29 | **32** |
 | [[transaccion_billetera]] | 10 | 5 | 16 | **21** |
@@ -88,19 +88,19 @@ El grado (FK entrantes + salientes) es un buen proxy de importancia estructural:
 | [[asiento_contable]] | 03 | 4 | 12 | **16** |
 | [[token_verificacion]] | 01 | 4 | 11 | **15** |
 | [[obligacion_aporte]] | 03 | 7 | 8 | **15** |
+| [[pago]] | 03 | 4 | 11 | **15** |
 | [[cuenta_contable]] | 03 | 3 | 12 | **15** |
-| [[pago]] | 03 | 4 | 10 | **14** |
 
 ## Acoplamiento entre módulos
 
-De las 678 claves foráneas, **354 cruzan módulos**. La matriz muestra
+De las 681 claves foráneas, **355 cruzan módulos**. La matriz muestra
 cuántas FK van de un módulo (fila) a otro (columna):
 
 | desde \ hacia | 01 | 02 | 03 | 04 | 05 | 06 | 07 | 08 | 09 | 10 | 11 | 12 | 13 | 14 |
 | :-: | --: | --: | --: | --: | --: | --: | --: | --: | --: | --: | --: | --: | --: | --: |
 | **01** | · | · | · | · | · | · | · | 1 | · | · | · | · | · | · |
 | **02** | 12 | · | 2 | · | · | · | 1 | 1 | · | · | · | · | · | · |
-| **03** | 12 | 9 | · | · | · | · | · | · | · | · | · | · | 1 | · |
+| **03** | 13 | 9 | · | · | · | · | · | · | · | · | · | · | 1 | · |
 | **04** | 8 | 16 | 1 | · | · | · | · | · | · | · | · | · | · | · |
 | **05** | 5 | 1 | 1 | · | · | · | · | · | · | · | · | · | · | · |
 | **06** | 7 | 7 | · | · | · | · | · | · | · | · | · | · | · | · |

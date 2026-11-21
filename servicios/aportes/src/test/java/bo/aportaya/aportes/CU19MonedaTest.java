@@ -87,8 +87,15 @@ class CU19MonedaTest extends BaseDeAportes {
         var salida = transaccion.execute(t -> reembolsoCU.solicitar(
                 new EntradaReembolso(pago, Dinero.de("40.00", Moneda.USD), "DUPLICADO", "moneda-xyz"),
                 contextoDe(usuario)));
-        assertThatThrownBy(() -> transaccion.execute(t ->
-                        dsl.execute("UPDATE aportes.reembolso SET moneda = 'XYZ' WHERE id = ?", salida.reembolsoId())))
+        // F1.L1.M08 · el reembolso es append-only: la moneda invalida se prueba en el alta, no con UPDATE.
+        assertThatThrownBy(() -> transaccion.execute(t -> dsl.execute(
+                        """
+                        INSERT INTO aportes.reembolso
+                            (id, pago_id, monto, moneda, motivo, estado, solicitado_por, fecha_solicitud)
+                        SELECT gen_random_uuid(), pago_id, monto, 'XYZ', motivo, 'SOLICITADO', solicitado_por, now()
+                          FROM aportes.reembolso WHERE id = ?
+                        """,
+                        salida.reembolsoId())))
                 .hasMessageContaining("ck_reembolso_moneda");
     }
 }

@@ -1,0 +1,14 @@
+$ ./gradlew :servicios:garantia:test :servicios:garantia:webTest + spotlessCheck + check -x test + testBarrido
+/tmp/claude-0/-home-user-PasanakuBackend/bd1cc7de-d0c1-5769-a21a-89948fedaccc/scratchpad/m04a.log:BUILD SUCCESSFUL in 1m 56s
+/tmp/claude-0/-home-user-PasanakuBackend/bd1cc7de-d0c1-5769-a21a-89948fedaccc/scratchpad/m04b.log:BUILD SUCCESSFUL in 20s
+test 43/0 · webTest 50/0
+  IncumplimientosControllerWebTest "F1.L2.M04 · 400: un monto involucrado negativo no llega al caso de uso" PASS
+  GarantiaControllerWebTest "F1.L2.M04 · 400: un importe negativo en la disolucion no llega al caso de uso" PASS
+$ python3 scripts/verificar_criterios.py
+Sin divergencias entre la boveda y el codigo.
+$ python3 scripts/verificar_pruebas_web.py
+La capa web esta cubierta segun ADR-043.
+$ python3 scripts/verificar_seguridad.py
+TODO OK · 5 aviso(s)
+$ python3 scripts/verificar_boveda.py
+TODO OK

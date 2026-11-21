@@ -2,6 +2,7 @@ package bo.aportaya.plataforma.web.errores;
 
 import bo.aportaya.plataforma.dominio.ErrorDeDominio;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
+import bo.aportaya.plataforma.dominio.OperacionRetirada;
 import bo.aportaya.plataforma.dominio.SinContextoDeSesion;
 import bo.aportaya.plataforma.web.idempotencia.IdempotenciaConflicto;
 import bo.aportaya.plataforma.web.idempotencia.IdempotenciaEnProceso;
@@ -31,7 +32,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
  * Traduce, y no deja pasar nada crudo.
  *
  * <p>El mapeo es el de {@code errores-api}: {@code 400} para el esquema,
- * {@code 422} para la regla de negocio, {@code 409} para lo que rechaza la base,
+ * {@code 422} para la regla de negocio, {@code 410} para la operacion retirada, {@code 409} para lo que rechaza la base,
  * {@code 403} sin permiso y {@code 500} con **solo** la traza.
  *
  * <p>Una restriccion que dispara y no tiene regla sale con el codigo de su clase de
@@ -57,6 +58,17 @@ public class ManejadorGlobalDeErrores {
         BITACORA.info("regla de negocio {}: {}", e.codigo(), e.getMessage());
         return ResponseEntity.unprocessableEntity()
                 .body(new ErrorApi(e.codigo().valor(), e.getMessage(), e.detalle(), Traza.actual()));
+    }
+
+    /**
+     * Una operacion que el producto retiro: 410 con su AP-CU<NN>-<nn> y sin efecto (regla 98.1.3). Mas especifico
+     * que {@code reglaDelDominio}: Spring lo prioriza por tipo.
+     */
+    @ExceptionHandler(OperacionRetirada.class)
+    public ResponseEntity<ErrorApi> operacionRetirada(OperacionRetirada e) {
+        BITACORA.info("operacion retirada {}", e.codigo());
+        return ResponseEntity.status(HttpStatus.GONE)
+                .body(ErrorApi.de(e.codigo().valor(), e.getMessage(), Traza.actual()));
     }
 
     /**

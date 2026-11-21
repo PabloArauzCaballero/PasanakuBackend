@@ -189,6 +189,15 @@ class ManejadorGlobalDeErroresWebTest {
         }
 
         @Test
+        @DisplayName("410: una operacion retirada sale con su codigo, no como regla de negocio ni como 500")
+        void operacionRetirada() throws Exception {
+            mvc.perform(get("/ensayo/retirada").with(Sesiones.como("PARTICIPANTE", CON_PERMISO_DE_LECTURA)))
+                    .andExpect(status().isGone())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU21-09"))
+                    .andExpect(jsonPath("$.trazaId").exists());
+        }
+
+        @Test
         @DisplayName("422: un invariante del dominio sale como AP-DOM-01")
         void reglaDelDominio() throws Exception {
             mvc.perform(get("/ensayo/regla-del-dominio").with(Sesiones.como("PARTICIPANTE", CON_PERMISO_DE_LECTURA)))

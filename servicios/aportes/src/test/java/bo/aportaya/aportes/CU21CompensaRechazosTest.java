@@ -51,7 +51,12 @@ class CU21CompensaRechazosTest extends BaseDeCompensacion {
         assertThat(estadoDe(conReembolso.obligacion())).isEqualTo("PAGADO");
 
         Caso enDisputa = pagado("400.00", 10);
-        dslFixtura.execute("UPDATE aportes.pago SET estado = 'EN_DISPUTA' WHERE id = ?", enDisputa.pago());
+        dslFixtura.execute(
+                """
+                INSERT INTO aportes.historial_estado_pago (id, pago_id, estado_anterior, estado_nuevo, motivo, fecha_hora)
+                VALUES (gen_random_uuid(), ?, 'ACREDITADO', 'EN_DISPUTA', 'prueba sintetica', clock_timestamp())
+                """,
+                enDisputa.pago());
         assertThat(compensar(aviso(enDisputa)).resultado()).isEqualTo(Resultado.NO_COMPENSABLE);
         assertThat(estadoDe(enDisputa.obligacion())).isEqualTo("PAGADO");
         assertThat(eventos("aportes.aporte_compensado", enDisputa.obligacion())).isZero();

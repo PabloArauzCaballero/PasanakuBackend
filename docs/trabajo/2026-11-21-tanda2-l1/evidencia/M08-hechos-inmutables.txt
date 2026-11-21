@@ -1,0 +1,54 @@
+F1.L1.M08 (ANF-DATOS-001) · pago y reembolso inmutables; su estado vive en un historial append-only (R-BIL-30)
+Fecha: 2026-11-21 · Rama: correcciones/tanda2-l1-hechos-inmutables (apilada sobre #454)
+
+--- fuente de verdad (regla 97.1)
+docs/entidades/03_aportes_pagos_qr.puml: clases y entidades historial_estado_pago / historial_estado_reembolso
+  (patron existente historial_estado_entrega de 04_entregas_fondo.puml) y sus relaciones.
+scripts/modelo.py APPEND_ONLY += pago, reembolso, historial_estado_pago, historial_estado_reembolso
+  -> el generador escribe el trigger R-AUD-01 (35_append_only) y el REVOKE UPDATE, DELETE ... FROM svc_aportes (00_base).
+docs/Restricciones.md: R-BIL-30 + uq_historial_estado_pago_salida (pago_id, estado_anterior),
+  uq_historial_estado_reembolso_salida (reembolso_id, estado_anterior): una sola salida por estado.
+$ python3 scripts/generar_ddl.py -> sql/ generado: 350 tablas ... Sin pendientes a nivel de datos.
+
+--- migracion (esquema previo, nuevo aplicar.sql encima, re-aplicado)
+previo: exit=0 · nuevo sobre previo: exit=0 · re-aplicado: exit=0
+triggers: tg_historial_estado_pago_append_only tg_historial_estado_reembolso_append_only
+          tg_pago_append_only tg_reembolso_append_only
+indices:  uq_historial_estado_pago_salida uq_historial_estado_reembolso_salida
+semillas base x2: exit=0 · semillas dev x2 (app.entorno=dev): exit=0
+prueba_humo.sql: FALLA 0 · OK 165 · "OK · R-AUD-01 las 51 tablas append-only están selladas"
+  (la cifra fija del humo pasa de 47 a 51: es la que el propio archivo pide subir con APPEND_ONLY)
+
+--- integracion (PostgreSQL 16 local, base limpia; gancho APORTAYA_TEST_DB_URL solo durante la corrida)
+$ ./gradlew :servicios:aportes:integrationTest
+144 tests completed, 3 failed
+  141 PASS. Los 3 en rojo son AislamientoEsquemaTest (1) y ArranqueTest (2):
+  "Could not find a valid Docker environment" -> ENVIRONMENT (regla 80.4), no usan el gancho;
+  NO COMPROBADO — requiere Docker (maquina de Pablo / CI).
+AppendOnlyTest: 9/9 PASS
+  - svc_aportes sin UPDATE/DELETE sobre pago, reembolso y los dos historiales (has_table_privilege)
+  - SET LOCAL ROLE svc_aportes; UPDATE aportes.pago -> "permission denied"
+  - como superusuario: UPDATE y DELETE sobre pago -> "R-AUD-01"
+  - reversar dos veces -> true / false; estado vigente REVERSADO; 1 fila de historial; la fila del pago sigue ACREDITADO
+  - dos reversos concurrentes -> [true, false] y 1 fila de historial
+  - aprobar reembolso -> EJECUTADO por historial con ejecutado_por = aprobador; la fila queda SOLICITADO;
+    segunda ejecucion -> false
+CU19Test, CU19RechazosTest, CU21CompensaTest, CU21CompensaRechazosTest, CU132*, CU51*, CUIndicadores*: PASS
+$ ./gradlew :servicios:aportes:spotlessCheck :servicios:aportes:test :servicios:aportes:webTest -> exit=0
+$ ./gradlew :servicios:auditoria:test -> exit=0 (CatalogoDeDatosVigenteTest con la ficha de las dos tablas)
+
+--- control negativo (mutante sobre la base): DROP TRIGGER tg_pago_append_only; GRANT UPDATE, DELETE ON aportes.pago
+    TO svc_aportes; DROP INDEX uq_historial_estado_pago_salida
+9 tests completed, 5 failed: disparador R-AUD-01, privilegio de svc_aportes sobre pago, permission denied,
+reversar-dos-veces, concurrencia. (base recreada limpia despues)
+
+--- verificadores
+verificar_boveda: TODO OK (cifras: 350 tablas · 331 entidades · 181 restricciones)
+verificar_seguridad: TODO OK · verificar_criterios: Sin divergencias · verificar_narrativas: Sin fallas.
+
+No cubierto:
+- webhook_pasarela queda fuera: su politica de retencion es ELIMINAR a los 24 meses (60_semillas/19), y una
+  tabla append-only solo se purga por particion (DETACH + DROP). Sellarla exige particionarla: microtarea aparte.
+- Las pruebas de garantia (FixturaDeRespaldo inserta aportes.pago) no borran pagos; no se corrieron aca (Docker).
+- La deriva modelo <-> jOOQ: este servicio usa DSL plano por nombre (sin clases generadas); la verificacion es
+  generar_ddl "Sin pendientes" + aplicacion real + suite de integracion.

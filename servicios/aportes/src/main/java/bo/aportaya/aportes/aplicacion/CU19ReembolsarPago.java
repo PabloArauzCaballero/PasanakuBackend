@@ -4,6 +4,7 @@ import bo.aportaya.aportes.dominio.MotivoDeReembolso;
 import bo.aportaya.aportes.dominio.SaldoDeLaObligacion;
 import bo.aportaya.aportes.dominio.TipoDeDisputa;
 import bo.aportaya.aportes.infraestructura.AuditoriaRepositorio;
+import bo.aportaya.aportes.infraestructura.DisputaPagoRepositorio;
 import bo.aportaya.aportes.infraestructura.ObligacionRepositorio;
 import bo.aportaya.aportes.infraestructura.PagoRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
@@ -40,6 +41,7 @@ public class CU19ReembolsarPago {
 
     private final Datos datos;
     private final PagoRepositorio pagos;
+    private final DisputaPagoRepositorio disputas;
     private final ObligacionRepositorio obligaciones;
     private final Consumidos consumidos;
     private final Outbox outbox;
@@ -50,6 +52,7 @@ public class CU19ReembolsarPago {
     public CU19ReembolsarPago(
             Datos datos,
             PagoRepositorio pagos,
+            DisputaPagoRepositorio disputas,
             ObligacionRepositorio obligaciones,
             Consumidos consumidos,
             Outbox outbox,
@@ -58,6 +61,7 @@ public class CU19ReembolsarPago {
             @Value("${aportaya.reembolso.plazo-de-disputa}") Duration plazoDeDisputa) {
         this.datos = datos;
         this.pagos = pagos;
+        this.disputas = disputas;
         this.obligaciones = obligaciones;
         this.consumidos = consumidos;
         this.outbox = outbox;
@@ -160,6 +164,12 @@ public class CU19ReembolsarPago {
                         CodigoError.de(19, 4), "Quien aprueba un reembolso no puede ser quien lo solicito.");
             }
             if (!pagos.ejecutarReembolso(dsl, reembolsoId, ctx.usuarioId(), ahora)) {
+                // F1.L1.M09 · el reintento de quien ya lo aprobo recibe la misma respuesta, sin volver a mover nada.
+                if (ctx.usuarioId().equals(pagos.ejecutadoPor(dsl, reembolsoId).orElse(null))) {
+                    var pago = pagos.ver(dsl, reembolso.pagoId()).orElseThrow();
+                    var obligacion = obligaciones.ver(dsl, pago.obligacionId()).orElseThrow();
+                    return new SalidaEjecucion(reembolsoId, "EJECUTADO", obligacion.id(), obligacion.estado());
+                }
                 throw new ErrorDeNegocio(CodigoError.de(19, 3), "Ese reembolso ya no esta solicitado.");
             }
 
@@ -229,12 +239,12 @@ public class CU19ReembolsarPago {
             if (!consumidos.registrar(dsl, idMensaje, "proveedor-pago")) {
                 return new SalidaDisputa(null, ahora, false);
             }
-            if (pagos.hayDisputaAbierta(dsl, entrada.pagoId())) {
+            if (disputas.hayDisputaAbierta(dsl, entrada.pagoId())) {
                 return new SalidaDisputa(null, ahora, false);
             }
 
             OffsetDateTime limite = ahora.plus(plazoDeDisputa);
-            UUID disputaId = pagos.abrirDisputa(
+            UUID disputaId = disputas.abrirDisputa(
                     dsl, entrada.pagoId(), tipo, entrada.descripcion(), entrada.montoDisputado(), "[]", ahora, limite);
 
             outbox.emitir(
