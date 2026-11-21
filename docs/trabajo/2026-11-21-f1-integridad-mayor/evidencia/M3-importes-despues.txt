@@ -1,0 +1,47 @@
+$ cd sql && psql -d reg_m1 -v ON_ERROR_STOP=1 -q -f aplicar.sql   # re-aplicar el esquema nuevo sobre la base EXISTENTE (con datos dev)
+ fn_seg_aplicar_rls 
+--------------------
+ 
+(1 row)
+
+exit=0
+
+$ psql -d reg_m1 -f evidencia/verificar_importes.sql   # DESPUES
+ n  |       tabla       |         columna          | valor  | esperado  |                        obtenido                        | veredicto 
+----+-------------------+--------------------------+--------+-----------+--------------------------------------------------------+-----------
+  1 | obligacion_aporte | monto_pagado             | -0.01  | RECHAZADO | RECHAZADO ck_obligacion_aporte_monto_pagado            | PASS
+  2 | obligacion_aporte | monto_pagado             | 0.00   | ACEPTADO  | ACEPTADO                                               | PASS
+  3 | obligacion_aporte | monto_pagado             | 0.01   | ACEPTADO  | ACEPTADO                                               | PASS
+  4 | obligacion_aporte | monto_recargo            | -0.01  | RECHAZADO | RECHAZADO ck_obligacion_aporte_monto_recargo           | PASS
+  5 | obligacion_aporte | monto_recargo            | 0.00   | ACEPTADO  | ACEPTADO                                               | PASS
+  6 | obligacion_aporte | monto_recargo            | 0.01   | ACEPTADO  | ACEPTADO                                               | PASS
+  7 | obligacion_aporte | monto_condonado          | -0.01  | RECHAZADO | RECHAZADO ck_obligacion_aporte_monto_condonado         | PASS
+  8 | obligacion_aporte | monto_condonado          | 0.00   | ACEPTADO  | ACEPTADO                                               | PASS
+  9 | obligacion_aporte | monto_condonado          | 0.01   | ACEPTADO  | ACEPTADO                                               | PASS
+ 10 | obligacion_aporte | monto_cubierto_garantia  | -0.01  | RECHAZADO | RECHAZADO ck_obligacion_aporte_monto_cubierto_garantia | PASS
+ 11 | obligacion_aporte | monto_cubierto_garantia  | 0.00   | ACEPTADO  | ACEPTADO                                               | PASS
+ 12 | obligacion_aporte | monto_cubierto_garantia  | 0.01   | ACEPTADO  | ACEPTADO                                               | PASS
+ 13 | orden_cobro       | monto_exacto             | -0.01  | RECHAZADO | RECHAZADO ck_orden_cobro_monto_exacto                  | PASS
+ 14 | orden_cobro       | monto_exacto             | 0.00   | ACEPTADO  | ACEPTADO                                               | PASS
+ 15 | orden_cobro       | monto_exacto             | 0.01   | ACEPTADO  | ACEPTADO                                               | PASS
+ 16 | pago              | monto_comision_proveedor | -0.01  | RECHAZADO | RECHAZADO ck_pago_monto_comision_proveedor             | PASS
+ 17 | pago              | monto_comision_proveedor | 0.00   | ACEPTADO  | ACEPTADO                                               | PASS
+ 18 | pago              | monto_comision_proveedor | 0.01   | ACEPTADO  | ACEPTADO                                               | PASS
+ 19 | pago              | monto_neto_acreditado    | -0.01  | RECHAZADO | RECHAZADO ck_pago_monto_neto_acreditado                | PASS
+ 20 | pago              | monto_neto_acreditado    | 0.00   | ACEPTADO  | ACEPTADO                                               | PASS
+ 21 | pago              | monto_neto_acreditado    | 0.01   | ACEPTADO  | ACEPTADO                                               | PASS
+ 22 | reembolso         | monto                    | -50.00 | RECHAZADO | RECHAZADO ck_reembolso_monto                           | PASS
+ 23 | reembolso         | monto                    | -0.01  | RECHAZADO | RECHAZADO ck_reembolso_monto                           | PASS
+ 24 | reembolso         | monto                    | 0.00   | RECHAZADO | RECHAZADO ck_reembolso_monto                           | PASS
+ 25 | reembolso         | monto                    | 0.01   | ACEPTADO  | ACEPTADO                                               | PASS
+ 26 | reembolso         | monto                    | 100.00 | ACEPTADO  | ACEPTADO                                               | PASS
+ 27 | disputa_pago      | monto_disputado          | -0.01  | RECHAZADO | RECHAZADO ck_disputa_pago_monto_disputado              | PASS
+ 28 | disputa_pago      | monto_disputado          | 0.00   | ACEPTADO  | ACEPTADO                                               | PASS
+ 29 | disputa_pago      | monto_disputado          | 10.00  | ACEPTADO  | ACEPTADO                                               | PASS
+(29 rows)
+
+ pass | fail 
+------+------
+   29 |    0
+(1 row)
+

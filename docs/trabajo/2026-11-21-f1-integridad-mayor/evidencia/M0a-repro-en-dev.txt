@@ -1,0 +1,28 @@
+$ psql -f evidencia/repro_tya_dinero_001.sql   # sobre origin/dev, base local recien aplicada
+SET
+BEGIN
+INSERT 0 1
+INSERT 0 2
+COMMIT
+INSERT 0 1
+INSERT 0 2
+BEGIN
+INSERT 0 1
+INSERT 0 2
+COMMIT
+BEGIN
+INSERT 0 1
+INSERT 0 1
+COMMIT
+BEGIN
+INSERT 0 1
+COMMIT
+RESET
+                  id                  |   estado   | lineas |  debe  | haber  
+--------------------------------------+------------+--------+--------+--------
+ 00000000-0000-0000-0000-0000000000a1 | CONFIRMADO |      5 | 180.00 | 130.00
+ 00000000-0000-0000-0000-0000000000a2 | CONFIRMADO |      2 | -10.00 | -10.00
+ 00000000-0000-0000-0000-0000000000a3 | CONFIRMADO |      1 |  20.00 |  20.00
+ 00000000-0000-0000-0000-0000000000a4 | CONFIRMADO |      0 |      0 |      0
+(4 rows)
+

@@ -1,0 +1,29 @@
+$ python3 -I evidencia/verificar_deriva.py . postgresql://...@127.0.0.1:5433/pasanaku   # base con el esquema regenerado
+OK  nucleo_financiero.asiento_contable: 11 columnas, 5 restricciones con nombre, 4 triggers del modelo
+OK  nucleo_financiero.movimiento_contable: 7 columnas, 2 restricciones con nombre, 6 triggers del modelo
+OK  aportes.obligacion_aporte: 22 columnas, 8 restricciones con nombre, 0 triggers del modelo
+OK  aportes.orden_cobro: 11 columnas, 3 restricciones con nombre, 0 triggers del modelo
+OK  aportes.pago: 19 columnas, 6 restricciones con nombre, 0 triggers del modelo
+OK  aportes.reembolso: 10 columnas, 4 restricciones con nombre, 0 triggers del modelo
+OK  aportes.disputa_pago: 10 columnas, 4 restricciones con nombre, 0 triggers del modelo
+deriva: 0 problema(s)
+exit=0
+
+$ python3 -I evidencia/verificar_deriva.py . postgresql://...@127.0.0.1:5433/reg_m3   # control negativo: se borro a mano un CHECK, un trigger y un NOT NULL
+OK  nucleo_financiero.asiento_contable: 11 columnas, 5 restricciones con nombre, 4 triggers del modelo
+DERIVA nucleo_financiero.movimiento_contable: 7 columnas, 2 restricciones con nombre, 6 triggers del modelo
+     - trigger ausente en la base: tg_movimiento_contable_asiento_abierto
+OK  aportes.obligacion_aporte: 22 columnas, 8 restricciones con nombre, 0 triggers del modelo
+OK  aportes.orden_cobro: 11 columnas, 3 restricciones con nombre, 0 triggers del modelo
+DERIVA aportes.pago: 19 columnas, 6 restricciones con nombre, 0 triggers del modelo
+     - nulabilidad divergente: monto_neto_acreditado (modelo NOT NULL=True, base=False)
+DERIVA aportes.reembolso: 10 columnas, 4 restricciones con nombre, 0 triggers del modelo
+     - restriccion ausente en la base: ck_reembolso_monto
+OK  aportes.disputa_pago: 10 columnas, 4 restricciones con nombre, 0 triggers del modelo
+deriva: 3 problema(s)
+exit=1
+$ python3 scripts/generar_ddl.py   # segunda corrida sobre la rama ya regenerada
+sql/ generado: 347 tablas · 692 claves foráneas · 801 índices · 554 CHECK
+Sin pendientes a nivel de datos.
+$ git status --short -- sql docs/entidades docs/Restricciones.md scripts
+(sin lineas = sin diff)
