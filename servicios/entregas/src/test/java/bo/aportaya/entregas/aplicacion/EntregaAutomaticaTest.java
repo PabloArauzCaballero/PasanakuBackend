@@ -1,7 +1,6 @@
 package bo.aportaya.entregas.aplicacion;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -14,6 +13,7 @@ import bo.aportaya.entregas.aplicacion.EntregaAutomatica.PeriodoRecaudado;
 import bo.aportaya.entregas.aplicacion.EntregaAutomatica.Resultado;
 import bo.aportaya.entregas.aplicacion.PasosDeEntregaAutomatica.Pendiente;
 import bo.aportaya.entregas.dominio.FondeoDelPozo;
+import bo.aportaya.entregas.dominio.puertos.MetodoDeDesembolso;
 import bo.aportaya.entregas.dominio.puertos.RecaudoDelPozo;
 import bo.aportaya.entregas.infraestructura.SagaDeEntregaAutomaticaRepositorio.Saga;
 import bo.aportaya.entregas.infraestructura.TurnoDelGrupoRepositorio.Turno;
@@ -59,11 +59,25 @@ class EntregaAutomaticaTest {
         }
     }
 
+    /**
+     * DOBLE del puerto {@link MetodoDeDesembolso} con la PROPUESTA del diseño (DECISION_REQUIRED): el metodo sale de la
+     * cuenta verificada del beneficiario; sin cuenta verificada, vacio.
+     */
+    private static final class MetodoPorCuentaVerificada implements MetodoDeDesembolso {
+        Optional<String> respuesta = Optional.of("BILLETERA_MOVIL");
+
+        @Override
+        public Optional<String> para(UUID beneficiarioParticipanteId) {
+            return respuesta;
+        }
+    }
+
+    private final MetodoPorCuentaVerificada metodo = new MetodoPorCuentaVerificada();
     private final PasosDeEntregaAutomatica pasos = mock(PasosDeEntregaAutomatica.class);
     private final RegistroDelFondeo registro = mock(RegistroDelFondeo.class);
     private final Aportes aportes = new Aportes();
     private final EntregaAutomatica automatica =
-            new EntregaAutomatica(pasos, new CU22EntregarPozoCompleto(aportes, registro), RELOJ, "BILLETERA_MOVIL");
+            new EntregaAutomatica(pasos, new CU22EntregarPozoCompleto(aportes, registro), RELOJ, metodo);
 
     private static Dinero bob(String monto) {
         return Dinero.de(monto, Moneda.BOB);
@@ -196,15 +210,26 @@ class EntregaAutomaticaTest {
     }
 
     @Test
-    @DisplayName("invalido: encendida sin metodo de desembolso valido, no levanta")
-    void sinMetodoNoLevanta() {
-        var cu = new CU22EntregarPozoCompleto(aportes, registro);
+    @DisplayName("limite: sin cuenta verificada todavia no hay metodo: la saga espera y no se fondea")
+    void sinMetodoEspera() {
+        hayAviso(turnoDe(GRUPO));
+        metodo.respuesta = Optional.empty();
 
-        assertThatThrownBy(() -> new EntregaAutomatica(pasos, cu, RELOJ, ""))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("DECISION_REQUIRED");
-        assertThatThrownBy(() -> new EntregaAutomatica(pasos, cu, RELOJ, "COMPENSACION_INTERNA"))
-                .isInstanceOf(IllegalStateException.class);
+        assertThat(automatica.avanzar(PERIODO)).isEqualTo(Resultado.ESPERA_METODO);
+        assertThat(aportes.consultas).hasValue(0);
+        verify(pasos).postergar(PERIODO, CORRELACION);
+        verify(pasos, never()).cerrar(any(), any(), anyInt(), any());
+    }
+
+    @Test
+    @DisplayName("invalido: un metodo fuera del contrato del puerto rechaza la saga y no fondea")
+    void metodoFueraDelContrato() {
+        hayAviso(turnoDe(GRUPO));
+        metodo.respuesta = Optional.of("EFECTIVO_ORGANIZADOR");
+
+        assertThat(automatica.avanzar(PERIODO)).isEqualTo(Resultado.RECHAZADO);
+        verify(registro, never()).registrar(any(), any(), any(), any());
+        verify(pasos).cerrar(PERIODO, "FALLIDA", 9, CORRELACION);
     }
 
     @Test

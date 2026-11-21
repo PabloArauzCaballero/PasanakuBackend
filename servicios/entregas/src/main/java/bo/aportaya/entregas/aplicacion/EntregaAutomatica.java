@@ -1,6 +1,7 @@
 package bo.aportaya.entregas.aplicacion;
 
 import bo.aportaya.entregas.aplicacion.PasosDeEntregaAutomatica.Pendiente;
+import bo.aportaya.entregas.dominio.puertos.MetodoDeDesembolso;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Reloj;
@@ -10,7 +11,6 @@ import java.util.Set;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
@@ -31,18 +31,14 @@ import org.springframework.stereotype.Service;
  * </ol>
  *
  * <p>No toca el fondo del grupo (eso espera a L-01): si falta plata, la entrega queda bloqueada con la deuda
- * conservada, como cuando se pide a mano. <b>El metodo de desembolso es DECISION_REQUIRED</b> (ver el diseño en
- * {@code docs/trabajo/2026-11-21-tanda2-l2/evidencia/F3.L2.M01-diseno-entrega-automatica.md}): por eso todo esto
- * esta apagado por omision y, encendido, exige el metodo por configuracion o el proceso no levanta (regla 90.3.4).
+ * conservada, como cuando se pide a mano. <b>El metodo de desembolso es DECISION_REQUIRED</b>: lo da el puerto
+ * {@link MetodoDeDesembolso}; si todavia no hay metodo, la saga espera y no fondea. Todo esto esta apagado por omision.
  */
 @Service
 @ConditionalOnProperty(name = "aportaya.entrega-automatica.habilitada", havingValue = "true")
 public class EntregaAutomatica {
 
     private static final Logger BITACORA = LoggerFactory.getLogger(EntregaAutomatica.class);
-
-    /** Los que maneja el CHECK de {@code entrega_fondo.metodo_desembolso}, salvo la compensacion interna. */
-    static final Set<String> METODOS = Set.of("BILLETERA_MOVIL", "QR_ENVIO", "TRANSFERENCIA_BANCARIA");
 
     /** aportes no respondio (22-06) u otro pedido movio el fondeo primero (22-09): se reintenta. */
     private static final Set<CodigoError> REINTENTABLES = Set.of(CodigoError.de(22, 6), CodigoError.de(22, 9));
@@ -52,6 +48,7 @@ public class EntregaAutomatica {
         CON_PENDIENTE,
         ESPERA_TURNO,
         ESPERA_APORTES,
+        ESPERA_METODO,
         RECHAZADO,
         SIN_PENDIENTE,
         DUPLICADO
@@ -63,21 +60,14 @@ public class EntregaAutomatica {
     private final PasosDeEntregaAutomatica pasos;
     private final CU22EntregarPozoCompleto pozo;
     private final Reloj reloj;
-    private final String metodoDesembolso;
+    private final MetodoDeDesembolso metodos;
 
     public EntregaAutomatica(
-            PasosDeEntregaAutomatica pasos,
-            CU22EntregarPozoCompleto pozo,
-            Reloj reloj,
-            @Value("${aportaya.entrega-automatica.metodo-desembolso:}") String metodoDesembolso) {
-        if (!METODOS.contains(metodoDesembolso)) {
-            throw new IllegalStateException("aportaya.entrega-automatica.metodo-desembolso tiene que ser uno de "
-                    + METODOS + " cuando la entrega automatica esta encendida (DECISION_REQUIRED)");
-        }
+            PasosDeEntregaAutomatica pasos, CU22EntregarPozoCompleto pozo, Reloj reloj, MetodoDeDesembolso metodos) {
         this.pasos = pasos;
         this.pozo = pozo;
         this.reloj = reloj;
-        this.metodoDesembolso = metodoDesembolso;
+        this.metodos = metodos;
     }
 
     public Resultado recibir(PeriodoRecaudado aviso) {
@@ -104,6 +94,15 @@ public class EntregaAutomatica {
         if (!turno.grupoId().equals(p.saga().grupoId())) {
             return rechazar(periodoId, correlacion, "el turno del periodo es de otro grupo");
         }
+        var metodo = metodos.para(turno.titularParticipanteId());
+        if (metodo.isEmpty()) {
+            pasos.postergar(periodoId, correlacion);
+            BITACORA.info("entrega automatica del periodo {}: todavia no hay metodo de desembolso", periodoId);
+            return Resultado.ESPERA_METODO;
+        }
+        if (!MetodoDeDesembolso.METODOS.contains(metodo.get())) {
+            return rechazar(periodoId, correlacion, "metodo de desembolso fuera del contrato");
+        }
         try {
             var salida = pozo.fondear(
                     new CU22EntregarPozoCompleto.Entrada(
@@ -112,7 +111,7 @@ public class EntregaAutomatica {
                             turno.turnoId(),
                             turno.cupoId(),
                             turno.titularParticipanteId(),
-                            metodoDesembolso,
+                            metodo.get(),
                             reloj.hoy(),
                             "fondeo-auto-" + periodoId),
                     PasosDeEntregaAutomatica.contexto(correlacion));

@@ -20,7 +20,7 @@
 | P3.M1 | La entrega nace solo del fondeo: `CU22LiquidarEntrega.liquidar`/`ejecutar` y `LiquidacionDeEntrega` no existen; la ficha CU-22 tiene tres criterios probados | `test` + `webTest` locales; `integrationTest` en el CI | PASS — [evidencia](./evidencia/punto3-cu22-sin-liquidacion.txt) (#471, CI verde con los cinco corredores) |
 | F3.L2.M01.a | `entregas.turno_del_grupo` (copia de lectura de los turnos de `grupos`, sin FK a otro esquema, `periodo_id` único) en el modelo, el DDL y la base local | `generar_ddl.py` + psql 5433 + job de bóveda y esquema | PASS — [evidencia](./evidencia/F3.L2.M01.a-turno-del-grupo.txt), [job](./evidencia/F3.L2.M01-boveda-y-esquema.txt) (20/20 pasos en 0) |
 | F3.L2.M01.b | La copia de turnos se aplica una vez por evento y solo con versión mayor | `AplicarTurnosAsignadosTest` + `CU133EntregaAutomaticaTest.versionesDeTurnos` contra Postgres real | PASS — [evidencia](./evidencia/F3.L2.M01-integracion-local.txt), [SQL](./evidencia/F3.L2.M01.bc-sql-saga-y-copia.txt) |
-| F3.L2.M01.c | `entregas` fondea sola al recibir el aviso de recaudo: una entrega por periodo con clave `fondeo-auto-<periodoId>`; aviso duplicado, aviso antes que los turnos, aportes caído y gracia vencida seguida de completo terminan en UN fondeo | `EntregaAutomaticaTest` (11, tres niveles contra dobles) + `CU133EntregaAutomaticaTest` (6) contra Postgres real | PASS — [evidencia](./evidencia/F3.L2.M01-integracion-local.txt) |
+| F3.L2.M01.c | `entregas` fondea sola al recibir el aviso de recaudo: una entrega por periodo con clave `fondeo-auto-<periodoId>`; aviso duplicado, aviso antes que los turnos, aportes caído y gracia vencida seguida de completo terminan en UN fondeo | `EntregaAutomaticaTest` (12, tres niveles contra dobles, incluido el del método) + `MetodoDeDesembolsoConfiguradoTest` (3) + `CU133EntregaAutomaticaTest` (6) contra Postgres real | PASS — [evidencia](./evidencia/F3.L2.M01-integracion-local.txt) |
 | F3.L2.M01.d | Los bordes Kafka de `aportes.periodo_recaudado` y `grupos.turnos_asignados` leen los ejemplos de los pactos y rechazan sobre o campo faltante; apagados por omisión | `PactosDeLaEntregaAutomaticaTest` (5) | PASS — [evidencia](./evidencia/F3.L2.M01-suites.txt) |
 | F3.L2.M01.e | La incidencia por faltante que abre el sistema no lleva persona: `incidencia_entrega.reportada_por` admite NULL | `CU133EntregaAutomaticaTest.graciaVencidaYDespuesCompleto` (rojo con `fk_incidencia_entrega_reportada_por` antes, verde después) | PASS — [evidencia](./evidencia/F3.L2.M01-integracion-local.txt) |
 
@@ -150,7 +150,7 @@
   con `ROLLBACK`: alta 1, repetido 0, versión mayor 1; la saga solo se reabre desde `EN_CURSO`),
   [`F3.L2.M01-integracion-local.txt`](./evidencia/F3.L2.M01-integracion-local.txt) (54 pruebas de integración de
   entregas más las 18 unitarias nuevas, todas en verde),
-  [`F3.L2.M01-suites.txt`](./evidencia/F3.L2.M01-suites.txt) (spotless + `test` 40 + `webTest` 65 + `testBarrido` 2) y
+  [`F3.L2.M01-suites.txt`](./evidencia/F3.L2.M01-suites.txt) (spotless + `test` 44 + `webTest` 65 + `testBarrido` 2) y
   [`F3.L2.M01-boveda-y-esquema.txt`](./evidencia/F3.L2.M01-boveda-y-esquema.txt) (los 20 pasos del job con su código de
   salida real).
 
@@ -238,11 +238,13 @@
 
 ## Decisiones y ambigüedades
 
-- **DECISION_REQUIRED (F3.L2.M01), para Pablo:** qué método de desembolso lleva una entrega que nace sola
-  (`entrega_fondo.metodo_desembolso` es `NOT NULL`). Mientras no se decida, la función está apagada; encendida, exige
-  el método por configuración (uno solo para todas: `BILLETERA_MOVIL`, `QR_ENVIO` o `TRANSFERENCIA_BANCARIA`) o el
-  proceso no levanta. La propuesta del diseño (derivarlo del tipo de la cuenta VERIFICADA del beneficiario) exige
-  resolver participante → usuario, que vive en `grupos`. Publicado en el PR #490.
+- **DECISION_REQUIRED (F3.L2.M01), para Pablo** (el coordinador la elevó el 2026-11-21): qué método de desembolso
+  lleva una entrega que nace sola. Por indicación del coordinador quedó detrás del puerto `MetodoDeDesembolso`.
+  - En las pruebas lo cumple un doble con la propuesta: el método sale de la cuenta VERIFICADA del beneficiario y, sin
+    cuenta verificada, la saga espera sin fondear.
+  - En producción, un adaptador provisorio (`MetodoDeDesembolsoConfigurado`) usa un solo método por configuración; si
+    falta, el servicio no levanta.
+  - No se cambió la nulabilidad de `entrega_fondo.metodo_desembolso`. Publicado en el PR #490.
 - F3.L2.M01: la incidencia que abre el sistema queda con `reportada_por` NULL, en vez de inventar un «usuario del
   sistema» que no existe en las semillas.
 

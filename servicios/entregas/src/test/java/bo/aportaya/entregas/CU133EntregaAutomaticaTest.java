@@ -70,7 +70,9 @@ class CU133EntregaAutomaticaTest extends BaseDePozoCompleto {
                 return transaccion.execute(t -> super.procesar(evento));
             }
         };
-        automatica = new EntregaAutomatica(pasos, pozoCU, Reloj.delSistema(), "BILLETERA_MOVIL");
+        // DOBLE del metodo de desembolso (DECISION_REQUIRED): la propuesta, con una cuenta verificada de billetera.
+        automatica = new EntregaAutomatica(
+                pasos, pozoCU, Reloj.delSistema(), participante -> Optional.of("BILLETERA_MOVIL"));
     }
 
     private TurnosAsignados turnos(Caso c, int version) {
