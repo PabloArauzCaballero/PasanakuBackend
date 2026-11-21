@@ -111,7 +111,8 @@ public class EnrolarTotp {
                             "identidad.factor_enrolado",
                             "factor_mfa",
                             factorId,
-                            Map.of("usuarioId", ctx.usuarioId().toString(), "tipo", "TOTP"),
+                            // Identificadores, no contenidos: el consumidor pregunta el tipo a su dueno.
+                            Map.of("usuarioId", ctx.usuarioId().toString()),
                             UUID.fromString(ctx.traza().id())));
             return new Confirmacion(factorId, confirmadoEn);
         });
