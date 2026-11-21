@@ -5,11 +5,18 @@ tags:
   - dinero
   - garantia
 titulo: "ADR-051 — Garantía del pozo, comisión y autogestión"
-estado: aceptada
+estado: superada por ADR-056
 fecha: 2026-10-11
 ---
 
 # ADR-051 — Garantía del pozo, comisión y autogestión
+
+> [!warning] Reemplazado por ADR-056 (2026-11-21).
+> La empresa ya no respalda el pozo (P-04): D-02, D-03 y D-15 quedan sin efecto, y el faltante lo cubre el
+> fondo del grupo del modelo A. D-04 cambia de forma (comisión de porcentaje único sobre la cuota, en el mismo
+> QR y como línea aparte). D-12 ya estaba reemplazada por ADR-054 y hoy no existe organizador (ADR-055). D-16
+> se conserva como principio. Se conserva como expediente: **no manda**. Ver
+> [[ADR-056 Tu garantía vuelve y la puntualidad vale plata|ADR-056]].
 
 > Tres reglas del producto contradecían documentación y código anteriores. Este ADR cierra
 > las seis decisiones que la propuesta del carril F4 dejó **abiertas** (D-02, D-03, D-04, D-12,
