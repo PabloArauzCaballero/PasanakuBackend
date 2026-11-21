@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, lote L1 (`aportes` y `nucleo-financiero`)
 
-> **AVANCE: 10 / 20 — 50,0 %.** Trabajo en curso: M11, M01, M07 y el listado de bloqueos (M10c, nuevo) a medias, con el código en verde y esperando lugar para su PR (tope 3) o la app de L6; lo que queda está bloqueado por archivos compartidos, por otro lote o por decisiones (ver Pendiente). Nada en rojo por código propio; dos fallas del CI de #418 son de módulos ajenos (ver Riesgos).
+> **AVANCE: 11 / 22 — 50,0 %.** Trabajo en curso: M11, M01, M07, M08 y el listado de bloqueos (M10c) a medias, con el código en verde y esperando lugar para su PR (tope 3) o la app de L6; el evento `aportes.periodo_recaudado` COMPLETO (pedido de L2) quedó hecho en su rama, sin PR por el tope; GRACIA_VENCIDA espera diseño. Nada en rojo por código propio.
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Base: `origin/dev` 50cf3be9
 - PR hacia `dev`: **todos mergeados**. Se mergearon #430, #454 (que trajo a #425, #447 y #449), #456 (que trajo a #455), #418, #461 y #458 (que consolidan al resto). Abierto: el PR de M10 parte 2 (permisos y ruta de levantamiento).
@@ -24,6 +24,7 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 
 | F1.L1.M12 | `reembolso`, `disputa_pago`, `conciliacion`, `excepcion_conciliacion` y `extracto_bancario` llevan moneda (R-BIL-29). Un reembolso de un pago en USD queda en USD. La conciliación anota la moneda del pago. | `integrationTest CU19MonedaTest` (3/3) + `CU132ConciliacionTest` (3/3) + migración sobre una base existente | PASS. Los mutantes fallan. `evidencia/M12-*`, `evidencia/M12b-*` · PR #449 y #454 |
 | L1.P01 | Pedido de L2: `nucleo-financiero` deja de consultar la oferta de `entregas`. Se borraron el puerto, el cliente HTTP, el pago a tercero, el pacto y sus pruebas, y `pagarAlTercero` responde 410 `AP-CU13-10` sin efecto. | `test` + `webTest` (`pagoATerceroRetirado`) + integración CU12*/CU13* (95/97; las 2 restantes requieren Docker) | PASS. `evidencia/L2PEDIDO-retiro-ofertas.txt` · PR #461 |
 | F1.L1.M10 | El bloqueo por autoridad guarda quién lo registró y lo levanta otra persona (R-BIL-32); el saldo vuelve en la misma transacción. Registrar y levantar exigen permisos propios (`BLOQUEO_AUTORIDAD_REGISTRAR` y `BLOQUEO_AUTORIDAD_LEVANTAR`) y existe la ruta `POST /billetera/bloqueos/{id}/levantamiento`. | `BloqueoAutoridadWebTest` (7/7) + CU17 contra la base (16/16) + dos siembras idénticas | PASS. El mutante hace fallar 5 de 7. `evidencia/M10-*`, `evidencia/M10b-*` |
+| L1.P02a | Pedido de L2 (F3.L2.M01): el pago que deja sin cuotas `APORTE_PERIODICO` por cobrar a un periodo emite UN `aportes.periodo_recaudado` (`periodoId`, `grupoId`, `motivo` COMPLETO, `ocurridoEn`, sin importes) por outbox, en la misma transacción. Un pago que no completa, un parcial o un reintento con la misma clave no emiten; dos últimos pagos simultáneos emiten exactamente uno (cerrojo transaccional por periodo). La carga cumple el pacto `aportes-entregas-periodo-recaudado.json`. | `integrationTest CU21PeriodoRecaudadoTest` (6/6) + regresión de aportes (`test` 59/59, `webTest` 83/83, `integrationTest` 164/167: las 3 restantes requieren Docker) + verificadores | PASS. El mutante sin cerrojo falla 3 de 3 corridas (`expected: 1 but was: 0`: el aviso se perdía). `evidencia/P02a-periodo-recaudado.txt` · rama `correcciones/tanda2-l1-periodo-recaudado`, sin PR (tope 3) |
 
 ## A medias
 
@@ -95,6 +96,7 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 
 | F2.L1.M02 | TODO | Depende de F3: el árbol 9.x lo usan `POZO_GRUPO` y `DESEMBOLSO`, que asientan el desembolso vigente. Sacarlo antes rompe ese asiento. |
 | F2.L1.M03 | TODO | Depende de F1.L1.M11 (el contrato del cobro deja de llevar `canal`) y de que la app (L6) no ofrezca los canales retirados. |
 | F2.L1.M04 | TODO | Necesita el evento de apertura de período de `grupos` (L3) y su pacto, o un trabajo con ShedLock, y el ADR de inicio automático (F0·ADR-054). |
+| L1.P02b | TODO | `aportes.periodo_recaudado` motivo GRACIA_VENCIDA: falta el diseño de la marca de "ya emitido" por periodo (el trabajo que vence la gracia corre a diario y no puede repetir el aviso) y decidir quién lo dispara (el trabajo de recargos o uno propio). Lo puede tomar L1 cuando se libere lugar; no bloquea el fondeo por COMPLETO. |
 | F1.S4.M2 | DESCARTADO para L1 | Vive en `grupos` (F1.L3.M03, lote L3): el `LIMIT 1` está en `ConsultasRepositorio.usuarioDelAlias`. La parte de `nucleo-financiero` (rechazar un destino ambiguo) depende del contrato nuevo que defina L3. |
 
 ## Evidencia
@@ -113,6 +115,7 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 
 - `M11-cobro-sin-confianza-en-el-cuerpo.txt`: contrato 1.1.0, pruebas web y de integración, mutantes, verificadores e impacto en la app.
 - `M10-bloqueo-autoridad.txt`: cuatro ojos, liberación de la retención y mutante.
 - `M08-hechos-inmutables.txt`: sellado, historial, concurrencia, humo del esquema y mutante.
+- `P02a-periodo-recaudado.txt`: evento `periodo_recaudado` COMPLETO, pacto con `entregas`, concurrencia y mutante sin cerrojo.
 - `M05-*`, `M04-*`, `F2M01-*`: secreto del webhook, desembolso fail-closed y consumidor de respaldo.
 
 ## No cubierto
@@ -120,6 +123,8 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 
 - **RLS desde Java.** La conexión de prueba es como superusuario. Las invariantes nuevas se probaron con `psql` y `SET ROLE`.
 - **Cobertura jacoco local.** Maven Central respondió 429 y no la pude correr. La mide el CI.
 - **Camino HTTP de punta a punta** con los servicios levantados: no se ejercitó.
+- **`periodo_recaudado` contra el consumidor real.** La prueba de productor compara con el pacto propuesto por L2 (#490); no corrió el consumidor de `entregas` ni Kafka. Tampoco se probó el pago que entra por webhook o conciliación: el aviso cuelga de `CU21CobrarAporte.acreditar`, que es el camino común, pero el webhook no se ejercitó de punta a punta.
+- **Cuotas `ANULADO`.** El conteo las excluye; un periodo con todas sus cuotas anuladas no emite porque ningún pago lo completa. No hay prueba de ese borde.
 
 ## Desvíos del plan
 - F1.L1.M03 usa una tabla nueva, `solicitud_reverso`, y no el estado `SOLICITADO` de `reverso_transaccion`. El motivo: R-SEG-04 (sección compartida de `Restricciones.md`) exige `autorizada_por NOT NULL` en esa tabla. Precedente: `solicitud_cierre_billetera`.
@@ -152,6 +157,8 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 
 - **Filas viejas.** Las filas de `saldo_diario_billetera` cerradas antes de #436 tienen el sello viejo. Si se verifica la cadena sobre ellas, aparece una ruptura en el primer día nuevo.
 
 ## Decisiones y ambigüedades
+- **Cuándo un periodo está "recaudado" (COMPLETO):** cuando no le queda ninguna obligación `APORTE_PERIODICO` en un estado distinto de `PAGADO` o `ANULADO`. No cuenta recargos ni otros tipos, y una cuota cubierta por el fondo de garantía (no `PAGADO`) hoy no completa el periodo: esa rama es GRACIA_VENCIDA. Confirmar con L2 en #490 y con Pablo.
+- **El aviso se emite desde `acreditar`, no solo desde el webhook firmado:** el pacto dice "confirma el último aporte por webhook firmado", pero el pago con saldo (BILLETERA_MOVIL) también deja la cuota `PAGADO` y entra por el mismo `acreditar`. Se emite en cualquier camino que salde la última cuota. Comentado en #490.
 - **AMB-L1-3** (bloqueo judicial como acción humana, con dos personas): supuesto del anexo. Confirmar con Cumplimiento antes de F1.L1.M10.
 - **Idempotencia de la aprobación por estado + actor:** no se persiste el valor del `Idempotency-Key` de la aprobación. La unicidad la da la única salida de `SOLICITADO` (R-BIL-30). Confirmar con Pablo si quiere la clave guardada.
 - **Clave de alta reusada para otro código:** responde `AP-CU99-01`; no hay un código propio en el catálogo de CU-99. Confirmar si se agrega uno.

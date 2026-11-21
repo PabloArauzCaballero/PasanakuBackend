@@ -1,0 +1,37 @@
+L1.P02a · aportes.periodo_recaudado (COMPLETO) · 2026-11-21T23:42:49Z
+
+## Dirigido (PostgreSQL 16 local, base limpia)
+$ ./gradlew :servicios:aportes:integrationTest --tests "*CU21PeriodoRecaudadoTest" --rerun
+BUILD SUCCESSFUL
+CU21PeriodoRecaudadoTest: tests="6" skipped="0" failures="0" errors="0"
+testcase name="concurrencia: los dos ultimos pagos del periodo llegan juntos y el aviso sale una vez, nunca cero"
+testcase name="cuadre: el pago que completa la unica cuota del periodo emite periodo_recaudado COMPLETO, sin importes"
+testcase name="cuadre: con dos cuotas, pagar la primera no avisa y pagar la segunda avisa una sola vez"
+testcase name="cuadre: un pago parcial de la ultima cuota no avisa; el que la salda, si"
+testcase name="cuadre: el aviso cumple el pacto con entregas: los campos del pacto, los que exige el consumidor y un motivo valido"
+testcase name="reintento: el mismo ultimo pago con la misma clave no vuelve a avisar"
+
+## Mutante: sin pg_advisory_xact_lock (3 corridas, base limpia cada una)
+failures="1" x3 · [ronda 1] expected: 1 but was: 0  -> sin cerrojo los dos ultimos pagos se ven mutuamente sin pagar y el aviso se pierde
+Codigo restaurado (grep 'if (false)' = 0).
+
+## Regresion de aportes (base limpia, en serie)
+$ ./gradlew :servicios:aportes:spotlessCheck :servicios:aportes:test :servicios:aportes:webTest :servicios:aportes:integrationTest :servicios:aportes:contractTest --rerun --continue
+test            tests=59  skipped=0 failures=0 errors=0
+webTest         tests=83  skipped=0 failures=0 errors=0
+integrationTest tests=167 skipped=0 failures=3 errors=0
+  AislamientoEsquemaTest > initializationError FAILED  -> "Could not find a valid Docker environment" (ENVIRONMENT, Testcontainers)
+  ArranqueTest (2) FAILED -> Caused by: "Previous attempts to find a Docker environment failed" (ENVIRONMENT)
+contractTest    tests=0 (aportes no tiene *ContratoTest)
+
+## Verificadores
+verificar_boveda exit=0 TODO OK
+verificar_narrativas exit=0 Sin fallas.
+verificar_seguridad exit=0 TODO OK · 5 aviso(s)   (ninguno en archivos de este cambio)
+verificar_criterios exit=0 Sin divergencias entre la boveda y el codigo.
+verificar_pruebas_web exit=0 La capa web esta cubierta segun ADR-043.
+verificar_contratos_limites exit=0
+validar_flujos exit=0 Sin fallas.
+
+## Nota de datos
+La fixtura de aportes no borra identidad.usuario: toda corrida de integracion necesita base limpia (igual que antes de este cambio).

@@ -45,6 +45,7 @@ public class CU21CobrarAporte {
     private final PagoRepositorio pagos;
     private final Outbox outbox;
     private final Reloj reloj;
+    private final AvisoDePeriodoRecaudado avisoDeRecaudo;
 
     public CU21CobrarAporte(
             Datos datos, ObligacionRepositorio obligaciones, PagoRepositorio pagos, Outbox outbox, Reloj reloj) {
@@ -53,6 +54,7 @@ public class CU21CobrarAporte {
         this.pagos = pagos;
         this.outbox = outbox;
         this.reloj = reloj;
+        this.avisoDeRecaudo = new AvisoDePeriodoRecaudado(outbox);
     }
 
     @Transactional
@@ -166,6 +168,16 @@ public class CU21CobrarAporte {
                                     // Es el decimo par: Map.of no admite mas; el proximo campo pide Map.ofEntries.
                                     "tipo", obligacion.tipo()),
                             UUID.fromString(ctx.traza().id())));
+
+            // L1.P02a: si este pago cerro la ultima cuota del periodo, entregas puede fondear el turno.
+            if ("PAGADO".equals(estadoNuevo) && "APORTE_PERIODICO".equals(obligacion.tipo())) {
+                avisoDeRecaudo.siQuedoCompleto(
+                        dsl,
+                        obligacion.periodoId(),
+                        obligacion.grupoId(),
+                        ahora,
+                        UUID.fromString(ctx.traza().id()));
+            }
 
             // Regla 90.2.1: solo identificadores; el importe es atribuible a una persona.
             BITACORA.info(

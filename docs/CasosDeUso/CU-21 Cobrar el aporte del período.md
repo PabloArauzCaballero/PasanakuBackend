@@ -150,6 +150,7 @@ export const ErroresCU21 = {
 | `aporte.confirmado` | Reputación, tablero del grupo y cancelación de recordatorios | `BILLETERA_OPERAR` |
 | `aporte.vencido` | Recargo y, superado el umbral, incumplimiento | — |
 | `aporte_compensado` | Aviso a la persona de que su aporte no se aplicó por falta de saldo | — (consume `nucleo_financiero.aporte_no_aplicado`) |
+| `aportes.periodo_recaudado` (motivo `COMPLETO`) | Fondeo automático de la entrega del turno en `entregas`, que relee las cifras de `GET /aportes/periodos/{periodoId}/recaudo`; sin importes en el evento (pacto `aportes-entregas-periodo-recaudado.json`). Sale por outbox en la misma transacción del pago que deja sin cuotas `APORTE_PERIODICO` por cobrar al periodo, serializado por periodo con un cerrojo transaccional | — |
 
 > **Cómo se mueve el dinero (carril I).** `aportes` no escribe el libro (invariante 12): al acreditar emite
 > `aportes.aporte_cobrado` (`pagoId`, `obligacionId`, `grupoId`, `participanteId`, `usuarioId`, `monto`, `moneda`, `canal`, `tipo`) por outbox y
