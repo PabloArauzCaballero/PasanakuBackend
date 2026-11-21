@@ -241,7 +241,7 @@ public class BilleteraController extends RutasDelMercadoDeLaBilletera {
     }
 
     @Override
-    @Permiso("DATOS_SENSIBLES_LEER")
+    @Permiso("BLOQUEO_AUTORIDAD_REGISTRAR")
     public ResponseEntity<SalidaBloqueo> bloquearPorAutoridad(UUID idempotencyKey, EntradaBloqueo cuerpo) {
         Traza.marcarCasoDeUso("CU-17", cuerpo.getNumeroOficio());
         var salida = cu17.ejecutar(MapeoDeBilletera.entradaDeBloqueo(cuerpo), sesion.actual());
