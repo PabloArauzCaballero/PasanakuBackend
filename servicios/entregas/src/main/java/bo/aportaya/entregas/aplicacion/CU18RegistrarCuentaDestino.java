@@ -98,22 +98,16 @@ public class CU18RegistrarCuentaDestino {
             }
 
             boolean primera = cuentas.cuantasTiene(dsl, ctx.usuarioId()) == 0;
-            String numeroCifradoReal;
-            if (entrada.numeroCifrado() != null
-                    && !entrada.numeroCifrado().isBlank()
-                    && (entrada.numeroCifrado().startsWith("cifrado:")
-                            || entrada.numeroCifrado().startsWith(CifradorSimetrico.PREFIJO))) {
-                numeroCifradoReal = entrada.numeroCifrado();
-            } else {
-                numeroCifradoReal = CifradorSimetrico.cifrar(entrada.numeroEnClaro(), pimienta);
-            }
+            // SEG-007: se cifra SIEMPRE aca, desde el numero del que salen el enmascarado y el hash. Un cifrado que
+            // llega del cliente podria ser de OTRO numero: lo que se paga y lo que se muestra dejarian de coincidir.
+            String numeroCifrado = CifradorSimetrico.cifrar(entrada.numeroEnClaro(), pimienta);
 
             UUID cuentaId = cuentas.registrar(
                     dsl,
                     ctx.usuarioId(),
                     entrada.tipoCuenta(),
                     entrada.entidadFinanciera(),
-                    numeroCifradoReal,
+                    numeroCifrado,
                     enmascarada,
                     entrada.titularNombre(),
                     entrada.titularDocumento(),
@@ -218,7 +212,6 @@ public class CU18RegistrarCuentaDestino {
             String tipoCuenta,
             String entidadFinanciera,
             String numeroEnClaro,
-            String numeroCifrado,
             String titularNombre,
             String titularDocumento,
             String nombreDelUsuario,

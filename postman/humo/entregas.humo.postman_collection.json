@@ -108,7 +108,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipoCuenta\": \"AHORRO\",\n  \"entidadFinanciera\": \"entidadFinanciera-de-prueba\",\n  \"numeroCuenta\": \"numeroCuenta-de-prueba\",\n  \"numeroCifrado\": \"numeroCifrado-de-prueba\",\n  \"titularNombre\": \"titularNombre-de-prueba\",\n  \"titularDocumento\": \"titularDocumento-de-prueba\",\n  \"moneda\": \"BOB\"\n}",
+              "raw": "{\n  \"tipoCuenta\": \"AHORRO\",\n  \"entidadFinanciera\": \"entidadFinanciera-de-prueba\",\n  \"numeroCuenta\": \"numeroCuenta-de-prueba\",\n  \"titularNombre\": \"titularNombre-de-prueba\",\n  \"titularDocumento\": \"titularDocumento-de-prueba\",\n  \"moneda\": \"BOB\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -199,7 +199,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipoCuenta\": \"BILLETERA\",\n  \"entidadFinanciera\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"numeroCuenta\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"numeroCifrado\": \"x\",\n  \"titularNombre\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"titularDocumento\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"moneda\": \"USD\"\n}",
+              "raw": "{\n  \"tipoCuenta\": \"BILLETERA\",\n  \"entidadFinanciera\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"numeroCuenta\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"titularNombre\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"titularDocumento\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"moneda\": \"USD\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -256,7 +256,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipoCuenta\": \"AHORRO\",\n  \"entidadFinanciera\": \"entidadFinanciera-de-prueba\",\n  \"numeroCuenta\": \"numeroCuenta-de-prueba\",\n  \"numeroCifrado\": \"numeroCifrado-de-prueba\",\n  \"titularNombre\": \"titularNombre-de-prueba\",\n  \"titularDocumento\": \"titularDocumento-de-prueba\",\n  \"moneda\": \"BOB\"\n}",
+              "raw": "{\n  \"tipoCuenta\": \"AHORRO\",\n  \"entidadFinanciera\": \"entidadFinanciera-de-prueba\",\n  \"numeroCuenta\": \"numeroCuenta-de-prueba\",\n  \"titularNombre\": \"titularNombre-de-prueba\",\n  \"titularDocumento\": \"titularDocumento-de-prueba\",\n  \"moneda\": \"BOB\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -317,7 +317,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"entidadFinanciera\": \"entidadFinanciera-de-prueba\",\n  \"numeroCuenta\": \"numeroCuenta-de-prueba\",\n  \"numeroCifrado\": \"numeroCifrado-de-prueba\",\n  \"titularNombre\": \"titularNombre-de-prueba\",\n  \"titularDocumento\": \"titularDocumento-de-prueba\",\n  \"moneda\": \"BOB\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "raw": "{\n  \"entidadFinanciera\": \"entidadFinanciera-de-prueba\",\n  \"numeroCuenta\": \"numeroCuenta-de-prueba\",\n  \"titularNombre\": \"titularNombre-de-prueba\",\n  \"titularDocumento\": \"titularDocumento-de-prueba\",\n  \"moneda\": \"BOB\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

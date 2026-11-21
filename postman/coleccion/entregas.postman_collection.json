@@ -32,7 +32,7 @@
         "description": "## Registrar una cuenta bancaria de destino\n\nEl numero NUNCA se guarda en claro (R-SEG-01): la fila lleva el cifrado, un hash con pimienta para buscar, y una version enmascarada. Y la cuenta esta a nombre de quien la registra (R-SEG-02): una cuenta de destino ajena es la forma mas simple de sacar plata de un grupo hacia afuera.\n\n| | |\n| --- | --- |\n| **Servicio** | `entregas` |\n| **Operacion** | `registrarCuentaDestino` |\n| **Ruta** | `POST /api/v1/cuentas-bancarias` |\n| **Permiso** | `BILLETERA_OPERAR` |\n| **Respuestas** | `201`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"tipoCuenta\": \"AHORRO\",\n  \"entidadFinanciera\": \"entidadFinanciera-de-prueba\",\n  \"numeroCuenta\": \"numeroCuenta-de-prueba\",\n  \"numeroCifrado\": \"numeroCifrado-de-prueba\",\n  \"titularNombre\": \"titularNombre-de-prueba\",\n  \"titularDocumento\": \"titularDocumento-de-prueba\",\n  \"moneda\": \"BOB\"\n}",
+          "raw": "{\n  \"tipoCuenta\": \"AHORRO\",\n  \"entidadFinanciera\": \"entidadFinanciera-de-prueba\",\n  \"numeroCuenta\": \"numeroCuenta-de-prueba\",\n  \"titularNombre\": \"titularNombre-de-prueba\",\n  \"titularDocumento\": \"titularDocumento-de-prueba\",\n  \"moneda\": \"BOB\"\n}",
           "options": {
             "raw": {
               "language": "json"
