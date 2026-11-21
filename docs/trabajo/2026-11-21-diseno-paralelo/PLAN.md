@@ -52,15 +52,15 @@ continuidad, sin nombres de empresas ni normas ajenas al repo; PX-1 y PX-2 exige
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H2.M1 | RFP PX-1 pasarela QR | RF-PX1-01..10 + RM + casos de 3 niveles + segundo proveedor | `cruce_rfp.py rfp PX-1` | TODO |
-| H2.M2 | RFP PX-2 desembolso | RF-PX2-01..09 + RM + casos + segundo proveedor | `cruce_rfp.py rfp PX-2` | TODO |
-| H2.M3 | RFP PX-3 banco custodio | RF-PX3-01..07 + RM | `cruce_rfp.py rfp PX-3` | TODO |
-| H2.M4 | RFP PX-4 KYC | RF-PX4-01..10 + RM + casos | `cruce_rfp.py rfp PX-4` | TODO |
-| H2.M5 | RFP PX-5 listas y PEP | RF-PX5-01..05 + RM + casos | `cruce_rfp.py rfp PX-5` | TODO |
-| H2.M6 | RFP PX-6 titularidad | RF-PX6-01..03 + RM + casos | `cruce_rfp.py rfp PX-6` | TODO |
-| H2.M7 | RFP PX-7 mensajería (SMS principal y respaldo, push, correo; sin WhatsApp) | RF-PX7-01..07 + RM + casos; ninguna mención a WhatsApp salvo la exclusión | `cruce_rfp.py rfp PX-7` | TODO |
-| H2.M8 | RFP PX-8 facturación autorizada | RF-PX8-01..04 + RM + casos | `cruce_rfp.py rfp PX-8` | TODO |
-| H2.M9 | Control de contenido prohibido | Sin «WhatsApp» como canal ofrecido, sin nombres de empresas | `grep` documentado en evidencia | TODO |
+| H2.M1 | RFP PX-1 pasarela QR | RF-PX1-01..10 + RM + casos de 3 niveles + segundo proveedor | `cruce_rfp.py rfp PX-1` | HECHO |
+| H2.M2 | RFP PX-2 desembolso | RF-PX2-01..09 + RM + casos + segundo proveedor | `cruce_rfp.py rfp PX-2` | HECHO |
+| H2.M3 | RFP PX-3 banco custodio | RF-PX3-01..07 + RM | `cruce_rfp.py rfp PX-3` | HECHO |
+| H2.M4 | RFP PX-4 KYC | RF-PX4-01..10 + RM + casos | `cruce_rfp.py rfp PX-4` | HECHO |
+| H2.M5 | RFP PX-5 listas y PEP | RF-PX5-01..05 + RM + casos | `cruce_rfp.py rfp PX-5` | HECHO |
+| H2.M6 | RFP PX-6 titularidad | RF-PX6-01..03 + RM + casos | `cruce_rfp.py rfp PX-6` | HECHO |
+| H2.M7 | RFP PX-7 mensajería (SMS principal y respaldo, push, correo; sin WhatsApp) | RF-PX7-01..07 + RM + casos; ninguna mención a WhatsApp salvo la exclusión | `cruce_rfp.py rfp PX-7` | HECHO |
+| H2.M8 | RFP PX-8 facturación autorizada | RF-PX8-01..04 + RM + casos | `cruce_rfp.py rfp PX-8` | HECHO |
+| H2.M9 | Control de contenido prohibido | Sin «WhatsApp» como canal ofrecido, sin nombres de empresas | `grep` documentado en evidencia | HECHO |
 
 ## H3 — «Poder de compra» (F5), solo diseño
 **CA:** Dado el piloto aceptado como dirección (tandas 5 y 6), cuando Pablo y el abogado revisan, entonces
@@ -93,7 +93,7 @@ bitácora, todo condicionado a L-04.
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H5.M1 | Diseño del consentimiento y del reporte | RF-PX9-01..04 cubiertos y marcados «condicionado a L-04» | `cruce_rfp.py px9` | TODO |
+| H5.M1 | Diseño del consentimiento y del reporte | RF-PX9-01..04 cubiertos y marcados «condicionado a L-04» | `cruce_rfp.py px9` | HECHO |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |

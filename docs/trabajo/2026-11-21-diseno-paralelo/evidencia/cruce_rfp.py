@@ -9,13 +9,14 @@ Uso (desde la raíz del repo):
   modo: plantilla | matriz | rfp | px9 | todo
 El plan de proveedores vive hoy en la rama claude/nice-fermat-essf9e; por defecto se lee de
 /tmp/plan/docs/trabajo/2026-11-21-plan-correcciones/PLAN-PROVEEDORES.md (worktree de esa rama).
-Sale con código 1 si falta algo.
+Sale con código 1 si falta algo. La variable RAIZ_REPO permite apuntar a otro checkout.
 """
 import re
 import sys
 from pathlib import Path
 
-RAIZ = Path(__file__).resolve().parents[4]
+import os
+RAIZ = Path(os.environ.get("RAIZ_REPO") or Path(__file__).resolve().parents[4])
 PROV = RAIZ / "docs" / "proveedores"
 PLAN_POR_DEFECTO = Path("/tmp/plan/docs/trabajo/2026-11-21-plan-correcciones/PLAN-PROVEEDORES.md")
 

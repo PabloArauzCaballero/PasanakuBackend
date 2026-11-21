@@ -1,0 +1,342 @@
+$ RAIZ_REPO=<checkout de la rama -rfp> python3 docs/trabajo/2026-11-21-diseno-paralelo/evidencia/cruce_rfp.py rfp ; echo exit $?
+
+### PX-1 — `rfp/PX-1-pasarela-de-cobro-qr.md`
+
+| Requisito | Documento | Presente |
+|---|---|---|
+| RF-PX1-01 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RF-PX1-02 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RF-PX1-03 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RF-PX1-04 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RF-PX1-05 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RF-PX1-06 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RF-PX1-07 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RF-PX1-08 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RF-PX1-09 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RF-PX1-10 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RM-01 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RM-02 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RM-03 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RM-04 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RM-05 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RM-06 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RM-07 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RM-08 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RM-09 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RM-10 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RM-11 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RM-12 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RM-13 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RM-14 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RM-15 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RM-16 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RM-17 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RM-18 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RM-19 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| RM-20 | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| casos nivel Correcto | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| casos nivel Límite | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| casos nivel Inválido | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| sección «7. Seguridad» | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| sección «8. Datos» | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| sección «9. Continuidad» | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+| segundo proveedor obligatorio | `rfp/PX-1-pasarela-de-cobro-qr.md` | sí |
+
+37/37 presentes
+
+### PX-2 — `rfp/PX-2-proveedor-de-desembolso.md`
+
+| Requisito | Documento | Presente |
+|---|---|---|
+| RF-PX2-01 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RF-PX2-02 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RF-PX2-03 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RF-PX2-04 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RF-PX2-05 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RF-PX2-06 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RF-PX2-07 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RF-PX2-08 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RF-PX2-09 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RM-01 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RM-02 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RM-03 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RM-04 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RM-05 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RM-06 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RM-07 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RM-08 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RM-09 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RM-10 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RM-11 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RM-12 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RM-13 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RM-14 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RM-15 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RM-16 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RM-17 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RM-18 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RM-19 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| RM-20 | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| casos nivel Correcto | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| casos nivel Límite | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| casos nivel Inválido | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| sección «7. Seguridad» | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| sección «8. Datos» | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| sección «9. Continuidad» | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+| segundo proveedor obligatorio | `rfp/PX-2-proveedor-de-desembolso.md` | sí |
+
+36/36 presentes
+
+### PX-3 — `rfp/PX-3-banco-custodio.md`
+
+| Requisito | Documento | Presente |
+|---|---|---|
+| RF-PX3-01 | `rfp/PX-3-banco-custodio.md` | sí |
+| RF-PX3-02 | `rfp/PX-3-banco-custodio.md` | sí |
+| RF-PX3-03 | `rfp/PX-3-banco-custodio.md` | sí |
+| RF-PX3-04 | `rfp/PX-3-banco-custodio.md` | sí |
+| RF-PX3-05 | `rfp/PX-3-banco-custodio.md` | sí |
+| RF-PX3-06 | `rfp/PX-3-banco-custodio.md` | sí |
+| RF-PX3-07 | `rfp/PX-3-banco-custodio.md` | sí |
+| RM-01 | `rfp/PX-3-banco-custodio.md` | sí |
+| RM-02 | `rfp/PX-3-banco-custodio.md` | sí |
+| RM-03 | `rfp/PX-3-banco-custodio.md` | sí |
+| RM-04 | `rfp/PX-3-banco-custodio.md` | sí |
+| RM-05 | `rfp/PX-3-banco-custodio.md` | sí |
+| RM-06 | `rfp/PX-3-banco-custodio.md` | sí |
+| RM-07 | `rfp/PX-3-banco-custodio.md` | sí |
+| RM-08 | `rfp/PX-3-banco-custodio.md` | sí |
+| RM-09 | `rfp/PX-3-banco-custodio.md` | sí |
+| RM-10 | `rfp/PX-3-banco-custodio.md` | sí |
+| RM-11 | `rfp/PX-3-banco-custodio.md` | sí |
+| RM-12 | `rfp/PX-3-banco-custodio.md` | sí |
+| RM-13 | `rfp/PX-3-banco-custodio.md` | sí |
+| RM-14 | `rfp/PX-3-banco-custodio.md` | sí |
+| RM-15 | `rfp/PX-3-banco-custodio.md` | sí |
+| RM-16 | `rfp/PX-3-banco-custodio.md` | sí |
+| RM-17 | `rfp/PX-3-banco-custodio.md` | sí |
+| RM-18 | `rfp/PX-3-banco-custodio.md` | sí |
+| RM-19 | `rfp/PX-3-banco-custodio.md` | sí |
+| RM-20 | `rfp/PX-3-banco-custodio.md` | sí |
+| casos nivel Correcto | `rfp/PX-3-banco-custodio.md` | sí |
+| casos nivel Límite | `rfp/PX-3-banco-custodio.md` | sí |
+| casos nivel Inválido | `rfp/PX-3-banco-custodio.md` | sí |
+| sección «7. Seguridad» | `rfp/PX-3-banco-custodio.md` | sí |
+| sección «8. Datos» | `rfp/PX-3-banco-custodio.md` | sí |
+| sección «9. Continuidad» | `rfp/PX-3-banco-custodio.md` | sí |
+
+33/33 presentes
+
+### PX-4 — `rfp/PX-4-verificacion-de-identidad.md`
+
+| Requisito | Documento | Presente |
+|---|---|---|
+| RF-PX4-01 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RF-PX4-02 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RF-PX4-03 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RF-PX4-04 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RF-PX4-05 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RF-PX4-06 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RF-PX4-07 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RF-PX4-08 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RF-PX4-09 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RF-PX4-10 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RM-01 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RM-02 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RM-03 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RM-04 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RM-05 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RM-06 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RM-07 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RM-08 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RM-09 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RM-10 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RM-11 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RM-12 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RM-13 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RM-14 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RM-15 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RM-16 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RM-17 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RM-18 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RM-19 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| RM-20 | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| casos nivel Correcto | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| casos nivel Límite | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| casos nivel Inválido | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| sección «7. Seguridad» | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| sección «8. Datos» | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+| sección «9. Continuidad» | `rfp/PX-4-verificacion-de-identidad.md` | sí |
+
+36/36 presentes
+
+### PX-5 — `rfp/PX-5-listas-y-pep.md`
+
+| Requisito | Documento | Presente |
+|---|---|---|
+| RF-PX5-01 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RF-PX5-02 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RF-PX5-03 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RF-PX5-04 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RF-PX5-05 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RM-01 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RM-02 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RM-03 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RM-04 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RM-05 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RM-06 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RM-07 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RM-08 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RM-09 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RM-10 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RM-11 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RM-12 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RM-13 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RM-14 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RM-15 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RM-16 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RM-17 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RM-18 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RM-19 | `rfp/PX-5-listas-y-pep.md` | sí |
+| RM-20 | `rfp/PX-5-listas-y-pep.md` | sí |
+| casos nivel Correcto | `rfp/PX-5-listas-y-pep.md` | sí |
+| casos nivel Límite | `rfp/PX-5-listas-y-pep.md` | sí |
+| casos nivel Inválido | `rfp/PX-5-listas-y-pep.md` | sí |
+| sección «7. Seguridad» | `rfp/PX-5-listas-y-pep.md` | sí |
+| sección «8. Datos» | `rfp/PX-5-listas-y-pep.md` | sí |
+| sección «9. Continuidad» | `rfp/PX-5-listas-y-pep.md` | sí |
+
+31/31 presentes
+
+### PX-6 — `rfp/PX-6-titularidad-de-cuenta.md`
+
+| Requisito | Documento | Presente |
+|---|---|---|
+| RF-PX6-01 | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| RF-PX6-02 | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| RF-PX6-03 | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| RM-01 | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| RM-02 | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| RM-03 | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| RM-04 | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| RM-05 | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| RM-06 | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| RM-07 | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| RM-08 | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| RM-09 | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| RM-10 | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| RM-11 | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| RM-12 | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| RM-13 | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| RM-14 | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| RM-15 | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| RM-16 | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| RM-17 | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| RM-18 | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| RM-19 | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| RM-20 | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| casos nivel Correcto | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| casos nivel Límite | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| casos nivel Inválido | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| sección «7. Seguridad» | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| sección «8. Datos» | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+| sección «9. Continuidad» | `rfp/PX-6-titularidad-de-cuenta.md` | sí |
+
+29/29 presentes
+
+### PX-7 — `rfp/PX-7-mensajeria.md`
+
+| Requisito | Documento | Presente |
+|---|---|---|
+| RF-PX7-01 | `rfp/PX-7-mensajeria.md` | sí |
+| RF-PX7-02 | `rfp/PX-7-mensajeria.md` | sí |
+| RF-PX7-03 | `rfp/PX-7-mensajeria.md` | sí |
+| RF-PX7-04 | `rfp/PX-7-mensajeria.md` | sí |
+| RF-PX7-05 | `rfp/PX-7-mensajeria.md` | sí |
+| RF-PX7-06 | `rfp/PX-7-mensajeria.md` | sí |
+| RF-PX7-07 | `rfp/PX-7-mensajeria.md` | sí |
+| RM-01 | `rfp/PX-7-mensajeria.md` | sí |
+| RM-02 | `rfp/PX-7-mensajeria.md` | sí |
+| RM-03 | `rfp/PX-7-mensajeria.md` | sí |
+| RM-04 | `rfp/PX-7-mensajeria.md` | sí |
+| RM-05 | `rfp/PX-7-mensajeria.md` | sí |
+| RM-06 | `rfp/PX-7-mensajeria.md` | sí |
+| RM-07 | `rfp/PX-7-mensajeria.md` | sí |
+| RM-08 | `rfp/PX-7-mensajeria.md` | sí |
+| RM-09 | `rfp/PX-7-mensajeria.md` | sí |
+| RM-10 | `rfp/PX-7-mensajeria.md` | sí |
+| RM-11 | `rfp/PX-7-mensajeria.md` | sí |
+| RM-12 | `rfp/PX-7-mensajeria.md` | sí |
+| RM-13 | `rfp/PX-7-mensajeria.md` | sí |
+| RM-14 | `rfp/PX-7-mensajeria.md` | sí |
+| RM-15 | `rfp/PX-7-mensajeria.md` | sí |
+| RM-16 | `rfp/PX-7-mensajeria.md` | sí |
+| RM-17 | `rfp/PX-7-mensajeria.md` | sí |
+| RM-18 | `rfp/PX-7-mensajeria.md` | sí |
+| RM-19 | `rfp/PX-7-mensajeria.md` | sí |
+| RM-20 | `rfp/PX-7-mensajeria.md` | sí |
+| casos nivel Correcto | `rfp/PX-7-mensajeria.md` | sí |
+| casos nivel Límite | `rfp/PX-7-mensajeria.md` | sí |
+| casos nivel Inválido | `rfp/PX-7-mensajeria.md` | sí |
+| sección «7. Seguridad» | `rfp/PX-7-mensajeria.md` | sí |
+| sección «8. Datos» | `rfp/PX-7-mensajeria.md` | sí |
+| sección «9. Continuidad» | `rfp/PX-7-mensajeria.md` | sí |
+| WhatsApp solo como exclusión | `rfp/PX-7-mensajeria.md` | sí |
+
+34/34 presentes
+
+### PX-8 — `rfp/PX-8-facturacion-electronica.md`
+
+| Requisito | Documento | Presente |
+|---|---|---|
+| RF-PX8-01 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| RF-PX8-02 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| RF-PX8-03 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| RF-PX8-04 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| RM-01 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| RM-02 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| RM-03 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| RM-04 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| RM-05 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| RM-06 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| RM-07 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| RM-08 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| RM-09 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| RM-10 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| RM-11 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| RM-12 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| RM-13 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| RM-14 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| RM-15 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| RM-16 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| RM-17 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| RM-18 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| RM-19 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| RM-20 | `rfp/PX-8-facturacion-electronica.md` | sí |
+| casos nivel Correcto | `rfp/PX-8-facturacion-electronica.md` | sí |
+| casos nivel Límite | `rfp/PX-8-facturacion-electronica.md` | sí |
+| casos nivel Inválido | `rfp/PX-8-facturacion-electronica.md` | sí |
+| sección «7. Seguridad» | `rfp/PX-8-facturacion-electronica.md` | sí |
+| sección «8. Datos» | `rfp/PX-8-facturacion-electronica.md` | sí |
+| sección «9. Continuidad» | `rfp/PX-8-facturacion-electronica.md` | sí |
+
+30/30 presentes
+
+TOTAL FALTANTES: 0
+exit 0
+
+## Prueba negativa del verificador (copia descartable)
+$ sed -i s/RF-PX1-04/RF-PX1-XX/ PX-1 ... ; cruce_rfp.py rfp
+36/37 presentes · FALTAN: RF-PX1-04
+TOTAL FALTANTES: 1
+exit 1
+$ echo "Canales ofrecidos: SMS, push y WhatsApp." >> PX-7 ; cruce_rfp.py rfp PX-7
+| WhatsApp solo como exclusión | `rfp/PX-7-mensajeria.md` | **NO** |
+33/34 presentes · FALTAN: WhatsApp solo como exclusión
+TOTAL FALTANTES: 1
+exit 1
+
+## H2.M9 — nombres de empresas (lista de control de sufijos societarios y marcas frecuentes)
+$ grep -n -i -E "S\.A\.|S\.R\.L|Ltda|Inc\.|LLC|<marcas frecuentes de SMS, KYC, nube y bancos locales>" docs/proveedores/rfp/*.md docs/proveedores/*.md
+docs/proveedores/rfp/PX-3-banco-custodio.md:40:| Reunión técnica (preseleccionados) | [rango] |   <- falso positivo: «unión» dentro de «Reunión»
+Sin otras coincidencias.
