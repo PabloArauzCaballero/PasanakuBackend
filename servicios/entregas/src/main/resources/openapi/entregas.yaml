@@ -50,13 +50,29 @@
 #   AP-CU130-07  FONDOS_INSUFICIENTES  · el comprador no tiene saldo para el precio
 #   AP-CU130-08  SERVICIO_NO_DISPONIBLE · grupos o nucleo-financiero no responden: se deniega
 #   AP-CU130-09  CESION_NO_REANUDABLE  · estado que no admite el paso, o el vendedor ya cobro
+#   AP-CU130-10  MERCADO_RETIRADO      · 410: la venta de turnos se retiro (D-L2-1, 2026-11-21)
+#
+# CU-64 por subasta. RETIRADA (D-L2-1, 2026-11-21): las operaciones responden 410.
+#   AP-CU136-09  SUBASTA_RETIRADA      · 410: la subasta de cupos se retiro
 openapi: 3.1.0
 info:
   title: entregas
-  version: 1.0.0
+  version: 1.1.0
   description: >-
     Servicio entregas. Un caso de uso = una operacion, con el codigo CU en el
     operationId. Los importes viajan como CADENA decimal, nunca como number.
+
+
+    1.1.0 (2026-11-21) · RETIRO DE LA CESION DE TURNOS (D-L2-1, DECISIONES tanda 7: «subasta y cesion de
+    turno: se elimina»). El orden de cobro lo fijan el nivel de puntualidad y el sorteo; un turno no se vende
+    ni se subasta. Las operaciones del mercado (`publicarOferta`, `listarOfertas`, `cancelarOferta`,
+    `comprarOferta`) y de la subasta (`abrirSubastaDeCupo`, `listarSubastasDeCupo`, `consultarSubastaDeCupo`,
+    `pujarEnSubasta`, `cancelarSubastaDeCupo`) quedan RETIRADAS y responden 410 sin efecto (AP-CU130-10 y
+    AP-CU136-09). No llevan `deprecated: true` a proposito: el cliente Dart generado marcaria los metodos y la
+    app, que todavia los llama hasta que L6 retire sus pantallas, no pasaria `dart analyze --fatal-infos`. `consultarOfertaParaPago` sigue respondiendo el 422 AP-CU130-05 del pacto con
+    nucleo-financiero: ya no hay oferta que pagar. Contraccion (regla 98.1.3): se borran del contrato cuando la
+    app movil deje de llamarlas y nucleo-financiero retire su consumidor; la fecha la fija Pablo al mergear
+    esos cambios.
 
 servers:
   - url: /api/v1
@@ -355,7 +371,7 @@ paths:
   /entregas/mercado/ofertas:
     post:
       operationId: publicarOferta               # mercado
-      summary: Ofrecer el derecho a cobrar un turno
+      summary: Ofrecer el derecho a cobrar un turno (RETIRADA, responde 410)
       description: >-
         Lo que se vende es el DERECHO a cobrar el pozo; no cambia quien debe los aportes
         ni la membresia. Solo el titular del turno (confirmado por `grupos`, nunca por el
@@ -369,6 +385,9 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/EntradaOferta' }
       responses:
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU130-10: retirada por D-L2-1 (2026-11-21), sin efecto
         '201':
           description: Oferta publicada
           content:
@@ -382,7 +401,7 @@ paths:
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
     get:
       operationId: listarOfertas                # mercado
-      summary: Ver las ofertas elegibles para mi
+      summary: Ver las ofertas elegibles para mi (RETIRADA, responde 410)
       description: >-
         Solo ofertas vigentes y no vendidas de grupos donde quien mira es miembro activo.
         Nunca muestra al vendedor. Paginado, con orden estable (vigencia, id).
@@ -396,6 +415,9 @@ paths:
           required: false
           schema: { type: integer, minimum: 0, maximum: 10000, default: 0 }
       responses:
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU130-10: retirada por D-L2-1 (2026-11-21), sin efecto
         '200':
           description: La pagina de ofertas
           content:
@@ -432,13 +454,16 @@ paths:
   /entregas/mercado/ofertas/{ofertaId}/cancelacion:
     post:
       operationId: cancelarOferta               # mercado
-      summary: Cancelar mi oferta mientras nadie la reservo
+      summary: Cancelar mi oferta mientras nadie la reservo (RETIRADA, responde 410)
       parameters:
         - name: ofertaId
           in: path
           required: true
           schema: { type: string, format: uuid }
       responses:
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU130-10: retirada por D-L2-1 (2026-11-21), sin efecto
         '200':
           description: Cancelada, o ya lo estaba
           content:
@@ -449,7 +474,7 @@ paths:
   /entregas/mercado/ofertas/{ofertaId}/compra:
     post:
       operationId: comprarOferta                # mercado
-      summary: Comprar el derecho a cobrar un turno
+      summary: Comprar el derecho a cobrar un turno (RETIRADA, responde 410)
       description: >-
         Una saga: reservar (uno gana), retener el saldo, dar el titulo, pagarle al vendedor.
         200 si quedo LIQUIDADA; 202 si quedo en curso (un servicio no respondio) y se
@@ -461,6 +486,9 @@ paths:
           schema: { type: string, format: uuid }
         - $ref: '#/components/parameters/ClaveIdempotencia'
       responses:
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU130-10: retirada por D-L2-1 (2026-11-21), sin efecto
         '200':
           description: Compra liquidada
           content:
@@ -476,7 +504,7 @@ paths:
   /entregas/subastas:
     post:
       operationId: abrirSubastaDeCupo           # CU-64 por subasta
-      summary: Poner mi cupo en subasta
+      summary: Poner mi cupo en subasta (RETIRADA, responde 410)
       description: >-
         El titular del cupo (lo confirma `grupos`, nunca el cliente) lo ofrece con un precio base y un
         plazo de 24, 48 o 72 horas. A todos los usuarios les llega el aviso (`entregas.subasta_abierta`).
@@ -491,6 +519,9 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/EntradaSubasta' }
       responses:
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU136-09: retirada por D-L2-1 (2026-11-21), sin efecto
         '201':
           description: Subasta abierta
           content:
@@ -507,7 +538,7 @@ paths:
           # AP-CU136-03 base o plazo invalidos · AP-CU136-08 grupos no respondio
     get:
       operationId: listarSubastasDeCupo         # CU-64 por subasta
-      summary: Los cupos en subasta
+      summary: Los cupos en subasta (RETIRADA, responde 410)
       description: >-
         Para cualquier usuario: las subastas ABIERTAS, con lo que hace falta para decidir (grupo,
         aporte, periodicidad, base, puja mas alta, cierre). Nunca el saliente ni los postores. Con
@@ -527,6 +558,9 @@ paths:
           required: false
           schema: { type: integer, minimum: 0, maximum: 10000, default: 0 }
       responses:
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU136-09: retirada por D-L2-1 (2026-11-21), sin efecto
         '200':
           description: La pagina de subastas
           content:
@@ -537,13 +571,16 @@ paths:
   /entregas/subastas/{subastaId}:
     get:
       operationId: consultarSubastaDeCupo        # CU-64 por subasta
-      summary: Una subasta, con la puja mas alta y la mia
+      summary: Una subasta, con la puja mas alta y la mia (RETIRADA, responde 410)
       parameters:
         - name: subastaId
           in: path
           required: true
           schema: { type: string, format: uuid }
       responses:
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU136-09: retirada por D-L2-1 (2026-11-21), sin efecto
         '200':
           description: La subasta
           content:
@@ -556,7 +593,7 @@ paths:
   /entregas/subastas/{subastaId}/pujas:
     post:
       operationId: pujarEnSubasta                # CU-64 por subasta
-      summary: Ofrecer un monto por el cupo
+      summary: Ofrecer un monto por el cupo (RETIRADA, responde 410)
       description: >-
         El monto queda RETENIDO de la billetera de quien puja hasta que lo superen (vuelve al
         instante) o gane (se le paga al saliente cuando el cupo ya es suyo). Tiene que ser al menos
@@ -576,6 +613,9 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/EntradaPuja' }
       responses:
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU136-09: retirada por D-L2-1 (2026-11-21), sin efecto
         '201':
           description: Tu puja es la mas alta
           content:
@@ -595,13 +635,16 @@ paths:
   /entregas/subastas/{subastaId}/cancelacion:
     post:
       operationId: cancelarSubastaDeCupo         # CU-64 por subasta
-      summary: Retirar mi cupo de la subasta mientras nadie pujo
+      summary: Retirar mi cupo de la subasta mientras nadie pujo (RETIRADA, responde 410)
       parameters:
         - name: subastaId
           in: path
           required: true
           schema: { type: string, format: uuid }
       responses:
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU136-09: retirada por D-L2-1 (2026-11-21), sin efecto
         '200':
           description: Cancelada (o ya lo estaba)
           content:
@@ -1028,6 +1071,13 @@ components:
         detalle:  { type: object }
         trazaId:  { type: string }
   responses:
+    Retirada:
+      description: >-
+        La operacion fue retirada del producto y ya no tiene efecto (410, no 404: existio y no hay que
+        reintentar). El codigo dice cual.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
     ReglaDeNegocio:
       description: Regla de negocio de la aplicacion (422, no 400)
       content:

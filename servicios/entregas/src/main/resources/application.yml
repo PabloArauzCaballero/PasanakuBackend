@@ -44,8 +44,9 @@ aportaya:
     identidad: ${URL_IDENTIDAD:http://identidad:8080}
     aportes: ${URL_APORTES:http://aportes:8080}        # afirma cuanto del pozo es caja confirmada
     garantia: ${URL_GARANTIA:http://garantia:8080}    # cubre el faltante con la reserva empresarial
-    grupos: ${URL_GRUPOS:http://grupos:8080}          # a que grupos pertenece quien compra un turno
-    nucleo-financiero: ${URL_NUCLEO_FINANCIERO:http://nucleo-financiero:8080}   # el libro: retener, pagar, liberar
+    # Sin uso desde el retiro de la cesion de turnos (D-L2-1); se quitan con la contraccion, junto al compose generado.
+    grupos: ${URL_GRUPOS:http://grupos:8080}
+    nucleo-financiero: ${URL_NUCLEO_FINANCIERO:http://nucleo-financiero:8080}
   # Fuera de la base a proposito: filtrar la tabla de cuentas no alcanza si la
   # pimienta no esta ahi. Si falta la variable, el proceso NO levanta.
   seguridad:
@@ -76,10 +77,6 @@ aportaya:
         clave: ${ENTREGAS_SERVICIO_CLAVE:}
         factor-totp-semilla: ${ENTREGAS_SERVICIO_TOTP_SEMILLA:}
         factor-fijo: ${ENTREGAS_SERVICIO_FACTOR_FIJO:}   # SOLO TEST: el codigo fijo del perfil local de identidad
-  mercado:
-    # SINTETICOS (ambiguedades del carril C): los fija producto/operaciones, no son una decision tomada.
-    vigencia-maxima: PT168H        # cuanto puede durar una oferta publicada
-    reserva-maxima: PT10M          # cuanto puede quedar una compra a medias antes de abortarse
   desembolso:
     intentos-maximos: 3
     espera-entre-intentos: PT15M
