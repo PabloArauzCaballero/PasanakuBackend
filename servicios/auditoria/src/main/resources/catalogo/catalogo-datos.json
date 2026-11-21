@@ -31170,18 +31170,6 @@
    },
    "operaciones": [
     {
-     "casoDeUso": "CU-23",
-     "titulo": "Cubrir un incumplimiento con el fondo",
-     "endpoints": [
-      {
-       "servicio": "garantia",
-       "metodo": "POST",
-       "ruta": "/incumplimientos/{expedienteId}/cobertura",
-       "operationId": "cubrirIncumplimiento"
-      }
-     ]
-    },
-    {
      "casoDeUso": "CU-29",
      "titulo": "Devolver los aportes del fondo de garantía",
      "endpoints": [
@@ -32655,18 +32643,6 @@
    },
    "operaciones": [
     {
-     "casoDeUso": "CU-23",
-     "titulo": "Cubrir un incumplimiento con el fondo",
-     "endpoints": [
-      {
-       "servicio": "garantia",
-       "metodo": "POST",
-       "ruta": "/incumplimientos/{expedienteId}/cobertura",
-       "operationId": "cubrirIncumplimiento"
-      }
-     ]
-    },
-    {
      "casoDeUso": "CU-67",
      "titulo": "Disolver el grupo anticipadamente",
      "endpoints": [
@@ -33618,18 +33594,6 @@
     "derivados": 0
    },
    "operaciones": [
-    {
-     "casoDeUso": "CU-23",
-     "titulo": "Cubrir un incumplimiento con el fondo",
-     "endpoints": [
-      {
-       "servicio": "garantia",
-       "metodo": "POST",
-       "ruta": "/incumplimientos/{expedienteId}/cobertura",
-       "operationId": "cubrirIncumplimiento"
-      }
-     ]
-    },
     {
      "casoDeUso": "CU-25",
      "titulo": "Declarar el incumplimiento con descargo y evidencia",
@@ -35659,18 +35623,6 @@
        "metodo": "POST",
        "ruta": "/pagos/{pagoId}/reembolsos",
        "operationId": "solicitarReembolso"
-      }
-     ]
-    },
-    {
-     "casoDeUso": "CU-23",
-     "titulo": "Cubrir un incumplimiento con el fondo",
-     "endpoints": [
-      {
-       "servicio": "garantia",
-       "metodo": "POST",
-       "ruta": "/incumplimientos/{expedienteId}/cobertura",
-       "operationId": "cubrirIncumplimiento"
       }
      ]
     },
@@ -40895,18 +40847,6 @@
        "metodo": "GET",
        "ruta": "/tarifas/vigentes/{codigo}",
        "operationId": "consultarTarifarioVigente"
-      }
-     ]
-    },
-    {
-     "casoDeUso": "CU-23",
-     "titulo": "Cubrir un incumplimiento con el fondo",
-     "endpoints": [
-      {
-       "servicio": "garantia",
-       "metodo": "POST",
-       "ruta": "/incumplimientos/{expedienteId}/cobertura",
-       "operationId": "cubrirIncumplimiento"
       }
      ]
     },
@@ -71616,18 +71556,6 @@
        "metodo": "POST",
        "ruta": "/entregas/{entregaId}/ejecucion",
        "operationId": "ejecutarEntrega"
-      }
-     ]
-    },
-    {
-     "casoDeUso": "CU-23",
-     "titulo": "Cubrir un incumplimiento con el fondo",
-     "endpoints": [
-      {
-       "servicio": "garantia",
-       "metodo": "POST",
-       "ruta": "/incumplimientos/{expedienteId}/cobertura",
-       "operationId": "cubrirIncumplimiento"
       }
      ]
     },
