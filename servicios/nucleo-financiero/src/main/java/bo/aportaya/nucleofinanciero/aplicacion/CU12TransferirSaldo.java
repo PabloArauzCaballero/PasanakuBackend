@@ -183,7 +183,12 @@ public class CU12TransferirSaldo {
                             UUID.fromString(ctx.traza().id())));
 
             var despues = cuentas.ver(dsl, origen.id()).orElseThrow();
-            BITACORA.info("CU-12 · Transferencia P2P ejecutada: transaccion={}, origen={}, destino={}, monto={}", transaccionId, origen.id(), destino.id(), entrada.monto());
+            BITACORA.info(
+                    "CU-12 · Transferencia P2P ejecutada: transaccion={}, origen={}, destino={}, monto={}",
+                    transaccionId,
+                    origen.id(),
+                    destino.id(),
+                    entrada.monto());
             return new SalidaTransferencia(
                     transaccionId,
                     despues.disponible(),

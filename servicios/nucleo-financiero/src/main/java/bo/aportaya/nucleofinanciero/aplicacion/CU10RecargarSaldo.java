@@ -140,7 +140,11 @@ public class CU10RecargarSaldo {
                                     "medio", entrada.medio()),
                             UUID.fromString(ctx.traza().id())));
 
-            BITACORA.info("CU-10 · Orden de recarga creada: id={}, cuenta={}, monto={}", ordenId, cuenta.id(), entrada.monto());
+            BITACORA.info(
+                    "CU-10 · Orden de recarga creada: id={}, cuenta={}, monto={}",
+                    ordenId,
+                    cuenta.id(),
+                    entrada.monto());
             return new SalidaSolicitud(ordenId, "PENDIENTE", expira, acreditado);
         });
     }
@@ -243,7 +247,11 @@ public class CU10RecargarSaldo {
                             UUID.fromString(ctx.traza().id())));
 
             var despues = cuentas.ver(dsl, cuenta.id()).orElseThrow();
-            BITACORA.info("CU-10 · Recarga acreditada en libro: orden={}, cuenta={}, transaccion={}", orden.id(), cuenta.id(), transaccionId);
+            BITACORA.info(
+                    "CU-10 · Recarga acreditada en libro: orden={}, cuenta={}, transaccion={}",
+                    orden.id(),
+                    cuenta.id(),
+                    transaccionId);
             return new SalidaAcreditacion(orden.id(), transaccionId, despues.disponible());
         });
     }
@@ -278,9 +286,20 @@ public class CU10RecargarSaldo {
 
         /** Sin cotizacion previa: el costo lo dicta el servidor y no hay aceptacion que registrar. */
         public EntradaSolicitud(
-                String claveIdempotencia, UUID cuentaBilleteraId, Dinero monto,
-                Dinero costoProveedor, String medio, Optional<UUID> instrumentoFondeoId) {
-            this(claveIdempotencia, cuentaBilleteraId, monto, costoProveedor, medio, instrumentoFondeoId, Optional.empty());
+                String claveIdempotencia,
+                UUID cuentaBilleteraId,
+                Dinero monto,
+                Dinero costoProveedor,
+                String medio,
+                Optional<UUID> instrumentoFondeoId) {
+            this(
+                    claveIdempotencia,
+                    cuentaBilleteraId,
+                    monto,
+                    costoProveedor,
+                    medio,
+                    instrumentoFondeoId,
+                    Optional.empty());
         }
     }
 

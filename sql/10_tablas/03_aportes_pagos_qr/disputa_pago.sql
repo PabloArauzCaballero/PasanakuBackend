@@ -15,12 +15,18 @@ CREATE TABLE IF NOT EXISTS aportes.disputa_pago (
   resuelta_en                        TIMESTAMPTZ,
   CONSTRAINT pk_disputa_pago PRIMARY KEY (id),
   CONSTRAINT ck_disputa_pago_tipo CHECK (tipo IN ('CONTRACARGO', 'DESCONOCIMIENTO', 'MONTO_INCORRECTO')),
+  CONSTRAINT ck_disputa_pago_monto_disputado CHECK (monto_disputado >= 0),
   CONSTRAINT ck_disputa_pago_estado CHECK (estado IN ('ABIERTA', 'EN_ANALISIS', 'RESUELTA_A_FAVOR', 'RESUELTA_EN_CONTRA'))
 );
+
+-- Evolucion: CHECK ampliado (ver CK_AMPLIADOS en modelo.py).
+ALTER TABLE aportes.disputa_pago DROP CONSTRAINT IF EXISTS ck_disputa_pago_monto_disputado;
+ALTER TABLE aportes.disputa_pago ADD CONSTRAINT ck_disputa_pago_monto_disputado CHECK (monto_disputado >= 0);
 
 COMMENT ON TABLE aportes.disputa_pago IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. El reclamo formal sobre un pago: contracargo, desconocimiento del cargo, monto incorrecto.';
 COMMENT ON COLUMN aportes.disputa_pago.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN aportes.disputa_pago.pago_id IS 'FK, IDX';
 COMMENT ON COLUMN aportes.disputa_pago.tipo IS 'CK';
+COMMENT ON COLUMN aportes.disputa_pago.monto_disputado IS 'CK: >= 0';
 COMMENT ON COLUMN aportes.disputa_pago.estado IS 'CK';
 COMMENT ON COLUMN aportes.disputa_pago.resuelta_en IS 'NULL';
