@@ -99,6 +99,7 @@ services:
       esquema:
         condition: service_completed_successfully
     environment:
+      APORTES_WEBHOOK_SECRETO: ${APORTES_WEBHOOK_SECRETO}
       BD_CLAVE: ${BD_CLAVE}
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
       COMPENSACION_CONSUMO_HABILITADO: ${COMPENSACION_CONSUMO_HABILITADO:-true}
