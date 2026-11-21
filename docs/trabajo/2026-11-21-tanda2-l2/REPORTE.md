@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, lote L2 (garantía y entregas)
 
-> **AVANCE: 2 / 13 — 15,4 %.** (F1.L2.M07 en A MEDIAS: no suma)
+> **AVANCE: 3 / 13 — 23,1 %.** (F1.L2.M07 en A MEDIAS: no suma)
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Rama(s): `correcciones/tanda2-l2-retiro-subasta` (#419),
   `correcciones/tanda2-l2-seg007-cifrado` (apilada sobre #419)
@@ -13,6 +13,7 @@
 |---|---|---|---|
 | L2.S1.M1 | La subasta de cupos y el mercado de turnos de `entregas` ya no existen: sus 9 operaciones responden 410 con `AP-CU136-09` / `AP-CU130-10` y sin efecto; `GET /entregas/mercado/ofertas/{id}` responde el 422 `AP-CU130-05` del pacto con nucleo. Se borraron 24 clases de producción y 23 de prueba | `./gradlew :servicios:entregas:test :servicios:entregas:webTest` + grep | PASS — [evidencia](./evidencia/L2.S1.M1-retiro-cesion.txt) |
 | F2.L2.M09 | Mercado de ofertas (código muerto) retirado | ídem | PASS (con L2.S1.M1) |
+| F1.L2.M05 | Ninguna persona anota la respuesta del proveedor: `POST /desembolsos/{id}/respuesta` responde 410 `AP-CU28-08` sin llamar al caso de uso (sin ACREDITADA ni `desembolso_acreditado`). `CU28EmitirDesembolso.anotarRespuesta` se conserva para el webhook firmado de F3.L2.M02 | `./gradlew :servicios:entregas:webTest` | PASS — [evidencia](./evidencia/F1.L2.M05-desembolso-sin-humano.txt) |
 
 ## A medias
 
@@ -52,7 +53,7 @@
 
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| F1.L2.M05, M09, M02, M03, M10 | TODO | Siguientes PR del lote |
+| F1.L2.M09, M02, M03, M10 | TODO | Siguientes PR del lote |
 | F1.L2.M01, M04, M06, M08, M11–M14 | TODO | M13/M14 necesitan `plataforma/comun-web` (cliente único y token de servicio): fuera de alcance |
 | F2.L2.M01, M02, M04 | TODO | Siguientes PR del lote |
 | L2.S1.M2 | BLOQUEADO | L6 y L1 (ver A medias) |
@@ -74,6 +75,7 @@
   `./gradlew :servicios:entregas:integrationTest --tests '*CU22PozoYMercadoRechazosTest*'`.
 - Piso de cobertura (`jacocoTestCoverageVerification`, pisos sin cambios 0.89/0.71/0.71): se mide en el CI con los
   cinco corredores.
+- Fuera de alcance que todavía llama a `anotarRespuestaDesembolso`: `packages/simulado/ejemplos/entregas/anotarRespuestaDesembolso.json` y `despliegue/ensayos/integracion/h14.py:580` (ahora reciben 410).
 - La app móvil sigue llamando a la subasta: hoy recibe 410 y muestra un error genérico (L6).
 
 ## Desvíos del plan

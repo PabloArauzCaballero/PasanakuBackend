@@ -2409,7 +2409,7 @@
       "description": "Humo de `emitirOrdenDesembolso`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
     },
     {
-      "name": "anotarRespuestaDesembolso · Registrar lo que contesto el proveedor",
+      "name": "anotarRespuestaDesembolso · Registrar lo que contesto el proveedor (RETIRADA, responde 410)",
       "item": [
         {
           "name": "1 · valido",
@@ -2562,7 +2562,7 @@
                   "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
                   "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
                   "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
-                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 404, 409, 422]);",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 404, 409, 410, 422]);",
                   "});",
                   "",
                   "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",

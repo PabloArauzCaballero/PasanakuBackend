@@ -732,7 +732,7 @@
       ]
     },
     {
-      "name": "anotarRespuestaDesembolso · Registrar lo que contesto el proveedor",
+      "name": "anotarRespuestaDesembolso · Registrar lo que contesto el proveedor (RETIRADA, responde 410)",
       "request": {
         "method": "POST",
         "header": [
@@ -763,7 +763,7 @@
             }
           ]
         },
-        "description": "## Registrar lo que contesto el proveedor\n\nLa llamada al proveedor la hace quien orquesta, FUERA de esta transaccion (invariante 6). Un error definitivo NO se reintenta: insistir contra una cuenta que no existe solo demora el momento en que alguien mira el caso, mientras la plata del beneficiario sigue retenida.\n\n| | |\n| --- | --- |\n| **Servicio** | `entregas` |\n| **Operacion** | `anotarRespuestaDesembolso` |\n| **Ruta** | `POST /api/v1/desembolsos/{ordenId}/respuesta` |\n| **Permiso** | `ENTREGA_EJECUTAR` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Registrar lo que contesto el proveedor (RETIRADA, responde 410)\n\nRETIRADA en 2.1.0 (F1.L2.M05, SEG-005): una persona no puede afirmar que la plata llego. Responde 410 AP-CU28-08 sin efecto. La unica via a ACREDITADA es el aviso firmado del proveedor (F3.L2.M02). Se borra del contrato cuando el backoffice deje de llamarla.\nLa llamada al proveedor la hace quien orquesta, FUERA de esta transaccion (invariante 6). Un error definitivo NO se reintenta: insistir contra una cuenta que no existe solo demora el momento en que alguien mira el caso, mientras la plata del beneficiario sigue retenida.\n\n| | |\n| --- | --- |\n| **Servicio** | `entregas` |\n| **Operacion** | `anotarRespuestaDesembolso` |\n| **Ruta** | `POST /api/v1/desembolsos/{ordenId}/respuesta` |\n| **Permiso** | `ENTREGA_EJECUTAR` |\n| **Respuestas** | `200`, `410`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"iniciado\": \"{{momento_ahora}}\",\n  \"exitoso\": true,\n  \"referenciaProveedor\": \"referenciaProveedor-de-prueba\",\n  \"codigoError\": \"codigoError-de-prueba\",\n  \"mensajeProveedor\": \"mensajeProveedor-de-prueba\"\n}",
@@ -782,7 +782,7 @@
             "type": "text/javascript",
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
-              "const esperadas = [200, 422];",
+              "const esperadas = [200, 410, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",
