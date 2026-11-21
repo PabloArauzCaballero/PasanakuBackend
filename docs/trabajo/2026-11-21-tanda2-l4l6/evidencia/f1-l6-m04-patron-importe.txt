@@ -1,0 +1,32 @@
+# F1.L6.M04 — El patrón de importe de cumplimiento.yaml es válido y no admite negativos
+## Relocalizado en origin/dev 50cf3be9
+servicios/cumplimiento/src/main/resources/openapi/cumplimiento.yaml:1251  monto:    { type: string, pattern: '^-?\\d+\\.\\d{2}$' }
+servicios/cumplimiento/src/main/resources/openapi/cumplimiento.yaml:1339  montoOperacion: { type: string, pattern: '^-?\\d+\\.\\d{2}$' }
+(entre comillas simples YAML no escapa: el regex queda con «\\d», que exige una barra literal; "100.00" no valida)
+Ejemplos del mock: "\\d\\O\\dd" (basura que «cumplía» el patrón roto), 6 valores.
+
+## Barrido de TODOS los contratos (patrones con \.\d{2}$ que rechazan "100.00")
+cumplimiento.json SalidaDiligencia/.../limitesNuevos/items/properties/monto        <- roto
+cumplimiento.json SalidaAlcance/.../limitesSandbox/properties/montoOperacion       <- roto
+inversiones.json  EntradaSimulacion/variacionesDeFondo/items "^-?\d{1,2}\.\d{2}$"  (porcentaje, válido)
+organizador.json  EntradaEvaluacion/satisfaccion "^\d\.\d{2}$"                     (puntaje, válido)
+
+## Prueba nueva: packages/simulado/pruebas/patrones-de-importe.spec.ts
+$ yarn workspace @aportaya/simulado contratos && yarn vitest run   (packages/simulado)
+ Test Files  5 passed (5)
+      Tests  380 passed (380)
+$ yarn lint -> 0 · yarn typecheck -> 0
+## Mutante: cumplimiento.yaml sin el arreglo (git stash del yaml)
+ FAIL ejemplos-contra-esquema > cumplimiento/elevarDiligencia
+ FAIL ejemplos-contra-esquema > cumplimiento/verificarAlcance
+ FAIL patrones-de-importe > ningún patrón deja una barra escapada delante de una clase
+ FAIL patrones-de-importe > cumplimiento: los límites ... no admiten negativos (91.2.2)
+      Tests  4 failed | 350 passed (354)
+
+## Servicio cumplimiento (el contrato genera la interfaz del servidor)
+$ ./gradlew :servicios:cumplimiento:test :servicios:cumplimiento:webTest :servicios:cumplimiento:testBarrido
+rc=0
+servicios/cumplimiento test: tests=14 failures=0 errors=0
+servicios/cumplimiento webTest: tests=87 failures=0 errors=0
+servicios/cumplimiento testBarrido: tests=2 failures=0 errors=0
+$ python3 scripts/generar_postman.py -> sin diferencias en postman/

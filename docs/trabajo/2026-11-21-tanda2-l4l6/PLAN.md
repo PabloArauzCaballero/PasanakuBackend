@@ -55,7 +55,7 @@
 ### H1.S4 — Resto de F1 de L6
 | ID | Microtarea | Estado |
 |---|---|---|
-| F1.L6.M04 | Patrón de importe de `cumplimiento.yaml` válido y sin negativos | TODO |
+| F1.L6.M04 | Patrón de importe de `cumplimiento.yaml` válido y sin negativos. CA: «100.00» valida, «-1.00» no. DoD: `yarn vitest run` en `packages/simulado` | HECHO (`evidencia/f1-l6-m04-patron-importe.txt`) |
 | F1.L6.M05 a M12 | Ver anexo L6 | TODO |
 
 ## H2 — F2 de L4 y L6
