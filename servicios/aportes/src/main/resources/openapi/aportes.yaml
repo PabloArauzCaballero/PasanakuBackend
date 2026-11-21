@@ -263,9 +263,11 @@ paths:
       summary: Recibir la confirmacion de la pasarela de pagos
       description: >-
         Ruta PUBLICA (sin sesion de usuario, Q-02 DECIDIDA 2026-09-21): la pasarela no
-        tiene un JWT nuestro. La autenticacion es HMAC-SHA256 sobre el cuerpo CRUDO con
-        `X-Firma`, mas `X-Timestamp` dentro de una ventana de +-5 minutos (invariante
-        de la firma: se verifica ANTES de leer una sola linea del payload).
+        tiene un JWT nuestro. La autenticacion es HMAC-SHA256 sobre
+        `X-Timestamp + "." + cuerpo CRUDO` con `X-Firma`, y ese mismo `X-Timestamp`
+        firmado tiene que caer dentro de una ventana de +-5 minutos (invariante de la
+        firma: se verifica ANTES de leer una sola linea del payload). Reenviar un
+        webhook capturado con otro timestamp rompe la firma.
 
         Evento repetido por `(proveedor_id, clave)` (`uq_webhook_idem`, invariante 7):
         mismo resultado, sin reprocesar ni duplicar el efecto financiero.
@@ -282,12 +284,12 @@ paths:
         - name: X-Firma
           in: header
           required: true
-          description: HMAC-SHA256 del cuerpo crudo, en hexadecimal minuscula
+          description: HMAC-SHA256 de `X-Timestamp + "." + cuerpo crudo`, en hexadecimal minuscula
           schema: { type: string, minLength: 64, maxLength: 64 }
         - name: X-Timestamp
           in: header
           required: true
-          description: segundos UNIX del momento en que la pasarela firmo, como cadena
+          description: segundos UNIX del momento en que la pasarela firmo, como cadena; forma parte del material firmado
           schema: { type: string, pattern: '^\d{1,15}$' }
       requestBody:
         required: true
