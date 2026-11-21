@@ -12,7 +12,13 @@ import javax.crypto.spec.SecretKeySpec;
 
 /**
  * La firma del webhook de la pasarela (Q-02, DECIDIDA 2026-09-21): HMAC-SHA256 sobre
- * el cuerpo CRUDO, mas una ventana temporal de +-5 minutos contra el reloj propio.
+ * {@code timestamp + "." + cuerpoCrudo}, mas una ventana temporal de +-5 minutos contra el
+ * reloj propio evaluada sobre ESE timestamp firmado.
+ *
+ * <p>F1.L1.M06 (ANF-SEG-003): antes se firmaba solo el cuerpo y la ventana se miraba sobre
+ * una cabecera que nadie firmaba. Un webhook capturado se podia reenviar para siempre con un
+ * {@code X-Timestamp} nuevo. Con el timestamp dentro del material firmado, cambiarlo rompe la
+ * firma: la ventana deja de ser decorativa.
  *
  * <p>Puro y sin estado a proposito: es lo que permite probarlo con valores fijos, sin
  * PostgreSQL ni Spring, y reusarlo tanto en la verificacion real como en el doble de
@@ -27,12 +33,21 @@ public final class VerificadorDeFirmaWebhook {
 
     private VerificadorDeFirmaWebhook() {}
 
-    /** El hexadecimal en minuscula de firmar {@code cuerpoCrudo} con {@code secreto}. */
-    public static String firmar(String cuerpoCrudo, String secreto) {
+    /** El material firmado: el timestamp tal como viaja en {@code X-Timestamp}, un punto y el cuerpo crudo. */
+    public static String material(String timestamp, String cuerpoCrudo) {
+        return timestamp + "." + cuerpoCrudo;
+    }
+
+    /** El hexadecimal en minuscula de firmar {@code timestamp.cuerpoCrudo} con {@code secreto}. */
+    public static String firmar(String timestamp, String cuerpoCrudo, String secreto) {
+        return hmac(material(timestamp, cuerpoCrudo), secreto);
+    }
+
+    private static String hmac(String datos, String secreto) {
         try {
             Mac mac = Mac.getInstance(ALGORITMO);
             mac.init(new SecretKeySpec(secreto.getBytes(StandardCharsets.UTF_8), ALGORITMO));
-            byte[] firma = mac.doFinal(cuerpoCrudo.getBytes(StandardCharsets.UTF_8));
+            byte[] firma = mac.doFinal(datos.getBytes(StandardCharsets.UTF_8));
             return HexFormat.of().formatHex(firma);
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             // HmacSHA256 es JDK estandar y la clave nunca esta vacia (el puerto de
@@ -47,11 +62,16 @@ public final class VerificadorDeFirmaWebhook {
      * hexadecimal con {@code String.equals} deja adivinar la firma caracter por
      * caracter midiendo cuanto tarda en fallar cada intento.
      */
-    public static boolean firmaValida(String cuerpoCrudo, String firmaRecibida, String secreto) {
-        if (firmaRecibida == null || firmaRecibida.isBlank() || cuerpoCrudo == null || secreto == null) {
+    public static boolean firmaValida(String timestamp, String cuerpoCrudo, String firmaRecibida, String secreto) {
+        if (firmaRecibida == null
+                || firmaRecibida.isBlank()
+                || timestamp == null
+                || timestamp.isBlank()
+                || cuerpoCrudo == null
+                || secreto == null) {
             return false;
         }
-        String esperada = firmar(cuerpoCrudo, secreto);
+        String esperada = firmar(timestamp, cuerpoCrudo, secreto);
         return MessageDigest.isEqual(
                 esperada.getBytes(StandardCharsets.UTF_8),
                 firmaRecibida.trim().toLowerCase(java.util.Locale.ROOT).getBytes(StandardCharsets.UTF_8));

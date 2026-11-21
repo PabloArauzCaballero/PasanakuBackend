@@ -2,19 +2,16 @@ package bo.aportaya.garantia.web;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import bo.aportaya.garantia.aplicacion.CU29DevolverFondo;
 import bo.aportaya.garantia.aplicacion.CU66ReemplazarParticipante;
 import bo.aportaya.garantia.aplicacion.CU67DisolverGrupo;
 import bo.aportaya.garantia.aplicacion.ReclamosEnCurso;
 import bo.aportaya.garantia.dominio.CuadreDeDisolucion;
-import bo.aportaya.garantia.dominio.DevolucionDelFondo;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.Moneda;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
@@ -26,7 +23,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -58,9 +54,6 @@ class GarantiaControllerWebTest {
     private RespaldoWeb respaldoWeb;
 
     @MockitoBean
-    private CU29DevolverFondo cu29;
-
-    @MockitoBean
     private CU66ReemplazarParticipante cu66;
 
     @MockitoBean
@@ -78,57 +71,15 @@ class GarantiaControllerWebTest {
     class DevolverFondo {
 
         @Test
-        @DisplayName("CU-29 · el reparto viaja con el detalle por participante, no solo el total")
-        void repartoConDetalle() throws Exception {
-            when(cu29.devolver(any(), any()))
-                    .thenReturn(new CU29DevolverFondo.SalidaDevolucion(
-                            FONDO,
-                            bob("3000.00"),
-                            bob("2650.00"),
-                            bob("350.00"),
-                            List.of(new DevolucionDelFondo.Devolucion(PARTICIPANTE, bob("1000.00"), bob("883.34")))));
-
-            mvc.perform(post("/garantia/fondos/{id}/devolucion", GRUPO)
+        @DisplayName(
+                "F1.L2.M03 · devolver el fondo a pedido responde 410 AP-CU29-06: el cuerpo no decide la devolucion")
+        void devolucionAPedidoRetirada() throws Exception {
+            mvc.perform(post("/garantia/fondos/{grupoId}/devolucion", GRUPO)
                             .with(Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR"))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"grupoCerrado\":true,\"deudasVivas\":0}"))
-                    .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.fondoId").value(FONDO.toString()))
-                    .andExpect(jsonPath("$.totalAportado.monto").value("3000.00"))
-                    .andExpect(jsonPath("$.totalDevuelto.monto").value("2650.00"))
-                    // Lo que el fondo se comio cubriendo incumplimientos: sin este
-                    // numero, la diferencia entre lo aportado y lo devuelto no se
-                    // explica y parece un faltante.
-                    .andExpect(jsonPath("$.consumidoPorCoberturas.monto").value("350.00"))
-                    // Y el detalle: cada uno tiene que poder ver SU numero.
-                    .andExpect(jsonPath("$.devoluciones[0].participanteId").value(PARTICIPANTE.toString()))
-                    .andExpect(jsonPath("$.devoluciones[0].aportado.monto").value("1000.00"))
-                    .andExpect(jsonPath("$.devoluciones[0].aDevolver.monto").value("883.34"));
-        }
-
-        @Test
-        @DisplayName("CU-29 · el estado del grupo y las deudas vivas llegan al caso de uso")
-        void loQueLlegaAlCasoDeUso() throws Exception {
-            when(cu29.devolver(any(), any()))
-                    .thenReturn(new CU29DevolverFondo.SalidaDevolucion(
-                            FONDO, bob("0.00"), bob("0.00"), bob("0.00"), List.of()));
-
-            mvc.perform(post("/garantia/fondos/{id}/devolucion", GRUPO)
-                            .with(Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR"))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("{\"grupoCerrado\":false,\"deudasVivas\":2}"))
-                    .andExpect(status().isCreated());
-
-            var capturada = ArgumentCaptor.forClass(CU29DevolverFondo.EntradaDevolucion.class);
-            verify(cu29).devolver(capturada.capture(), any());
-            // Devolver el fondo con deudas vivas o con el grupo abierto es lo que el
-            // caso de uso tiene que poder rechazar; si estos dos no llegaran, no podria.
-            org.assertj.core.api.Assertions.assertThat(capturada.getValue().grupoCerrado())
-                    .isFalse();
-            org.assertj.core.api.Assertions.assertThat(capturada.getValue().deudasVivas())
-                    .isEqualTo(2);
-            org.assertj.core.api.Assertions.assertThat(capturada.getValue().grupoId())
-                    .isEqualTo(GRUPO);
+                    .andExpect(status().isGone())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU29-06"));
         }
 
         @Test
@@ -139,7 +90,6 @@ class GarantiaControllerWebTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"deudasVivas\":0}"))
                     .andExpect(status().isBadRequest());
-            verifyNoInteractions(cu29);
         }
     }
 

@@ -1,8 +1,10 @@
 # Reporte — Tanda 2, lote L2 (garantía y entregas)
 
-> **AVANCE: 2 / 13 — 15,4 %.**
+> **AVANCE: 3 / 13 — 23,1 %.** (F1.L2.M07 en A MEDIAS: no suma)
 
-- Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Rama(s): `correcciones/tanda2-l2-retiro-subasta`
+- Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · PR apilados, mergear en este orden: #419
+  (`correcciones/tanda2-l2-retiro-subasta`) → #421 (`-seg007-cifrado`) → #422 (`-desembolso-sin-humano`) →
+  #424 (`-entrega-legacy`) → #429 (`-garantia-cuerpo`)
 - Peldaño de evidencia alcanzado: `TESTED` en L2.S1.M1 (`test` + `webTest` + gates estáticos locales en verde).
   `integrationTest` (Testcontainers) no corre en esta nube: lo corre el CI del PR. Todo lo demás del lote: `UNKNOWN`.
 
@@ -12,8 +14,66 @@
 |---|---|---|---|
 | L2.S1.M1 | La subasta de cupos y el mercado de turnos de `entregas` ya no existen: sus 9 operaciones responden 410 con `AP-CU136-09` / `AP-CU130-10` y sin efecto; `GET /entregas/mercado/ofertas/{id}` responde el 422 `AP-CU130-05` del pacto con nucleo. Se borraron 24 clases de producción y 23 de prueba | `./gradlew :servicios:entregas:test :servicios:entregas:webTest` + grep | PASS — [evidencia](./evidencia/L2.S1.M1-retiro-cesion.txt) |
 | F2.L2.M09 | Mercado de ofertas (código muerto) retirado | ídem | PASS (con L2.S1.M1) |
+| F1.L2.M05 | Ninguna persona anota la respuesta del proveedor: `POST /desembolsos/{id}/respuesta` responde 410 `AP-CU28-08` sin llamar al caso de uso (sin ACREDITADA ni `desembolso_acreditado`). `CU28EmitirDesembolso.anotarRespuesta` se conserva para el webhook firmado de F3.L2.M02 | `./gradlew :servicios:entregas:webTest` | PASS — [evidencia](./evidencia/F1.L2.M05-desembolso-sin-humano.txt) |
 
 ## A medias
+
+### F1.L2.M02, F1.L2.M03 y F2.L2.M04 — `garantia`: cobertura manual, devolución a pedido y aval
+- Qué anda: `cubrirIncumplimiento` (410 `AP-CU23-14`), `devolverFondo` (410 `AP-CU29-06`) y `ejecutarAval`
+  (410 `AP-CU26-08`) quedan `deprecated` (garantia.yaml 1.1.0) y no llaman a ningún caso de uso, así que ya no
+  existe camino HTTP donde el cliente afirme la mora, el monto, el aprobador, `grupoCerrado` o `deudasVivas`. El
+  aval se retiró de raíz del código: `CU26EjecutarAval`, `TopeDelAval`, la ejecución y la subrogación al avalista
+  en `GestionRepositorio`, la configuración `aportaya.aval` y sus pruebas
+  ([evidencia](./evidencia/F1.L2.M02-M03-F2.L2.M04-garantia.txt)).
+- Qué no anda: `CU23CubrirIncumplimiento` (con su estado `SOLICITADA` y el umbral `politica_cobertura`) y
+  `CU29DevolverFondo` siguen en el código sin camino HTTP. Las tablas `aval_participante` y `ejecucion_aval`
+  siguen en el modelo.
+- Qué falta exactamente:
+  1. M02: retirar `CU23CubrirIncumplimiento`, el estado `SOLICITADA`, el tópico `cobertura_requiere_aprobacion` y
+     `politica_cobertura` del `.puml`. Requiere ajustar los criterios de `docs/CasosDeUso/CU-23` (fuera de alcance),
+     porque `verificar_criterios.py` exige sus pruebas mientras exista una clase `CU23*`.
+  2. M03: la devolución la dispara el evento de cierre de ciclo, con el estado del grupo leído de `grupos` y las
+     deudas contadas en el propio esquema (F3.L2.M06).
+  3. F2.L2.M04: quitar `aval_participante` y `ejecucion_aval` de `docs/entidades` y R-GAR-04 de
+     `docs/Restricciones.md` (la cifra de restricciones cambia en `docs/Seguridad.md` y `planes/*`, fuera de
+     alcance). Marcar retirado `docs/CasosDeUso/CU-26` (hoy figura «pendiente de implementar»).
+     `identidad.referencia_personal.acepta_ser_avalista` es de L4.
+- Dónde quedó: rama `correcciones/tanda2-l2-garantia-cuerpo`; compila, `test`/`webTest` en verde.
+
+### F1.L2.M09 — Retirar `POST /entregas` legacy y `EFECTIVO_ORGANIZADOR` (y primera parte de F1.L2.M08)
+- Qué anda: `liquidarEntrega` (POST /entregas) responde 410 `AP-CU22-10` y `ejecutarEntrega` (cierre con monto libre,
+  F1.L2.M08) 410 `AP-CU22-11`, ambos sin llamar al caso de uso. `EFECTIVO_ORGANIZADOR` salió del enum del contrato
+  (400) y del modelo `04_entregas_fondo.puml`: una base creada desde el modelo lo rechaza
+  (`ck_entrega_fondo_metodo_desembolso`, [evidencia](./evidencia/F1.L2.M09-entrega-legacy.txt)).
+- Qué no anda: en una base que ya existe (TEST), el CHECK viejo sigue admitiendo `EFECTIVO_ORGANIZADOR`, porque el
+  DDL de tabla es `CREATE TABLE IF NOT EXISTS`. `CU22LiquidarEntrega.liquidar`/`ejecutar` siguen en el código: el
+  CU-22 de la bóveda tiene sus criterios gherkin y `verificar_criterios.py` exige sus pruebas.
+- Qué falta exactamente:
+  1. Fuera de alcance: registrar `ck_entrega_fondo_metodo_desembolso` como CHECK que evoluciona en
+     `scripts/modelo.py` (`CK_AMPLIADOS` o su equivalente para estrechar), para que el generador emita
+     `DROP/ADD CONSTRAINT` sobre bases existentes. Antes, consulta en TEST:
+     `SELECT count(*) FROM entregas.entrega_fondo WHERE metodo_desembolso = 'EFECTIVO_ORGANIZADOR';` (si hay filas,
+     se cierran por su camino, nunca con `UPDATE`). Probé la alternativa de una regla nueva `R-DES-06` en
+     `docs/Restricciones.md` y funciona en ambas bases, pero obliga a cambiar la cifra de restricciones en
+     `docs/Seguridad.md` y en `planes/*`, y a citarla en `docs/CasosDeUso/CU-22` (fuera de alcance).
+  2. Fuera de alcance: actualizar `docs/CasosDeUso/CU-22` para retirar los criterios de la liquidación y la
+     ejecución manual; después, en este lote, borrar `CU22LiquidarEntrega.liquidar`/`ejecutar` y sus pruebas.
+- Dónde quedó: rama `correcciones/tanda2-l2-entrega-legacy`; compila, `test`/`webTest` en verde.
+
+### F1.L2.M07 — El número de cuenta se cifra solo en el servidor, con clave dedicada (SEG-007)
+- Qué anda: `numeroCifrado` ya no existe en `EntradaRegistroCuenta` (OpenAPI 2.0.0); un cuerpo que lo manda recibe 400
+  sin llegar al caso de uso. `CU18RegistrarCuentaDestino` cifra siempre desde `numeroEnClaro`, el mismo número del
+  que salen el enmascarado y el hash. Prueba unitaria de ida y vuelta (`NumeroDeCuentaProtegidoTest`) en verde
+  ([evidencia](./evidencia/F1.L2.M07-numero-cifrado.txt)).
+- Qué no anda: la clave de cifrado sigue siendo `aportaya.seguridad.pimienta`, la misma que el pepper del hash.
+- Qué falta exactamente:
+  1. Fuera de alcance (`scripts/generar_compose.py` y los `docker-compose*.yml` generados): agregar el secreto
+     `ENTREGAS_LLAVE_CIFRADO_CUENTAS` a la lista de secretos del generador y regenerar el compose.
+  2. En este lote, después de 1: `aportaya.seguridad.llave-cifrado-cuentas: ${ENTREGAS_LLAVE_CIFRADO_CUENTAS}` en
+     `application.yml` sin valor por defecto (el servicio no arranca sin ella, con su prueba de arranque), usarla en
+     `CU18RegistrarCuentaDestino` y en quien descifra, y recifrar las cuentas existentes (datos sintéticos, P-14)
+     descifrando con la pimienta y cifrando con la llave nueva.
+- Dónde quedó: rama `correcciones/tanda2-l2-seg007-cifrado`; compila y `test`/`webTest` en verde.
 
 ### L2.S1.M2 — Contracción del contrato y del esquema de la cesión
 - Qué anda: el código ya no crea ofertas, cesiones, subastas ni pujas; las operaciones son `deprecated` (OpenAPI 1.1.0).
@@ -36,11 +96,12 @@
 
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| F1.L2.M07 (SEG-007 `numeroCifrado`) | TODO | Siguiente PR del lote |
-| F1.L2.M05, M09, M02, M03, M10 | TODO | Siguientes PR del lote |
+| F1.L2.M10 | TODO | Siguiente PR del lote |
 | F1.L2.M01, M04, M06, M08, M11–M14 | TODO | M13/M14 necesitan `plataforma/comun-web` (cliente único y token de servicio): fuera de alcance |
-| F2.L2.M01, M02, M04 | TODO | Siguientes PR del lote |
-| L2.S1.M2 | BLOQUEADO | L6 y L1 (ver A medias) |
+| F2.L2.M02 | TODO | Después de F2.L2.M01 y del retiro del consumidor de tópicos de respaldo en `nucleo-financiero` (L1) |
+| L2.S1.M2 | TODO | Precondición: L6 y L1 sueltan los consumidores (ver A medias). No es un bloqueo de ejecución: es el paso «contraer» y se hace apenas mergeen |
+| F1.L2.M10 | TODO | Diseño listo, sin código: puerto `RetencionDelPozo.retener(entregaId, neto, clave) → Concedida(retencionId) / SaldoInsuficiente / NoDisponible`, doble en tres niveles (regla 65) y adaptador que falla cerrado hasta que L1 publique la operación en `nucleo-financiero`. La llamada va FUERA de la transacción de `CU28EmitirDesembolso` (invariante 6), así que la emisión se parte en «leer neto» → «retener» → «escribir orden». Depende además de F2.L2.M06 (la emisión deja de ser humana) |
+| F2.L2.M01 | TODO | Retirar `RespaldoEmpresarial`/`RespaldoPorHttp` cambia la conducta del fondeo con faltante y reescribe `CU133PozoCompleto*Test`, cuyos nombres son los criterios gherkin de `docs/CasosDeUso/CU-133` (fuera de alcance, `verificar_criterios.py`). Esas pruebas necesitan Docker. Orden: actualizar CU-133 y después este lote |
 
 ## Evidencia
 
@@ -59,9 +120,23 @@
   `./gradlew :servicios:entregas:integrationTest --tests '*CU22PozoYMercadoRechazosTest*'`.
 - Piso de cobertura (`jacocoTestCoverageVerification`, pisos sin cambios 0.89/0.71/0.71): se mide en el CI con los
   cinco corredores.
+- Fuera de alcance que todavía llama a `anotarRespuestaDesembolso`: `packages/simulado/ejemplos/entregas/anotarRespuestaDesembolso.json` y `despliegue/ensayos/integracion/h14.py:580` (ahora reciben 410).
 - La app móvil sigue llamando a la subasta: hoy recibe 410 y muestra un error genérico (L6).
 
 ## Desvíos del plan
+
+- **CI de #419, job Frontend en rojo** (clasificación `PRODUCT_BUG` de este lote, regla 80.4): con `deprecated: true` en
+  las operaciones de subasta, el cliente Dart generado marcó los métodos y `apps/movil` (que todavía los llama) falló
+  `dart analyze --fatal-infos` con 6 `deprecated_member_use`. Corregido en #419 (commit «las operaciones de subasta y
+  mercado retiradas no llevan deprecated»): sin el flag, con el retiro declarado en el summary, la versión y el 410.
+  Verificado que el cliente Dart regenerado ya no anota esos métodos (Flutter no está en esta nube). Propagado a toda
+  la pila. Las operaciones retiradas en #422, #424 y #429 sí llevan `deprecated`, porque ningún cliente compilado
+  del monorepo las llama (solo `packages/simulado` y un ensayo en Python).
+- **CI de #424, «Los cinco corredores» en rojo** (clasificación `TEST_BUG`, regla 80.4): `CifradoDelNumeroDeCuentaTest`
+  excedía el límite de 5 s por prueba del corredor `test` («idaYVuelta() timed out after 5 seconds»; localmente
+  4,948 s). El costo era Mockito simulando clases `final` (`Datos`) y `DSLContext`, no el cifrado. Corregido en #421
+  sin tocar el límite: la invariante pasó al átomo `NumeroDeCuentaProtegido` (enmascarado, hash y cifrado del mismo
+  número por construcción), que usa CU-18; su prueba pura corre en 0,247 s. Propagado a la pila.
 
 - El anexo pedía 404/410 «retirando del OpenAPI». Se eligió 410 manteniendo las operaciones `deprecated` (AMB-1):
   borrarlas rompía el build de la app (cliente Dart generado) y la prueba de pacto de nucleo, ambos fuera de alcance.
@@ -81,4 +156,9 @@
 
 - AMB-1 (expandir/contraer con 410) y AMB-2 (el fondeo sigue pagándole al cesionario de una cesión LIQUIDADA o con
   título asignado, para no pagar dos veces el turno): supuestos tomados; confirmar con Pablo en el PR.
-- Códigos nuevos: `AP-CU130-10` y `AP-CU136-09` (410). No se reusa ningún código.
+- Códigos nuevos: `AP-CU130-10`, `AP-CU136-09`, `AP-CU28-08`, `AP-CU22-10`, `AP-CU22-11` (entregas) y
+  `AP-CU23-14`, `AP-CU26-08`, `AP-CU29-06` (garantía), todos 410. No se reusa ningún código.
+- `OperacionRetirada` y `RetiroDeOperaciones` quedan duplicadas en `entregas` y `garantia`: su lugar es
+  `plataforma/comun-web` (el manejador común no conoce el 410), fuera de alcance. Deuda anotada.
+- Se borró `CU27ReclamoEnCursoTest.reclamoEnCursoNoEjecutaElAval`: probaba la guarda de reclamos para el aval
+  (código 26), que ya no tiene quien la llame. La guarda sigue probada para CU-27.
