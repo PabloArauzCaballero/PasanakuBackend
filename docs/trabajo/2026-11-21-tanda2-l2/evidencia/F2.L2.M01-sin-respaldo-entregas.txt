@@ -1,0 +1,30 @@
+F2.L2.M01 · El fondeo ya no le pide el respaldo a garantia
+Rama: correcciones/tanda2-l2-sin-respaldo-entregas (sobre origin/dev tras el merge de #471)
+
+# DoD del anexo: grep vacio
+$ grep -rn 'Respaldo' servicios/entregas/src ; echo GREP=$?
+GREP=1
+# CA: no se publica ningun topico cobertura_empresarial_*
+$ grep -rn 'cobertura_empresarial' servicios/entregas/src ; echo GREP_TOPICO=$?
+GREP_TOPICO=1
+# «Sin llamadas salientes al respaldo»: estructural. CU22EntregarPozoCompleto(RecaudoDelPozo, RegistroDelFondeo) ya no
+# recibe ningun puerto hacia garantia, RespaldoPorHttp no existe y aportaya.servicios.garantia salio de application.yml
+# (generar_compose.py --coolify quita URL_GARANTIA de entregas). No hay a quien llamar, asi que no hace falta un doble
+# que falle si lo llaman: lo prueba la compilacion.
+
+$ ./gradlew :servicios:entregas:spotlessApply :servicios:entregas:compileTestJava :servicios:entregas:test :servicios:entregas:webTest
+EXIT=0
+  (primera compilacion en rojo: el reemplazo de `UUID coberturaId,` se llevo tambien el componente del record Fondeo y
+   faltaba ajustar el override de BaseDeEntregas; corregido, el record ya no lee cobertura_respaldo_id)
+$ ./gradlew spotlessCheck :servicios:entregas:check -x test -x jacocoTestCoverageVerification -x jacocoTestReport
+EXIT_CHECK=0
+$ ./gradlew testBarrido
+EXIT_BARRIDO=0
+# Job «La boveda y el esquema no divergen» completo en local: generar_ddl sin diff, verificar_boveda, seguridad,
+# carriles, maqueta, criterios, narrativas, catalogo de datos sin diff, pruebas_web, validar_flujos, generar_k8s,
+# generar_compose --coolify + limites -> TODO OK (el compose coolify cambia una linea: URL_GARANTIA de entregas, incluida)
+$ python3 scripts/generar_postman.py -> solo cambia postman/coleccion/entregas.postman_collection.json (descripcion)
+
+NO COMPROBADO LOCAL (sin Docker; lo valida el CI del PR, «Los cinco corredores» -> integrationTest):
+  CU133PozoCompletoTest (6) · CU133PozoCompletoRechazosTest · CU133PozoCompletoConcurrenciaTest
+  · CU133EntregaConsistenteTest · CU22Test.criterio3 · jacocoTestCoverageVerification de entregas.
