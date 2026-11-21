@@ -2,7 +2,6 @@ package bo.aportaya.garantia;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import bo.aportaya.garantia.aplicacion.CU23CubrirIncumplimiento.EntradaCobertura;
 import bo.aportaya.garantia.aplicacion.CU25DeclararIncumplimiento.EntradaDeclaracion;
 import bo.aportaya.garantia.aplicacion.IndicadoresDeGarantia;
 import bo.aportaya.garantia.infraestructura.IndicadoresDeGarantiaRepositorio;
@@ -54,13 +53,12 @@ class CUIndicadoresDeGarantiaTest extends BaseDeGarantia {
                 t -> new Datos(dsl).conContexto(sistema(), d -> calculador.calcular(d, PeriodoDeTablero.de(periodo))));
     }
 
-    /** Un expediente de Bs 500 y un fondo con saldo, con la politica que dice cuando activar la cobertura. */
-    private void cubrir(String saldo, int diasMoraParaActivar) {
+    /** Un expediente de Bs 500 y un fondo con saldo; la cobertura queda aplicada o solo como intento rechazado. */
+    private void cubrir(String saldo, boolean aplicada) {
         UUID usuario = fixtura.usuario();
         var escenario = fixtura.escenario(usuario);
         ContextoSesion gestor = contextoDe(fixtura.usuario());
-        UUID politica = fixtura.politica(
-                escenario.grupoId(), "100.00", "5000.00", "5000.00", 3, "100000.00", diasMoraParaActivar);
+        UUID politica = fixtura.politica(escenario.grupoId(), "100.00", "5000.00", "5000.00", 3, "100000.00", 15);
         UUID fondo = fixtura.fondo(escenario.grupoId(), politica, saldo);
         fixtura.aportarAlFondo(fondo, escenario.participanteId(), saldo, saldo);
         var expediente = transaccion.execute(t -> expedienteCU.declarar(
@@ -83,8 +81,7 @@ class CUIndicadoresDeGarantiaTest extends BaseDeGarantia {
                         null,
                         null),
                 gestor));
-        transaccion.execute(t -> coberturaCU.cubrir(
-                new EntradaCobertura(expediente.expedienteId(), Dinero.de("500.00", Moneda.BOB), 30, null), gestor));
+        fixturaDeDeudor.cubiertoPorElFondo(expediente.expedienteId(), "500.00", gestor.usuarioId(), aplicada);
     }
 
     @Test
@@ -92,7 +89,7 @@ class CUIndicadoresDeGarantiaTest extends BaseDeGarantia {
     void cubiertoSuma() {
         var antes = cubiertoHoy();
 
-        cubrir("5000.00", 15);
+        cubrir("5000.00", true);
 
         var despues = cubiertoHoy();
         assertThat(despues.total().subtract(antes.total())).isEqualByComparingTo("500.00");
@@ -102,7 +99,7 @@ class CUIndicadoresDeGarantiaTest extends BaseDeGarantia {
     @Test
     @DisplayName("cuadre: con coberturas, la recuperación y la cobertura del fondo viajan con numerador y denominador")
     void tasasConNumeradorYDenominador() {
-        cubrir("5000.00", 15);
+        cubrir("5000.00", true);
 
         var calculados = calcular(hoy().toString());
 
@@ -129,11 +126,11 @@ class CUIndicadoresDeGarantiaTest extends BaseDeGarantia {
     }
 
     @Test
-    @DisplayName("rechaza contar una cobertura RECHAZADA: la mora no alcanzó para activar el fondo y no suma")
+    @DisplayName("rechaza contar una cobertura RECHAZADA: el intento sin cobertura no suma a los impagos cubiertos")
     void rechazadaNoCuenta() {
         var antes = cubiertoHoy();
 
-        cubrir("5000.00", 90);
+        cubrir("5000.00", false);
 
         assertThat(cubiertoHoy().total().subtract(antes.total())).isEqualByComparingTo("0.00");
     }
