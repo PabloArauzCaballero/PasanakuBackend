@@ -52,12 +52,6 @@ class FondeoDelPozoWebTest {
     @MockitoBean
     private CU22LiquidarEntrega cu22;
 
-    @MockitoBean
-    private MercadoWeb mercado;
-
-    @MockitoBean
-    private bo.aportaya.entregas.web.SubastasWeb subastasWeb;
-
     private static Dinero bob(String monto) {
         return Dinero.de(monto, Moneda.BOB);
     }

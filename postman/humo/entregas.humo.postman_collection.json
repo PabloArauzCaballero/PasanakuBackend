@@ -3015,7 +3015,7 @@
       "description": "Humo de `fondearPozo`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
     },
     {
-      "name": "publicarOferta · Ofrecer el derecho a cobrar un turno",
+      "name": "publicarOferta · Ofrecer el derecho a cobrar un turno (RETIRADA, responde 410)",
       "item": [
         {
           "name": "1 · valido",
@@ -3166,7 +3166,7 @@
                   "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
                   "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
                   "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
-                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 201, 400, 404, 409, 422]);",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 201, 400, 404, 409, 410, 422]);",
                   "});",
                   "",
                   "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
@@ -3318,7 +3318,7 @@
       "description": "Humo de `publicarOferta`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
     },
     {
-      "name": "listarOfertas · Ver las ofertas elegibles para mi",
+      "name": "listarOfertas · Ver las ofertas elegibles para mi (RETIRADA, responde 410)",
       "item": [
         {
           "name": "1 · valido",
@@ -3461,7 +3461,7 @@
                   "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
                   "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
                   "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
-                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 404, 409, 422]);",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 404, 409, 410, 422]);",
                   "});",
                   "",
                   "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
@@ -3743,7 +3743,7 @@
       "description": "Humo de `consultarOfertaParaPago`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
     },
     {
-      "name": "cancelarOferta · Cancelar mi oferta mientras nadie la reservo",
+      "name": "cancelarOferta · Cancelar mi oferta mientras nadie la reservo (RETIRADA, responde 410)",
       "item": [
         {
           "name": "1 · valido",
@@ -3874,7 +3874,7 @@
                   "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
                   "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
                   "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
-                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 404, 409, 422]);",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 404, 409, 410, 422]);",
                   "});",
                   "",
                   "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
@@ -3948,7 +3948,7 @@
       "description": "Humo de `cancelarOferta`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
     },
     {
-      "name": "comprarOferta · Comprar el derecho a cobrar un turno",
+      "name": "comprarOferta · Comprar el derecho a cobrar un turno (RETIRADA, responde 410)",
       "item": [
         {
           "name": "1 · valido",
@@ -4089,7 +4089,7 @@
                   "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
                   "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
                   "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
-                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 202, 400, 404, 409, 422]);",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 202, 400, 404, 409, 410, 422]);",
                   "});",
                   "",
                   "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
@@ -4169,7 +4169,7 @@
       "description": "Humo de `comprarOferta`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
     },
     {
-      "name": "abrirSubastaDeCupo · Poner mi cupo en subasta",
+      "name": "abrirSubastaDeCupo · Poner mi cupo en subasta (RETIRADA, responde 410)",
       "item": [
         {
           "name": "1 · valido",
@@ -4318,7 +4318,7 @@
                   "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
                   "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
                   "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
-                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 201, 400, 404, 409, 422]);",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 201, 400, 404, 409, 410, 422]);",
                   "});",
                   "",
                   "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
@@ -4468,7 +4468,7 @@
       "description": "Humo de `abrirSubastaDeCupo`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
     },
     {
-      "name": "listarSubastasDeCupo · Los cupos en subasta",
+      "name": "listarSubastasDeCupo · Los cupos en subasta (RETIRADA, responde 410)",
       "item": [
         {
           "name": "1 · valido",
@@ -4621,7 +4621,7 @@
                   "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
                   "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
                   "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
-                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 404, 409, 422]);",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 404, 409, 410, 422]);",
                   "});",
                   "",
                   "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
@@ -4706,7 +4706,7 @@
       "description": "Humo de `listarSubastasDeCupo`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
     },
     {
-      "name": "consultarSubastaDeCupo · Una subasta, con la puja mas alta y la mia",
+      "name": "consultarSubastaDeCupo · Una subasta, con la puja mas alta y la mia (RETIRADA, responde 410)",
       "item": [
         {
           "name": "1 · valido",
@@ -4833,7 +4833,7 @@
                   "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
                   "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
                   "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
-                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 404, 409, 422]);",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 404, 409, 410, 422]);",
                   "});",
                   "",
                   "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
@@ -4905,7 +4905,7 @@
       "description": "Humo de `consultarSubastaDeCupo`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
     },
     {
-      "name": "pujarEnSubasta · Ofrecer un monto por el cupo",
+      "name": "pujarEnSubasta · Ofrecer un monto por el cupo (RETIRADA, responde 410)",
       "item": [
         {
           "name": "1 · valido",
@@ -5070,7 +5070,7 @@
                   "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
                   "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
                   "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
-                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([201, 202, 400, 404, 409, 422]);",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([201, 202, 400, 404, 409, 410, 422]);",
                   "});",
                   "",
                   "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
@@ -5236,7 +5236,7 @@
       "description": "Humo de `pujarEnSubasta`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
     },
     {
-      "name": "cancelarSubastaDeCupo · Retirar mi cupo de la subasta mientras nadie pujo",
+      "name": "cancelarSubastaDeCupo · Retirar mi cupo de la subasta mientras nadie pujo (RETIRADA, responde 410)",
       "item": [
         {
           "name": "1 · valido",
@@ -5365,7 +5365,7 @@
                   "// CASO LIMITE — el borde exacto, que es donde vive el defecto.",
                   "// Importes en el umbral de doble aprobacion, cadenas en su largo maximo, numeros en su minimo.",
                   "pm.test(\"el borde no revienta: contesta con un codigo declarado\", () => {",
-                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 404, 409, 422]);",
+                  "    pm.expect(pm.response.code, pm.response.text().slice(0, 300)).to.be.oneOf([200, 400, 404, 409, 410, 422]);",
                   "});",
                   "",
                   "pm.test(\"si rechaza el borde, lo hace con un codigo de negocio y no con un 500\", () => {",
