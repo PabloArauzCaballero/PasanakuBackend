@@ -20,7 +20,8 @@ credencial no sale la peticion: grupos → SIN_DATO_DE_MOROSOS / vacio (el ingre
 entregas y garantia → vacio (la entrega no avanza).
 garantia: rol SERVICIO_GARANTIA (seeders/minimos/10-roles-y-permisos.json → generar_semillas.py),
 ConfiguracionDeCredencialDeServicio, aportaya.servicios.identidad y aportaya.garantia.aportes.cuenta-servicio.*,
-variables en generar_compose.py (Coolify: telefono y clave sin valor por omision), fila en
+variables en generar_compose.py (Coolify: "${VAR:-}", para que Coolify pueda ponerlas; sin FACTOR_FIJO, que no
+sirve desde #412 — pedido del coordinador), fila en
 docs/operacion/rotacion-de-secretos-ensayada.md.
 
 Semillas (base limpia + sembrar.sql dos veces; roles|rol_permiso|roles de servicio):
@@ -69,7 +70,9 @@ verificar_boveda, verificar_narrativas, verificar_carriles, validar_flujos → e
 regenerados (verificar_limites_compose OK), generar_k8s OK, catalogo_de_datos y DDL sin cambios, Postman regenerado.
 
 Variables NUEVAS para Coolify (nombres, sin valores): GARANTIA_SERVICIO_TELEFONO, GARANTIA_SERVICIO_CLAVE y
-GARANTIA_SERVICIO_TOTP_SEMILLA (o GARANTIA_SERVICIO_FACTOR_FIJO solo en TEST). Se generan creando en identidad una
+GARANTIA_SERVICIO_TOTP_SEMILLA. En el compose van como "${VAR:-}"; en application.yml la clave no tiene valor por
+omision (regla 90.3.4). Tras el ajuste: RotacionDeSecretosContratoTest 2/2, SecretosSinDefaultBarridoTest 1/1,
+garantia test/webTest/testBarrido y spotlessCheck en verde. Se generan creando en identidad una
 cuenta de servicio con el rol SERVICIO_GARANTIA (como las de SERVICIO_GRUPOS/ENTREGAS). Ademas, para que grupos y
 entregas lleguen a aportes, sus cuentas de servicio (GRUPOS_SERVICIO_* y ENTREGAS_SERVICIO_*, ya existentes) tienen
 que estar cargadas: sin ellas, desde este cambio los ingresos, el sorteo y la entrega fallan cerrados.

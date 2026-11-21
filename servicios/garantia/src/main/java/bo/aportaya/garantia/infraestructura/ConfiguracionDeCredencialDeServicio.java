@@ -23,10 +23,10 @@ class ConfiguracionDeCredencialDeServicio {
             @Value("${aportaya.garantia.aportes.timeout:PT3S}") Duration timeout,
             @Value("${aportaya.garantia.aportes.cuenta-servicio.telefono:}") String telefono,
             @Value("${aportaya.garantia.aportes.cuenta-servicio.clave}") String clave,
-            @Value("${aportaya.garantia.aportes.cuenta-servicio.factor-totp-semilla:}") String semilla,
-            @Value("${aportaya.garantia.aportes.cuenta-servicio.factor-fijo:}") String factorFijo) {
-        // Sin token ya emitido: la unica forma de garantia es la cuenta de servicio (un token suelto vive minutos).
+            @Value("${aportaya.garantia.aportes.cuenta-servicio.factor-totp-semilla:}") String semilla) {
+        // Sin token ya emitido ni factor fijo: la unica forma de garantia es la cuenta de servicio con TOTP (el factor
+        // fijo no sirve desde #412, y un token suelto vive minutos).
         return CredencialDeServicioConfigurada.de(
-                "garantia", "GARANTIA", identidad, timeout, "", telefono, clave, semilla, factorFijo);
+                "garantia", "GARANTIA", identidad, timeout, "", telefono, clave, semilla, "");
     }
 }
