@@ -1,14 +1,14 @@
 # Reporte — Tanda 2, lote L1 (`aportes` y `nucleo-financiero`)
 
-> **AVANCE: 9 / 19 — 47,4 %.** Todo lo ejecutable está en `dev`; lo que queda está bloqueado por archivos compartidos, por otro lote o por decisiones (ver Pendiente). Nada en rojo por código propio; dos fallas del CI de #418 son de módulos ajenos (ver Riesgos).
+> **AVANCE: 10 / 19 — 52,6 %.** Trabajo en curso, con decisiones nuevas del coordinador (M10, M01, M11, M07, M08); lo que queda está bloqueado por archivos compartidos, por otro lote o por decisiones (ver Pendiente). Nada en rojo por código propio; dos fallas del CI de #418 son de módulos ajenos (ver Riesgos).
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Base: `origin/dev` 50cf3be9
-- PR hacia `dev`: **todos mergeados**. Se mergearon #430, #454 (que trajo a #425, #447 y #449), #456 (que trajo a #455), #418, #461 y #458 (que consolidan al resto). No queda ningún PR de L1 abierto.
+- PR hacia `dev`: **todos mergeados**. Se mergearon #430, #454 (que trajo a #425, #447 y #449), #456 (que trajo a #455), #418, #461 y #458 (que consolidan al resto). Abierto: el PR de M10 parte 2 (permisos y ruta de levantamiento).
 - Peldaño de evidencia por área:
   - `aportes` y `nucleo-financiero` (código): `TESTED`, con pruebas dirigidas en verde contra PostgreSQL 16 real local y controles negativos (mutantes) que fallan sin el cambio. No llega a `VERIFIED`: el camino HTTP de punta a punta con los servicios levantados no se ejercitó.
   - Integración con Testcontainers: las clases que levantan su propio contenedor (`AislamientoEsquemaTest`, `ArranqueTest`) quedan **NO COMPROBADAS: requieren Docker** (máquina de Pablo).
 
-Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 (L1.P01) = 19. `HECHO` = L1.M00, F1.L1.M03, F1.L1.M04, F1.L1.M05, F1.L1.M06, F1.L1.M09, F1.L1.M12, F1.L1.M13 y L1.P01. Las que quedaron `A MEDIAS` no suman. F1.S4.M2 quedó `DESCARTADO` para L1 (no suma y se declara abajo).
+Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 (L1.P01) = 19. `HECHO` = L1.M00, F1.L1.M03, F1.L1.M04, F1.L1.M05, F1.L1.M06, F1.L1.M09, F1.L1.M10, F1.L1.M12, F1.L1.M13 y L1.P01. Las que quedaron `A MEDIAS` no suman. F1.S4.M2 quedó `DESCARTADO` para L1 (no suma y se declara abajo).
 
 ## Completado
 
@@ -23,6 +23,7 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 
 | F1.L1.M09 | Solicitud de reembolso, aprobación y alta de proveedor son idempotentes. La misma clave devuelve el mismo id y deja una sola fila, en serie y en concurrencia. R-BIL-28 y R-BIL-31 están en la base. | `integrationTest CU19IdempotenciaTest` (6/6) + `CU99IdempotenciaTest` (4/4) | PASS. Los mutantes hacen fallar 5 pruebas. `evidencia/M09-*`, `evidencia/M09b-*` · PR #447 y #456 |
 | F1.L1.M12 | `reembolso`, `disputa_pago`, `conciliacion`, `excepcion_conciliacion` y `extracto_bancario` llevan moneda (R-BIL-29). Un reembolso de un pago en USD queda en USD. La conciliación anota la moneda del pago. | `integrationTest CU19MonedaTest` (3/3) + `CU132ConciliacionTest` (3/3) + migración sobre una base existente | PASS. Los mutantes fallan. `evidencia/M12-*`, `evidencia/M12b-*` · PR #449 y #454 |
 | L1.P01 | Pedido de L2: `nucleo-financiero` deja de consultar la oferta de `entregas`. Se borraron el puerto, el cliente HTTP, el pago a tercero, el pacto y sus pruebas, y `pagarAlTercero` responde 410 `AP-CU13-10` sin efecto. | `test` + `webTest` (`pagoATerceroRetirado`) + integración CU12*/CU13* (95/97; las 2 restantes requieren Docker) | PASS. `evidencia/L2PEDIDO-retiro-ofertas.txt` · PR #461 |
+| F1.L1.M10 | El bloqueo por autoridad guarda quién lo registró y lo levanta otra persona (R-BIL-32); el saldo vuelve en la misma transacción. Registrar y levantar exigen permisos propios (`BLOQUEO_AUTORIDAD_REGISTRAR` y `BLOQUEO_AUTORIDAD_LEVANTAR`) y existe la ruta `POST /billetera/bloqueos/{id}/levantamiento`. | `BloqueoAutoridadWebTest` (7/7) + CU17 contra la base (16/16) + dos siembras idénticas | PASS. El mutante hace fallar 5 de 7. `evidencia/M10-*`, `evidencia/M10b-*` |
 
 ## A medias
 
@@ -47,20 +48,6 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 
 - **Qué no anda:** `webhook_pasarela` sigue cambiando su estado con `UPDATE`.
 - **Qué falta exactamente:** particionar `webhook_pasarela` por fecha, como `bitacora_evento`. Su retención es ELIMINAR a los 24 meses, y una tabla append-only solo se purga con DETACH + DROP de la partición. Después, sellarla y llevar su estado a `webhook_transicion` o `historial_estado_webhook`.
 - **Dónde quedó:** rama `correcciones/tanda2-l1-hechos-inmutables`. Compila y está en verde.
-
-### F1.L1.M10 — Bloqueo judicial con segregación (PR #458, apilado sobre #456)
-- **Qué anda:**
-  - `bloqueo_saldo.registrado_por` sale del token.
-  - Si quien registró el bloqueo intenta levantarlo, recibe 422 `AP-CU17-04`, y la base lo exige con R-BIL-32.
-  - Al levantarlo, la retención se libera en la misma transacción. Antes la cuenta quedaba retenida sin orden.
-  - `CU17CuatroOjosTest` 3/3, CU17Test 9/9 y CU17RechazosTest 4/4. El mutante hace fallar 2 de 3.
-- **Qué no anda:** el registro todavía se autoriza con `DATOS_SENSIBLES_LEER`, y levantar no tiene ruta HTTP.
-- **Qué falta exactamente:**
-  - Sembrar `BLOQUEO_AUTORIDAD_REGISTRAR` y `BLOQUEO_AUTORIDAD_LEVANTAR` en `sql/60_semillas/10-roles-y-permisos.sql` (compartido), con asignación a `OFICIAL_CUMPLIMIENTO`.
-  - Cambiar el `@Permiso` de `BilleteraController.bloquearPorAutoridad`.
-  - Agregar la operación `POST /billetera/bloqueos/{bloqueoId}/levantamiento`.
-  - Confirmar AMB-L1-3 con Cumplimiento.
-- **Dónde quedó:** rama `correcciones/tanda2-l1-bloqueo-autoridad`. Compila y está en verde.
 
 ### F2.L1.M01 — Consumidor de respaldo y cobertura empresarial (PR #461 (antes #452))
 - **Qué anda:** el listener escucha solo `entregas.desembolso_acreditado`, y una prueba fija esos tópicos. `CAJA_EMPRESA` salió de la configuración y del compose.
@@ -90,6 +77,7 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 
 - `M09b-idempotencia-aprobacion-proveedor.txt`: aprobación y alta de proveedor, con mutantes.
 - `M12-moneda-reembolso.txt` y `M12b-moneda-conciliacion.txt`: moneda al lado del importe, migración y mutantes.
 - `L2PEDIDO-retiro-ofertas.txt`: retiro del consumidor de ofertas y del pacto con `entregas`.
+- `M10b-permisos-y-levantamiento.txt`: semillas idempotentes, ruta y matriz negativa.
 - `M10-bloqueo-autoridad.txt`: cuatro ojos, liberación de la retención y mutante.
 - `M08-hechos-inmutables.txt`: sellado, historial, concurrencia, humo del esquema y mutante.
 - `M05-*`, `M04-*`, `F2M01-*`: secreto del webhook, desembolso fail-closed y consumidor de respaldo.
