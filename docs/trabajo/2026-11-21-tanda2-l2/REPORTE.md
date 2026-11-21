@@ -50,6 +50,19 @@
   M07 de L1 y el SLA sintético se va con F3.L2.M05.
 - Dónde quedó: rama `correcciones/tanda2-l2-parametros-modelo-a`; compila.
 
+### F2.L2.M02 — `garantia` ya no reserva ni cubre: el respaldo empresarial se retira
+- Qué anda: las seis rutas `/garantia/respaldo/*` quedan `deprecated` (`garantia.yaml` 1.3.0) y responden 410
+  `AP-CU23-15` sin efecto (sin sesión, 401). Los casos de uso del respaldo, la contingencia de caja,
+  `AsientoPropuesto` (`CAJA_EMPRESA`/`RESERVA_RESPALDO`) y sus repositorios ya no existen; `garantia` no publica
+  ningún tópico `respaldo_*`. CU-23 queda «pendiente de implementar» con los criterios del modelo A. `test`,
+  `webTest`, `check`, `testBarrido` y el job de bóveda en verde
+  ([evidencia](./evidencia/F2.L2.M02-sin-respaldo-garantia.txt)).
+- Qué no anda: nada observado; el `integrationTest` de lo que queda en garantía no corrió acá (sin Docker).
+- Qué falta exactamente: el verde del CI; antes de desplegar en TEST, la consulta de vigentes
+  (`evidencia/F2.L2.M02-vigentes-respaldo.sql`) y, si da > 0, sus contra-asientos. Las tablas y R-GAR-08 a 13 se
+  retiran con F2.L2.M03; las rutas se borran del contrato con la contracción.
+- Dónde quedó: rama `correcciones/tanda2-l2-sin-respaldo-garantia`; compila. Desplegar después de #474.
+
 ### F1.L2.M04 — Importes de entrada sin signo; disolución y reemplazo con cifras de sus dueños
 - Qué anda: `garantia.yaml` 1.2.0 define `DineroEntrada` (monto `^\d+\.\d{2}$`, sin signo) y lo usan los importes que
   manda el cliente en `declararIncumplimiento`, `proponerReemplazo` e `iniciarDisolucion`: un negativo recibe 400 sin
@@ -118,10 +131,8 @@
 | Contracción `politica_cobertura` | DECISION_REQUIRED | Borrar la tabla es destructivo sobre datos compartidos: lo eleva el coordinador a Pablo junto con la migración. Hoy la referencia `garantia.fondo_garantia.politica_cobertura_id` (`fk_fondo_garantia_politica_cobertura_id`, ON DELETE RESTRICT), y `FondoRepositorio.Fondo.politicaId` la sigue leyendo. Consulta de uso en TEST: `SELECT count(*) FROM garantia.politica_cobertura;` · `SELECT count(*) FROM garantia.fondo_garantia WHERE politica_cobertura_id IS NOT NULL;` · `SELECT conrelid::regclass, conname FROM pg_constraint WHERE confrelid = 'garantia.politica_cobertura'::regclass;`. Con la tabla se van la columna `requirio_aprobacion_manual` de `cobertura_incumplimiento` y `fondo_garantia.politica_cobertura_id` (expandir/contraer: primero el código que deja de leerla) |
 | Contracción de las tablas del aval (F2.L2.M04) | DECISION_REQUIRED | Borrar `aval_participante` y `ejecucion_aval` es destructivo sobre datos compartidos: decide Pablo, junto con `politica_cobertura`. Nada las escribe (el aval se retiró del código). Única FK: `ejecucion_aval.fk_ejecucion_aval_aval_id → aval_participante`; columnas ligadas en otros servicios: `identidad.referencia_personal.acepta_ser_avalista` (L4) y `grupos.configuracion_grupo.requiere_avalista`. Consulta de uso para TEST: [`evidencia/F2.L2.M04-uso-tablas-aval.sql`](./evidencia/F2.L2.M04-uso-tablas-aval.sql) (filas y montos por estado, grupos y referencias que las usan, FK) |
 | F3.S3 / F3.L2.M04–M06 (modelo A) | DECISION_REQUIRED | ADR-056 y el plan ponen la opinión de Cumplimiento (F3.S3.M7: L-01, L-02, L-03) antes de implementar. El diseño quedó como propuesta, sin aplicar: [`evidencia/F3.S3-propuesta-modelo-A.md`](./evidencia/F3.S3-propuesta-modelo-A.md) (límites entre servicios, entidades a reusar y contraer, flujos, asientos lógicos sin códigos de cuenta, restricciones, parámetros y orden). Se aplica cuando Cumplimiento responda o si Pablo decide avanzar asumiendo L-01 |
-| F2.L2.M02 | TODO | Después de F2.L2.M01 y del retiro del consumidor de tópicos de respaldo en `nucleo-financiero` (L1) |
 | L2.S1.M2 | TODO | Precondición: L6 y L1 sueltan los consumidores (ver A medias). No es un bloqueo de ejecución: es el paso «contraer» y se hace apenas mergeen |
 | F1.L2.M10 | TODO | Diseño listo, sin código: puerto `RetencionDelPozo.retener(entregaId, neto, clave) → Concedida(retencionId) / SaldoInsuficiente / NoDisponible`, doble en tres niveles (regla 65) y adaptador que falla cerrado hasta que L1 publique la operación en `nucleo-financiero`. La llamada va FUERA de la transacción de `CU28EmitirDesembolso` (invariante 6), así que la emisión se parte en «leer neto» → «retener» → «escribir orden». Depende además de F2.L2.M06 (la emisión deja de ser humana) |
-| Punto 3 (bóveda) | TODO | Reescribir CU-22 según ADR-055/056 (pozo completo por fondeo, sin liquidación con deducciones ni cuatro ojos: va junto con F2.L2.M06), sacar de CU-23 la cobertura manual y marcar CU-26 RETIRADO; después borrar `CU22LiquidarEntrega.liquidar`/`ejecutar` y `CU23CubrirIncumplimiento` y reemplazar sus pruebas de integración por las de los criterios nuevos. Conviene hacerlo en una sesión con Docker para correr esas pruebas antes del PR |
 
 ## Evidencia
 

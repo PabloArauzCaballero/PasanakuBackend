@@ -35627,6 +35627,18 @@
      ]
     },
     {
+     "casoDeUso": "CU-23",
+     "titulo": "Cubrir un incumplimiento con el fondo",
+     "endpoints": [
+      {
+       "servicio": "garantia",
+       "metodo": "POST",
+       "ruta": "/incumplimientos/{expedienteId}/cobertura",
+       "operationId": "cubrirIncumplimiento"
+      }
+     ]
+    },
+    {
      "casoDeUso": "CU-26",
      "titulo": "Ejecutar el aval y subrogar la deuda",
      "endpoints": [
