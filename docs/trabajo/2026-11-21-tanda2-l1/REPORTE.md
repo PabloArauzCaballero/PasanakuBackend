@@ -3,7 +3,7 @@
 > **AVANCE: 9 / 19 — 47,4 %.** Trabajo en curso; lo que queda está bloqueado por archivos compartidos, por otro lote o por decisiones (ver Pendiente). Nada en rojo por código propio; dos fallas del CI de #418 son de módulos ajenos (ver Riesgos).
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Base: `origin/dev` 50cf3be9
-- PR hacia `dev`: #430 mergeado. Abiertos (sin mergear): #418, #425, #436, #441, #445, #447, #449, #450, #451, #452, #454, #455, #456, #458, #461 (este fuera de la pila). Pila a mergear en orden: #425 → #447 → #449 → #454 → #455 → #456 → #458.
+- PR hacia `dev`: #430 y #454 mergeados; #454 arrastró a #425, #447 y #449. Por la regla de como máximo 3 PR abiertos por sesión, quedan abiertos tres. **#418**: logs sin importes, PLAN y REPORTE. **#458** consolida M08, M09 parte 2, M10, M07, M01 y M05; absorbió a #455, #456, #441, #445 y #450. **#461** consolida L1.P01, F2.L1.M01, M13 y M04; absorbió a #436, #451 y #452. Los PR absorbidos están cerrados con un comentario que indica dónde quedó cada cambio.
 - Peldaño de evidencia por área:
   - `aportes` y `nucleo-financiero` (código): `TESTED`, con pruebas dirigidas en verde contra PostgreSQL 16 real local y controles negativos (mutantes) que fallan sin el cambio. No llega a `VERIFIED`: el camino HTTP de punta a punta con los servicios levantados no se ejercitó.
   - Integración con Testcontainers: las clases que levantan su propio contenedor (`AislamientoEsquemaTest`, `ArranqueTest`) quedan **NO COMPROBADAS: requieren Docker** (máquina de Pablo).
@@ -17,28 +17,28 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 
 | L1.M00 | Los logs de CU-10, CU-12 y CU-21 ya no escriben el importe. Un barrido por servicio lo impide en adelante. | `./gradlew :servicios:{aportes,nucleo-financiero}:testBarrido` | PASS. Con el código de `dev`, el barrido falla (control negativo). `evidencia/M00-logs-sin-importes.txt` · PR #418 |
 | F1.L1.M03 | Un reverso necesita dos actos y dos tokens. `autorizadaPor` desaparece del contrato. La misma persona recibe 422 `AP-CU14-02`. La base lo exige con R-BIL-27. | `webTest ReversoCuatroOjosWebTest` (7/7) + `integrationTest` de 12 clases que reversan (76/76) + psql con `SET ROLE svc_nucleo_financiero` | PASS. El mutante sin la segunda firma hace fallar 2 pruebas. `evidencia/M03-*` · PR #425 |
 | F1.L1.M06 | La firma del webhook cubre `X-Timestamp`. Un reenvío con otro timestamp da `FIRMA_INVALIDA` y no escribe nada. | `test VerificadorDeFirmaWebhookTest` (12/12) + `integrationTest CU100WebhookTest` (9/9) | PASS. El mutante que firma solo el cuerpo hace fallar 4 pruebas. `evidencia/M06-firma-timestamp.txt` · PR #430 |
-| F1.L1.M05 | El secreto del webhook de `aportes` sale de `APORTES_WEBHOOK_SECRETO`, sin valor por omisión. Si falta o es corto, el servicio no arranca. No queda ningún literal en `src/main`. | `test SecretoWebhookDeEntornoTest` (2/2) + grep | PASS. `evidencia/M05-secreto-webhook.txt` · PR #450. **Antes de desplegar hay que cargar la variable en Coolify.** |
-| F1.L1.M04 | `nucleo-financiero` arranca con perfil productivo sin `@MockitoBean`. Instruir un retiro devuelve `AP-CU11-15 PROVEEDOR_DE_DESEMBOLSO_NO_CONFIGURADO`. | `ArranqueProduccionTest` contra la Postgres local (2/2) + `ProveedorDeRetiroNoConfiguradoTest` (2/2) | PASS. Sin el adaptador: «No qualifying bean». `evidencia/M04-desembolso-fail-closed.txt` · PR #451 |
-| F1.L1.M13 | El sello del cierre diario cubre cuenta, fecha, moneda, saldos y el sello anterior. `primeraRuptura` señala el primer día alterado. | `test SelloDelDiaTest` (6/6) + `integrationTest CU51* CU15*` | PASS. El mutante con el sello viejo hace fallar 6 pruebas. `evidencia/M13-sello-cierre.txt` · PR #436 |
+| F1.L1.M05 | El secreto del webhook de `aportes` sale de `APORTES_WEBHOOK_SECRETO`, sin valor por omisión. Si falta o es corto, el servicio no arranca. No queda ningún literal en `src/main`. | `test SecretoWebhookDeEntornoTest` (2/2) + grep | PASS. `evidencia/M05-secreto-webhook.txt` · PR #458 (antes #450). **Antes de desplegar hay que cargar la variable en Coolify.** |
+| F1.L1.M04 | `nucleo-financiero` arranca con perfil productivo sin `@MockitoBean`. Instruir un retiro devuelve `AP-CU11-15 PROVEEDOR_DE_DESEMBOLSO_NO_CONFIGURADO`. | `ArranqueProduccionTest` contra la Postgres local (2/2) + `ProveedorDeRetiroNoConfiguradoTest` (2/2) | PASS. Sin el adaptador: «No qualifying bean». `evidencia/M04-desembolso-fail-closed.txt` · PR #461 (antes #451) |
+| F1.L1.M13 | El sello del cierre diario cubre cuenta, fecha, moneda, saldos y el sello anterior. `primeraRuptura` señala el primer día alterado. | `test SelloDelDiaTest` (6/6) + `integrationTest CU51* CU15*` | PASS. El mutante con el sello viejo hace fallar 6 pruebas. `evidencia/M13-sello-cierre.txt` · PR #461 (antes #436) |
 | F1.L1.M09 | Solicitud de reembolso, aprobación y alta de proveedor son idempotentes. La misma clave devuelve el mismo id y deja una sola fila, en serie y en concurrencia. R-BIL-28 y R-BIL-31 están en la base. | `integrationTest CU19IdempotenciaTest` (6/6) + `CU99IdempotenciaTest` (4/4) | PASS. Los mutantes hacen fallar 5 pruebas. `evidencia/M09-*`, `evidencia/M09b-*` · PR #447 y #456 |
 | F1.L1.M12 | `reembolso`, `disputa_pago`, `conciliacion`, `excepcion_conciliacion` y `extracto_bancario` llevan moneda (R-BIL-29). Un reembolso de un pago en USD queda en USD. La conciliación anota la moneda del pago. | `integrationTest CU19MonedaTest` (3/3) + `CU132ConciliacionTest` (3/3) + migración sobre una base existente | PASS. Los mutantes fallan. `evidencia/M12-*`, `evidencia/M12b-*` · PR #449 y #454 |
 | L1.P01 | Pedido de L2: `nucleo-financiero` deja de consultar la oferta de `entregas`. Se borraron el puerto, el cliente HTTP, el pago a tercero, el pacto y sus pruebas, y `pagarAlTercero` responde 410 `AP-CU13-10` sin efecto. | `test` + `webTest` (`pagoATerceroRetirado`) + integración CU12*/CU13* (95/97; las 2 restantes requieren Docker) | PASS. `evidencia/L2PEDIDO-retiro-ofertas.txt` · PR #461 |
 
 ## A medias
 
-### F1.L1.M07 — BOLA en `aportes` (PR #441)
+### F1.L1.M07 — BOLA en `aportes` (PR #458 (antes #441))
 - **Qué anda:** el estado de un participante ajeno y el reembolso de un pago ajeno devuelven 404 sin cuerpo. Están probadas la matriz negativa web y `AutorizacionNegativaTest` 4/4 contra la base, con un doble declarado de `grupos`. El mutante hace fallar 2 pruebas.
 - **Qué no anda:** `morosos`, `primera-cuota` y `recaudo` siguen autorizados solo por rol.
 - **Qué falta exactamente:** que `grupos` (L3) consulte `morosos` y `primera-cuota` con identidad de servicio, y que `entregas` y `garantia` (L2) consulten `recaudo` también con identidad de servicio. Después, `aportes` exige `SERVICIO_*` o pertenencia. Hoy `grupos` las consulta con el token de un postulante que todavía no es miembro (`MapeoDePostulacion.java:45`) y en el sorteo.
 - **Dónde quedó:** rama `correcciones/tanda2-l1-bola-aportes`. Compila y las suites de `aportes` están en verde.
 
-### F1.L1.M01 — Importe nunca negativo, parte API (PR #445)
+### F1.L1.M01 — Importe nunca negativo, parte API (PR #458 (antes #445))
 - **Qué anda:** en `aportes`, el esquema `Importe` en reembolso y disputa devuelve 400 `AP-VAL-01` con el campo. En el cobro y en todas las entradas de `nucleo-financiero`, un importe negativo da 400 `AP-VAL-02` en el borde. El mutante hace fallar 4 pruebas.
 - **Qué no anda:** en `nucleo-financiero` y en el cobro, el 400 es genérico y no señala el campo.
 - **Qué falta exactamente:** usar `Importe` en esas entradas. Eso cambia el tipo que construye la app en `apps/movil/lib/dominio/cu10_recargar_saldo.dart:41`, `cu11_retirar_saldo.dart:37`, `cu12_transferir_saldo.dart:42` y `pantallas/pasanaku/dominio/cu21_cobrar_aporte.dart:39` (L6). Además falta el tipo `Importe` en `plataforma/comun-dominio`.
 - **Dónde quedó:** rama `correcciones/tanda2-l1-importe-contrato`. Compila y está en verde.
 
-### F1.L1.M08 — Hechos de dinero inmutables (PR #455, apilado sobre #454)
+### F1.L1.M08 — Hechos de dinero inmutables (PR #458 (antes #455), apilado sobre #454)
 - **Qué anda:**
   - `pago`, `reembolso` y sus dos historiales de estado son append-only: trigger R-AUD-01 y `REVOKE UPDATE, DELETE` a `svc_aportes`, generados desde `APPEND_ONLY` (`scripts/modelo.py`).
   - El estado cambia agregando una fila de historial, y desde cada estado se sale una sola vez (R-BIL-30).
@@ -62,7 +62,7 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 
   - Confirmar AMB-L1-3 con Cumplimiento.
 - **Dónde quedó:** rama `correcciones/tanda2-l1-bloqueo-autoridad`. Compila y está en verde.
 
-### F2.L1.M01 — Consumidor de respaldo y cobertura empresarial (PR #452)
+### F2.L1.M01 — Consumidor de respaldo y cobertura empresarial (PR #461 (antes #452))
 - **Qué anda:** el listener escucha solo `entregas.desembolso_acreditado`, y una prueba fija esos tópicos. `CAJA_EMPRESA` salió de la configuración y del compose.
 - **Qué no anda:** quedan los mapeos `RESERVA_RESPALDO`, `POZO_GRUPO` y `DESEMBOLSO`, que apuntan a las cuentas 9.x.
 - **Qué falta exactamente:** las cuentas del fondo del grupo del modelo A (F3) para reemplazar esas cuentas. Después, F2.L1.M02. También que L2 retire el productor en `garantia`.
