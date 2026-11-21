@@ -62,21 +62,16 @@ class CU22Test extends BaseDePozoCompleto {
     void criterio3() {
         var c = caso();
         aportesConfirma(c, "5000.00");
-        // Nadie cubre: sin reserva del respaldo hoy, y sin fondo del grupo hasta el modelo A (F3.L2.M05).
-        garantiaDoble.sinReserva(true);
-        try {
-            var salida = fondear(c, "cu22-3-" + c.e().turnoId());
+        // Nadie cubre: la empresa ya no (F2.L2.M01) y el fondo del grupo todavia no (F3.L2.M05).
+        var salida = fondear(c, "cu22-3-" + c.e().turnoId());
 
-            assertThat(salida.cifras().pendiente()).isEqualTo(bob("1000.00"));
-            var fila = dsl.fetchOne(
-                    "SELECT estado, monto_bolsa_bruto FROM entregas.entrega_fondo WHERE id = ?", salida.entregaId());
-            assertThat(fila.get(0, String.class)).isEqualTo("BLOQUEADA_POR_FONDO_INCOMPLETO");
-            assertThat(fila.get(1, BigDecimal.class)).isEqualByComparingTo("6000.00");
-            assertThat(numero("SELECT monto_pendiente FROM entregas.fondeo_entrega WHERE id = ?", salida.fondeoId()))
-                    .isEqualByComparingTo("1000.00");
-        } finally {
-            garantiaDoble.sinReserva(false);
-        }
+        assertThat(salida.cifras().pendiente()).isEqualTo(bob("1000.00"));
+        var fila = dsl.fetchOne(
+                "SELECT estado, monto_bolsa_bruto FROM entregas.entrega_fondo WHERE id = ?", salida.entregaId());
+        assertThat(fila.get(0, String.class)).isEqualTo("BLOQUEADA_POR_FONDO_INCOMPLETO");
+        assertThat(fila.get(1, BigDecimal.class)).isEqualByComparingTo("6000.00");
+        assertThat(numero("SELECT monto_pendiente FROM entregas.fondeo_entrega WHERE id = ?", salida.fondeoId()))
+                .isEqualByComparingTo("1000.00");
     }
 
     @Test

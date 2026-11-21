@@ -59,7 +59,6 @@ abstract class BaseDeEntregas {
     protected static CU22LiquidarEntrega entregaCU;
     protected static RegistroDelFondeo registroDelFondeo;
     protected static DoblesDelPozo.Aportes aportesDoble;
-    protected static DoblesDelPozo.Garantia garantiaDoble;
     protected static CU22EntregarPozoCompleto pozoCU;
     protected static CU28EmitirDesembolso desembolsoCU;
 
@@ -107,15 +106,13 @@ abstract class BaseDeEntregas {
                     public Salida registrar(
                             Entrada e,
                             bo.aportaya.entregas.dominio.FondeoDelPozo.Resultado cifras,
-                            java.util.UUID coberturaId,
                             java.time.OffsetDateTime corte,
                             ContextoSesion ctx) {
-                        return transaccion.execute(t -> super.registrar(e, cifras, coberturaId, corte, ctx));
+                        return transaccion.execute(t -> super.registrar(e, cifras, corte, ctx));
                     }
                 };
         aportesDoble = new DoblesDelPozo.Aportes();
-        garantiaDoble = new DoblesDelPozo.Garantia();
-        pozoCU = new CU22EntregarPozoCompleto(aportesDoble, garantiaDoble, registroDelFondeo);
+        pozoCU = new CU22EntregarPozoCompleto(aportesDoble, registroDelFondeo);
         desembolsoCU = new CU28EmitirDesembolso(
                 datos,
                 new DesembolsoRepositorio(),

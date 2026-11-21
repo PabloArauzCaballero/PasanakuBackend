@@ -385,6 +385,10 @@ CK_ESTRECHADOS = {
     # EFECTIVO_ORGANIZADOR. Consulta previa:
     #   SELECT count(*) FROM entregas.entrega_fondo WHERE metodo_desembolso = 'EFECTIVO_ORGANIZADOR';
     "entrega_fondo": ["metodo_desembolso"],
+    # 2026-11-21: F1.L2.M02 — la cobertura no se pide a mano ni espera a un aprobador:
+    # sale SOLICITADA. Consulta previa:
+    #   SELECT count(*) FROM garantia.cobertura_incumplimiento WHERE estado = 'SOLICITADA';
+    "cobertura_incumplimiento": ["estado"],
 }
 
 # --- FK -> tabla destino: overrides donde el nombre de columna no coincide ---
