@@ -1,0 +1,31 @@
+# T2.M1 (F1.S3.M1 resto) — vida del token de acceso acotada a 15 min con la tolerancia del decodificador
+# Base: origin/dev 50cf3be9. Entorno: contenedor en la nube, Java 21, Gradle 9.7.1.
+# Nota: Maven Central respondia 429; se uso un init script LOCAL (no versionado) que apunta al espejo
+# oficial de Google de Maven Central (maven-central.storage-download.googleapis.com). El build no se toco.
+
+## Tolerancia por omision de Spring Security 6.5.11 (verificada en el jar, no supuesta)
+$ javap -p -c -constants org/springframework/security/oauth2/jwt/JwtTimestampValidator.class  (spring-security-oauth2-jose-6.5.11.jar)
+  static {};
+       0: ldc2_w        #129                // long 60l
+       3: getstatic     #131                // Field java/time/temporal/ChronoUnit.SECONDS
+       9: putstatic     #1                  // Field DEFAULT_MAX_CLOCK_SKEW:Ljava/time/Duration;
+$ grep -n "NimbusJwtDecoder" plataforma/comun-web/.../ConfiguracionDelDecodificador.java
+28:        return NimbusJwtDecoder.withJwkSetUri(jwksUri).build();      <- validador por omision (60 s)
+
+## Prueba dirigida
+$ ./gradlew :servicios:identidad:test --tests '*VidaDelAcceso*' --tests '*RotacionDeClaves*'
+<testsuite name="bo.aportaya.identidad.VidaDelAccesoTest" tests="2" skipped="0" failures="0" errors="0"
+<testsuite name="bo.aportaya.identidad.RotacionDeClavesDeFirmaTest" tests="10" skipped="0" failures="0" errors="0"
+
+## Mutante: VIGENCIA = Duration.ofMinutes(15) (lo que habia en dev)
+$ ./gradlew :servicios:identidad:test --tests '*VidaDelAcceso*'
+7 tests completed, 2 failed
+BUILD FAILED in 10s
+(restaurado el codigo; vuelve a verde)
+
+## Regresion del modulo
+$ ./gradlew :servicios:identidad:spotlessApply :servicios:identidad:test :servicios:identidad:webTest :servicios:identidad:testBarrido
+rc=0
+servicios/identidad test: tests=89 skipped=0 failures=0 errors=0
+servicios/identidad webTest: tests=160 skipped=0 failures=0 errors=0
+servicios/identidad testBarrido: tests=3 skipped=0 failures=0 errors=0

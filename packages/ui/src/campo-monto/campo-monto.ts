@@ -1,9 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, input, model } from '@angular/core'
+import { interpretarMontoEscrito } from '@aportaya/tokens/dinero'
 import { Campo } from '../campo/campo'
 
 /**
- * Monto con prefijo «Bs», teclado decimal y coma como separador. Guarda lo que la
- * persona escribe; `aCadenaDelContrato` lo pasa a `"1240.00"` para el API, sin flotantes.
+ * Monto con prefijo «Bs», teclado decimal y coma como separador (el punto decimal del
+ * teclado también se entiende). Guarda lo que la persona escribe; `aCadenaDelContrato`
+ * lo pasa a `"1240.00"` para el API, sin flotantes.
  */
 @Component({
   selector: 'ap-campo-monto',
@@ -20,11 +22,9 @@ export class CampoMonto {
   readonly contrato = computed(() => aCadenaDelContrato(this.valor()))
 }
 
-/** «1.240,5» → «1240.50»; «abc» → null. Sin `parseFloat`: la plata no se redondea. */
-export function aCadenaDelContrato(texto: string): string | null {
-  const sinEspacios = texto.replace(/\s/g, '')
-  // Miles con punto en grupos de tres (o sin puntos), decimales con coma: «1.240,5», «1240», «12,50».
-  if (!/^(\d{1,3}(\.\d{3})+|\d+)(,\d{0,2})?$/.test(sinEspacios)) return null
-  const [entero, dec = ''] = sinEspacios.replace(/\./g, '').split(',')
-  return `${entero}.${dec.padEnd(2, '0')}`
-}
+/**
+ * «1.240,5» → «1240.50»; «12.50» → «12.50»; «abc» → null. Sin `parseFloat`: la plata
+ * no se redondea. La regla vive UNA vez, en `@aportaya/tokens/dinero` (`interpretar.ts`),
+ * con los vectores que la app Flutter reproduce (F1.S4.M1).
+ */
+export const aCadenaDelContrato = interpretarMontoEscrito

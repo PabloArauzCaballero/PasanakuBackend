@@ -356,6 +356,41 @@ Es el hueco por donde se va la plata en sistemas mal diseñados.
 
 ---
 
+### `HistorialEstadoPago` / `historial_estado_pago`
+
+**Qué es.** Cada cambio de estado de un pago, como una fila nueva: de qué estado
+salió, a cuál llegó, por qué y cuándo.
+
+**Para qué sirve (negocio).** El pago es el hecho económico y no se edita
+(`R-BIL-30`). Cuando un aporte se compensa porque el libro no lo pudo aplicar, el
+pago pasa a `REVERSADO` agregando una fila acá; la fila del pago queda tal cual se
+escribió. El estado vigente es la última fila; sin filas, el de alta.
+
+**Por qué debe existir.** Un `UPDATE` sobre el pago borra lo que el pago decía antes
+y deja a la base sin forma de probarlo. Con el historial, desde cada estado se sale
+una sola vez (`uq_historial_estado_pago_salida`): dos reversos simultáneos del mismo
+pago no pueden pasar los dos.
+
+---
+
+### `HistorialEstadoReembolso` / `historial_estado_reembolso`
+
+**Qué es.** Cada cambio de estado de un reembolso: de qué estado a cuál, quién lo
+ejecutó y cuándo.
+
+**Para qué sirve (negocio).** La aprobación de un reembolso (`SOLICITADO` →
+`EJECUTADO`) queda como una fila nueva con quien aprobó, en vez de pisar la
+solicitud (`R-BIL-30`). Quien pidió la devolución y quien la aprobó quedan los dos
+a la vista, cada uno en su fila.
+
+**Por qué debe existir.** La devolución es la única salida legítima de plata que ya
+entró. Si la aprobación se escribe con `UPDATE`, una segunda escritura puede cambiar
+quién aprobó sin dejar rastro. Con el historial append-only y una sola salida por
+estado (`uq_historial_estado_reembolso_salida`), dos aprobaciones simultáneas no
+devuelven la plata dos veces.
+
+---
+
 ### `DisputaPago` / `disputa_pago`
 
 **Qué es.** El reclamo formal sobre un pago: contracargo, desconocimiento del

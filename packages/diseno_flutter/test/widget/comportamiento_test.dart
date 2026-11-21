@@ -396,6 +396,26 @@ void main() {
     expect(find.text('Bs'), findsOneWidget);
   });
 
+  testWidgets(
+    'CampoMonto: el punto del teclado no multiplica por cien (F1.S4.M1)',
+    (tester) async {
+      String? recibido;
+      await tester.pumpWidget(
+        conTema(CampoMonto(etiqueta: 'Monto', onChanged: (v) => recibido = v)),
+      );
+      await tester.enterText(find.byType(TextField), '12.50');
+      await tester.pump();
+      expect(recibido, '12.50');
+      expect(find.text('Vas a enviar Bs 12,50'), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField), '1.240.50');
+      await tester.pump();
+      expect(recibido, isNull);
+      // El error queda asociado al campo, no como aviso suelto (regla 95.3.1).
+      expect(find.text('Escribí un monto como 1.240,50'), findsOneWidget);
+    },
+  );
+
   testWidgets('CampoOTP avanza solo y emite al completar los seis dígitos', (
     tester,
   ) async {

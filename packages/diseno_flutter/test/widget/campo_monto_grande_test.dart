@@ -34,6 +34,21 @@ void main() {
     expect(ultimo, isNull);
   });
 
+  testWidgets('«12.50» viaja como 12.50 y se muestra lo que se va a enviar', (
+    tester,
+  ) async {
+    String? ultimo;
+    await tester.pumpWidget(_campo((v) => ultimo = v));
+    await tester.enterText(find.byType(TextField), '12.50');
+    await tester.pump();
+    expect(ultimo, '12.50');
+    expect(find.text('Vas a enviar Bs 12,50'), findsOneWidget);
+    await tester.enterText(find.byType(TextField), '1,250.50');
+    await tester.pump();
+    expect(ultimo, isNull);
+    expect(find.text('Escribí un monto como 1.240,50'), findsOneWidget);
+  });
+
   testWidgets('tiene nombre accesible y la etiqueta se ve', (tester) async {
     final semantica = tester.ensureSemantics();
     await tester.pumpWidget(_campo((_) {}));

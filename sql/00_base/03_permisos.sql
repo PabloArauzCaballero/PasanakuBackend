@@ -146,6 +146,8 @@ REVOKE UPDATE, DELETE ON nucleo_financiero.evidencia_mfa_consumida FROM svc_nucl
 REVOKE UPDATE, DELETE ON erp.factura_proveedor FROM svc_erp;
 REVOKE UPDATE, DELETE ON publicidad.factura_publicidad FROM svc_publicidad;
 REVOKE UPDATE, DELETE ON garantia.historial_estado_incumplimiento FROM svc_garantia;
+REVOKE UPDATE, DELETE ON aportes.historial_estado_pago FROM svc_aportes;
+REVOKE UPDATE, DELETE ON aportes.historial_estado_reembolso FROM svc_aportes;
 REVOKE UPDATE, DELETE ON publicidad.impresion_anuncio FROM svc_publicidad;
 REVOKE UPDATE, DELETE ON auditoria.indicador_kpi FROM svc_auditoria;
 REVOKE UPDATE, DELETE ON nucleo_financiero.movimiento_billetera FROM svc_nucleo_financiero;
@@ -153,8 +155,10 @@ REVOKE UPDATE, DELETE ON nucleo_financiero.movimiento_contable FROM svc_nucleo_f
 REVOKE UPDATE, DELETE ON nucleo_financiero.movimiento_custodia FROM svc_nucleo_financiero;
 REVOKE UPDATE, DELETE ON garantia.movimiento_fondo FROM svc_garantia;
 REVOKE UPDATE, DELETE ON garantia.movimiento_reserva FROM svc_garantia;
+REVOKE UPDATE, DELETE ON aportes.pago FROM svc_aportes;
 REVOKE UPDATE, DELETE ON erp.pago_a_proveedor FROM svc_erp;
 REVOKE UPDATE, DELETE ON garantia.recuperacion_respaldo FROM svc_garantia;
+REVOKE UPDATE, DELETE ON aportes.reembolso FROM svc_aportes;
 REVOKE UPDATE, DELETE ON comun.registro_acceso_datos FROM svc_aportes;
 REVOKE UPDATE, DELETE ON comun.registro_acceso_datos FROM svc_auditoria;
 REVOKE UPDATE, DELETE ON comun.registro_acceso_datos FROM svc_cumplimiento;

@@ -22,11 +22,11 @@
   {
    "nombre": "aportes",
    "descripcion": "Aportes, Pagos QR y Conciliación. Que \"pagué\" signifique \"el banco lo confirmó\".",
-   "tablas": 22,
-   "tablasDeNegocio": 18,
-   "columnas": 230,
-   "relaciones": 38,
-   "appendOnly": 0,
+   "tablas": 24,
+   "tablasDeNegocio": 20,
+   "columnas": 243,
+   "relaciones": 41,
+   "appendOnly": 4,
    "conDatosPersonales": 1,
    "servicio": "aportes"
   },
@@ -1960,6 +1960,276 @@
    ]
   },
   {
+   "tabla": "historial_estado_pago",
+   "esquema": "aportes",
+   "tipo": "NEGOCIO",
+   "modulo": "03",
+   "nombreModulo": "Aportes, Pagos QR y Conciliación",
+   "servicio": "aportes",
+   "appendOnly": true,
+   "negocio": {
+    "queEs": "Cada cambio de estado de un pago, como una fila nueva: de qué estado salió, a cuál llegó, por qué y cuándo.",
+    "negocio": "El pago es el hecho económico y no se edita (R-BIL-30). Cuando un aporte se compensa porque el libro no lo pudo aplicar, el pago pasa a REVERSADO agregando una fila acá; la fila del pago queda tal cual se escribió. El estado vigente es la última fila; sin filas, el de alta.",
+    "porQue": "Un UPDATE sobre el pago borra lo que el pago decía antes y deja a la base sin forma de probarlo. Con el historial, desde cada estado se sale una sola vez (uq_historial_estado_pago_salida): dos reversos simultáneos del mismo pago no pueden pasar los dos."
+   },
+   "reglas": [
+    "uq_historial_estado_pago_salida"
+   ],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "pago_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "pago",
+     "negocio": "Referencia por clave foránea a la entidad pago.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a pago, índice b-tree.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "aportes"
+    },
+    {
+     "nombre": "estado_anterior",
+     "tipo": "VARCHAR(15)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa estado anterior en el modelo de historial_estado_pago.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(15), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "estado_nuevo",
+     "tipo": "VARCHAR(15)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa estado nuevo en el modelo de historial_estado_pago.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(15), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "motivo",
+     "tipo": "VARCHAR(200)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Justificación declarada o causal que originó la creación, rechazo o transición del registro.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(200), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "fecha_hora",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de hora en historial_estado_pago.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "pago_id",
+      "tabla": "pago",
+      "esquema": "aportes",
+      "columnaDestino": "id",
+      "restriccion": "fk_historial_estado_pago_pago_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     }
+    ],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de pago. Reglas nombradas: uq_historial_estado_pago_salida.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": [
+    {
+     "casoDeUso": "CU-19",
+     "titulo": "Reembolsar un pago y atender una disputa",
+     "endpoints": [
+      {
+       "servicio": "aportes",
+       "metodo": "POST",
+       "ruta": "/pagos/reembolsos/{reembolsoId}/aprobacion",
+       "operationId": "aprobarReembolso"
+      },
+      {
+       "servicio": "aportes",
+       "metodo": "POST",
+       "ruta": "/pagos/{pagoId}/disputas",
+       "operationId": "registrarDisputa"
+      },
+      {
+       "servicio": "aportes",
+       "metodo": "POST",
+       "ruta": "/pagos/{pagoId}/reembolsos",
+       "operationId": "solicitarReembolso"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "tabla": "historial_estado_reembolso",
+   "esquema": "aportes",
+   "tipo": "NEGOCIO",
+   "modulo": "03",
+   "nombreModulo": "Aportes, Pagos QR y Conciliación",
+   "servicio": "aportes",
+   "appendOnly": true,
+   "negocio": {
+    "queEs": "Cada cambio de estado de un reembolso: de qué estado a cuál, quién lo ejecutó y cuándo.",
+    "negocio": "La aprobación de un reembolso (SOLICITADO → EJECUTADO) queda como una fila nueva con quien aprobó, en vez de pisar la solicitud (R-BIL-30). Quien pidió la devolución y quien la aprobó quedan los dos a la vista, cada uno en su fila.",
+    "porQue": "La devolución es la única salida legítima de plata que ya entró. Si la aprobación se escribe con UPDATE, una segunda escritura puede cambiar quién aprobó sin dejar rastro. Con el historial append-only y una sola salida por estado (uq_historial_estado_reembolso_salida), dos aprobaciones simultáneas no devuelven la plata dos veces."
+   },
+   "reglas": [
+    "uq_historial_estado_reembolso_salida"
+   ],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "reembolso_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "reembolso",
+     "negocio": "Referencia por clave foránea a la entidad reembolso.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a reembolso, índice b-tree.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "aportes"
+    },
+    {
+     "nombre": "estado_anterior",
+     "tipo": "VARCHAR(15)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa estado anterior en el modelo de historial_estado_reembolso.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(15), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "estado_nuevo",
+     "tipo": "VARCHAR(15)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa estado nuevo en el modelo de historial_estado_reembolso.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(15), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "ejecutado_por",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "usuario",
+     "negocio": "Referencia por clave foránea a la entidad usuario.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a usuario.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "fecha_hora",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de hora en historial_estado_reembolso.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "reembolso_id",
+      "tabla": "reembolso",
+      "esquema": "aportes",
+      "columnaDestino": "id",
+      "restriccion": "fk_historial_estado_reembolso_reembolso_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "ejecutado_por",
+      "tabla": "usuario",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_historial_estado_reembolso_ejecutado_por",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     }
+    ],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de identidad.usuario, reembolso. Reglas nombradas: uq_historial_estado_reembolso_salida.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": [
+    {
+     "casoDeUso": "CU-19",
+     "titulo": "Reembolsar un pago y atender una disputa",
+     "endpoints": [
+      {
+       "servicio": "aportes",
+       "metodo": "POST",
+       "ruta": "/pagos/reembolsos/{reembolsoId}/aprobacion",
+       "operationId": "aprobarReembolso"
+      },
+      {
+       "servicio": "aportes",
+       "metodo": "POST",
+       "ruta": "/pagos/{pagoId}/disputas",
+       "operationId": "registrarDisputa"
+      },
+      {
+       "servicio": "aportes",
+       "metodo": "POST",
+       "ruta": "/pagos/{pagoId}/reembolsos",
+       "operationId": "solicitarReembolso"
+      }
+     ]
+    }
+   ]
+  },
+  {
    "tabla": "intento_pago",
    "esquema": "aportes",
    "tipo": "NEGOCIO",
@@ -3307,7 +3577,7 @@
    "modulo": "03",
    "nombreModulo": "Aportes, Pagos QR y Conciliación",
    "servicio": "aportes",
-   "appendOnly": false,
+   "appendOnly": true,
    "negocio": {
     "queEs": "Plata que efectivamente se movió. El hecho económico.",
     "negocio": "Es el registro que respalda que alguien cumplió. Varios campos merecen explicación:\n\n- montoComisionProveedor y montoNetoAcreditado: lo que el participante paga no es lo que llega a la bolsa. La pasarela se queda con su comisión. Si esa diferencia no se modela explícitamente, la bolsa nunca cuadra y nadie entiende por qué faltan Bs 3,50.\n- pagadorNombre y pagadorDocumento: quién pagó realmente. Muchas veces paga el esposo, la madre o el jefe por el participante. Registrarlo es necesario para cumplimiento (detectar que una sola persona está pagando por seis participantes distintos, patrón de participantes ficticios) y para resolver reclamos.\n- esManual + registradoPor: distingue el pago que entró solo por webhook del que un operador cargó a mano contra un comprobante. Los segundos son intrínsecamente más riesgosos y deben poder auditarse aparte.\n- canal = EFECTIVO_AL_ORGANIZADOR: reconoce que en la realidad boliviana una parte del dinero se paga en efectivo. Negarlo no lo elimina, solo lo saca del sistema y lo vuelve invisible. Mejor registrarlo, marcarlo como manual y someterlo a doble revisión.",
@@ -3594,6 +3864,16 @@
      },
      {
       "columna": "pago_id",
+      "tabla": "historial_estado_pago",
+      "esquema": "aportes",
+      "columnaDestino": "id",
+      "restriccion": "fk_historial_estado_pago_pago_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "pago_id",
       "tabla": "disputa_pago",
       "esquema": "aportes",
       "columnaDestino": "id",
@@ -3664,7 +3944,7 @@
      }
     ]
    },
-   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de identidad.usuario, intento_pago, obligacion_aporte, proveedor_pago. La referencian comprobante_manual, conciliacion, constancia_pago, disputa_pago, garantia.abono_recuperacion, garantia.ejecucion_aval, garantia.recuperacion_respaldo, nucleo_financiero.orden_recarga, reembolso, webhook_pasarela. Reglas nombradas: uq_pago_idem.",
+   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de identidad.usuario, intento_pago, obligacion_aporte, proveedor_pago. La referencian comprobante_manual, conciliacion, constancia_pago, disputa_pago, garantia.abono_recuperacion, garantia.ejecucion_aval, garantia.recuperacion_respaldo, historial_estado_pago, nucleo_financiero.orden_recarga, reembolso, webhook_pasarela. Reglas nombradas: uq_pago_idem.",
    "clasificacion": {
     "personales": 1,
     "financieros": 3,
@@ -4232,7 +4512,9 @@
     "negocio": "Tres cosas que importan comercialmente:\n\n1. Multi-proveedor con respaldo. prioridad y activo permiten que si el QR del banco A falla, el IntentoPago reintente con el proveedor B. En un país donde los servicios bancarios se caen con cierta regularidad, esto es la diferencia entre \"no pude pagar\" y \"pagué\". Y el día de vencimiento es justamente cuando más carga hay.\n2. Costo real por transacción. comisionFija y comisionPorcentual permiten calcular costoDe(monto) y decidir por dónde enrutar. En aportes chicos —que son la mayoría— la comisión fija puede ser un porcentaje enorme del aporte.\n3. Capacidades declaradas. soportaWebhook y soportaConsultaEstado cambian la estrategia: con webhook la acreditación es en segundos; sin él hay que hacer polling, con la latencia y el costo que eso implica.\n\nreferenciaCredenciales es explícitamente un puntero a la bóveda de secretos, nunca la llave. Las credenciales de una pasarela de pagos no viven en la base de datos de la aplicación.",
     "porQue": "Sin abstracción de proveedor, integrar un segundo banco significa reescribir el flujo de cobro."
    },
-   "reglas": [],
+   "reglas": [
+    "uq_proveedor_pago_clave"
+   ],
    "columnas": [
     {
      "nombre": "id",
@@ -4354,6 +4636,16 @@
      "origenNegocio": "convencion",
      "sistema": "SMALLINT, obligatoria.",
      "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "clave_idempotencia",
+     "tipo": "VARCHAR(100)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(100), opcional.",
+     "sensibilidad": "NINGUNA"
     }
    ],
    "relaciones": {
@@ -4441,7 +4733,7 @@
      }
     ]
    },
-   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian entregas.orden_desembolso, extracto_bancario, nucleo_financiero.orden_recarga, nucleo_financiero.orden_retiro, orden_cobro, pago, tarifas.costo_proveedor_operacion, webhook_pasarela.",
+   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian entregas.orden_desembolso, extracto_bancario, nucleo_financiero.orden_recarga, nucleo_financiero.orden_retiro, orden_cobro, pago, tarifas.costo_proveedor_operacion, webhook_pasarela. Reglas nombradas: uq_proveedor_pago_clave.",
    "clasificacion": {
     "personales": 0,
     "financieros": 0,
@@ -4796,7 +5088,7 @@
    "modulo": "03",
    "nombreModulo": "Aportes, Pagos QR y Conciliación",
    "servicio": "aportes",
-   "appendOnly": false,
+   "appendOnly": true,
    "negocio": {
     "queEs": "La devolución de un pago, total o parcial.",
     "negocio": "Cuatro motivos, todos reales: pago duplicado (la persona pagó dos veces), error de monto, grupo cancelado antes de arrancar, o resolución de disputa. Es la única manera legítima de sacar plata que ya entró.\n\nEl flujo solicitado → aprobado → ejecutado, con solicitadoPor y aprobadoPor distintos, es control interno básico: quien pide una devolución no puede ser quien la aprueba.",
@@ -4967,9 +5259,20 @@
       "obligatoria": false
      }
     ],
-    "entrantes": []
+    "entrantes": [
+     {
+      "columna": "reembolso_id",
+      "tabla": "historial_estado_reembolso",
+      "esquema": "aportes",
+      "columnaDestino": "id",
+      "restriccion": "fk_historial_estado_reembolso_reembolso_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     }
+    ]
    },
-   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de identidad.usuario, pago. Reglas nombradas: uq_reembolso_clave, ck_reembolso_moneda.",
+   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de identidad.usuario, pago. La referencian historial_estado_reembolso. Reglas nombradas: uq_reembolso_clave, ck_reembolso_moneda.",
    "clasificacion": {
     "personales": 0,
     "financieros": 1,
@@ -53574,6 +53877,16 @@
       "obligatoria": false
      },
      {
+      "columna": "ejecutado_por",
+      "tabla": "historial_estado_reembolso",
+      "esquema": "aportes",
+      "columnaDestino": "id",
+      "restriccion": "fk_historial_estado_reembolso_ejecutado_por",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
       "columna": "importado_por",
       "tabla": "extracto_bancario",
       "esquema": "aportes",
@@ -55385,7 +55698,7 @@
      }
     ]
    },
-   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian aportes.comprobante_manual, aportes.conciliacion, aportes.excepcion_conciliacion, aportes.extracto_bancario, aportes.pago, aportes.plan_regularizacion, aportes.reembolso, asignacion_rol, auditoria.alerta_cumplimiento, auditoria.coincidencia_lista, auditoria.ejecucion_reporte, auditoria.proceso_anonimizacion, auditoria.reporte_operacion_sospechosa, auditoria.solicitud_datos_personales, auditoria.ticket_soporte, bloqueo_cuenta, catalogo.licencia_regulatoria, catalogo.tarifario, comun.bitacora_evento, comun.registro_acceso_datos, consentimiento, credencial_acceso, cumplimiento.aceptacion_contrato, cumplimiento.acta_comite, cumplimiento.activo_informacion, cumplimiento.alerta_monitoreo_lft, cumplimiento.beneficiario_final, cumplimiento.calificacion_riesgo_cliente, cumplimiento.capacitacion_cumplimiento, cumplimiento.caso_investigacion_lft, cumplimiento.contrato_adhesion, cumplimiento.contrato_tercero, cumplimiento.control_interno, cumplimiento.debida_diligencia, cumplimiento.declaracion_origen_fondos, cumplimiento.declaracion_pep, cumplimiento.designacion_regulatoria, cumplimiento.desvio_perfil, cumplimiento.documento_publicado, cumplimiento.envio_regulatorio, cumplimiento.evaluacion_riesgo_producto, cumplimiento.evaluacion_tercero, cumplimiento.evento_riesgo_operativo, cumplimiento.expediente_cliente, cumplimiento.factor_riesgo_evaluado, cumplimiento.hallazgo_auditoria, cumplimiento.incidente_seguridad, cumplimiento.matriz_riesgo_lft, cumplimiento.observacion_regulatoria, cumplimiento.oficial_cumplimiento, cumplimiento.perfil_transaccional, cumplimiento.plan_accion_riesgo, cumplimiento.plan_continuidad, cumplimiento.politica_interna, cumplimiento.prueba_continuidad, cumplimiento.prueba_control, cumplimiento.punto_reclamo, cumplimiento.reclamo_cliente, cumplimiento.registro_operacion_relevante, cumplimiento.regla_monitoreo_lft, cumplimiento.reporte_regulatorio, cumplimiento.requerimiento_autoridad, cumplimiento.revision_periodica_kyc, direccion_usuario, dispositivo, documento_identidad, entregas.cuenta_bancaria_beneficiario, entregas.entrega_fondo, entregas.historial_estado_entrega, entregas.incidencia_entrega, entregas.validacion_pre_entrega, erp.asiento_plantilla, erp.cierre_periodo_contable, erp.ejercicio_fiscal, erp.estado_financiero_generado, erp.factura_proveedor, erp.orden_compra, erp.pago_a_proveedor, erp.presupuesto, factor_mfa, garantia.abono_recuperacion, garantia.accion_cobranza, garantia.acuerdo_quita, garantia.alerta_temprana, garantia.apelacion_sancion, garantia.aval_participante, garantia.candidato_reemplazo, garantia.capacidad_respaldo, garantia.castigo_deuda, garantia.cobertura_incumplimiento, garantia.cobertura_respaldo, garantia.descargo_participante, garantia.deuda_participante, garantia.evidencia_incumplimiento, garantia.gestion_cobranza, garantia.historial_estado_incumplimiento, garantia.historial_incumplimiento_usuario, garantia.lista_restriccion_interna, garantia.movimiento_fondo, garantia.movimiento_reserva, garantia.promesa_pago, garantia.registro_incumplimiento, garantia.reserva_respaldo, garantia.sancion, garantia.score_riesgo_incumplimiento, grupos.acuerdo, grupos.enlace_grupo, grupos.historial_estado_grupo, grupos.invitacion, grupos.participante, grupos.postulacion_emparejamiento, grupos.reglamento_grupo, grupos.solicitud_ingreso, grupos.sorteo_turnos, historial_credencial, intento_autenticacion, notificaciones.aviso_interno, notificaciones.bandeja_entrada, notificaciones.canal_vinculado, notificaciones.notificacion, nucleo_financiero.asiento_contable, nucleo_financiero.bloqueo_saldo, nucleo_financiero.certificado_saldo, nucleo_financiero.cierre_diario, nucleo_financiero.conciliacion_custodia, nucleo_financiero.cuenta_billetera, nucleo_financiero.descuadre_custodia, nucleo_financiero.evaluacion_antifraude, nucleo_financiero.evidencia_mfa_consumida, nucleo_financiero.instrumento_fondeo, nucleo_financiero.orden_retiro, nucleo_financiero.politica_billetera, nucleo_financiero.regla_antifraude, nucleo_financiero.respuesta_idempotente, nucleo_financiero.retencion_saldo, nucleo_financiero.reverso_transaccion, nucleo_financiero.solicitud_cierre_billetera, nucleo_financiero.solicitud_reverso, nucleo_financiero.transaccion_billetera, organizador.apelacion_sancion_org, organizador.organizador, organizador.sancion_organizador, organizador.solicitud_organizador, perfil_financiero, preferencia_notificacion, publicidad.campana_publicitaria, publicidad.clic_anuncio, publicidad.impresion_anuncio, publicidad.revision_creativa, publicidad.segmento_audiencia, publicidad.socio_comercial, referencia_personal, reputacion_usuario, restriccion_usuario, sesion, solicitud_baja, tarifas.asignacion_tarifario, tarifas.cambio_tarifario, tarifas.campana_promocional, tarifas.cuenta_por_cobrar_comision, tarifas.datos_facturacion, tarifas.devengo_comision, tarifas.devolucion_comision, tarifas.evento_significativo_sin, tarifas.exencion_comision, tarifas.factura_electronica, tarifas.liquidacion_ingresos, tarifas.simulacion_tarifa, token_verificacion, transparencia.certificado_reputacion, transparencia.evento_reputacion, transparencia.insignia_otorgada, transparencia.puntaje_reputacion, transparencia.resena_participante, transparencia.snapshot_reputacion, usuario_interno, verificacion_kyc.",
+   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian aportes.comprobante_manual, aportes.conciliacion, aportes.excepcion_conciliacion, aportes.extracto_bancario, aportes.historial_estado_reembolso, aportes.pago, aportes.plan_regularizacion, aportes.reembolso, asignacion_rol, auditoria.alerta_cumplimiento, auditoria.coincidencia_lista, auditoria.ejecucion_reporte, auditoria.proceso_anonimizacion, auditoria.reporte_operacion_sospechosa, auditoria.solicitud_datos_personales, auditoria.ticket_soporte, bloqueo_cuenta, catalogo.licencia_regulatoria, catalogo.tarifario, comun.bitacora_evento, comun.registro_acceso_datos, consentimiento, credencial_acceso, cumplimiento.aceptacion_contrato, cumplimiento.acta_comite, cumplimiento.activo_informacion, cumplimiento.alerta_monitoreo_lft, cumplimiento.beneficiario_final, cumplimiento.calificacion_riesgo_cliente, cumplimiento.capacitacion_cumplimiento, cumplimiento.caso_investigacion_lft, cumplimiento.contrato_adhesion, cumplimiento.contrato_tercero, cumplimiento.control_interno, cumplimiento.debida_diligencia, cumplimiento.declaracion_origen_fondos, cumplimiento.declaracion_pep, cumplimiento.designacion_regulatoria, cumplimiento.desvio_perfil, cumplimiento.documento_publicado, cumplimiento.envio_regulatorio, cumplimiento.evaluacion_riesgo_producto, cumplimiento.evaluacion_tercero, cumplimiento.evento_riesgo_operativo, cumplimiento.expediente_cliente, cumplimiento.factor_riesgo_evaluado, cumplimiento.hallazgo_auditoria, cumplimiento.incidente_seguridad, cumplimiento.matriz_riesgo_lft, cumplimiento.observacion_regulatoria, cumplimiento.oficial_cumplimiento, cumplimiento.perfil_transaccional, cumplimiento.plan_accion_riesgo, cumplimiento.plan_continuidad, cumplimiento.politica_interna, cumplimiento.prueba_continuidad, cumplimiento.prueba_control, cumplimiento.punto_reclamo, cumplimiento.reclamo_cliente, cumplimiento.registro_operacion_relevante, cumplimiento.regla_monitoreo_lft, cumplimiento.reporte_regulatorio, cumplimiento.requerimiento_autoridad, cumplimiento.revision_periodica_kyc, direccion_usuario, dispositivo, documento_identidad, entregas.cuenta_bancaria_beneficiario, entregas.entrega_fondo, entregas.historial_estado_entrega, entregas.incidencia_entrega, entregas.validacion_pre_entrega, erp.asiento_plantilla, erp.cierre_periodo_contable, erp.ejercicio_fiscal, erp.estado_financiero_generado, erp.factura_proveedor, erp.orden_compra, erp.pago_a_proveedor, erp.presupuesto, factor_mfa, garantia.abono_recuperacion, garantia.accion_cobranza, garantia.acuerdo_quita, garantia.alerta_temprana, garantia.apelacion_sancion, garantia.aval_participante, garantia.candidato_reemplazo, garantia.capacidad_respaldo, garantia.castigo_deuda, garantia.cobertura_incumplimiento, garantia.cobertura_respaldo, garantia.descargo_participante, garantia.deuda_participante, garantia.evidencia_incumplimiento, garantia.gestion_cobranza, garantia.historial_estado_incumplimiento, garantia.historial_incumplimiento_usuario, garantia.lista_restriccion_interna, garantia.movimiento_fondo, garantia.movimiento_reserva, garantia.promesa_pago, garantia.registro_incumplimiento, garantia.reserva_respaldo, garantia.sancion, garantia.score_riesgo_incumplimiento, grupos.acuerdo, grupos.enlace_grupo, grupos.historial_estado_grupo, grupos.invitacion, grupos.participante, grupos.postulacion_emparejamiento, grupos.reglamento_grupo, grupos.solicitud_ingreso, grupos.sorteo_turnos, historial_credencial, intento_autenticacion, notificaciones.aviso_interno, notificaciones.bandeja_entrada, notificaciones.canal_vinculado, notificaciones.notificacion, nucleo_financiero.asiento_contable, nucleo_financiero.bloqueo_saldo, nucleo_financiero.certificado_saldo, nucleo_financiero.cierre_diario, nucleo_financiero.conciliacion_custodia, nucleo_financiero.cuenta_billetera, nucleo_financiero.descuadre_custodia, nucleo_financiero.evaluacion_antifraude, nucleo_financiero.evidencia_mfa_consumida, nucleo_financiero.instrumento_fondeo, nucleo_financiero.orden_retiro, nucleo_financiero.politica_billetera, nucleo_financiero.regla_antifraude, nucleo_financiero.respuesta_idempotente, nucleo_financiero.retencion_saldo, nucleo_financiero.reverso_transaccion, nucleo_financiero.solicitud_cierre_billetera, nucleo_financiero.solicitud_reverso, nucleo_financiero.transaccion_billetera, organizador.apelacion_sancion_org, organizador.organizador, organizador.sancion_organizador, organizador.solicitud_organizador, perfil_financiero, preferencia_notificacion, publicidad.campana_publicitaria, publicidad.clic_anuncio, publicidad.impresion_anuncio, publicidad.revision_creativa, publicidad.segmento_audiencia, publicidad.socio_comercial, referencia_personal, reputacion_usuario, restriccion_usuario, sesion, solicitud_baja, tarifas.asignacion_tarifario, tarifas.cambio_tarifario, tarifas.campana_promocional, tarifas.cuenta_por_cobrar_comision, tarifas.datos_facturacion, tarifas.devengo_comision, tarifas.devolucion_comision, tarifas.evento_significativo_sin, tarifas.exencion_comision, tarifas.factura_electronica, tarifas.liquidacion_ingresos, tarifas.simulacion_tarifa, token_verificacion, transparencia.certificado_reputacion, transparencia.evento_reputacion, transparencia.insignia_otorgada, transparencia.puntaje_reputacion, transparencia.resena_participante, transparencia.snapshot_reputacion, usuario_interno, verificacion_kyc.",
    "clasificacion": {
     "personales": 6,
     "financieros": 0,

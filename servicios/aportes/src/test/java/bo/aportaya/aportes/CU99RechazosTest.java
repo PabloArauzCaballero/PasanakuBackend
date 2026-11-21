@@ -47,7 +47,8 @@ class CU99RechazosTest extends BaseDeAportes {
                 true,
                 1,
                 true,
-                true);
+                true,
+                "alta-" + java.util.UUID.randomUUID());
     }
 
     @Test
@@ -142,7 +143,8 @@ class CU99RechazosTest extends BaseDeAportes {
                         false,
                         1,
                         true,
-                        true),
+                        true,
+                        "alta-" + java.util.UUID.randomUUID()),
                 ctx));
 
         var ruta = transaccion.execute(t -> proveedorCU.enrutar(EntradaEnrutamiento.primera("idem-c"), ctx));
@@ -169,7 +171,8 @@ class CU99RechazosTest extends BaseDeAportes {
                 true,
                 1,
                 false,
-                true);
+                true,
+                "alta-" + java.util.UUID.randomUUID());
 
         assertThatThrownBy(() -> transaccion.execute(t -> proveedorCU.darDeAlta(sinContrato, ctx)))
                 .isInstanceOf(ErrorDeNegocio.class)
@@ -195,7 +198,8 @@ class CU99RechazosTest extends BaseDeAportes {
                 true,
                 1,
                 true,
-                false);
+                false,
+                "alta-" + java.util.UUID.randomUUID());
 
         assertThatThrownBy(() -> transaccion.execute(t -> proveedorCU.darDeAlta(sinPruebas, ctx)))
                 .isInstanceOf(ErrorDeNegocio.class)
