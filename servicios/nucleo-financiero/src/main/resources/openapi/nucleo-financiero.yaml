@@ -29,6 +29,8 @@
 #                                      o otra instruccion la adelanto)
 #   AP-CU11-09  PAGO_NO_CONFIRMABLE  · la orden no esta EN_PROCESO, o el proveedor respondio
 #                                      algo que no coincide con la orden
+#   AP-CU11-15  PROVEEDOR_DE_DESEMBOLSO_NO_CONFIGURADO · no hay proveedor de desembolso
+#                                      contratado (P-15): la orden queda AUTORIZADA y retenida
 openapi: 3.1.0
 info:
   title: nucleo-financiero
