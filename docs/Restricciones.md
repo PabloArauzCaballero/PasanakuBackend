@@ -265,7 +265,7 @@ CREATE CONSTRAINT TRIGGER tg_asiento_una_moneda
 
 -- R-AUD-13 · cada línea va al debe o al haber, nunca a los dos, y nunca es negativa
 --
--- R-AUD-05 suma: dos líneas de -10 "cuadran" (TYA-DINERO-001, reproducido). El signo
+-- El cuadre de R-AUD-05 solo suma: dos líneas de -10 "cuadran" (TYA-DINERO-001, reproducido). El signo
 -- lo da la cuenta y el lado, no el número (regla 91.2.2). `Partida` ya lo exige en el
 -- dominio de nucleo-financiero; esto lo hace cumplir a cualquiera que escriba.
 ALTER TABLE movimiento_contable
@@ -274,7 +274,7 @@ ALTER TABLE movimiento_contable
 
 -- R-AUD-14 · un asiento en firme no recibe líneas nuevas
 --
--- R-AUD-05 y R-AUD-12 se disparan al insertar el ENCABEZADO. Una línea insertada
+-- Los controles R-AUD-05 y R-AUD-12 se disparan al insertar el ENCABEZADO. Una línea insertada
 -- después, en otra transacción, no volvía a disparar nada: un asiento CONFIRMADO
 -- aceptaba una línea suelta que lo descuadraba, o un par cuadrado que cambiaba los
 -- saldos sin asiento nuevo (TYA-DINERO-001, reproducido). Corregir un asiento en firme
@@ -309,11 +309,12 @@ BEGIN
   RETURN NEW;
 END $$ LANGUAGE plpgsql;
 
+-- R-AUD-14 · la línea se rechaza antes de entrar
 CREATE TRIGGER tg_movimiento_contable_asiento_abierto
   BEFORE INSERT ON movimiento_contable
   FOR EACH ROW EXECUTE FUNCTION fn_aud_linea_en_asiento_abierto();
 
--- El cuadre se revalida también desde cada línea. Sin esto, dentro de la MISMA
+-- R-AUD-14 · el cuadre se revalida también desde cada línea. Sin esto, dentro de la MISMA
 -- transacción alcanzaba con `SET CONSTRAINTS ALL IMMEDIATE` después de las primeras
 -- líneas: los triggers del encabezado se adelantaban, pasaban, y una línea posterior
 -- descuadraba el asiento sin que nada volviera a mirar (reproducido sobre dev). Con
@@ -339,6 +340,7 @@ BEGIN
   RETURN NULL;
 END $$ LANGUAGE plpgsql;
 
+-- R-AUD-14 · revalidación diferida desde la línea
 CREATE CONSTRAINT TRIGGER tg_movimiento_contable_cuadra
   AFTER INSERT ON movimiento_contable
   DEFERRABLE INITIALLY DEFERRED
