@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, model } from '@angular/core'
-import { interpretarMontoEscrito } from '@aportaya/tokens/dinero'
+import { interpretarMontoEscrito } from '@aportaya/tokens/dinero/interpretar'
 import { Campo } from '../campo/campo'
 
 /**
@@ -24,7 +24,9 @@ export class CampoMonto {
 
 /**
  * «1.240,5» → «1240.50»; «12.50» → «12.50»; «abc» → null. Sin `parseFloat`: la plata
- * no se redondea. La regla vive UNA vez, en `@aportaya/tokens/dinero` (`interpretar.ts`),
- * con los vectores que la app Flutter reproduce (F1.S4.M1).
+ * no se redondea. La regla vive UNA vez, en `@aportaya/tokens/dinero/interpretar`, con los
+ * vectores que la app Flutter reproduce (F1.S4.M1). Tiene entrada propia en `exports`: el
+ * pre-empaquetado de Vite no resuelve un re-export relativo sin extensión dentro de un `.ts`
+ * servido como dependencia, y `ng serve` no arrancaba.
  */
 export const aCadenaDelContrato = interpretarMontoEscrito
