@@ -1,0 +1,25 @@
+/** Textos de la bandeja de bloqueos por orden de autoridad (CU-17), en voz de marca. */
+export const textosBloqueos = {
+  titulo: 'Bloqueos de autoridad',
+  proposito: 'Las órdenes de autoridad que inmovilizan saldo de una billetera, la más reciente primero. Un bloqueo lo levanta una persona distinta de la que lo registró.',
+  tabla: 'Bloqueos por orden de autoridad',
+  vacio: 'No hay bloqueos en este estado.',
+  explicacionVacio: 'Sin filtro se muestran todos. Un bloqueo aparece acá cuando se registra la orden de una autoridad sobre una cuenta.',
+  ayudaDeBusqueda: 'Busca por autoridad, tipo de orden, alcance o estado en la página cargada: el servidor no admite búsqueda. El estado filtra en el servidor.',
+  todos: 'Todos',
+  columnas: { autoridad: 'Autoridad', tipoOrden: 'Orden', alcance: 'Alcance', montoBloqueado: 'Monto bloqueado', estado: 'Estado', recibidoEn: 'Recibido', venceEn: 'Vence' },
+  saldoCompleto: 'Todo el saldo',
+  sinVencimiento: 'Sin fecha de fin',
+  levantar: 'Levantar',
+  autoridades: { ASFI: 'ASFI', FISCALIA: 'Fiscalía', INTERNO: 'Interno', JUZGADO: 'Juzgado', UIF: 'UIF' } as Record<string, string>,
+  ordenes: { CONGELAMIENTO: 'Congelamiento', EMBARGO: 'Embargo', INFORMATIVO: 'Informativo', INMOVILIZACION: 'Inmovilización', RETENCION: 'Retención' } as Record<string, string>,
+  alcances: { PARCIAL: 'Parcial', TOTAL: 'Total' } as Record<string, string>,
+  estados: { VIGENTE: 'Vigente', LEVANTADO: 'Levantado', VENCIDO: 'Vencido' } as Record<string, string>,
+  levantamiento: {
+    titulo: (orden: string) => `Levantar el bloqueo: ${orden}`,
+    confirmar: 'Levantar el bloqueo',
+    consecuencia: 'El saldo inmovilizado por esta orden vuelve a estar disponible para la persona. Queda registrado quién lo levantó y cuándo; no se puede deshacer desde acá.',
+    cuatroOjos: 'Solo puede levantarlo alguien distinto de quien lo registró.',
+    recibo: 'Bloqueo levantado. El saldo ya no está inmovilizado por esta orden.',
+  },
+}

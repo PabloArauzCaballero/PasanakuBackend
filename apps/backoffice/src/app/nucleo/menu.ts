@@ -99,6 +99,7 @@ export const MENU: readonly Grupo[] = [
           cum('verificaciones', 'Verificación de identidad', 'verificado'),
           cum('alertas', 'Alertas de monitoreo', 'alerta'),
           cum('casos', 'Casos de investigación', 'carpeta'),
+          cum('bloqueos', 'Bloqueos de autoridad', 'candado'),
           cum('uif/reportes', 'Reportes a la UIF', 'enviar'),
           cum('uif/requerimientos', 'Requerimientos de autoridad', 'balanza'),
           cum('actas', 'Actas de comité', 'documento'),
