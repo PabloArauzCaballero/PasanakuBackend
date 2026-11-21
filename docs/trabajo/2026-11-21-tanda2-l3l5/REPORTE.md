@@ -1,14 +1,14 @@
 # Reporte — Tanda 2, lote L3L5
 
-> **AVANCE: 8 / 23 — 34,8 %.** A MEDIAS: T2.M0b, F1.L3.M04, F1.L3.M05, F1.L5.M28. CI con rojos ajenos al lote (ver Riesgos).
+> **AVANCE: 9 / 23 — 39,1 %.** A MEDIAS: F1.L3.M04, F1.L3.M05, F1.L5.M28. CI con rojos ajenos al lote (ver Riesgos).
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md)
 - PR hacia `dev` (apilados en este orden; cada uno suma un commit propio y los documentos del lote):
-  #423 T2.M0 · #428 F1.L3.M04 · #431 F1.L3.M06 · #434 F1.L3.M07 · #437 F1.L3.M05 · #438 F1.L5.M26 ·
-  #440 F1.L5.M27 · #443 F1.L5.M23 · #446 F1.L5.M21 · #448 F1.L5.M28 · #453 T2.M1 (no apilado, desde `dev`)
-- Estado del CI al cerrar el turno: `osv-scan` en rojo en todos (EXTERNAL: npm de `yarn.lock`, ver Riesgos);
-  #423 «Los cinco corredores» en rojo por `identidad · RotacionDeClavesDeFirmaTest` (no es de este lote, ver Riesgos);
-  «Contratos y clientes generados» en verde en #428 tras regenerar Postman; el resto de los jobs, en cola.
+  #423 T2.M0 (cerrado: incluido en #444, ya en `dev`) · #428 F1.L3.M04 · #431 F1.L3.M06 · #434 F1.L3.M07 · #437 F1.L3.M05 · #438 F1.L5.M26 ·
+  #440 F1.L5.M27 · #443 F1.L5.M23 · #446 F1.L5.M21 · #448 F1.L5.M28 · #453 T2.M1 (ya en `dev`)
+- Estado del CI: `origin/dev` (con #433 OSV, #419, #444 Mockito y #453 aliado) mergeado en toda la pila el
+  2026-11-21; el CI de cada PR se vuelve a correr con eso. Antes: `osv-scan` en rojo por npm de `yarn.lock`
+  (resuelto por #433) y #423 en rojo por `identidad · RotacionDeClavesDeFirmaTest` (cubierto por #444).
 - Peldaño de evidencia alcanzado: `TESTED` en todo lo completado (pruebas dirigidas + suites unitaria, web y
   barrido de cada servicio tocado, más `psql` contra PostgreSQL local donde hay SQL). No llega a `VERIFIED`: las
   integraciones con Testcontainers no corrieron (Docker) y el CI de los PR sigue en cola.
@@ -20,6 +20,7 @@
 |---|---|---|---|
 | T2.M0 | El arranque único de Mockito ya no cae dentro de `armar()`; con la CPU repartida la clase pasa 3/3 (antes `TimeoutException` a 7,3 s) sin cambiar ningún límite | `taskset -c 0 ./gradlew --no-daemon :servicios:grupos:test --tests '*AdmisionDelGrupoSustitucionTest' --rerun` ×3 con 3 procesos ocupados en el mismo núcleo | PASS · [evidencia](./evidencia/T2.M0-mockito-arranque.txt) |
 
+| T2.M0b | El arranque de Mockito se paga fuera de los atoms en TODA JVM de prueba (`buildSrc` + `comun-pruebas`); lo hizo la coordinación en #444 sobre el commit de #423 | en la punta de la pila, tras mergear `dev`: `./gradlew :servicios:grupos:spotlessCheck test webTest testBarrido --rerun` → 119/184/2 en verde, 0 avisos `self-attaching` | PASS · #444 en `dev` |
 | F1.L3.M06 | «Grupos activos» cuenta al participante en mora y excluye los grupos terminales reales; los estados salen de enumerados de dominio comparados con el `CHECK` | `./gradlew :servicios:grupos:test --tests '*EstadosContraElModeloTest'` + `psql` vieja/nueva | PASS · [evidencia](./evidencia/F1.L3.M06-estados-vivos.txt) |
 | F1.L3.M07 | Un acuerdo se resuelve una vez: precondición `estado = 'ABIERTO'` en el `UPDATE`; quien pierde la carrera no reemite | dos conexiones `psql` (vieja `UPDATE 1`/`UPDATE 1`, nueva `UPDATE 1`/`UPDATE 0`) + `ResolucionDeAcuerdoTest` | PASS · [evidencia](./evidencia/F1.L3.M07-acuerdo-precondicion.txt) |
 | F1.L5.M26 | Marcar leído un aviso interno exige ser su destinatario (usuario o rol), en la escritura; ajeno → 404 | `psql` (B: `UPDATE 0`) + `AvisosInternosWebTest` | PASS · [evidencia](./evidencia/F1.L5.M26-avisos-destinatario.txt) — integración `NO COMPROBADO` (Docker); RLS por destinatario pendiente (bloque genérico) |
@@ -29,15 +30,6 @@
 | T2.M1 | `inversiones · AliadoSimuladoFlujosContratoTest`: el simulador del aliado respondía HTTP/1.0 y cerraba el socket sin decirlo; el `HttpClient` de Java reutilizaba la conexión cerrada. Ahora habla HTTP/1.1 | diagnóstico bajo carga (29/60 → 0/60 con A y con B) + `contractTest` ×3 con carga + 27 pruebas Python | PASS · [evidencia](./evidencia/T2.M1-inversiones-aliado-http.txt) · #453 |
 
 ## A medias
-### T2.M0b — El mismo arreglo para todos los servicios (lo resuelve la coordinación en #444)
-- Qué anda: en `grupos`, Mockito entra como `-javaagent` y su arranque se paga en `MockitoAlAbrirLaSesion`.
-- Qué no anda: los otros servicios siguen con el auto-attach de Mockito dentro de la primera prueba que mockea.
-- Qué falta exactamente: mover el bloque `tasks.withType<Test>` de `servicios/grupos/build.gradle.kts` a
-  `buildSrc/src/main/kotlin/aportaya.base.gradle.kts`, y `MockitoAlAbrirLaSesion` + su archivo
-  `META-INF/services` a `plataforma/comun-pruebas` (con `junit-platform-launcher` en su `api`); después borrar la
-  copia de `grupos`. Lo hace la sesión dueña de `buildSrc`/`plataforma`.
-- Dónde quedó: rama `correcciones/tanda2-l3l5-test-admision`, compila, suites de `grupos` en verde.
-
 ### F1.L3.M04 — El retiro lo pide solo su titular
 - Qué anda: en la API, el participante sale del token y del `grupoId` de la ruta; otro integrante en el cuerpo,
   otro usuario y rol insuficiente reciben 403, sin token 401, sin invocar el caso de uso
