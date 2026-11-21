@@ -42,14 +42,14 @@ Reemplaza en `aporte-mora-cobertura.yaml` a los pasos retirados `cubrir-faltante
 |---|---|---|---|---|
 | 1 | Al vencer el plazo de gracia, cubrir la cuota impaga con el fondo del grupo; idempotente por obligación; límite = saldo del fondo leído del mayor dentro de la transacción | Sistema, programado | `garantia` | F3.S3.M2 |
 | 2 | Nace la deuda del moroso con el fondo (subrogación) | Sistema | `garantia` | F3.S3.M3 |
-| 3 | Calcular el recargo por mora y acreditarlo al perjudicado | Sistema, programado | `aportes` / `nucleo-financiero` | F3.S3.M4, F3.L1.M14 |
+| 3 | Calcular el recargo por mora y acreditarlo al fondo del grupo si el fondo cubrió, o a quien tuvo que esperar si el fondo no alcanzó (DECISIONES, tanda 9) | Sistema, programado | `aportes` / `nucleo-financiero` | F3.S3.M4, F3.L1.M14 |
 | 4 | Declarar el incumplimiento y abrir el expediente con plazo de descargo | Sistema | `garantia` | F3.S6.M1 |
 | 5 | Resolver el descargo (Soporte o Riesgos); si prospera, revertir el recargo con contra-asiento | Persona (C4 de ADR-055) | `garantia` | F3.S6.M2, F3.S3.M4 |
 | 6 | El moroso paga: se imputa primero a su deuda con el fondo | Participante, webhook | `aportes` / `garantia` | F3.S1.M6, F3.S3.M3 |
 
 Casos (de F3.S3.M2–M4):
-- **Correcto:** cuota impaga al vencer la gracia → el fondo la cubre una vez, nace la deuda, el recargo llega al perjudicado.
-- **Límite:** dos coberturas simultáneas de la misma obligación → un solo efecto · saldo del fondo exactamente igual a la cuota → cubre justo · descargo que prospera → contra-asiento del recargo.
+- **Correcto:** cuota impaga al vencer la gracia → el fondo la cubre una vez, nace la deuda, el recargo entra al fondo del grupo.
+- **Límite:** dos coberturas simultáneas de la misma obligación → un solo efecto · saldo del fondo exactamente igual a la cuota → cubre justo · descargo que prospera → contra-asiento del recargo · el fondo no alcanzó y el beneficiario esperó → el recargo va a quien esperó.
 - **Inválido:** fondo sin saldo suficiente → no se cubre una parte; la entrega espera con el motivo visible · recargo hacia una cuenta de la empresa → la base lo rechaza (kill-test 3).
 
 ## 3. Entrega automática del turno (`entregas`)
@@ -75,14 +75,14 @@ Reemplaza en `entrega-del-turno.yaml` a los pasos retirados `liberar-reserva` y 
 
 | # | Paso | Actor y disparo | Servicio | Microtarea |
 |---|---|---|---|---|
-| 1 | Último turno entregado → calcular desde el mayor la devolución de cada participante: su aporte al fondo menos su parte de lo incobrable | Sistema, evento | `garantia` | F3.S3.M5 |
+| 1 | Último turno entregado → calcular desde el mayor la devolución de cada participante. Lo incobrable se compensa **primero** con la devolución del propio moroso (que no recibe nada mientras deba); el resto se descuenta en partes iguales **solo entre los que cumplieron** (DECISIONES, tanda 9) | Sistema, evento | `garantia` | F3.S3.M5 |
 | 2 | Repartir el residuo de redondeo de a un centavo, por nivel y con desempate por sorteo | Sistema | `garantia` | F3.S3.M8 |
 | 3 | Cada devolución es un desembolso con las reglas de la sección 3 | Sistema | `garantia` → `entregas` | F3.S3.M5 |
 | 4 | El fondo queda en cero y cuadra; la deuda incobrable se castiga sin borrarse | Sistema | `garantia` | F3.S3.M5 |
 
 Casos (de F3.S3.M5 y M8):
 - **Correcto:** ciclo sin morosos → cada uno recupera su aporte íntegro; fondo en cero.
-- **Límite:** división inexacta → la suma repartida es igual al total, sin perder un centavo · un solo moroso con deuda parcialmente recuperada.
+- **Límite:** división inexacta → la suma repartida es igual al total, sin perder un centavo · un solo moroso con deuda parcialmente recuperada → su devolución compensa primero y el resto lo absorben los que cumplieron · deuda menor que la devolución del moroso → nada se reparte y el moroso recibe el saldo · grupo que arma otro ciclo sin morosos («Grupo perfecto») → el ciclo siguiente nace con el porcentaje menor de aporte al fondo.
 - **Inválido:** el fondo no cuadra con su cuenta segregada → se suspende el cierre y salta la alerta (PX3.M04).
 
 ## 5. Retiro de la billetera con controles (`nucleo-financiero`)
@@ -99,3 +99,23 @@ Casos (de F3.S5.M2):
 - **Correcto:** retiro normal → sale sin persona.
 - **Límite:** monto exactamente en el límite de la ventana → sale · cuenta que sale del enfriamiento justo a tiempo.
 - **Inválido:** retiro con alerta → retenido con su motivo · sin segundo factor → rechazo · cuenta en enfriamiento → rechazo.
+
+## 6. Vida del grupo: creación, arranque y disolución (`grupos`, `garantia`)
+
+Sin equivalente en el catálogo vivo. Reglas de ADR-055 (§1-bis, E6, E14) y de DECISIONES, tanda 9.
+
+| # | Paso | Actor y disparo | Servicio | Microtarea |
+|---|---|---|---|---|
+| 1 | Crear el grupo con su tamaño exacto, monto, periodicidad, fecha de inicio, nombre y fecha límite; quien lo crea queda como **creador** (administra la configuración, no toca dinero) | Participante | `grupos` | F3.S4.M1 |
+| 2 | Invitar y revocar invitaciones mientras haya cupos; cambiar la configuración solo antes de arrancar | Creador | `grupos` | F3.S4.M1 |
+| 3 | Cupos completos → inicio y sorteo automáticos (orden por nivel y sorteo dentro del nivel) | Sistema, programado | `grupos` | F3.S4.M2, F3.S4.M3 |
+| 4 | Fecha límite sin llenar → el creador decide: achicar (si todos aceptan el nuevo pozo), extender o cancelar. Sin decisión en el plazo parametrizado, se cancela. Nadie pagó nada hasta el arranque | Creador / sistema, programado | `grupos` | F3.S4.M2 |
+| 5 | Con el grupo en marcha: agregar cupos al final del calendario por votación, sin tocar turnos asignados | Grupo (votación) | `grupos` | F3.S4.M5 |
+| 6 | Pasar el rol de creador a otro participante, que lo acepta | Creador → participante | `grupos` | F3.S4.M1 |
+| 7 | Disolución automática: el fondo se agota y la mora supera el umbral (parámetro) → el grupo se disuelve y cada uno se liquida desde el mayor. Convive con la disolución votada | Sistema | `grupos` / `garantia` | F3.S4.M5, F3.S3.M5 |
+
+Casos:
+- **Correcto:** el grupo se llena antes de la fecha límite → arranca y sortea solo.
+- **Límite:** a la fecha límite falta un cupo y todos aceptan el pozo menor → el grupo se achica y arranca · el creador no decide en el plazo → se cancela · mora exactamente en el umbral con el fondo agotado → se aplica la regla tal como la fije el parámetro (umbral inclusivo o no: a definir con su valor).
+- **Inválido:** con el grupo en marcha el creador intenta cambiar el monto; o, en cualquier momento, expulsar a alguien, cambiar un turno, aprobar un pago o mover dinero → 403 sin efecto · con el grupo en marcha intenta agregar un cupo sin votación → rechazo · otra persona intenta un poder del creador → 403.
+
