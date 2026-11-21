@@ -1,0 +1,51 @@
+### INVALIDO: perfil distinto de local
+ERROR: identidad corre con el perfil «production», no con «local»: este arranque es solo para TEST
+rc=5
+### INVALIDO: sin MFA_LLAVES
+ERROR: MFA_LLAVES no trae una llave de 32+ caracteres para la version vigente 1 (cargala en Coolify)
+rc=5
+### INVALIDO: llave corta
+ERROR: MFA_LLAVES no trae una llave de 32+ caracteres para la version vigente 1 (cargala en Coolify)
+rc=5
+### INVALIDO: version vigente que no esta en las llaves
+ERROR: MFA_LLAVES no trae una llave de 32+ caracteres para la version vigente 2 (cargala en Coolify)
+rc=5
+### INVALIDO: codigo con caracteres no permitidos
+ERROR: «x;DROP» no es un codigo publico valido
+rc=2
+### LIMITE: codigo inexistente
+[totp] antes:
+[totp] NO-EXISTE: no existe o esta dado de baja; se salta
+[totp] despues:
+[totp] sembrados: 0
+rc=0
+### CORRECTO: siembra SINT-E2E-A y B
+[totp] antes:
+[totp]   SINT-E2E-A totp=no
+[totp]   SINT-E2E-B totp=no
+[totp] SINT-E2E-A: TOTP sembrado. Cargalo AHORA en la app autenticadora (se muestra una sola vez):
+         semilla:  <SEMILLA-SINTETICA>
+         otpauth:  otpauth://totp/AportaYa%3ASINT-E2E-A?secret=<SEMILLA-SINTETICA>&issuer=AportaYa&algorithm=SHA1&digits=6&period=30
+[totp] SINT-E2E-B: TOTP sembrado. Cargalo AHORA en la app autenticadora (se muestra una sola vez):
+         semilla:  <SEMILLA-SINTETICA>
+         otpauth:  otpauth://totp/AportaYa%3ASINT-E2E-B?secret=<SEMILLA-SINTETICA>&issuer=AportaYa&algorithm=SHA1&digits=6&period=30
+[totp] despues:
+[totp]   SINT-E2E-A totp=si
+[totp]   SINT-E2E-B totp=si
+[totp] sembrados: 2
+rc=0
+### LIMITE: segunda corrida (idempotente)
+[totp] antes:
+[totp]   SINT-E2E-A totp=si
+[totp]   SINT-E2E-B totp=si
+[totp] SINT-E2E-A: ya tiene TOTP activo; no se reemplaza
+[totp] SINT-E2E-B: ya tiene TOTP activo; no se reemplaza
+[totp] despues:
+[totp]   SINT-E2E-A totp=si
+[totp]   SINT-E2E-B totp=si
+[totp] sembrados: 0
+rc=0
+### estado
+[estado] SINT-E2E-A totp=si
+[estado] SINT-E2E-B totp=si
+rc=0

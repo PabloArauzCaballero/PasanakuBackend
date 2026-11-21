@@ -161,3 +161,44 @@ Verificación local tras los arreglos:
 - Los scripts de bóveda, Postman y compose en verde.
 - comun-web 24 + 53, identidad 87 + 160 e integración CU-04 61/61 contra la Postgres local.
 - gitleaks no se pudo correr en local: la descarga del binario fue denegada. Lo valida el CI.
+
+## Arranque del primer TOTP en TEST (pedido de la sesión coordinadora)
+
+**Problema.** TEST entraba al backoffice con el `000000` del perfil `local`, y `sembrar_test.sh` tambien dependia de
+ese codigo. Sin el, el operador de TEST no puede entrar: enrolar un TOTP exige una sesion, y la sesion del operador ya
+exige TOTP. Es un huevo y la gallina.
+
+**Arreglo.** Nuevo guion `despliegue/ensayos/arrancar_totp_test.sh`:
+- Solo corre con el perfil `local`.
+- Lee `MFA_LLAVES` y `MFA_LLAVE_VIGENTE` del contenedor de identidad con `printenv`. Nunca las imprime ni las guarda.
+- Cifra la semilla con el formato exacto de `CifradorSimetrico`.
+- Inserta el TOTP activo y principal, y deja de marcar como principales los otros factores.
+- Si la cuenta ya tiene TOTP, no lo reemplaza.
+- Muestra la semilla y el URI `otpauth://` una sola vez, solo en la terminal de quien lo corre.
+
+Se actualizaron `despliegue/TEST.md` («Entrar», «Como sembrarlas» y la tabla de secretos) y los comentarios de
+`sembrar_test.sh`. El SQL generado de ese guion no se edito.
+
+**Verificacion (contra un DOBLE de `docker` declarado, regla 65).** El doble mapea `exec … psql` a la Postgres local y
+`printenv` a valores sinteticos. Evidencia: `evidencia/arranque-totp-test-doble.txt`, con la semilla enmascarada.
+
+| Nivel | Caso | Resultado |
+|---|---|---|
+| Invalido | Perfil `production` | rc=5 |
+| Invalido | Sin `MFA_LLAVES` | rc=5 |
+| Invalido | Llave corta | rc=5 |
+| Invalido | Version vigente ausente en las llaves | rc=5 |
+| Invalido | Codigo publico con `;` | rc=2 |
+| Limite | Codigo inexistente | Se salta, «sembrados: 0» |
+| Limite | Segunda corrida | «ya tiene TOTP activo; no se reemplaza», «sembrados: 0» |
+| Correcto | SINT-E2E-A y B | «sembrados: 2», TOTP principal y SMS marcador no principal |
+
+La llave no aparece en ninguna salida: `grep` sobre la salida cruda da 0.
+
+Interoperabilidad (`evidencia/arranque-totp-interop-java.txt`):
+- `CifradorSimetrico.descifrar` (Java, la clase real) devuelve exactamente la semilla que mostro el guion.
+- Con una llave equivocada, GCM rechaza el descifrado.
+- `CodigoTotp` calcula el codigo a partir de esa semilla.
+
+**NO COMPROBADO, requiere el VPS de TEST:** la corrida real por `ssh` contra los contenedores de Coolify, y el login
+del operador en el backoffice con el codigo de la app.
