@@ -87,7 +87,7 @@ normas: [Regla 91 (dinero), ADR-056 §6, DECISIONES tandas 1, 6 y 7]
 
 ## Criterios de aceptación
 
-Los prueba `CU132Test` contra PostgreSQL (F3.S8.M2b); la base los sostiene además por su cuenta
+Los prueban `CU132Test` (F3.S8.M2b) y `CU132CongelamientoTest` (F3.S8.M6) contra PostgreSQL; la base los sostiene además por su cuenta
 (`docs/trabajo/2026-11-21-tanda2-l3l5/evidencia/F3.S8.M2a-modelo-parametros.txt`).
 
 ```gherkin
@@ -102,6 +102,10 @@ Entonces la aprobación se rechaza y la versión sigue PROPUESTA
 Dada una versión de parámetro APROBADA
 Cuando alguien intenta cambiar su valor o borrarla
 Entonces se rechaza y la corrección exige una versión nueva
+
+Dado un parámetro con una versión aprobada vigente y otra que entra en vigor después
+Cuando un grupo inicia
+Entonces el grupo congela la versión que regía al iniciar
 
 Dado un grupo que ya congeló un parámetro en un nivel
 Cuando se intenta congelar otra versión del mismo parámetro y nivel para ese grupo

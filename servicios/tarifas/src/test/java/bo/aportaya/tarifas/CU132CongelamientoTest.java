@@ -86,7 +86,8 @@ class CU132CongelamientoTest extends BaseDeTarifas {
     }
 
     @Test
-    @DisplayName("Correcto · congela la versión que regía al iniciar, no una posterior")
+    @DisplayName("Dado un parámetro con una versión aprobada vigente y otra que entra en vigor después · Cuando un"
+            + " grupo inicia · Entonces el grupo congela la versión que regía al iniciar")
     void laQueRegiaAlIniciar() {
         UUID vieja = aprobada("3", INICIO.minusDays(30));
         aprobada("9", INICIO.plusDays(1));
@@ -98,7 +99,8 @@ class CU132CongelamientoTest extends BaseDeTarifas {
     }
 
     @Test
-    @DisplayName("Límite · el mismo evento dos veces es DUPLICADO; re-emitido con otro id no agrega filas")
+    @DisplayName("Evento duplicado · el mismo grupo_iniciado dos veces no congela dos veces; re-emitido con otro id no"
+            + " agrega filas")
     void unaSolaVez() {
         aprobada("3", INICIO.minusDays(30));
         UUID evento = UUID.randomUUID();
@@ -112,7 +114,7 @@ class CU132CongelamientoTest extends BaseDeTarifas {
     }
 
     @Test
-    @DisplayName("Inválido · sin versión aprobada al iniciar no se congela nada para ese código y se informa")
+    @DisplayName("Rechaza completar un código sin versión aprobada al iniciar: no se congela nada y se informa")
     void sinVersionAprobada() {
         var r = congelar.procesar(new GrupoIniciado(UUID.randomUUID(), UUID.randomUUID(), grupo, INICIO));
 
