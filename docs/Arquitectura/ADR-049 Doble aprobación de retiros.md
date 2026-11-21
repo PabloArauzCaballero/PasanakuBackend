@@ -9,6 +9,13 @@ fecha: 2026-09-22
 
 # ADR-049 — Doble aprobación de retiros
 
+> [!warning] Reemplazado parcialmente por ADR-055 (2026-11-21).
+> La doble aprobación humana de cada retiro desde un umbral **deja de regir** (decisión P-09 de Pablo):
+> los retiros salen solos con segundo factor ligado a la operación, cuenta destino verificada, enfriamiento
+> tras un cambio de cuenta, límites por ventana y monitoreo UIF, y Cumplimiento revisa solo lo que dispara una
+> alerta. **Sigue vigente** la máquina de estados `AUTORIZADA`/`EN_REVISION` y el `UPDATE` condicionado por
+> estado, ahora para la orden retenida por alerta. Ver [[ADR-055 Sin aprobaciones en el circuito|ADR-055]] §3.
+
 > Carril PR2 ([[PR2-nucleo-financiero|PR2-nucleo-financiero]]), hito
 > H3. Referencia CU-11 y `R-SEG-04`.
 

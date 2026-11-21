@@ -360,6 +360,15 @@ CK_AMPLIADOS = {
     # 2026-10-16: el recargo por mora cobrado va al fondo de garantia (tableros-por-rol, H1.S2.M0d).
     "transaccion_billetera": ["tipo"],
     "movimiento_fondo": ["tipo"],
+    # 2026-11-21: F1.S1.M3 (ANF-DINERO-001). CHECK de importe no negativo agregado a
+    # tablas que ya existen: sin esta entrada, CREATE TABLE IF NOT EXISTS no lo lleva a
+    # una base ya aplicada (TEST) y la invariante 91.2.2 quedaria solo en las bases nuevas.
+    "obligacion_aporte": ["monto_pagado", "monto_recargo", "monto_condonado",
+                          "monto_cubierto_garantia"],
+    "orden_cobro": ["monto_exacto"],
+    "pago": ["monto_comision_proveedor", "monto_neto_acreditado"],
+    "reembolso": ["monto"],
+    "disputa_pago": ["monto_disputado"],
 }
 
 # --- FK -> tabla destino: overrides donde el nombre de columna no coincide ---

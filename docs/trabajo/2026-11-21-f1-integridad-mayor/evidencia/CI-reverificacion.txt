@@ -1,0 +1,16 @@
+$ evidencia/regresion.sh reg_ci   # tras corregir comentarios para el catalogo de errores y merge de origin/dev fd441fbe
+aplicar.sql exit=0
+60_semillas/sembrar.sql exit=0
+61_dev/sembrar_dev.sql exit=0
+humo: OK=165 FALLA=0 ERROR=1
+verificaciones: lineas_no_vacias=0
+humo-identico-a-origin-dev
+$ psql -f repro_tya_dinero_001.sql ; repro_set_constraints.sql ; verificar_mayor_valido.sql ; verificar_importes.sql
+ERROR:  R-AUD-14
+ERROR:  R-AUD-14
+ERROR:  new row for relation "movimiento_contable" violates check constraint "ck_movimiento_contable_un_lado
+ERROR:  new row for relation "movimiento_contable" violates check constraint "ck_movimiento_contable_un_lado
+ERROR:  R-AUD-05
+ERROR:  R-AUD-05
+3
+   29 |    0

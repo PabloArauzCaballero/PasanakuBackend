@@ -1,0 +1,7 @@
+$ regresion.sh reg_base   # origin/dev
+NOTICE:  database "reg_base2" does not exist, skipping
+aplicar.sql exit=0
+60_semillas/sembrar.sql exit=0
+61_dev/sembrar_dev.sql exit=0
+humo: OK=165 FALLA=0 ERROR=1
+verificaciones: lineas_no_vacias=0
