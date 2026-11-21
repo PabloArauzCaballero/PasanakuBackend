@@ -1,0 +1,26 @@
+BEGIN
+SET
+1) correcto: una solicitud SOLICITADA sin autorizador
+   estado   
+------------
+ SOLICITADA
+(1 row)
+
+INSERT 0 1
+SAVEPOINT
+2) invalido: autoriza la misma persona que pidio
+psql:docs/trabajo/2026-11-21-tanda2-l1/evidencia/M03-r-bil-27.sql:14: ERROR:  new row for relation "solicitud_reverso" violates check constraint "ck_solicitud_reverso_cuatro_ojos"
+DETAIL:  Failing row contains (<uuid>, <uuid>, <uuid>, <uuid>, null, psql-r-bil-27-1, ANULACION, Prueba de la regla R-BIL-27 con el rol de la app, SOLICITADA, 2026-11-21 15:22:51.776836+00, null).
+ROLLBACK
+3) limite: una segunda solicitud viva para la misma transaccion
+psql:docs/trabajo/2026-11-21-tanda2-l1/evidencia/M03-r-bil-27.sql:18: ERROR:  duplicate key value violates unique constraint "uq_solicitud_reverso_viva"
+DETAIL:  Key (transaccion_original_id)=(<uuid>) already exists.
+ROLLBACK
+4) invalido: EJECUTADA sin autorizador ni reverso
+psql:docs/trabajo/2026-11-21-tanda2-l1/evidencia/M03-r-bil-27.sql:21: ERROR:  new row for relation "solicitud_reverso" violates check constraint "ck_solicitud_reverso_resuelta"
+DETAIL:  Failing row contains (<uuid>, <uuid>, <uuid>, null, null, psql-r-bil-27-1, ANULACION, Prueba de la regla R-BIL-27 con el rol de la app, EJECUTADA, 2026-11-21 15:22:51.776836+00, 2026-11-21 15:22:51.776836+00).
+ROLLBACK
+5) invalido: la misma clave de idempotencia dos veces
+psql:docs/trabajo/2026-11-21-tanda2-l1/evidencia/M03-r-bil-27.sql:25: ERROR:  duplicate key value violates unique constraint "uq_solicitud_reverso_clave_idempotencia"
+DETAIL:  Key (clave_idempotencia)=(psql-r-bil-27-1) already exists.
+ROLLBACK

@@ -236,6 +236,21 @@ package "Libro de movimientos (append-only)" {
     + ejecutar(): TransaccionBilletera
   }
 
+  class SolicitudReverso {
+    - id: UUID
+    - transaccionOriginalId: UUID
+    - solicitadaPor: UUID
+    - autorizadaPor: UUID
+    - reversoTransaccionId: UUID
+    - claveIdempotencia: String
+    - tipo: String <<ANULACION | CONTRACARGO | ERROR_OPERATIVO | ORDEN_AUTORIDAD>>
+    - motivo: String
+    - estado: String <<SOLICITADA | EJECUTADA>>
+    --
+    + autorizar(otraPersona): ReversoTransaccion
+  }
+
+  SolicitudReverso "1" o-- "0..1" ReversoTransaccion
   TransaccionBilletera "1" *-- "2..*" MovimientoBilletera
   TransaccionBilletera "1" o-- "0..*" RetencionSaldo
   TransaccionBilletera "1" o-- "0..1" ReversoTransaccion
@@ -710,6 +725,21 @@ entity "reverso_transaccion" as revtx {
   ejecutada_en : TIMESTAMPTZ <<NULL>>
 }
 
+entity "solicitud_reverso" as solrev {
+  * id : UUID <<PK>>
+  --
+  # transaccion_original_id : UUID <<FK, IDX>>
+  # solicitada_por : UUID <<FK>>
+  # autorizada_por : UUID <<FK, NULL>>
+  # reverso_transaccion_id : UUID <<FK, NULL, UQ>>
+  clave_idempotencia : VARCHAR(100) <<UQ>>
+  tipo : VARCHAR(25) <<CK>>
+  motivo : VARCHAR(300)
+  estado : VARCHAR(15) <<CK>>
+  solicitada_en : TIMESTAMPTZ
+  resuelta_en : TIMESTAMPTZ <<NULL>>
+}
+
 entity "instrumento_fondeo" as instr {
   * id : UUID <<PK>>
   --
@@ -1048,6 +1078,8 @@ ctabill ||--o| solcierre : "se cierra con"
 txbill ||--|{ movbill : "detalla"
 txbill ||--o{ reten : "origina"
 txbill ||--o| revtx : "se reversa con"
+txbill ||--o{ solrev : "se pide reversar con"
+solrev |o--o| revtx : "se ejecuta como"
 txbill ||--o| p2p : "materializa"
 txbill ||--o{ evalfraude : "se evalua en"
 instr ||--o{ orecarga : "acredita desde"

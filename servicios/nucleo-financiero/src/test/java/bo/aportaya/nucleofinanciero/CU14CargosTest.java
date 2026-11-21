@@ -67,8 +67,12 @@ class CU14CargosTest extends BaseDeBilletera {
     }
 
     private SalidaReverso reversar(Recarga r, String clave) {
-        return transaccion.execute(t -> reversoCU.ejecutar(
-                new EntradaReverso(clave, r.transaccion(), "CONTRACARGO", MOTIVO, fixtura.usuario()), titular));
+        return Reversos.pedirYAutorizar(
+                transaccion,
+                reversoCU,
+                new EntradaReverso(clave, r.transaccion(), "CONTRACARGO", MOTIVO),
+                titular,
+                fixtura.usuario());
     }
 
     private int total() {
