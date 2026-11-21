@@ -1,7 +1,6 @@
 package bo.aportaya.garantia;
 
 import bo.aportaya.garantia.aplicacion.CU23CubrirConRespaldo;
-import bo.aportaya.garantia.aplicacion.CU23CubrirIncumplimiento;
 import bo.aportaya.garantia.aplicacion.CU23RecuperarRespaldo;
 import bo.aportaya.garantia.aplicacion.CU23ReservarRespaldo;
 import bo.aportaya.garantia.aplicacion.CU23ReversarCobertura;
@@ -50,9 +49,9 @@ abstract class BaseDeGarantia {
     protected static TransactionTemplate transaccion;
     protected static FixturaDeGarantia fixtura;
     protected static FixturaDeRespaldo fixturaDeRespaldo;
+    protected static FixturaDeDeudor fixturaDeDeudor;
     protected static Consumidos consumidos;
 
-    protected static CU23CubrirIncumplimiento coberturaCU;
     protected static CU23ReservarRespaldo reservaCU;
     protected static CU23CubrirConRespaldo respaldoCU;
     protected static bo.aportaya.garantia.aplicacion.ContingenciaDeCaja contingencia;
@@ -74,6 +73,7 @@ abstract class BaseDeGarantia {
         transaccion = new TransactionTemplate(new DataSourceTransactionManager(fuente));
         fixtura = new FixturaDeGarantia(dslFixtura);
         fixturaDeRespaldo = new FixturaDeRespaldo(dslFixtura, fixtura);
+        fixturaDeDeudor = new FixturaDeDeudor(dslFixtura);
         consumidos = new Consumidos("garantia");
 
         Datos datos = new Datos(dsl);
@@ -94,15 +94,6 @@ abstract class BaseDeGarantia {
 
         expedienteCU =
                 new CU25DeclararIncumplimiento(datos, expedientes, outbox, Reloj.delSistema(), PLAZO_DE_DESCARGO);
-        coberturaCU = new CU23CubrirIncumplimiento(
-                datos,
-                fondos,
-                deudas,
-                expedientes,
-                outbox,
-                Reloj.delSistema(),
-                DIAS_PARA_EXIGIR_LA_DEUDA,
-                ANIOS_DE_PRESCRIPCION);
         restriccionCU =
                 new CU27RestringirDeudor(datos, gestion, fondos, deudas, expedientes, outbox, Reloj.delSistema());
         devolucionCU = new CU29DevolverFondo(datos, fondos, outbox, Reloj.delSistema());

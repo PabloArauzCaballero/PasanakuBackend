@@ -21,7 +21,7 @@ public class IndicadoresDeGarantiaRepositorio {
         return suma(dsl.fetchOne(
                 """
                 SELECT COALESCE(SUM(monto_cubierto), 0), count(*) FROM garantia.cobertura_incumplimiento
-                 WHERE aplicada_en IS NOT NULL AND estado NOT IN ('RECHAZADA', 'REVERSADA', 'SOLICITADA')
+                 WHERE aplicada_en IS NOT NULL AND estado NOT IN ('RECHAZADA', 'REVERSADA')
                    AND (aplicada_en AT TIME ZONE 'America/La_Paz')::date BETWEEN ? AND ?
                 """,
                 desde,

@@ -1,0 +1,33 @@
+F1.L2.M02 (código) · CU-23 sin cobertura manual
+Rama: correcciones/tanda2-l2-cu23-sin-cobertura-manual (sobre origin/dev 02668c95)
+
+# CA del anexo: grep del código vacío
+$ grep -rn 'aprobadaPor\|SOLICITADA' servicios/garantia/src/main/java ; echo GREP=$?
+GREP=1
+(El esquema EntradaCobertura de garantia.yaml conserva `aprobadaPor`: la operación está deprecated y responde 410;
+ achicar el contrato es la contracción, pendiente.)
+
+$ ./gradlew spotlessCheck :servicios:garantia:check -x test -x jacocoTestCoverageVerification -x jacocoTestReport
+EXIT_CHECK=0
+$ ./gradlew :servicios:garantia:test :servicios:garantia:webTest
+EXIT_TESTS=0
+test     tests 43 fallas 0
+webTest  tests 50 fallas 0   (incluye web/CU23CoberturaManualRetiradaWebTest: 410 AP-CU23-14 y verifyNoInteractions)
+$ ./gradlew testBarrido
+EXIT_BARRIDO=0
+  (primera corrida en rojo: FixturaDeGarantia.java 308 líneas > 300 tras spotless. Clasificación: defecto del cambio.
+   Corrección: el helper pasó a FixturaDeDeudor.java; segunda corrida en verde.)
+
+$ python3 scripts/verificar_criterios.py   -> Sin divergencias entre la boveda y el codigo. (107 CU verificados)
+$ python3 scripts/verificar_boveda.py      -> TODO OK
+$ python3 scripts/verificar_seguridad.py   -> TODO OK · 5 aviso(s) (preexistentes)
+$ python3 scripts/verificar_pruebas_web.py -> La capa web esta cubierta segun ADR-043.
+$ python3 scripts/verificar_narrativas.py  -> Sin fallas.
+
+# Las sentencias del fixture nuevo (FixturaDeDeudor.cubiertoPorElFondo) contra el esquema real, base local 5433,
+# valores sintéticos, FK desactivadas y ROLLBACK: ver F1.L2.M02-fixture-cobertura.sql / .out
+  APLICADA 500.00 t · RECHAZADA 0.00 f · el tablero suma 500.00 / 1 caso (la rechazada no cuenta)
+
+NO COMPROBADO LOCAL (sin Docker; lo valida el CI del PR, «Los cinco corredores» -> integrationTest):
+  CU23Test (criterio1, criterio2, reintento) · CU27Test · CU27RechazosTest · CU27ReclamoEnCursoTest · CU66Test
+  · CU66RechazosTest · CUIndicadoresDeGarantiaTest · jacocoTestCoverageVerification de garantía.
