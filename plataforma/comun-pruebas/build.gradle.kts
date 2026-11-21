@@ -11,6 +11,8 @@ dependencies {
     api(libs.junit.jupiter)
     api(libs.snakeyaml)
     implementation(libs.spring.boot.jdbc)
+    // API de `LauncherSessionListener` (MockitoAlAbrirLaSesion); Gradle ya la carga al correr las pruebas.
+    implementation(libs.junit.platform.launcher)
     runtimeOnly(libs.postgresql)
 
     testRuntimeOnly(libs.junit.platform.launcher)

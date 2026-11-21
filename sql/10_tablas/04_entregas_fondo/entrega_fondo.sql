@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS entregas.entrega_fondo (
   version                            INTEGER DEFAULT 0 NOT NULL,
   CONSTRAINT pk_entrega_fondo PRIMARY KEY (id),
   CONSTRAINT ck_entrega_fondo_estado CHECK (estado IN ('ANULADA', 'AUTORIZADA', 'BLOQUEADA_POR_FONDO_INCOMPLETO', 'BLOQUEADA_POR_VALIDACION', 'CONFIRMADA', 'ENTREGADA', 'EN_PROCESO_DESEMBOLSO', 'LISTA_PARA_ENTREGA', 'PROGRAMADA', 'RECHAZADA_POR_BENEFICIARIO', 'REVERSADA')),
-  CONSTRAINT ck_entrega_fondo_metodo_desembolso CHECK (metodo_desembolso IN ('BILLETERA_MOVIL', 'COMPENSACION_INTERNA', 'EFECTIVO_ORGANIZADOR', 'QR_ENVIO', 'TRANSFERENCIA_BANCARIA'))
+  CONSTRAINT ck_entrega_fondo_metodo_desembolso CHECK (metodo_desembolso IN ('BILLETERA_MOVIL', 'COMPENSACION_INTERNA', 'QR_ENVIO', 'TRANSFERENCIA_BANCARIA'))
 );
 
 COMMENT ON TABLE entregas.entrega_fondo IS 'Módulo 04 — Entregas de Fondo. El acto de entregar la bolsa de un período al beneficiario del turno.';

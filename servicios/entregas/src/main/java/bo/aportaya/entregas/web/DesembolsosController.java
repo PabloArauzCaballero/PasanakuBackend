@@ -9,6 +9,7 @@ import bo.aportaya.entregas.web.generado.modelo.EntradaRespuestaDesembolso;
 import bo.aportaya.entregas.web.generado.modelo.PaginaDeDesembolsos;
 import bo.aportaya.entregas.web.generado.modelo.SalidaIntentoDesembolso;
 import bo.aportaya.entregas.web.generado.modelo.SalidaOrdenDesembolso;
+import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
@@ -101,28 +102,19 @@ public class DesembolsosController implements DesembolsosApi {
         return ResponseEntity.status(estado).body(respuesta);
     }
 
+    /**
+     * F1.L2.M05 (SEG-005): una persona ya no puede anotar la respuesta del proveedor. Con {@code exitoso=true} marcaba
+     * ACREDITADA y publicaba el asiento sin firma de nadie. La unica via es el webhook firmado del proveedor (F3.L2.M02,
+     * que reutiliza {@code CU28EmitirDesembolso.anotarRespuesta}); mientras no exista, la orden queda en el proveedor
+     * (P-14: no se mueve dinero real). Responde 410 hasta que el backoffice suelte la operacion (regla 98.1.3).
+     */
+    @Deprecated
     @Override
     @Permiso("ENTREGA_EJECUTAR")
     public ResponseEntity<SalidaIntentoDesembolso> anotarRespuestaDesembolso(
             UUID ordenId, EntradaRespuestaDesembolso cuerpo) {
-        Traza.marcarCasoDeUso("CU-28", ordenId.toString());
-
-        var salida = cu28.anotarRespuesta(
-                new CU28EmitirDesembolso.EntradaRespuesta(
-                        ordenId,
-                        cuerpo.getIniciado(),
-                        Boolean.TRUE.equals(cuerpo.getExitoso()),
-                        cuerpo.getReferenciaProveedor(),
-                        cuerpo.getCodigoError(),
-                        cuerpo.getMensajeProveedor()),
-                sesion.actual());
-
-        var respuesta = new SalidaIntentoDesembolso();
-        respuesta.setOrdenId(salida.ordenId());
-        respuesta.setEstado(salida.estado());
-        respuesta.setNumeroIntento(salida.numeroIntento());
-        respuesta.setReintentableEn(salida.reintentableEn());
-        respuesta.setEsNuevo(salida.esNuevo());
-        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+        throw new OperacionRetirada(
+                CodigoError.de(28, 8),
+                "La respuesta del proveedor ya no se anota a mano: la confirma el proveedor con su aviso firmado.");
     }
 }

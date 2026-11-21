@@ -56,6 +56,23 @@ tasks.withType<Test>().configureEach {
     systemProperty("api.version", apiDeDocker)
     environment("DOCKER_API_VERSION", apiDeDocker)
 
+    // Mockito entra como agente al ARRANCAR la JVM de prueba, no en el primer `mock()`.
+    // Sin esto Mockito se auto-adjunta (attach dinamico de byte-buddy-agent) dentro de la
+    // primera prueba que mockea, y ese costo cae en un `@BeforeEach` con el limite de 5s de
+    // los atomos: con la CPU del runner repartida fallaba de forma intermitente (grupos,
+    // identidad; causa demostrada en docs/trabajo/2026-11-21-tanda2-l3l5/evidencia/). Es la
+    // configuracion que pide Mockito 5 para JDK 21. El resto del arranque (ByteBuddy,
+    // Objenesis) lo paga `MockitoAlAbrirLaSesion` de comun-pruebas. Ningun limite cambia.
+    val clasesDePrueba = this
+    jvmArgumentProviders.add(
+        CommandLineArgumentProvider {
+            clasesDePrueba.classpath.files
+                .firstOrNull { it.name.startsWith("mockito-core-") && it.name.endsWith(".jar") }
+                ?.let { listOf("-javaagent:${it.absolutePath}") }
+                ?: emptyList()
+        },
+    )
+
     // Ninguna prueba saltada. No es celo: jqwik reporta una propiedad como SALTADA
     // cuando no puede correrla, y el build queda verde con mil casos de cuadre que
     // nunca se ejecutaron. Una prueba saltada miente mejor que una que falta.
