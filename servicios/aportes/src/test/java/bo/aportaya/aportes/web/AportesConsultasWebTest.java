@@ -179,4 +179,8 @@ class AportesConsultasWebTest {
     // El controlador tambien responde la primera cuota (R-GRP-20): sin este doble no carga.
     @org.springframework.test.context.bean.override.mockito.MockitoBean
     private bo.aportaya.aportes.aplicacion.ConsultarPrimeraCuota primeraCuota;
+
+    // El controlador tambien responde el pago con saldo (F1.L1.M11): sin este doble no carga.
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    private bo.aportaya.aportes.aplicacion.CU21PagarConSaldo pagoConSaldo;
 }

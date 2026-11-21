@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, lote L1 (`aportes` y `nucleo-financiero`)
 
-> **AVANCE: 10 / 19 — 52,6 %.** Trabajo en curso, con decisiones nuevas del coordinador (M10, M01, M11, M07, M08); lo que queda está bloqueado por archivos compartidos, por otro lote o por decisiones (ver Pendiente). Nada en rojo por código propio; dos fallas del CI de #418 son de módulos ajenos (ver Riesgos).
+> **AVANCE: 10 / 20 — 50,0 %.** Trabajo en curso: M11, M01, M07 y el listado de bloqueos (M10c, nuevo) a medias, con el código en verde y esperando lugar para su PR (tope 3) o la app de L6; lo que queda está bloqueado por archivos compartidos, por otro lote o por decisiones (ver Pendiente). Nada en rojo por código propio; dos fallas del CI de #418 son de módulos ajenos (ver Riesgos).
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Base: `origin/dev` 50cf3be9
 - PR hacia `dev`: **todos mergeados**. Se mergearon #430, #454 (que trajo a #425, #447 y #449), #456 (que trajo a #455), #418, #461 y #458 (que consolidan al resto). Abierto: el PR de M10 parte 2 (permisos y ruta de levantamiento).
@@ -27,17 +27,44 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 
 
 ## A medias
 
-### F1.L1.M07 — BOLA en `aportes` (PR #458 (antes #441))
-- **Qué anda:** el estado de un participante ajeno y el reembolso de un pago ajeno devuelven 404 sin cuerpo. Están probadas la matriz negativa web y `AutorizacionNegativaTest` 4/4 contra la base, con un doble declarado de `grupos`. El mutante hace fallar 2 pruebas.
-- **Qué no anda:** `morosos`, `primera-cuota` y `recaudo` siguen autorizados solo por rol.
-- **Qué falta exactamente:** que `grupos` (L3) consulte `morosos` y `primera-cuota` con identidad de servicio, y que `entregas` y `garantia` (L2) consulten `recaudo` también con identidad de servicio. Después, `aportes` exige `SERVICIO_*` o pertenencia. Hoy `grupos` las consulta con el token de un postulante que todavía no es miembro (`MapeoDePostulacion.java:45`) y en el sorteo.
-- **Dónde quedó:** rama `correcciones/tanda2-l1-bola-aportes`. Compila y las suites de `aportes` están en verde.
+### F1.L1.M07 — BOLA en `aportes` (estado y reembolso en `dev` por #458; pasos 1+2 en la rama `correcciones/tanda2-l1-identidad-servicio`)
+- **Qué anda:**
+  - En `dev`: el estado de un participante ajeno y el reembolso de un pago ajeno devuelven 404.
+  - En la rama (commit f0d32a7b):
+    - `morosos` y `primera-cuota` exigen `SERVICIO_GRUPOS`.
+    - `recaudo` exige `SERVICIO_ENTREGAS` o `SERVICIO_GARANTIA`, y transitoriamente `ENTREGA_EJECUTAR`.
+    - `grupos`, `entregas` y `garantia` preguntan con el token de su cuenta de servicio y, sin él, fallan cerrados.
+    - `garantia` tiene su rol `SERVICIO_GARANTIA` (semillas idempotentes), su configuración, sus variables en el compose y su fila de rotación.
+  - Lo prueban `IdentidadDeServicioWebTest` (17/17), las pruebas de los adaptadores y un mutante sobre el inventario de rotación. `test`, `webTest` y `testBarrido` están en verde en los cuatro servicios (`evidencia/M07b-*`).
+- **Qué no anda:** la rama no está en `dev`. Las pruebas de integración de `grupos`, `entregas` y `garantia` necesitan Docker y aquí quedan sin correr.
+- **Qué falta exactamente:**
+  1. Abrir el PR cuando haya lugar (tope 3).
+  2. Cargar en Coolify `GARANTIA_SERVICIO_TELEFONO`, `GARANTIA_SERVICIO_CLAVE` y `GARANTIA_SERVICIO_TOTP_SEMILLA` (o el factor fijo en TEST). Lo hace el coordinador.
+  3. Paso 3: retirar `ENTREGA_EJECUTAR` del recaudo, cuando los consumidores lleven credencial en TEST.
+- **Dónde quedó:** rama pusheada. Compila y está en verde.
 
-### F1.L1.M01 — Importe nunca negativo, parte API (PR #458 (antes #445))
-- **Qué anda:** en `aportes`, el esquema `Importe` en reembolso y disputa devuelve 400 `AP-VAL-01` con el campo. En el cobro y en todas las entradas de `nucleo-financiero`, un importe negativo da 400 `AP-VAL-02` en el borde. El mutante hace fallar 4 pruebas.
-- **Qué no anda:** en `nucleo-financiero` y en el cobro, el 400 es genérico y no señala el campo.
-- **Qué falta exactamente:** usar `Importe` en esas entradas. Eso cambia el tipo que construye la app en `apps/movil/lib/dominio/cu10_recargar_saldo.dart:41`, `cu11_retirar_saldo.dart:37`, `cu12_transferir_saldo.dart:42` y `pantallas/pasanaku/dominio/cu21_cobrar_aporte.dart:39` (L6). Además falta el tipo `Importe` en `plataforma/comun-dominio`.
-- **Dónde quedó:** rama `correcciones/tanda2-l1-importe-contrato`. Compila y está en verde.
+### F1.L1.M10c — `GET /billetera/bloqueos`, la bandeja de Cumplimiento (rama `correcciones/tanda2-l1-listado-bloqueos`, apilada sobre #476)
+- **Qué anda:**
+  - Contrato 1.4.0, aditivo, con paginación por cursor `(recibidoEn, id)` descendente, filtro por estado en lista blanca y respuesta mínima (sin número de oficio ni documento; el importe con la moneda de la cuenta).
+  - `puedeLevantar` es falso para quien registró el bloqueo.
+  - Lo prueban `BloqueoListadoWebTest` (14/14, matriz negativa) y `CU17ListadoTest` (4/4 contra PostgreSQL), con dos mutantes detectados. `CU17CuatroOjosTest` confirma contra la base que quien registra no levanta (`evidencia/BLOQUEOS-*`).
+- **Qué no anda:** la rama no está en `dev` y la pantalla no existe (es de L4L6).
+- **Qué falta exactamente:**
+  1. Abrir el PR cuando entre #476 y haya lugar.
+  2. Avisar a L4L6 para la pantalla.
+- **Dónde quedó:** rama pusheada (commit 01074b9f). Compila y está en verde.
+
+### F1.L1.M01 — Importe nunca negativo, parte API (PR #458 en `dev`; parte `nucleo-financiero` en la rama `correcciones/tanda2-l1-importe-nucleo`, sin PR)
+- **Qué anda:**
+  - En `aportes` (ya en `dev`): `Importe` en reembolso y disputa, que da 400 `AP-VAL-01` con el campo. El cobro dejó de recibir el importe por el cuerpo en la operación nueva de M11.
+  - En la rama `correcciones/tanda2-l1-importe-nucleo` (commit ef39fd33): `nucleo-financiero.yaml` 1.3.0 usa `Importe` en los 13 campos de importe de las 11 entradas, y un negativo da 400 `AP-VAL-01` con el campo.
+  - Lo prueban: `ImporteDeEntradaTest`, que recorre el contrato; las pruebas web de recarga, transferencia y retención negativas; `webTest` 91/91; `integrationTest` en verde salvo 25 pruebas que necesitan Docker. Evidencia en `evidencia/M01b-importe-en-nucleo-financiero.txt`.
+- **Qué no anda:** la rama no está en `dev`. Sin el cambio de la app, el job de Flutter de la CI queda en rojo, porque la clase Dart pasa de `Dinero` a `Importe`.
+- **Qué falta exactamente:**
+  1. Cambiar `Dinero(...)` por `Importe(..., moneda: ImporteMonedaEnum.BOB)` en `apps/movil/lib/dominio/cu10_recargar_saldo.dart:41`, `cu11_retirar_saldo.dart:40` y `cu12_transferir_saldo.dart:45`. Lo hace L4L6, o esta sesión si el coordinador lo autoriza (pregunta enviada).
+  2. Abrir el PR.
+  3. Después de #476, resolver el conflicto de la línea `version` del contrato.
+- **Dónde quedó:** rama `correcciones/tanda2-l1-importe-nucleo`, pusheada. Compila y la regresión está en verde.
 
 ### F1.L1.M08 — Hechos de dinero inmutables (PR #458 (antes #455), apilado sobre #454)
 - **Qué anda:**
@@ -55,11 +82,16 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 
 - **Qué falta exactamente:** las cuentas del fondo del grupo del modelo A (F3) para reemplazar esas cuentas. Después, F2.L1.M02. También que L2 retire el productor en `garantia`.
 - **Dónde quedó:** rama `correcciones/tanda2-l1-retiro-consumidor-respaldo`. Compila y está en verde.
 
+### F1.L1.M11 — El cobro no toma monto, canal ni referencia del cliente (rama `correcciones/tanda2-l1-cobro-contrato`)
+- Qué anda: fase de expansión del contrato (regla 98.1.3), `aportes.yaml` 1.1.0. La operación nueva `pagarCuotaConSaldo` (`POST /aportes/obligaciones/{id}/pago-con-saldo`) no admite campos: con cualquiera responde 400 `AP-VAL-02`. El servidor cobra el pendiente leído en la misma transacción, por `BILLETERA_MOVIL` y con la referencia que él mismo fija. La operación vieja `cobrarAporte` responde 422 `AP-CU21-10` ante un canal que no sea el saldo, un recargo, un proveedor o `esManual`, y 422 `AP-CU21-02` si el monto difiere del pendiente; el reintento con la misma clave devuelve el pago original. Lo prueban `PagoConSaldoWebTest` (21/21), `CU21PagoConSaldoTest` (6/6, contra PostgreSQL) y tres mutantes que hacen fallar las pruebas. Regresión de `aportes` en verde salvo 3 pruebas que necesitan Docker. Evidencia en `evidencia/M11-cobro-sin-confianza-en-el-cuerpo.txt`.
+- Qué no anda: el CA completo, "un cuerpo con `monto` recibe 400", vale solo en la operación nueva. `cobrarAporte` todavía acepta el campo `monto` (aunque lo compara con el pendiente) hasta que se contraiga el contrato. La app sigue usando `cobrarAporte` y deja elegir el canal: con canal QR recibe ahora 422 `AP-CU21-10`.
+- Qué falta exactamente: (1) L6 pasa la app a `DefaultApi.pagarCuotaConSaldo(obligacionId, idempotencyKey)` sin cuerpo y quita el selector de canal, la referencia y el monto (`cu21_cobrar_aporte.dart` y `pantalla_aportar.dart`). (2) Se borra `cobrarAporte` del contrato (fase de contracción). (3) Se ve compilar la app en el job "Frontend — Flutter" de la CI: en este contenedor no hay Flutter.
+- Dónde quedó: rama `correcciones/tanda2-l1-cobro-contrato`, apilada sobre #476. Compila y la regresión está en verde.
+
 ## Pendiente
 
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| F1.L1.M11 | TODO | Lo ejecuta esta sesión. Cambia el contrato que usa `apps/movil/.../cu21_cobrar_aporte.dart` (L6): hay que coordinar el cambio de la app en el mismo PR o en uno de L6. |
 | F2.L1.M02 | TODO | Depende de F3: el árbol 9.x lo usan `POZO_GRUPO` y `DESEMBOLSO`, que asientan el desembolso vigente. Sacarlo antes rompe ese asiento. |
 | F2.L1.M03 | TODO | Depende de F1.L1.M11 (el contrato del cobro deja de llevar `canal`) y de que la app (L6) no ofrezca los canales retirados. |
 | F2.L1.M04 | TODO | Necesita el evento de apertura de período de `grupos` (L3) y su pacto, o un trabajo con ShedLock, y el ADR de inicio automático (F0·ADR-054). |
@@ -78,6 +110,7 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 
 - `M12-moneda-reembolso.txt` y `M12b-moneda-conciliacion.txt`: moneda al lado del importe, migración y mutantes.
 - `L2PEDIDO-retiro-ofertas.txt`: retiro del consumidor de ofertas y del pacto con `entregas`.
 - `M10b-permisos-y-levantamiento.txt`: semillas idempotentes, ruta y matriz negativa.
+- `M11-cobro-sin-confianza-en-el-cuerpo.txt`: contrato 1.1.0, pruebas web y de integración, mutantes, verificadores e impacto en la app.
 - `M10-bloqueo-autoridad.txt`: cuatro ojos, liberación de la retención y mutante.
 - `M08-hechos-inmutables.txt`: sellado, historial, concurrencia, humo del esquema y mutante.
 - `M05-*`, `M04-*`, `F2M01-*`: secreto del webhook, desembolso fail-closed y consumidor de respaldo.
