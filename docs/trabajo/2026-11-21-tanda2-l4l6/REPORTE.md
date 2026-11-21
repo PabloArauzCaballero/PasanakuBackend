@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, carril L4L6: identidad, cumplimiento y frontends compartidos
 
-> **AVANCE: 7 / 8 — 87,5 %** de las microtareas abiertas hasta ahora (T2.M1–T2.M4, F1.L6.M04, F1.L4.M25, F1.L6.M12 HECHO; F1.L4.M03 A MEDIAS). El resto de F1/F2 de L4 y L6 sigue en TODO.
+> **AVANCE: 8 / 9 — 88,9 %** de las microtareas abiertas hasta ahora (T2.M1–T2.M4, F1.L6.M04, F1.L4.M25, F1.L6.M12, L1-M11-app HECHO; F1.L4.M03 A MEDIAS). El resto de F1/F2 de L4 y L6 sigue en TODO.
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Base: `origin/dev` 50cf3be9
 - Ramas y PR (apilados, se mergean en orden):
@@ -25,6 +25,7 @@
 | F1.L6.M04 | Los dos patrones rotos de `cumplimiento.yaml` (`'^-?\\d+…'` en comillas simples, que rechazaba «100.00») pasan a `'^\d+\.\d{2}$'`, sin negativos. Se reemplazan los 6 ejemplos basura del mock. Una prueba nueva barre todos los contratos. | `yarn vitest run` (simulado) | PASS 380/380; mutante → 4 fallos. [`evidencia/f1-l6-m04-patron-importe.txt`](./evidencia/f1-l6-m04-patron-importe.txt) |
 | F1.L4.M25 | `GET /licencia/alcance` es una consulta pura (`readOnly`): no emite nada al outbox y no recibe `usuarioId` por query (se quitó del contrato; si alguien lo manda, se ignora). El rechazo se registra solo en `exigirHabilitado`, con el actor del token. | `./gradlew :servicios:cumplimiento:test --tests '*AlcanceSinEfectos*'` + webTest | PASS 2/2 + 87/87; mutante → 1 fallo. [`evidencia/f1-l4-m25-licencia-alcance.txt`](./evidencia/f1-l4-m25-licencia-alcance.txt) |
 | F1.L6.M12 | La app genera la clave de idempotencia por intento (formulario + contenido normalizado) en recargar, retirar y transferir. Un 4xx la libera; timeout, 5xx, 408, 425 y 429 la conservan. | `flutter test test/unidad/idempotencia_por_intento_test.dart` | PASS 7/7 (los tres niveles contra un doble declarado); mutante → 1 fallo; app 919 en verde. [`evidencia/f1-l6-m12-idempotencia-app.txt`](./evidencia/f1-l6-m12-idempotencia-app.txt) |
+| L1-M11-app | La app paga la cuota con saldo (`pagarCuotaConSaldo`, #478): sin canal, referencia ni monto del cliente; AP-CU21-01/02/03/04/06/07 con texto propio. En #460. | `dart analyze` + `yarn lint` + `flutter test` (front, a11y, goldens) con Flutter 3.44.8 | PASS: front 907, a11y 6, goldens 274. Servidor simulado en las pruebas de widget. [`evidencia/l1-m11-pago-con-saldo-app.txt`](./evidencia/l1-m11-pago-con-saldo-app.txt) |
 | T2.M1 (F1.S3.M1, resto) | La vida del token de acceso es `15 min − 60 s` (tolerancia por omisión de `JwtTimestampValidator`, verificada en el jar 6.5.11). Un servidor de recurso con el validador por omisión rechaza el token al minuto 15 + 1 s. Con eso, sumado a lo de #412 (suspender revoca sesiones, el refresco se niega con `PuedeAutenticarse`), una cuenta suspendida o dada de baja pierde todo acceso en ≤ 15 min. | `./gradlew :servicios:identidad:test --tests '*VidaDelAcceso*'` | PASS 2/2; mutante (15 min) → 2 fallos. [`evidencia/t2-m1-token-vigente.txt`](./evidencia/t2-m1-token-vigente.txt) |
 
 ## A medias
