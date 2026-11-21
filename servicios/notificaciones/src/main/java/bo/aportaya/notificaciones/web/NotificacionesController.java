@@ -84,22 +84,9 @@ public class NotificacionesController implements NotificacionesApi {
     }
 
     /**
-     * Si un destino pidio no recibir mas.
-     *
-     * <p>La pregunta {@code grupos} antes de invitar: a quien se dio de baja no se le
-     * escribe, aunque quien invita no lo sepa.
-     */
-    /** @deprecated el contacto viaja en la query; usar {@link #verificarSupresion} hasta que grupos migre. */
-    @Deprecated
-    @Override
-    @Permiso("GRUPO_ADMINISTRAR")
-    public ResponseEntity<Supresion> consultarSupresion(String identificador, String categoria) {
-        return preguntar(identificador, categoria);
-    }
-
-    /**
-     * La misma pregunta con el contacto en el cuerpo (90.2.2) y con tope por actor: es un oraculo
-     * de «este contacto pidio no recibir» y sin tope recorre una agenda.
+     * Si un destino pidio no recibir mas, con el contacto en el cuerpo (90.2.2) y con tope por actor: es un oraculo
+     * de «este contacto pidio no recibir» y sin tope recorre una agenda. La pregunta CU-69 de {@code grupos} antes de
+     * invitar. El GET con el contacto en la query se retiro (F1.L5.M27).
      */
     @Override
     @Permiso("GRUPO_ADMINISTRAR")

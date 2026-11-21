@@ -44,7 +44,7 @@
 |---|---|---|---|
 | F1.S2.M3 | Autorización por propiedad del recurso en cada endpoint del lote + matriz en `verificar_seguridad.py` | todos | TODO |
 | F1.L5.M26 | Avisos internos filtrados por destinatario | notificaciones | HECHO (app); RLS: A MEDIAS |
-| F1.L5.M27 | Retirar la consulta de supresión con el contacto en la URL | notificaciones | TODO |
+| F1.L5.M27 | Retirar la consulta de supresión con el contacto en la URL | notificaciones | HECHO |
 | F1.L5.M23 | Webhook de mensajería derivado de la carga firmada, con ventana | notificaciones | TODO |
 | F1.L5.M21 | Certificado de reputación con datos del servidor | transparencia | TODO |
 | F1.L5.M22 | Sello de la cadena con permiso propio | transparencia | TODO |

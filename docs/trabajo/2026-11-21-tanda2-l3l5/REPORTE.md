@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, lote L3L5
 
-> **AVANCE: 4 / 24 — 16,7 %.** (F1.L3.M04 en A MEDIAS)
+> **AVANCE: 5 / 24 — 20,8 %.** (F1.L3.M04 en A MEDIAS)
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Rama(s): `correcciones/tanda2-l3l5-test-admision` (#423), `correcciones/tanda2-l3l5-f1-retiro`
 - Peldaño de evidencia alcanzado: T2.M0 `TESTED` (reproducción bajo carga antes/después + suites del servicio).
@@ -13,6 +13,7 @@
 | F1.L3.M06 | «Grupos activos» cuenta al participante en mora y excluye los grupos terminales reales; los estados salen de enumerados de dominio comparados con el `CHECK` | `./gradlew :servicios:grupos:test --tests '*EstadosContraElModeloTest'` + `psql` vieja/nueva | PASS · [evidencia](./evidencia/F1.L3.M06-estados-vivos.txt) |
 | F1.L3.M07 | Un acuerdo se resuelve una vez: precondición `estado = 'ABIERTO'` en el `UPDATE`; quien pierde la carrera no reemite | dos conexiones `psql` (vieja `UPDATE 1`/`UPDATE 1`, nueva `UPDATE 1`/`UPDATE 0`) + `ResolucionDeAcuerdoTest` | PASS · [evidencia](./evidencia/F1.L3.M07-acuerdo-precondicion.txt) |
 | F1.L5.M26 | Marcar leído un aviso interno exige ser su destinatario (usuario o rol), en la escritura; ajeno → 404 | `psql` (B: `UPDATE 0`) + `AvisosInternosWebTest` | PASS · [evidencia](./evidencia/F1.L5.M26-avisos-destinatario.txt) — integración `NO COMPROBADO` (Docker); RLS por destinatario pendiente (bloque genérico) |
+| F1.L5.M27 | El contrato de `notificaciones` no tiene ninguna operación con el contacto en la ruta o la query: se retiró el `GET /notificaciones/supresion` | verificación del contrato con PyYAML + `webTest` (el GET no contesta ni con permiso) | PASS · [evidencia](./evidencia/F1.L5.M27-supresion-url.txt) |
 
 ## A medias
 ### T2.M0b — El mismo arreglo para todos los servicios
@@ -64,6 +65,10 @@
   y el diagnóstico se hicieron antes). Se registra como desvío de la regla 20.
 
 ## Riesgos residuales
+- CI de #423: «13 · test» cayó en `identidad · RotacionDeClavesDeFirmaTest.laAnteriorSoloSePublica() timed out after
+  5 seconds`. No es de este lote. Causa probable, sin demostrar: genera dos pares RSA de 2048 bits dentro de cada
+  prueba (`RSAKeyGenerator(2048)`), un costo aleatorio y atado a la CPU que, con la CPU del runner repartida, puede
+  pasar los 5 s del atom. Mismo patrón que T2.M0 (costo de preparación dentro del atom). A derivar a la sesión L4.
 - CI: `osv-scan` falla en los PR del lote por vulnerabilidades npm de `yarn.lock` (hono 4.13.11, @hono/node-server
   2.1.3, minimatch 10.2.6). Clase `EXTERNAL`, preexistente y ajena al lote: `yarn.lock` está fuera de alcance.
 - Bajo la carga extrema simulada el primer caso tarda 3,3 s de 5 s: el margen restante es trabajo propio de la

@@ -4,7 +4,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -241,9 +240,10 @@ class NotificacionesControllerWebTest {
     void supresionContestaSiONo() throws Exception {
         when(supresiones.estaSuprimido(any(), any(), any())).thenReturn(true);
 
-        String cuerpo = mvc.perform(get("/notificaciones/supresion")
-                        .param("identificador", "+59171234567")
-                        .param("categoria", "COMERCIAL")
+        // F1.L5.M27: la consulta va por POST con el contacto en el cuerpo (el GET con la query se retiro).
+        String cuerpo = mvc.perform(post("/notificaciones/supresion/consultas")
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content("{\"identificador\":\"+59171234567\",\"categoria\":\"COMERCIAL\"}")
                         .with(Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.suprimido").value(true))
