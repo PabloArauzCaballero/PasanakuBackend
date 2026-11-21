@@ -140,9 +140,12 @@ Un código retirado queda retirado: no se reusa.
 
 ## Restricciones aplicables
 
-`R-GRP-01` · `R-DES-03` · `R-DES-04` · `R-DES-05`
+`R-GRP-01` · `R-GRP-02` · `R-DES-03` · `R-DES-04` · `R-DES-05`
 
 - `R-GRP-01` · **una entrega por turno**: dos entregas del mismo turno es pagar dos veces el mismo premio.
+- `R-GRP-02` · **el neto es la bolsa menos las deducciones, y nunca negativo** (`ck_entrega_neto`,
+  `ck_entrega_neto_no_negativo`). El fondeo entrega el pozo completo sin deducciones; la base sigue rechazando
+  cualquier fila cuyo neto no salga de esa cuenta.
 - `R-DES-03` · el fondeo del pozo **cuadra al centavo**: confirmado + cubierto + faltante = pozo, y el pendiente es
   la deuda conservada.
 - `R-DES-04` y `R-DES-05` · una oferta y una cesión vivas por turno. El mercado de turnos se retiró (D-L2-1): las
