@@ -41,6 +41,7 @@ class ArranqueTest {
         registro.add("spring.kafka.bootstrap-servers", () -> "localhost:9092");
         registro.add("aportaya.jwt.jwks-uri", () -> "http://identidad:8080/.well-known/jwks.json");
         registro.add("SEGURIDAD_PIMIENTA", () -> "pimienta-de-prueba");
+        registro.add("ENTREGAS_LLAVE_CIFRADO_CUENTAS", () -> "llave-de-cifrado-de-prueba");
     }
 
     @Autowired
