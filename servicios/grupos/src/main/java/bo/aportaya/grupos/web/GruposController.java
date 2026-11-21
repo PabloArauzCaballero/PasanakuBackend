@@ -35,6 +35,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -180,13 +181,23 @@ public class GruposController extends RutasAOtrosServicios {
     @Permiso("PARTICIPANTE")
     public ResponseEntity<SalidaRetiro> solicitarRetiro(UUID grupoId, UUID idempotencyKey, EntradaRetiro cuerpo) {
         var ctx = sesion.actual();
-        Traza.marcarCasoDeUso("CU-65", cuerpo.getParticipanteId().toString());
+        Traza.marcarCasoDeUso("CU-65", grupoId.toString());
+
+        // Se retira quien llama, del grupo de la ruta (F1.L3.M04). El cuerpo no aporta identidad: el
+        // `participanteId` deprecado solo se acepta si es el mismo, para no romper a los clientes viejos.
+        UUID participanteId = consultas
+                .participanteDe(grupoId, ctx.usuarioId(), ctx)
+                .orElseThrow(() -> new AccessDeniedException("No participa del grupo"));
+        if (MapeoDeGrupos.otroTitularEnElCuerpo(cuerpo, participanteId)) {
+            throw new AccessDeniedException("El retiro solo lo pide su titular");
+        }
 
         var salida = cu65.solicitar(
                 MapeoDeGrupos.entradaDeRetiro(
+                        participanteId,
                         cuerpo,
-                        afuera.estadoDePagos(cuerpo.getParticipanteId()),
-                        consultas.yaCobroSuTurno(cuerpo.getParticipanteId(), ctx)),
+                        afuera.estadoDePagos(participanteId),
+                        consultas.yaCobroSuTurno(participanteId, ctx)),
                 ctx);
 
         var respuesta = new SalidaRetiro();
@@ -220,10 +231,15 @@ public class GruposController extends RutasAOtrosServicios {
         // reintento del mismo traspaso, que devuelve el original (regla 96.3.3).
         // La etapa del entrante es de OTRA persona: se lee con la identidad de servicio de grupos, nunca su puntaje
         // exacto (regla 90.2.8). El reintento no pregunta nada: CU-64 devuelve el traspaso original antes de mirarla.
-        var entrante = cu64.yaTraspasado(cupoId, Optional.ofNullable(cuerpo.getAcuerdoId()), entranteParticipante, ctx)
+        boolean reintento =
+                cu64.yaTraspasado(cupoId, Optional.ofNullable(cuerpo.getAcuerdoId()), entranteParticipante, ctx);
+        var entrante = reintento
                 ? EtapaDelIngreso.SIN_CONSULTAR
                 : EtapaDelIngreso.alTraspasar(
                         afuera, consultas.condicionesDeIngreso(grupoId, ctx), cuerpo.getUsuarioEntranteId());
+        // F1.L3.M05: el KYC del entrante lo dice `identidad`, no el minimo del grupo. Sin respuesta vale NINGUNO
+        // (degradacion declarada del puerto): falla cerrado. El reintento devuelve el original antes de mirarlo.
+        String kycDelEntrante = reintento ? "NINGUNO" : afuera.nivelDeKyc(cuerpo.getUsuarioEntranteId());
         var saliente = afuera.estadoDePagos(titular);
 
         UUID traspasoId = cu64.ejecutar(
@@ -232,9 +248,7 @@ public class GruposController extends RutasAOtrosServicios {
                         entranteParticipante,
                         cuerpo.getMotivo(),
                         saliente.alDia(),
-                        // El nivel de diligencia del entrante lo decide cumplimiento al
-                        // aceptar la postulacion; aca alcanza con el minimo del grupo.
-                        politica.kycMinimo(),
+                        kycDelEntrante,
                         politica.kycMinimo(),
                         entrante.puntaje().intValue(),
                         politica.reputacionMinima(),

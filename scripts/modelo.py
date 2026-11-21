@@ -374,6 +374,19 @@ CK_AMPLIADOS = {
     "disputa_pago": ["monto_disputado"],
 }
 
+# CHECK de enumerado que se ESTRECHO despues de que existieran bases: un valor sale del
+# modelo por decision de negocio. Mismo DROP/ADD idempotente que CK_AMPLIADOS, con una
+# diferencia que no se puede esconder: el ADD revalida las filas que ya estan, asi que
+# aplicar el DDL FALLA si queda alguna con el valor retirado. Eso es lo buscado (la base no
+# acepta en silencio lo que el modelo prohibe), y por eso cada entrada lleva su consulta
+# previa: se corre en TEST antes de promover y tiene que dar 0.
+CK_ESTRECHADOS = {
+    # 2026-11-21: F1.L2.M09 — el organizador no es caja (RN-18, regla 91.5): sale
+    # EFECTIVO_ORGANIZADOR. Consulta previa:
+    #   SELECT count(*) FROM entregas.entrega_fondo WHERE metodo_desembolso = 'EFECTIVO_ORGANIZADOR';
+    "entrega_fondo": ["metodo_desembolso"],
+}
+
 # --- FK -> tabla destino: overrides donde el nombre de columna no coincide ---
 OVERRIDES = {
     "obligacion_id": "obligacion_aporte", "obligacion_origen_id": "obligacion_aporte",

@@ -58,6 +58,9 @@ DE_DESARROLLO = {
     # desarrollo a la vista a proposito; en el desplegado lo pone el almacen de secretos.
     "MFA_LLAVES": "1:llave-local-mfa-no-es-la-de-produccion-0001",
     "MFA_LLAVE_VIGENTE": "1",
+    # Llave del cifrado del numero de cuenta de entregas (F1.L2.M07), distinta de la pimienta. Valor de
+    # desarrollo a la vista a proposito; en el desplegado lo pone el almacen de secretos.
+    "ENTREGAS_LLAVE_CIFRADO_CUENTAS": "llave-local-cuentas-no-es-la-de-produccion",
     # El servidor de archivos (ADR-034). La cedula, la selfie y los comprobantes van
     # ahi, no al disco del contenedor: un contenedor se reemplaza y la evidencia
     # legal no. En la columna queda una clave de objeto, nunca una URL publica.
@@ -204,6 +207,9 @@ DE_ENTORNO = {
     # secretos; sin ellas identidad NO arranca (regla 90.3.4). Nunca un valor en el repositorio.
     "MFA_LLAVES": "${MFA_LLAVES}",
     "MFA_LLAVE_VIGENTE": "${MFA_LLAVE_VIGENTE}",
+    # Llave del cifrado del numero de cuenta de entregas (F1.L2.M07). Sin valor por defecto: sin ella, o igual a
+    # la pimienta, entregas NO arranca (regla 90.3.4). Se carga en Coolify antes de promover.
+    "ENTREGAS_LLAVE_CIFRADO_CUENTAS": "${ENTREGAS_LLAVE_CIFRADO_CUENTAS}",
     "WEBHOOK_SECRETO": "${WEBHOOK_SECRETO}",
     "APORTES_WEBHOOK_SECRETO": "${APORTES_WEBHOOK_SECRETO}",
     "CERTIFICADOS_CLAVE_FIRMA": "${CERTIFICADOS_CLAVE_FIRMA}",
@@ -643,6 +649,12 @@ def dependencias_de(servicio, servicios):
     return "\n".join(lineas)
 
 
+# Variables que solo existen en el compose local, por servicio. Nunca llegan al desplegado.
+SOLO_LOCAL = {
+    "identidad": {"APORTAYA_ENTORNO_DESCARTABLE": "\"true\""},
+}
+
+
 def variables_de(servicio):
     """Las variables que este servicio exige, leidas de su propia configuracion.
 
@@ -718,6 +730,11 @@ def main():
             # El perfil `todo` levanta el Collector: en local las trazas y metricas viajan por OTLP.
             lineas.append("      TRAZAS_HABILITADAS: \"true\"")
             lineas.append("      METRICAS_OTLP_HABILITADAS: \"true\"")
+            # F1.L4.M03: identidad falla cerrado sin JWT_CLAVE_FIRMA salvo en un entorno descartable
+            # DECLARADO. Este compose es una maquina de desarrollo; el desplegado (--coolify) nunca
+            # lo declara, y su application.yml tampoco, para que no se pueda heredar por omision.
+            for variable, valor in SOLO_LOCAL.get(servicio, {}).items():
+                lineas.append(f"      {variable}: {valor}")
             bloques.append(BLOQUE.format(nombre=servicio, ambiente="\n".join(lineas)))
 
     if sin_valor:

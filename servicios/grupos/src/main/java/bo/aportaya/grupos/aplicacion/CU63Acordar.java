@@ -117,6 +117,10 @@ public class CU63Acordar {
         return datos.conContexto(ctx, dsl -> {
             var acuerdo = acuerdos.porId(dsl, acuerdoId)
                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(63, 1), "Ese acuerdo no existe."));
+            if (!"ABIERTO".equals(acuerdo.estado())) {
+                // Ya resuelto: se contesta lo que quedo, sin recomputar ni volver a emitir (idempotente).
+                return acuerdo.estado();
+            }
 
             ComputoDeVotacion computo = ComputoDeVotacion.de(
                     acuerdos.votosDe(dsl, acuerdoId), acuerdos.pesoTotalDelGrupo(dsl, acuerdo.grupoId()));
@@ -137,7 +141,10 @@ public class CU63Acordar {
                 estado = "RECHAZADO";
             }
 
-            acuerdos.resolver(dsl, acuerdoId, estado, resumen(computo), ahora);
+            if (!acuerdos.resolver(dsl, acuerdoId, estado, resumen(computo), ahora)) {
+                // Otro voto lo resolvio entre la lectura y la escritura: un solo `acuerdo_resuelto` (F1.L3.M07).
+                return acuerdos.porId(dsl, acuerdoId).map(a -> a.estado()).orElse(estado);
+            }
             outbox.emitir(
                     dsl,
                     new EventoDominio(
