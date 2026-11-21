@@ -222,6 +222,12 @@ Diseño de cuentas, a validar con el contador antes de implementar (`DECISION_RE
 
 ---
 
+### H0.S2 — Migración a Spring Boot 4 / Spring 7 (decisión de Pablo, tanda 10)
+
+**CA:** Dado el monorepo, cuando se construye la imagen de cada servicio, entonces Trivy y OSV no reportan las CVE de spring-webmvc 6.2.x y las excepciones de `.github/.trivyignore` y `.github/osv-scanner.toml` se eliminan.
+**DoD:** CI completo en verde («Los cinco corredores», imágenes, Trivy, OSV) sin excepciones de Spring. Las 559 pruebas de la línea base siguen en verde. **Fecha límite: antes del 2026-12-21**, cuando vence la excepción renovada.
+**Estado:** TODO
+
 ## H4 — Calidad y deuda (F4)
 
 **CA:** Dado cada hallazgo S2 a S4 restante, cuando se cierra su microtarea del anexo, entonces el verificador correspondiente lo confirma y no reaparece.
