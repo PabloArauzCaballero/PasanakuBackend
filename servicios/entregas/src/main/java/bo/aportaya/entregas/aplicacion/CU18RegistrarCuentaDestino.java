@@ -101,7 +101,8 @@ public class CU18RegistrarCuentaDestino {
             String numeroCifradoReal;
             if (entrada.numeroCifrado() != null
                     && !entrada.numeroCifrado().isBlank()
-                    && (entrada.numeroCifrado().startsWith("cifrado:") || entrada.numeroCifrado().startsWith(CifradorSimetrico.PREFIJO))) {
+                    && (entrada.numeroCifrado().startsWith("cifrado:")
+                            || entrada.numeroCifrado().startsWith(CifradorSimetrico.PREFIJO))) {
                 numeroCifradoReal = entrada.numeroCifrado();
             } else {
                 numeroCifradoReal = CifradorSimetrico.cifrar(entrada.numeroEnClaro(), pimienta);
