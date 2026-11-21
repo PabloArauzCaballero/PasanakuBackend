@@ -1,0 +1,39 @@
+# T2.M2–T2.M4 (F1.S4.M1 / F1.L6.M03) — CampoMonto interpreta sin ambigüedad
+# Base: correcciones/tanda2-l4l6-f1s3m1-token-vigente (sobre origin/dev 50cf3be9).
+# Entorno: Node 22 + yarn 4.18 (corepack por el registro npm), Flutter 3.50.1 / Dart 3.14 bajado al scratchpad.
+
+## Referencia TS + vectores compartidos (packages/tokens)
+$ yarn vitest run pruebas/interpretar-monto.spec.ts
+      Tests  37 passed (37)          # 35 vectores (correcto / límite / inválido) + 2 propiedades
+$ yarn vitest run   (paquete entero)
+      Tests  52 passed (52)
+$ yarn typecheck -> rc=0 · yarn lint -> rc=0
+## Mutante: sin la rama «un punto + 0..2 dígitos = decimal»
+ FAIL «'12.50'» → '12.50' · «'12.5'» → '12.50' · «'0.01'» → '0.01' · «'12.'» → '12.00'
+      Tests  4 failed | 33 passed (37)
+
+## Angular (packages/ui): aCadenaDelContrato = interpretarMontoEscrito
+$ yarn ng test --include='src/campo-monto/**/*.spec.ts' --watch=false
+      Tests  45 passed (45)
+$ yarn typecheck -> rc=0 · yarn lint -> TODO OK
+
+## Flutter (packages/diseno_flutter)
+$ flutter test test/unidad/interpretar_monto_test.dart test/unidad/logica_pura_test.dart
+00:02 +12: All tests passed!
+$ flutter test test/widget/comportamiento_test.dart test/widget/campo_monto_grande_test.dart test/unidad
+00:04 +53: All tests passed!
+$ flutter test test/unidad test/widget test/a11y --timeout 60s   (regresión del paquete)
+00:26 +168: All tests passed!
+$ dart format --output=none --set-exit-if-changed lib test -> 0
+$ dart analyze --fatal-infos (archivos tocados) -> solo 'package:flutter/material.dart is deprecated' (aviso
+  del SDK 3.50 en todo el paquete; con el SDK de CI no aparece). En el paquete entero: 168 avisos con el cambio
+  y 172 sin él, así que no suma ninguno.
+
+## App (apps/movil): pantallas que escriben importes
+$ flutter test test/widget/pantalla_recargar_test.dart test/pasanaku/pantalla_crear_grupo_test.dart test/widget/crear_grupo_etapa_test.dart
+00:05 +13: All tests passed!
+$ flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku test/a11y --timeout 60s
+02:31 +912 -6: Some tests failed.
+  Los 6 fallos (h4_ci_icono_visual, motivo_de_salida_en_ingreso x2, paso_capturas x2, pautas_publicas_golden)
+  fallan IGUAL sin este cambio (git stash): +3 -5 y +0 -1. Clase ENVIRONMENT (SDK 3.50.1 local, distinto del
+  de CI y de los goldens de macOS). Este cambio no agrega fallos.

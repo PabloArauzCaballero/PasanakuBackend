@@ -1,0 +1,21 @@
+$ ./gradlew :servicios:garantia:compileTestJava :servicios:garantia:test :servicios:garantia:webTest
+BUILD SUCCESSFUL in 41s
+test 43/0 · webTest 48/0
+  CoberturaWebTest "F1.L2.M02 · la cobertura manual responde 410 AP-CU23-14 y no cubre nada" PASS
+  IncumplimientosControllerWebTest "F2.L2.M04 · ejecutar el aval responde 410 AP-CU26-08 sin preguntar a cumplimiento" PASS
+  GarantiaControllerWebTest "F1.L2.M03 · devolver el fondo a pedido responde 410 AP-CU29-06" PASS
+
+$ spotlessCheck + check -x test + testBarrido (garantia)
+BUILD SUCCESSFUL in 4s
+$ python3 scripts/verificar_criterios.py
+pendientes de implementar (4): CU-05 (identidad), CU-26 (garantia), CU-51 (aportes), CU-57 (nucleo-financiero)
+Sin divergencias entre la boveda y el codigo.
+$ python3 scripts/verificar_pruebas_web.py
+La capa web esta cubierta segun ADR-043.
+$ python3 scripts/verificar_seguridad.py
+TODO OK · 5 aviso(s)
+$ python3 scripts/verificar_boveda.py
+TODO OK
+
+$ grep -rn "CU26EjecutarAval\|TopeDelAval\|aval_participante" servicios/garantia/src/main
+(exit 1: sin resultados)

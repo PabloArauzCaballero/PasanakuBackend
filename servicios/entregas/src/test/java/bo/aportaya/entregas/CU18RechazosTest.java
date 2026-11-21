@@ -30,8 +30,7 @@ class CU18RechazosTest extends BaseDeEntregas {
     }
 
     private EntradaRegistro registro(String enClaro) {
-        return new EntradaRegistro(
-                "AHORRO", "Banco de Prueba", enClaro, "cifrado:x", NOMBRE, DOCUMENTO, NOMBRE, DOCUMENTO, "BOB");
+        return new EntradaRegistro("AHORRO", "Banco de Prueba", enClaro, NOMBRE, DOCUMENTO, NOMBRE, DOCUMENTO, "BOB");
     }
 
     private SalidaRegistro registrar(ContextoSesion ctx) {
@@ -165,15 +164,7 @@ class CU18RechazosTest extends BaseDeEntregas {
 
         assertThatThrownBy(() -> transaccion.execute(t -> cuentaCU.registrar(
                         new EntradaRegistro(
-                                "AHORRO",
-                                "Banco",
-                                numero(),
-                                "cifrado:x",
-                                "Juan Perez",
-                                "9999999",
-                                NOMBRE,
-                                DOCUMENTO,
-                                "BOB"),
+                                "AHORRO", "Banco", numero(), "Juan Perez", "9999999", NOMBRE, DOCUMENTO, "BOB"),
                         ctx)))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("no coincide");

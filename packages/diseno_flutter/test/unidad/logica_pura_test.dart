@@ -30,6 +30,8 @@ void main() {
         expect(CampoMonto.aCadenaDelContrato('12'), '12.00');
         expect(CampoMonto.aCadenaDelContrato('12,5'), '12.50');
         expect(CampoMonto.aCadenaDelContrato('0,05'), '0.05');
+        // F1.S4.M1: el punto del teclado del teléfono es la decimal, no miles.
+        expect(CampoMonto.aCadenaDelContrato('12.50'), '12.50');
       },
     );
     test('rechaza lo que no es un importe', () {

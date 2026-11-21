@@ -293,7 +293,7 @@
             }
           ]
         },
-        "description": "## Cubrir el incumplimiento con el fondo\n\nEl fondo existe para que el incumplimiento de uno no se lleve puesto al grupo entero. Pero cubrir todo siempre lo VACIA: gana el mas chico de cuatro limites —porcentaje, tope por participante, tope del periodo y saldo—. Y cubrir NO perdona: deja una deuda contra quien incumplio.\n\n| | |\n| --- | --- |\n| **Servicio** | `garantia` |\n| **Operacion** | `cubrirIncumplimiento` |\n| **Ruta** | `POST /api/v1/incumplimientos/{expedienteId}/cobertura` |\n| **Permiso** | `GRUPO_ADMINISTRAR` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Cubrir el incumplimiento con el fondo\n\nRETIRADA en 1.1.0 (F1.L2.M02: la cobertura no se decide con mora, monto ni aprobador del pedido; la aplica el sistema con el fondo del grupo, modelo A): responde 410 AP-CU23-14 sin efecto.\nEl fondo existe para que el incumplimiento de uno no se lleve puesto al grupo entero. Pero cubrir todo siempre lo VACIA: gana el mas chico de cuatro limites —porcentaje, tope por participante, tope del periodo y saldo—. Y cubrir NO perdona: deja una deuda contra quien incumplio.\n\n| | |\n| --- | --- |\n| **Servicio** | `garantia` |\n| **Operacion** | `cubrirIncumplimiento` |\n| **Ruta** | `POST /api/v1/incumplimientos/{expedienteId}/cobertura` |\n| **Permiso** | `GRUPO_ADMINISTRAR` |\n| **Respuestas** | `410`, `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"montoSolicitado\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"diasMora\": 0,\n  \"aprobadaPor\": \"{{aprobadaPor}}\"\n}",
@@ -312,7 +312,7 @@
             "type": "text/javascript",
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
-              "const esperadas = [200, 422];",
+              "const esperadas = [200, 410, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",
@@ -376,7 +376,7 @@
             }
           ]
         },
-        "description": "## Ejecutar el aval y subrogar la deuda\n\nUn avalista acepto responder por una cantidad CONCRETA. Cobrarle mas es cobrarle algo que nunca acepto (R-GAR-04), y el tope se mide contra lo YA ejecutado. Quien paga se subroga: la deuda no desaparece, cambia de acreedor.\n\n| | |\n| --- | --- |\n| **Servicio** | `garantia` |\n| **Operacion** | `ejecutarAval` |\n| **Ruta** | `POST /api/v1/incumplimientos/{expedienteId}/aval/ejecucion` |\n| **Permiso** | `GRUPO_ADMINISTRAR` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+        "description": "## Ejecutar el aval y subrogar la deuda\n\nRETIRADA en 1.1.0 (F2.L2.M04, P-03: el aval entre participantes se elimino): responde 410 AP-CU26-08 sin efecto.\nUn avalista acepto responder por una cantidad CONCRETA. Cobrarle mas es cobrarle algo que nunca acepto (R-GAR-04), y el tope se mide contra lo YA ejecutado. Quien paga se subroga: la deuda no desaparece, cambia de acreedor.\n\n| | |\n| --- | --- |\n| **Servicio** | `garantia` |\n| **Operacion** | `ejecutarAval` |\n| **Ruta** | `POST /api/v1/incumplimientos/{expedienteId}/aval/ejecucion` |\n| **Permiso** | `GRUPO_ADMINISTRAR` |\n| **Respuestas** | `410`, `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
       },
       "response": [],
       "event": [
@@ -386,7 +386,7 @@
             "type": "text/javascript",
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
-              "const esperadas = [200, 422];",
+              "const esperadas = [200, 410, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",
@@ -627,7 +627,7 @@
             }
           ]
         },
-        "description": "## Devolver los aportes del fondo al cerrar el grupo\n\nNo se devuelve mas de lo aportado ni un importe negativo (R-GAR-06), y lo que el fondo gasto en cubrir lo pierden TODOS en proporcion: esa es la idea de un fondo mutual. El remanente se ajusta en la ultima devolucion para que la suma cierre exacta contra el saldo.\n\n| | |\n| --- | --- |\n| **Servicio** | `garantia` |\n| **Operacion** | `devolverFondo` |\n| **Ruta** | `POST /api/v1/garantia/fondos/{grupoId}/devolucion` |\n| **Permiso** | `GRUPO_ADMINISTRAR` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Devolver los aportes del fondo al cerrar el grupo\n\nRETIRADA en 1.1.0 (F1.L2.M03: grupoCerrado y deudasVivas no los afirma el cliente; la devolucion la dispara el sistema al cerrar el ciclo, F3.L2.M06): responde 410 AP-CU29-06 sin efecto.\nNo se devuelve mas de lo aportado ni un importe negativo (R-GAR-06), y lo que el fondo gasto en cubrir lo pierden TODOS en proporcion: esa es la idea de un fondo mutual. El remanente se ajusta en la ultima devolucion para que la suma cierre exacta contra el saldo.\n\n| | |\n| --- | --- |\n| **Servicio** | `garantia` |\n| **Operacion** | `devolverFondo` |\n| **Ruta** | `POST /api/v1/garantia/fondos/{grupoId}/devolucion` |\n| **Permiso** | `GRUPO_ADMINISTRAR` |\n| **Respuestas** | `410`, `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"grupoCerrado\": true,\n  \"deudasVivas\": 0\n}",
@@ -646,7 +646,7 @@
             "type": "text/javascript",
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
-              "const esperadas = [200, 422];",
+              "const esperadas = [200, 410, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",

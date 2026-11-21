@@ -826,11 +826,13 @@ entity "reembolso" as reemb {
   --
   # pago_id : UUID <<FK, IDX>>
   monto : DECIMAL(14,2) <<CK: > 0>>
+  moneda : CHAR(3) <<NULL>>
   motivo : VARCHAR(30) <<CK>>
   estado : VARCHAR(15) <<CK>>
   referencia_proveedor : VARCHAR(80) <<NULL>>
   # solicitado_por : UUID <<FK>>
   # aprobado_por : UUID <<FK, NULL>>
+  clave_idempotencia : VARCHAR(100) <<NULL>>
   fecha_solicitud : TIMESTAMPTZ
   fecha_ejecucion : TIMESTAMPTZ <<NULL>>
 }
@@ -842,6 +844,7 @@ entity "disputa_pago" as disp {
   tipo : VARCHAR(25) <<CK>>
   descripcion : TEXT
   monto_disputado : DECIMAL(14,2) <<CK: >= 0>>
+  moneda : CHAR(3) <<NULL>>
   estado : VARCHAR(25) <<CK>>
   evidencias : JSONB
   abierta_en : TIMESTAMPTZ
@@ -858,6 +861,7 @@ entity "extracto_bancario" as extracto {
   fecha_hasta : DATE
   saldo_inicial : DECIMAL(14,2)
   saldo_final : DECIMAL(14,2)
+  moneda : CHAR(3) <<NULL>>
   archivo_url : VARCHAR(255)
   importado_en : TIMESTAMPTZ
   # importado_por : UUID <<FK>>
@@ -884,6 +888,7 @@ entity "conciliacion" as conc {
   estado : VARCHAR(25) <<CK, IDX>>
   metodo : VARCHAR(20) <<CK>>
   diferencia_monto : DECIMAL(14,2)
+  moneda : CHAR(3) <<NULL>>
   # conciliado_por : UUID <<FK, NULL>>
   fecha_conciliacion : TIMESTAMPTZ <<NULL>>
 }
@@ -895,6 +900,7 @@ entity "excepcion_conciliacion" as excep {
   tipo : VARCHAR(30) <<CK>>
   descripcion : VARCHAR(300)
   monto_diferencia : DECIMAL(14,2)
+  moneda : CHAR(3) <<NULL>>
   estado : VARCHAR(15) <<CK, IDX>>
   # asignada_a : UUID <<FK, NULL>>
   resolucion : VARCHAR(300) <<NULL>>

@@ -62,7 +62,6 @@ public class CuentasBancariasController implements CuentasBancariasApi {
                         cuerpo.getTipoCuenta().getValue(),
                         cuerpo.getEntidadFinanciera(),
                         cuerpo.getNumeroCuenta(),
-                        cuerpo.getNumeroCifrado(),
                         cuerpo.getTitularNombre(),
                         cuerpo.getTitularDocumento(),
                         // Ya comprobados contra identidad: se pasan iguales para que el
