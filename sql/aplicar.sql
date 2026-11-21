@@ -268,6 +268,9 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/11_tarifas_comisiones/segmento_comercial.sql
 \ir 10_tablas/11_tarifas_comisiones/asignacion_tarifario.sql
 \ir 10_tablas/11_tarifas_comisiones/tarifa_congelada_grupo.sql
+\ir 10_tablas/11_tarifas_comisiones/parametro_financiero.sql
+\ir 10_tablas/11_tarifas_comisiones/version_parametro.sql
+\ir 10_tablas/11_tarifas_comisiones/parametro_congelado_grupo.sql
 \ir 10_tablas/11_tarifas_comisiones/simulacion_tarifa.sql
 \ir 10_tablas/11_tarifas_comisiones/cambio_tarifario.sql
 \ir 10_tablas/11_tarifas_comisiones/cotizacion_comision.sql
