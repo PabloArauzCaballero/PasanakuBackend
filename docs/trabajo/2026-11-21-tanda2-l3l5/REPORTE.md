@@ -1,9 +1,19 @@
 # Reporte — Tanda 2, lote L3L5
 
-> **AVANCE: 7 / 24 — 29,2 %.** (F1.L3.M04 en A MEDIAS)
+> **AVANCE: 7 / 22 — 31,8 %.** A MEDIAS: T2.M0b, F1.L3.M04, F1.L3.M05, F1.L5.M28. CI con rojos ajenos al lote (ver Riesgos).
 
-- Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Rama(s): `correcciones/tanda2-l3l5-test-admision` (#423), `correcciones/tanda2-l3l5-f1-retiro`
-- Peldaño de evidencia alcanzado: T2.M0 `TESTED` (reproducción bajo carga antes/después + suites del servicio).
+- Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md)
+- PR hacia `dev` (apilados en este orden; cada uno suma un commit propio y los documentos del lote):
+  #423 T2.M0 · #428 F1.L3.M04 · #431 F1.L3.M06 · #434 F1.L3.M07 · #437 F1.L3.M05 · #438 F1.L5.M26 ·
+  #440 F1.L5.M27 · #443 F1.L5.M23 · #446 F1.L5.M21 · #448 F1.L5.M28
+- Estado del CI al cerrar el turno: `osv-scan` en rojo en todos (EXTERNAL: npm de `yarn.lock`, ver Riesgos);
+  #423 «Los cinco corredores» en rojo por `identidad · RotacionDeClavesDeFirmaTest` (no es de este lote, ver Riesgos);
+  «Contratos y clientes generados» en verde en #428 tras regenerar Postman; el resto de los jobs, en cola.
+- Peldaño de evidencia alcanzado: `TESTED` en todo lo completado (pruebas dirigidas + suites unitaria, web y
+  barrido de cada servicio tocado, más `psql` contra PostgreSQL local donde hay SQL). No llega a `VERIFIED`: las
+  integraciones con Testcontainers no corrieron (Docker) y el CI de los PR sigue en cola.
+- Conteo: 22 microtareas en `PLAN.md` (H1.S0: 2 · H1.S1: 7 · H1.S2: 11 · H2: 2); `plan_status.py` no reconoce el
+  formato de IDs de este plan, así que el número sale de la tabla.
 
 ## Completado
 | ID | Qué se logró | Comando | Resultado |
@@ -63,13 +73,28 @@
 ## Pendiente
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| Resto de H1.S1, H1.S2 y H2 | TODO | Se ejecutan en orden en esta sesión |
+| F1.L3.M03 (destino de transferencia por id único) | TODO | Toca `nucleo-financiero` e `identidad` (otros lotes) además de `grupos`; coordinar el contrato nuevo |
+| F1.L3.M08 (importes con moneda y `CHECK >= 0` en `grupos`) | TODO | Depende de F2.L3.M12 (no migrar tablas que se borran); cambio por `.puml` + `generar_ddl.py` |
+| F1.L3.M09 (secreto de invitación fuera del path) | TODO | Toca `apps/movil` (fuera de este lote) |
+| F1.L5.M20 (sorteo con entropías reveladas) | TODO | Siguiente en el orden de este lote |
+| F1.L5.M22 (sello de la cadena con permiso propio) | TODO | Depende de F4.L5.M52 (API de saldos del mayor) |
+| F1.L5.M13/M14/M15 (comisión: devolución, descuentos, marcado manual) | TODO | Relocalizar en `tarifas` (`ComisionesController`) |
+| F1.L5.M29 (publicidad: propiedad, impresión única, tope) | TODO | Siguiente en el orden de este lote |
+| F1.L5.M09 (`Idempotency-Key` en los servicios de apoyo) | TODO | Siguiente en el orden de este lote |
+| F1.S2.M3 (matriz BOLA en `scripts/verificar_seguridad.py`) | TODO | Ampliar el script con las matrices ya escritas en los `*WebTest` de este lote |
+| F2.M6 (retirar el organizador profesional) | TODO | Empieza por el inventario de consumidores (`inventario_endpoints.py`, `listar_topicos.py`) |
+| F2.M8 (retirar aprobaciones eliminables en el lote) | TODO | F2.L3.M10 depende de F3.L3.M17; F2.L3.M15 se mergea después de F3.L3.M18 |
+| Corridas con Docker (`integrationTest` de `grupos`, `notificaciones`, `transparencia`) | BLOQUEADO (P-19) | Máquina de Pablo; comandos en cada evidencia |
 
 ## Evidencia
 - [`evidencia/T2.M0-mockito-arranque.txt`](./evidencia/T2.M0-mockito-arranque.txt)
 
 ## No cubierto
-- Corredores con Testcontainers de `grupos` (`integrationTest`): no corren sin Docker.
+- Corredores con Testcontainers (`integrationTest`) de `grupos`, `notificaciones` y `transparencia`: no corren sin
+  Docker. Se actualizaron `AvisoInternoRepositorioTest`, `CU82Test`, `CU75Test`, `CU75RechazosTest` y
+  `BaseDeTransparencia`; compilan, `NO COMPROBADO` en ejecución.
+- Políticas RLS por titular/destinatario (`solicitud_retiro`, `aviso_interno`): bloque genérico compartido.
+- Pactos nuevos (`transparencia → identidad`): no escritos.
 
 ## Desvíos del plan
 - El `PLAN.md` se escribió después de la primera edición de `servicios/grupos/build.gradle.kts` (la reproducción
