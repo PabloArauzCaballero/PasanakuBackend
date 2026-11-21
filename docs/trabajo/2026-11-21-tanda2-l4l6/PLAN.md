@@ -31,13 +31,13 @@
 ### H1.S2 — F1.S4.M1 / F1.L6.M03: `CampoMonto` interpreta sin ambigüedad
 **CA:** «12.50», «12,50» y «12.5» → `12.50`; «1.250,50» → `1250.50`; «1.240.50», «1,250.50» y «-5» → rechazo con error en el campo; nunca viaja un importe 100 veces mayor.
 **DoD:** vectores compartidos en `packages/tokens/vectores/monto-escrito.json`, referencia TS con prueba (vitest), Dart y Angular reproducen los mismos vectores.
-**Estado:** TODO
+**Estado:** HECHO (peldaño TESTED; sin prueba en dispositivo ni capturas, ver REPORTE)
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| T2.M2 | Referencia `interpretarMontoEscrito` (TS) + vectores | Los vectores pasan | `yarn vitest run` en `packages/tokens` | TODO |
-| T2.M3 | Angular `aCadenaDelContrato` delega en la referencia | Spec de `packages/ui` pasa con los vectores | `yarn vitest run` en `packages/ui` | TODO |
-| T2.M4 | Dart `CampoMonto.aCadenaDelContrato` reproduce los vectores; el campo muestra el importe interpretado y el error asociado | Prueba Dart con los vectores | `flutter test` (si hay SDK; si no, NO COMPROBADO con comando listo) | TODO |
+| T2.M2 | Referencia `interpretarMontoEscrito` (TS) + vectores | Los vectores pasan | `yarn vitest run` en `packages/tokens` | HECHO |
+| T2.M3 | Angular `aCadenaDelContrato` delega en la referencia | Spec de `packages/ui` pasa con los vectores | `yarn ng test` en `packages/ui` | HECHO |
+| T2.M4 | Dart `CampoMonto.aCadenaDelContrato` reproduce los vectores; el campo muestra el importe interpretado y el error asociado | Prueba Dart con los vectores | `flutter test` (SDK 3.50.1 en el scratchpad) | HECHO |
 
 ### H1.S3 — Resto de F1 de L4 (en orden del anexo, relocalizando cada uno en `dev`)
 | ID | Microtarea | Estado |

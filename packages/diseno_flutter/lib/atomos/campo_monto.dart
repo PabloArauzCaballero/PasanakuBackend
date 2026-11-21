@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../atomos/campo.dart';
+import '../dinero/formatear.dart';
+import '../dinero/interpretar.dart';
 
 /// Un importe se escribe con addon `Bs`, teclado numérico y coma decimal; el valor que
 /// sale es **la cadena del contrato** (`1240.00`), nunca un `double`.
@@ -27,25 +29,28 @@ class CampoMonto extends StatefulWidget {
   final String? ejemplo;
   final String? valorInicial;
 
-  /// `"1.240,50"` → `"1240.50"`; `"12"` → `"12.00"`; `"abc"` → `null`.
-  static String? aCadenaDelContrato(String escrito) {
-    final limpio = escrito.replaceAll('.', '').replaceAll(' ', '').trim();
-    if (limpio.isEmpty) {
-      return null;
+  /// `"1.240,50"` → `"1240.50"`; `"12.50"` → `"12.50"`; `"12"` → `"12.00"`;
+  /// `"abc"` → `null`. La regla es [interpretarMontoEscrito] (F1.S4.M1).
+  static String? aCadenaDelContrato(String escrito) =>
+      interpretarMontoEscrito(escrito);
+
+  /// Lo que se muestra debajo del campo según lo escrito: el importe que se va a enviar,
+  /// o el error de formato asociado al campo (regla 95.3.1). `null` si no hay nada escrito.
+  static ({String? ayuda, String? error}) lecturaDe(
+    String escrito,
+    String moneda,
+  ) {
+    if (escrito.trim().isEmpty) {
+      return (ayuda: null, error: null);
     }
-    final partes = limpio.split(',');
-    if (partes.length > 2) {
-      return null;
+    final contrato = aCadenaDelContrato(escrito);
+    if (contrato == null) {
+      return (ayuda: null, error: 'Escribí un monto como 1.240,50');
     }
-    final enteros = partes[0];
-    final centavos = partes.length == 2 ? partes[1] : '';
-    if (!RegExp(r'^\d+$').hasMatch(enteros)) {
-      return null;
-    }
-    if (centavos.isNotEmpty && !RegExp(r'^\d{1,2}$').hasMatch(centavos)) {
-      return null;
-    }
-    return '$enteros.${centavos.padRight(2, '0')}';
+    return (
+      ayuda: 'Vas a enviar ${formatearMonto(monto: contrato, moneda: moneda)}',
+      error: null,
+    );
   }
 
   @override
@@ -65,16 +70,23 @@ class _CampoMontoState extends State<CampoMonto> {
 
   @override
   Widget build(BuildContext context) {
+    final lectura = CampoMonto.lecturaDe(_controlador.text, widget.moneda);
     return Campo(
       etiqueta: widget.etiqueta,
       controlador: _controlador,
       prefijo: widget.moneda == 'BOB' ? 'Bs' : widget.moneda,
       tipoDeTeclado: const TextInputType.numberWithOptions(decimal: true),
       formateadores: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
-      error: widget.error,
-      ayuda: widget.ayuda ?? 'Con coma para los centavos: 1.240,50',
+      error: widget.error ?? lectura.error,
+      ayuda:
+          lectura.ayuda ??
+          widget.ayuda ??
+          'Con coma para los centavos: 1.240,50',
       ejemplo: widget.ejemplo,
-      onChanged: (v) => widget.onChanged(CampoMonto.aCadenaDelContrato(v)),
+      onChanged: (v) {
+        widget.onChanged(CampoMonto.aCadenaDelContrato(v));
+        setState(() {});
+      },
     );
   }
 }
