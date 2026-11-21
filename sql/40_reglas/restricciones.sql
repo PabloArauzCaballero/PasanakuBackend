@@ -797,6 +797,14 @@ ALTER TABLE extracto_bancario DROP CONSTRAINT IF EXISTS ck_extracto_bancario_mon
 ALTER TABLE extracto_bancario
   ADD CONSTRAINT ck_extracto_bancario_moneda CHECK (moneda IS NULL OR moneda IN ('BOB', 'USD'));
 
+-- R-BIL-30 · una sola salida por estado (F1.L1.M08). El pago y el reembolso son
+-- append-only (R-AUD-01); su estado cambia agregando una fila de historial. Dos
+-- transiciones simultaneas desde el mismo estado chocan aca, no en un if previo.
+CREATE UNIQUE INDEX IF NOT EXISTS uq_historial_estado_pago_salida
+  ON historial_estado_pago (pago_id, estado_anterior);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_historial_estado_reembolso_salida
+  ON historial_estado_reembolso (reembolso_id, estado_anterior);
+
 
 -- ---------------------------------------------------------------------
 -- R-LIM — Límites operativos

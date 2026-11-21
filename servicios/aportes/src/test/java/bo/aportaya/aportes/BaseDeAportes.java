@@ -6,6 +6,7 @@ import bo.aportaya.aportes.aplicacion.CU21CobrarAporte;
 import bo.aportaya.aportes.aplicacion.CU99EnrutarProveedor;
 import bo.aportaya.aportes.dominio.ProveedorDeSecretoWebhook;
 import bo.aportaya.aportes.infraestructura.AuditoriaRepositorio;
+import bo.aportaya.aportes.infraestructura.DisputaPagoRepositorio;
 import bo.aportaya.aportes.infraestructura.ObligacionRepositorio;
 import bo.aportaya.aportes.infraestructura.PagoRepositorio;
 import bo.aportaya.aportes.infraestructura.ProveedorPagoRepositorio;
@@ -70,6 +71,7 @@ abstract class BaseDeAportes {
         reembolsoCU = new CU19ReembolsarPago(
                 datos,
                 pagos,
+                new DisputaPagoRepositorio(),
                 obligaciones,
                 consumidos,
                 outbox,

@@ -138,7 +138,12 @@ class CU19Test extends BaseDeAportes {
         assertThat(contar("SELECT monto_pagado::int FROM aportes.obligacion_aporte WHERE id = ?", c.obligacion()))
                 .isZero();
         assertThat(contar(
-                        "SELECT count(*)::int FROM aportes.reembolso WHERE pago_id = ? AND estado = ?",
+                        // F1.L1.M08 · el reembolso es append-only: EJECUTADO vive en su historial (R-BIL-30).
+                        """
+                        SELECT count(*)::int FROM aportes.reembolso r
+                          JOIN aportes.historial_estado_reembolso h ON h.reembolso_id = r.id
+                         WHERE r.pago_id = ? AND h.estado_nuevo = ?
+                        """,
                         c.pago(),
                         "EJECUTADO"))
                 .isEqualTo(1);

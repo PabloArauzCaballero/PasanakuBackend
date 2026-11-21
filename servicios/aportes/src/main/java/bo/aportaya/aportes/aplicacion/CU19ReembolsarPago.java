@@ -4,6 +4,7 @@ import bo.aportaya.aportes.dominio.MotivoDeReembolso;
 import bo.aportaya.aportes.dominio.SaldoDeLaObligacion;
 import bo.aportaya.aportes.dominio.TipoDeDisputa;
 import bo.aportaya.aportes.infraestructura.AuditoriaRepositorio;
+import bo.aportaya.aportes.infraestructura.DisputaPagoRepositorio;
 import bo.aportaya.aportes.infraestructura.ObligacionRepositorio;
 import bo.aportaya.aportes.infraestructura.PagoRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
@@ -40,6 +41,7 @@ public class CU19ReembolsarPago {
 
     private final Datos datos;
     private final PagoRepositorio pagos;
+    private final DisputaPagoRepositorio disputas;
     private final ObligacionRepositorio obligaciones;
     private final Consumidos consumidos;
     private final Outbox outbox;
@@ -50,6 +52,7 @@ public class CU19ReembolsarPago {
     public CU19ReembolsarPago(
             Datos datos,
             PagoRepositorio pagos,
+            DisputaPagoRepositorio disputas,
             ObligacionRepositorio obligaciones,
             Consumidos consumidos,
             Outbox outbox,
@@ -58,6 +61,7 @@ public class CU19ReembolsarPago {
             @Value("${aportaya.reembolso.plazo-de-disputa}") Duration plazoDeDisputa) {
         this.datos = datos;
         this.pagos = pagos;
+        this.disputas = disputas;
         this.obligaciones = obligaciones;
         this.consumidos = consumidos;
         this.outbox = outbox;
@@ -229,12 +233,12 @@ public class CU19ReembolsarPago {
             if (!consumidos.registrar(dsl, idMensaje, "proveedor-pago")) {
                 return new SalidaDisputa(null, ahora, false);
             }
-            if (pagos.hayDisputaAbierta(dsl, entrada.pagoId())) {
+            if (disputas.hayDisputaAbierta(dsl, entrada.pagoId())) {
                 return new SalidaDisputa(null, ahora, false);
             }
 
             OffsetDateTime limite = ahora.plus(plazoDeDisputa);
-            UUID disputaId = pagos.abrirDisputa(
+            UUID disputaId = disputas.abrirDisputa(
                     dsl, entrada.pagoId(), tipo, entrada.descripcion(), entrada.montoDisputado(), "[]", ahora, limite);
 
             outbox.emitir(

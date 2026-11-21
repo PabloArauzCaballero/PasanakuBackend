@@ -90,7 +90,14 @@ class CUIndicadoresComercialesDeAportesTest extends BaseDeAportes {
         var o = fixtura.obligacion(usuario, "500.00", 10);
         pagar(usuario, o.id(), "embudo-rev-" + o.id());
 
-        dsl.execute("UPDATE aportes.pago SET estado = 'REVERSADO' WHERE obligacion_id = ?", o.id());
+        // F1.L1.M08 · el pago no se edita: se reversa agregando su fila de historial (R-BIL-30).
+        dsl.execute(
+                """
+                INSERT INTO aportes.historial_estado_pago (id, pago_id, estado_anterior, estado_nuevo, motivo, fecha_hora)
+                SELECT gen_random_uuid(), id, estado, 'REVERSADO', 'prueba sintetica', clock_timestamp()
+                  FROM aportes.pago WHERE obligacion_id = ?
+                """,
+                o.id());
 
         assertThat(primerosDeHoy()).isEqualTo(antes);
     }
