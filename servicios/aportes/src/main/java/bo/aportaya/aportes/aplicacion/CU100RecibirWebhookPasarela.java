@@ -97,7 +97,8 @@ public class CU100RecibirWebhookPasarela {
             }
             var secreto = secretos.secretoDe(entrada.proveedorCodigo());
             if (secreto.isEmpty()
-                    || !VerificadorDeFirmaWebhook.firmaValida(entrada.cuerpoCrudo(), entrada.firma(), secreto.get())) {
+                    || !VerificadorDeFirmaWebhook.firmaValida(
+                            entrada.timestamp(), entrada.cuerpoCrudo(), entrada.firma(), secreto.get())) {
                 BITACORA.warn("webhook rechazado: firma invalida");
                 return Resultado.firmaInvalida();
             }

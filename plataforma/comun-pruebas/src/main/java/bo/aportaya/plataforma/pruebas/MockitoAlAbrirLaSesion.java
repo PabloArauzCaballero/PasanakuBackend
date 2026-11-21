@@ -1,4 +1,4 @@
-package bo.aportaya.grupos;
+package bo.aportaya.plataforma.pruebas;
 
 import static org.mockito.Mockito.mock;
 
