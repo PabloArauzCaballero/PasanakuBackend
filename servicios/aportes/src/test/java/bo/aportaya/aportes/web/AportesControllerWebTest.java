@@ -1,7 +1,9 @@
 package bo.aportaya.aportes.web;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -22,7 +24,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -51,7 +52,7 @@ class AportesControllerWebTest {
             """
             {
               "monto": {"monto": "350.00", "moneda": "BOB"},
-              "canal": "QR_INTEROPERABLE",
+              "canal": "BILLETERA_MOVIL",
               "referenciaProveedor": "REF-000123"
             }
             """;
@@ -61,6 +62,9 @@ class AportesControllerWebTest {
 
     @MockitoBean
     private CU21CobrarAporte cu21;
+
+    @MockitoBean
+    private bo.aportaya.aportes.aplicacion.CU21PagarConSaldo conSaldo;
 
     @MockitoBean
     private ConsultarEstadoDelParticipante estados;
@@ -111,7 +115,8 @@ class AportesControllerWebTest {
         @Test
         @DisplayName("201 cuando el cobro se acredita ahora")
         void cobroNuevo() throws Exception {
-            when(cu21.acreditar(any(), any())).thenReturn(salida(true));
+            when(conSaldo.pagarConSaldo(anyString(), any(), any(), anyBoolean(), any()))
+                    .thenReturn(salida(true));
 
             cobrar(COBRO)
                     .andExpect(status().isCreated())
@@ -124,7 +129,8 @@ class AportesControllerWebTest {
         @Test
         @DisplayName("200 cuando el reintento devuelve el pago que ya existia — no 201 ni 409")
         void reintento() throws Exception {
-            when(cu21.acreditar(any(), any())).thenReturn(salida(false));
+            when(conSaldo.pagarConSaldo(anyString(), any(), any(), anyBoolean(), any()))
+                    .thenReturn(salida(false));
 
             cobrar(COBRO)
                     .andExpect(status().isOk())
@@ -135,24 +141,19 @@ class AportesControllerWebTest {
         @Test
         @DisplayName("la clave de idempotencia de la CABECERA es la que llega al caso de uso")
         void laClaveViajaEntera() throws Exception {
-            when(cu21.acreditar(any(), any())).thenReturn(salida(true));
+            when(conSaldo.pagarConSaldo(anyString(), any(), any(), anyBoolean(), any()))
+                    .thenReturn(salida(true));
 
             cobrar(COBRO).andExpect(status().isCreated());
 
-            var capturada = ArgumentCaptor.forClass(CU21CobrarAporte.EntradaCobro.class);
-            verify(cu21).acreditar(capturada.capture(), any());
-            var entrada = capturada.getValue();
+            verify(conSaldo)
+                    .pagarConSaldo(
+                            eq(CLAVE), eq(OBLIGACION), eq(java.util.Optional.of(bob("350.00"))), eq(true), any());
 
             // Si la clave se perdiera o se reescribiera en la pagina, el caso de uso
             // trataria cada reintento como un cobro nuevo — y el participante pagaria
-            // dos veces. El caso de uso no puede detectarlo solo.
-            org.assertj.core.api.Assertions.assertThat(entrada.claveIdempotencia())
-                    .isEqualTo(CLAVE);
-            org.assertj.core.api.Assertions.assertThat(entrada.obligacionId()).isEqualTo(OBLIGACION);
-            org.assertj.core.api.Assertions.assertThat(entrada.monto()).isEqualByComparingTo(bob("350.00"));
-            // Sin recargo declarado, cero de la MISMA moneda que el monto.
-            org.assertj.core.api.Assertions.assertThat(entrada.comision()).isEqualByComparingTo(bob("0.00"));
-            org.assertj.core.api.Assertions.assertThat(entrada.esManual()).isFalse();
+            // dos veces. El caso de uso no puede detectarlo solo. El monto declarado viaja
+            // para que el caso de uso lo compare con el pendiente (F1.L1.M11).
         }
 
         @Test
@@ -170,13 +171,14 @@ class AportesControllerWebTest {
         @DisplayName("F1.L1.M01 · un cobro con monto negativo es 400 y no se acredita nada")
         void montoNegativo() throws Exception {
             cobrar(COBRO.replace("\"350.00\"", "\"-350.00\"")).andExpect(status().isBadRequest());
-            org.mockito.Mockito.verify(cu21, org.mockito.Mockito.never()).acreditar(any(), any());
+            org.mockito.Mockito.verify(conSaldo, org.mockito.Mockito.never())
+                    .pagarConSaldo(anyString(), any(), any(), anyBoolean(), any());
         }
 
         @Test
         @DisplayName("400: un canal de cobro que el contrato no enumera")
         void canalFueraDelContrato() throws Exception {
-            cobrar(COBRO.replace("QR_INTEROPERABLE", "TRUEQUE")).andExpect(status().isBadRequest());
+            cobrar(COBRO.replace("BILLETERA_MOVIL", "TRUEQUE")).andExpect(status().isBadRequest());
             verifyNoInteractions(cu21);
         }
 
@@ -185,7 +187,7 @@ class AportesControllerWebTest {
         void faltaLaReferencia() throws Exception {
             cobrar(
                             """
-                    {"monto":{"monto":"350.00","moneda":"BOB"},"canal":"QR_INTEROPERABLE"}
+                    {"monto":{"monto":"350.00","moneda":"BOB"},"canal":"BILLETERA_MOVIL"}
                     """)
                     .andExpect(status().isBadRequest());
             verifyNoInteractions(cu21);
@@ -201,7 +203,8 @@ class AportesControllerWebTest {
             cobrar(COBRO)
                     .andExpect(status().isUnprocessableEntity())
                     .andExpect(jsonPath("$.codigo").value("AP-CU21-06"));
-            org.mockito.Mockito.verify(cu21, org.mockito.Mockito.never()).acreditar(any(), any());
+            org.mockito.Mockito.verify(conSaldo, org.mockito.Mockito.never())
+                    .pagarConSaldo(anyString(), any(), any(), anyBoolean(), any());
         }
 
         @Test
@@ -212,7 +215,8 @@ class AportesControllerWebTest {
             cobrar(COBRO)
                     .andExpect(status().isUnprocessableEntity())
                     .andExpect(jsonPath("$.codigo").value("AP-CU21-07"));
-            org.mockito.Mockito.verify(cu21, org.mockito.Mockito.never()).acreditar(any(), any());
+            org.mockito.Mockito.verify(conSaldo, org.mockito.Mockito.never())
+                    .pagarConSaldo(anyString(), any(), any(), anyBoolean(), any());
         }
 
         @Test
@@ -221,15 +225,14 @@ class AportesControllerWebTest {
             when(grupos.admisibilidad(DUENO, PERIODO))
                     .thenReturn(java.util.Optional.of(
                             new bo.aportaya.aportes.aplicacion.HechosDeGrupos.Admisibilidad(true, false)));
-            when(cu21.acreditar(any(), any()))
+            when(conSaldo.pagarConSaldo(anyString(), any(), any(), anyBoolean(), any()))
                     .thenThrow(new ErrorDeNegocio(CodigoError.de(21, 4), "El periodo ya se cerro."));
 
             cobrar(COBRO)
                     .andExpect(status().isUnprocessableEntity())
                     .andExpect(jsonPath("$.codigo").value("AP-CU21-04"));
-            var entrada = org.mockito.ArgumentCaptor.forClass(CU21CobrarAporte.EntradaCobro.class);
-            org.mockito.Mockito.verify(cu21).acreditar(entrada.capture(), any());
-            assertThat(entrada.getValue().periodoAbierto()).isFalse();
+            // El periodo cerrado llega como false: el caso de uso es quien lo rechaza.
+            org.mockito.Mockito.verify(conSaldo).pagarConSaldo(eq(CLAVE), eq(OBLIGACION), any(), eq(false), any());
         }
 
         @Test
@@ -239,13 +242,14 @@ class AportesControllerWebTest {
             cobrar(COBRO)
                     .andExpect(status().isUnprocessableEntity())
                     .andExpect(jsonPath("$.codigo").value("AP-CU21-01"));
-            org.mockito.Mockito.verify(cu21, org.mockito.Mockito.never()).acreditar(any(), any());
+            org.mockito.Mockito.verify(conSaldo, org.mockito.Mockito.never())
+                    .pagarConSaldo(anyString(), any(), any(), anyBoolean(), any());
         }
 
         @Test
         @DisplayName("422: la regla del caso de uso sale con su codigo y sin filtrar nada")
         void reglaDeNegocio() throws Exception {
-            when(cu21.acreditar(any(), any()))
+            when(conSaldo.pagarConSaldo(anyString(), any(), any(), anyBoolean(), any()))
                     .thenThrow(new ErrorDeNegocio(
                             CodigoError.de(21, 3),
                             "El aporte no cubre la obligacion.",

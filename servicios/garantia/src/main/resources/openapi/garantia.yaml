@@ -72,6 +72,7 @@
 #   AP-CU23-12  RECAUDO_NO_DISPONIBLE   · aportes no responde: se deniega por omision
 #   AP-CU23-13  PEDIDO_NO_COINCIDE      · periodo/turno de otro grupo, o faltante informado distinto
 #   AP-CU23-14  COBERTURA_MANUAL_RETIRADA · 410: la cobertura no se pide a mano (F1.L2.M02)
+#   AP-CU23-15  RESPALDO_RETIRADO      · 410: el respaldo empresarial se retiro (F2.L2.M02)
 #   AP-CU23-10  CONTINGENCIA_DE_CAJA_ACTIVA · hay una falta de caja sin resolver: no se reservan ciclos nuevos (R-GAR-13)
 # NOTA: varios nombres del CU no describen el caso que el codigo termino ocupando. Se
 # conservan los NUMEROS, que son los que la boveda ata a cada rechazo, y aca queda
@@ -79,7 +80,7 @@
 openapi: 3.1.0
 info:
   title: garantia
-  version: 1.2.0
+  version: 1.3.0
   description: >-
     Servicio garantia. Un caso de uso = una operacion, con el codigo CU en el
     operationId. Los importes viajan como CADENA decimal, nunca como number.
@@ -94,6 +95,10 @@ info:
     1.2.0 (2026-11-21) · F1.L2.M04: los importes que manda el cliente en `declararIncumplimiento`,
     `proponerReemplazo` e `iniciarDisolucion` usan `DineroEntrada`, sin signo: un negativo es 400. Ningun
     cliente del monorepo los llama (busqueda en apps/ y packages/ sin resultados).
+
+    1.3.0 (2026-11-21) · F2.L2.M02 (ADR-055 E7): el respaldo empresarial se retira. Las seis operaciones de
+    `/garantia/respaldo/*` quedan `deprecated` y responden 410 AP-CU23-15 sin efecto: la empresa no reserva ni
+    cubre nada; el faltante lo cubre el fondo del grupo (F3.L2.M05). Ningun cliente del monorepo las llama.
 
 servers:
   - url: /api/v1
@@ -462,9 +467,12 @@ paths:
   /garantia/respaldo/reservas:
     post:
       operationId: reservarRespaldo             # CU-23 respaldo
+      deprecated: true
       tags: [respaldo]
       summary: Reservar capacidad empresarial para un ciclo
       description: >-
+        RETIRADA en 1.3.0 (F2.L2.M02, ADR-055 E7: la empresa no cubre ni reserva): responde 410 AP-CU23-15 sin efecto.
+
         Antes de activar un grupo la empresa aparta, de una capacidad finita, lo que
         podria tener que poner. Dos grupos que activan a la vez compiten por la misma
         fila de capacidad: uno entra y el otro recibe AP-CU23-05. Sin capacidad cargada
@@ -477,6 +485,9 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/EntradaReservaRespaldo' }
       responses:
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU23-15
         '201':
           description: Reserva creada
           content:
@@ -492,8 +503,11 @@ paths:
   /garantia/respaldo/reservas/{reservaId}/ampliacion:
     post:
       operationId: ampliarRespaldo              # CU-23 respaldo
+      deprecated: true
       tags: [respaldo]
       summary: Ampliar la reserva de un ciclo en curso (contingencia de caja)
+      description: >-
+        RETIRADA en 1.3.0 (F2.L2.M02, ADR-055 E7: la empresa no cubre ni reserva): responde 410 AP-CU23-15 sin efecto.
       parameters:
         - name: reservaId
           in: path
@@ -506,6 +520,9 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/EntradaAmpliacionRespaldo' }
       responses:
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU23-15
         '200':
           description: Reserva ampliada, o la misma ampliacion repetida
           content:
@@ -516,8 +533,11 @@ paths:
   /garantia/respaldo/reservas/{reservaId}/liberacion:
     post:
       operationId: liberarRespaldo              # CU-23 respaldo
+      deprecated: true
       tags: [respaldo]
       summary: Liberar lo reservado y no usado al cerrar el ciclo
+      description: >-
+        RETIRADA en 1.3.0 (F2.L2.M02, ADR-055 E7: la empresa no cubre ni reserva): responde 410 AP-CU23-15 sin efecto.
       parameters:
         - name: reservaId
           in: path
@@ -525,6 +545,9 @@ paths:
           schema: { type: string, format: uuid }
         - $ref: '#/components/parameters/ClaveIdempotencia'
       responses:
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU23-15
         '200':
           description: Liberada, o ya lo estaba
           content:
@@ -535,9 +558,12 @@ paths:
   /garantia/respaldo/coberturas:
     post:
       operationId: cubrirConRespaldo            # CU-23 respaldo
+      deprecated: true
       tags: [respaldo]
       summary: Cubrir con la reserva el faltante de caja al corte
       description: >-
+        RETIRADA en 1.3.0 (F2.L2.M02, ADR-055 E7: la empresa no cubre ni reserva): responde 410 AP-CU23-15 sin efecto.
+
         Pozo 6.000 y 5.000 confirmados dejan 1.000 de faltante. Todo o nada: si la
         reserva no alcanza NO se cubre una parte y la respuesta es `INSUFICIENTE` con
         200 (es un resultado de negocio que el llamador tiene que poder distinguir de un
@@ -550,6 +576,9 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/EntradaCoberturaRespaldo' }
       responses:
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU23-15
         '200':
           description: APLICADA, INSUFICIENTE o SIN_RESERVA
           content:
@@ -560,8 +589,11 @@ paths:
   /garantia/respaldo/coberturas/{coberturaId}/reversa:
     post:
       operationId: reversarCoberturaRespaldo    # CU-23 respaldo
+      deprecated: true
       tags: [respaldo]
       summary: Anular una cobertura con contra-asiento
+      description: >-
+        RETIRADA en 1.3.0 (F2.L2.M02, ADR-055 E7: la empresa no cubre ni reserva): responde 410 AP-CU23-15 sin efecto.
       parameters:
         - name: coberturaId
           in: path
@@ -569,6 +601,9 @@ paths:
           schema: { type: string, format: uuid }
         - $ref: '#/components/parameters/ClaveIdempotencia'
       responses:
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU23-15
         '200':
           description: Reversada, o ya lo estaba
           content:
@@ -579,9 +614,12 @@ paths:
   /garantia/respaldo/recuperaciones:
     post:
       operationId: recuperarRespaldo            # CU-23 respaldo
+      deprecated: true
       tags: [respaldo]
       summary: Imputar un aporte tardio a lo que la empresa adelanto
       description: >-
+        RETIRADA en 1.3.0 (F2.L2.M02, ADR-055 E7: la empresa no cubre ni reserva): responde 410 AP-CU23-15 sin efecto.
+
         El dinero vuelve a la empresa, no al pozo: el beneficiario ya cobro completo y no
         se le entrega dos veces. Cada pago recupera una sola vez. El excedente sobre lo
         adelantado no es de la empresa.
@@ -593,6 +631,9 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/EntradaRecuperacionRespaldo' }
       responses:
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU23-15
         '200':
           description: RECUPERADA, YA_RECUPERADA, AGOTADA o SIN_COBERTURA
           content:
