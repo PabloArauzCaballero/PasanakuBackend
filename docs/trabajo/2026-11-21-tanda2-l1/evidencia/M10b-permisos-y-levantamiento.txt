@@ -1,0 +1,35 @@
+F1.L1.M10 (parte 2) · permisos propios del bloqueo por autoridad y ruta HTTP de levantamiento
+Fecha: 2026-11-21 · Rama: correcciones/tanda2-l1-bloqueo-permisos · Autorizado por el coordinador (orden de Pablo)
+a tocar sql/60_semillas SOLO para estos permisos.
+
+--- semillas (fuente: seeders/minimos/10-roles-y-permisos.json; sql regenerado con scripts/generar_semillas.py)
+permiso BLOQUEO_AUTORIDAD_REGISTRAR (bloqueo_saldo/REGISTRAR, MFA, CRITICO, exige motivo)
+permiso BLOQUEO_AUTORIDAD_LEVANTAR  (bloqueo_saldo/LEVANTAR,  MFA, CRITICO, exige motivo)
+asignaciones: OFICIAL_CUMPLIMIENTO -> REGISTRAR y LEVANTAR · ANALISTA_CUMPLIMIENTO -> REGISTRAR
+  (los mismos roles que hoy registraban con DATOS_SENSIBLES_LEER; levantar queda en la jefatura)
+Idempotencia (codigos estables, ON CONFLICT DO NOTHING), base limpia + sembrar.sql dos veces:
+siembra 1 exit=0
+73|163|ANALISTA_CUMPLIMIENTO→BLOQUEO_AUTORIDAD_REGISTRAR, OFICIAL_CUMPLIMIENTO→BLOQUEO_AUTORIDAD_LEVANTAR, OFICIAL_CUMPLIMIENTO→BLOQUEO_AUTORIDAD_REGISTRAR
+siembra 2 exit=0
+73|163|ANALISTA_CUMPLIMIENTO→BLOQUEO_AUTORIDAD_REGISTRAR, OFICIAL_CUMPLIMIENTO→BLOQUEO_AUTORIDAD_LEVANTAR, OFICIAL_CUMPLIMIENTO→BLOQUEO_AUTORIDAD_REGISTRAR
+(la segunda corrida no inserta nada: mismos conteos)
+
+--- contrato nucleo-financiero 1.2.0 (aditivo)
+POST /billetera/bloqueos/{bloqueoId}/levantamiento · levantarBloqueoPorAutoridad · sin cuerpo · 200 SalidaLevantamientoBloqueo
+bloquearPorAutoridad exige BLOQUEO_AUTORIDAD_REGISTRAR (antes DATOS_SENSIBLES_LEER).
+Codigo nuevo AP-CU17-05 BLOQUEO_NO_VIGENTE (antes el levantamiento reusaba AP-CU17-02 CUENTA_INEXISTENTE).
+Ejemplo de packages/simulado y Postman regenerado.
+
+--- pruebas
+$ ./gradlew :servicios:nucleo-financiero:test :servicios:nucleo-financiero:webTest -> exit=0
+BloqueoAutoridadWebTest 7/7: DATOS_SENSIBLES_LEER ya no registra (403) · otra persona levanta (200) · misma
+  persona 422 AP-CU17-04 · solo REGISTRAR/DATOS_SENSIBLES_LEER no levanta (403) · sin token 401 · token sin
+  sesion 401 · ya levantado 422 AP-CU17-05
+$ ./gradlew :servicios:nucleo-financiero:integrationTest --tests '*CU17*' (PostgreSQL local) -> CU17Test 9/9,
+  CU17CuatroOjosTest 3/3, CU17RechazosTest 4/4
+Mutante (levantar con @Permiso("DATOS_SENSIBLES_LEER")): 7 tests completed, 5 failed. Restaurado.
+verificar_boveda TODO OK · verificar_seguridad TODO OK · verificar_criterios sin divergencias ·
+verificar_pruebas_web OK · verificar_contratos_limites OK.
+
+No cubierto: el backoffice no tiene todavia la accion de levantar (L4/L6); AMB-L1-3 sigue sin confirmar con
+Cumplimiento (se implemento el supuesto del anexo: accion humana, dos personas).

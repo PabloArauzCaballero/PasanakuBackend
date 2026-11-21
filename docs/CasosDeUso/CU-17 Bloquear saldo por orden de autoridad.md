@@ -82,6 +82,8 @@ export const ErroresCU17 = {
   CUENTA_INEXISTENTE: 'AP-CU17-02',
   SIN_DOCUMENTO_DE_RESPALDO: 'AP-CU17-03',
   MISMA_PERSONA_LEVANTA: 'AP-CU17-04',
+  BLOQUEO_NO_VIGENTE: 'AP-CU17-05',
+  CURSOR_INCOMPLETO: 'AP-CU17-06',
 } as const
 ```
 
@@ -91,6 +93,8 @@ export const ErroresCU17 = {
 | `CUENTA_INEXISTENTE` | No se identificó al titular |
 | `SIN_DOCUMENTO_DE_RESPALDO` | No se ejecuta una orden sin el oficio y su hash |
 | `MISMA_PERSONA_LEVANTA` | Quien registró el bloqueo no puede levantarlo: lo levanta otra persona, desde su propio token (R-BIL-32) |
+| `BLOQUEO_NO_VIGENTE` | Se pidió levantar un bloqueo que ya no está vigente (ya levantado o inexistente) |
+| `CURSOR_INCOMPLETO` | El listado de bloqueos recibió `antesDe` sin `antesDeId` o al revés: el cursor va completo o no va |
 
 ## Descomposición atómica
 

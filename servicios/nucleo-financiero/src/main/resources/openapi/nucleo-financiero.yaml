@@ -34,7 +34,7 @@
 openapi: 3.1.0
 info:
   title: nucleo-financiero
-  version: 1.1.0
+  version: 1.4.0
   description: >-
     Servicio nucleo-financiero. Un caso de uso = una operacion, con el codigo CU en el
     operationId. Los importes viajan como CADENA decimal, nunca como number.
@@ -44,6 +44,10 @@ info:
     turnos se eliminan). `pagarAlTercero` queda RETIRADA y responde 410 sin efecto (AP-CU13-10); su unico
     consumidor (`entregas.comprarOferta`) ya responde 410. Contraccion (regla 98.1.3): se borra del contrato
     junto con las operaciones del mercado de `entregas`; la fecha la fija Pablo al mergear.
+
+
+    1.2.0 (2026-11-21) · F1.L1.M10: nueva `levantarBloqueoPorAutoridad` (aditiva). El registro del bloqueo
+    pasa a exigir BLOQUEO_AUTORIDAD_REGISTRAR en vez de DATOS_SENSIBLES_LEER (permiso propio de la accion).
 
 servers:
   - url: /api/v1
@@ -721,6 +725,34 @@ paths:
           $ref: '#/components/responses/NoAutenticado'
 
   /billetera/bloqueos:
+    get:
+      operationId: listarBloqueosPorAutoridad  # CU-17 (backoffice)
+      summary: Bloqueos por orden de autoridad, del mas reciente al mas antiguo
+      description: >-
+        La bandeja de Cumplimiento: exige BLOQUEO_AUTORIDAD_REGISTRAR o BLOQUEO_AUTORIDAD_LEVANTAR. Paginada por
+        cursor (recibidoEn, id) descendente: el desempate por id hace estable el orden aunque dos ordenes compartan el
+        instante. Filtro opcional por estado. Cada fila trae lo necesario para decidir y nada mas (respuesta minima):
+        ni el numero de oficio ni el documento de la orden viajan aca. La fila que registro quien consulta, o que ya no
+        esta vigente, aparece con puedeLevantar=false: la segregacion (R-BIL-32) la vuelve a exigir
+        levantarBloqueoPorAutoridad; esto solo evita ofrecer un boton muerto.
+      parameters:
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: estado, in: query, required: false, schema: { type: string, enum: [VIGENTE, LEVANTADO, VENCIDO] } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina de bloqueos (vacia si no hay ninguno)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeBloqueos' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU17-06 CURSOR_INCOMPLETO · antesDe y antesDeId van juntos o ninguno
+        '403':
+          description: Sin BLOQUEO_AUTORIDAD_REGISTRAR ni BLOQUEO_AUTORIDAD_LEVANTAR
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
     post:
       operationId: bloquearPorAutoridad        # CU-17
       summary: Registrar un bloqueo por orden de autoridad
@@ -748,6 +780,34 @@ paths:
           # AP-CU17-03 SIN_DOCUMENTO_DE_RESPALDO
           # AP-CU17-04 MISMA_PERSONA_LEVANTA (al levantar; R-BIL-32)
         '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/bloqueos/{bloqueoId}/levantamiento:
+    post:
+      operationId: levantarBloqueoPorAutoridad  # CU-17
+      summary: Levantar un bloqueo por orden de autoridad (otra persona que quien lo registro)
+      description: >-
+        F1.L1.M10 (R-BIL-32). Exige BLOQUEO_AUTORIDAD_LEVANTAR y una persona distinta de quien registro el
+        bloqueo, ambas tomadas del token: quien lo registro recibe 422 AP-CU17-04. El saldo retenido vuelve a
+        estar disponible en la misma transaccion. No lleva cuerpo: quien levanta no se declara, es el token.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - name: bloqueoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Bloqueo levantado y saldo liberado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaLevantamientoBloqueo' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU17-04 MISMA_PERSONA_LEVANTA · AP-CU17-05 BLOQUEO_NO_VIGENTE
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
           $ref: '#/components/responses/NoAutenticado'
 
   /billetera/qr:
@@ -1058,6 +1118,13 @@ components:
         alcance: { type: string, enum: [PARCIAL, TOTAL] }
         documentoUrl: { type: string, format: uri }
         hashDocumento: { type: string, minLength: 64, maxLength: 64 }
+    SalidaLevantamientoBloqueo:
+      type: object
+      additionalProperties: false
+      required: [bloqueoId, estado]
+      properties:
+        bloqueoId: { type: string, format: uuid }
+        estado: { type: string, enum: [LEVANTADO] }
     SalidaBloqueo:
       type: object
       additionalProperties: false
@@ -1315,6 +1382,36 @@ components:
           items: { $ref: '#/components/schemas/RetiroEnRevision' }
         proximoFecha: { type: [string, 'null'], format: date-time }
         proximoId:    { type: [string, 'null'], format: uuid }
+    PaginaDeBloqueos:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items: { type: array, maxItems: 100, items: { $ref: '#/components/schemas/BloqueoEnLista' } }
+        proximoAntesDe: { type: [string, 'null'], format: date-time }
+        proximoAntesDeId: { type: [string, 'null'], format: uuid }
+    BloqueoEnLista:
+      type: object
+      additionalProperties: false
+      required: [bloqueoId, cuentaBilleteraId, autoridad, tipoOrden, alcance, estado, recibidoEn, puedeLevantar]
+      properties:
+        bloqueoId:         { type: string, format: uuid }
+        cuentaBilleteraId: { type: string, format: uuid }
+        autoridad:         { type: string, enum: [ASFI, FISCALIA, INTERNO, JUZGADO, UIF] }
+        tipoOrden:         { type: string, enum: [CONGELAMIENTO, EMBARGO, INFORMATIVO, INMOVILIZACION, RETENCION] }
+        alcance:           { type: string, enum: [PARCIAL, TOTAL] }
+        estado:            { type: string, enum: [VIGENTE, LEVANTADO, VENCIDO] }
+        montoBloqueado:
+          description: Ausente cuando el alcance es TOTAL (se inmoviliza todo el saldo). La moneda es la de la cuenta.
+          allOf: [ { $ref: '#/components/schemas/Dinero' } ]
+        registradoPor:     { type: [string, 'null'], format: uuid }
+        levantadoPor:      { type: [string, 'null'], format: uuid }
+        recibidoEn:        { type: string, format: date-time }
+        venceEn:           { type: [string, 'null'], format: date-time }
+        levantadoEn:       { type: [string, 'null'], format: date-time }
+        puedeLevantar:
+          type: boolean
+          description: false cuando quien consulta registro el bloqueo (R-BIL-32) o el bloqueo ya no esta vigente
     RetiroEnRevision:
       type: object
       additionalProperties: false

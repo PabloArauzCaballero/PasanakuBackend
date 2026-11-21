@@ -101,5 +101,70 @@ public class BloqueoRepositorio {
                 > 0;
     }
 
+    /**
+     * El listado de la bandeja de Cumplimiento: cursor (recibido_en, id) descendente, filtro opcional por estado. La
+     * moneda del importe es la de la cuenta (bloqueo_saldo no la modela; regla 91.1.2: ningun importe sin moneda).
+     */
+    public java.util.List<FilaDeBloqueo> listar(
+            DSLContext dsl,
+            Optional<String> estado,
+            Optional<OffsetDateTime> antesDe,
+            Optional<UUID> antesDeId,
+            int limite) {
+        var parametros = new java.util.ArrayList<Object>();
+        var condiciones = new java.util.ArrayList<String>();
+        estado.ifPresent(e -> {
+            condiciones.add("b.estado = ?");
+            parametros.add(e);
+        });
+        if (antesDe.isPresent() && antesDeId.isPresent()) {
+            condiciones.add("(b.recibido_en, b.id) < (?::timestamptz, ?::uuid)");
+            parametros.add(antesDe.get());
+            parametros.add(antesDeId.get());
+        }
+        parametros.add(limite);
+        String donde = condiciones.isEmpty() ? "" : " WHERE " + String.join(" AND ", condiciones);
+        return dsl.fetch(
+                        """
+                        SELECT b.id, b.cuenta_billetera_id, b.autoridad, b.tipo_orden, b.alcance, b.estado,
+                               b.monto_bloqueado, c.moneda, b.registrado_por, b.levantada_por, b.recibido_en,
+                               b.vence_en, b.levantado_en
+                          FROM nucleo_financiero.bloqueo_saldo b
+                          JOIN nucleo_financiero.cuenta_billetera c ON c.id = b.cuenta_billetera_id"""
+                                + donde
+                                + " ORDER BY b.recibido_en DESC, b.id DESC LIMIT ?",
+                        parametros.toArray())
+                .map(f -> new FilaDeBloqueo(
+                        f.get("id", UUID.class),
+                        f.get("cuenta_billetera_id", UUID.class),
+                        f.get("autoridad", String.class),
+                        f.get("tipo_orden", String.class),
+                        f.get("alcance", String.class),
+                        f.get("estado", String.class),
+                        Optional.ofNullable(f.get("monto_bloqueado", BigDecimal.class))
+                                .map(m -> Dinero.de(
+                                        m,
+                                        bo.aportaya.plataforma.dominio.Moneda.valueOf(f.get("moneda", String.class)))),
+                        Optional.ofNullable(f.get("registrado_por", UUID.class)),
+                        Optional.ofNullable(f.get("levantada_por", UUID.class)),
+                        f.get("recibido_en", OffsetDateTime.class),
+                        Optional.ofNullable(f.get("vence_en", OffsetDateTime.class)),
+                        Optional.ofNullable(f.get("levantado_en", OffsetDateTime.class))));
+    }
+
+    public record FilaDeBloqueo(
+            UUID id,
+            UUID cuentaBilleteraId,
+            String autoridad,
+            String tipoOrden,
+            String alcance,
+            String estado,
+            Optional<Dinero> montoBloqueado,
+            Optional<UUID> registradoPor,
+            Optional<UUID> levantadoPor,
+            OffsetDateTime recibidoEn,
+            Optional<OffsetDateTime> venceEn,
+            Optional<OffsetDateTime> levantadoEn) {}
+
     public record Bloqueo(UUID id, String numeroOficio, String autoridad, Optional<UUID> retencionId) {}
 }
