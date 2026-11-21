@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS aportes.reembolso (
   referencia_proveedor               VARCHAR(80),
   solicitado_por                     UUID NOT NULL,
   aprobado_por                       UUID,
+  clave_idempotencia                 VARCHAR(100),
   fecha_solicitud                    TIMESTAMPTZ NOT NULL,
   fecha_ejecucion                    TIMESTAMPTZ,
   CONSTRAINT pk_reembolso PRIMARY KEY (id),

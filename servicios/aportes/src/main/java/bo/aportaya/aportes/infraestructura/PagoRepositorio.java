@@ -151,7 +151,13 @@ public class PagoRepositorio {
     }
 
     public UUID solicitarReembolso(
-            DSLContext dsl, UUID pagoId, Dinero monto, String motivo, UUID solicitadoPor, OffsetDateTime ahora) {
+            DSLContext dsl,
+            UUID pagoId,
+            Dinero monto,
+            String motivo,
+            UUID solicitadoPor,
+            String claveIdempotencia,
+            OffsetDateTime ahora) {
 
         UUID id = UUID.randomUUID();
         dsl.insertInto(DSL.table(DSL.name("aportes", "reembolso")))
@@ -161,6 +167,7 @@ public class PagoRepositorio {
                 .set(DSL.field("motivo", String.class), motivo)
                 .set(DSL.field("estado", String.class), "SOLICITADO")
                 .set(DSL.field("solicitado_por", UUID.class), solicitadoPor)
+                .set(DSL.field("clave_idempotencia", String.class), claveIdempotencia)
                 .set(DSL.field("fecha_solicitud", OffsetDateTime.class), ahora)
                 .execute();
         return id;
@@ -179,6 +186,22 @@ public class PagoRepositorio {
                         .and(DSL.field("estado").eq("SOLICITADO"))
                         .execute()
                 > 0;
+    }
+
+    /** F1.L1.M09 · el candado de (pago, clave) hasta el fin de la transaccion: dos reintentos no corren a la vez. */
+    public void bloquearIdempotenciaDeReembolso(DSLContext dsl, UUID pagoId, String clave) {
+        dsl.execute(
+                "SELECT pg_advisory_xact_lock(hashtextextended(?, 0::bigint))", "reembolso|" + pagoId + "|" + clave);
+    }
+
+    /** La solicitud que ya uso esa clave sobre ese pago, si la hay (R-BIL-28). */
+    public Optional<Reembolso> reembolsoPorClave(DSLContext dsl, UUID pagoId, String clave) {
+        return dsl.select(DSL.field("id", UUID.class))
+                .from(DSL.table(DSL.name("aportes", "reembolso")))
+                .where(DSL.field("pago_id", UUID.class).eq(pagoId))
+                .and(DSL.field("clave_idempotencia", String.class).eq(clave))
+                .fetchOptional(r -> r.value1())
+                .flatMap(id -> verReembolso(dsl, id));
     }
 
     public Optional<Reembolso> verReembolso(DSLContext dsl, UUID reembolsoId) {

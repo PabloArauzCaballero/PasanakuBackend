@@ -546,7 +546,7 @@ El flujo `solicitado → aprobado → ejecutado`, con `solicitadoPor` y `aprobad
 
 **Casos de uso que la nombran.** CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`)
 
-**Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `pago`.
+**Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `pago`. Reglas nombradas: `uq_reembolso_clave`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
@@ -558,6 +558,7 @@ El flujo `solicitado → aprobado → ejecutado`, con `solicitadoPor` y `aprobad
 | `referencia_proveedor` | VARCHAR(80) | Atributo que representa referencia proveedor en el modelo de `reembolso`. | VARCHAR(80), opcional. | NINGUNA |
 | `solicitado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `aprobado_por` | UUID | Identificador del usuario con facultades que autorizó la operación. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(100) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(100), opcional. | NINGUNA |
 | `fecha_solicitud` | TIMESTAMPTZ | Marca temporal o fecha de solicitud en `reembolso`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `fecha_ejecucion` | TIMESTAMPTZ | Marca temporal o fecha de ejecucion en `reembolso`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
@@ -8467,6 +8468,12 @@ Guardar la evaluación importa por dos razones opuestas: cuando el motor **acert
 | `ejecutada_en` | TIMESTAMPTZ | Marca temporal o fecha de ejecutada en `solicitud_cierre_billetera`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `solicitud_reverso`
+
+**Qué es.** El primer acto de un reverso: quién lo pidió, sobre qué transacción, de qué tipo y por qué. No mueve saldo.
+
+**Para qué sirve.** Que un reverso lo hagan dos personas distintas, cada una con su propio token (P-13, `R-BIL-27`). Una persona pide; otra, en otra petición, autoriza. Recién entonces se escribe el espejo y nace el [[reverso_transaccion]]. La solicitud guarda a las dos, y la base rechaza que sean la misma.
+
+**Por qué existe.** Si el autorizador viaja en el cuerpo de una sola petición, cualquiera escribe el identificador de otra persona y los cuatro ojos son uno. Separar el pedido del hecho deja el reverso (`reverso_transaccion`) como registro de lo ejecutado, siempre con su autorizador, como exige `R-SEG-04`.
 
 **Casos de uso que la nombran.** CU-14 Reversar una transacción (`reversarTransaccion`, `listarReversos`)
 

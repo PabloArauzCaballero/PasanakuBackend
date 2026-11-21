@@ -831,6 +831,7 @@ entity "reembolso" as reemb {
   referencia_proveedor : VARCHAR(80) <<NULL>>
   # solicitado_por : UUID <<FK>>
   # aprobado_por : UUID <<FK, NULL>>
+  clave_idempotencia : VARCHAR(100) <<NULL>>
   fecha_solicitud : TIMESTAMPTZ
   fecha_ejecucion : TIMESTAMPTZ <<NULL>>
 }

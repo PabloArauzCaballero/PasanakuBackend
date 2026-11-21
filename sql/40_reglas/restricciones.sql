@@ -770,6 +770,12 @@ ALTER TABLE solicitud_reverso
 CREATE UNIQUE INDEX IF NOT EXISTS uq_solicitud_reverso_viva
   ON solicitud_reverso (transaccion_original_id)
   WHERE estado = 'SOLICITADA';
+-- R-BIL-28 · un reembolso por pago y clave (F1.L1.M09). Parcial porque las filas de
+-- antes no tienen clave; toda solicitud nueva la escribe. Un SELECT previo no alcanza:
+-- entre el SELECT y el INSERT entra el duplicado (regla 91.2.4).
+CREATE UNIQUE INDEX IF NOT EXISTS uq_reembolso_clave
+  ON reembolso (pago_id, clave_idempotencia)
+  WHERE clave_idempotencia IS NOT NULL;
 
 
 -- ---------------------------------------------------------------------

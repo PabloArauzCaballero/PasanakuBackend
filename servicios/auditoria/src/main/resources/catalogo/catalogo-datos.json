@@ -24,7 +24,7 @@
    "descripcion": "Aportes, Pagos QR y Conciliación. Que \"pagué\" signifique \"el banco lo confirmó\".",
    "tablas": 22,
    "tablasDeNegocio": 18,
-   "columnas": 224,
+   "columnas": 225,
    "relaciones": 38,
    "appendOnly": 0,
    "conDatosPersonales": 1,
@@ -4754,7 +4754,9 @@
     "negocio": "Cuatro motivos, todos reales: pago duplicado (la persona pagó dos veces), error de monto, grupo cancelado antes de arrancar, o resolución de disputa. Es la única manera legítima de sacar plata que ya entró.\n\nEl flujo solicitado → aprobado → ejecutado, con solicitadoPor y aprobadoPor distintos, es control interno básico: quien pide una devolución no puede ser quien la aprueba.",
     "porQue": "Sin reembolso modelado, \"devolver plata\" se haría con un ajuste manual sobre el saldo, sin rastro, sin aprobación y sin asiento contable. Es el hueco por donde se va la plata en sistemas mal diseñados."
    },
-   "reglas": [],
+   "reglas": [
+    "uq_reembolso_clave"
+   ],
    "columnas": [
     {
      "nombre": "id",
@@ -4843,6 +4845,16 @@
      "esquemaReferencia": "identidad"
     },
     {
+     "nombre": "clave_idempotencia",
+     "tipo": "VARCHAR(100)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(100), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
      "nombre": "fecha_solicitud",
      "tipo": "TIMESTAMPTZ",
      "nulable": false,
@@ -4898,7 +4910,7 @@
     ],
     "entrantes": []
    },
-   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de identidad.usuario, pago.",
+   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de identidad.usuario, pago. Reglas nombradas: uq_reembolso_clave.",
    "clasificacion": {
     "personales": 0,
     "financieros": 1,
@@ -70350,7 +70362,11 @@
    "nombreModulo": "Billetera, Custodia y Dinero Electrónico",
    "servicio": "nucleo-financiero",
    "appendOnly": false,
-   "negocio": {},
+   "negocio": {
+    "queEs": "El primer acto de un reverso: quién lo pidió, sobre qué transacción, de qué tipo y por qué. No mueve saldo.",
+    "negocio": "Que un reverso lo hagan dos personas distintas, cada una con su propio token (P-13, R-BIL-27). Una persona pide; otra, en otra petición, autoriza. Recién entonces se escribe el espejo y nace el [[reverso_transaccion]]. La solicitud guarda a las dos, y la base rechaza que sean la misma.",
+    "porQue": "Si el autorizador viaja en el cuerpo de una sola petición, cualquiera escribe el identificador de otra persona y los cuatro ojos son uno. Separar el pedido del hecho deja el reverso (reverso_transaccion) como registro de lo ejecutado, siempre con su autorizador, como exige R-SEG-04."
+   },
    "reglas": [
     "ck_solicitud_reverso_cuatro_ojos",
     "ck_solicitud_reverso_resuelta",
