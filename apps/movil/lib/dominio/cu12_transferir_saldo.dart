@@ -42,7 +42,7 @@ class TransferirSaldo extends AsyncNotifier<SalidaTransferencia?> {
             tipo: tipoDestino,
             valor: valorDestino,
           ),
-          monto: Dinero(monto: monto, moneda: DineroMonedaEnum.BOB),
+          monto: Importe(monto: monto, moneda: ImporteMonedaEnum.BOB),
           concepto: concepto,
         ),
       );

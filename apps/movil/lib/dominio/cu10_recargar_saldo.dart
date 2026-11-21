@@ -38,7 +38,7 @@ class RecargarSaldo extends AsyncNotifier<SalidaRecarga?> {
         idempotencyKey: clave,
         entradaRecarga: EntradaRecarga(
           cuentaBilleteraId: cuentaId,
-          monto: Dinero(monto: monto, moneda: DineroMonedaEnum.BOB),
+          monto: Importe(monto: monto, moneda: ImporteMonedaEnum.BOB),
           medio: medio,
         ),
       );
