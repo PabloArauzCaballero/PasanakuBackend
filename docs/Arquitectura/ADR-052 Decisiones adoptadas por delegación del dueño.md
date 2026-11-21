@@ -12,6 +12,11 @@ fecha: 2026-10-11
 
 # ADR-052 — Decisiones adoptadas por delegación del dueño
 
+> [!warning] DD-2 reemplazada por ADR-055 (2026-11-21).
+> La admisión humana obligatoria deja de regir: se entra a un grupo solo por invitación de un miembro, con
+> KYC aprobado, reglamento aceptado y sin deudas vivas, verificados en el servidor. El resto de este ADR no
+> cambia por ADR-055. Ver [[ADR-055 Sin aprobaciones en el circuito|ADR-055]] §1 (E4) y §3.
+
 > Registro de ocho decisiones que el endurecimiento integral dejó abiertas y que el dueño del proyecto
 > delegó expresamente: «lo más recomendado, pero cerralo». Cada una lleva contexto, decisión,
 > alternativas descartadas, consecuencias y **quién la ratifica**.
