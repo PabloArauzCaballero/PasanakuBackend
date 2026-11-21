@@ -1,0 +1,5 @@
+$ python3 scripts/cobertura.py
+# HEAD: 850e0f51 (origin/dev) · 2026-11-21T04:08:21Z
+Sin informes. Corré primero:
+  ./gradlew test webTest integrationTest && ./gradlew jacocoTestReport
+rc=0

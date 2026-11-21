@@ -1,0 +1,5 @@
+$ python3 scripts/inventario_endpoints.py --check
+# HEAD: 850e0f51 (origin/dev) · 2026-11-21T04:08:20Z
+endpoints relevados: 350 · hallazgos: 0
+El inventario esta alineado: todo lo implementado tiene contrato y viceversa.
+rc=0

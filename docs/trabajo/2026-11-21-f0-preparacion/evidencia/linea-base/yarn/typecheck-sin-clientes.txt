@@ -1,0 +1,122 @@
+$ yarn typecheck --continue   (# HEAD f1bee730)
+@aportaya/backoffice:typecheck: src/app/rutas/grupos/dominio/consulta-de-grupos.ts(3,86): error TS2307: Cannot find module 'clientes/angular/grupos/model/models' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/ingreso/dominio/cu04-autenticar.ts(4,64): error TS2307: Cannot find module 'clientes/angular/identidad' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/ingreso/pantalla-de-ingreso.ts(9,78): error TS2307: Cannot find module 'clientes/angular/identidad' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/cierres/dominio/cu51-cierres-diarios.ts(4,42): error TS2307: Cannot find module 'clientes/angular/nucleo-financiero/model/cierreDiarioEnLista' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/cierres/dominio/cu51-cierres-diarios.ts(5,42): error TS2307: Cannot find module 'clientes/angular/nucleo-financiero/model/entradaCierreDiario' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/cierres/dominio/cu51-cierres-diarios.ts(6,45): error TS2307: Cannot find module 'clientes/angular/nucleo-financiero/model/paginaDeCierresDiarios' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/cierres/dominio/cu51-cierres-diarios.ts(7,41): error TS2307: Cannot find module 'clientes/angular/nucleo-financiero/model/salidaCierreDiario' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/custodia/dominio/cu50-conciliaciones.ts(4,42): error TS2307: Cannot find module 'clientes/angular/nucleo-financiero/model/conciliacionEnLista' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/custodia/dominio/cu50-conciliaciones.ts(5,50): error TS2307: Cannot find module 'clientes/angular/nucleo-financiero/model/entradaConciliacionCustodia' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/custodia/dominio/cu50-conciliaciones.ts(6,45): error TS2307: Cannot find module 'clientes/angular/nucleo-financiero/model/paginaDeConciliaciones' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/custodia/dominio/cu50-conciliaciones.ts(7,49): error TS2307: Cannot find module 'clientes/angular/nucleo-financiero/model/salidaConciliacionCustodia' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/desembolsos/dominio/cu28-desembolsos.ts(3,40): error TS2307: Cannot find module 'clientes/angular/entregas/model/desembolsoEnLista' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/desembolsos/dominio/cu28-desembolsos.ts(4,42): error TS2307: Cannot find module 'clientes/angular/entregas/model/paginaDeDesembolsos' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/dominio/cu52-reclamos.ts(4,46): error TS2307: Cannot find module 'clientes/angular/cumplimiento/model/entradaRespuestaReclamo' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/dominio/cu52-reclamos.ts(5,37): error TS2307: Cannot find module 'clientes/angular/cumplimiento/model/fichaDeReclamo' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/dominio/cu52-reclamos.ts(6,39): error TS2307: Cannot find module 'clientes/angular/cumplimiento/model/paginaDeReclamos' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/dominio/cu52-reclamos.ts(7,67): error TS2307: Cannot find module 'clientes/angular/cumplimiento/model/reclamoEnBandeja' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/dominio/cu52-reclamos.ts(8,45): error TS2307: Cannot find module 'clientes/angular/cumplimiento/model/salidaRespuestaReclamo' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/estado/dominio/estado-del-sistema.ts(3,45): error TS2307: Cannot find module 'clientes/angular/auditoria' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/estado/dominio/estado-del-sistema.ts(58,62): error TS7006: Parameter 's' implicitly has an 'any' type.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/estado/dominio/estado-del-sistema.ts(61,70): error TS2339: Property 'estado' does not exist on type '{}'.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/estado/dominio/estado-del-sistema.ts(62,38): error TS2339: Property 'latenciaMs' does not exist on type '{}'.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/estado/dominio/estado-del-sistema.ts(62,70): error TS2339: Property 'latenciaMs' does not exist on type '{}'.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/estado/pantalla-de-estado.ts(100,26): error TS2339: Property 'error' does not exist on type 'never'.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/reclamos/bandeja-de-reclamos.ts(27,43): error TS7053: Element implicitly has an 'any' type because expression of type '`${ReclamoEnBandejaEstadoEnum}`' can't be used to index type '{ readonly INGRESADO: "Ingresado"; readonly EN_ANALISIS: "En análisis"; readonly RESPONDIDO: "Respondido"; readonly CERRADO: "Cerrado"; readonly ELEVADO: "Elevado"; }'.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/reclamos/bandeja-de-reclamos.ts(109,160): error TS7053: Element implicitly has an 'any' type because expression of type '`${ReclamoEnBandejaEstadoEnum}`' can't be used to index type '{ readonly INGRESADO: "Ingresado"; readonly EN_ANALISIS: "En análisis"; readonly RESPONDIDO: "Respondido"; readonly CERRADO: "Cerrado"; readonly ELEVADO: "Elevado"; }'.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/reclamos/respuesta-a-reclamo.ts(73,131): error TS7053: Element implicitly has an 'any' type because expression of type '`${EntradaRespuestaReclamo}`' can't be used to index type '{ readonly FAVORABLE: "Favorable"; readonly DESFAVORABLE: "Desfavorable"; readonly PARCIAL: "Parcial"; readonly DESISTIDO: "Desistido"; }'.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/retiros/dominio/cu11-retiros-en-revision.ts(3,46): error TS2307: Cannot find module 'clientes/angular/nucleo-financiero/model/paginaRetirosEnRevision' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/retiros/dominio/cu11-retiros-en-revision.ts(4,39): error TS2307: Cannot find module 'clientes/angular/nucleo-financiero/model/retiroEnRevision' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/reversos/dominio/cu14-reversos.ts(3,39): error TS2307: Cannot find module 'clientes/angular/nucleo-financiero/model/paginaDeReversos' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/operacion/reversos/dominio/cu14-reversos.ts(4,37): error TS2307: Cannot find module 'clientes/angular/nucleo-financiero/model/reversoEnLista' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/postulaciones/dominio/cu90-postulaciones.ts(14,8): error TS2307: Cannot find module 'clientes/angular/organizador/model/models' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/publicidad/campanas/formulario-de-campana.ts(13,48): error TS2307: Cannot find module 'clientes/angular/publicidad/model/conjunto' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/dominio/accesos.ts(4,44): error TS2307: Cannot find module 'clientes/angular/identidad' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/dominio/accesos.ts(39,23): error TS7006: Parameter 'rol' implicitly has an 'any' type.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/dominio/base-de-datos.ts(3,85): error TS2307: Cannot find module 'clientes/angular/auditoria' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/dominio/base-de-datos.ts(41,61): error TS7006: Parameter 's' implicitly has an 'any' type.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/dominio/base-de-datos.ts(44,67): error TS2538: Type '{}' cannot be used as an index type.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/dominio/bitacora.ts(3,55): error TS2307: Cannot find module 'clientes/angular/auditoria' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/dominio/catalogos-operativos.ts(8,8): error TS2307: Cannot find module 'clientes/angular/auditoria' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/dominio/incidentes.ts(5,71): error TS2307: Cannot find module 'clientes/angular/auditoria' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/dominio/outbox.ts(3,46): error TS2307: Cannot find module 'clientes/angular/auditoria' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/dominio/outbox.ts(43,32): error TS7006: Parameter 's' implicitly has an 'any' type.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/dominio/proveedores.ts(4,45): error TS2307: Cannot find module 'clientes/angular/aportes' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/dominio/proveedores.ts(5,51): error TS2307: Cannot find module 'clientes/angular/notificaciones' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/dominio/proveedores.ts(6,39): error TS2307: Cannot find module 'clientes/angular/tarifas' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/dominio/salud-de-servicios.ts(5,62): error TS2307: Cannot find module 'clientes/angular/auditoria' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/dominio/salud-de-servicios.ts(27,32): error TS7006: Parameter 's' implicitly has an 'any' type.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/dominio/usuarios-internos.ts(13,8): error TS2307: Cannot find module 'clientes/angular/identidad' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/dominio/webhooks.ts(5,38): error TS2307: Cannot find module 'clientes/angular/aportes' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/dominio/webhooks.ts(6,46): error TS2307: Cannot find module 'clientes/angular/notificaciones' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/permisos-internos/pantalla-permisos-internos.ts(10,38): error TS2307: Cannot find module 'clientes/angular/identidad' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/roles-internos/pantalla-roles-internos.ts(11,34): error TS2307: Cannot find module 'clientes/angular/identidad' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/usuarios-internos/gestor-de-usuario-interno.ts(7,101): error TS2307: Cannot find module 'clientes/angular/identidad' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/usuarios-internos/modal-alta-usuario-interno.ts(6,48): error TS2307: Cannot find module 'clientes/angular/identidad' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/usuarios-internos/modal-asignar-roles.ts(7,56): error TS2307: Cannot find module 'clientes/angular/identidad' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/usuarios-internos/pantalla-usuario-interno-detalle.ts(10,44): error TS2307: Cannot find module 'clientes/angular/identidad' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/sistemas/usuarios-internos/pantalla-usuarios-internos.ts(12,44): error TS2307: Cannot find module 'clientes/angular/identidad' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/cajon-de-revision.ts(9,59): error TS2307: Cannot find module 'clientes/angular/auditoria' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/catalogo-sintetico.ts(13,8): error TS2307: Cannot find module 'clientes/angular/auditoria' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/dominio.ts(12,8): error TS2307: Cannot find module 'clientes/angular/auditoria' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/dominio.ts(120,74): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+@aportaya/backoffice:typecheck:   Type 'undefined' is not assignable to type 'string'.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/dominio.ts(157,75): error TS7006: Parameter 'c' implicitly has an 'any' type.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/dominio/guardado-de-ficha.ts(4,62): error TS2307: Cannot find module 'clientes/angular/auditoria' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/dominio/guardado-de-revision.ts(4,66): error TS2307: Cannot find module 'clientes/angular/auditoria' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/gobierno.ts(2,123): error TS2307: Cannot find module 'clientes/angular/auditoria' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/gobierno.ts(35,88): error TS7006: Parameter 'c' implicitly has an 'any' type.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/gobierno.ts(36,89): error TS7006: Parameter 'c' implicitly has an 'any' type.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/pantalla-catalogo.ts(147,102): error TS7006: Parameter 'e' implicitly has an 'any' type.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/pantalla-de-ficha-de-gobierno.ts(93,110): error TS7006: Parameter 'p' implicitly has an 'any' type.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/revision.ts(2,139): error TS2307: Cannot find module 'clientes/angular/auditoria' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/revision.ts(19,68): error TS2322: Type 'Tono | undefined' is not assignable to type 'Tono'.
+@aportaya/backoffice:typecheck:   Type 'undefined' is not assignable to type 'Tono'.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/revision.ts(40,26): error TS7006: Parameter 'c' implicitly has an 'any' type.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/revision.ts(64,37): error TS7006: Parameter 'c' implicitly has an 'any' type.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/revision.ts(65,35): error TS7006: Parameter 'c' implicitly has an 'any' type.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/revision.ts(66,35): error TS7006: Parameter 'c' implicitly has an 'any' type.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/revision.ts(75,29): error TS7006: Parameter 'c' implicitly has an 'any' type.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/vista-columnas.ts(8,59): error TS2307: Cannot find module 'clientes/angular/auditoria' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/vista-general.ts(3,58): error TS2307: Cannot find module 'clientes/angular/auditoria' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/vista-gobierno.ts(3,58): error TS2307: Cannot find module 'clientes/angular/auditoria' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/vista-gobierno.ts(30,74): error TS7006: Parameter 'c' implicitly has an 'any' type.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/vista-operaciones.ts(9,39): error TS2307: Cannot find module 'clientes/angular/auditoria' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/catalogo/vista-relaciones.ts(6,39): error TS2307: Cannot find module 'clientes/angular/auditoria' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/dominio/endpoints-del-dia.ts(3,60): error TS2307: Cannot find module 'clientes/angular/auditoria' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/dominio/indicadores.ts(3,47): error TS2307: Cannot find module 'clientes/angular/auditoria' or its corresponding type declarations.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/dominio/indicadores.ts(61,62): error TS7006: Parameter 'i' implicitly has an 'any' type.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/dominio/indicadores.ts(65,11): error TS2339: Property 'suprimidoPorPrivacidad' does not exist on type '{}'.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/dominio/indicadores.ts(65,39): error TS2339: Property 'valor' does not exist on type '{}'.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/dominio/indicadores.ts(66,104): error TS2339: Property 'minimoCasos' does not exist on type '{}'.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/dominio/indicadores.ts(68,36): error TS2339: Property 'unidad' does not exist on type '{}'.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/dominio/indicadores.ts(69,45): error TS2339: Property 'valor' does not exist on type '{}'.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/dominio/indicadores.ts(75,26): error TS2339: Property 'valor' does not exist on type '{}'.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/dominio/indicadores.ts(78,26): error TS2339: Property 'unidad' does not exist on type '{}'.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/dominio/indicadores.ts(79,59): error TS2339: Property 'valor' does not exist on type '{}'.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/dominio/indicadores.ts(79,71): error TS2339: Property 'unidad' does not exist on type '{}'.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/dominio/indicadores.ts(79,94): error TS2339: Property 'valor' does not exist on type '{}'.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/dominio/indicadores.ts(79,103): error TS2339: Property 'unidad' does not exist on type '{}'.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/dominio/indicadores.ts(80,40): error TS2339: Property 'variacionPeriodoAnterior' does not exist on type '{}'.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/dominio/indicadores.ts(81,16): error TS2339: Property 'casos' does not exist on type '{}'.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/dominio/indicadores.ts(135,62): error TS7006: Parameter 'i' implicitly has an 'any' type.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/dominio/indicadores.ts(138,20): error TS2339: Property 'suprimidoPorPrivacidad' does not exist on type '{}'.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/dominio/indicadores.ts(138,48): error TS2339: Property 'valor' does not exist on type '{}'.
+@aportaya/backoffice:typecheck: src/app/rutas/tablero/dominio/indicadores.ts(138,72): error TS2339: Property 'valor' does not exist on type '{}'.
+@aportaya/backoffice:typecheck: ../../clientes/angular/publicidad/model/entradaCampana.ts(10,26): error TS2307: Cannot find module './conjunto' or its corresponding type declarations.
+@aportaya/backoffice#typecheck:  WARNING  command finished with error, but continuing...
+@aportaya/diseno-flutter#build:  ERROR  command (/home/user/PasanakuBackend/packages/diseno_flutter) /tmp/xfs-3510a511/yarn run build exited (127)
+@aportaya/diseno-flutter#typecheck:  ERROR  command (/home/user/PasanakuBackend/packages/diseno_flutter) /tmp/xfs-3510a511/yarn run typecheck exited (127)
+@aportaya/movil#typecheck:  ERROR  command (/home/user/PasanakuBackend/apps/movil) /tmp/xfs-3510a511/yarn run typecheck exited (127)
+@aportaya/web#typecheck:  ERROR  command (/home/user/PasanakuBackend/apps/web) /tmp/xfs-3510a511/yarn run typecheck exited (2)
+@aportaya/backoffice#typecheck:  ERROR  command (/home/user/PasanakuBackend/apps/backoffice) /tmp/xfs-3510a511/yarn run typecheck exited (2)
+
+ Tasks:    9 successful, 14 total
+Cached:    2 cached, 14 total
+  Time:    14.344s 
+Failed:    @aportaya/backoffice#typecheck, @aportaya/diseno-flutter#build, @aportaya/diseno-flutter#typecheck, @aportaya/movil#typecheck, @aportaya/web#typecheck
+
+ WARNING  no output files found for task @aportaya/ui#build. Please check your `outputs` key in `turbo.json`
+ ERROR  run failed: command  exited (127)
+rc=127
