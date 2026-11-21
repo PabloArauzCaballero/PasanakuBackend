@@ -14,3 +14,16 @@ $ flutter test test/widget/pantalla_aportar_test.dart -> +4: All tests passed!
 Mutante (la app vuelve a mandar monto) -> +3 -1
 $ flutter test (unidad, widget, contrato, identidad, pasanaku, a11y) -> +920 -6 (los 6 ENVIRONMENT de siempre)
 NO COMPROBADO: contra el servidor real (maquina de Pablo).
+
+## 2026-11-21 · reverificación en #460 sobre dev con #478 (Flutter 3.44.8, el del CI; clientes Dart regenerados con el generador)
+$ dart analyze lib test
+No issues found!
+Lint: errores.dart quedaba en 210 líneas (tope 200). Los textos AP-CU21 pasaron a errores_catalogados.dart (pagoDeCuotaConSaldo, mismo patrón que fallasDeLaBase).
+$ yarn lint
+TODO OK
+$ flutter test (front)
+02:21 +907: All tests passed!
+$ flutter test (a11y)
+00:02 +6: All tests passed!
+$ flutter test (goldens)
+00:56 +274: All tests passed!

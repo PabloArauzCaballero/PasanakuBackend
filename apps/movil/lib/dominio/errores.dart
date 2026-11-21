@@ -85,17 +85,7 @@ const Map<String, String> _catalogo = {
   'AP-CU12-10':
       'Este QR es de un banco o de otra red de pagos y todavía no aceptamos pagos con QR interoperable. '
       'Podés pagar con un QR de AportaYa o con una transferencia.',
-  // CU-21 · pagar la cuota con saldo (F1.L1.M11). El monto y el canal los fija el servidor.
-  'AP-CU21-01':
-      'Esta cuota ya no se puede pagar: puede que ya esté pagada. Revisá tu estado.',
-  'AP-CU21-02':
-      'El monto de la cuota cambió. Volvé a abrir la cuota para ver lo que queda pendiente.',
-  'AP-CU21-03':
-      'No te alcanza el saldo para esta cuota. Recargá tu billetera e intentá de nuevo.',
-  'AP-CU21-04': 'El período de esta cuota ya cerró y no admite pagos.',
-  'AP-CU21-06': 'Esta cuota no es tuya.',
-  'AP-CU21-07':
-      'No pudimos confirmar la cuota con el grupo. Esperá un momento y probá de nuevo.',
+  ...pagoDeCuotaConSaldo,
   'AP-VAL-03': 'Este vale ya se usó. Cada vale se canjea una sola vez.',
 };
 
