@@ -1,9 +1,9 @@
 # Reporte — Tanda 2, lote L1 (`aportes` y `nucleo-financiero`)
 
-> **AVANCE: 9 / 19 — 47,4 %.** Trabajo en curso; lo que queda está bloqueado por archivos compartidos, por otro lote o por decisiones (ver Pendiente). Nada en rojo por código propio; dos fallas del CI de #418 son de módulos ajenos (ver Riesgos).
+> **AVANCE: 9 / 19 — 47,4 %.** Todo lo ejecutable está en `dev`; lo que queda está bloqueado por archivos compartidos, por otro lote o por decisiones (ver Pendiente). Nada en rojo por código propio; dos fallas del CI de #418 son de módulos ajenos (ver Riesgos).
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Base: `origin/dev` 50cf3be9
-- PR hacia `dev`: #430 y #454 mergeados; #454 arrastró a #425, #447 y #449. Por la regla de como máximo 3 PR abiertos por sesión, quedan abiertos tres. **#418**: logs sin importes, PLAN y REPORTE. **#458** consolida M08, M09 parte 2, M10, M07, M01 y M05; absorbió a #455, #456, #441, #445 y #450. **#461** consolida L1.P01, F2.L1.M01, M13 y M04; absorbió a #436, #451 y #452. Los PR absorbidos están cerrados con un comentario que indica dónde quedó cada cambio.
+- PR hacia `dev`: **todos mergeados**. Se mergearon #430, #454 (que trajo a #425, #447 y #449), #456 (que trajo a #455), #418, #461 y #458 (que consolidan al resto). No queda ningún PR de L1 abierto.
 - Peldaño de evidencia por área:
   - `aportes` y `nucleo-financiero` (código): `TESTED`, con pruebas dirigidas en verde contra PostgreSQL 16 real local y controles negativos (mutantes) que fallan sin el cambio. No llega a `VERIFIED`: el camino HTTP de punta a punta con los servicios levantados no se ejercitó.
   - Integración con Testcontainers: las clases que levantan su propio contenedor (`AislamientoEsquemaTest`, `ArranqueTest`) quedan **NO COMPROBADAS: requieren Docker** (máquina de Pablo).
