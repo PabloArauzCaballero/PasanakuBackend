@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, lote L1 (`aportes` y `nucleo-financiero`)
 
-> **AVANCE: 10 / 19 — 52,6 %.** Trabajo en curso: M11 a medias (expandido, falta contraer tras la app de L6); lo que queda está bloqueado por archivos compartidos, por otro lote o por decisiones (ver Pendiente). Nada en rojo por código propio; dos fallas del CI de #418 son de módulos ajenos (ver Riesgos).
+> **AVANCE: 10 / 20 — 50,0 %.** Trabajo en curso: M11, M01, M07 y el listado de bloqueos (M10c, nuevo) a medias, con el código en verde y esperando lugar para su PR (tope 3) o la app de L6; lo que queda está bloqueado por archivos compartidos, por otro lote o por decisiones (ver Pendiente). Nada en rojo por código propio; dos fallas del CI de #418 son de módulos ajenos (ver Riesgos).
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Base: `origin/dev` 50cf3be9
 - PR hacia `dev`: **todos mergeados**. Se mergearon #430, #454 (que trajo a #425, #447 y #449), #456 (que trajo a #455), #418, #461 y #458 (que consolidan al resto). Abierto: el PR de M10 parte 2 (permisos y ruta de levantamiento).
@@ -27,11 +27,32 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 
 
 ## A medias
 
-### F1.L1.M07 — BOLA en `aportes` (PR #458 (antes #441))
-- **Qué anda:** el estado de un participante ajeno y el reembolso de un pago ajeno devuelven 404 sin cuerpo. Están probadas la matriz negativa web y `AutorizacionNegativaTest` 4/4 contra la base, con un doble declarado de `grupos`. El mutante hace fallar 2 pruebas.
-- **Qué no anda:** `morosos`, `primera-cuota` y `recaudo` siguen autorizados solo por rol.
-- **Qué falta exactamente:** que `grupos` (L3) consulte `morosos` y `primera-cuota` con identidad de servicio, y que `entregas` y `garantia` (L2) consulten `recaudo` también con identidad de servicio. Después, `aportes` exige `SERVICIO_*` o pertenencia. Hoy `grupos` las consulta con el token de un postulante que todavía no es miembro (`MapeoDePostulacion.java:45`) y en el sorteo.
-- **Dónde quedó:** rama `correcciones/tanda2-l1-bola-aportes`. Compila y las suites de `aportes` están en verde.
+### F1.L1.M07 — BOLA en `aportes` (estado y reembolso en `dev` por #458; pasos 1+2 en la rama `correcciones/tanda2-l1-identidad-servicio`)
+- **Qué anda:**
+  - En `dev`: el estado de un participante ajeno y el reembolso de un pago ajeno devuelven 404.
+  - En la rama (commit f0d32a7b):
+    - `morosos` y `primera-cuota` exigen `SERVICIO_GRUPOS`.
+    - `recaudo` exige `SERVICIO_ENTREGAS` o `SERVICIO_GARANTIA`, y transitoriamente `ENTREGA_EJECUTAR`.
+    - `grupos`, `entregas` y `garantia` preguntan con el token de su cuenta de servicio y, sin él, fallan cerrados.
+    - `garantia` tiene su rol `SERVICIO_GARANTIA` (semillas idempotentes), su configuración, sus variables en el compose y su fila de rotación.
+  - Lo prueban `IdentidadDeServicioWebTest` (17/17), las pruebas de los adaptadores y un mutante sobre el inventario de rotación. `test`, `webTest` y `testBarrido` están en verde en los cuatro servicios (`evidencia/M07b-*`).
+- **Qué no anda:** la rama no está en `dev`. Las pruebas de integración de `grupos`, `entregas` y `garantia` necesitan Docker y aquí quedan sin correr.
+- **Qué falta exactamente:**
+  1. Abrir el PR cuando haya lugar (tope 3).
+  2. Cargar en Coolify `GARANTIA_SERVICIO_TELEFONO`, `GARANTIA_SERVICIO_CLAVE` y `GARANTIA_SERVICIO_TOTP_SEMILLA` (o el factor fijo en TEST). Lo hace el coordinador.
+  3. Paso 3: retirar `ENTREGA_EJECUTAR` del recaudo, cuando los consumidores lleven credencial en TEST.
+- **Dónde quedó:** rama pusheada. Compila y está en verde.
+
+### F1.L1.M10c — `GET /billetera/bloqueos`, la bandeja de Cumplimiento (rama `correcciones/tanda2-l1-listado-bloqueos`, apilada sobre #476)
+- **Qué anda:**
+  - Contrato 1.4.0, aditivo, con paginación por cursor `(recibidoEn, id)` descendente, filtro por estado en lista blanca y respuesta mínima (sin número de oficio ni documento; el importe con la moneda de la cuenta).
+  - `puedeLevantar` es falso para quien registró el bloqueo.
+  - Lo prueban `BloqueoListadoWebTest` (14/14, matriz negativa) y `CU17ListadoTest` (4/4 contra PostgreSQL), con dos mutantes detectados. `CU17CuatroOjosTest` confirma contra la base que quien registra no levanta (`evidencia/BLOQUEOS-*`).
+- **Qué no anda:** la rama no está en `dev` y la pantalla no existe (es de L4L6).
+- **Qué falta exactamente:**
+  1. Abrir el PR cuando entre #476 y haya lugar.
+  2. Avisar a L4L6 para la pantalla.
+- **Dónde quedó:** rama pusheada (commit 01074b9f). Compila y está en verde.
 
 ### F1.L1.M01 — Importe nunca negativo, parte API (PR #458 en `dev`; parte `nucleo-financiero` en la rama `correcciones/tanda2-l1-importe-nucleo`, sin PR)
 - **Qué anda:**
