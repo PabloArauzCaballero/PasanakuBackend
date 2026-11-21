@@ -4,6 +4,7 @@ import bo.aportaya.identidad.dominio.ExigeSegundoFactor;
 import bo.aportaya.identidad.dominio.FactorAdmisible;
 import bo.aportaya.identidad.dominio.PerfilDeAcceso;
 import bo.aportaya.identidad.dominio.PoliticaDeIntentos;
+import bo.aportaya.identidad.dominio.PuedeAutenticarse;
 import bo.aportaya.identidad.dominio.ResultadoDeAutenticacion;
 import bo.aportaya.identidad.dominio.puertos.DesafioDeFactor;
 import bo.aportaya.identidad.dominio.puertos.HasheadorDeCredencial;
@@ -122,6 +123,19 @@ public class CU04Autenticar {
                                 CodigoError.de(4, 5), "Demasiados intentos. Volve a probar mas tarde."));
             }
             return cerrar(dsl, intentoId, "CREDENCIAL_INVALIDA", credencialInvalida());
+        }
+
+        // IDCU-SEG-075: una cuenta suspendida, bloqueada o de baja no abre sesion. Se mira
+        // DESPUES de la credencial: decir «esa cuenta esta suspendida» a quien no sabe la
+        // clave contaria el estado de la cuenta de otro. El codigo es el de cuenta
+        // bloqueada del contrato; el motivo queda distinto en el intento, para auditar.
+        if (!PuedeAutenticarse.segun(usuarios.estadoDe(dsl, usuario))) {
+            return cerrar(
+                    dsl,
+                    intentoId,
+                    "CUENTA_NO_HABILITADA",
+                    ResultadoDeAutenticacion.rechazado(
+                            CodigoError.de(4, 2), "Tu cuenta no esta habilitada para ingresar. Escribinos a soporte."));
         }
 
         PerfilDeAcceso perfil = usuarios.perfilDe(dsl, usuario);

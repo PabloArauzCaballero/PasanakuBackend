@@ -1,0 +1,9 @@
+java descifra la semilla del guion: true ? CodigoTotp calcula 6 digitos: true
+llave equivocada: rechazada (GCM)
+ codigo_publico | tipo | activo | es_principal | version_llave | prefijo 
+----------------+------+--------+--------------+---------------+---------
+ SINT-E2E-A     | TOTP | t      | t            |             1 | enc:v1:
+ SINT-E2E-A     | SMS  | t      | f            |             1 | enc:v1:
+ SINT-E2E-B     | TOTP | t      | t            |             1 | enc:v1:
+(3 rows)
+

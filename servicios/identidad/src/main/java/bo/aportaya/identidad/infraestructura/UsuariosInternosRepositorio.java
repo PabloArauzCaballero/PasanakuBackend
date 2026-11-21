@@ -258,6 +258,11 @@ public class UsuariosInternosRepositorio {
             DSLContext dsl, UUID usuarioId, String motivo, UUID operadorId, OffsetDateTime ahora) {
         UUID uId = resolverUsuarioId(dsl, usuarioId);
 
+        // IDCU-SEG-089: se libera el modelo que lee el login (`bloqueo_cuenta`).
+        accesos.liberarBloqueos(dsl, uId, operadorId, ahora);
+
+        // La columna vieja se sigue limpiando hasta que el cambio de esquema la retire
+        // (F1.L4.M01 / F0.L4.M04): la vista de detalle todavia la muestra.
         dsl.update(USUARIO_INTERNO)
                 .setNull(USUARIO_INTERNO.BLOQUEADO_HASTA)
                 .setNull(USUARIO_INTERNO.MOTIVO_BLOQUEO)
