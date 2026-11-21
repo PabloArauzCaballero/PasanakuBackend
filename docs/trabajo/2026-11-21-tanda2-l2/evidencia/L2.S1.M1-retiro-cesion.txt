@@ -1,0 +1,35 @@
+$ grep -rlnE "SubastaDelCupo|GestionDeOfertas|ComprarOfertaDeTurno|CierreDeSubastas|FondosDelComprador" servicios/entregas/src
+(exit 1 — 1 = sin resultados)
+
+$ ./gradlew :servicios:entregas:test :servicios:entregas:webTest
+BUILD SUCCESSFUL in 39s
+test: 20 pruebas, 0 fallas, 0 salteadas · webTest: 66 pruebas, 0 fallas, 0 salteadas
+CesionRetiradaWebTest: 20 pruebas (9 x 410 con codigo, 9 x 401 sin sesion, 422 AP-CU130-05 del pacto, 403 a un participante) · SeguridadWebTest: 6/6
+
+$ ./gradlew :servicios:entregas:spotlessCheck :servicios:entregas:check -x test -x jacocoTestCoverageVerification -x jacocoTestReport :servicios:entregas:testBarrido
+BUILD SUCCESSFUL in 5s
+
+$ ./gradlew :servicios:nucleo-financiero:contractTest --tests "*PactoConEntregasContratoTest*"
+BUILD SUCCESSFUL in 6s
+PactoConEntregasContratoTest: 6 pruebas, 0 fallas
+
+$ python3 scripts/verificar_criterios.py
+pendientes de implementar (3): CU-05 (identidad), CU-51 (aportes), CU-57 (nucleo-financiero)
+Sin divergencias entre la boveda y el codigo.
+
+$ python3 scripts/verificar_pruebas_web.py
+servicios con sabana de seguridad: 15
+La capa web esta cubierta segun ADR-043.
+
+$ python3 scripts/verificar_seguridad.py
+
+TODO OK · 5 aviso(s)
+
+$ python3 scripts/verificar_boveda.py
+
+TODO OK
+
+$ python3 scripts/generar_postman.py && git diff --stat -- postman/
+ postman/coleccion/entregas.postman_collection.json | 36 +++++++++++-----------
+ postman/humo/entregas.humo.postman_collection.json | 18 +++++------
+ 2 files changed, 27 insertions(+), 27 deletions(-)
