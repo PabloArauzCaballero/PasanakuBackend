@@ -1,6 +1,6 @@
 # Reporte — Tanda 2, lote L1 (`aportes` y `nucleo-financiero`)
 
-> **AVANCE: 10 / 19 — 52,6 %.** Trabajo en curso, con decisiones nuevas del coordinador (M10, M01, M11, M07, M08); lo que queda está bloqueado por archivos compartidos, por otro lote o por decisiones (ver Pendiente). Nada en rojo por código propio; dos fallas del CI de #418 son de módulos ajenos (ver Riesgos).
+> **AVANCE: 10 / 19 — 52,6 %.** Trabajo en curso: M11 a medias (expandido, falta contraer tras la app de L6); lo que queda está bloqueado por archivos compartidos, por otro lote o por decisiones (ver Pendiente). Nada en rojo por código propio; dos fallas del CI de #418 son de módulos ajenos (ver Riesgos).
 
 - Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Base: `origin/dev` 50cf3be9
 - PR hacia `dev`: **todos mergeados**. Se mergearon #430, #454 (que trajo a #425, #447 y #449), #456 (que trajo a #455), #418, #461 y #458 (que consolidan al resto). Abierto: el PR de M10 parte 2 (permisos y ruta de levantamiento).
@@ -55,11 +55,16 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 
 - **Qué falta exactamente:** las cuentas del fondo del grupo del modelo A (F3) para reemplazar esas cuentas. Después, F2.L1.M02. También que L2 retire el productor en `garantia`.
 - **Dónde quedó:** rama `correcciones/tanda2-l1-retiro-consumidor-respaldo`. Compila y está en verde.
 
+### F1.L1.M11 — El cobro no toma monto, canal ni referencia del cliente (rama `correcciones/tanda2-l1-cobro-contrato`)
+- Qué anda: fase de expansión del contrato (regla 98.1.3), `aportes.yaml` 1.1.0. La operación nueva `pagarCuotaConSaldo` (`POST /aportes/obligaciones/{id}/pago-con-saldo`) no admite campos: con cualquiera responde 400 `AP-VAL-02`. El servidor cobra el pendiente leído en la misma transacción, por `BILLETERA_MOVIL` y con la referencia que él mismo fija. La operación vieja `cobrarAporte` responde 422 `AP-CU21-10` ante un canal que no sea el saldo, un recargo, un proveedor o `esManual`, y 422 `AP-CU21-02` si el monto difiere del pendiente; el reintento con la misma clave devuelve el pago original. Lo prueban `PagoConSaldoWebTest` (21/21), `CU21PagoConSaldoTest` (6/6, contra PostgreSQL) y tres mutantes que hacen fallar las pruebas. Regresión de `aportes` en verde salvo 3 pruebas que necesitan Docker. Evidencia en `evidencia/M11-cobro-sin-confianza-en-el-cuerpo.txt`.
+- Qué no anda: el CA completo, "un cuerpo con `monto` recibe 400", vale solo en la operación nueva. `cobrarAporte` todavía acepta el campo `monto` (aunque lo compara con el pendiente) hasta que se contraiga el contrato. La app sigue usando `cobrarAporte` y deja elegir el canal: con canal QR recibe ahora 422 `AP-CU21-10`.
+- Qué falta exactamente: (1) L6 pasa la app a `DefaultApi.pagarCuotaConSaldo(obligacionId, idempotencyKey)` sin cuerpo y quita el selector de canal, la referencia y el monto (`cu21_cobrar_aporte.dart` y `pantalla_aportar.dart`). (2) Se borra `cobrarAporte` del contrato (fase de contracción). (3) Se ve compilar la app en el job "Frontend — Flutter" de la CI: en este contenedor no hay Flutter.
+- Dónde quedó: rama `correcciones/tanda2-l1-cobro-contrato`, apilada sobre #476. Compila y la regresión está en verde.
+
 ## Pendiente
 
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| F1.L1.M11 | TODO | Lo ejecuta esta sesión. Cambia el contrato que usa `apps/movil/.../cu21_cobrar_aporte.dart` (L6): hay que coordinar el cambio de la app en el mismo PR o en uno de L6. |
 | F2.L1.M02 | TODO | Depende de F3: el árbol 9.x lo usan `POZO_GRUPO` y `DESEMBOLSO`, que asientan el desembolso vigente. Sacarlo antes rompe ese asiento. |
 | F2.L1.M03 | TODO | Depende de F1.L1.M11 (el contrato del cobro deja de llevar `canal`) y de que la app (L6) no ofrezca los canales retirados. |
 | F2.L1.M04 | TODO | Necesita el evento de apertura de período de `grupos` (L3) y su pacto, o un trabajo con ShedLock, y el ADR de inicio automático (F0·ADR-054). |
@@ -78,6 +83,7 @@ Cálculo del avance: microtareas del plan = 14 de H1 + 4 de H2 + 1 pedido de L2 
 - `M12-moneda-reembolso.txt` y `M12b-moneda-conciliacion.txt`: moneda al lado del importe, migración y mutantes.
 - `L2PEDIDO-retiro-ofertas.txt`: retiro del consumidor de ofertas y del pacto con `entregas`.
 - `M10b-permisos-y-levantamiento.txt`: semillas idempotentes, ruta y matriz negativa.
+- `M11-cobro-sin-confianza-en-el-cuerpo.txt`: contrato 1.1.0, pruebas web y de integración, mutantes, verificadores e impacto en la app.
 - `M10-bloqueo-autoridad.txt`: cuatro ojos, liberación de la retención y mutante.
 - `M08-hechos-inmutables.txt`: sellado, historial, concurrencia, humo del esquema y mutante.
 - `M05-*`, `M04-*`, `F2M01-*`: secreto del webhook, desembolso fail-closed y consumidor de respaldo.
