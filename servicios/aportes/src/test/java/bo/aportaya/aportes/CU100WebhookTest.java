@@ -100,9 +100,10 @@ class CU100WebhookTest extends BaseDeAportes {
         fixtura.proveedor("QR_TEST", false, 1);
         UUID pagoId = pagoConReferencia("ref-ok-1", "500.00");
         String cuerpo = cuerpo("evt-ok-1", "ref-ok-1", "500.00", "BOB");
-        String firma = VerificadorDeFirmaWebhook.firmar(cuerpo, SECRETO_DE_PRUEBA);
+        long ts = Instant.now().getEpochSecond();
+        String firma = VerificadorDeFirmaWebhook.firmar(String.valueOf(ts), cuerpo, SECRETO_DE_PRUEBA);
 
-        Resultado r = recibir("QR_TEST", cuerpo, firma, Instant.now().getEpochSecond());
+        Resultado r = recibir("QR_TEST", cuerpo, firma, ts);
 
         assertThat(r.estado()).isEqualTo(Resultado.Estado.PROCESADO);
         assertThat(r.pagoId()).isEqualTo(pagoId);
@@ -118,8 +119,8 @@ class CU100WebhookTest extends BaseDeAportes {
         fixtura.proveedor("QR_TEST", false, 1);
         UUID pagoId = pagoConReferencia("ref-dup-1", "300.00");
         String cuerpo = cuerpo("evt-dup-1", "ref-dup-1", "300.00", "BOB");
-        String firma = VerificadorDeFirmaWebhook.firmar(cuerpo, SECRETO_DE_PRUEBA);
         long ts = Instant.now().getEpochSecond();
+        String firma = VerificadorDeFirmaWebhook.firmar(String.valueOf(ts), cuerpo, SECRETO_DE_PRUEBA);
 
         Resultado primera = recibir("QR_TEST", cuerpo, firma, ts);
         Resultado segunda = recibir("QR_TEST", cuerpo, firma, ts);
@@ -139,8 +140,8 @@ class CU100WebhookTest extends BaseDeAportes {
         fixtura.proveedor("QR_TEST", false, 1);
         pagoConReferencia("ref-borde-ok", "150.00");
         String cuerpo = cuerpo("evt-borde-ok", "ref-borde-ok", "150.00", "BOB");
-        String firma = VerificadorDeFirmaWebhook.firmar(cuerpo, SECRETO_DE_PRUEBA);
         long ts = AHORA_DE_BORDE.minusSeconds(4 * 60 + 59).getEpochSecond();
+        String firma = VerificadorDeFirmaWebhook.firmar(String.valueOf(ts), cuerpo, SECRETO_DE_PRUEBA);
 
         Resultado r = recibirEnInstanteFijo("QR_TEST", cuerpo, firma, ts);
 
@@ -153,8 +154,8 @@ class CU100WebhookTest extends BaseDeAportes {
         fixtura.proveedor("QR_TEST", false, 1);
         pagoConReferencia("ref-borde-mal", "150.00");
         String cuerpo = cuerpo("evt-borde-mal", "ref-borde-mal", "150.00", "BOB");
-        String firma = VerificadorDeFirmaWebhook.firmar(cuerpo, SECRETO_DE_PRUEBA);
         long ts = AHORA_DE_BORDE.minusSeconds(5 * 60 + 1).getEpochSecond();
+        String firma = VerificadorDeFirmaWebhook.firmar(String.valueOf(ts), cuerpo, SECRETO_DE_PRUEBA);
 
         Resultado r = recibirEnInstanteFijo("QR_TEST", cuerpo, firma, ts);
 
@@ -173,9 +174,11 @@ class CU100WebhookTest extends BaseDeAportes {
         fixtura.proveedor("QR_TEST", false, 1);
         pagoConReferencia("ref-firma-mala", "200.00");
         String cuerpo = cuerpo("evt-firma-mala", "ref-firma-mala", "200.00", "BOB");
-        String firmaAjena = VerificadorDeFirmaWebhook.firmar(cuerpo, "otro-secreto-que-no-es-el-configurado");
+        long ts = Instant.now().getEpochSecond();
+        String firmaAjena =
+                VerificadorDeFirmaWebhook.firmar(String.valueOf(ts), cuerpo, "otro-secreto-que-no-es-el-configurado");
 
-        Resultado r = recibir("QR_TEST", cuerpo, firmaAjena, Instant.now().getEpochSecond());
+        Resultado r = recibir("QR_TEST", cuerpo, firmaAjena, ts);
 
         assertThat(r.estado()).isEqualTo(Resultado.Estado.FIRMA_INVALIDA);
         assertThat(
@@ -188,10 +191,10 @@ class CU100WebhookTest extends BaseDeAportes {
     @DisplayName("invalido: proveedor inexistente o sin soporte de webhook -> mismo rechazo que firma invalida")
     void proveedorInexistenteSeRechaza() {
         String cuerpo = cuerpo("evt-sin-proveedor", "ref-x", "100.00", "BOB");
-        String firma = VerificadorDeFirmaWebhook.firmar(cuerpo, SECRETO_DE_PRUEBA);
+        long ts = Instant.now().getEpochSecond();
+        String firma = VerificadorDeFirmaWebhook.firmar(String.valueOf(ts), cuerpo, SECRETO_DE_PRUEBA);
 
-        Resultado r =
-                recibir("PROVEEDOR_QUE_NO_EXISTE", cuerpo, firma, Instant.now().getEpochSecond());
+        Resultado r = recibir("PROVEEDOR_QUE_NO_EXISTE", cuerpo, firma, ts);
 
         assertThat(r.estado()).isEqualTo(Resultado.Estado.FIRMA_INVALIDA);
     }
@@ -204,9 +207,10 @@ class CU100WebhookTest extends BaseDeAportes {
         // La pasarela dice 999.00; el pago registrado es de 500.00. No se acredita "lo
         // que vino" (regla 91.3.2 / payments-qr-integration §4.3).
         String cuerpo = cuerpo("evt-monto-mal", "ref-monto-mal", "999.00", "BOB");
-        String firma = VerificadorDeFirmaWebhook.firmar(cuerpo, SECRETO_DE_PRUEBA);
+        long ts = Instant.now().getEpochSecond();
+        String firma = VerificadorDeFirmaWebhook.firmar(String.valueOf(ts), cuerpo, SECRETO_DE_PRUEBA);
 
-        Resultado r = recibir("QR_TEST", cuerpo, firma, Instant.now().getEpochSecond());
+        Resultado r = recibir("QR_TEST", cuerpo, firma, ts);
 
         assertThat(r.estado()).isEqualTo(Resultado.Estado.DESCARTADO);
         assertThat(r.motivo()).contains("no coincide");
@@ -217,11 +221,30 @@ class CU100WebhookTest extends BaseDeAportes {
     void sinPagoParaLaReferenciaSeDescarta() {
         fixtura.proveedor("QR_TEST", false, 1);
         String cuerpo = cuerpo("evt-sin-pago", "ref-que-no-existe", "500.00", "BOB");
-        String firma = VerificadorDeFirmaWebhook.firmar(cuerpo, SECRETO_DE_PRUEBA);
+        long ts = Instant.now().getEpochSecond();
+        String firma = VerificadorDeFirmaWebhook.firmar(String.valueOf(ts), cuerpo, SECRETO_DE_PRUEBA);
 
-        Resultado r = recibir("QR_TEST", cuerpo, firma, Instant.now().getEpochSecond());
+        Resultado r = recibir("QR_TEST", cuerpo, firma, ts);
 
         assertThat(r.estado()).isEqualTo(Resultado.Estado.DESCARTADO);
         assertThat(r.motivo()).contains("referencia");
+    }
+
+    @Test
+    @DisplayName(
+            "rechaza un webhook capturado y reenviado con otro X-Timestamp: firma invalida y nada escrito (F1.L1.M06)")
+    void rechazaElReenvioConTimestampNuevo() {
+        fixtura.proveedor("QR_TEST", false, 1);
+        pagoConReferencia("ref-reenvio", "500.00");
+        String cuerpo = cuerpo("evt-reenvio", "ref-reenvio", "500.00", "BOB");
+        long firmadoEn = Instant.now().minusSeconds(10 * 60).getEpochSecond();
+        String firmaCapturada = VerificadorDeFirmaWebhook.firmar(String.valueOf(firmadoEn), cuerpo, SECRETO_DE_PRUEBA);
+
+        // El atacante no conoce el secreto: solo cambia la cabecera para volver a la ventana.
+        Resultado r = recibir("QR_TEST", cuerpo, firmaCapturada, Instant.now().getEpochSecond());
+
+        assertThat(r.estado()).isEqualTo(Resultado.Estado.FIRMA_INVALIDA);
+        assertThat(dsl.fetchCount(org.jooq.impl.DSL.table(org.jooq.impl.DSL.name("aportes", "webhook_pasarela"))))
+                .isZero();
     }
 }
