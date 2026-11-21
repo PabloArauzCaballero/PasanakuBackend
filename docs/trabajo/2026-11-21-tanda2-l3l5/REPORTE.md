@@ -50,6 +50,15 @@
   (`MapeoDeAltaDeGrupo`, `MapeoDePostulacion`, `RutasDeSubastaDelCupo`) adoptan el mismo contrato. Integración con
   `identidad` apagado (Docker).
 - Dónde quedó: rama `correcciones/tanda2-l3l5-f1-kyc`, compila, suites de `grupos` en verde.
+### F1.L5.M28 — Publicación de tarifario
+- Qué anda: el aprobador registrado es el actor de la sesión; un aprobador inventado en el cuerpo es 422
+  `AP-CU34-06` sin publicar nada ([evidencia](./evidencia/F1.L5.M28-tarifario-actor.txt)).
+- Qué no anda: el tipo de cambio (`INCREMENTO`/`REDUCCION`…) sigue viniendo del cuerpo y decide el preaviso.
+- Qué falta exactamente: una fuente para comparar. `CU-34` clona el tarifario base sin precios nuevos, así que no hay
+  comisión nueva en este flujo. Se resuelve con F3.L5.M36 (comisión fija como parámetro obligatorio, cambio con dos
+  firmas: DECISIONES tanda 7) o, si se conserva el tarifario, con los precios nuevos como entrada de `CU-34` y la
+  comparación en `EntradaEnVigencia`. Segundo firmante: depende de D-L5-3 (`PREGUNTAS-LEGALES.md`).
+- Dónde quedó: rama `correcciones/tanda2-l3l5-f1-tarifario`, compila, suites de `tarifas` en verde.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |

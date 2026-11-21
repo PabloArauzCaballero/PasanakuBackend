@@ -49,7 +49,7 @@
 | F1.L5.M21 | Certificado de reputación con datos del servidor | transparencia | HECHO (contra doble de identidad) |
 | F1.L5.M22 | Sello de la cadena con permiso propio | transparencia | TODO |
 | F1.L5.M20 | Sorteo con entropías reveladas | grupos/transparencia | TODO |
-| F1.L5.M28 | Tarifario: actor de la sesión y tipo de cambio derivado | tarifas | TODO |
+| F1.L5.M28 | Tarifario: actor de la sesión y tipo de cambio derivado | tarifas | A MEDIAS (actor HECHO; tipo sin fuente) |
 | F1.L5.M13/M14/M15 | Comisión: devolución con cuatro ojos del token, sin descuentos, sin marcado manual | (relocalizar) | TODO |
 | F1.L5.M29 | Publicidad: propiedad de la cuenta, impresión única y tope | publicidad | TODO |
 | F1.L5.M09 | `Idempotency-Key` en mutaciones de los servicios de apoyo | lote | TODO |

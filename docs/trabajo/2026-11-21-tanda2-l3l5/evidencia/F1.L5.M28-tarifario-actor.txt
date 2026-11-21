@@ -1,0 +1,21 @@
+# F1.L5.M28 — Publicación de tarifario: actor de la sesión (2026-11-21)
+
+## Relocalización en origin/dev
+TarifasController.publicarTarifario pasaba cuerpo.getAprobadoPor() a CU-34, que lo registra en cambio_tarifario y en tarifario.aprobado_por. Vigente.
+tipoCambio también viene del cuerpo y decide el preaviso (EntradaEnVigencia.exigePreaviso). Vigente; ver A MEDIAS.
+
+## Pruebas
+$ ./gradlew :servicios:tarifas:webTest --tests '*TarifarioAprobadorWebTest' --rerun -> exit=0, 4 casos, 0 fallos
+  Correcto · sin aprobador en el cuerpo, el aprobador registrado es el actor de la sesión
+  Límite · el campo deprecado con el MISMO actor se acepta
+  Inválido · un aprobador inventado en el cuerpo es 422 AP-CU34-06 y no se publica nada
+  Inválido · rol insuficiente 403 y sin token 401
+
+## Regresión
+$ ./gradlew :servicios:tarifas:spotlessCheck test webTest testBarrido --rerun -> exit=0
+test: 7 casos, 0 fallos
+webTest: 41 casos, 0 fallos
+testBarrido: 2 casos, 0 fallos
+generar_postman.py (sin diff) · verificar_pruebas_web.py · inventario_endpoints.py --check -> exit 0
+
+No cubierto / A MEDIAS: derivar el tipo de cambio. CU-34 clona el tarifario base sin precios nuevos (CambioTarifarioRepositorio.clonar), así que no hay comisión nueva contra la cual comparar en este flujo. Lo reemplaza F3.L5.M36 (comisión fija como parámetro con dos firmas).

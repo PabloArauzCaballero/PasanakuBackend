@@ -113,6 +113,10 @@ public class TarifasController implements TarifasApi {
     @Permiso("TARIFARIO_PUBLICAR")
     public ResponseEntity<SalidaPublicacion> publicarTarifario(EntradaPublicacion cuerpo) {
         Traza.marcarCasoDeUso("CU-34", cuerpo.getNombre());
+        // F1.L5.M28: quien aprueba la publicacion es quien firma con su sesion, no un id del cuerpo. El campo
+        // deprecado solo se acepta si nombra al mismo actor; otro aprobador inventado es AP-CU34-06.
+        var ctx = sesion.actual();
+        UUID aprobadoPor = MapeoDeTarifarios.aprobadorDeLaSesion(cuerpo, ctx.usuarioId());
 
         var salida = cu34.publicar(
                 new CU34PublicarTarifario.EntradaPublicacion(
@@ -120,7 +124,7 @@ public class TarifasController implements TarifasApi {
                         cuerpo.getNombre(),
                         cuerpo.getTipoCambio().getValue(),
                         cuerpo.getDiasPreaviso(),
-                        cuerpo.getAprobadoPor(),
+                        aprobadoPor,
                         cuerpo.getActaComite(),
                         cuerpo.getUrlPublicacion().toString(),
                         cuerpo.getHashDocumento(),

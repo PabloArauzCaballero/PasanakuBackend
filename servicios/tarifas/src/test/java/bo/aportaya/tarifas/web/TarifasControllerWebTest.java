@@ -52,7 +52,6 @@ class TarifasControllerWebTest {
             """
             {"tarifarioBaseId":"b7000000-0000-4000-8000-000000000001","nombre":"Tarifario 2026-Q2",
              "tipoCambio":"INCREMENTO","diasPreaviso":30,
-             "aprobadoPor":"b7000000-0000-4000-8000-00000000000a",
              "actaComite":"ACTA-2026-014","urlPublicacion":"https://aportaya.bo/tarifas/2026q2",
              "hashDocumento":"%s","canalAviso":"CORREO","permiteRescisionSinCosto":true}
             """
