@@ -3,3 +3,4 @@ auditoria rc=0
 cumplimiento rc=0
 entregas rc=0
 erp rc=0
+garantia rc=0
