@@ -1,5 +1,7 @@
 # Catálogo de flujos · recarga y retiro de billetera (CU-10, CU-11). Lo valida scripts/validar_flujos.py.
-# Fuentes: nucleo-financiero.yaml (operaciones y códigos AP-CU10-*/AP-CU11-*), ADR-049 (doble aprobación),
+# Fuentes: nucleo-financiero.yaml (operaciones y códigos AP-CU10-*/AP-CU11-*), ADR-049 (doble aprobación,
+# reemplazada parcialmente por ADR-055: el paso aprobar-retiro sigue acá porque hoy el código lo exige desde el
+# umbral; ADR-055 E9 lo reemplaza por controles automáticos y revisión de Cumplimiento solo ante alerta, F3.S5.M2),
 # ReconciliacionDeRetiros (TIMEOUT del proveedor) y las pruebas citadas en cada caso.
 id: recarga-y-retiro
 nombre: Recargar saldo y retirarlo a una cuenta propia
@@ -49,7 +51,7 @@ pasos:
         siguiente: aprobar-retiro   # la orden nace EN_REVISION y retiene igual
 
   - id: aprobar-retiro
-    actor: TESORERIA
+    actor: TESORERIA   # doble aprobación humana que ADR-055 E9 reemplaza (F3.S5.M2); hoy el código la exige
     servicio: nucleo-financiero
     operacion: aprobarRetiro
     precondicion: Orden EN_REVISION; quien aprueba tiene RETIRO_APROBAR y NO es quien la solicitó (R-SEG-04).
@@ -69,8 +71,8 @@ pasos:
     hallazgo: >-
       H8-01 · Ningún trabajo, endpoint ni consumidor llama a RetirosConProveedor.despachar ni a
       CU11RetirarSaldo.instruirPago en producción; el evento nucleo_financiero.retiro_autorizado se publica y nadie
-      lo consume. Una orden AUTORIZADA queda retenida sin instruirse. Decisión pendiente (A9): instrucción automática
-      o de un operador.
+      lo consume. Una orden AUTORIZADA queda retenida sin instruirse. Decisión tomada (P-09, ADR-055 E9):
+      instrucción automática con controles; falta el código (F3.S5.M2).
     precondicion: Orden AUTORIZADA con su retención VIGENTE.
     exito: FIN   # PAGADA: la retención se ejecuta y la transacción tiene dos patas que suman cero
     condiciones:
