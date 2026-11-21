@@ -8,7 +8,7 @@ modulo: "03 — Aportes, Pagos QR y Conciliación"
 clave_primaria: [id]
 columnas: 12
 fk_salientes: 3
-fk_entrantes: 0
+fk_entrantes: 1
 append_only: false
 ---
 
@@ -50,9 +50,15 @@ append_only: false
 | `pago_id` | [[pago]] | 03 | no | [[reembolso.pago_id → pago]] |
 | `solicitado_por` | [[usuario]] | ↗ 01 | no | [[reembolso.solicitado_por → usuario]] |
 
+## Referenciada por
+
+| Entidad | Columna | Módulo | Relación |
+| --- | --- | :-: | --- |
+| [[historial_estado_reembolso]] | `reembolso_id` | 03 | [[historial_estado_reembolso.reembolso_id → reembolso]] |
+
 ## Entidades vecinas
 
-[[pago]] · [[usuario]]
+[[historial_estado_reembolso]] · [[pago]] · [[usuario]]
 
 ## Ver también
 

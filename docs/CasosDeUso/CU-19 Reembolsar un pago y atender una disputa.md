@@ -156,11 +156,11 @@ export const ErroresCU19 = {
 ## Restricciones aplicables
 
 `R-BIL-01` · `R-BIL-02` · `R-BIL-06` · `R-BIL-12` · `R-SEG-04` · `R-AUD-01` ·
-`R-AUD-05` · `R-BIL-28` · `R-BIL-29` · `R-CON-01`
+`R-AUD-05` · `R-BIL-28` · `R-BIL-29` · `R-BIL-30` · `R-CON-01`
 
 ## Evidencia que deja
 
-[[reembolso]] · [[disputa_pago]] · [[intento_pago]] · [[transaccion_billetera]] ·
+[[reembolso]] · [[historial_estado_reembolso]] · [[historial_estado_pago]] · [[disputa_pago]] · [[intento_pago]] · [[transaccion_billetera]] ·
 [[asiento_contable]] · [[excepcion_conciliacion]] · `evento_dominio` ·
 [[bitacora_evento]]
 

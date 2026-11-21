@@ -29,6 +29,14 @@ append_only: true
 | `moneda` | CHAR(3) | — | no | — |
 | `descripcion` | VARCHAR(160) | — | no | — |
 
+## Reglas del catálogo
+
+> Declaradas en [[Restricciones]], no en el modelo. El nombre es el que devuelve la base al rechazar.
+
+| Regla | Tipo | Columnas |
+| --- | :-: | --- |
+| `ck_movimiento_contable_un_lado` | CHECK | `debe`, `haber` |
+
 ## Claves foráneas salientes
 
 | Columna | Referencia a | Módulo | Opcional | Relación |
