@@ -26,3 +26,14 @@ Ejemplos resultantes (escenario unico):
   entregas/{publicar,listar,cancelar,comprar}Oferta(s)                    -> 410 AP-CU130-10
   entregas/anotarRespuestaDesembolso -> 410 AP-CU28-08 · liquidarEntrega -> 410 AP-CU22-10
   garantia/cubrirIncumplimiento -> 410 AP-CU23-14 · devolverFondo -> 410 AP-CU29-06 · ejecutarAval -> 410 AP-CU26-08
+
+## Despues de mergear origin/dev 33ae20b4 (L2: #459, #462, #463)
+Barrido: toda operacion de entregas/garantia que declara 410 y su ejemplo:
+  entregas/ejecutarEntrega -> [200,200,200,202,503,422]   <- retirada (F1.L2.M08) pero el ejemplo CONSERVADO seguia mostrando exito
+  (las otras 14 ya eran [410])
+Causa: el generador nunca toca un ejemplo existente. Arreglo: si la operacion declara 410 y su ejemplo no es solo el 410,
+se reescribe aunque haya sido editado a mano.
+$ yarn workspace @aportaya/simulado build
+ejemplos: ... · 1 reescritos por retiro (410) · ...      -> ejecutarEntrega: rechazo 410 AP-CU22-11
+$ (segunda corrida) ejemplos: 0 creados · 0 reescritos por retiro (410) · 353 conservados   <- idempotente
+$ yarn vitest run -> Tests 381 passed (381) · lint 0 · typecheck 0
