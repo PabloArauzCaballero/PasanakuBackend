@@ -219,6 +219,13 @@ SQL
   if [ "$resp" = "0" ]; then ok "respaldo de garantia sin reservas, coberturas ni planes vivos (#479 se puede promover)"
   else mal "respaldo de garantia con $resp filas vivas: contra-asiento antes de promover #479"; fi
 
+  # M08 (L1, partición mensual): si aportes.webhook_pasarela tiene filas y no está particionada, el esquema se detiene a
+  # propósito. Con filas hay que migrarla con respaldo antes de promover M08 (regla 97.3.6).
+  local wh
+  wh="$(psql_ro -c "SELECT count(*) FROM aportes.webhook_pasarela;" 2>/dev/null || echo '?')"
+  if [ "$wh" = "0" ]; then ok "aportes.webhook_pasarela vacía (M08 se aplica solo)"
+  else mal "aportes.webhook_pasarela tiene $wh filas: migrar con respaldo antes de promover M08"; fi
+
   # Contexto para #412: TEST entra hoy al backoffice con el segundo factor 000000.
   local idc perfil
   idc="$(docker ps --format '{{.Names}}' | grep -E '^identidad-' | head -1 || true)"
