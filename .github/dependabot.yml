@@ -25,6 +25,8 @@ updates:
   # Backend Java/Gradle: servicios/*, plataforma/*, gradle/libs.versions.toml.
   - package-ecosystem: "gradle"
     directory: "/"
+    # Los PR van a dev, como todo cambio (main lleva 1600+ commits de atraso y nadie mergea ahi).
+    target-branch: "dev"
     schedule:
       interval: "weekly"
     groups:
@@ -35,6 +37,8 @@ updates:
   # El monorepo de Yarn (raíz, apps/*, packages/*) — un solo ecosistema npm.
   - package-ecosystem: "npm"
     directory: "/"
+    # Los PR van a dev, como todo cambio (main lleva 1600+ commits de atraso y nadie mergea ahi).
+    target-branch: "dev"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -49,6 +53,8 @@ updates:
   # La app Flutter — ecosistema separado (pub.dev), agrupado igual.
   - package-ecosystem: "pub"
     directory: "/apps/movil"
+    # Los PR van a dev, como todo cambio (main lleva 1600+ commits de atraso y nadie mergea ahi).
+    target-branch: "dev"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -63,6 +69,8 @@ updates:
   # Las GitHub Actions que usan ci.yml, boveda-y-esquema.yml y pages-landing.yml.
   - package-ecosystem: "github-actions"
     directory: "/"
+    # Los PR van a dev, como todo cambio (main lleva 1600+ commits de atraso y nadie mergea ahi).
+    target-branch: "dev"
     schedule:
       interval: "weekly"
       day: "monday"
