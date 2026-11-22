@@ -96,6 +96,14 @@ Herramientas que usé (scratchpad, pueden haberse perdido; son triviales de reha
   `docs/trabajo/2026-11-21-tanda2-l2/evidencia/`); valores de los parámetros financieros (backoffice, cuatro ojos);
   opinión de Cumplimiento L-01..L-03 (`PREGUNTAS-LEGALES.md`) para el modelo A.
 
+- **Pendientes de Pablo (nuevas):** (a) método de desembolso de la entrega automática (L2, PR #490): propuesta = cuenta
+  VERIFICADA del beneficiario; si no tiene, fondear y esperar la cuenta (método nulo hasta la orden → cambio de esquema).
+  (b) Plazo de retención de `webhook_pasarela` (propuesta 24 meses) para el trabajo programado de purga de M08.
+- **M08 (L1, rama `correcciones/tanda2-l1-particion-webhook`):** antes de promoverlo, `aportes.webhook_pasarela` en TEST
+  tiene que estar vacía o migrarse con respaldo; `chequear` lo verifica.
+- **Eventos que faltan para la entrega automática (F3.L2.M01):** `aportes.periodo_recaudado` (L1) y
+  `grupos.turnos_asignados` (L3L5); pactos en PR #490.
+
 ## 7. Decisiones tomadas por la coordinación (para ratificar)
 
 - Respaldo y aval retirados por partes (expandir → 410 → contraer), sin borrar tablas con datos.
