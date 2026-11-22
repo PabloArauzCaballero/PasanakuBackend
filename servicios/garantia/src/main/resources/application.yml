@@ -43,6 +43,18 @@ aportaya:
     aportes: ${URL_APORTES:http://aportes:8080}
     # H13.S1.M6: un reclamo en curso no es una deuda ejecutable ni una sancion firme (efecto de los reclamos).
     cumplimiento: ${URL_CUMPLIMIENTO:http://cumplimiento:8080}
+    # F1.L1.M07: donde garantia entra con su cuenta de servicio (ADR-024, unico emisor).
+    identidad: ${URL_IDENTIDAD:http://identidad:8080}
+  garantia:
+    aportes:
+      # Identidad de SERVICIO con que garantia pregunta el recaudo del periodo a aportes (F1.L1.M07, regla 98.6):
+      # cuenta de servicio en identidad con el rol SERVICIO_GARANTIA; se renueva sola. Vacia = sin credencial:
+      # el recaudo no se pregunta y lo que depende de el falla cerrado. A medias (telefono sin clave o sin
+      # semilla TOTP), garantia NO arranca. La clave no tiene valor por omision (regla 90.3.4).
+      cuenta-servicio:
+        telefono: ${GARANTIA_SERVICIO_TELEFONO:}
+        clave: ${GARANTIA_SERVICIO_CLAVE}
+        factor-totp-semilla: ${GARANTIA_SERVICIO_TOTP_SEMILLA:}
   incumplimiento:
     # Lo que tiene el participante para presentar su descargo antes de que la
     # declaracion quede firme. Es debido proceso, no un parametro tecnico.

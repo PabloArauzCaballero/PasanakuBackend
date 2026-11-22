@@ -115,6 +115,11 @@ DE_DESARROLLO = {
     "GRUPOS_SERVICIO_CLAVE": "",
     "GRUPOS_SERVICIO_TOTP_SEMILLA": "",
     "GRUPOS_SERVICIO_FACTOR_FIJO": "",
+    # Cuenta de servicio de garantia en identidad (rol SERVICIO_GARANTIA, F1.L1.M07): con ella garantia pregunta el
+    # recaudo del periodo a aportes. Vacias en local: sin cuenta, el recaudo no se pregunta (falla cerrado).
+    "GARANTIA_SERVICIO_TELEFONO": "",
+    "GARANTIA_SERVICIO_CLAVE": "",
+    "GARANTIA_SERVICIO_TOTP_SEMILLA": "",
     "NUCLEO_FINANCIERO_URL": "http://nucleo-financiero:8080",
     # El mismo literal que application-local.yml (en local el perfil lo ignora).
     "APORTAYA_CORS_ORIGENES": "http://localhost:4200",
@@ -257,6 +262,12 @@ DE_ENTORNO = {
     "GRUPOS_SERVICIO_CLAVE": "${GRUPOS_SERVICIO_CLAVE:-}",
     "GRUPOS_SERVICIO_TOTP_SEMILLA": "${GRUPOS_SERVICIO_TOTP_SEMILLA:-}",
     "GRUPOS_SERVICIO_FACTOR_FIJO": "${GRUPOS_SERVICIO_FACTOR_FIJO:-}",
+    # Cuenta de servicio de garantia en identidad (rol SERVICIO_GARANTIA, F1.L1.M07): se cargan en Coolify. Con
+    # `${X:-}` y no "" literal, para que Coolify pueda ponerlas; vacias = sin cuenta (el recaudo no se pregunta,
+    # falla cerrado). A medias (telefono sin clave o sin semilla TOTP), garantia NO arranca.
+    "GARANTIA_SERVICIO_TELEFONO": "${GARANTIA_SERVICIO_TELEFONO:-}",
+    "GARANTIA_SERVICIO_CLAVE": "${GARANTIA_SERVICIO_CLAVE:-}",
+    "GARANTIA_SERVICIO_TOTP_SEMILLA": "${GARANTIA_SERVICIO_TOTP_SEMILLA:-}",
     "NUCLEO_FINANCIERO_URL": "http://nucleo-financiero:8080",
     # Solo la leen staging/production (application-<perfil>.yml): sin valor por omision y nunca
     # `*`; el servicio no arranca si falta. Con el perfil `local` no tiene efecto. No es un secreto.
