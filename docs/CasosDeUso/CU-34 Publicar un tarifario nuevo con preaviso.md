@@ -162,4 +162,4 @@ Entonces ve cada versión una sola vez, de la más reciente a la más antigua, y
 
 ## Ver también
 
-[[CU-05 Aceptar contrato de adhesión y tarifario]] · [[CU-20 Crear grupo y congelar tarifario]] · [[CU-30 Cotizar la comisión antes de operar]] · [[CU-36 Segmentar comercialmente y aplicar precio diferenciado]]
+[[CU-05 Aceptar contrato de adhesión y tarifario]] · [[CU-20 Crear grupo y congelar tarifario]] · [[CU-30 Cotizar la comisión antes de operar]] · [[CU-36 Segmentar comercialmente y aplicar precio diferenciado]] · [[CU-132 Registrar, aprobar y congelar parámetros financieros]]

@@ -40,6 +40,21 @@ CREATE INDEX IF NOT EXISTS ix_asignacion_tarifario_tarifario_id
 CREATE INDEX IF NOT EXISTS ix_asignacion_tarifario_ambito
   ON tarifas.asignacion_tarifario (ambito);
 
+CREATE UNIQUE INDEX IF NOT EXISTS uq_parametro_financiero_codigo
+  ON tarifas.parametro_financiero (codigo);
+
+CREATE INDEX IF NOT EXISTS ix_version_parametro_parametro_id
+  ON tarifas.version_parametro (parametro_id);
+
+CREATE INDEX IF NOT EXISTS ix_version_parametro_estado
+  ON tarifas.version_parametro (estado);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_version_parametro_clave_idempotencia
+  ON tarifas.version_parametro (clave_idempotencia);
+
+CREATE INDEX IF NOT EXISTS ix_parametro_congelado_grupo_grupo_id
+  ON tarifas.parametro_congelado_grupo (grupo_id);
+
 CREATE INDEX IF NOT EXISTS ix_simulacion_tarifa_tarifario_id
   ON tarifas.simulacion_tarifa (tarifario_id);
 

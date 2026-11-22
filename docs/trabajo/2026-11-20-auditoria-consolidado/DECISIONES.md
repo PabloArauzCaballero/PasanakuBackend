@@ -101,3 +101,12 @@ Lo que queda abierto es solo para el abogado o Cumplimiento: [`PREGUNTAS-LEGALES
 | Tema | Decisión |
 |---|---|
 | CVE críticas de Spring (CVE-2026-47884 y CVE-2026-47890 en spring-webmvc 6.2.19, más las otras dos excepciones de OSV) | **Renovar la excepción 30 días (hasta el 2026-12-21) y migrar a Spring Boot 4 / Spring 7 antes de esa fecha.** Se re-verificó el 2026-11-21: no hay parche en 6.2 ni Spring Boot 3.5.17, y el barrido `SpringSinSuperficieVulnerableBarridoTest` pasa 3/3. La migración entra al plan como tarea con fecha límite. |
+
+## Tanda 11 · 2026-11-21 (respuestas de Pablo durante la ejecución de la tanda 2)
+
+| # | Pregunta | Decisión de Pablo | Efecto |
+|---|---|---|---|
+| T11-1 | ¿Dónde vive el registro central de parámetros financieros (editable en backoffice, cuatro ojos, congelado por grupo)? | **En `tarifas`.** | L3L5 lo implementa (F3.S8.M2/M6, modelo en #486). Sin servicio ni catálogo nuevo. |
+| T11-2 | Modelo A «Tu garantía vuelve»: ¿se implementa antes de la opinión de Cumplimiento (L-01)? | **Esperar a Cumplimiento** (F3.S3.M7). | No se crean tablas ni código del fondo segregado hasta la opinión. Avanza lo que no depende de la figura legal: parámetros y la propuesta escrita del modelo (#485). |
+| T11-3 | M08 · Retención de `webhook_pasarela`. | **Opción A: partición mensual** con tabla aparte de deduplicación. | Lo vencido se elimina soltando la partición entera (DETACH/DROP), sin excepción a R-AUD-01. L1 lo implementa. |
+| T11-4 | Unidades del tope del recargo, del umbral de solvencia del fondo y del umbral de disolución por mora. | **Tope del recargo: % del aporte en mora. Umbral de solvencia: % del fondo sobre el pozo comprometido. Umbral de disolución: cantidad de cuotas impagas del grupo.** | El catálogo de `tarifas` declara esas unidades. Los **valores** siguen sin definir: se cargan desde el backoffice con cuatro ojos, nunca se inventan. |

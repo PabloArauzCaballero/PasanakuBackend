@@ -1,0 +1,79 @@
+{
+  "servicio": "nucleo-financiero",
+  "operacion": "listarBloqueosPorAutoridad",
+  "metodo": "get",
+  "ruta": "/billetera/bloqueos",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "bloqueoId": "30a3400b-9d5d-48c3-8520-1b738ce0048c",
+            "cuentaBilleteraId": "6b1c2f0e-3d4a-4b5c-8d6e-7f8091a2b3c4",
+            "autoridad": "UIF",
+            "tipoOrden": "INMOVILIZACION",
+            "alcance": "PARCIAL",
+            "estado": "VIGENTE",
+            "montoBloqueado": {
+              "monto": "250.00",
+              "moneda": "BOB"
+            },
+            "registradoPor": "0f1e2d3c-4b5a-4968-8778-695a4b3c2d1e",
+            "levantadoPor": null,
+            "recibidoEn": "2026-11-20T15:00:00Z",
+            "venceEn": null,
+            "levantadoEn": null,
+            "puedeLevantar": true
+          }
+        ],
+        "proximoAntesDe": null,
+        "proximoAntesDeId": null
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoAntesDe": null,
+        "proximoAntesDeId": null
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "bloqueoId": "30a3400b-9d5d-48c3-8520-1b738ce0048c",
+            "cuentaBilleteraId": "6b1c2f0e-3d4a-4b5c-8d6e-7f8091a2b3c4",
+            "autoridad": "UIF",
+            "tipoOrden": "INMOVILIZACION",
+            "alcance": "PARCIAL",
+            "estado": "VIGENTE",
+            "montoBloqueado": {
+              "monto": "250.00",
+              "moneda": "BOB"
+            },
+            "registradoPor": "0f1e2d3c-4b5a-4968-8778-695a4b3c2d1e",
+            "levantadoPor": null,
+            "recibidoEn": "2026-11-20T15:00:00Z",
+            "venceEn": null,
+            "levantadoEn": null,
+            "puedeLevantar": true
+          }
+        ],
+        "proximoAntesDe": null,
+        "proximoAntesDeId": null
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU17-06",
+        "mensaje": "El cursor del listado va completo: antesDe y antesDeId juntos.",
+        "detalle": {},
+        "trazaId": "traza-listarBloqueosPorAutoridad-rechazo"
+      }
+    }
+  }
+}

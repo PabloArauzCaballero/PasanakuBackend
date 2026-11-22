@@ -203,6 +203,11 @@ CREATE TRIGGER tg_pago_a_proveedor_append_only
   BEFORE UPDATE OR DELETE ON erp.pago_a_proveedor
   FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
 
+DROP TRIGGER IF EXISTS tg_parametro_congelado_grupo_append_only ON tarifas.parametro_congelado_grupo;
+CREATE TRIGGER tg_parametro_congelado_grupo_append_only
+  BEFORE UPDATE OR DELETE ON tarifas.parametro_congelado_grupo
+  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
+
 DROP TRIGGER IF EXISTS tg_recuperacion_respaldo_append_only ON garantia.recuperacion_respaldo;
 CREATE TRIGGER tg_recuperacion_respaldo_append_only
   BEFORE UPDATE OR DELETE ON garantia.recuperacion_respaldo

@@ -35,5 +35,6 @@ BEGIN;
 \ir 22-cuentas-de-sistema.sql
 \ir 23-indicadores-tableros.sql
 \ir 24-metadata-comentarios.sql
+\ir 25-parametros-financieros.sql
 
 COMMIT;

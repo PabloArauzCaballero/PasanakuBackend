@@ -3,7 +3,7 @@ tags:
   - moc
   - caso-uso
 titulo: "Casos de uso — AportaYa"
-total_casos: 111
+total_casos: 112
 fecha: 2026-08-14
 ---
 
@@ -112,6 +112,7 @@ Norma (docs/Cumplimiento.md)  →  Caso de uso (esta carpeta)  →  Restricción
 | [[CU-34 Publicar un tarifario nuevo con preaviso]] | Cambio de precios conforme | Producto · Directorio | ASFI Consumidor Financiero |
 | [[CU-35 Cerrar la liquidación mensual de ingresos]] | Resultado y conciliación | Contabilidad | Contabilidad · tributario |
 | [[CU-36 Segmentar comercialmente y aplicar precio diferenciado]] | Cobrar distinto con criterio explicable | Producto | ASFI transparencia · no discriminación |
+| [[CU-132 Registrar, aprobar y congelar parámetros financieros]] | Parámetros versionados, con cuatro ojos y congelados por grupo | Riesgos · Cumplimiento · Sistema | Regla 91 · ADR-056 §6 |
 
 ### Cumplimiento UIF y ASFI
 

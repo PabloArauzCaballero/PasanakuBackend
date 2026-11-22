@@ -1,12 +1,12 @@
 {
   "info": {
     "name": "AportaYa · aportes",
-    "description": "# AportaYa · aportes\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**15 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
+    "description": "# AportaYa · aportes\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**16 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "cobrarAporte · Acreditar el pago de una obligacion de aporte",
+      "name": "cobrarAporte · Acreditar el pago de una obligacion de aporte (se retira; usar pagarCuotaConSaldo)",
       "request": {
         "method": "POST",
         "header": [
@@ -43,7 +43,7 @@
             }
           ]
         },
-        "description": "## Acreditar el pago de una obligacion de aporte\n\nEl dinero lo mueve nucleo-financiero (invariante 12): esta operacion aplica el pago a la obligacion y pide el movimiento por evento. La clave de idempotencia se valida ANTES de escribir.\n\n| | |\n| --- | --- |\n| **Servicio** | `aportes` |\n| **Operacion** | `cobrarAporte` |\n| **Ruta** | `POST /api/v1/aportes/obligaciones/{obligacionId}/pagos` |\n| **Permiso** | `BILLETERA_OPERAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Acreditar el pago de una obligacion de aporte (se retira; usar pagarCuotaConSaldo)\n\nEl dinero lo mueve nucleo-financiero (invariante 12): esta operacion aplica el pago a la obligacion y pide el movimiento por evento. La clave de idempotencia se valida ANTES de escribir.\n\nF1.L1.M11: SE RETIRA (expandir y contraer, regla 98.1.3). El servidor ya no confia en lo que este cuerpo dice: solo acepta `canal` BILLETERA_MOVIL, un `monto` igual al pendiente de la obligacion (AP-CU21-02 si no), sin `recargo`, sin `proveedorId` y sin `esManual` (AP-CU21-10 LO_FIJA_EL_SERVIDOR). La referencia la fija el servidor. Se borra cuando la app pase a `pagarCuotaConSaldo`.\n\n| | |\n| --- | --- |\n| **Servicio** | `aportes` |\n| **Operacion** | `cobrarAporte` |\n| **Ruta** | `POST /api/v1/aportes/obligaciones/{obligacionId}/pagos` |\n| **Permiso** | `BILLETERA_OPERAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU21-10` | Lo fija el servidor |\n| `AP-CU21-01` | Obligacion no vigente |\n| `AP-CU21-02` | Monto no coincide |\n| `AP-CU21-04` | Periodo cerrado |\n| `AP-CU21-06` | Obligacion ajena |\n| `AP-CU21-07` | No verificable |\n| `AP-CU21-10` | Lo fija el servidor |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"recargo\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"canal\": \"BILLETERA_MOVIL\",\n  \"referenciaProveedor\": \"referenciaProveedor-de-prueba\",\n  \"proveedorId\": \"{{proveedorId}}\",\n  \"esManual\": true\n}",
@@ -63,6 +63,98 @@
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
               "const esperadas = [200, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "pagarCuotaConSaldo · Pagar el pendiente de una cuota con el saldo de la billetera",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/aportes/obligaciones/:obligacionId/pago-con-saldo",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "aportes",
+            "obligaciones",
+            ":obligacionId",
+            "pago-con-saldo"
+          ],
+          "variable": [
+            {
+              "key": "obligacionId",
+              "value": "{{obligacionId}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## Pagar el pendiente de una cuota con el saldo de la billetera\n\nF1.L1.M11. El cliente no dicta nada del cobro: el monto es el pendiente de la obligacion leido por el servidor, el canal es el saldo de la billetera (P-06) y la referencia la fija el servidor. El cuerpo es opcional y no admite campos: un `monto`, `canal` o `recargo` se rechaza como campo no declarado (400). El recargo por mora es su propia obligacion.\n\n| | |\n| --- | --- |\n| **Servicio** | `aportes` |\n| **Operacion** | `pagarCuotaConSaldo` |\n| **Ruta** | `POST /api/v1/aportes/obligaciones/{obligacionId}/pago-con-saldo` |\n| **Permiso** | `BILLETERA_OPERAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `200`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU21-01` | Obligacion no vigente |\n| `AP-CU21-04` | Periodo cerrado |\n| `AP-CU21-06` | Obligacion ajena |\n| `AP-CU21-07` | No verificable |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 201, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",
@@ -827,7 +919,7 @@
             }
           ]
         },
-        "description": "## Cuantos participantes del grupo estan en mora\n\nLa usa CU-68 para medir la concentracion de riesgo antes de aceptar a alguien nuevo: un grupo con la mitad en mora no admite mas gente, la ayuda.\n\n| | |\n| --- | --- |\n| **Servicio** | `aportes` |\n| **Operacion** | `contarMorosos` |\n| **Ruta** | `GET /api/v1/aportes/grupos/{grupoId}/morosos` |\n| **Permiso** | `BILLETERA_VER` |\n| **Respuestas** | `200` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+        "description": "## Cuantos participantes del grupo estan en mora\n\nLa usa CU-68 para medir la concentracion de riesgo antes de aceptar a alguien nuevo: un grupo con la mitad en mora no admite mas gente, la ayuda.\n\n| | |\n| --- | --- |\n| **Servicio** | `aportes` |\n| **Operacion** | `contarMorosos` |\n| **Ruta** | `GET /api/v1/aportes/grupos/{grupoId}/morosos` |\n| **Permiso** | `SERVICIO_GRUPOS` |\n| **Respuestas** | `200` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
       },
       "response": [],
       "event": [
@@ -901,7 +993,7 @@
             }
           ]
         },
-        "description": "## Que cupos del grupo ya pagaron la cuota 1 y cuales no\n\nLa usa CU-60 antes de comprometer el sorteo: no se sortea con plata prometida (R-GRP-20). La cuota 1 es la obligacion del periodo con el vencimiento mas temprano del grupo; nace al iniciarse el grupo (evento grupos.grupo_iniciado). Un cupo cuenta como pagado solo con su obligacion en PAGADO. Sin obligaciones todavia, las dos listas vienen vacias y periodoId es nulo: quien pregunta trata eso como «no se puede sortear».\n\n| | |\n| --- | --- |\n| **Servicio** | `aportes` |\n| **Operacion** | `consultarPrimeraCuota` |\n| **Ruta** | `GET /api/v1/aportes/grupos/{grupoId}/primera-cuota` |\n| **Permiso** | `BILLETERA_VER` |\n| **Respuestas** | `200` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+        "description": "## Que cupos del grupo ya pagaron la cuota 1 y cuales no\n\nLa usa CU-60 antes de comprometer el sorteo: no se sortea con plata prometida (R-GRP-20). La cuota 1 es la obligacion del periodo con el vencimiento mas temprano del grupo; nace al iniciarse el grupo (evento grupos.grupo_iniciado). Un cupo cuenta como pagado solo con su obligacion en PAGADO. Sin obligaciones todavia, las dos listas vienen vacias y periodoId es nulo: quien pregunta trata eso como «no se puede sortear».\n\n| | |\n| --- | --- |\n| **Servicio** | `aportes` |\n| **Operacion** | `consultarPrimeraCuota` |\n| **Ruta** | `GET /api/v1/aportes/grupos/{grupoId}/primera-cuota` |\n| **Permiso** | `SERVICIO_GRUPOS` |\n| **Respuestas** | `200` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
       },
       "response": [],
       "event": [
@@ -975,7 +1067,7 @@
             }
           ]
         },
-        "description": "## Cuanto del pozo del periodo es caja confirmada y cuanto falta\n\nPozo 6.000 y 5.000 confirmados dejan un faltante de 1.000. Un aporte pendiente NO es caja: solo cuenta lo que se acredito tras la confirmacion del proveedor. La consulta que `entregas` necesita para pedir el respaldo empresarial sin leer este esquema (invariante 11) y sin que el cliente afirme cuanto se recaudo. El corte es el instante de la respuesta.\n\n| | |\n| --- | --- |\n| **Servicio** | `aportes` |\n| **Operacion** | `consultarRecaudoDelPeriodo` |\n| **Ruta** | `GET /api/v1/aportes/periodos/{periodoId}/recaudo` |\n| **Permiso** | `ENTREGA_EJECUTAR` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+        "description": "## Cuanto del pozo del periodo es caja confirmada y cuanto falta\n\nPozo 6.000 y 5.000 confirmados dejan un faltante de 1.000. Un aporte pendiente NO es caja: solo cuenta lo que se acredito tras la confirmacion del proveedor. La consulta que `entregas` necesita para pedir el respaldo empresarial sin leer este esquema (invariante 11) y sin que el cliente afirme cuanto se recaudo. El corte es el instante de la respuesta.\n\n| | |\n| --- | --- |\n| **Servicio** | `aportes` |\n| **Operacion** | `consultarRecaudoDelPeriodo` |\n| **Ruta** | `GET /api/v1/aportes/periodos/{periodoId}/recaudo` |\n| **Permiso** | `SERVICIO_ENTREGAS` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
       },
       "response": [],
       "event": [

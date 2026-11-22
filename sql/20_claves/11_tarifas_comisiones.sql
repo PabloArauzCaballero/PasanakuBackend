@@ -294,6 +294,16 @@ ALTER TABLE tarifas.nota_credito_debito
   ADD CONSTRAINT fk_nota_credito_debito_factura_id
   FOREIGN KEY (factura_id) REFERENCES tarifas.factura_electronica (id) ON DELETE RESTRICT ON UPDATE CASCADE;
 
+ALTER TABLE tarifas.parametro_congelado_grupo DROP CONSTRAINT IF EXISTS fk_parametro_congelado_grupo_parametro_id;
+ALTER TABLE tarifas.parametro_congelado_grupo
+  ADD CONSTRAINT fk_parametro_congelado_grupo_parametro_id
+  FOREIGN KEY (parametro_id) REFERENCES tarifas.parametro_financiero (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE tarifas.parametro_congelado_grupo DROP CONSTRAINT IF EXISTS fk_parametro_congelado_grupo_version_parametro_id;
+ALTER TABLE tarifas.parametro_congelado_grupo
+  ADD CONSTRAINT fk_parametro_congelado_grupo_version_parametro_id
+  FOREIGN KEY (version_parametro_id) REFERENCES tarifas.version_parametro (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
 ALTER TABLE tarifas.regla_tarifa DROP CONSTRAINT IF EXISTS fk_regla_tarifa_concepto_tarifa_id;
 ALTER TABLE tarifas.regla_tarifa
   ADD CONSTRAINT fk_regla_tarifa_concepto_tarifa_id
@@ -333,3 +343,8 @@ ALTER TABLE catalogo.tarifario DROP CONSTRAINT IF EXISTS fk_tarifario_tarifario_
 ALTER TABLE catalogo.tarifario
   ADD CONSTRAINT fk_tarifario_tarifario_anterior_id
   FOREIGN KEY (tarifario_anterior_id) REFERENCES catalogo.tarifario (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE tarifas.version_parametro DROP CONSTRAINT IF EXISTS fk_version_parametro_parametro_id;
+ALTER TABLE tarifas.version_parametro
+  ADD CONSTRAINT fk_version_parametro_parametro_id
+  FOREIGN KEY (parametro_id) REFERENCES tarifas.parametro_financiero (id) ON DELETE RESTRICT ON UPDATE CASCADE;

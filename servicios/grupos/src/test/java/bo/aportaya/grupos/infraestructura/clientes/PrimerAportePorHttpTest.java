@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import bo.aportaya.plataforma.dominio.ErrorDeDominio;
+import bo.aportaya.plataforma.web.clientes.CredencialDeServicio;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -34,6 +35,10 @@ class PrimerAportePorHttpTest {
     private HttpServer servidor;
     private final Map<String, Respuesta> respuestas = new ConcurrentHashMap<>();
     private PrimerAportePorHttp aportes;
+    private static final String TOKEN_DE_SERVICIO = "token-de-servicio-grupos";
+    private final java.util.List<String> autorizaciones = new java.util.concurrent.CopyOnWriteArrayList<>();
+    private RestClient.Builder constructor;
+    private String url;
 
     record Respuesta(int estado, String cuerpo, long demoraMs) {
         static Respuesta ok(String json) {
@@ -49,6 +54,7 @@ class PrimerAportePorHttpTest {
     void levantar() throws IOException {
         servidor = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         servidor.createContext("/", intercambio -> {
+            autorizaciones.add(String.valueOf(intercambio.getRequestHeaders().getFirst("Authorization")));
             var r = respuestas.getOrDefault(intercambio.getRequestURI().getPath(), Respuesta.estado(404));
             try {
                 if (r.demoraMs() > 0) Thread.sleep(r.demoraMs());
@@ -66,9 +72,9 @@ class PrimerAportePorHttpTest {
         var fabrica = new SimpleClientHttpRequestFactory();
         fabrica.setConnectTimeout(Duration.ofMillis(400));
         fabrica.setReadTimeout(Duration.ofMillis(400));
-        aportes = new PrimerAportePorHttp(
-                RestClient.builder().requestFactory(fabrica),
-                "http://127.0.0.1:" + servidor.getAddress().getPort());
+        constructor = RestClient.builder().requestFactory(fabrica);
+        url = "http://127.0.0.1:" + servidor.getAddress().getPort();
+        aportes = new PrimerAportePorHttp(constructor, url, CredencialDeServicio.fija(TOKEN_DE_SERVICIO));
     }
 
     @AfterEach
@@ -136,5 +142,29 @@ class PrimerAportePorHttpTest {
         respuestas.put(RUTA, Respuesta.estado(500));
 
         assertThatThrownBy(() -> aportes.cuposConPrimeraCuotaPagada(GRUPO)).isInstanceOf(ErrorDeDominio.class);
+    }
+
+    @Test
+    @DisplayName(
+            "F1.L1.M07 · la pregunta viaja con el token de la identidad de servicio de grupos, no con el de la sesion")
+    void conIdentidadDeServicio() {
+        respuestas.put(
+                RUTA,
+                Respuesta.ok("{\"grupoId\":\"" + GRUPO
+                        + "\",\"periodoId\":null,\"cuposPagados\":[],\"cuposPendientes\":[]}"));
+
+        assertThat(aportes.cuposConPrimeraCuotaPagada(GRUPO)).isPresent();
+        assertThat(autorizaciones).containsExactly("Bearer " + TOKEN_DE_SERVICIO);
+    }
+
+    @Test
+    @DisplayName(
+            "F1.L1.M07 · sin credencial de servicio no sale ninguna peticion y el resultado es vacio (CU-60 deniega)")
+    void sinCredencialFallaCerrado() {
+        respuestas.put(RUTA, Respuesta.ok("{}"));
+        var sinCredencial = new PrimerAportePorHttp(constructor, url, CredencialDeServicio.ninguna());
+
+        assertThat(sinCredencial.cuposConPrimeraCuotaPagada(GRUPO)).isEmpty();
+        assertThat(autorizaciones).isEmpty();
     }
 }
