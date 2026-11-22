@@ -157,6 +157,7 @@ REVOKE UPDATE, DELETE ON garantia.movimiento_fondo FROM svc_garantia;
 REVOKE UPDATE, DELETE ON garantia.movimiento_reserva FROM svc_garantia;
 REVOKE UPDATE, DELETE ON aportes.pago FROM svc_aportes;
 REVOKE UPDATE, DELETE ON erp.pago_a_proveedor FROM svc_erp;
+REVOKE UPDATE, DELETE ON tarifas.parametro_congelado_grupo FROM svc_tarifas;
 REVOKE UPDATE, DELETE ON garantia.recuperacion_respaldo FROM svc_garantia;
 REVOKE UPDATE, DELETE ON aportes.reembolso FROM svc_aportes;
 REVOKE UPDATE, DELETE ON comun.registro_acceso_datos FROM svc_aportes;

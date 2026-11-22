@@ -1,0 +1,50 @@
+L1 · GET /billetera/bloqueos (pedido del coordinador para el backoffice de Cumplimiento) — microtarea F1.L1.M10c
+Rama: correcciones/tanda2-l1-listado-bloqueos (apilada sobre #476, que trae los permisos) · Fecha: 2026-11-21
+
+Contrato nucleo-financiero 1.4.0 (aditivo; 1.2.0 es #476 y 1.3.0 es #480):
+GET /billetera/bloqueos · listarBloqueosPorAutoridad · limite 1..100 (25) · estado VIGENTE|LEVANTADO|VENCIDO ·
+cursor antesDe + antesDeId (juntos o ninguno: 422 AP-CU17-06 CURSOR_INCOMPLETO) · 200 PaginaDeBloqueos.
+Permiso: BLOQUEO_AUTORIDAD_REGISTRAR o (@PermisoAlternativo) BLOQUEO_AUTORIDAD_LEVANTAR.
+Orden: recibido_en DESC, id DESC (desempate estable). Respuesta minima: ids, autoridad, tipo, alcance, estado,
+monto con la moneda de la cuenta (bloqueo_saldo no la modela; regla 91.1.2), quien registro y quien levanto
+(UUID), fechas y puedeLevantar. NO viajan: numero de oficio, URL ni hash del documento.
+puedeLevantar = VIGENTE y no lo registro quien consulta (R-BIL-32); levantar lo vuelve a exigir (AP-CU17-04).
+El filtro estado es lista blanca en la ruta (el generador lo deja como texto libre): fuera de la lista → 400.
+Codigo: BloqueoRepositorio.listar, CU17BloquearPorAutoridad.listar, RutasDeBloqueosDeLaBilletera.
+
+"Quien registra no levanta" contra PostgreSQL real: CU17CuatroOjosTest.rechazaLaMismaPersona (AP-CU17-04, el saldo
+sigue retenido) y rechazaLaBase (el disparador lo exige aun sin la aplicacion) — 3/3 en esta corrida.
+
+Pruebas:
+- BloqueoListadoWebTest 14/14: REGISTRAR y LEVANTAR → 200 con respuesta minima (numeroOficio, documentoUrl y
+  hashDocumento no existen en el JSON); filtro y limite llegan al caso de uso (sin limite, 25);
+  DATOS_SENSIBLES_LEER, AUDITORIA_LEER, BILLETERA_VER y SERVICIO_ENTREGAS → 403 sin tocar el caso de uso;
+  sin token 401; estado=BORRADO, estado=vigente, limite=0, limite=101, antesDeId mal formado → 400; cursor
+  incompleto → 422 AP-CU17-06.
+- CU17ListadoTest (PostgreSQL) 4/4: tres bloqueos en paginas de dos sin repetir ni saltar, en orden
+  (recibido_en, id) descendente; importe 250.00 BOB y puedeLevantar=false para quien registro / true para otro;
+  levantado por otra persona → LEVANTADO, levantadoPor y sin boton, y el filtro VIGENTE no lo trae; cursor
+  incompleto → AP-CU17-06.
+Mutantes (sobre la version final):
+1) puedeLevantar siempre true →
+   CU17ListadoTest > cuadre: levantado por otra persona, sale con LEVANTADO, quien lo levanto y sin boton; el filtro lo separa FAILED
+   CU17ListadoTest > cuadre: el importe sale con la moneda de la cuenta y quien registro no ve el boton de levantar FAILED
+   4 tests completed, 2 failed
+   BUILD FAILED in 6s
+2) sin @PermisoAlternativo(LEVANTAR) → BloqueoListadoWebTest 14 tests completed, 8 failed
+
+Regresion nucleo-financiero (base limpia, spotlessCheck OK):
+nucleo-financiero test: 104 pruebas, 0 en rojo (Docker 0, otras 0)
+nucleo-financiero webTest: 111 pruebas, 0 en rojo (Docker 0, otras 0)
+nucleo-financiero testBarrido: 4 pruebas, 0 en rojo (Docker 0, otras 0)
+nucleo-financiero integrationTest: 471 pruebas, 25 en rojo (Docker 25, otras 0)
+Las 25: Docker (Testcontainers) → NO COMPROBADO aca. ArquitecturaTest: la primera version pasaba un registro de
+infraestructura a la web; se aplano en CU17BloquearPorAutoridad.FilaDelListado (como BandejaDeRetiros.Fila).
+
+Verificadores: verificar_pruebas_web, verificar_contratos_limites, verificar_seguridad, verificar_criterios,
+verificar_boveda, verificar_narrativas, validar_flujos → exit=0. Postman regenerado; ejemplo de packages/simulado.
+
+Para L4L6 (pantalla): operacion listarBloqueosPorAutoridad; campos de BloqueoEnLista arriba; el boton "levantar"
+solo con puedeLevantar=true, y llama levantarBloqueoPorAutoridad (sin cuerpo).
+No cubierto: la RLS de bloqueo_saldo con la sesion real de Cumplimiento (rol BACKOFFICE) solo en el arranque con
+compose; el estado VENCIDO lo escribe otro proceso (el listado muestra lo que hay en la columna).

@@ -3,12 +3,12 @@ tags:
   - moc
   - modulo/11-tarifas-comisiones-impuestos-y-facturacion
 modulo: "11 — Tarifas, Comisiones, Impuestos y Facturación"
-relaciones_fk: 65
+relaciones_fk: 68
 ---
 
 # 11 — Tarifas, Comisiones, Impuestos y Facturación · relaciones
 
-Las **65 claves foráneas** que salen de las tablas de este módulo.
+Las **68 claves foráneas** que salen de las tablas de este módulo.
 
 [[_Relaciones|← Todas las relaciones]] · [[Index]]
 
@@ -71,6 +71,8 @@ Las **65 claves foráneas** que salen de las tablas de este módulo.
 | [[liquidacion_ingresos.cerrada_por → usuario]] | [[usuario]] | ↗ 01 | sí |
 | [[nota_credito_debito.devolucion_comision_id → devolucion_comision]] | [[devolucion_comision]] | — | sí |
 | [[nota_credito_debito.factura_id → factura_electronica]] | [[factura_electronica]] | — | no |
+| [[parametro_congelado_grupo.parametro_id → parametro_financiero]] | [[parametro_financiero]] | — | no |
+| [[parametro_congelado_grupo.version_parametro_id → version_parametro]] | [[version_parametro]] | — | no |
 | [[regla_tarifa.concepto_tarifa_id → concepto_tarifa]] | [[concepto_tarifa]] | — | no |
 | [[simulacion_tarifa.ejecutada_por → usuario]] | [[usuario]] | ↗ 01 | no |
 | [[simulacion_tarifa.tarifario_id → tarifario]] | [[tarifario]] | — | no |
@@ -79,3 +81,4 @@ Las **65 claves foráneas** que salen de las tablas de este módulo.
 | [[tarifa_congelada_grupo.tarifario_id → tarifario]] | [[tarifario]] | — | no |
 | [[tarifario.aprobado_por → usuario]] | [[usuario]] | ↗ 01 | sí |
 | [[tarifario.tarifario_anterior_id → tarifario]] | [[tarifario]] | — | sí |
+| [[version_parametro.parametro_id → parametro_financiero]] | [[parametro_financiero]] | — | no |

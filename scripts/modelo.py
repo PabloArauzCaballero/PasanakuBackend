@@ -292,6 +292,8 @@ def rol_de(esquema):
 # svc_* dueño para que el relevo del outbox pueda marcar publicado. El payload
 # es inmutable de facto (solo se otorga UPDATE sobre publicado_en/estado/intentos).
 APPEND_ONLY = {
+    # F3.S8.M6 · el congelamiento de parámetros de un grupo no se corrige: rige el ciclo entero.
+    "parametro_congelado_grupo",
     "decision_ingreso",
     "alta_grupo",
     "decision_habilitacion",
@@ -484,6 +486,8 @@ POR_MODULO = {
     ("03", "proveedor_id"): "proveedor_pago", ("04", "proveedor_id"): "proveedor_pago",
     ("05", "proveedor_id"): "proveedor_mensajeria",
     ("10", "proveedor_id"): "proveedor_pago", ("11", "proveedor_id"): "proveedor_pago",
+    # F3.S8.M2 · el registro de parámetros financieros vive en tarifas (módulo 11).
+    ("11", "parametro_id"): "parametro_financiero",
     ("04", "regla_id"): "regla_entrega", ("07", "regla_id"): "regla_automatizacion",
     ("09", "regla_id"): "regla_cumplimiento",
     ("05", "evento_id"): "evento_notificable",

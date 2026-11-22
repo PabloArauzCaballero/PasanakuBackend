@@ -248,6 +248,46 @@ confianza, un reclamo con razón y un incumplimiento contractual.
 
 ---
 
+### `ParametroFinanciero` / `parametro_financiero`
+
+**Qué es.** El catálogo cerrado de los parámetros financieros del modelo A + D: su código, su unidad y si llevan un
+valor por nivel de puntualidad. No guarda valores.
+
+**Para qué sirve (negocio).** Para que «el aporte al fondo», «los días de gracia» o «el tope del recargo» sean una
+sola cosa con un solo nombre en todos los servicios. Una unidad todavía no decidida queda vacía y el parámetro no
+admite valores aprobados hasta que Pablo la decida.
+
+**Por qué debe existir.** Porque un parámetro escrito en un `.yml` o en el código cambia sin que nadie lo apruebe ni
+quede rastro (DECISIONES, tanda 6).
+
+---
+
+### `VersionParametro` / `version_parametro`
+
+**Qué es.** Un valor de un parámetro, con su vigencia, su procedencia, quién lo propuso y quién —otra persona— lo
+aprobó.
+
+**Para qué sirve (negocio).** Para cambiar un parámetro sin desplegar y con cuatro ojos reales: una persona propone,
+otra aprueba, las dos tomadas de su token (`R-TAR-14`). Lo aprobado no se edita: se corrige con una versión nueva
+(`R-TAR-16`).
+
+**Por qué debe existir.** Porque un parámetro financiero decide cuánto paga cada participante; sin versión ni
+aprobación, nadie podría reconstruir con qué valor se calculó un recargo o una devolución.
+
+---
+
+### `ParametroCongeladoGrupo` / `parametro_congelado_grupo`
+
+**Qué es.** La versión de cada parámetro (y de cada nivel) que un grupo congeló al iniciar.
+
+**Para qué sirve (negocio).** Para que un cambio de parámetro rija solo para grupos nuevos (ADR-056 §6): los que ya
+empezaron siguen con lo que aceptaron, como con la tarifa congelada. `garantia` lee de acá lo que aplica a cada grupo.
+
+**Por qué debe existir.** Porque sin congelamiento, cambiar el aporte al fondo cambiaría retroactivamente las reglas
+de un ciclo en curso. Es append-only para el rol de la aplicación.
+
+---
+
 ### `SimulacionTarifa` / `simulacion_tarifa` y `CambioTarifario` / `cambio_tarifario`
 
 **Qué son.** El ensayo previo y el expediente del cambio.

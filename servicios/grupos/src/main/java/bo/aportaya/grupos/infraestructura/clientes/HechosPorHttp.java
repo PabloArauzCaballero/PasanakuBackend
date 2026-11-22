@@ -37,6 +37,7 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
     private final TokensDeInvitacionPorHttp tokens;
     private final EtapasPorHttp etapas;
     private final PersonasPorHttp personas;
+    private final CredencialDeServicio servicio;
 
     @Autowired
     @SuppressWarnings("checkstyle:ParameterNumber")
@@ -63,6 +64,7 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
         this.identidad = new ClienteConCircuito(constructor, urlIdentidad, "identidad", circuito);
         this.tokens = new TokensDeInvitacionPorHttp(identidad);
         this.etapas = new EtapasPorHttp(this.transparencia, servicio, maximoPorConsulta);
+        this.servicio = servicio;
         this.personas = new PersonasPorHttp(this.identidad);
     }
 
@@ -183,7 +185,10 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
 
     @Override
     public int morososDelGrupo(UUID grupoId) {
-        return aportes.consultar("/aportes/grupos/" + grupoId + "/morosos", Morosos.class)
+        // F1.L1.M07 (98.6): con la identidad de servicio, no la sesion; sin ella, el dato falta y el ingreso no pasa.
+        return servicio.vigente()
+                .flatMap(token ->
+                        aportes.consultarComoServicio("/aportes/grupos/" + grupoId + "/morosos", Morosos.class, token))
                 .map(Morosos::morosos)
                 .orElse(SIN_DATO_DE_MOROSOS);
     }

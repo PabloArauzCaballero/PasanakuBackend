@@ -1,6 +1,15 @@
 -- Fondo de garantía del grupo demo.
 -- GENERADO desde seeders/dev/04-fondo-y-cuenta-del-grupo.json — no editar a mano.
 
+-- SINTETICO y SOLO DEV: valores sin procedencia que antes sembraba minimos/02 (regla 97.4.1, F3.L2.M14). Existe solo porque fondo_garantia.politica_cobertura_id es NOT NULL; se va con la contraccion de politica_cobertura (DECISION_REQUIRED de Pablo). Ningun codigo lee sus umbrales: la cobertura manual se retiro (F1.L2.M02).
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM politica_cobertura) THEN
+  INSERT INTO politica_cobertura (porcentaje_constitucion, dias_mora_para_activar, porcentaje_maximo_cobertura_por_aporte, tope_cobertura_por_participante, tope_cobertura_por_periodo, max_coberturas_por_participante, requiere_aprobacion_manual_desde, plazo_recuperacion_dias, tasa_recargo_recuperacion, vigente_desde, exige_aval_previo) VALUES
+    (5.0, 5, 100.0, 3000.0, 10000.0, 3, 2000.0, 90, 1.5, now(), FALSE);
+  END IF;
+END $$;
+
 DO $siembra$
 BEGIN
   IF current_setting('app.dev_sembrado', true) IS DISTINCT FROM 'si' THEN
