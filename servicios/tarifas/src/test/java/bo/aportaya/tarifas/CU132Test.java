@@ -8,6 +8,7 @@ import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.tarifas.aplicacion.CU132RegistroDeParametros;
+import bo.aportaya.tarifas.dominio.VersionDelParametro;
 import bo.aportaya.tarifas.infraestructura.ParametroRepositorio;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -56,21 +57,32 @@ class CU132Test extends BaseDeTarifas {
                 LocalDate.parse("2025-12-30"));
     }
 
+    // El caso de uso se construye sin Spring en esta base de pruebas. Cada llamada necesita su propia transacción.
+    private VersionDelParametro proponer(String valor, UUID clave) {
+        return transaccion.execute(t -> cu132.proponer(codigo, propuesta(valor), clave, contextoDe(propone)));
+    }
+
+    private VersionDelParametro aprobar(UUID version, UUID persona) {
+        return transaccion.execute(t -> cu132.aprobar(version, contextoDe(persona)));
+    }
+
     @Test
     @DisplayName(
             "Dada una versión de parámetro propuesta por una persona · Cuando otra persona la aprueba con su propio"
                     + " token · Entonces la versión queda APROBADA y rige desde su vigencia")
     void proponerYAprobar() {
         UUID clave = UUID.randomUUID();
-        var v = cu132.proponer(codigo, propuesta("5"), clave, contextoDe(propone));
+        var v = proponer("5", clave);
         assertThat(v.estado()).isEqualTo("PROPUESTA");
-        assertThat(cu132.propuestaPor(v.id(), contextoDe(aprueba))).isEqualTo(propone);
+        UUID proponente = transaccion.execute(t -> cu132.propuestaPor(v.id(), contextoDe(aprueba)));
+        assertThat(proponente).isEqualTo(propone);
 
-        var aprobada = cu132.aprobar(v.id(), contextoDe(aprueba));
+        var aprobada = aprobar(v.id(), aprueba);
         assertThat(aprobada.estado()).isEqualTo("APROBADA");
         assertThat(aprobada.aprobadoPor()).contains(aprueba);
 
-        var enCatalogo = cu132.catalogo(contextoDe(aprueba)).stream()
+        var catalogo = transaccion.execute(t -> cu132.catalogo(contextoDe(aprueba)));
+        var enCatalogo = catalogo.stream()
                 .filter(e -> e.parametro().catalogo().codigo().equals(codigo))
                 .findFirst()
                 .orElseThrow();
@@ -83,8 +95,8 @@ class CU132Test extends BaseDeTarifas {
     @DisplayName("Reintento · repetir la propuesta con la misma clave no crea otra fila")
     void reintentoSinDuplicar() {
         UUID clave = UUID.randomUUID();
-        var primera = cu132.proponer(codigo, propuesta("5"), clave, contextoDe(propone));
-        var segunda = cu132.proponer(codigo, propuesta("5.00"), clave, contextoDe(propone));
+        var primera = proponer("5", clave);
+        var segunda = proponer("5.00", clave);
 
         assertThat(segunda.id()).isEqualTo(primera.id());
         assertThat(contar("select count(*) from tarifas.version_parametro where clave_idempotencia = ?", clave))
@@ -95,9 +107,9 @@ class CU132Test extends BaseDeTarifas {
     @DisplayName("Dada una versión de parámetro propuesta por una persona · Cuando la misma persona intenta aprobarla"
             + " · Entonces la aprobación se rechaza y la versión sigue PROPUESTA")
     void mismaPersona() {
-        var v = cu132.proponer(codigo, propuesta("5"), UUID.randomUUID(), contextoDe(propone));
+        var v = proponer("5", UUID.randomUUID());
 
-        assertThatThrownBy(() -> cu132.aprobar(v.id(), contextoDe(propone))).isInstanceOf(ErrorDeNegocio.class);
+        assertThatThrownBy(() -> aprobar(v.id(), propone)).isInstanceOf(ErrorDeNegocio.class);
         assertThat(contar(
                         "select count(*) from tarifas.version_parametro where id = ? and estado = 'PROPUESTA'", v.id()))
                 .isEqualTo(1);
@@ -106,10 +118,10 @@ class CU132Test extends BaseDeTarifas {
     @Test
     @DisplayName("Rechaza una segunda aprobación de otra persona: no reescribe la primera")
     void segundaAprobacion() {
-        var v = cu132.proponer(codigo, propuesta("5"), UUID.randomUUID(), contextoDe(propone));
-        cu132.aprobar(v.id(), contextoDe(aprueba));
+        var v = proponer("5", UUID.randomUUID());
+        aprobar(v.id(), aprueba);
 
-        assertThatThrownBy(() -> cu132.aprobar(v.id(), contextoDe(UUID.randomUUID())))
+        assertThatThrownBy(() -> aprobar(v.id(), UUID.randomUUID()))
                 .isInstanceOf(ErrorDeNegocio.class);
         assertThat(contar(
                         "select count(*) from tarifas.version_parametro where id = ? and aprobado_por = ?",
@@ -123,16 +135,16 @@ class CU132Test extends BaseDeTarifas {
             "Dada una versión de parámetro APROBADA · Cuando alguien intenta cambiar su valor o borrarla · Entonces"
                     + " se rechaza y la corrección exige una versión nueva")
     void aprobadaInmutable() {
-        var v = cu132.proponer(codigo, propuesta("5"), UUID.randomUUID(), contextoDe(propone));
-        cu132.aprobar(v.id(), contextoDe(aprueba));
+        var v = proponer("5", UUID.randomUUID());
+        aprobar(v.id(), aprueba);
 
         // R-TAR-16: ni el valor ni la fila; se corrige con una versión nueva.
         assertThat(rechazaLaBase("update tarifas.version_parametro set valor = 6 where id = '" + v.id() + "'"))
                 .contains("R-TAR-16");
         assertThat(rechazaLaBase("delete from tarifas.version_parametro where id = '" + v.id() + "'"))
                 .contains("R-TAR-16");
-        var nueva = cu132.proponer(codigo, propuesta("6"), UUID.randomUUID(), contextoDe(propone));
-        assertThat(cu132.aprobar(nueva.id(), contextoDe(aprueba)).estado()).isEqualTo("APROBADA");
+        var nueva = proponer("6", UUID.randomUUID());
+        assertThat(aprobar(nueva.id(), aprueba).estado()).isEqualTo("APROBADA");
     }
 
     @Test
@@ -140,10 +152,10 @@ class CU132Test extends BaseDeTarifas {
             + " mismo parámetro y nivel para ese grupo · Entonces se rechaza y el grupo conserva la versión que congeló"
             + " al iniciar")
     void congelamientoUnico() {
-        var primera = cu132.proponer(codigo, propuesta("5"), UUID.randomUUID(), contextoDe(propone));
-        cu132.aprobar(primera.id(), contextoDe(aprueba));
-        var segunda = cu132.proponer(codigo, propuesta("6"), UUID.randomUUID(), contextoDe(propone));
-        cu132.aprobar(segunda.id(), contextoDe(aprueba));
+        var primera = proponer("5", UUID.randomUUID());
+        aprobar(primera.id(), aprueba);
+        var segunda = proponer("6", UUID.randomUUID());
+        aprobar(segunda.id(), aprueba);
         UUID grupo = UUID.randomUUID();
         String congelar = "insert into tarifas.parametro_congelado_grupo"
                 + " (grupo_id, parametro_id, version_parametro_id, congelado_en)"
@@ -163,7 +175,7 @@ class CU132Test extends BaseDeTarifas {
     @Test
     @DisplayName("Rechaza en la base a quien aprueba lo que propuso y un valor negativo (R-TAR-14, R-TAR-15)")
     void rechazosDeLaBase() {
-        var v = cu132.proponer(codigo, propuesta("5"), UUID.randomUUID(), contextoDe(propone));
+        var v = proponer("5", UUID.randomUUID());
 
         assertThat(rechazaLaBase(
                         "update tarifas.version_parametro set estado = 'APROBADA', aprobado_por = propuesto_por,"
