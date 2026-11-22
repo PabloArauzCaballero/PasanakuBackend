@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import bo.aportaya.plataforma.datos.Datos;
+import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.tarifas.aplicacion.CU132RegistroDeParametros;
@@ -13,6 +14,7 @@ import bo.aportaya.tarifas.infraestructura.ParametroRepositorio;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +29,9 @@ import org.junit.jupiter.api.Test;
 class CU132Test extends BaseDeTarifas {
 
     private static final OffsetDateTime VIGENTE = OffsetDateTime.parse("2026-01-01T00:00:00Z");
+    private static final String FUENTE = "Acta sintética";
+    private static final String REFERENCIA = "REF-PRUEBA";
+    private static final LocalDate FECHA = LocalDate.parse("2025-12-30");
 
     private CU132RegistroDeParametros cu132;
     private String codigo;
@@ -47,19 +52,22 @@ class CU132Test extends BaseDeTarifas {
     }
 
     private CU132RegistroDeParametros.Propuesta propuesta(String valor) {
+        return propuesta(valor, FUENTE, REFERENCIA, FECHA);
+    }
+
+    private CU132RegistroDeParametros.Propuesta propuesta(
+            String valor, String fuente, String referencia, LocalDate fecha) {
         return new CU132RegistroDeParametros.Propuesta(
-                Optional.empty(),
-                new BigDecimal(valor),
-                Optional.empty(),
-                VIGENTE,
-                "Acta sintética",
-                "REF-PRUEBA",
-                LocalDate.parse("2025-12-30"));
+                Optional.empty(), new BigDecimal(valor), Optional.empty(), VIGENTE, fuente, referencia, fecha);
     }
 
     // El caso de uso se construye sin Spring en esta base de pruebas. Cada llamada necesita su propia transacción.
     private VersionDelParametro proponer(String valor, UUID clave) {
-        return transaccion.execute(t -> cu132.proponer(codigo, propuesta(valor), clave, contextoDe(propone)));
+        return proponer(propuesta(valor), clave);
+    }
+
+    private VersionDelParametro proponer(CU132RegistroDeParametros.Propuesta nueva, UUID clave) {
+        return transaccion.execute(t -> cu132.proponer(codigo, nueva, clave, contextoDe(propone)));
     }
 
     private VersionDelParametro aprobar(UUID version, UUID persona) {
@@ -104,6 +112,23 @@ class CU132Test extends BaseDeTarifas {
     }
 
     @Test
+    @DisplayName("Rechaza reutilizar la misma clave de propuesta con distinta fuente, referencia o fecha")
+    void claveReutilizadaConOtraProcedencia() {
+        UUID clave = UUID.randomUUID();
+        proponer("5", clave);
+        List<CU132RegistroDeParametros.Propuesta> cambios = List.of(
+                propuesta("5", "Otra acta", REFERENCIA, FECHA),
+                propuesta("5", FUENTE, "OTRA-REF", FECHA),
+                propuesta("5", FUENTE, REFERENCIA, FECHA.plusDays(1)));
+
+        for (var cambio : cambios) {
+            assertThatThrownBy(() -> proponer(cambio, clave))
+                    .isInstanceOfSatisfying(ErrorDeNegocio.class, error -> assertThat(error.codigo())
+                            .isEqualTo(CodigoError.de(132, 5)));
+        }
+    }
+
+    @Test
     @DisplayName("Dada una versión de parámetro propuesta por una persona · Cuando la misma persona intenta aprobarla"
             + " · Entonces la aprobación se rechaza y la versión sigue PROPUESTA")
     void mismaPersona() {
@@ -121,8 +146,7 @@ class CU132Test extends BaseDeTarifas {
         var v = proponer("5", UUID.randomUUID());
         aprobar(v.id(), aprueba);
 
-        assertThatThrownBy(() -> aprobar(v.id(), UUID.randomUUID()))
-                .isInstanceOf(ErrorDeNegocio.class);
+        assertThatThrownBy(() -> aprobar(v.id(), UUID.randomUUID())).isInstanceOf(ErrorDeNegocio.class);
         assertThat(contar(
                         "select count(*) from tarifas.version_parametro where id = ? and aprobado_por = ?",
                         v.id(),

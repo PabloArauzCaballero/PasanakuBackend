@@ -175,6 +175,9 @@ public class CU132RegistroDeParametros {
                 && v.valor().compareTo(n.valor()) == 0
                 && v.moneda().equals(n.moneda())
                 && v.vigenteDesde().isEqual(n.vigenteDesde())
+                && v.procedenciaFuente().equals(n.fuente())
+                && v.procedenciaReferencia().equals(n.referencia())
+                && v.procedenciaFecha().equals(n.fecha())
                 && Objects.equals(v.propuestoPor(), n.propuestoPor());
     }
 }

@@ -1,6 +1,7 @@
 package bo.aportaya.tarifas.dominio;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -14,6 +15,9 @@ public record VersionDelParametro(
         BigDecimal valor,
         Optional<String> moneda,
         OffsetDateTime vigenteDesde,
+        String procedenciaFuente,
+        String procedenciaReferencia,
+        LocalDate procedenciaFecha,
         UUID propuestoPor,
         Optional<UUID> aprobadoPor,
         String estado) {}

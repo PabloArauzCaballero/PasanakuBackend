@@ -86,6 +86,9 @@ class RegistroDeParametrosTest {
                 new BigDecimal(valor),
                 Optional.empty(),
                 VIGENTE,
+                "Acta sintética",
+                "REF-PRUEBA-1",
+                LocalDate.parse("2026-11-20"),
                 PROPONE,
                 aprobadoPor,
                 estado);
@@ -212,6 +215,9 @@ class RegistroDeParametrosTest {
                 BigDecimal.ONE,
                 Optional.empty(),
                 desde,
+                "Acta sintética",
+                "REF-PRUEBA-1",
+                LocalDate.parse("2026-11-20"),
                 PROPONE,
                 Optional.empty(),
                 estado);

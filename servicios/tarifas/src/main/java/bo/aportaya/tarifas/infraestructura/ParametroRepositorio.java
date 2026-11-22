@@ -118,6 +118,9 @@ public class ParametroRepositorio {
                 r.get(VERSION_PARAMETRO.VALOR),
                 Optional.ofNullable(r.get(VERSION_PARAMETRO.MONEDA)),
                 r.get(VERSION_PARAMETRO.VIGENTE_DESDE),
+                r.get(VERSION_PARAMETRO.PROCEDENCIA_FUENTE),
+                r.get(VERSION_PARAMETRO.PROCEDENCIA_REFERENCIA),
+                r.get(VERSION_PARAMETRO.PROCEDENCIA_FECHA),
                 r.get(VERSION_PARAMETRO.PROPUESTO_POR),
                 Optional.ofNullable(r.get(VERSION_PARAMETRO.APROBADO_POR)),
                 r.get(VERSION_PARAMETRO.ESTADO));

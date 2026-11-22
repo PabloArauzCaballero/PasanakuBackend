@@ -22,6 +22,7 @@ import bo.aportaya.tarifas.aplicacion.ConsultarTarifarioVigente;
 import bo.aportaya.tarifas.aplicacion.ConsultarTarifarios;
 import bo.aportaya.tarifas.dominio.VersionDelParametro;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -77,6 +78,9 @@ class ParametrosWebTest {
                 new BigDecimal("5.000000"),
                 Optional.empty(),
                 OffsetDateTime.parse("2026-12-01T00:00:00Z"),
+                "Acta sintética",
+                "REF-PRUEBA-1",
+                LocalDate.parse("2026-11-20"),
                 Sesiones.USUARIO,
                 Optional.empty(),
                 estado);
