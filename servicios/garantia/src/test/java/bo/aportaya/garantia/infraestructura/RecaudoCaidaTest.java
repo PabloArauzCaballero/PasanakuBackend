@@ -39,7 +39,8 @@ class RecaudoCaidaTest {
         return new RecaudoPorHttp(
                 RestClient.builder().requestFactory(fabrica),
                 aportes.urlBase(),
-                new ConfiguracionDeCircuito(ventana, 50, Duration.ofMillis(ESPERA_MS), 3));
+                new ConfiguracionDeCircuito(ventana, 50, Duration.ofMillis(ESPERA_MS), 3),
+                bo.aportaya.plataforma.web.clientes.CredencialDeServicio.fija("token-de-servicio-garantia"));
     }
 
     @Test

@@ -3,6 +3,29 @@
   "entorno": "dev",
   "bloques": [
     {
+      "tabla": "politica_cobertura",
+      "solo_si_vacia": true,
+      "conflicto": "ninguno",
+      "filas": [
+        {
+          "porcentaje_constitucion": 5.0,
+          "dias_mora_para_activar": 5,
+          "porcentaje_maximo_cobertura_por_aporte": 100.0,
+          "tope_cobertura_por_participante": 3000.0,
+          "tope_cobertura_por_periodo": 10000.0,
+          "max_coberturas_por_participante": 3,
+          "requiere_aprobacion_manual_desde": 2000.0,
+          "plazo_recuperacion_dias": 90,
+          "tasa_recargo_recuperacion": 1.5,
+          "vigente_desde": {
+            "$sql": "now()"
+          },
+          "exige_aval_previo": false
+        }
+      ],
+      "comentario": "SINTETICO y SOLO DEV: valores sin procedencia que antes sembraba minimos/02 (regla 97.4.1, F3.L2.M14). Existe solo porque fondo_garantia.politica_cobertura_id es NOT NULL; se va con la contraccion de politica_cobertura (DECISION_REQUIRED de Pablo). Ningun codigo lee sus umbrales: la cobertura manual se retiro (F1.L2.M02)."
+    },
+    {
       "tabla": "fondo_garantia",
       "conflicto": [],
       "filas": [

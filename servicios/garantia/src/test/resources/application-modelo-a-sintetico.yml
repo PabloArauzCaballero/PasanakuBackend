@@ -1,0 +1,22 @@
+# SINTETICO — SOLO PRUEBAS (F3.L2.M14). Estos numeros NO son una propuesta de parametros: no tienen procedencia,
+# no los aprobo nadie y no deben copiarse a ningun entorno. Los valores reales los fijan Pablo y Cumplimiento
+# (F3.S8.M3) y los sirve el registro central. Van entre comillas para que lleguen como texto decimal exacto.
+aportaya:
+  modelo-a:
+    habilitado: true
+    parametros:
+      porcentaje-del-fondo-por-nivel:
+        NIVEL-INICIAL: "2.00"
+        NIVEL-ALTO: "1.50"
+      dias-de-gracia: "3"
+      tasa-de-recargo: "1.25"
+      tope-del-recargo:
+        valor: "10.00"
+        unidad: PORCENTAJE_DE_LA_CUOTA
+      umbral-de-solvencia:
+        valor: "500.00"
+        unidad: MONTO
+        moneda: BOB
+      umbral-de-disolucion-automatica:
+        valor: "3"
+        unidad: CUOTAS_IMPAGAS

@@ -26,6 +26,10 @@ class RecaudoPorHttpTest {
     private static final UUID OBLIGACION = UUID.fromString("e5000000-0000-4000-8000-000000000003");
 
     private HttpServer servidor;
+    private final java.util.concurrent.atomic.AtomicReference<String> autorizacion =
+            new java.util.concurrent.atomic.AtomicReference<>();
+    private static final bo.aportaya.plataforma.web.clientes.CredencialDeServicio SERVICIO =
+            bo.aportaya.plataforma.web.clientes.CredencialDeServicio.fija("token-de-servicio-garantia");
 
     @AfterEach
     void apagar() {
@@ -35,8 +39,18 @@ class RecaudoPorHttpTest {
     }
 
     private RecaudoPorHttp contra(int estado, String cuerpo, long demoraMs) throws IOException {
+        return contra(estado, cuerpo, demoraMs, SERVICIO);
+    }
+
+    private RecaudoPorHttp contra(
+            int estado,
+            String cuerpo,
+            long demoraMs,
+            bo.aportaya.plataforma.web.clientes.CredencialDeServicio credencial)
+            throws IOException {
         servidor = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0);
         servidor.createContext("/aportes/periodos/" + PERIODO + "/recaudo", intercambio -> {
+            autorizacion.set(intercambio.getRequestHeaders().getFirst("Authorization"));
             try {
                 Thread.sleep(demoraMs);
             } catch (InterruptedException e) {
@@ -56,7 +70,8 @@ class RecaudoPorHttpTest {
         fabrica.setReadTimeout(400);
         return new RecaudoPorHttp(
                 RestClient.builder().requestFactory(fabrica),
-                "http://127.0.0.1:" + servidor.getAddress().getPort());
+                "http://127.0.0.1:" + servidor.getAddress().getPort(),
+                credencial);
     }
 
     private static final String VALIDO =
@@ -129,5 +144,20 @@ class RecaudoPorHttpTest {
         servidor = null;
 
         assertThat(adaptador.consultar(PERIODO)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("F1.L1.M07 · la pregunta viaja con el token de la identidad de servicio de garantia")
+    void conIdentidadDeServicio() throws Exception {
+        assertThat(contra(200, VALIDO, 0).consultar(PERIODO)).isPresent();
+        assertThat(autorizacion.get()).isEqualTo("Bearer token-de-servicio-garantia");
+    }
+
+    @Test
+    @DisplayName("F1.L1.M07 · sin credencial de servicio no sale la peticion: vacio, falla cerrado")
+    void sinCredencial() throws Exception {
+        var sinCredencial = contra(200, VALIDO, 0, bo.aportaya.plataforma.web.clientes.CredencialDeServicio.ninguna());
+        assertThat(sinCredencial.consultar(PERIODO)).isEmpty();
+        assertThat(autorizacion.get()).isNull();
     }
 }
