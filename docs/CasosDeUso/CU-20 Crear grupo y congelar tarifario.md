@@ -198,4 +198,4 @@ Y la misma clave pidiendo otra etapa recibe AP-CU20-02
 
 ## Ver también
 
-[[CU-22 Liquidar y entregar el fondo]] · [[CU-34 Publicar un tarifario nuevo con preaviso]] · [[CU-36 Segmentar comercialmente y aplicar precio diferenciado]] · [[CU-60 Sortear los turnos]] · [[CU-68 Postular a un grupo y ser emparejado]] · [[CU-90 Postular a organizador y habilitarse]]
+[[CU-22 Liquidar y entregar el fondo]] · [[CU-34 Publicar un tarifario nuevo con preaviso]] · [[CU-36 Segmentar comercialmente y aplicar precio diferenciado]] · [[CU-60 Sortear los turnos]] · [[CU-68 Postular a un grupo y ser emparejado]] · [[CU-90 Postular a organizador y habilitarse]] · [[CU-132 Registrar, aprobar y congelar parámetros financieros]]
