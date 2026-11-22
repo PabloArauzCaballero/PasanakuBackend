@@ -97,6 +97,14 @@
           "descripcion": "Identidad de servicio: grupos consulta la etapa de quien entra a un grupo, nunca el puntaje"
         },
         {
+          "codigo": "SERVICIO_GARANTIA",
+          "nombre": "Identidad de servicio: garantia (lee el recaudo del periodo)",
+          "ambito": "GLOBAL",
+          "es_sistema": true,
+          "departamento": "SISTEMAS",
+          "descripcion": "Identidad de servicio: garantia consulta el recaudo del pozo en aportes (F1.L1.M07), nunca con el token de una persona"
+        },
+        {
           "codigo": "SERVICIO_INVERSIONES",
           "nombre": "Identidad de servicio: inversiones (debita y acredita)",
           "ambito": "GLOBAL",

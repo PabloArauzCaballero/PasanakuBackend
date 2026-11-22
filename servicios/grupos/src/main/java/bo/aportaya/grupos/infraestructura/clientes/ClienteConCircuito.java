@@ -78,6 +78,18 @@ public final class ClienteConCircuito {
      * Una CONSULTA cuyo dato personal no puede viajar en la URL (regla 90.2.2): un POST con el contacto en el cuerpo y
      * sin {@code Idempotency-Key}, porque no escribe nada. Mismas reglas que {@link #consultar}.
      */
+    /**
+     * Como {@link #consultar}, pero con el token de la identidad de SERVICIO que se le da (regla 98.6.3), no el de la
+     * sesion: para las rutas de otro servicio que solo contestan a este servicio (F1.L1.M07). Mismo fallo cerrado.
+     */
+    public <T> Optional<T> consultarComoServicio(String ruta, Class<T> tipo, String tokenDeServicio) {
+        return protegida(() -> rest.get()
+                .uri(ruta)
+                .header(org.springframework.http.HttpHeaders.AUTHORIZATION, "Bearer " + tokenDeServicio)
+                .retrieve()
+                .body(tipo));
+    }
+
     public <T> Optional<T> consultarPorCuerpo(String ruta, Object cuerpo, Class<T> tipo) {
         return protegida(() -> rest.post()
                 .uri(ruta)

@@ -222,6 +222,45 @@ package "Motor de tarifas (parametrizable)" {
     + verificarIntegridad(): Boolean
   }
 
+  class ParametroFinanciero {
+    - id: UUID
+    - codigo: String <<catalogo cerrado: ADR-056 §6 y DECISIONES; sin valores>>
+    - descripcion: String
+    - unidad: String <<PORCENTAJE | DIAS | MONTO | CONTEO>>
+    - porNivel: Boolean <<un valor por nivel de puntualidad (codigos de transparencia)>>
+    --
+    + exigeMoneda(): Boolean
+  }
+
+  class VersionParametro {
+    - id: UUID
+    - parametroId: UUID
+    - nivelCodigo: String <<solo si el parametro es por nivel>>
+    - valor: Decimal <<>= 0; DECIMAL(16,6)>>
+    - moneda: String <<ISO 4217, solo si la unidad es MONTO>>
+    - vigenteDesde: DateTime
+    - procedenciaFuente: String
+    - procedenciaReferencia: String
+    - procedenciaFecha: Date
+    - propuestoPor: UUID <<del token>>
+    - propuestoEn: DateTime
+    - aprobadoPor: UUID <<del token; distinto de propuestoPor>>
+    - aprobadoEn: DateTime
+    - estado: String <<PROPUESTA | APROBADA | RECHAZADA>>
+    - claveIdempotencia: UUID
+    --
+    + aprobar(actor): void
+  }
+
+  class ParametroCongeladoGrupo <<VO>> {
+    - id: UUID
+    - grupoId: UUID <<sin FK: el grupo es de grupos>>
+    - parametroId: UUID
+    - versionParametroId: UUID
+    - nivelCodigo: String
+    - congeladoEn: DateTime
+  }
+
   class SimulacionTarifa {
     - id: UUID
     - tarifarioId: UUID
@@ -742,6 +781,44 @@ entity "tarifa_congelada_grupo" as congelada {
   vigente_hasta_ciclo_nro : SMALLINT <<NULL>>
 }
 
+entity "parametro_financiero" as paramfin {
+  * id : UUID <<PK>>
+  --
+  codigo : VARCHAR(50) <<UQ>>
+  descripcion : VARCHAR(200)
+  unidad : VARCHAR(12) <<CK, NULL>>
+  por_nivel : BOOLEAN
+}
+
+entity "version_parametro" as versionparam {
+  * id : UUID <<PK>>
+  --
+  # parametro_id : UUID <<FK, IDX>>
+  nivel_codigo : VARCHAR(30) <<NULL>>
+  valor : DECIMAL(16,6)
+  moneda : CHAR(3) <<NULL>>
+  vigente_desde : TIMESTAMPTZ
+  procedencia_fuente : VARCHAR(200)
+  procedencia_referencia : VARCHAR(300)
+  procedencia_fecha : DATE
+  propuesto_por : UUID
+  propuesto_en : TIMESTAMPTZ
+  aprobado_por : UUID <<NULL>>
+  aprobado_en : TIMESTAMPTZ <<NULL>>
+  estado : VARCHAR(12) <<CK, IDX>>
+  clave_idempotencia : UUID <<UQ>>
+}
+
+entity "parametro_congelado_grupo" as paramcong {
+  * id : UUID <<PK>>
+  --
+  grupo_id : UUID <<IDX>>
+  # parametro_id : UUID <<FK>>
+  # version_parametro_id : UUID <<FK>>
+  nivel_codigo : VARCHAR(30) <<NULL>>
+  congelado_en : TIMESTAMPTZ
+}
+
 entity "simulacion_tarifa" as simul {
   * id : UUID <<PK>>
   --
@@ -1054,6 +1131,9 @@ tarif ||--|{ concepto : "contiene"
 tarif ||--o{ asigtar : "se asigna con"
 tarif ||--o{ simul : "se simula en"
 tarif ||--o{ congelada : "se congela en"
+paramfin ||--o{ versionparam : "se versiona en"
+paramfin ||--o{ paramcong : "se congela en"
+versionparam ||--o{ paramcong : "queda congelada en"
 tarif |o--o{ tarif : "sustituye a"
 tarif ||--o| cambiotar : "se cambia con"
 concepto ||--o{ reglatar : "escalona con"

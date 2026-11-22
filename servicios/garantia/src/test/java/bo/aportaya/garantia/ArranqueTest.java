@@ -40,6 +40,8 @@ class ArranqueTest {
         registro.add("spring.datasource.password", contenedor::getPassword);
         registro.add("spring.kafka.bootstrap-servers", () -> "localhost:9092");
         registro.add("aportaya.jwt.jwks-uri", () -> "http://identidad:8080/.well-known/jwks.json");
+        // F1.L1.M07: la clave de la cuenta de servicio no tiene valor por omision; vacia = sin cuenta de servicio.
+        registro.add("GARANTIA_SERVICIO_CLAVE", () -> "");
         registro.add("SEGURIDAD_PIMIENTA", () -> "pimienta-de-prueba");
     }
 

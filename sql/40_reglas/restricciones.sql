@@ -1027,6 +1027,74 @@ ALTER TABLE factura_electronica
       estado_fiscal <> 'EMITIDA_OFFLINE' OR evento_significativo_id IS NOT NULL
   );
 
+-- R-TAR-14 · cuatro ojos en la versión de un parámetro financiero
+ALTER TABLE version_parametro DROP CONSTRAINT IF EXISTS ck_version_parametro_cuatro_ojos;
+ALTER TABLE version_parametro
+  ADD CONSTRAINT ck_version_parametro_cuatro_ojos CHECK (
+      aprobado_por IS NULL OR aprobado_por <> propuesto_por
+  );
+ALTER TABLE version_parametro DROP CONSTRAINT IF EXISTS ck_version_parametro_aprobada_completa;
+ALTER TABLE version_parametro
+  ADD CONSTRAINT ck_version_parametro_aprobada_completa CHECK (
+      estado <> 'APROBADA' OR (aprobado_por IS NOT NULL AND aprobado_en IS NOT NULL)
+  );
+
+-- R-TAR-15 · valor no negativo; moneda solo para montos; nivel solo si el parámetro es por nivel;
+--            sin unidad decidida (DECISION_REQUIRED) no se aprueba
+ALTER TABLE version_parametro DROP CONSTRAINT IF EXISTS ck_version_parametro_valor;
+ALTER TABLE version_parametro
+  ADD CONSTRAINT ck_version_parametro_valor CHECK (valor >= 0);
+
+CREATE OR REPLACE FUNCTION fn_tar_version_parametro_coherente() RETURNS trigger AS $$
+DECLARE v_param RECORD;
+BEGIN
+  SELECT unidad, por_nivel INTO v_param FROM parametro_financiero WHERE id = NEW.parametro_id;
+  IF (v_param.unidad = 'MONTO') <> (NEW.moneda IS NOT NULL) THEN
+    RAISE EXCEPTION 'R-TAR-15: la moneda va si y solo si la unidad es MONTO';
+  END IF;
+  IF v_param.por_nivel <> (NEW.nivel_codigo IS NOT NULL) THEN
+    RAISE EXCEPTION 'R-TAR-15: el nivel va si y solo si el parámetro es por nivel';
+  END IF;
+  IF NEW.estado = 'APROBADA' AND v_param.unidad IS NULL THEN
+    RAISE EXCEPTION 'R-TAR-15: el parámetro no tiene unidad decidida; no se aprueba un valor';
+  END IF;
+  RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS tg_version_parametro_coherente ON version_parametro;
+CREATE TRIGGER tg_version_parametro_coherente
+  BEFORE INSERT OR UPDATE ON version_parametro
+  FOR EACH ROW EXECUTE FUNCTION fn_tar_version_parametro_coherente();
+
+-- R-TAR-16 · la versión solo transita PROPUESTA -> APROBADA | RECHAZADA; lo demás no se toca
+CREATE OR REPLACE FUNCTION fn_tar_version_parametro_inmutable() RETURNS trigger AS $$
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    RAISE EXCEPTION 'R-TAR-16: una versión de parámetro no se borra';
+  END IF;
+  IF OLD.estado <> 'PROPUESTA'
+     OR NEW.estado NOT IN ('APROBADA', 'RECHAZADA')
+     OR NEW.parametro_id <> OLD.parametro_id
+     OR NEW.nivel_codigo IS DISTINCT FROM OLD.nivel_codigo
+     OR NEW.valor <> OLD.valor
+     OR NEW.moneda IS DISTINCT FROM OLD.moneda
+     OR NEW.vigente_desde <> OLD.vigente_desde
+     OR NEW.propuesto_por <> OLD.propuesto_por
+     OR NEW.clave_idempotencia <> OLD.clave_idempotencia THEN
+    RAISE EXCEPTION 'R-TAR-16: la versión % es inmutable salvo su resolución; se corrige con una versión nueva', OLD.id;
+  END IF;
+  RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS tg_version_parametro_inmutable ON version_parametro;
+CREATE TRIGGER tg_version_parametro_inmutable
+  BEFORE UPDATE OR DELETE ON version_parametro
+  FOR EACH ROW EXECUTE FUNCTION fn_tar_version_parametro_inmutable();
+
+-- R-TAR-17 · una versión congelada por grupo, parámetro y nivel (NULL de nivel cuenta como valor)
+CREATE UNIQUE INDEX IF NOT EXISTS uq_parametro_congelado_grupo
+  ON parametro_congelado_grupo (grupo_id, parametro_id, COALESCE(nivel_codigo, ''));
+
 
 -- ---------------------------------------------------------------------
 -- R-UIF — Prevención de LGI/FT y reportes
