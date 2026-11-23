@@ -99,13 +99,13 @@ export class PantallaDeParametrosFinancieros implements OnInit {
     if (this.enviando()) return
     const b = this.borrador()
     const errores: ErroresDeCampo = {}
-    if (!VALOR_DECIMAL.test(b.valor.trim())) errores.valor = this.t.parametros.valorInvalido
-    if (p.porNivel && (!b.nivel.trim() || b.nivel.trim().length > 30)) errores.nivel = this.t.parametros.nivelInvalido
-    if (p.unidad === 'MONTO' && !['BOB', 'USD'].includes(b.moneda)) errores.moneda = this.t.parametros.monedaRequerida
-    if (!b.vigenteDesde || Number.isNaN(Date.parse(b.vigenteDesde))) errores.vigenteDesde = this.t.parametros.campoRequerido
-    if (!b.fuente.trim() || b.fuente.trim().length > 200) errores.fuente = this.t.parametros.campoRequerido
-    if (!b.referencia.trim() || b.referencia.trim().length > 300) errores.referencia = this.t.parametros.campoRequerido
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(b.fecha) || Number.isNaN(Date.parse(`${b.fecha}T00:00:00Z`))) errores.fecha = this.t.parametros.fechaInvalida
+    if (!VALOR_DECIMAL.test(b.valor.trim())) errores['valor'] = this.t.parametros.valorInvalido
+    if (p.porNivel && (!b.nivel.trim() || b.nivel.trim().length > 30)) errores['nivel'] = this.t.parametros.nivelInvalido
+    if (p.unidad === 'MONTO' && !['BOB', 'USD'].includes(b.moneda)) errores['moneda'] = this.t.parametros.monedaRequerida
+    if (!b.vigenteDesde || Number.isNaN(Date.parse(b.vigenteDesde))) errores['vigenteDesde'] = this.t.parametros.campoRequerido
+    if (!b.fuente.trim() || b.fuente.trim().length > 200) errores['fuente'] = this.t.parametros.campoRequerido
+    if (!b.referencia.trim() || b.referencia.trim().length > 300) errores['referencia'] = this.t.parametros.campoRequerido
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(b.fecha) || Number.isNaN(Date.parse(`${b.fecha}T00:00:00Z`))) errores['fecha'] = this.t.parametros.fechaInvalida
     this.erroresDeCampo.set(errores)
     if (Object.keys(errores).length) return
 
