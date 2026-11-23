@@ -78,18 +78,35 @@ final class FixturaDeGrupos {
         return id;
     }
 
+    /**
+     * Cupos OCUPADO, cada uno con su participante ACTIVO, como los deja produccion: todo camino que ocupa un cupo
+     * (CU69Enlace, CU69FirmarReglamento) fija {@code participante_id}. Un OCUPADO sin titular es un estado que
+     * produccion no produce, y {@code grupos.turnos_asignados} lo rechaza al revelar el sorteo. Devuelve los cupos.
+     */
     List<UUID> cuposOcupados(UUID grupoId, int cuantos) {
         List<UUID> creados = new ArrayList<>();
         for (int numero = 1; numero <= cuantos; numero++) {
             UUID id = UUID.randomUUID();
+            UUID participante = UUID.randomUUID();
             dsl.execute(
                     """
-                    INSERT INTO grupos.cupo (id, grupo_id, numero, estado, fraccion, asignado_en)
-                    VALUES (?, ?, ?, 'OCUPADO', 1.00, now())
+                    INSERT INTO grupos.participante
+                        (id, grupo_id, usuario_id, estado, es_organizador, fecha_ingreso,
+                         reputacion_al_ingresar, aportes_realizados, aportes_en_mora)
+                    VALUES (?, ?, ?, 'ACTIVO', false, now(), 0, 0, 0)
+                    """,
+                    participante,
+                    grupoId,
+                    usuario());
+            dsl.execute(
+                    """
+                    INSERT INTO grupos.cupo (id, grupo_id, numero, participante_id, estado, fraccion, asignado_en)
+                    VALUES (?, ?, ?, ?, 'OCUPADO', 1.00, now())
                     """,
                     id,
                     grupoId,
-                    (short) numero);
+                    (short) numero,
+                    participante);
             creados.add(id);
         }
         return creados;
