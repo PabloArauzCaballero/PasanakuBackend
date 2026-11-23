@@ -3,10 +3,16 @@ package bo.aportaya.cumplimiento;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import bo.aportaya.cumplimiento.aplicacion.CU44DecidirComoRevisor;
+import bo.aportaya.cumplimiento.aplicacion.CU44DecidirComoRevisor.Entrada;
 import bo.aportaya.cumplimiento.aplicacion.CU44InvestigarYReportar.EntradaCaso;
-import bo.aportaya.cumplimiento.aplicacion.CU44InvestigarYReportar.EntradaDecision;
+import bo.aportaya.cumplimiento.infraestructura.CasoLftRepositorio;
+import bo.aportaya.cumplimiento.infraestructura.MonitoreoLftRepositorio;
+import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
+import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.dominio.Traza;
+import bo.aportaya.plataforma.mensajeria.Outbox;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -17,6 +23,17 @@ import org.junit.jupiter.api.Test;
 
 /** CU-44 · Lo que la base y el caso de uso rechazan. */
 class CU44RechazosTest extends BaseDeCumplimiento {
+
+    private record EntradaDecision(
+            UUID casoId,
+            List<UUID> alertas,
+            UUID analistaId,
+            UUID revisorId,
+            String decision,
+            String conclusion,
+            UUID reporteSospechosoId) {}
+
+    private CU44DecidirComoRevisor decisionCU;
 
     private static final String CONCLUSION =
             "Se revisaron las doce operaciones del periodo y responden al giro declarado del titular.";
@@ -29,6 +46,12 @@ class CU44RechazosTest extends BaseDeCumplimiento {
 
     @BeforeEach
     void escenario() {
+        decisionCU = new CU44DecidirComoRevisor(
+                new Datos(dsl),
+                new CasoLftRepositorio(),
+                new MonitoreoLftRepositorio(),
+                new Outbox("cumplimiento"),
+                Reloj.delSistema());
         titular = fixtura.usuario();
         analista = fixtura.usuario();
         revisor = fixtura.usuario();
@@ -36,6 +59,13 @@ class CU44RechazosTest extends BaseDeCumplimiento {
                 "RM-" + UUID.randomUUID().toString().substring(0, 8), "ALTA", true);
         ctx = ContextoSesion.de(
                 analista, "PARTICIPANTE", new Traza(UUID.randomUUID().toString()));
+    }
+
+    private CU44DecidirComoRevisor.Decision decidir(EntradaDecision e, ContextoSesion ignorado) {
+        ContextoSesion actor = ContextoSesion.de(
+                e.revisorId(), "BACKOFFICE", new Traza(UUID.randomUUID().toString()));
+        return decisionCU.decidir(
+                new Entrada(e.casoId(), e.decision(), e.conclusion(), e.reporteSospechosoId()), actor);
     }
 
     private UUID alerta() {
@@ -49,9 +79,9 @@ class CU44RechazosTest extends BaseDeCumplimiento {
         // evento que deja constancia de la decision si vive en una bandeja que no se
         // reescribe. Lo que R-AUD-01 protege aca es que el rastro de la decision quede.
         UUID alertaId = alerta();
-        var caso = transaccion.execute(
-                t -> casoCU.abrirCaso(new EntradaCaso(List.of(alertaId), analista, "Patron inusual"), ctx));
-        transaccion.execute(t -> casoCU.decidir(
+        var caso =
+                transaccion.execute(t -> casoCU.abrirCaso(new EntradaCaso(List.of(alertaId), "Patron inusual"), ctx));
+        transaccion.execute(t -> decidir(
                 new EntradaDecision(caso.casoId(), List.of(alertaId), analista, revisor, "DESCARTAR", CONCLUSION, null),
                 ctx));
 
@@ -71,9 +101,9 @@ class CU44RechazosTest extends BaseDeCumplimiento {
         // que el expediente diga quien analizo y quien reviso: sin nombres, el acceso a
         // la vida financiera de alguien no tiene responsable.
         UUID alertaId = alerta();
-        var caso = transaccion.execute(
-                t -> casoCU.abrirCaso(new EntradaCaso(List.of(alertaId), analista, "Patron inusual"), ctx));
-        transaccion.execute(t -> casoCU.decidir(
+        var caso =
+                transaccion.execute(t -> casoCU.abrirCaso(new EntradaCaso(List.of(alertaId), "Patron inusual"), ctx));
+        transaccion.execute(t -> decidir(
                 new EntradaDecision(caso.casoId(), List.of(alertaId), analista, revisor, "DESCARTAR", CONCLUSION, null),
                 ctx));
 
@@ -92,10 +122,10 @@ class CU44RechazosTest extends BaseDeCumplimiento {
         // Quien analiza no revisa lo suyo. Lo verifica ck_caso_revision, y el caso de
         // uso lo comprueba antes para poder explicarlo.
         UUID alertaId = alerta();
-        var caso = transaccion.execute(
-                t -> casoCU.abrirCaso(new EntradaCaso(List.of(alertaId), analista, "Patron inusual"), ctx));
+        var caso =
+                transaccion.execute(t -> casoCU.abrirCaso(new EntradaCaso(List.of(alertaId), "Patron inusual"), ctx));
 
-        assertThatThrownBy(() -> transaccion.execute(t -> casoCU.decidir(
+        assertThatThrownBy(() -> transaccion.execute(t -> decidir(
                         new EntradaDecision(
                                 caso.casoId(), List.of(alertaId), analista, analista, "DESCARTAR", CONCLUSION, null),
                         ctx)))
@@ -113,10 +143,10 @@ class CU44RechazosTest extends BaseDeCumplimiento {
         // Una alerta no se cierra sin conclusion, y con menos de veinte caracteres
         // tampoco: «revisado» no le sirve a nadie dos años despues.
         UUID alertaId = alerta();
-        var caso = transaccion.execute(
-                t -> casoCU.abrirCaso(new EntradaCaso(List.of(alertaId), analista, "Patron inusual"), ctx));
+        var caso =
+                transaccion.execute(t -> casoCU.abrirCaso(new EntradaCaso(List.of(alertaId), "Patron inusual"), ctx));
 
-        assertThatThrownBy(() -> transaccion.execute(t -> casoCU.decidir(
+        assertThatThrownBy(() -> transaccion.execute(t -> decidir(
                         new EntradaDecision(
                                 caso.casoId(), List.of(alertaId), analista, revisor, "DESCARTAR", "revisado", null),
                         ctx)))
@@ -133,8 +163,8 @@ class CU44RechazosTest extends BaseDeCumplimiento {
         // Todo caso lleva plazo, y el plazo tiene que ser posterior a la apertura: un
         // caso que nace vencido no es un plazo, es una formalidad.
         UUID alertaId = alerta();
-        var caso = transaccion.execute(
-                t -> casoCU.abrirCaso(new EntradaCaso(List.of(alertaId), analista, "Patron inusual"), ctx));
+        var caso =
+                transaccion.execute(t -> casoCU.abrirCaso(new EntradaCaso(List.of(alertaId), "Patron inusual"), ctx));
 
         assertThat(caso.plazoLimite())
                 .isAfter(OffsetDateTime.now(ZoneOffset.UTC).minusMinutes(1));

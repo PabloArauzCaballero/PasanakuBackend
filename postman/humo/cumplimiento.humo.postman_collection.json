@@ -4135,7 +4135,7 @@
       "description": "Humo de `listarBandejaDeCasos`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
     },
     {
-      "name": "abrirCasoLft · Agrupar alertas de un titular en un caso de investigacion y asignarle analista",
+      "name": "abrirCasoLft · Agrupar alertas de un titular en un caso de investigacion iniciado por el analista autenticado",
       "item": [
         {
           "name": "1 · valido",

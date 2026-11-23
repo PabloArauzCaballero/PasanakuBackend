@@ -653,11 +653,13 @@ paths:
           $ref: '#/components/responses/NoAutenticado'
     post:
       operationId: abrirCasoLft                # CU-44 (backoffice carril A · H5)
-      summary: Agrupar alertas de un titular en un caso de investigacion y asignarle analista
+      summary: Agrupar alertas de un titular en un caso de investigacion iniciado por el analista autenticado
       description: >-
         CU-44, paso 4. Las alertas quedan enlazadas al caso desde que se abre. El plazo se guarda al
-        abrir segun la severidad mas alta (R-UIF-08). Reintentar con las mismas alertas y el mismo
-        analista devuelve el caso ya abierto, no uno nuevo. Exige CUMPLIMIENTO_CASOS.
+        abrir segun la severidad mas alta (R-UIF-08). El analista es la persona autenticada en esta
+        sesion. Reintentar con las mismas alertas devuelve el caso abierto por ese mismo actor. El
+        campo heredado `analistaId` se acepta por compatibilidad con clientes desplegados, pero se
+        ignora. Exige CUMPLIMIENTO_CASOS.
       parameters:
         - $ref: '#/components/parameters/ClaveIdempotencia'
       requestBody:
@@ -689,7 +691,7 @@ paths:
         abrirlo), una sola decision por caso: la misma decision del mismo oficial repetida devuelve
         el mismo resultado sin otro evento; otra decision es AP-CU44-07. REPORTAR exige el ROS ya
         radicado (vive en auditoria). Nunca se notifica al titular (deber de reserva). Exige
-        CUMPLIMIENTO_CASOS (solo OFICIAL_CUMPLIMIENTO lo tiene sembrado).
+        CUMPLIMIENTO_CASOS_DECIDIR; el revisor autenticado debe ser distinto del analista guardado.
       parameters:
         - { name: casoId, in: path, required: true, schema: { type: string, format: uuid } }
         - $ref: '#/components/parameters/ClaveIdempotencia'
@@ -709,7 +711,7 @@ paths:
           # AP-CU44-01 CONCLUSION_REQUERIDA · AP-CU44-02 REVISOR_ES_ANALISTA · AP-CU44-03 REPORTE_SIN_NARRATIVA
           # AP-CU44-06 CASO_INEXISTENTE · AP-CU44-07 CASO_YA_DECIDIDO
         '403':
-          description: Sin CUMPLIMIENTO_CASOS
+          description: Sin CUMPLIMIENTO_CASOS_DECIDIR
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
@@ -1339,14 +1341,18 @@ components:
     EntradaCasoLft:
       type: object
       additionalProperties: false
-      required: [alertaIds, analistaId, resumen]
+      required: [alertaIds, resumen]
       properties:
         alertaIds:
           type: array
           items: { type: string, format: uuid }
           minItems: 1
           maxItems: 50
-        analistaId: { type: string, format: uuid }
+        analistaId:
+          type: string
+          format: uuid
+          deprecated: true
+          description: Campo heredado aceptado para compatibilidad; el servidor lo ignora y registra el actor autenticado.
         resumen:    { type: string, minLength: 1, maxLength: 500 }
     SalidaCasoLft:
       type: object

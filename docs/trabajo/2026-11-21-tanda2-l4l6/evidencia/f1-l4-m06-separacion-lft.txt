@@ -1,0 +1,21 @@
+F1.L4.M06 — separación analista/revisor LFT
+
+Cambios implementados en codex/l4l6-resume:
+- La apertura toma el analista de ContextoSesion.usuarioId().
+- La entrada HTTP legacy analistaId queda opcional/deprecada y se ignora.
+- Se retiró CU44InvestigarYReportar.decidir y se actualizaron pruebas para usar CU44DecidirComoRevisor.
+- La decisión requiere CUMPLIMIENTO_CASOS_DECIDIR y el backoffice verifica ese permiso.
+- Se añadió cobertura web para no autenticar y para permiso insuficiente.
+- Se regeneró sql/60_semillas/10-roles-y-permisos.sql desde la fuente JSON.
+
+Validaciones pasadas:
+- git diff --check
+- python3 -m json.tool seeders/minimos/10-roles-y-permisos.json
+- python3 scripts/generar_semillas.py: 7.696 filas validadas; SQL generados al día.
+
+Validaciones bloqueadas por ambiente:
+- Gradle directo con JDK local y distribución Gradle 9.7.1 llegó a configurar el proyecto, pero no pudo resolver el plugin org.gradle.toolchains.foojay-resolver-convention:1.0.0 desde Gradle Plugin Portal/Maven Central; el entorno reportó fallo DNS.
+- ./gradlew tampoco pudo descargar Gradle 9.7.1 por fallo DNS a services.gradle.org.
+- Corepack Yarn no pudo crear /home/agent/.cache/node/corepack/v1; no hay node_modules en el worktree.
+
+Estado: A MEDIAS. Compilación, suites backend y pruebas/typecheck de backoffice pendientes en runner con dependencias disponibles.

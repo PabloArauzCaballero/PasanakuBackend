@@ -20,9 +20,7 @@ export const textosLft = {
     titulo: 'Abrir un caso de investigación',
     confirmar: 'Abrir el caso',
     alertas: (n: number) => `Se agrupan ${n} ${n === 1 ? 'alerta' : 'alertas'} en un caso nuevo. Quedan enlazadas al caso desde que se abre.`,
-    consecuencia: 'El plazo de investigación se fija al abrir, según la severidad más alta, y no se recalcula. Al titular no se le avisa nada (deber de reserva).',
-    analista: 'Identificador del analista asignado',
-    analistaAyuda: 'El UUID de la persona que va a investigar. No puede ser quien después decida el caso.',
+    consecuencia: 'Tu sesión queda registrada como analista del caso. El plazo se fija al abrir, según la severidad más alta, y no se recalcula. Al titular no se le avisa nada (deber de reserva).',
     resumen: 'Resumen del caso',
     resumenAyuda: 'Hasta 500 caracteres. Sin datos de la persona: el caso ya la referencia.',
     /** El servidor responde 201 también al reintento con las mismas alertas (devuelve el caso ya abierto). */

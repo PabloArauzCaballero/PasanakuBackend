@@ -26,7 +26,6 @@ import { textosLft } from '../textos-lft'
         <p>{{ t.alertas(alertaIds().length) }}</p>
         @if (errores().alertas) { <p class="error" role="alert">{{ errores().alertas }}</p> }
         <p>{{ t.consecuencia }}</p>
-        <ap-campo [etiqueta]="t.analista" [(valor)]="analistaId" [ayuda]="t.analistaAyuda" [error]="errores().analistaId" autocompletar="off" />
         <ap-area-de-texto [etiqueta]="t.resumen" [(valor)]="resumen" [ayuda]="t.resumenAyuda" [error]="errores().resumen" [maximo]="MAX_RESUMEN" />
         <ap-error-de-envio [error]="errorGeneral()" />
       </div>
@@ -47,7 +46,6 @@ export class AbrirCaso {
   readonly alertaIds = input.required<readonly string[]>()
   readonly abrio = output<SalidaCasoLft>()
 
-  protected readonly analistaId = signal('')
   protected readonly resumen = signal('')
   protected readonly enviando = signal(false)
   protected readonly errores = signal<Errores<CampoDeApertura>>({})
@@ -55,14 +53,13 @@ export class AbrirCaso {
 
   async enviar(): Promise<void> {
     if (this.enviando()) return
-    const errores = validarApertura(this.alertaIds(), this.analistaId(), this.resumen())
+    const errores = validarApertura(this.alertaIds(), this.resumen())
     this.errores.set(errores)
     this.errorGeneral.set(null)
     if (!sinErrores(errores)) return
     this.enviando.set(true)
     try {
-      const salida = await this.acciones.abrir(cuerpoDeApertura(this.alertaIds(), this.analistaId(), this.resumen()))
-      this.analistaId.set('')
+      const salida = await this.acciones.abrir(cuerpoDeApertura(this.alertaIds(), this.resumen()))
       this.resumen.set('')
       this.abierto.set(false)
       this.abrio.emit(salida)
