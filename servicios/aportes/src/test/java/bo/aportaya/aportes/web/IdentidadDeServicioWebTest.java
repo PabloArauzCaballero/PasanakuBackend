@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import bo.aportaya.aportes.aplicacion.CU21CobrarAporte;
+import bo.aportaya.aportes.aplicacion.CU21PagarConSaldo;
 import bo.aportaya.aportes.aplicacion.ConsultarEstadoDelParticipante;
 import bo.aportaya.aportes.aplicacion.ConsultarPrimeraCuota;
 import bo.aportaya.aportes.aplicacion.ConsultarRecaudoDelPeriodo;
@@ -41,6 +42,9 @@ class IdentidadDeServicioWebTest {
 
     @MockitoBean
     private CU21CobrarAporte cu21;
+
+    @MockitoBean
+    private CU21PagarConSaldo pagoConSaldo;
 
     @MockitoBean
     private HechosDeGrupos grupos;

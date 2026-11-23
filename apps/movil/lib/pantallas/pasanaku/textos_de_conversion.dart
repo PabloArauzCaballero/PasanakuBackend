@@ -38,7 +38,4 @@ abstract final class TextosDeConversion {
 
   // Aportar (CU-21)
   static String aportarCon(String importe) => 'Aportar $importe';
-  static const aportarBloqueado =
-      'Escribí la referencia del pago para poder aportar.';
-  static const referenciaAyuda = 'El número de operación de tu comprobante.';
 }

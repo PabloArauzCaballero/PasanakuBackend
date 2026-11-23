@@ -85,7 +85,7 @@ const Map<String, String> _catalogo = {
   'AP-CU12-10':
       'Este QR es de un banco o de otra red de pagos y todavía no aceptamos pagos con QR interoperable. '
       'Podés pagar con un QR de AportaYa o con una transferencia.',
-  'AP-CU21-03': 'No pudimos cobrar. Revisá tu saldo e intentá de nuevo.',
+  ...pagoDeCuotaConSaldo,
   'AP-VAL-03': 'Este vale ya se usó. Cada vale se canjea una sola vez.',
 };
 
