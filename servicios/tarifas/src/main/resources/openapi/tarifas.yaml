@@ -41,6 +41,7 @@
 #   AP-CU34-02  TARIFARIO_VIGENTE_INMUTABLE · se publica la version siguiente (R-TAR-02)
 #   AP-CU34-03  SIN_ACTA_DE_APROBACION · falta el acta del comite (R-LIC-03)
 #   AP-CU34-04  VIGENCIAS_SOLAPADAS    · lo rechaza el EXCLUDE de la base (R-TAR-01)
+#   AP-CU34-06  APROBADOR_DEL_CUERPO   · el aprobador es el actor de la sesion (F1.L5.M28)
 #   AP-CU34-05  FILTRO_DE_LISTADO_INVALIDO · estado desconocido o cursor a medias en
 #                                        GET /tarifas/tarifarios (backoffice carril A · A6)
 #
@@ -689,7 +690,7 @@ components:
     EntradaPublicacion:
       type: object
       additionalProperties: false
-      required: [tarifarioBaseId, nombre, tipoCambio, diasPreaviso, aprobadoPor, actaComite,
+      required: [tarifarioBaseId, nombre, tipoCambio, diasPreaviso, actaComite,
                  urlPublicacion, hashDocumento, canalAviso]
       properties:
         tarifarioBaseId: { type: string, format: uuid }
@@ -698,7 +699,13 @@ components:
           type: string
           enum: [INCREMENTO, REDUCCION, NUEVO_CONCEPTO, ELIMINACION]
         diasPreaviso: { type: integer, minimum: 0, maximum: 90 }
-        aprobadoPor:  { type: string, format: uuid }
+        aprobadoPor:
+          type: string
+          format: uuid
+          deprecated: true
+          description: >-
+            DEPRECADO (F1.L5.M28, retiro 2027-02-28). El aprobador es el actor de la sesion; si se
+            envia y nombra a otra persona, 422 AP-CU34-06.
         actaComite:   { type: string, minLength: 1, maxLength: 60 }
         urlPublicacion: { type: string, format: uri }
         hashDocumento:  { type: string, minLength: 64, maxLength: 64 }

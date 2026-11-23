@@ -84,22 +84,9 @@ public class NotificacionesController implements NotificacionesApi {
     }
 
     /**
-     * Si un destino pidio no recibir mas.
-     *
-     * <p>La pregunta {@code grupos} antes de invitar: a quien se dio de baja no se le
-     * escribe, aunque quien invita no lo sepa.
-     */
-    /** @deprecated el contacto viaja en la query; usar {@link #verificarSupresion} hasta que grupos migre. */
-    @Deprecated
-    @Override
-    @Permiso("GRUPO_ADMINISTRAR")
-    public ResponseEntity<Supresion> consultarSupresion(String identificador, String categoria) {
-        return preguntar(identificador, categoria);
-    }
-
-    /**
-     * La misma pregunta con el contacto en el cuerpo (90.2.2) y con tope por actor: es un oraculo
-     * de «este contacto pidio no recibir» y sin tope recorre una agenda.
+     * Si un destino pidio no recibir mas, con el contacto en el cuerpo (90.2.2) y con tope por actor: es un oraculo
+     * de «este contacto pidio no recibir» y sin tope recorre una agenda. La pregunta CU-69 de {@code grupos} antes de
+     * invitar. El GET con el contacto en la query se retiro (F1.L5.M27).
      */
     @Override
     @Permiso("GRUPO_ADMINISTRAR")
@@ -148,15 +135,15 @@ public class NotificacionesController implements NotificacionesApi {
 
         var salida = cu82.ejecutar(
                 new CU82ProcesarRespuesta.EntradaRespuesta(
-                        cuerpo.getCanal() == null
-                                ? proveedor
-                                : cuerpo.getCanal().getValue(),
-                        cuerpo.getRemitente(),
+                        // F1.L5.M23: lo de afuera de la carga es deprecado y solo se compara con lo firmado; la ruta
+                        // no esta firmada y ya no aporta el canal.
+                        MapeoDelWebhook.canal(cuerpo),
+                        MapeoDelWebhook.remitente(cuerpo),
                         cuerpo.getFirma(),
                         cuerpo.getCargaUtil(),
-                        cuerpo.getContenido(),
-                        cuerpo.getClaveIdempotencia(),
-                        Optional.ofNullable(cuerpo.getNotificacionRelacionadaId())),
+                        MapeoDelWebhook.contenido(cuerpo),
+                        MapeoDelWebhook.clave(cuerpo),
+                        MapeoDelWebhook.relacionada(cuerpo)),
                 // Sin sesion de usuario: el proveedor no la tiene. `deSistema` no es
                 // una excepcion a las politicas de fila, es un rol con las suyas.
                 ContextoSesion.deSistema(
@@ -260,8 +247,13 @@ public class NotificacionesController implements NotificacionesApi {
     @PermisoAlternativo({"ADMIN_PLATAFORMA"})
     public ResponseEntity<AvisoInterno> marcarAvisoLeido(UUID id) {
         Traza.marcarCasoDeUso("CU-80", "marcar-aviso-leido");
+        var contexto = sesion.actual();
+        Set<String> roles = new HashSet<>(sesion.permisos());
+        if (contexto.rol() != null) {
+            roles.add(contexto.rol());
+        }
         return avisosInternos
-                .marcarLeido(id, sesion.actual())
+                .marcarLeido(id, roles, contexto)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

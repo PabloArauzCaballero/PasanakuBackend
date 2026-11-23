@@ -94,13 +94,12 @@ final class MapeoDeReputacion {
     }
 
     static CU75EmitirCertificado.EntradaCertificado certificado(EntradaCertificado cuerpo) {
+        // F1.L5.M21: `disponibles` e `identidadVerificada` del cuerpo se IGNORAN (deprecados): los pone el servidor.
         return new CU75EmitirCertificado.EntradaCertificado(
                 cuerpo.getUsuarioId(),
                 cuerpo.getSnapshotId(),
-                new LinkedHashMap<>(cuerpo.getDisponibles()),
                 new LinkedHashSet<>(cuerpo.getIncluir()),
-                cuerpo.getVigenciaDias(),
-                Boolean.TRUE.equals(cuerpo.getIdentidadVerificada()));
+                cuerpo.getVigenciaDias());
     }
 
     static CU76PublicarResena.EntradaResena resena(EntradaResena cuerpo) {

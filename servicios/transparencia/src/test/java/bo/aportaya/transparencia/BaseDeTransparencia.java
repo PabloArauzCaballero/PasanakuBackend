@@ -150,12 +150,18 @@ abstract class BaseDeTransparencia {
                 outbox,
                 Reloj.delSistema(),
                 new SecureRandom(),
+                new bo.aportaya.transparencia.infraestructura.SnapshotRepositorio(),
+                usuario -> IDENTIDAD_VERIFICADA.get(),
                 CLAVE_DE_FIRMA,
                 BASE_PUBLICA);
         resenaCU = new CU76PublicarResena(datos, resenas, outbox, Reloj.delSistema(), PESO_DE_RESENA, ATENUACION);
         riesgoCU = new CU97EvaluarRiesgo(
                 datos, riesgos, reputaciones, modelos, outbox, Reloj.delSistema(), ESCALA_DE_RIESGO);
     }
+
+    /** Doble de `identidad` (F1.L5.M21): verificada salvo que la prueba diga lo contrario. */
+    protected static final java.util.concurrent.atomic.AtomicBoolean IDENTIDAD_VERIFICADA =
+            new java.util.concurrent.atomic.AtomicBoolean(true);
 
     protected ContextoSesion contextoDe(UUID usuarioId) {
         return ContextoSesion.de(

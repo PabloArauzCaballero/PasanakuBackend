@@ -1,27 +1,87 @@
 # Reporte — Tanda 2, lote L3L5
 
-> **AVANCE: 3 / 24 — 12,5 %.** (F1.L3.M04 en A MEDIAS)
+> **AVANCE: 11 / 29 — 37,9 %.** A MEDIAS: F1.L3.M04, F1.L3.M05, F1.L5.M28, F3.S8.M6, F3.L2.M01a. Abiertos: #448, #486 y #492 (tope de 3); M6 empujado sin PR. Retoma: ver «Para quien retome».
 
-- Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Rama(s): `correcciones/tanda2-l3l5-test-admision` (#423), `correcciones/tanda2-l3l5-f1-retiro`
-- Peldaño de evidencia alcanzado: T2.M0 `TESTED` (reproducción bajo carga antes/después + suites del servicio).
+- Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md)
+- PR hacia `dev`: mergeados #428 (F1.L3.M04), #431 (F1.L3.M06), #434 (F1.L3.M07), #437 (F1.L3.M05), #453 (T2.M1);
+  #423 (T2.M0) incluido en #444. **Abierto: #448**, consolidado (F1.L5.M26, M27, M23, M21 y M28); #438, #440, #443
+  y #446 se cerraron absorbidos en #448 (tope de 3 PR abiertos por sesión, pedido de la coordinación).
+- Estado del CI: `origin/dev` (con #433 OSV, #419, #444 Mockito y #453 aliado) mergeado en toda la pila el
+  2026-11-21; el CI de cada PR se vuelve a correr con eso. Antes: `osv-scan` en rojo por npm de `yarn.lock`
+  (resuelto por #433) y #423 en rojo por `identidad · RotacionDeClavesDeFirmaTest` (cubierto por #444).
+- Peldaño de evidencia alcanzado: `TESTED` en todo lo completado (pruebas dirigidas + suites unitaria, web y
+  barrido de cada servicio tocado, más `psql` contra PostgreSQL local donde hay SQL). No llega a `VERIFIED`: las
+  integraciones con Testcontainers no corrieron (Docker) y el CI de los PR sigue en cola.
+- Conteo: 27 microtareas en `PLAN.md` (H1.S0: 3 · H1.S1: 7 · H1.S2: 11 · H2: 2 · H3: 4, agregado por la coordinación); `plan_status.py` no reconoce el
+  formato de IDs de este plan, así que el número sale de la tabla.
+
+## Para quien retome este lote (traspaso de coordinación, 2026-11-21)
+
+- **Estado:** 11/29 (ver primera línea; +2 microtareas de H4, pedido de L2). Todo está empujado a `origin`; no queda nada solo en local.
+- **PR abiertos (tope: 3 por sesión):**
+  - **#448** · rama `correcciones/tanda2-l3l5-f1-tarifario` · F1.L5.M26, M27, M23, M21 y M28 (parcial). Es la punta
+    de la pila: acá viven `PLAN.md` y `REPORTE.md` al día. Absorbe a #438, #440, #443 y #446 (cerrados).
+  - **#486** · rama `correcciones/tanda2-l3l5-f3-parametros` · F3.S8.M2a: modelo del registro de parámetros en
+    `tarifas` + siembra de los 7 códigos sin valores (unidades: DECISIONES tanda 11, #489). Su copia de
+    `PLAN.md`/`REPORTE.md` es la de `dev`; la vigente es la de #448.
+  - **#492** · rama `correcciones/tanda2-l3l5-f3-parametros-api` · F3.S8.M2b: API de CU-132 (catálogo, proponer,
+    aprobar con cuatro ojos del token). Apilado sobre #486: se mergea después.
+- **Mergeados:** #428, #431, #434, #437, #453; #423 dentro de #444.
+- **Sin PR (tope de 3):** `correcciones/tanda2-l3l5-f3-parametros-congelamiento` (F3.S8.M6, apilada sobre #492) y `correcciones/tanda2-l3l5-turnos-asignados` (F3.L2.M01a, desde `dev`).
+  Abrir su PR hacia `dev` en cuanto se mergee #486 o #492.
+- **Siguiente, en orden:** F3.S8.M4 (pantalla del backoffice). Lo ya hecho de M6: `GET /tarifas/parametros/grupos/{grupoId}` según el contrato de L2 en
+  `docs/trabajo/2026-11-21-tanda2-l2/evidencia/F3.L2.M14-contrato-parametros-tarifas.md`: 200 / 404 sin congelamiento
+  / 422 con el código que falta) y el consumidor idempotente de `grupos.grupo_iniciado` que escribe
+  `parametro_congelado_grupo` y F3.S8.M4 (pantalla del backoffice). Luego, lo pendiente de la tabla «Pendiente».
+- **Archivos vedados por aviso de otros lotes:** `servicios/grupos/.../HechosPorHttp.java`, `PrimerAportePorHttp.java`
+  y su credencial de servicio, hasta que entre el PR de L1 (M07). F1.L3.M05 (503) espera ese PR.
+- **Cómo verificar en la nube:** receta de PostgreSQL en 5433 de
+  `docs/trabajo/2026-11-21-plan-correcciones/EJECUCION.md`; `generateJooq` solo declara salidas, así que tras un
+  cambio de esquema hay que correrlo con `--rerun`. Para intermitentes: reproducir con `taskset -c 0` y 3 procesos
+  ocupados (ver T2.M0 y T2.M1).
+- **Decisiones que esperan a Pablo:** ventana del webhook de mensajería (5 min, F1.L5.M23); fuente para derivar el
+  tipo de cambio del tarifario (F1.L5.M28, o F3.L5.M36); D-L5-3 (segundo firmante del tarifario).
 
 ## Completado
 | ID | Qué se logró | Comando | Resultado |
 |---|---|---|---|
 | T2.M0 | El arranque único de Mockito ya no cae dentro de `armar()`; con la CPU repartida la clase pasa 3/3 (antes `TimeoutException` a 7,3 s) sin cambiar ningún límite | `taskset -c 0 ./gradlew --no-daemon :servicios:grupos:test --tests '*AdmisionDelGrupoSustitucionTest' --rerun` ×3 con 3 procesos ocupados en el mismo núcleo | PASS · [evidencia](./evidencia/T2.M0-mockito-arranque.txt) |
 
+| T2.M0b | El arranque de Mockito se paga fuera de los atoms en TODA JVM de prueba (`buildSrc` + `comun-pruebas`); lo hizo la coordinación en #444 sobre el commit de #423 | en la punta de la pila, tras mergear `dev`: `./gradlew :servicios:grupos:spotlessCheck test webTest testBarrido --rerun` → 119/184/2 en verde, 0 avisos `self-attaching` | PASS · #444 en `dev` |
 | F1.L3.M06 | «Grupos activos» cuenta al participante en mora y excluye los grupos terminales reales; los estados salen de enumerados de dominio comparados con el `CHECK` | `./gradlew :servicios:grupos:test --tests '*EstadosContraElModeloTest'` + `psql` vieja/nueva | PASS · [evidencia](./evidencia/F1.L3.M06-estados-vivos.txt) |
 | F1.L3.M07 | Un acuerdo se resuelve una vez: precondición `estado = 'ABIERTO'` en el `UPDATE`; quien pierde la carrera no reemite | dos conexiones `psql` (vieja `UPDATE 1`/`UPDATE 1`, nueva `UPDATE 1`/`UPDATE 0`) + `ResolucionDeAcuerdoTest` | PASS · [evidencia](./evidencia/F1.L3.M07-acuerdo-precondicion.txt) |
+| F1.L5.M26 | Marcar leído un aviso interno exige ser su destinatario (usuario o rol), en la escritura; ajeno → 404 | `psql` (B: `UPDATE 0`) + `AvisosInternosWebTest` | PASS · [evidencia](./evidencia/F1.L5.M26-avisos-destinatario.txt) — integración `NO COMPROBADO` (Docker); RLS por destinatario pendiente (bloque genérico) |
+| F1.L5.M27 | El contrato de `notificaciones` no tiene ninguna operación con el contacto en la ruta o la query: se retiró el `GET /notificaciones/supresion` | verificación del contrato con PyYAML + `webTest` (el GET no contesta ni con permiso) | PASS · [evidencia](./evidencia/F1.L5.M27-supresion-url.txt) |
+| F1.L5.M23 | Webhook CU-82: remitente, contenido, canal e id salen de la carga firmada; fuera de ventana (5 min) se rechaza; el `idMensaje` firmado deduplica | `WebhookDeMensajeriaTest` (doble con HMAC real, tres niveles) | PASS contra doble · [evidencia](./evidencia/F1.L5.M23-webhook-mensajeria.txt) — `CU82Test` `NO COMPROBADO` (Docker) |
+| F1.L5.M21 | El certificado firma los valores de la foto del propio titular y la identidad la dice `identidad` (falla cerrado); `disponibles` e `identidadVerificada` del cuerpo se ignoran (deprecados) | `CertificadoConDatosDelServidorTest` + `psql` + `webTest` | PASS contra doble · [evidencia](./evidencia/F1.L5.M21-certificado-servidor.txt) — `CU75*Test` `NO COMPROBADO` (Docker) |
+| T2.M1 | `inversiones · AliadoSimuladoFlujosContratoTest`: el simulador del aliado respondía HTTP/1.0 y cerraba el socket sin decirlo; el `HttpClient` de Java reutilizaba la conexión cerrada. Ahora habla HTTP/1.1 | diagnóstico bajo carga (29/60 → 0/60 con A y con B) + `contractTest` ×3 con carga + 27 pruebas Python | PASS · [evidencia](./evidencia/T2.M1-inversiones-aliado-http.txt) · #453 |
+| F3.S8.M2a | Modelo del registro de parámetros en `tarifas`: catálogo sin valores, versiones con cuatro ojos e inmutables, congelamiento único por grupo, parámetro y nivel (R-TAR-14 a 17), CU-132 | `generar_ddl.py` + `aplicar.sql` ×2 + `psql` con cada violación + verificadores de bóveda | PASS · [evidencia](./evidencia/F3.S8.M2a-modelo-parametros.txt) · #486 |
+| F3.S8.M2b | API de CU-132 en `tarifas`: catálogo con vigentes, propuesta idempotente por clave, aprobación solo por otra persona con su token (borde + caso de uso + `CHECK`), precondición en el `UPDATE` | `./gradlew :servicios:tarifas:test :servicios:tarifas:webTest` (23/23, 45/45) + `psql` con reintento, misma persona, carrera y edición | PASS · [evidencia](./evidencia/F3.S8.M2b-api-parametros.txt) · #492 |
 
 ## A medias
-### T2.M0b — El mismo arreglo para todos los servicios
-- Qué anda: en `grupos`, Mockito entra como `-javaagent` y su arranque se paga en `MockitoAlAbrirLaSesion`.
-- Qué no anda: los otros servicios siguen con el auto-attach de Mockito dentro de la primera prueba que mockea.
-- Qué falta exactamente: mover el bloque `tasks.withType<Test>` de `servicios/grupos/build.gradle.kts` a
-  `buildSrc/src/main/kotlin/aportaya.base.gradle.kts`, y `MockitoAlAbrirLaSesion` + su archivo
-  `META-INF/services` a `plataforma/comun-pruebas` (con `junit-platform-launcher` en su `api`); después borrar la
-  copia de `grupos`. Lo hace la sesión dueña de `buildSrc`/`plataforma`.
-- Dónde quedó: rama `correcciones/tanda2-l3l5-test-admision`, compila, suites de `grupos` en verde.
+### F3.L2.M01a — `grupos.turnos_asignados` al revelar el sorteo
+- Qué anda: `CU60Sortear` publica, en la transacción de la revelación y por outbox, un evento con turnoId, numero,
+  periodoId, cupoId, titularParticipanteId y version 1 (`PublicacionDeTurnos`). `TurnoAsignadoTest` comprueba los
+  campos que exige el pacto de #490 y que no viaja nada más; suites de `grupos` 122/122 y 184/184.
+- Qué no anda: no corrió `TurnosAsignadosRepositorioTest` (Testcontainers, sin Docker): la publicación real en
+  `evento_dominio` está sin demostrar.
+- Qué falta exactamente: PR (hay 3 abiertos) para que CI la corra; cuando #490 entre a `dev`, que
+  `TurnoAsignadoTest` lea los campos del archivo del pacto; F3.L2.M01b.
+- Dónde quedó: rama `correcciones/tanda2-l3l5-turnos-asignados` (5f9c3ad5, desde `dev`), compila, empujada.
+
+### F3.S8.M6 — Congelamiento de parámetros al iniciar el grupo
+- Qué anda: el consumidor de `grupos.grupo_iniciado` lee solo `grupoId` e `iniciadoEn` (pacto nuevo
+  `contratos/pactos/grupos-tarifas-grupo-iniciado.json`) y rechaza lo que falta; congela la versión APROBADA que
+  regía en `iniciadoEn`; `GET /tarifas/parametros/grupos/{grupoId}` solo para `SERVICIO_GARANTIA` responde 200 /
+  404 sin cuerpo / 422 `AP-CU132-06` con los códigos que faltan. Unitarias 33/33 y web 50/50 en `tarifas`; en base
+  real, el `INSERT … ON CONFLICT DO NOTHING` contra el índice de expresión da `INSERT 0 1` y luego `INSERT 0 0`, y
+  `UPDATE`/`DELETE` lo rechaza R-AUD-01 ([evidencia](./evidencia/F3.S8.M6-congelamiento-por-grupo.txt)).
+- Qué no anda: no está demostrado con el código real que el mismo evento dos veces sea `DUPLICADO` (la marca
+  `evento_consumido` con `Consumidos`): eso lo prueba `CU132CongelamientoTest`, que necesita Docker y no corrió.
+- Qué falta exactamente: abrir el PR (hoy hay 3 abiertos) para que CI corra `CU132CongelamientoTest`, `CU132Test`
+  y `ArranqueTest` de `tarifas` (listener nuevo); `SERVICIO_GARANTIA` llega con #483; el pacto del lado de
+  `garantia` (consumidor del GET) es de L2.
+- Dónde quedó: rama `correcciones/tanda2-l3l5-f3-parametros-congelamiento` (8e92a226), compila, empujada.
 
 ### F1.L3.M04 — El retiro lo pide solo su titular
 - Qué anda: en la API, el participante sale del token y del `grupoId` de la ruta; otro integrante en el cuerpo,
@@ -46,29 +106,82 @@
   (`MapeoDeAltaDeGrupo`, `MapeoDePostulacion`, `RutasDeSubastaDelCupo`) adoptan el mismo contrato. Integración con
   `identidad` apagado (Docker).
 - Dónde quedó: rama `correcciones/tanda2-l3l5-f1-kyc`, compila, suites de `grupos` en verde.
+### F1.L5.M28 — Publicación de tarifario
+- Qué anda: el aprobador registrado es el actor de la sesión; un aprobador inventado en el cuerpo es 422
+  `AP-CU34-06` sin publicar nada ([evidencia](./evidencia/F1.L5.M28-tarifario-actor.txt)).
+- Qué no anda: el tipo de cambio (`INCREMENTO`/`REDUCCION`…) sigue viniendo del cuerpo y decide el preaviso.
+- Qué falta exactamente: una fuente para comparar. `CU-34` clona el tarifario base sin precios nuevos, así que no hay
+  comisión nueva en este flujo. Se resuelve con F3.L5.M36 (comisión fija como parámetro obligatorio, cambio con dos
+  firmas: DECISIONES tanda 7) o, si se conserva el tarifario, con los precios nuevos como entrada de `CU-34` y la
+  comparación en `EntradaEnVigencia`. Segundo firmante: depende de D-L5-3 (`PREGUNTAS-LEGALES.md`).
+- Dónde quedó: rama `correcciones/tanda2-l3l5-f1-tarifario`, compila, suites de `tarifas` en verde.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| Resto de H1.S1, H1.S2 y H2 | TODO | Se ejecutan en orden en esta sesión |
+| F1.L3.M03 (destino de transferencia por id único) | TODO | Toca `nucleo-financiero` e `identidad` (otros lotes) además de `grupos`; coordinar el contrato nuevo |
+| F1.L3.M08 (importes con moneda y `CHECK >= 0` en `grupos`) | TODO | Depende de F2.L3.M12 (no migrar tablas que se borran); cambio por `.puml` + `generar_ddl.py` |
+| F1.L3.M09 (secreto de invitación fuera del path) | TODO | Toca `apps/movil` (fuera de este lote) |
+| F1.L5.M20 (sorteo con entropías reveladas) | TODO | Siguiente en el orden de este lote |
+| F1.L5.M22 (sello de la cadena con permiso propio) | TODO | Depende de F4.L5.M52 (API de saldos del mayor) |
+| F1.L5.M13/M14/M15 (comisión: devolución, descuentos, marcado manual) | TODO | Relocalizar en `tarifas` (`ComisionesController`) |
+| F1.L5.M29 (publicidad: propiedad, impresión única, tope) | TODO | Siguiente en el orden de este lote |
+| F1.L5.M09 (`Idempotency-Key` en los servicios de apoyo) | TODO | Siguiente en el orden de este lote |
+| F1.S2.M3 (matriz BOLA en `scripts/verificar_seguridad.py`) | TODO | Ampliar el script con las matrices ya escritas en los `*WebTest` de este lote |
+| F2.M6 (retirar el organizador profesional) | TODO | Empieza por el inventario de consumidores (`inventario_endpoints.py`, `listar_topicos.py`) |
+| F2.M8 (retirar aprobaciones eliminables en el lote) | TODO | F2.L3.M10 depende de F3.L3.M17; F2.L3.M15 se mergea después de F3.L3.M18 |
+| F3.S8.M4 (pantalla del backoffice) | TODO | Sigue en esta sesión; consume #492 |
+| Corridas con Docker (`integrationTest` de `grupos`, `notificaciones`, `transparencia`) | BLOQUEADO (P-19) | Máquina de Pablo; comandos en cada evidencia |
 
 ## Evidencia
 - [`evidencia/T2.M0-mockito-arranque.txt`](./evidencia/T2.M0-mockito-arranque.txt)
 
 ## No cubierto
-- Corredores con Testcontainers de `grupos` (`integrationTest`): no corren sin Docker.
+- F3.S8.M2b: `CU132Test` (repositorio jOOQ contra PostgreSQL con Testcontainers) no corrió local, sin Docker; corre
+  en CI (`integrationTest`). La jacoco local queda incompleta por eso (`ENVIRONMENT`); el umbral lo juzga CI.
+- F3.S8.M2b: un `valor` enviado como número JSON se acepta por la coacción escalar de Jackson (`CuerposEstrictos`, en
+  `plataforma/comun-web`, fuera del lote). Sin pérdida de precisión, pero contradice el contrato. Cambio exacto en #492.
+- Corredores con Testcontainers (`integrationTest`) de `grupos`, `notificaciones` y `transparencia`: no corren sin
+  Docker. Se actualizaron `AvisoInternoRepositorioTest`, `CU82Test`, `CU75Test`, `CU75RechazosTest` y
+  `BaseDeTransparencia`; compilan, `NO COMPROBADO` en ejecución.
+- Políticas RLS por titular/destinatario (`solicitud_retiro`, `aviso_interno`): bloque genérico compartido.
+- Pactos nuevos (`transparencia → identidad`): no escritos.
 
 ## Desvíos del plan
+- F3.S8.M2a (#486): se editó a mano `sql/50_verificacion/prueba_humo.sql` (51 → 52 tablas selladas). Es el único
+  SQL que `generar_ddl.py` no regenera (`generar_ddl.py:463`) y su comentario pide subir la cifra junto con
+  `APPEND_ONLY`; así lo hizo L1 en 7bb165c2. Causa (`PRODUCT_BUG` propio): #486 selló `parametro_congelado_grupo`
+  sin subir la cifra y el CI marcaba «52 de 51». Tras el cambio: `aplicar.sql` + `prueba_humo.sql`, 138 líneas OK.
+- F3.S8.M2b (#492), CI clasificado y corregido de raíz: `verificar_criterios.py` (11 fallas: nombres de
+  `CU132Test` distintos de los escenarios de la bóveda y reglas sin prueba de rechazo; no se había corrido local) y
+  `SalidasSensiblesBarridoTest` (la constante `CLAVE_REUTILIZADA` se leía como credencial; pasa a
+  `REINTENTO_DISTINTO`). La bóveda de CU-132 suma dos escenarios (aprobación feliz y congelamiento) y deja de citar
+  R-TAR-07 (regla de CU-20). Local: `verificar_criterios.py` y `verificar_boveda.py` OK, barridos en verde.
 - El `PLAN.md` se escribió después de la primera edición de `servicios/grupos/build.gradle.kts` (la reproducción
   y el diagnóstico se hicieron antes). Se registra como desvío de la regla 20.
 
 ## Riesgos residuales
+- CI de #423: «13 · test» cayó en `identidad · RotacionDeClavesDeFirmaTest.laAnteriorSoloSePublica() timed out after
+  5 seconds`. No es de este lote. Causa probable, sin demostrar: genera dos pares RSA de 2048 bits dentro de cada
+  prueba (`RSAKeyGenerator(2048)`), un costo aleatorio y atado a la CPU que, con la CPU del runner repartida, puede
+  pasar los 5 s del atom. Mismo patrón que T2.M0 (costo de preparación dentro del atom). A derivar a la sesión L4.
 - CI: `osv-scan` falla en los PR del lote por vulnerabilidades npm de `yarn.lock` (hono 4.13.11, @hono/node-server
   2.1.3, minimatch 10.2.6). Clase `EXTERNAL`, preexistente y ajena al lote: `yarn.lock` está fuera de alcance.
 - Bajo la carga extrema simulada el primer caso tarda 3,3 s de 5 s: el margen restante es trabajo propio de la
   clase (mockear cuatro tipos del proyecto).
 
 ## Decisiones y ambigüedades
+- F3.S8.M6: un parámetro por nivel cuenta como completo si tiene al menos un nivel congelado: los códigos de nivel
+  son de `transparencia` y `tarifas` no sabe cuáles debería haber. Si garantia necesita uno que no está, falla
+  cerrado igual. A confirmar con L2 y Pablo.
+- F3.S8.M6: un código sin versión aprobada al iniciar queda faltante para siempre en ese grupo (no se completa con
+  una versión posterior, ADR-056 §6). Que el grupo no pueda iniciar así lo decide `grupos` (contrato de L2, §4).
+- F3.S8.M6: el evento opcional `tarifas.parametros_congelados` no se emite; `garantia` usa el GET.
+- F3.S8.M2b: `TARIFARIO_ADMINISTRAR` propone y aprueba; la separación la da el cuatro-ojos (dos personas, dos
+  tokens), no dos permisos. A confirmar con Pablo (anotado en #492).
+- F1.L5.M23: ventana del webhook de mensajería = 5 minutos (`aportaya.webhook.ventana: PT5M` en `application.yml`).
+  No es un parámetro financiero; es un valor de seguridad elegido por esta sesión, a confirmar con Pablo. El formato
+  de la carga firmada es el del puerto propio (no hay proveedor contratado, P-15).
 - F1.L3.M06: «vinculados» = `ACEPTADO_PENDIENTE_FIRMA`, `ACTIVO`, `EN_MORA`, `SUSPENDIDO`. Un `EXPULSADO` que
   todavía debe al fondo no cuenta como grupo activo: su deuda la custodia `garantia` (deudas vivas), no este conteo.
   Supuesto a confirmar con Pablo: que el cierre de billetera también consulte deudas vivas.

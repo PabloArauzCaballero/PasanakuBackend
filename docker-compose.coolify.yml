@@ -812,6 +812,7 @@ services:
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
       URL_GRUPOS: http://grupos:8080
+      URL_IDENTIDAD: http://identidad:8080
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
       TRAZAS_HABILITADAS: ${TRAZAS_HABILITADAS:-false}
       METRICAS_OTLP_HABILITADAS: ${METRICAS_OTLP_HABILITADAS:-false}

@@ -45,9 +45,10 @@ public class GestionarAvisosInternos {
     }
 
     @Transactional
-    public Optional<AvisoInterno> marcarLeido(UUID id, ContextoSesion ctx) {
+    public Optional<AvisoInterno> marcarLeido(UUID id, Collection<String> roles, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atZone(Reloj.ZONA).toOffsetDateTime();
-        return datos.conContexto(ctx, dsl -> repo.marcarLeido(dsl, id, ahora).map(this::mapear));
+        return datos.conContexto(ctx, dsl -> repo.marcarLeido(dsl, id, ctx.usuarioId(), roles, ahora)
+                .map(this::mapear));
     }
 
     @Transactional

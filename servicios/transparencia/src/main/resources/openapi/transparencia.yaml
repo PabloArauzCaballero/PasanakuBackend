@@ -1016,20 +1016,26 @@ components:
     EntradaCertificado:
       type: object
       additionalProperties: false
-      required: [usuarioId, snapshotId, disponibles, incluir, vigenciaDias, identidadVerificada]
+      required: [usuarioId, snapshotId, incluir, vigenciaDias]
       properties:
         usuarioId:  { type: string, format: uuid }
         snapshotId: { type: string, format: uuid }
         disponibles:
           type: object
           additionalProperties: { type: string }
-          description: Todo lo que se PODRIA mostrar, ya resuelto desde la foto.
+          deprecated: true
+          description: >-
+            DEPRECADO e IGNORADO (F1.L5.M21, retiro 2027-02-28). Lo que el certificado puede mostrar lo
+            lee el servidor de la foto del propio titular; un valor de aca no llega al certificado.
         incluir:
           type: array
           items: { type: string }
           description: Lo que el titular eligio. Lo demas no entra ni al hash.
         vigenciaDias:        { type: integer, minimum: 7, maximum: 180, default: 90 }
-        identidadVerificada: { type: boolean }
+        identidadVerificada:
+          type: boolean
+          deprecated: true
+          description: DEPRECADO e IGNORADO (F1.L5.M21). La verificacion la consulta el servidor a `identidad`.
     EntradaRevocacionCertificado:
       type: object
       additionalProperties: false

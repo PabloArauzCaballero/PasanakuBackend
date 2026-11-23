@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.transparencia.aplicacion.CU75EmitirCertificado.EntradaCertificado;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -22,19 +21,8 @@ class CU75Test extends BaseDeTransparencia {
         return new Caso(usuario, fixtura.snapshot(usuario, "780.00", "MUY_CONFIABLE"), contextoDe(usuario));
     }
 
-    private static Map<String, String> disponibles() {
-        var todo = new LinkedHashMap<String, String>();
-        todo.put("puntaje", "780.00");
-        todo.put("nivel", "MUY_CONFIABLE");
-        todo.put("antiguedad", "18 meses");
-        todo.put("gruposCompletados", "3");
-        todo.put("insignias", "PRIMER_PASANAKU, PAGADOR_PUNTUAL");
-        todo.put("indicePuntualidad", "0.96");
-        return todo;
-    }
-
     private EntradaCertificado entrada(Caso c, Set<String> incluir) {
-        return new EntradaCertificado(c.usuario(), c.snapshot(), disponibles(), incluir, 90, true);
+        return new EntradaCertificado(c.usuario(), c.snapshot(), incluir, 90);
     }
 
     @Test
@@ -233,10 +221,14 @@ class CU75Test extends BaseDeTransparencia {
 
         // Paso fallido: identidad sin verificar. Un certificado que dice «es de fiar»
         // sin saber quien es no se emite.
-        assertThatThrownBy(() -> transaccion.execute(t -> certificadoCU.emitir(
-                        new EntradaCertificado(c.usuario(), c.snapshot(), disponibles(), Set.of("puntaje"), 90, false),
-                        c.ctx())))
-                .hasMessageContaining("verificacion de identidad");
+        IDENTIDAD_VERIFICADA.set(false);
+        try {
+            assertThatThrownBy(() -> transaccion.execute(t -> certificadoCU.emitir(
+                            new EntradaCertificado(c.usuario(), c.snapshot(), Set.of("puntaje"), 90), c.ctx())))
+                    .hasMessageContaining("verificacion de identidad");
+        } finally {
+            IDENTIDAD_VERIFICADA.set(true);
+        }
         assertThat(contar(
                         "SELECT count(*)::int FROM transparencia.certificado_reputacion WHERE usuario_id = ?",
                         c.usuario()))
@@ -244,8 +236,7 @@ class CU75Test extends BaseDeTransparencia {
 
         // Paso fallido: no hay foto de la cual emitir.
         assertThatThrownBy(() -> transaccion.execute(t -> certificadoCU.emitir(
-                        new EntradaCertificado(c.usuario(), null, disponibles(), Set.of("puntaje"), 90, true),
-                        c.ctx())))
+                        new EntradaCertificado(c.usuario(), null, Set.of("puntaje"), 90), c.ctx())))
                 .hasMessageContaining("foto de reputacion");
         assertThat(contar(
                         "SELECT count(*)::int FROM transparencia.certificado_reputacion WHERE usuario_id = ?",
