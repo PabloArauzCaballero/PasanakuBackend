@@ -87,7 +87,6 @@ aportaya:
         telefono: ${ENTREGAS_SERVICIO_TELEFONO:}
         clave: ${ENTREGAS_SERVICIO_CLAVE:}
         factor-totp-semilla: ${ENTREGAS_SERVICIO_TOTP_SEMILLA:}
-        factor-fijo: ${ENTREGAS_SERVICIO_FACTOR_FIJO:}   # SOLO TEST: el codigo fijo del perfil local de identidad
   desembolso:
     intentos-maximos: 3
     espera-entre-intentos: PT15M

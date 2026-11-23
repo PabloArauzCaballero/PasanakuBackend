@@ -8,8 +8,7 @@ import java.time.Duration;
  * Elige de donde sale la credencial de servicio de un servicio que le habla a otro sin una persona detras. Por orden:
  *
  * <ol>
- *   <li>cuenta de servicio en identidad (telefono, clave y un segundo factor: semilla TOTP, o el codigo fijo SOLO
- *       de TEST): se renueva sola ({@link CredencialPorLogin});
+ *   <li>cuenta de servicio en identidad (telefono, clave y semilla TOTP): se renueva sola ({@link CredencialPorLogin});
  *   <li>un token ya emitido: vive minutos, sirve para una prueba manual;
  *   <li>nada: las operaciones que mueven plata fallan cerradas.
  * </ol>
@@ -33,21 +32,17 @@ public final class CredencialDeServicioConfigurada {
             String tokenEmitido,
             String telefono,
             String clave,
-            String semilla,
-            String factorFijo) {
-        boolean hayCuenta = !telefono.isBlank() || !clave.isBlank() || !semilla.isBlank() || !factorFijo.isBlank();
+            String semilla) {
+        boolean hayCuenta = !telefono.isBlank() || !clave.isBlank() || !semilla.isBlank();
         if (!hayCuenta) {
             return CredencialDeServicio.fija(tokenEmitido);
         }
-        if (telefono.isBlank() || clave.isBlank() || (semilla.isBlank() && factorFijo.isBlank())) {
+        if (telefono.isBlank() || clave.isBlank() || semilla.isBlank()) {
             throw new IllegalStateException("La cuenta de servicio de " + servicio + " esta a medias: hacen falta "
                     + prefijoDeVariables + "_SERVICIO_TELEFONO, " + prefijoDeVariables + "_SERVICIO_CLAVE y un segundo"
-                    + " factor (" + prefijoDeVariables + "_SERVICIO_TOTP_SEMILLA, o " + prefijoDeVariables
-                    + "_SERVICIO_FACTOR_FIJO solo en TEST).");
+                    + " factor " + prefijoDeVariables + "_SERVICIO_TOTP_SEMILLA.");
         }
-        var factor = semilla.isBlank()
-                ? CredencialPorLogin.fijo(factorFijo.strip())
-                : CredencialPorLogin.totp(semilla.strip());
+        var factor = CredencialPorLogin.totp(semilla.strip());
         return new CredencialPorLogin(identidad, timeout, servicio, telefono.strip(), clave, factor, Clock.systemUTC());
     }
 }

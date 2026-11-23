@@ -23,9 +23,8 @@ class ConfiguracionDeCredencialDeServicio {
             @Value("${aportaya.entregas.libro.credencial-servicio:}") String tokenEmitido,
             @Value("${aportaya.entregas.libro.cuenta-servicio.telefono:}") String telefono,
             @Value("${aportaya.entregas.libro.cuenta-servicio.clave:}") String clave,
-            @Value("${aportaya.entregas.libro.cuenta-servicio.factor-totp-semilla:}") String semilla,
-            @Value("${aportaya.entregas.libro.cuenta-servicio.factor-fijo:}") String factorFijo) {
+            @Value("${aportaya.entregas.libro.cuenta-servicio.factor-totp-semilla:}") String semilla) {
         return CredencialDeServicioConfigurada.de(
-                "entregas", "ENTREGAS", identidad, timeout, tokenEmitido, telefono, clave, semilla, factorFijo);
+                "entregas", "ENTREGAS", identidad, timeout, tokenEmitido, telefono, clave, semilla);
     }
 }

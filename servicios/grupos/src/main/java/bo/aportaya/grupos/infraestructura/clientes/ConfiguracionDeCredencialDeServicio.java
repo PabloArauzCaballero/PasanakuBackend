@@ -24,9 +24,8 @@ class ConfiguracionDeCredencialDeServicio {
             @Value("${aportaya.grupos.transparencia.credencial-servicio:}") String tokenEmitido,
             @Value("${aportaya.grupos.transparencia.cuenta-servicio.telefono:}") String telefono,
             @Value("${aportaya.grupos.transparencia.cuenta-servicio.clave:}") String clave,
-            @Value("${aportaya.grupos.transparencia.cuenta-servicio.factor-totp-semilla:}") String semilla,
-            @Value("${aportaya.grupos.transparencia.cuenta-servicio.factor-fijo:}") String factorFijo) {
+            @Value("${aportaya.grupos.transparencia.cuenta-servicio.factor-totp-semilla:}") String semilla) {
         return CredencialDeServicioConfigurada.de(
-                "grupos", "GRUPOS", identidad, timeout, tokenEmitido, telefono, clave, semilla, factorFijo);
+                "grupos", "GRUPOS", identidad, timeout, tokenEmitido, telefono, clave, semilla);
     }
 }

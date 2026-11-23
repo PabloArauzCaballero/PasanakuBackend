@@ -99,14 +99,12 @@ DE_DESARROLLO = {
     "INVERSIONES_SERVICIO_TELEFONO": "",
     "INVERSIONES_SERVICIO_CLAVE": "",
     "INVERSIONES_SERVICIO_TOTP_SEMILLA": "",
-    "INVERSIONES_SERVICIO_FACTOR_FIJO": "",
     # Cuenta de servicio de entregas en identidad (rol SERVICIO_ENTREGAS): con ella entregas le paga al vendedor de un
     # turno (pago-a-tercero). Vacias en el repo: las pone quien opera el entorno; a medias, entregas NO arranca.
     "ENTREGAS_LIBRO_CREDENCIAL_SERVICIO": "",
     "ENTREGAS_SERVICIO_TELEFONO": "",
     "ENTREGAS_SERVICIO_CLAVE": "",
     "ENTREGAS_SERVICIO_TOTP_SEMILLA": "",
-    "ENTREGAS_SERVICIO_FACTOR_FIJO": "",
     # Cuenta de servicio de grupos en identidad (rol SERVICIO_GRUPOS): con ella grupos lee la etapa de reputacion de
     # quien entra a un grupo (GET /reputacion/etapas/de-personas). Vacias en el repo: las pone quien opera el entorno;
     # sin ellas toda alta de grupo y todo ingreso fallan cerrados.
@@ -114,7 +112,6 @@ DE_DESARROLLO = {
     "GRUPOS_SERVICIO_TELEFONO": "",
     "GRUPOS_SERVICIO_CLAVE": "",
     "GRUPOS_SERVICIO_TOTP_SEMILLA": "",
-    "GRUPOS_SERVICIO_FACTOR_FIJO": "",
     # Cuenta de servicio de garantia en identidad (rol SERVICIO_GARANTIA, F1.L1.M07): con ella garantia pregunta el
     # recaudo del periodo a aportes. Vacias en local: sin cuenta, el recaudo no se pregunta (falla cerrado).
     "GARANTIA_SERVICIO_TELEFONO": "",
@@ -249,14 +246,12 @@ DE_ENTORNO = {
     "INVERSIONES_SERVICIO_TELEFONO": "${INVERSIONES_SERVICIO_TELEFONO:-}",
     "INVERSIONES_SERVICIO_CLAVE": "${INVERSIONES_SERVICIO_CLAVE:-}",
     "INVERSIONES_SERVICIO_TOTP_SEMILLA": "${INVERSIONES_SERVICIO_TOTP_SEMILLA:-}",
-    "INVERSIONES_SERVICIO_FACTOR_FIJO": "${INVERSIONES_SERVICIO_FACTOR_FIJO:-}",
     # Cuenta de servicio de entregas en identidad (rol SERVICIO_ENTREGAS): con ella entregas le paga al vendedor de un
     # turno (pago-a-tercero). Vacias en el repo: las pone quien opera el entorno; a medias, entregas NO arranca.
     "ENTREGAS_LIBRO_CREDENCIAL_SERVICIO": "${ENTREGAS_LIBRO_CREDENCIAL_SERVICIO:-}",
     "ENTREGAS_SERVICIO_TELEFONO": "${ENTREGAS_SERVICIO_TELEFONO:-}",
     "ENTREGAS_SERVICIO_CLAVE": "${ENTREGAS_SERVICIO_CLAVE:-}",
     "ENTREGAS_SERVICIO_TOTP_SEMILLA": "${ENTREGAS_SERVICIO_TOTP_SEMILLA:-}",
-    "ENTREGAS_SERVICIO_FACTOR_FIJO": "${ENTREGAS_SERVICIO_FACTOR_FIJO:-}",
     # Cuenta de servicio de grupos en identidad (rol SERVICIO_GRUPOS): con ella grupos lee la etapa de reputacion de
     # quien entra a un grupo (GET /reputacion/etapas/de-personas). Vacias en el repo: las pone quien opera el entorno;
     # sin ellas toda alta de grupo y todo ingreso fallan cerrados.
@@ -264,7 +259,6 @@ DE_ENTORNO = {
     "GRUPOS_SERVICIO_TELEFONO": "${GRUPOS_SERVICIO_TELEFONO:-}",
     "GRUPOS_SERVICIO_CLAVE": "${GRUPOS_SERVICIO_CLAVE:-}",
     "GRUPOS_SERVICIO_TOTP_SEMILLA": "${GRUPOS_SERVICIO_TOTP_SEMILLA:-}",
-    "GRUPOS_SERVICIO_FACTOR_FIJO": "${GRUPOS_SERVICIO_FACTOR_FIJO:-}",
     # Cuenta de servicio de garantia en identidad (rol SERVICIO_GARANTIA, F1.L1.M07): se cargan en Coolify. Con
     # `${X:-}` y no "" literal, para que Coolify pueda ponerlas; vacias = sin cuenta (el recaudo no se pregunta,
     # falla cerrado). A medias (telefono sin clave o sin semilla TOTP), garantia NO arranca.
