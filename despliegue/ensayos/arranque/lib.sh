@@ -62,14 +62,12 @@ ENV
   log "entorno sintetico generado en $ENVF (fuera del repo)"
 }
 
-# Variables que llegaron DESPUES de que se genero un entorno viejo (se agregan, nunca se pisan): la cuenta de servicio con
-# que entregas le paga al vendedor de un turno (carril G). Telefono y clave sinteticos; el factor fijo es el del perfil
-# `local` (DesafioDeDesarrollo acepta 000000) y SOLO sirve ahi. El usuario lo siembra despliegue/ensayos/integracion.
+# Variables de cuenta de servicio agregadas a entornos viejos. El usuario completa telefono, clave y semilla TOTP
+# en despliegue/ensayos/integracion; nunca se genera ni se siembra un factor fijo.
 completar_entorno() {
   local f="$1"
   grep -q '^ENTREGAS_SERVICIO_TELEFONO=' "$f" || echo "ENTREGAS_SERVICIO_TELEFONO=+59172100001" >> "$f"
   grep -q '^ENTREGAS_SERVICIO_CLAVE=' "$f" || echo "ENTREGAS_SERVICIO_CLAVE=$(openssl rand -hex 24)" >> "$f"
-  grep -q '^ENTREGAS_SERVICIO_FACTOR_FIJO=' "$f" || echo "ENTREGAS_SERVICIO_FACTOR_FIJO=000000" >> "$f"
 }
 
 # Variante del entorno para un escenario: quita variables (quedan en blanco, que es lo que hace

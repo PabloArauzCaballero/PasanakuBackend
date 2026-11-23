@@ -27,6 +27,6 @@ class ConfiguracionDeCredencialDeServicio {
         // Sin token ya emitido ni factor fijo: la unica forma de garantia es la cuenta de servicio con TOTP (el factor
         // fijo no sirve desde #412, y un token suelto vive minutos).
         return CredencialDeServicioConfigurada.de(
-                "garantia", "GARANTIA", identidad, timeout, "", telefono, clave, semilla, "");
+                "garantia", "GARANTIA", identidad, timeout, "", telefono, clave, semilla);
     }
 }

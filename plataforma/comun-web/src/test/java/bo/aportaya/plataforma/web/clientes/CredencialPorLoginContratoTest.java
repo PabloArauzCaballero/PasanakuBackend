@@ -127,7 +127,7 @@ class CredencialPorLoginContratoTest {
     @Test
     @DisplayName("correcto · entra por POST /sesiones con telefono, clave y factor TOTP, y devuelve el token de acceso")
     void ingresaYDevuelveElToken() {
-        var c = credencial(CredencialPorLogin.fijo("123456"));
+        var c = credencial(ahora -> "123456");
 
         var token = c.vigente();
 
@@ -159,7 +159,7 @@ class CredencialPorLoginContratoTest {
     @DisplayName(
             "limite · mientras el token no esta por vencer se reutiliza; falta el margen y se renueva una sola vez")
     void seRenuevaAntesDeVencer() {
-        var c = credencial(CredencialPorLogin.fijo("000000"));
+        var c = credencial(ahora -> "000000");
         c.vigente();
         reloj.avanzar(Duration.ofMinutes(10));
         c.vigente();
@@ -177,11 +177,12 @@ class CredencialPorLoginContratoTest {
 
     @Test
     @DisplayName(
-            "rechaza · con credencial rechazada (422) no hay token y NO se vuelve a intentar antes de la espera: cada fallo cuenta para el bloqueo de la cuenta")
+            "rechaza · con credencial rechazada (422) no hay token y NO se vuelve a intentar antes de la espera: cada"
+                    + " fallo cuenta para el bloqueo de la cuenta")
     void rechazadaNoReintentaEnBucle() {
         estado = 422;
         respuesta = "{\"codigo\":\"AP-CU04-01\",\"mensaje\":\"El telefono o la credencial no coinciden.\"}";
-        var c = credencial(CredencialPorLogin.fijo("000000"));
+        var c = credencial(ahora -> "000000");
 
         assertThat(c.vigente()).isEmpty();
         assertThat(c.vigente()).isEmpty();
@@ -199,7 +200,7 @@ class CredencialPorLoginContratoTest {
     @DisplayName("rechaza · si identidad pide un factor adicional (sin tokenAcceso) no hay credencial")
     void sinTokenNoHayCredencial() {
         respuesta = "{\"requiereFactorAdicional\":true,\"dispositivoConfiable\":false}";
-        assertThat(credencial(CredencialPorLogin.fijo("000000")).vigente()).isEmpty();
+        assertThat(credencial(ahora -> "000000").vigente()).isEmpty();
     }
 
     @Test
@@ -207,12 +208,12 @@ class CredencialPorLoginContratoTest {
     void identidadCaida() {
         estado = 503;
         respuesta = "no es json";
-        assertThat(credencial(CredencialPorLogin.fijo("000000")).vigente()).isEmpty();
+        assertThat(credencial(ahora -> "000000").vigente()).isEmpty();
 
         estado = 200;
         respuesta = "no es json";
         reloj.avanzar(Duration.ofMinutes(1));
-        assertThat(credencial(CredencialPorLogin.fijo("000000")).vigente()).isEmpty();
+        assertThat(credencial(ahora -> "000000").vigente()).isEmpty();
     }
 
     @Test
@@ -220,7 +221,7 @@ class CredencialPorLoginContratoTest {
     void identidadLenta() {
         demoraMs = 2500;
         long antes = System.nanoTime();
-        assertThat(credencial(CredencialPorLogin.fijo("000000")).vigente()).isEmpty();
+        assertThat(credencial(ahora -> "000000").vigente()).isEmpty();
         assertThat(Duration.ofNanos(System.nanoTime() - antes)).isLessThan(Duration.ofSeconds(2));
     }
 
@@ -233,30 +234,29 @@ class CredencialPorLoginContratoTest {
     }
 
     @Test
-    @DisplayName(
-            "rechaza · una cuenta de servicio configurada a medias no arranca (no degrada en silencio a sin credencial)")
+    @DisplayName("rechaza · una cuenta de servicio configurada a medias no arranca (no degrada en silencio a sin"
+            + " credencial)")
     void configuracionAMedias() {
         var uri = URI.create("http://identidad:8080");
         assertThatThrownBy(() -> CredencialDeServicioConfigurada.de(
-                        "pruebas", "PRUEBAS", uri, Duration.ofSeconds(1), "", TELEFONO, "", "", ""))
+                        "pruebas", "PRUEBAS", uri, Duration.ofSeconds(1), "", TELEFONO, "", ""))
                 .isInstanceOf(IllegalStateException.class);
         assertThatThrownBy(() -> CredencialDeServicioConfigurada.de(
-                        "pruebas", "PRUEBAS", uri, Duration.ofSeconds(1), "", TELEFONO, CLAVE, "", ""))
+                        "pruebas", "PRUEBAS", uri, Duration.ofSeconds(1), "", TELEFONO, CLAVE, ""))
                 .isInstanceOf(IllegalStateException.class);
         assertThatThrownBy(() -> CredencialDeServicioConfigurada.de(
-                        "pruebas", "PRUEBAS", uri, Duration.ofSeconds(1), "", "", "", "SEMILLA", ""))
+                        "pruebas", "PRUEBAS", uri, Duration.ofSeconds(1), "", "", "", "SEMILLA"))
                 .isInstanceOf(IllegalStateException.class);
-        assertThat(CredencialDeServicioConfigurada.de(
-                                "pruebas", "PRUEBAS", uri, Duration.ofSeconds(1), "", "", "", "", "")
+        assertThat(CredencialDeServicioConfigurada.de("pruebas", "PRUEBAS", uri, Duration.ofSeconds(1), "", "", "", "")
                         .vigente())
                 .as("sin nada configurado: vacio")
                 .isEmpty();
         assertThat(CredencialDeServicioConfigurada.de(
-                                "pruebas", "PRUEBAS", uri, Duration.ofSeconds(1), " token-emitido ", "", "", "", "")
+                                "pruebas", "PRUEBAS", uri, Duration.ofSeconds(1), " token-emitido ", "", "", "")
                         .vigente())
                 .contains("token-emitido");
         assertThat(CredencialDeServicioConfigurada.de(
-                        "pruebas", "PRUEBAS", uri, Duration.ofSeconds(1), "", TELEFONO, CLAVE, "", "000000"))
+                        "pruebas", "PRUEBAS", uri, Duration.ofSeconds(1), "", TELEFONO, CLAVE, "SEMILLA"))
                 .isInstanceOf(CredencialPorLogin.class);
     }
 }
