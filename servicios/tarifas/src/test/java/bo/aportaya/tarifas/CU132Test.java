@@ -112,7 +112,7 @@ class CU132Test extends BaseDeTarifas {
     }
 
     @Test
-    @DisplayName("Historial · conserva versiones vigentes y pendientes en orden de vigencia")
+    @DisplayName("Dado un parámetro con versiones aprobadas y propuestas · Cuando se consulta su historial · Entonces devuelve todas las versiones en orden de vigencia descendente")
     void historialCompleto() {
         var anterior = proponer("5", UUID.randomUUID());
         var nuevaPropuesta = new CU132RegistroDeParametros.Propuesta(
@@ -133,7 +133,7 @@ class CU132Test extends BaseDeTarifas {
     }
 
     @Test
-    @DisplayName("Historial · un código ausente falla con AP-CU132-01")
+    @DisplayName("Dado un código de parámetro que no existe · Cuando se consulta su historial · Entonces falla con AP-CU132-01")
     void historialDeParametroInexistente() {
         assertThatThrownBy(() -> transaccion.execute(t -> cu132.historial("NO_EXISTE", contextoDe(aprueba))))
                 .isInstanceOfSatisfying(ErrorDeNegocio.class, error -> assertThat(error.codigo())

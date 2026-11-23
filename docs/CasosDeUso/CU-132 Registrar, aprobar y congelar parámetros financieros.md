@@ -106,6 +106,14 @@ Entonces se rechaza y la corrección exige una versión nueva
 Dado un grupo que ya congeló un parámetro en un nivel
 Cuando se intenta congelar otra versión del mismo parámetro y nivel para ese grupo
 Entonces se rechaza y el grupo conserva la versión que congeló al iniciar
+
+Dado un parámetro con versiones aprobadas y propuestas
+Cuando se consulta su historial
+Entonces devuelve todas las versiones en orden de vigencia descendente
+
+Dado un código de parámetro que no existe
+Cuando se consulta su historial
+Entonces falla con AP-CU132-01
 ```
 
 ## Ver también
