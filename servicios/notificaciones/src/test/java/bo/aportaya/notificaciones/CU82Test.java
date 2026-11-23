@@ -25,7 +25,9 @@ class CU82Test extends BaseDeNotificaciones {
     }
 
     private SalidaRespuesta procesar(String remitente, String texto, String clave, ContextoSesion ctx) {
-        String carga = "{\"de\":\"" + remitente + "\",\"texto\":\"" + texto + "\"}";
+        // F1.L5.M23: la carga firmada lleva todo (id, canal, remitente, contenido y cuando se emitio).
+        String carga = "{\"idMensaje\":\"" + clave + "\",\"canal\":\"CORREO\",\"remitente\":\"" + remitente
+                + "\",\"contenido\":\"" + texto + "\",\"emitidoEn\":\"" + java.time.Instant.now() + "\"}";
         return transaccion.execute(e -> respuestaCU.ejecutar(
                 new EntradaRespuesta(
                         "CORREO",

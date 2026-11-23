@@ -26,7 +26,8 @@
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
 | T2.M0 | Mockito como `-javaagent` y su arranque único pagado al abrir la sesión de JUnit (`LauncherSessionListener`) en `grupos` | Con 1 núcleo + 3 procesos ocupados, la clase pasa 3/3 (antes: `armar() timed out after 5 seconds`) | `taskset -c 0 ./gradlew --no-daemon :servicios:grupos:test --tests '*AdmisionDelGrupoSustitucionTest' --rerun` ×3 + `:servicios:grupos:test webTest` | HECHO |
-| T2.M0b | Mismo arreglo para el resto de servicios (en `buildSrc` + `comun-pruebas`) | Ninguna JVM de prueba se auto-adjunta | grep `self-attaching` vacío en `build/test-results` | A MEDIAS (fuera de alcance: `buildSrc`, `plataforma`) |
+| T2.M0b | Mismo arreglo para el resto de servicios (en `buildSrc` + `comun-pruebas`) | Ninguna JVM de prueba se auto-adjunta | grep `self-attaching` vacío en `build/test-results` | HECHO (coordinación, #444 en `dev`; incluye #423) |
+| T2.M1 | Causa raíz del intermitente `inversiones · AliadoSimuladoFlujosContratoTest` (pedido de la coordinación) | Bajo carga, 0 fallos (antes 29/60) sin reintentos ni timeouts | Diagnóstico A/B bajo carga + `contractTest` ×3 con carga | HECHO (#453 en `dev`) |
 
 ### H1.S1 — F1 del anexo L3 (servicio `grupos`)
 | ID | Microtarea | CA | DoD | Estado |
@@ -43,13 +44,13 @@
 | ID | Microtarea | Servicio | Estado |
 |---|---|---|---|
 | F1.S2.M3 | Autorización por propiedad del recurso en cada endpoint del lote + matriz en `verificar_seguridad.py` | todos | TODO |
-| F1.L5.M26 | Avisos internos filtrados por destinatario | notificaciones | TODO |
-| F1.L5.M27 | Retirar la consulta de supresión con el contacto en la URL | notificaciones | TODO |
-| F1.L5.M23 | Webhook de mensajería derivado de la carga firmada, con ventana | notificaciones | TODO |
-| F1.L5.M21 | Certificado de reputación con datos del servidor | transparencia | TODO |
+| F1.L5.M26 | Avisos internos filtrados por destinatario | notificaciones | HECHO (app); RLS: A MEDIAS |
+| F1.L5.M27 | Retirar la consulta de supresión con el contacto en la URL | notificaciones | HECHO |
+| F1.L5.M23 | Webhook de mensajería derivado de la carga firmada, con ventana | notificaciones | HECHO (contra doble del proveedor) |
+| F1.L5.M21 | Certificado de reputación con datos del servidor | transparencia | HECHO (contra doble de identidad) |
 | F1.L5.M22 | Sello de la cadena con permiso propio | transparencia | TODO |
 | F1.L5.M20 | Sorteo con entropías reveladas | grupos/transparencia | TODO |
-| F1.L5.M28 | Tarifario: actor de la sesión y tipo de cambio derivado | tarifas | TODO |
+| F1.L5.M28 | Tarifario: actor de la sesión y tipo de cambio derivado | tarifas | A MEDIAS (actor HECHO; tipo sin fuente) |
 | F1.L5.M13/M14/M15 | Comisión: devolución con cuatro ojos del token, sin descuentos, sin marcado manual | (relocalizar) | TODO |
 | F1.L5.M29 | Publicidad: propiedad de la cuenta, impresión única y tope | publicidad | TODO |
 | F1.L5.M09 | `Idempotency-Key` en mutaciones de los servicios de apoyo | lote | TODO |
@@ -61,6 +62,32 @@
 | F2.M8 | Eliminar las aprobaciones eliminables en el lote (F2.L3.M10, M15) | TODO |
 
 Cada fila se detalla con CA y DoD propios al abrirla (regla 50), antes de escribir código.
+
+## H3 — Registro central de parámetros financieros en `tarifas` (F3.S8.M2/M6, pedido de la coordinación; después de #448)
+**CA:** Dado un parámetro financiero sin versión aprobada, cuando una operación lo necesita, entonces falla con un error
+que nombra lo que falta; una versión la propone una persona y la aprueba otra (los dos del token), y un grupo en curso
+nunca ve una versión posterior a su inicio.
+**DoD:** los de cada microtarea; propuesta en [PROPUESTA-F3.S8-parametros.md](./PROPUESTA-F3.S8-parametros.md)
+(rama `correcciones/tanda2-l3l5-f3-parametros`).
+**Estado:** EN CURSO — modelo en #486, API en #492 (contrato de L2: #485); M6 en rama sin PR (tope); sigue M4.
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| F3.S8.M2a | Modelo en `11_tarifas_comisiones.puml` + filas de `tarifas` en `Restricciones.md`, alineado al contrato de L2 | Cada `CHECK` (cuatro ojos, `>= 0`, unicidad) rechaza su violación en la base | `generar_ddl.py` + aplicar + deriva + `psql` (PR chico) | HECHO (#486) |
+| F3.S8.M2b | Proponer, aprobar (cuatro ojos del token) y consultar vigentes; falla explícita si falta | Aprobar uno mismo → rechazo; sin versión → 422 con el código | unitarias + web con matriz negativa | HECHO (#492; el 422 por grupo sin versión pasa a M6, que trae la consulta por grupo) |
+| F3.S8.M6 | Congelamiento al iniciar el grupo y consulta por grupo | El mismo `grupo_iniciado` dos veces congela una vez; una versión nueva no cambia el grupo | prueba de duplicado + `psql` | A MEDIAS (psql y unitarias PASS; `CU132CongelamientoTest` espera CI) |
+| F3.S8.M4 | Pantalla del backoffice | Cuatro estados, error por campo, historial | prueba visual 3 viewports × 2 temas + E2E | TODO |
+
+## H4 — `grupos.turnos_asignados` para la entrega automática (F3.L2.M01, pedido de L2 y del coordinador)
+**CA:** Dado un sorteo revelado, cuando se crean los turnos, entonces sale por outbox un evento con turno, periodo,
+cupo, titular y versión; y cuando cambia el titular de un cupo, se republica el turno con versión mayor.
+**DoD:** prueba de productor contra el pacto de #490 + integración del outbox.
+**Estado:** EN CURSO
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| F3.L2.M01a | Publicar al revelar, versión 1 | Revelar → 1 evento con 6 turnos que coinciden con `turno` y `cupo`; semilla inválida → 0 | `TurnoAsignadoTest` + `TurnosAsignadosRepositorioTest` (CI) | A MEDIAS (unitaria PASS; integración espera CI y PR) |
+| F3.L2.M01b | Republicar con versión mayor al cambiar el titular (traspaso, subasta, reemplazo) | Traspaso → evento del turno con versión 2 | integración por camino | TODO (falta de dónde sale la versión: columna en `turno` o historial) |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |

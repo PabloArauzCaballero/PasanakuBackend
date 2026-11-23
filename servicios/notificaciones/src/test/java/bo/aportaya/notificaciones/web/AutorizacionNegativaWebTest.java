@@ -177,14 +177,18 @@ class AutorizacionNegativaWebTest {
     }
 
     @Test
-    @DisplayName(
-            "el GET deprecado sigue pidiendo GRUPO_ADMINISTRAR (mientras grupos migra, no es una puerta mas abierta)")
-    void elGetDeprecadoNoEsMasAbierto() throws Exception {
-        mvc.perform(get("/notificaciones/supresion")
+    @DisplayName("F1.L5.M27 · el GET con el contacto en la query ya no existe: ni con el permiso responde")
+    void elGetConElContactoEnLaUrlNoExiste() throws Exception {
+        // Reemplaza a «el GET deprecado sigue pidiendo GRUPO_ADMINISTRAR»: el GET se retiro, asi que lo que se
+        // afirma ahora es que la ruta no contesta, ni siquiera a quien tenia permiso, y que no se consulta nada.
+        int estado = mvc.perform(get("/notificaciones/supresion")
                         .param("identificador", CONTACTO)
                         .param("categoria", "COMERCIAL")
-                        .with(Sesiones.como("PARTICIPANTE", "BILLETERA_VER")))
-                .andExpect(status().isForbidden());
+                        .with(Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR")))
+                .andReturn()
+                .getResponse()
+                .getStatus();
+        org.assertj.core.api.Assertions.assertThat(estado).isIn(404, 405);
         verifyNoInteractions(supresiones);
     }
 }

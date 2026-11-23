@@ -33,6 +33,9 @@ aportaya:
     # Del almacen de secretos: es lo que separa un acuse del proveedor de cualquiera
     # que alcance la ruta publica del webhook.
     secreto: ${WEBHOOK_SECRETO}
+    # F1.L5.M23: un mensaje firmado con `emitidoEn` a mas de esto de ahora (para atras o adelante) se rechaza:
+    # sin ventana, un par (carga, firma) capturado se puede repetir para siempre.
+    ventana: PT5M
   supresion:
     # Tope de consultas «este contacto pidio no recibir» por actor y por minuto (oraculo de baja).
     consultas-por-minuto: 30

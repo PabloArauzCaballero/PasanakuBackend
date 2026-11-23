@@ -1,0 +1,23 @@
+# F1.L5.M27 — Retirar la consulta de supresión con el contacto en la URL (2026-11-21)
+
+## Relocalización en origin/dev
+NotificacionesController.consultarSupresion (GET /notificaciones/supresion?identificador=...): @Deprecated, vigente.
+Consumidores: servicios/grupos/.../HechosPorHttp.java:229 usa POST /notificaciones/supresion/consultas. grep en servicios/ y plataforma/ (java, yml): sin otro consumidor del GET.
+
+## Contrato después del cambio
+operaciones con contacto en path/query: ninguna
+consultarSupresion en el contrato: False
+
+## Pruebas
+$ ./gradlew :servicios:notificaciones:spotlessApply test webTest testBarrido --rerun -> exit=0
+test: 5 casos, 0 fallos · webTest: 47 casos, 0 fallos · testBarrido: 2 casos, 0 fallos
+  F1.L5.M27 · el GET con el contacto en la query ya no existe: ni con el permiso responde (reemplaza a «el GET deprecado sigue pidiendo GRUPO_ADMINISTRAR»)
+  CU-80 · la consulta de supresión contesta sí o no, y nada más (ahora por POST con el contacto en el cuerpo)
+
+## Artefactos derivados
+$ python3 scripts/generar_postman.py -> exit 0 (colecciones de notificaciones sin la operación)
+$ python3 -I scripts/catalogo_de_datos.py --escribir -> exit 0, sin diff
+$ python3 scripts/inventario_endpoints.py --check -> 351 endpoints, 0 hallazgos
+$ python3 scripts/verificar_pruebas_web.py -> La capa web esta cubierta segun ADR-043.
+
+No cubierto: packages/simulado/ejemplos/notificaciones/consultarSupresion.json queda huérfano (fuera de alcance; el inyector lo ignora); docs/auditoria-produccion/endpoints.md ya estaba desactualizado (320 vs 351) y conserva la fila.

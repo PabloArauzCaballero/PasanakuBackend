@@ -1,0 +1,37 @@
+# F1.L5.M21 — El certificado de reputación se arma con datos del servidor (2026-11-21)
+
+## Relocalización en origin/dev
+CU75EmitirCertificado: CertificadoVerificable.contenido(entrada.disponibles(), ...) y if (!entrada.identidadVerificada()) — los dos del cuerpo (MapeoDeReputacion.certificado). Además el snapshotId no se comprobaba contra el titular. Vigente.
+
+## Caso de uso con doble de identidad en tres niveles
+$ ./gradlew :servicios:transparencia:test --tests '*CertificadoConDatosDelServidorTest' --rerun -> exit=0, 3 casos, 0 fallos
+  Correcto · identidad verificada: el contenido firmado son los valores REALES de la foto
+  Límite · una foto que no es del titular es «no hay foto»: no se firma nada
+  Inválido · identidad no verificada (o identidad no respondió): no se emite
+Web: «los valores y la identidad verificada del cuerpo NO llegan al caso de uso» (cuerpo con puntaje 999.99) -> PASS
+
+## Consulta contra PostgreSQL 16 local (datos sintéticos, revertido)
+--- titular (a) pide su foto ---
+ puntaje | nivel_confianza |       tomado_en        |                    factores                     
+---------+-----------------+------------------------+-------------------------------------------------
+ 512.00  | EN_CRECIMIENTO  | 2026-11-20 10:00:00+00 | {"puntaje": "999.99", "antiguedad": "18 meses"}
+(1 row)
+
+--- otro usuario (b) pide la foto de (a) ---
+ count 
+-------
+     0
+(1 row)
+
+ROLLBACK
+(en el código la columna puntaje pisa al factor homónimo: el certificado dice 512.00, no 999.99)
+
+## Regresión
+$ ./gradlew :servicios:transparencia:spotlessCheck test webTest testBarrido --rerun -> exit=0
+test: 27 casos, 0 fallos
+webTest: 51 casos, 0 fallos
+testBarrido: 2 casos, 0 fallos
+generar_postman.py (sin diff) · verificar_pruebas_web.py · inventario_endpoints.py --check · verificar_seguridad.py -> exit 0
+
+NO COMPROBADO — requiere Docker: CU75Test y CU75RechazosTest (actualizados: la fixture de la foto lleva los factores; el doble de identidad es IDENTIDAD_VERIFICADA). ./gradlew :servicios:transparencia:integrationTest --tests '*CU75*'
+No cubierto: IdentidadPorHttp contra identidad real o apagado; pacto transparencia→identidad (consultarNivelKyc).

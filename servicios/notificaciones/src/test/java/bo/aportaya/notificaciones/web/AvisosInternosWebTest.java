@@ -156,7 +156,7 @@ class AvisosInternosWebTest {
                 .leidoEn(AHORA)
                 .creadoEn(AHORA);
 
-        when(gestionarAvisosInternos.marcarLeido(eq(AVISO_ID), any())).thenReturn(Optional.of(aviso));
+        when(gestionarAvisosInternos.marcarLeido(eq(AVISO_ID), any(), any())).thenReturn(Optional.of(aviso));
 
         mvc.perform(post("/notificaciones/avisos-internos/" + AVISO_ID + "/leido")
                         .with(Sesiones.como("ADMIN_PLATAFORMA", "AUDITORIA_LEER")))
@@ -168,11 +168,26 @@ class AvisosInternosWebTest {
     @Test
     @DisplayName("POST /notificaciones/avisos-internos/{id}/leido: 404 si no existe")
     void marcarAvisoLeidoNoExiste() throws Exception {
-        when(gestionarAvisosInternos.marcarLeido(eq(AVISO_ID), any())).thenReturn(Optional.empty());
+        when(gestionarAvisosInternos.marcarLeido(eq(AVISO_ID), any(), any())).thenReturn(Optional.empty());
 
         mvc.perform(post("/notificaciones/avisos-internos/" + AVISO_ID + "/leido")
                         .with(Sesiones.como("ADMIN_PLATAFORMA", "AUDITORIA_LEER")))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("F1.L5.M26 · el operador B marca un aviso: el filtro recibe SU usuario y SUS roles; ajeno → 404")
+    void marcarAvisoAjenoEs404() throws Exception {
+        when(gestionarAvisosInternos.marcarLeido(eq(AVISO_ID), any(), any())).thenReturn(Optional.empty());
+
+        mvc.perform(post("/notificaciones/avisos-internos/" + AVISO_ID + "/leido")
+                        .with(Sesiones.comoOtro("ADMIN_PLATAFORMA", "AUDITORIA_LEER")))
+                .andExpect(status().isNotFound());
+        org.mockito.Mockito.verify(gestionarAvisosInternos)
+                .marcarLeido(
+                        eq(AVISO_ID),
+                        org.mockito.ArgumentMatchers.argThat(r -> r.contains("AUDITORIA_LEER")),
+                        org.mockito.ArgumentMatchers.argThat(c -> Sesiones.OTRO_USUARIO.equals(c.usuarioId())));
     }
 
     @Test

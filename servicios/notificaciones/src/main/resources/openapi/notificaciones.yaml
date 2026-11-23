@@ -74,7 +74,7 @@ paths:
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU82-01 FIRMA_INVALIDA - AP-CU82-02 REMITENTE_DESCONOCIDO
-          # AP-CU82-03 MENSAJE_DUPLICADO
+          # AP-CU82-03 MENSAJE_DUPLICADO - AP-CU82-04 FUERA_DE_VENTANA
 
   # Los otros tres casos de uso del carril NO tienen endpoint, y es a proposito:
   #
@@ -228,10 +228,10 @@ paths:
       operationId: verificarSupresion
       summary: Si un destino pidio no recibir mas (el contacto viaja en el cuerpo)
       description: >-
-        Lo mismo que `GET /notificaciones/supresion`, sin el telefono o correo en la URL (regla
-        90.2.2: una URL queda en historiales, proxies y logs de acceso del gateway y de cada
-        salto). Es el que tienen que usar los consumidores; el GET queda deprecado hasta que
-        `grupos` migre (`HechosPorHttp`) y se retira despues.
+        Si un contacto pidio no recibir mas, sin el telefono o correo en la URL (regla 90.2.2: una
+        URL queda en historiales, proxies y logs de acceso del gateway y de cada salto). El
+        `GET /notificaciones/supresion` con el contacto en la query se RETIRO el 2026-11-21
+        (F1.L5.M27): `grupos` ya usaba esta consulta y no quedaba otro consumidor.
 
         Esta pregunta es un oraculo («este contacto pidio no recibir»): contesta SOLO si/no, la
         puede hacer quien administra grupos, y cada actor tiene un tope de consultas por minuto
@@ -254,36 +254,6 @@ paths:
             Retry-After:
               description: Segundos hasta poder volver a preguntar
               schema: { type: integer }
-
-  /notificaciones/supresion:
-    get:
-      operationId: consultarSupresion
-      deprecated: true
-      summary: Si un destino pidio no recibir mas (DEPRECADO - usar la consulta por cuerpo)
-      description: >-
-        DEPRECADO: el contacto viaja en la query. Reemplazo: `POST /notificaciones/supresion/consultas`.
-
-        La pregunta CU-69 de `grupos` antes de invitar: a quien se dio de baja no se le
-        escribe, aunque quien invita no lo sepa. La lista de supresion es de este
-        servicio y nadie mas la puede leer (invariante 11).
-
-        Se mira en los tres canales encendidos y alcanza con que uno este suprimido:
-        quien pidio no recibir por el canal que usariamos, pidio no recibir.
-      parameters:
-        - name: identificador
-          in: query
-          required: true
-          schema: { type: string, maxLength: 120 }
-        - name: categoria
-          in: query
-          required: true
-          schema: { type: string, maxLength: 40 }
-      responses:
-        '200':
-          description: Si esta suprimido
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/Supresion' }
 
   /notificaciones/avisos-internos:
     get:
@@ -387,15 +357,21 @@ components:
     EntradaRespuesta:
       type: object
       additionalProperties: false
-      required: [remitente, firma, cargaUtil, claveIdempotencia]
+      required: [firma, cargaUtil]
+      description: >-
+        F1.L5.M23. Todo sale de `cargaUtil`, que es lo firmado (HMAC-SHA256): un JSON con `idMensaje`,
+        `canal`, `remitente`, `contenido`, `emitidoEn` (ISO-8601) y, opcional, `notificacionRelacionadaId`.
+        Fuera de la ventana de `emitidoEn` se rechaza (AP-CU82-04) y el `idMensaje` firmado deduplica.
+        Los campos de afuera son DEPRECADOS (retiro 2027-02-28): si vienen y no coinciden con lo
+        firmado, la peticion se rechaza como firma invalida (AP-CU82-01).
       properties:
-        canal:      { type: string, enum: [IN_APP, CORREO, PUSH, WHATSAPP, SMS, LLAMADA_VOZ] }
-        remitente:  { type: string, maxLength: 200 }
+        canal:      { type: string, enum: [IN_APP, CORREO, PUSH, WHATSAPP, SMS, LLAMADA_VOZ], deprecated: true }
+        remitente:  { type: string, maxLength: 200, deprecated: true }
         firma:      { type: string }
-        cargaUtil:  { type: string }
-        contenido:  { type: string }
-        claveIdempotencia: { type: string, maxLength: 120 }
-        notificacionRelacionadaId: { type: string, format: uuid }
+        cargaUtil:  { type: string, maxLength: 8000 }
+        contenido:  { type: string, deprecated: true }
+        claveIdempotencia: { type: string, maxLength: 120, deprecated: true }
+        notificacionRelacionadaId: { type: string, format: uuid, deprecated: true }
     SalidaRespuesta:
       type: object
       additionalProperties: false

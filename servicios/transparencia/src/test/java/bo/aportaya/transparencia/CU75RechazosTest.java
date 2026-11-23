@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.transparencia.aplicacion.CU75EmitirCertificado.EntradaCertificado;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -22,15 +21,6 @@ class CU75RechazosTest extends BaseDeTransparencia {
         return new Caso(usuario, fixtura.snapshot(usuario, "780.00", "MUY_CONFIABLE"), contextoDe(usuario));
     }
 
-    private static Map<String, String> disponibles() {
-        var todo = new LinkedHashMap<String, String>();
-        todo.put("puntaje", "780.00");
-        todo.put("nivel", "MUY_CONFIABLE");
-        todo.put("antiguedad", "18 meses");
-        todo.put("indicePuntualidad", "0.96");
-        return todo;
-    }
-
     @Test
     @DisplayName("rechaza por R-AUD-01")
     void rechazaRAUD01() {
@@ -40,8 +30,7 @@ class CU75RechazosTest extends BaseDeTransparencia {
         // unicidad del certificado por foto: emitir otro sobre la misma es imposible.
         Caso c = caso();
         transaccion.execute(t -> certificadoCU.emitir(
-                new EntradaCertificado(c.usuario(), c.snapshot(), disponibles(), Set.of("puntaje"), 90, true),
-                c.ctx()));
+                new EntradaCertificado(c.usuario(), c.snapshot(), Set.of("puntaje"), 90), c.ctx()));
 
         assertThat(rechazaLaBase(
                         """
@@ -63,8 +52,7 @@ class CU75RechazosTest extends BaseDeTransparencia {
         // avisar si no fue el.
         Caso c = caso();
         var emitido = transaccion.execute(t -> certificadoCU.emitir(
-                new EntradaCertificado(c.usuario(), c.snapshot(), disponibles(), Set.of("puntaje"), 90, true),
-                c.ctx()));
+                new EntradaCertificado(c.usuario(), c.snapshot(), Set.of("puntaje"), 90), c.ctx()));
 
         assertThat(contar(
                         """
@@ -82,7 +70,7 @@ class CU75RechazosTest extends BaseDeTransparencia {
         // Un certificado sale de UNA foto, y de una foto sale UN certificado. Dos
         // codigos para el mismo documento harian que revocar uno dejara el otro vivo.
         Caso c = caso();
-        var entrada = new EntradaCertificado(c.usuario(), c.snapshot(), disponibles(), Set.of("puntaje"), 90, true);
+        var entrada = new EntradaCertificado(c.usuario(), c.snapshot(), Set.of("puntaje"), 90);
 
         var primero = transaccion.execute(t -> certificadoCU.emitir(entrada, c.ctx()));
         var segundo = transaccion.execute(t -> certificadoCU.emitir(entrada, c.ctx()));
@@ -102,8 +90,7 @@ class CU75RechazosTest extends BaseDeTransparencia {
         // preguntarnos.
         Caso c = caso();
         var emitido = transaccion.execute(t -> certificadoCU.emitir(
-                new EntradaCertificado(c.usuario(), c.snapshot(), disponibles(), Set.of("puntaje", "nivel"), 90, true),
-                c.ctx()));
+                new EntradaCertificado(c.usuario(), c.snapshot(), Set.of("puntaje", "nivel"), 90), c.ctx()));
 
         var alterado = new LinkedHashMap<>(emitido.contenido());
         alterado.put("nivel", "REFERENTE");
@@ -124,8 +111,7 @@ class CU75RechazosTest extends BaseDeTransparencia {
         // fila y su contador: es como se detecta un codigo probado a fuerza bruta.
         Caso c = caso();
         var emitido = transaccion.execute(t -> certificadoCU.emitir(
-                new EntradaCertificado(c.usuario(), c.snapshot(), disponibles(), Set.of("puntaje"), 90, true),
-                c.ctx()));
+                new EntradaCertificado(c.usuario(), c.snapshot(), Set.of("puntaje"), 90), c.ctx()));
 
         transaccion.execute(
                 t -> certificadoCU.verificarPublico(emitido.codigoVerificacion(), null, contextoDeSistema()));
@@ -152,8 +138,7 @@ class CU75RechazosTest extends BaseDeTransparencia {
         UUID otro = fixtura.usuario();
 
         assertThatThrownBy(() -> transaccion.execute(t -> certificadoCU.emitir(
-                        new EntradaCertificado(c.usuario(), c.snapshot(), disponibles(), Set.of("puntaje"), 90, true),
-                        contextoDe(otro))))
+                        new EntradaCertificado(c.usuario(), c.snapshot(), Set.of("puntaje"), 90), contextoDe(otro))))
                 .hasMessageContaining("Solo el titular");
         assertThat(contar(
                         "SELECT count(*)::int FROM transparencia.certificado_reputacion WHERE usuario_id = ?",
@@ -163,8 +148,7 @@ class CU75RechazosTest extends BaseDeTransparencia {
         // Y lo que no se pidio no sale, ni siquiera para el titular: el certificado no
         // filtra por descuido lo que la persona decidio no mostrar.
         var emitido = transaccion.execute(t -> certificadoCU.emitir(
-                new EntradaCertificado(c.usuario(), c.snapshot(), disponibles(), Set.of("antiguedad"), 90, true),
-                c.ctx()));
+                new EntradaCertificado(c.usuario(), c.snapshot(), Set.of("antiguedad"), 90), c.ctx()));
         assertThat(emitido.contenido()).containsOnlyKeys("antiguedad");
     }
 }
