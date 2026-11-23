@@ -7,6 +7,8 @@ import { Campo } from '@aportaya/ui/campo/campo'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { DialogoDeConfirmacion } from '@aportaya/ui/dialogo-de-confirmacion/dialogo-de-confirmacion'
 import { ListaDeOpciones } from '@aportaya/ui/lista-de-opciones/lista-de-opciones'
+import type { Tono } from '@aportaya/ui/tono/tono'
+import { EntradaVersionParametroMonedaEnum } from 'clientes/angular/tarifas/model/entradaVersionParametro'
 import type { ErrorTraducido } from '../../../nucleo/errores'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { Sesion } from '../../../nucleo/sesion'
@@ -67,7 +69,7 @@ export class PantallaDeParametrosFinancieros implements OnInit {
   protected recargar(): void {
     this.cargando.set(true)
     this.error.set(null)
-    this.cargarCatalogo().subscribe({
+    this.cargarCatalogo.subscribe({
       next: (lista) => { this.parametros.set(lista); this.cargando.set(false) },
       error: (e: ErrorTraducido) => { this.error.set(e); this.cargando.set(false) },
     })
@@ -111,7 +113,7 @@ export class PantallaDeParametrosFinancieros implements OnInit {
       valor: b.valor.trim(),
       vigenteDesde: new Date(b.vigenteDesde).toISOString(),
       nivel: p.porNivel ? b.nivel.trim() : null,
-      moneda: p.unidad === 'MONTO' ? b.moneda as 'BOB' | 'USD' : null,
+      moneda: p.unidad === 'MONTO' ? (b.moneda === 'BOB' ? EntradaVersionParametroMonedaEnum.Bob : EntradaVersionParametroMonedaEnum.Usd) : null,
       procedencia: { fuente: b.fuente.trim(), referencia: b.referencia.trim(), fecha: b.fecha },
     }
     this.enviando.set(true)
