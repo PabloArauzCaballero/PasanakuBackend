@@ -87,6 +87,16 @@ public class CU132RegistroDeParametros {
         });
     }
 
+    /** Historial inmutable del parametro: incluye propuestas, aprobadas y rechazadas. */
+    @Transactional(readOnly = true)
+    public List<VersionDelParametro> historial(String codigo, ContextoSesion ctx) {
+        return datos.conContexto(ctx, dsl -> {
+            parametros.porCodigo(dsl, codigo)
+                    .orElseThrow(() -> new ErrorDeNegocio(INEXISTENTE, "Ese parámetro no está en el catálogo."));
+            return parametros.historial(dsl, codigo);
+        });
+    }
+
     @Transactional
     public VersionDelParametro proponer(String codigo, Propuesta propuesta, UUID clave, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);

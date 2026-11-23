@@ -76,7 +76,7 @@ nunca ve una versión posterior a su inicio.
 | F3.S8.M2a | Modelo en `11_tarifas_comisiones.puml` + filas de `tarifas` en `Restricciones.md`, alineado al contrato de L2 | Cada `CHECK` (cuatro ojos, `>= 0`, unicidad) rechaza su violación en la base | `generar_ddl.py` + aplicar + deriva + `psql` (PR chico) | HECHO (#486) |
 | F3.S8.M2b | Proponer, aprobar (cuatro ojos del token) y consultar vigentes; falla explícita si falta | Aprobar uno mismo → rechazo; sin versión → 422 con el código | unitarias + web con matriz negativa | HECHO (#492; el 422 por grupo sin versión pasa a M6, que trae la consulta por grupo) |
 | F3.S8.M6 | Congelamiento al iniciar el grupo y consulta por grupo | El mismo `grupo_iniciado` dos veces congela una vez; una versión nueva no cambia el grupo | prueba de duplicado + `psql` | A MEDIAS (psql y unitarias PASS; `CU132CongelamientoTest` espera CI) |
-| F3.S8.M4 | Pantalla del backoffice | Cuatro estados, error por campo, historial | prueba visual 3 viewports × 2 temas + E2E | TODO |
+| F3.S8.M4 | Pantalla del backoffice para consultar, proponer y aprobar por CU-132 con `TARIFARIO_ADMINISTRAR`; el servidor mantiene la separación de dos personas | Cuatro estados, validación y error del servidor asociados a campos, versiones vigentes/propuestas y el historial completo (GET `/tarifas/parametros/{codigo}/versiones`, devuelve todas las versiones sin identidades) | prueba visual 3 viewports × 2 temas + E2E; el historial usa el contrato de `VersionDeParametro` | TODO |
 
 ## H4 — `grupos.turnos_asignados` para la entrega automática (F3.L2.M01, pedido de L2 y del coordinador)
 **CA:** Dado un sorteo revelado, cuando se crean los turnos, entonces sale por outbox un evento con turno, periodo,

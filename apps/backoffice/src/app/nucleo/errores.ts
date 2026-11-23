@@ -85,6 +85,11 @@ const CATALOGO: Readonly<Record<string, string>> = {
   'AP-CU131-01': 'Esa columna ya no está en el catálogo de datos. Recargá la ficha de la tabla.',
   'AP-CU131-02': 'Para rechazar una columna hay que decir por qué.',
   'AP-CU131-03': 'Otra persona revisó esta columna antes que vos. Recargá la ficha para ver su decisión; lo que escribiste sigue acá.',
+  'AP-CU132-01': 'Ese parámetro o versión no existe en el catálogo. Actualizá la pantalla y revisá el código.',
+  'AP-CU132-02': 'La propuesta no coincide con la unidad, nivel o moneda del parámetro. Revisá los campos señalados.',
+  'AP-CU132-03': 'La aprobación tiene que hacerla otra persona desde su propia sesión.',
+  'AP-CU132-04': 'Otra persona ya resolvió esta propuesta. Actualizá el catálogo y revisá el historial.',
+  'AP-CU132-05': 'La clave de esta propuesta ya se usó con otros datos. No repitas el envío; revisá el estado del parámetro.',
 }
 
 export function mensajeDe(codigo: string | undefined, estado: number): string {

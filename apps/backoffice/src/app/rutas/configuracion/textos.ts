@@ -1,6 +1,6 @@
 import type { NombreDeIcono } from '@aportaya/ui/icono/icono'
 
-/** Los textos de configuración (tarifario, mensajería, reportes), en voz de marca. Todo de solo lectura. */
+/** Los textos de configuración, con escritura CU-132 únicamente por su permiso explícito. */
 export const textosConfiguracion = {
   comun: {
     noSePudo: 'No pudimos traer el listado',
@@ -12,9 +12,10 @@ export const textosConfiguracion = {
   },
   inicio: {
     titulo: 'Configuración',
-    proposito: 'Consultar cómo está configurada la plataforma: tarifas, mensajes y reportes. Nada de esto se edita desde acá.',
+    proposito: 'Consultar la configuración de tarifas, mensajes y reportes; administrar parámetros financieros con aprobación a cuatro ojos.',
     secciones: [
       { ruta: 'tarifario', texto: 'Tarifario', descripcion: 'Versiones publicadas, vigencia, preaviso y simulación de impacto.', permisos: ['TARIFARIO_PUBLICAR', 'AUDITORIA_LEER'], icono: 'etiqueta' as NombreDeIcono },
+      { ruta: 'parametros-financieros', texto: 'Parámetros financieros', descripcion: 'Propuestas, aprobaciones a cuatro ojos e historial de versiones.', permisos: ['TARIFARIO_ADMINISTRAR'], icono: 'moneda' as NombreDeIcono },
       { ruta: 'mensajeria', texto: 'Mensajería', descripcion: 'Plantillas vigentes y auditoría de envíos, sin destinatarios.', permisos: ['AUDITORIA_LEER'], icono: 'mensaje' as NombreDeIcono },
       { ruta: 'reportes', texto: 'Reportes', descripcion: 'Catálogo de reportes e historial de ejecuciones.', permisos: ['AUDITORIA_LEER'], icono: 'documento' as NombreDeIcono },
     ],
@@ -33,6 +34,46 @@ export const textosConfiguracion = {
     confirmarDescripcion: 'La versión vigente hoy queda sustituida y deja de aplicarse desde ahora. No se puede deshacer: para volver atrás hay que publicar otra versión.',
     confirmar: 'Poner en vigencia',
     puesto: (codigo: string, version: number) => `${codigo} v${version} quedó vigente. La versión anterior quedó sustituida.`,
+  },
+  parametros: {
+    titulo: 'Parámetros financieros',
+    proposito: 'Consultar las versiones vigentes, proponer cambios con su procedencia y aprobarlos entre dos personas distintas.',
+    cuatroOjos: 'Proponer y aprobar usan TARIFARIO_ADMINISTRAR. La persona que aprueba debe ser distinta de quien propuso; el servidor verifica las dos sesiones.',
+    cargando: 'Cargando el catálogo de parámetros…',
+    vacio: 'No hay parámetros disponibles.',
+    vacioAyuda: 'El catálogo está cerrado y no se completa desde esta pantalla. Pedí que revisen la definición del catálogo.',
+    unidadPendiente: 'unidad pendiente de decisión',
+    porNivel: 'valor por nivel',
+    proponer: 'Proponer una versión',
+    aprobar: 'Aprobar con mi sesión',
+    vigentes: 'Versiones vigentes',
+    pendientes: 'Propuestas pendientes',
+    sinVigente: 'Todavía no hay una versión aprobada que esté vigente.',
+    sinPendiente: 'No hay propuestas esperando aprobación.',
+    valor: 'Valor',
+    nivel: 'Nivel',
+    vigenteDesde: 'Vigente desde',
+    fuente: 'Fuente de la decisión',
+    referencia: 'Referencia de la fuente',
+    fechaFuente: 'Fecha de la fuente',
+    procedenciaAyuda: 'Ingresá el valor autorizado y su fuente documentada. No se proponen valores automáticos.',
+    campoRequerido: 'Completá este dato.',
+    valorInvalido: 'Ingresá un decimal no negativo, con hasta 10 dígitos y 6 decimales.',
+    nivelInvalido: 'Ingresá un nivel de hasta 30 caracteres.',
+    monedaRequerida: 'Elegí BOB o USD para un parámetro de monto.',
+    fechaInvalida: 'Elegí una fecha válida para la fuente.',
+    enviar: 'Registrar propuesta',
+    enviando: 'Registrando…',
+    cancelar: 'Cancelar',
+    propuestaRegistrada: 'La propuesta quedó registrada y espera aprobación de otra persona.',
+    aprobada: 'La versión quedó aprobada. Revisá su estado y vigencia actualizados.',
+    confirmarAprobacion: 'Confirmar aprobación del parámetro',
+    confirmarAprobacionDescripcion: (codigo: string, valor: string, moneda: string | null) => `Vas a aprobar ${codigo} con valor ${valor}${moneda ? ` ${moneda}` : ''}. Confirmá solo si revisaste su procedencia y sos una persona distinta de quien propuso. El servidor verifica la segunda sesión.`,
+    verHistorial: 'Ver historial completo',
+    ocultarHistorial: 'Ocultar historial',
+    cargandoHistorial: 'Cargando historial…',
+    historialVacio: 'Este parámetro no tiene versiones registradas.',
+    estados: { PROPUESTA: 'Propuesta pendiente', APROBADA: 'Aprobada', RECHAZADA: 'Rechazada' },
   },
   mensajeria: {
     canales: <Record<string, string>>{ CORREO: 'Correo', SMS: 'SMS', WHATSAPP: 'WhatsApp', PUSH: 'Notificación push', IN_APP: 'En la app' },

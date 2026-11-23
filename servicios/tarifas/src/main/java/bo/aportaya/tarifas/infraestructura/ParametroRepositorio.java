@@ -65,6 +65,11 @@ public class ParametroRepositorio {
         return versiones(dsl, VERSION_PARAMETRO.ESTADO.in("APROBADA", "PROPUESTA"));
     }
 
+    /** Todas las versiones append-only del parametro, incluidas las rechazadas, para CU-132. */
+    public List<VersionDelParametro> historial(DSLContext dsl, String codigo) {
+        return versiones(dsl, PARAMETRO_FINANCIERO.CODIGO.eq(codigo));
+    }
+
     /** Inserta la propuesta; si la clave ya existe (reintento o carrera) no inserta nada y devuelve vacio. */
     public Optional<UUID> proponer(DSLContext dsl, Nueva n) {
         return dsl.insertInto(VERSION_PARAMETRO)
