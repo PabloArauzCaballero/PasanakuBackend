@@ -61,6 +61,10 @@ class TarifasControllerWebTest {
     private MockMvc mvc;
 
     // Sistemas › Proveedores: comparte controlador; no se llama aca.
+    // CU-132: comparte controlador; no se llama acá.
+    @MockitoBean
+    private ParametrosWeb parametrosWeb;
+
     @MockitoBean
     private bo.aportaya.tarifas.aplicacion.ConsultarCostosDeProveedor consultarCostos;
 

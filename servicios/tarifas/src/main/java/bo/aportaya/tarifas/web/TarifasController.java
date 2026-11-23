@@ -15,7 +15,9 @@ import bo.aportaya.tarifas.web.generado.modelo.CostoDeProveedor;
 import bo.aportaya.tarifas.web.generado.modelo.EntradaLiquidacion;
 import bo.aportaya.tarifas.web.generado.modelo.EntradaPublicacion;
 import bo.aportaya.tarifas.web.generado.modelo.EntradaSegmento;
+import bo.aportaya.tarifas.web.generado.modelo.EntradaVersionParametro;
 import bo.aportaya.tarifas.web.generado.modelo.PaginaDeTarifarios;
+import bo.aportaya.tarifas.web.generado.modelo.ParametroFinanciero;
 import bo.aportaya.tarifas.web.generado.modelo.PonerTarifarioVigente200Response;
 import bo.aportaya.tarifas.web.generado.modelo.ResolverPrecioRequest;
 import bo.aportaya.tarifas.web.generado.modelo.SalidaLiquidacion;
@@ -23,6 +25,7 @@ import bo.aportaya.tarifas.web.generado.modelo.SalidaPublicacion;
 import bo.aportaya.tarifas.web.generado.modelo.SalidaSegmento;
 import bo.aportaya.tarifas.web.generado.modelo.SalidaSegmentoAplicado;
 import bo.aportaya.tarifas.web.generado.modelo.TarifarioVigente;
+import bo.aportaya.tarifas.web.generado.modelo.VersionDeParametro;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -50,6 +53,7 @@ public class TarifasController implements TarifasApi {
     private final CU36ResolverPrecio cu36;
     private final ConsultarCostosDeProveedor costos;
     private final SesionDeLaPeticion sesion;
+    private final ParametrosWeb parametros;
 
     public TarifasController(
             ConsultarTarifarioVigente vigentes,
@@ -58,7 +62,8 @@ public class TarifasController implements TarifasApi {
             CU35CerrarLiquidacion cu35,
             CU36ResolverPrecio cu36,
             ConsultarCostosDeProveedor costos,
-            SesionDeLaPeticion sesion) {
+            SesionDeLaPeticion sesion,
+            ParametrosWeb parametros) {
         this.vigentes = vigentes;
         this.historial = historial;
         this.cu34 = cu34;
@@ -66,6 +71,7 @@ public class TarifasController implements TarifasApi {
         this.cu36 = cu36;
         this.costos = costos;
         this.sesion = sesion;
+        this.parametros = parametros;
     }
 
     /**
@@ -231,5 +237,27 @@ public class TarifasController implements TarifasApi {
                 .map(c -> new CostoDeProveedor(
                         c.proveedorId(), c.periodo(), c.moneda(), c.costoTotal().toPlainString(), c.operaciones()))
                 .toList());
+    }
+
+    // CU-132: el registro de parámetros financieros. Proponer y aprobar con el mismo permiso; la segunda firma
+    // tiene que ser de otra persona (ParametrosWeb + CuatroOjos), no de otro permiso.
+    @Override
+    @Permiso("TARIFARIO_ADMINISTRAR")
+    public ResponseEntity<List<ParametroFinanciero>> listarParametrosFinancieros() {
+        return ResponseEntity.ok(parametros.catalogo());
+    }
+
+    @Override
+    @Permiso("TARIFARIO_ADMINISTRAR")
+    public ResponseEntity<VersionDeParametro> proponerVersionDeParametro(
+            String codigo, UUID idempotencyKey, EntradaVersionParametro cuerpo) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(parametros.proponer(codigo, idempotencyKey, cuerpo));
+    }
+
+    // La aprobación es idempotente por estado: repetirla con el mismo token devuelve la misma versión aprobada.
+    @Override
+    @Permiso("TARIFARIO_ADMINISTRAR")
+    public ResponseEntity<VersionDeParametro> aprobarVersionDeParametro(UUID versionId, UUID idempotencyKey) {
+        return ResponseEntity.ok(parametros.aprobar(versionId));
     }
 }
