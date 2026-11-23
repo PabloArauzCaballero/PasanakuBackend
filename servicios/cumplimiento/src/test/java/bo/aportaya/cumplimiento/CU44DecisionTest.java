@@ -155,8 +155,7 @@ class CU44DecisionTest extends BaseDeCumplimiento {
         int antes = contar("SELECT count(*)::int FROM cumplimiento.caso_investigacion_lft");
 
         var otraVez = transaccion.execute(t -> casoCU.abrirCaso(
-                new EntradaCaso(e.alertas(), "Fraccionamiento detectado en el periodo"),
-                sesionDe(e.analista())));
+                new EntradaCaso(e.alertas(), "Fraccionamiento detectado en el periodo"), sesionDe(e.analista())));
 
         assertThat(otraVez.casoId()).isEqualTo(e.casoId());
         assertThat(contar("SELECT count(*)::int FROM cumplimiento.caso_investigacion_lft"))
@@ -171,8 +170,7 @@ class CU44DecisionTest extends BaseDeCumplimiento {
         int antes = contar("SELECT count(*)::int FROM cumplimiento.caso_investigacion_lft");
 
         assertThatThrownBy(() -> transaccion.execute(t -> casoCU.abrirCaso(
-                        new EntradaCaso(
-                                List.of(e.alertas().get(0)), "Otro intento sobre la misma alerta"),
+                        new EntradaCaso(List.of(e.alertas().get(0)), "Otro intento sobre la misma alerta"),
                         sesionDe(otroAnalista))))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .satisfies(x -> assertThat(codigo(x)).isEqualTo("AP-CU44-08"));

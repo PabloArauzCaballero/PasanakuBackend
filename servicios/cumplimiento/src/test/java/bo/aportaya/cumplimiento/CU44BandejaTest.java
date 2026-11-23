@@ -106,8 +106,7 @@ class CU44BandejaTest extends BaseDeCumplimiento {
         UUID alerta = gobiernoFixtura.alerta(regla, titular, "ALTA", "5000.00", OffsetDateTime.now(ZoneOffset.UTC));
         UUID analistaId = fixtura.usuario();
         var caso = transaccion.execute(t -> casoCU.abrirCaso(
-                new EntradaCaso(List.of(alerta), "Fraccionamiento detectado en el periodo"),
-                analista(analistaId)));
+                new EntradaCaso(List.of(alerta), "Fraccionamiento detectado en el periodo"), analista(analistaId)));
         OffsetDateTime vencio = OffsetDateTime.of(2001, 1, 2, 0, 0, 0, 0, ZoneOffset.UTC);
         dslFixtura.execute(
                 """

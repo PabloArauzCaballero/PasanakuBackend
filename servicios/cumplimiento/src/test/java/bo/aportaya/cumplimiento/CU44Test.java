@@ -3,16 +3,16 @@ package bo.aportaya.cumplimiento;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import bo.aportaya.cumplimiento.aplicacion.CU44InvestigarYReportar.EntradaCaso;
 import bo.aportaya.cumplimiento.aplicacion.CU44DecidirComoRevisor;
 import bo.aportaya.cumplimiento.aplicacion.CU44DecidirComoRevisor.Entrada;
+import bo.aportaya.cumplimiento.aplicacion.CU44InvestigarYReportar.EntradaCaso;
 import bo.aportaya.cumplimiento.infraestructura.CasoLftRepositorio;
 import bo.aportaya.cumplimiento.infraestructura.MonitoreoLftRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
-import bo.aportaya.plataforma.dominio.Reloj;
-import bo.aportaya.plataforma.mensajeria.Outbox;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
+import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.dominio.Traza;
+import bo.aportaya.plataforma.mensajeria.Outbox;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -24,7 +24,14 @@ import org.junit.jupiter.api.Test;
 /** CU-44 · De alerta de monitoreo a reporte de operacion sospechosa. */
 class CU44Test extends BaseDeCumplimiento {
 
-    private record EntradaDecision(UUID casoId, List<UUID> alertas, UUID analistaId, UUID revisorId, String decision, String conclusion, UUID reporteSospechosoId) {}
+    private record EntradaDecision(
+            UUID casoId,
+            List<UUID> alertas,
+            UUID analistaId,
+            UUID revisorId,
+            String decision,
+            String conclusion,
+            UUID reporteSospechosoId) {}
 
     private CU44DecidirComoRevisor decisionCU;
 
@@ -39,7 +46,12 @@ class CU44Test extends BaseDeCumplimiento {
 
     @BeforeEach
     void escenario() {
-        decisionCU = new CU44DecidirComoRevisor(new Datos(dsl), new CasoLftRepositorio(), new MonitoreoLftRepositorio(), new Outbox("cumplimiento"), Reloj.delSistema());
+        decisionCU = new CU44DecidirComoRevisor(
+                new Datos(dsl),
+                new CasoLftRepositorio(),
+                new MonitoreoLftRepositorio(),
+                new Outbox("cumplimiento"),
+                Reloj.delSistema());
         titular = fixtura.usuario();
         analista = fixtura.usuario();
         revisor = fixtura.usuario();
@@ -50,8 +62,10 @@ class CU44Test extends BaseDeCumplimiento {
     }
 
     private CU44DecidirComoRevisor.Decision decidir(EntradaDecision e, ContextoSesion ignorado) {
-        ContextoSesion actor = ContextoSesion.de(e.revisorId(), "BACKOFFICE", new Traza(UUID.randomUUID().toString()));
-        return decisionCU.decidir(new Entrada(e.casoId(), e.decision(), e.conclusion(), e.reporteSospechosoId()), actor);
+        ContextoSesion actor = ContextoSesion.de(
+                e.revisorId(), "BACKOFFICE", new Traza(UUID.randomUUID().toString()));
+        return decisionCU.decidir(
+                new Entrada(e.casoId(), e.decision(), e.conclusion(), e.reporteSospechosoId()), actor);
     }
 
     private UUID alerta(String severidad) {
@@ -104,8 +118,8 @@ class CU44Test extends BaseDeCumplimiento {
             "Dado un caso con decisión REPORTAR · Cuando se cierra · Entonces existe un reporte_operacion_sospechosa enlazado · Y no se generó ninguna notificación al cliente")
     void criterio3() {
         UUID alertaId = alerta("CRITICA");
-        var caso = transaccion.execute(
-                t -> casoCU.abrirCaso(new EntradaCaso(List.of(alertaId), "Patron inusual"), ctx));
+        var caso =
+                transaccion.execute(t -> casoCU.abrirCaso(new EntradaCaso(List.of(alertaId), "Patron inusual"), ctx));
         // El ROS vive en el esquema de auditoria y llega ya radicado: este servicio no
         // lo escribe (invariante 11).
         UUID ros = gobiernoFixtura.reporteSospechoso(titular);
@@ -146,8 +160,8 @@ class CU44Test extends BaseDeCumplimiento {
     @DisplayName("reintento: la misma clave de idempotencia dos veces devuelve la misma respuesta y un solo efecto")
     void reintento() {
         UUID alertaId = alerta("ALTA");
-        var caso = transaccion.execute(
-                t -> casoCU.abrirCaso(new EntradaCaso(List.of(alertaId), "Patron inusual"), ctx));
+        var caso =
+                transaccion.execute(t -> casoCU.abrirCaso(new EntradaCaso(List.of(alertaId), "Patron inusual"), ctx));
         var decision =
                 new EntradaDecision(caso.casoId(), List.of(alertaId), analista, revisor, "DESCARTAR", CONCLUSION, null);
 
@@ -204,8 +218,8 @@ class CU44Test extends BaseDeCumplimiento {
         // alerta que sobrevive al caso vuelve a la bandeja sin dueño.
         UUID a1 = alerta("ALTA");
         UUID a2 = alerta("MEDIA");
-        var caso = transaccion.execute(t ->
-                casoCU.abrirCaso(new EntradaCaso(List.of(a1, a2), "Dos alertas del mismo titular"), ctx));
+        var caso = transaccion.execute(
+                t -> casoCU.abrirCaso(new EntradaCaso(List.of(a1, a2), "Dos alertas del mismo titular"), ctx));
 
         transaccion.execute(t -> decidir(
                 new EntradaDecision(caso.casoId(), List.of(a1, a2), analista, revisor, "DESCARTAR", CONCLUSION, null),
@@ -224,8 +238,8 @@ class CU44Test extends BaseDeCumplimiento {
     @DisplayName("evento duplicado y fuera de orden: un solo efecto")
     void eventoDuplicadoYFueraDeOrden() {
         UUID alertaId = alerta("ALTA");
-        var caso = transaccion.execute(
-                t -> casoCU.abrirCaso(new EntradaCaso(List.of(alertaId), "Patron inusual"), ctx));
+        var caso =
+                transaccion.execute(t -> casoCU.abrirCaso(new EntradaCaso(List.of(alertaId), "Patron inusual"), ctx));
         var decision =
                 new EntradaDecision(caso.casoId(), List.of(alertaId), analista, revisor, "DESCARTAR", CONCLUSION, null);
 
@@ -245,8 +259,8 @@ class CU44Test extends BaseDeCumplimiento {
     @DisplayName("compensacion: se fuerza el fallo de cada paso y el sistema queda cuadrado")
     void compensacion() {
         UUID alertaId = alerta("ALTA");
-        var caso = transaccion.execute(
-                t -> casoCU.abrirCaso(new EntradaCaso(List.of(alertaId), "Patron inusual"), ctx));
+        var caso =
+                transaccion.execute(t -> casoCU.abrirCaso(new EntradaCaso(List.of(alertaId), "Patron inusual"), ctx));
 
         // Paso fallido: cerrar sin conclusion.
         assertThatThrownBy(() -> transaccion.execute(t -> decidir(

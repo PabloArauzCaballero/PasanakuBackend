@@ -101,8 +101,7 @@ class LftAccionesWebTest {
                 .andExpect(jsonPath("$.estado").value("ABIERTO"));
         verify(cu44)
                 .abrirCaso(
-                        eq(new CU44InvestigarYReportar.EntradaCaso(
-                                List.of(ALERTA), "Fraccionamiento detectado")),
+                        eq(new CU44InvestigarYReportar.EntradaCaso(List.of(ALERTA), "Fraccionamiento detectado")),
                         any());
     }
 

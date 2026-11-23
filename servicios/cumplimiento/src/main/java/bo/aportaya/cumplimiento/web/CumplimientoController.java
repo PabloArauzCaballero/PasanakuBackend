@@ -80,9 +80,7 @@ public class CumplimientoController extends ColasDeCumplimientoWeb {
     public ResponseEntity<SalidaCasoLft> abrirCasoLft(UUID idempotencyKey, EntradaCasoLft cuerpo) {
         Traza.marcarCasoDeUso("CU-44", "abrir-caso");
         var salida = cu44.abrirCaso(
-                new CU44InvestigarYReportar.EntradaCaso(
-                        cuerpo.getAlertaIds(), cuerpo.getResumen()),
-                sesion.actual());
+                new CU44InvestigarYReportar.EntradaCaso(cuerpo.getAlertaIds(), cuerpo.getResumen()), sesion.actual());
         var respuesta = new SalidaCasoLft();
         respuesta.setCasoId(salida.casoId());
         respuesta.setEstado(SalidaCasoLft.EstadoEnum.fromValue(salida.estado()));
