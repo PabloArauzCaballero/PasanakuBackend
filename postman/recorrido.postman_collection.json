@@ -148,7 +148,7 @@
         "description": "Paso 3 del recorrido. Servicio `nucleo-financiero`, operacion `solicitarRecarga`.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"costoProveedor\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"medio\": \"medio-de-prueba\",\n  \"instrumentoFondeoId\": \"{{instrumentoFondeoId}}\",\n  \"cotizacionId\": \"{{cotizacionId}}\"\n}",
+          "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"costoProveedor\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"medio\": \"medio-de-prueba\",\n  \"instrumentoFondeoId\": \"{{instrumentoFondeoId}}\",\n  \"cotizacionId\": \"{{cotizacionId}}\"\n}",
           "options": {
             "raw": {
               "language": "json"

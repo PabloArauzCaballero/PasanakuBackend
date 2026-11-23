@@ -37,7 +37,7 @@ class RetirarSaldo extends AsyncNotifier<SalidaRetiro?> {
         idempotencyKey: clave,
         entradaRetiro: EntradaRetiro(
           cuentaBilleteraId: cuentaId,
-          monto: Dinero(monto: monto, moneda: DineroMonedaEnum.BOB),
+          monto: Importe(monto: monto, moneda: ImporteMonedaEnum.BOB),
           instrumentoDestinoId: instrumentoDestinoId,
           factorMfa: factorMfa,
         ),

@@ -1,0 +1,48 @@
+F1.L1.M01 parte nucleo-financiero — Importe en los contratos de entrada
+Rama: correcciones/tanda2-l1-importe-nucleo (desde origin/dev a055d9d0) · Fecha: 2026-11-21
+
+Cambio: nucleo-financiero.yaml 1.1.0 → 1.3.0 (1.2.0 lo toma #476). Esquema nuevo Importe {monto ^\d{1,12}\.\d{2}$,
+moneda BOB|USD}, mismo JSON que Dinero pero sin signo. 13 campos de 11 cuerpos de entrada pasan de Dinero a Importe:
+solicitarRecarga.monto/costoProveedor, solicitarRetiro.monto, transferirSaldo.monto, retenerSaldo.monto,
+bloquearPorAutoridad.montoBloqueado, emitirQr.monto, pagarQr.monto, cotizarOperacion.monto, debitarInversion.monto,
+acreditarRescate.monto, conciliarCustodia.saldoCustodia/saldoEnTransito. Dinero queda para las salidas (con signo).
+En la red no cambia nada para un importe valido; un negativo pasa de 400 AP-VAL-02 generico a 400 AP-VAL-01 con el
+campo ("monto.monto"). MapeoDeBilletera.dinero(Importe) conserva el rechazo del negativo como defensa en profundidad.
+
+Pruebas:
+- ImporteDeEntradaTest (nueva, lee el contrato): ningun cuerpo de entrada referencia Dinero; las 11 operaciones de
+  dinero llevan Importe; Importe no admite signo. 1/1.
+- BilleteraFondeoWebTest.recargaNegativa: ahora exige AP-VAL-01 y detalle['monto.monto'] (antes AP-VAL-02).
+- BilleteraMovimientosWebTest.importesNegativos (nueva): transferencia -50.00 y retencion -0.01 → 400 AP-VAL-01 con
+  el campo, sin tocar el caso de uso.
+- MapeoDeBilleteraImporteTest: mismas aserciones, con el tipo Importe.
+Mutante: devolver EntradaTransferencia a Dinero → no compila (MapeoDeBilletera.dinero solo acepta Importe): la vuelta
+atras la frena el tipo antes que las pruebas.
+
+$ base limpia (con ALTER DATABASE … SET search_path, igual que BaseDePrueba) && APORTAYA_TEST_DB_URL=… ./gradlew \
+  :servicios:nucleo-financiero:spotlessCheck test webTest testBarrido integrationTest --continue
+test: 105 pruebas, 0 en rojo
+webTest: 91 pruebas, 0 en rojo
+testBarrido: 4 pruebas, 0 en rojo
+integrationTest: 467 pruebas, 25 en rojo; por Docker 25; otras 0
+Las 25: AppendOnlyTest, ArranqueTest, ArranqueProduccionTest, ArranqueRecargaQrTest, CU24*, CU13PactoInversionesTest,
+CotizadorResilienciaTest, AutorizacionNegativaTest — "Could not find a valid Docker environment" → ENVIRONMENT,
+NO COMPROBADO.
+Nota de entorno: la primera corrida tuvo ademas CU40Test "rechaza por R-LIM-01" en rojo (fn_lim_evaluar no existe).
+Tambien fallaba en dev sin este cambio. Causa: mi base local se armaba sin el ALTER DATABASE … SET search_path que
+hace BaseDePrueba (plataforma/comun-pruebas/.../BaseDePrueba.java:98), y aplicar.sql deja las funciones sin
+esquema en el primero del search_path (aportes). Con la base armada igual que en CI, pasa. ENVIRONMENT local.
+
+Verificadores: verificar_pruebas_web, verificar_contratos_limites, verificar_seguridad, verificar_criterios,
+verificar_boveda, verificar_narrativas, validar_flujos → exit=0. catalogo_de_datos sin cambios.
+generar_postman regenerado. ./gradlew :servicios:nucleo-financiero:generarClientes exit=0: el Dart genera Importe e
+ImporteMonedaEnum.
+
+Impacto en la app (L4L6; NO tocado aca, la app no compila sin esto):
+- apps/movil/lib/dominio/cu10_recargar_saldo.dart:41   (solicitarRecarga, campo monto)
+- apps/movil/lib/dominio/cu11_retirar_saldo.dart:40    (solicitarRetiro, campo monto)
+- apps/movil/lib/dominio/cu12_transferir_saldo.dart:45 (transferirSaldo, campo monto)
+  Dinero(monto: monto, moneda: DineroMonedaEnum.BOB) → Importe(monto: monto, moneda: ImporteMonedaEnum.BOB)
+Las pruebas de la app usan Dinero en salidas, que no cambian. Backoffice/web no construyen estas entradas.
+
+No cubierto: la compilacion de la app (sin Flutter aca); las 25 pruebas con Docker.

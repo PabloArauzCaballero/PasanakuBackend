@@ -36,6 +36,7 @@ export 'package:aportaya_cliente_nucleofinanciero/src/model/entrada_reverso.dart
 export 'package:aportaya_cliente_nucleofinanciero/src/model/entrada_transferencia.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/entrada_transferencia_destino.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/error.dart';
+export 'package:aportaya_cliente_nucleofinanciero/src/model/importe.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/lista_movimientos_billetera.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/movimiento_billetera.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/pagina_de_cierres_diarios.dart';
@@ -63,5 +64,6 @@ export 'package:aportaya_cliente_nucleofinanciero/src/model/salida_recarga.dart'
 export 'package:aportaya_cliente_nucleofinanciero/src/model/salida_retencion.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/salida_retiro.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/salida_reverso.dart';
+export 'package:aportaya_cliente_nucleofinanciero/src/model/salida_solicitud_reverso.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/salida_transferencia.dart';
 
