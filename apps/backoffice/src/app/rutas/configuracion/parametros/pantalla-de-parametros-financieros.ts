@@ -131,8 +131,8 @@ export class PantallaDeParametrosFinancieros implements OnInit {
         this.errorDePropuesta.set(e)
         if (e.codigo === 'AP-CU132-02') {
           const campos: ErroresDeCampo = {}
-          if (p.porNivel) campos.nivel = e.mensaje
-          if (p.unidad === 'MONTO') campos.moneda = e.mensaje
+          if (p.porNivel) campos['nivel'] = e.mensaje
+          if (p.unidad === 'MONTO') campos['moneda'] = e.mensaje
           this.erroresDeCampo.update((actual) => ({ ...actual, ...campos }))
         }
       },
