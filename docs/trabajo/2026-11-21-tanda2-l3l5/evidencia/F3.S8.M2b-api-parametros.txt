@@ -1,0 +1,74 @@
+F3.S8.M2b · persistencia ejercitada con psql contra Postgres 16 local (puerto 5433), esquema de sql/aplicar.sql + sembrar.sql
+Datos sintéticos (UUID de prueba, 'Acta sintética'). Ningún valor es real.
+
+\set ON_ERROR_STOP 0
+set search_path = tarifas, public;
+\echo '== 1. proponer (INSERT ... ON CONFLICT (clave) DO NOTHING RETURNING id) — DIAS_DE_GRACIA, valor sintético'
+insert into version_parametro (parametro_id, valor, vigente_desde, procedencia_fuente, procedencia_referencia, procedencia_fecha, propuesto_por, propuesto_en, estado, clave_idempotencia)
+select id, 5, '2026-11-01Z', 'Acta sintética', 'REF-PRUEBA-1', '2026-10-30', 'aaaaaaaa-0000-4000-8000-00000000000a', now(), 'PROPUESTA', 'c1320000-0000-4000-8000-0000000000ff'
+from parametro_financiero where codigo = 'DIAS_DE_GRACIA'
+on conflict (clave_idempotencia) do nothing returning estado;
+\echo '== 2. reintento con la misma clave: 0 filas, no duplica'
+insert into version_parametro (parametro_id, valor, vigente_desde, procedencia_fuente, procedencia_referencia, procedencia_fecha, propuesto_por, propuesto_en, estado, clave_idempotencia)
+select id, 5, '2026-11-01Z', 'Acta sintética', 'REF-PRUEBA-1', '2026-10-30', 'aaaaaaaa-0000-4000-8000-00000000000a', now(), 'PROPUESTA', 'c1320000-0000-4000-8000-0000000000ff'
+from parametro_financiero where codigo = 'DIAS_DE_GRACIA'
+on conflict (clave_idempotencia) do nothing returning estado;
+select count(*) as filas_con_la_clave from version_parametro where clave_idempotencia = 'c1320000-0000-4000-8000-0000000000ff';
+\echo '== 3. la misma persona aprueba lo suyo: la base lo rechaza (tercera barrera)'
+update version_parametro set estado='APROBADA', aprobado_por=propuesto_por, aprobado_en=now()
+where clave_idempotencia = 'c1320000-0000-4000-8000-0000000000ff' and estado='PROPUESTA';
+\echo '== 4. otra persona aprueba con precondición estado=PROPUESTA: UPDATE 1'
+update version_parametro set estado='APROBADA', aprobado_por='bbbbbbbb-0000-4000-8000-00000000000b', aprobado_en=now()
+where clave_idempotencia = 'c1320000-0000-4000-8000-0000000000ff' and estado='PROPUESTA';
+\echo '== 5. segunda aprobación (carrera perdida): UPDATE 0 o rechazo del trigger de inmutabilidad'
+update version_parametro set estado='APROBADA', aprobado_por='cccccccc-0000-4000-8000-00000000000c', aprobado_en=now()
+where clave_idempotencia = 'c1320000-0000-4000-8000-0000000000ff' and estado='PROPUESTA';
+\echo '== 6. editar el valor aprobado: rechazado (R-TAR-16)'
+update version_parametro set valor = 6 where clave_idempotencia = 'c1320000-0000-4000-8000-0000000000ff';
+\echo '== 7. valor negativo: rechazado (R-TAR-15)'
+insert into version_parametro (parametro_id, valor, vigente_desde, procedencia_fuente, procedencia_referencia, procedencia_fecha, propuesto_por, propuesto_en, estado, clave_idempotencia)
+select id, -1, '2026-11-01Z', 'Acta sintética', 'REF-PRUEBA-2', '2026-10-30', 'aaaaaaaa-0000-4000-8000-00000000000a', now(), 'PROPUESTA', gen_random_uuid()
+from parametro_financiero where codigo = 'DIAS_DE_GRACIA';
+\echo '== estado final'
+select p.codigo, v.valor, v.estado, v.aprobado_por is not null as aprobada, v.aprobado_por <> v.propuesto_por as dos_personas
+from version_parametro v join parametro_financiero p on p.id = v.parametro_id;
+
+---- salida ----
+SET
+== 1. proponer (INSERT ... ON CONFLICT (clave) DO NOTHING RETURNING id) — DIAS_DE_GRACIA, valor sintético
+  estado   
+-----------
+ PROPUESTA
+(1 row)
+
+INSERT 0 1
+== 2. reintento con la misma clave: 0 filas, no duplica
+ estado 
+--------
+(0 rows)
+
+INSERT 0 0
+ filas_con_la_clave 
+--------------------
+                  1
+(1 row)
+
+== 3. la misma persona aprueba lo suyo: la base lo rechaza (tercera barrera)
+psql:/tmp/claude-0/-home-user-PasanakuBackend/cc09a7b1-a13c-5e9a-b722-e975cb129366/scratchpad/m2b.sql:16: ERROR:  new row for relation "version_parametro" violates check constraint "ck_version_parametro_cuatro_ojos"
+DETAIL:  Failing row contains (89eb5edd-0d5d-4edd-8063-b35061a3357d, 929ca8b3-4018-46a6-ab78-9b6a6bcb5330, null, 5.000000, null, 2026-11-01 00:00:00+00, Acta sintética, REF-PRUEBA-1, 2026-10-30, aaaaaaaa-0000-4000-8000-00000000000a, 2026-11-21 23:33:53.835981+00, aaaaaaaa-0000-4000-8000-00000000000a, 2026-11-21 23:33:53.840791+00, APROBADA, c1320000-0000-4000-8000-0000000000ff).
+== 4. otra persona aprueba con precondición estado=PROPUESTA: UPDATE 1
+UPDATE 1
+== 5. segunda aprobación (carrera perdida): UPDATE 0 o rechazo del trigger de inmutabilidad
+UPDATE 0
+== 6. editar el valor aprobado: rechazado (R-TAR-16)
+psql:/tmp/claude-0/-home-user-PasanakuBackend/cc09a7b1-a13c-5e9a-b722-e975cb129366/scratchpad/m2b.sql:24: ERROR:  R-TAR-16: la versión 89eb5edd-0d5d-4edd-8063-b35061a3357d es inmutable salvo su resolución; se corrige con una versión nueva
+CONTEXT:  PL/pgSQL function fn_tar_version_parametro_inmutable() line 15 at RAISE
+== 7. valor negativo: rechazado (R-TAR-15)
+psql:/tmp/claude-0/-home-user-PasanakuBackend/cc09a7b1-a13c-5e9a-b722-e975cb129366/scratchpad/m2b.sql:28: ERROR:  new row for relation "version_parametro" violates check constraint "ck_version_parametro_valor"
+DETAIL:  Failing row contains (7e22cbcc-6a13-4efb-9e8a-4189174df4da, 929ca8b3-4018-46a6-ab78-9b6a6bcb5330, null, -1.000000, null, 2026-11-01 00:00:00+00, Acta sintética, REF-PRUEBA-2, 2026-10-30, aaaaaaaa-0000-4000-8000-00000000000a, 2026-11-21 23:33:53.842677+00, null, null, PROPUESTA, 176d3f25-a00f-4140-abcc-239421683c07).
+== estado final
+     codigo     |  valor   |  estado  | aprobada | dos_personas 
+----------------+----------+----------+----------+--------------
+ DIAS_DE_GRACIA | 5.000000 | APROBADA | t        | t
+(1 row)
+
