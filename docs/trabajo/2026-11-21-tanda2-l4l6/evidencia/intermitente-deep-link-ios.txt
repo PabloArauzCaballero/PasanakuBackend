@@ -1,0 +1,39 @@
+# Intermitente: deep_link_test «02 deep link con la app abierta navega sin reiniciar» (Release iOS, simulador)
+## Hechos (logs de CI, leidos completos)
+Falla: run 44922850920, job 136921521960 (a1023df5, PR #420). Pasa: run 44922860877, job 136921297961 (d1d14b8f, PR #427).
+Secuencia nativa alrededor de openUrl IDENTICA en ambas: "Opening default application for URL" -> "Wait ... to idle" ->
+"done opening url" -> result: (). Sin alertas ni dialogos del sistema en ninguna de las dos.
+                                     pasa (#427)     falla (#420)
+  Terminate de la app (relanzamiento)   1,7 s          16,9 s    (x10)
+  relanzamiento -> runDartTest          6,2 s          21,6 s    (x3,5)
+  openUrl -> «Invitacion al grupo»      3,3 s          > 10 s (timeout de waitUntilVisible)
+Test 01 (URI de inicio, sin el SO) pasa en las dos corridas.
+
+## Analisis del codigo (apps/movil, origin/dev)
+- El titulo «Invitacion al grupo» se pinta en el PRIMER cuadro de PantallaUnirse (pantalla_unirse.dart:145):
+  no depende de la red ni de la sesion.
+- Capas por encima del router: CapaDeApertura (cubre solo los 2 s del arranque), CapaDeTutorial (solo con sesion
+  activa; la prueba no tiene), CapaDeBloqueo (solo con sesion). Ninguna tapa la ruta nueva en este escenario.
+- _alReanudar / vigilante de sesion: no navegan.
+=> No se encontro una carrera de producto. Con el simulador entre 3,5x y 10x mas lento, los 3,3 s que ya tardaba
+   la navegacion en caliente pasan a ~11,5-33 s: superan el plazo de 10 s sin otra causa.
+Clasificacion (regla 80.4): ENVIRONMENT (carga del simulador del runner macOS), PROBABLE. No demostrada dentro de
+la app: el paso de diagnostico de CI solo guarda las ultimas 100 lineas del log del sistema (ya despues del fallo).
+
+## Lo que se hizo (sin tocar el plazo ni la asercion)
+integration_test/_soporte.dart: esperarVisibleConDiagnostico — mismo waitUntilVisible; si vence, falla con:
+  ms esperados · si el texto esta en el arbol · cuantos son tocables · ciclo de vida · ruta del router (2 tramos).
+Asi la proxima falla distingue «el enlace no llego» (ruta /portada), «llego y quedo tapado» (en arbol 1, tocables 0)
+o «el SO dejo la app inactiva» (ciclo de vida inactive/hidden).
+$ dart analyze integration_test/_soporte.dart integration_test/deep_link_test.dart -> No issues found!
+NO COMPROBADO: correr Patrol en el simulador iOS (no hay macOS en este contenedor); lo ejercita el job de CI.
+
+## 2026-11-21 20:3x — segundo fallo (push de dev e0fef412): 2 de 3 corridas
+Ya no se sostiene «ENVIRONMENT probable» sin mas. Instrumentacion agregada para la proxima corrida (sin tocar el plazo):
+- lib/dominio/diagnostico_api.dart: registrarEnlaceRecibido (solo kDebugMode, esquema + host; nunca el secreto).
+- lib/navegacion/rutas.dart: el redirect lo llama cuando la URI es un enlace externo (aportaya:// o https del grupo).
+Con #466 (log completo del simulador como artefacto) la proxima falla distingue:
+  sin linea «Enlace recibido…»          -> el enlace no llego a Flutter (SO / Patrol openUrl / FlutterSceneDelegate)
+  linea presente, tarde                  -> llego tarde (medir contra el timestamp del openUrl de Patrol)
+  linea presente + en arbol 1, tocables 0 -> llego y quedo tapado (esperarVisibleConDiagnostico)
+$ flutter test test/widget/deep_link_test.dart test/unidad -> +371: All tests passed!

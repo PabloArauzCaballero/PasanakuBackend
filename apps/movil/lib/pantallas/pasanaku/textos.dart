@@ -104,10 +104,10 @@ class TextosPasanaku {
   static const aporteConfirmado = 'Tu aporte quedó registrado';
   static const aporteDelPeriodo = 'Aporte de este período';
   static const loFijaElReglamento = 'Lo fija el reglamento de tu grupo.';
-  static const comoPagas = 'Cómo pagás';
+  static const seCobraDelSaldo =
+      'Se paga con el saldo de tu billetera. Cobramos solo lo que queda pendiente de esta cuota.';
   static const pagoYaRegistrado =
       'Ya habíamos registrado este pago: no se cobró dos veces.';
-  static const referenciaDelPago = 'Referencia del pago';
 
   // Entrega (CU-22)
   static const tituloEntrega = 'Recibir el fondo';
