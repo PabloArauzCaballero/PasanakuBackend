@@ -74,14 +74,14 @@ public class CumplimientoController extends ColasDeCumplimientoWeb {
         this.decisionLft = decisionLft;
     }
 
-    // CU-44 · paso 4: el oficial agrupa alertas de un titular y asigna analista. Reintento = mismo caso.
+    // CU-44 · paso 4: el actor de la sesión abre el caso como analista; el cuerpo no elige a otra persona.
     @Override
     @Permiso("CUMPLIMIENTO_CASOS")
     public ResponseEntity<SalidaCasoLft> abrirCasoLft(UUID idempotencyKey, EntradaCasoLft cuerpo) {
         Traza.marcarCasoDeUso("CU-44", "abrir-caso");
         var salida = cu44.abrirCaso(
                 new CU44InvestigarYReportar.EntradaCaso(
-                        cuerpo.getAlertaIds(), cuerpo.getAnalistaId(), cuerpo.getResumen()),
+                        cuerpo.getAlertaIds(), cuerpo.getResumen()),
                 sesion.actual());
         var respuesta = new SalidaCasoLft();
         respuesta.setCasoId(salida.casoId());
@@ -92,7 +92,7 @@ public class CumplimientoController extends ColasDeCumplimientoWeb {
 
     // CU-44 · pasos 5-8: el revisor es la SESION; el analista y las alertas salen del caso guardado.
     @Override
-    @Permiso("CUMPLIMIENTO_CASOS")
+    @Permiso("CUMPLIMIENTO_CASOS_DECIDIR")
     public ResponseEntity<SalidaDecisionCasoLft> decidirCasoLft(
             UUID casoId, UUID idempotencyKey, EntradaDecisionCasoLft cuerpo) {
         Traza.marcarCasoDeUso("CU-44", casoId.toString());

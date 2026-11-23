@@ -418,9 +418,18 @@
         },
         {
           "codigo": "CUMPLIMIENTO_CASOS",
-          "descripcion": "Abrir y decidir casos de investigación",
+          "descripcion": "Abrir y consultar casos de investigación; el analista es el operador autenticado",
           "recurso": "caso_investigacion_lft",
           "accion": "GESTIONAR",
+          "requiere_mfa": false,
+          "nivel_riesgo": "ALTO",
+          "exige_motivo": true
+        },
+        {
+          "codigo": "CUMPLIMIENTO_CASOS_DECIDIR",
+          "descripcion": "Decidir un caso LFT como revisor distinto del analista",
+          "recurso": "caso_investigacion_lft",
+          "accion": "DECIDIR",
           "requiere_mfa": false,
           "nivel_riesgo": "ALTO",
           "exige_motivo": true
@@ -2568,6 +2577,26 @@
           "permiso_id": {
             "$ref": "permiso",
             "codigo": "INVERSION_OPERAR"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "ANALISTA_CUMPLIMIENTO"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "CUMPLIMIENTO_CASOS"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "OFICIAL_CUMPLIMIENTO"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "CUMPLIMIENTO_CASOS_DECIDIR"
           }
         }
       ]

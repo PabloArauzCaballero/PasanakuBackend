@@ -11,23 +11,21 @@ export type Decision = EntradaDecisionCasoLftDecisionEnum
 export const DecisionDeCaso = EntradaDecisionCasoLftDecisionEnum
 export const DECISIONES: readonly Decision[] = Object.values(EntradaDecisionCasoLftDecisionEnum)
 
-export type CampoDeApertura = 'alertas' | 'analistaId' | 'resumen'
+export type CampoDeApertura = 'alertas' | 'resumen'
 export type CampoDeDecision = 'decision' | 'conclusion' | 'reporteSospechosoId'
 
-export function validarApertura(alertaIds: readonly string[], analistaId: string, resumen: string): Errores<CampoDeApertura> {
+export function validarApertura(alertaIds: readonly string[], resumen: string): Errores<CampoDeApertura> {
   const errores: Errores<CampoDeApertura> = {}
   if (alertaIds.length < 1) errores.alertas = 'Elegí al menos una alerta.'
   else if (alertaIds.length > MAX_ALERTAS_POR_CASO) errores.alertas = `Un caso agrupa hasta ${MAX_ALERTAS_POR_CASO} alertas.`
-  if (!esUuid(analistaId)) errores.analistaId = 'Pegá el identificador del analista (formato UUID).'
   const r = resumen.trim()
   if (!r) errores.resumen = 'Escribí el resumen del caso.'
   else if (r.length > MAX_RESUMEN) errores.resumen = `El resumen admite hasta ${MAX_RESUMEN} caracteres.`
   return errores
 }
 
-export const cuerpoDeApertura = (alertaIds: readonly string[], analistaId: string, resumen: string): EntradaCasoLft => ({
+export const cuerpoDeApertura = (alertaIds: readonly string[], resumen: string): EntradaCasoLft => ({
   alertaIds: [...alertaIds],
-  analistaId: analistaId.trim(),
   resumen: resumen.trim(),
 })
 

@@ -77,7 +77,7 @@ describe('BandejaDeCasos · CU-44 listarBandejaDeCasos', () => {
   })
 
   it('la acción de fila «Decidir» abre el diálogo sobre ese caso; nunca ofrece avisar al cliente', async () => {
-    const { fixture, http } = montar(BandejaDeCasos, ['CUMPLIMIENTO_CASOS'])
+    const { fixture, http } = montar(BandejaDeCasos, ['CUMPLIMIENTO_CASOS', 'CUMPLIMIENTO_CASOS_DECIDIR'])
     http.expectOne((r) => r.url === URL).flush({ items: [CASO] })
     await asentar(fixture)
     ;(fixture.nativeElement.querySelector('[aria-label="Decidir el caso LFT-2026-0007"]') as HTMLButtonElement).click()
@@ -89,7 +89,7 @@ describe('BandejaDeCasos · CU-44 listarBandejaDeCasos', () => {
   })
 
   it('acciones de fila: «Ver» lleva a la ficha; un caso cerrado o ya decidido no ofrece «Decidir»; nunca Editar ni Eliminar', async () => {
-    const { fixture, http } = montar(BandejaDeCasos, ['CUMPLIMIENTO_CASOS'])
+    const { fixture, http } = montar(BandejaDeCasos, ['CUMPLIMIENTO_CASOS', 'CUMPLIMIENTO_CASOS_DECIDIR'])
     const cerrado = { ...CASO, casoId: 'c-2', codigo: 'LFT-2026-0008', estado: 'CERRADO', decision: 'DESCARTAR' }
     http.expectOne((r) => r.url === URL).flush({ items: [CASO, cerrado] })
     await asentar(fixture)
@@ -101,7 +101,7 @@ describe('BandejaDeCasos · CU-44 listarBandejaDeCasos', () => {
     http.verify()
   })
 
-  it('sin CUMPLIMIENTO_CASOS no hay «Decidir» (el servidor lo rechazaría igual)', async () => {
+  it('sin CUMPLIMIENTO_CASOS_DECIDIR no hay «Decidir» (el servidor lo rechazaría igual)', async () => {
     const { fixture, http } = montar(BandejaDeCasos, [])
     http.expectOne((r) => r.url === URL).flush({ items: [CASO] })
     await asentar(fixture)

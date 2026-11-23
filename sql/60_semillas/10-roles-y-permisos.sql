@@ -54,7 +54,8 @@ INSERT INTO permiso (codigo, descripcion, recurso, accion, requiere_mfa, nivel_r
   ('CONTABILIDAD_ERP_PRESUPUESTO', 'Crear y aprobar presupuestos por centro de costo', 'presupuesto', 'GESTIONAR', FALSE, 'MEDIO', FALSE),
   ('CONTABILIDAD_ERP_REPORTES', 'Generar y consultar estados financieros', 'estado_financiero_generado', 'LEER', FALSE, 'BAJO', FALSE),
   ('CUMPLIMIENTO_ALERTAS', 'Ver y tratar alertas de monitoreo', 'alerta_monitoreo_lft', 'GESTIONAR', FALSE, 'MEDIO', FALSE),
-  ('CUMPLIMIENTO_CASOS', 'Abrir y decidir casos de investigación', 'caso_investigacion_lft', 'GESTIONAR', FALSE, 'ALTO', TRUE),
+  ('CUMPLIMIENTO_CASOS', 'Abrir y consultar casos de investigación; el analista es el operador autenticado', 'caso_investigacion_lft', 'GESTIONAR', FALSE, 'ALTO', TRUE),
+  ('CUMPLIMIENTO_CASOS_DECIDIR', 'Decidir un caso LFT como revisor distinto del analista', 'caso_investigacion_lft', 'DECIDIR', FALSE, 'ALTO', TRUE),
   ('CUMPLIMIENTO_REPORTAR', 'Generar y enviar reportes regulatorios', 'reporte_regulatorio', 'ENVIAR', TRUE, 'CRITICO', TRUE),
   ('DATOS_SENSIBLES_LEER', 'Consultar documentos y cuentas de clientes', 'documento_identidad', 'LEER', TRUE, 'ALTO', TRUE),
   ('BLOQUEO_AUTORIDAD_REGISTRAR', 'Registrar un bloqueo de saldo ordenado por una autoridad', 'bloqueo_saldo', 'REGISTRAR', TRUE, 'CRITICO', TRUE),
@@ -277,5 +278,7 @@ INSERT INTO rol_permiso (rol_id, permiso_id) VALUES
   ((SELECT id FROM rol WHERE codigo = 'COMERCIAL'), (SELECT id FROM permiso WHERE codigo = 'TARIFARIO_ADMINISTRAR')),
   ((SELECT id FROM rol WHERE codigo = 'TESORERIA'), (SELECT id FROM permiso WHERE codigo = 'TESORERIA_OPERAR')),
   ((SELECT id FROM rol WHERE codigo = 'PARTICIPANTE'), (SELECT id FROM permiso WHERE codigo = 'INVERSION_OPERAR')),
-  ((SELECT id FROM rol WHERE codigo = 'ADMIN_PLATAFORMA'), (SELECT id FROM permiso WHERE codigo = 'INVERSION_OPERAR'))
+  ((SELECT id FROM rol WHERE codigo = 'ADMIN_PLATAFORMA'), (SELECT id FROM permiso WHERE codigo = 'INVERSION_OPERAR')),
+  ((SELECT id FROM rol WHERE codigo = 'ANALISTA_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'CUMPLIMIENTO_CASOS')),
+  ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'CUMPLIMIENTO_CASOS_DECIDIR'))
 ON CONFLICT (rol_id, permiso_id) DO NOTHING;

@@ -80,7 +80,7 @@ public class CU44InvestigarYReportar {
                     && enCaso.values().stream().distinct().count() == 1) {
                 UUID existente = enCaso.values().iterator().next();
                 var caso = casos.porId(dsl, existente)
-                        .filter(c -> c.analistaId().equals(entrada.analistaId()))
+                        .filter(c -> c.analistaId().equals(ctx.usuarioId()))
                         .orElseThrow(() -> alertasInvalidas());
                 return new SalidaCaso(caso.id(), caso.estado(), caso.plazoLimite(), null);
             }
@@ -108,7 +108,7 @@ public class CU44InvestigarYReportar {
             UUID casoId = casos.abrir(
                     dsl,
                     titulares.get(0),
-                    entrada.analistaId(),
+                    ctx.usuarioId(),
                     "ALERTA",
                     prioridadDe(severidad),
                     entrada.resumen(),
@@ -118,7 +118,7 @@ public class CU44InvestigarYReportar {
             for (var alerta : alertas) {
                 // Si otra transaccion la tomo primero (ya no esta ABIERTA), este caso no se abre:
                 // seguir dejaria un caso vacio, sin alertas que decidir.
-                if (!monitoreo.asignar(dsl, alerta.id(), entrada.analistaId(), casoId)) {
+                if (!monitoreo.asignar(dsl, alerta.id(), ctx.usuarioId(), casoId)) {
                     throw alertasInvalidas();
                 }
             }
@@ -130,7 +130,7 @@ public class CU44InvestigarYReportar {
                             "caso_investigacion_lft",
                             casoId,
                             Map.of(
-                                    "analistaId", entrada.analistaId().toString(),
+                                    "analistaId", ctx.usuarioId().toString(),
                                     "alertas", Integer.toString(alertas.size()),
                                     "plazoLimite", plazo.toString(),
                                     // Sin usuarioId en el payload: el deber de reserva
@@ -139,88 +139,6 @@ public class CU44InvestigarYReportar {
                             UUID.fromString(ctx.traza().id())));
 
             return new SalidaCaso(casoId, "ABIERTO", plazo, null);
-        });
-    }
-
-    /** Cierra el caso con su decision. REPORTAR exige el ROS ya radicado. */
-    @Transactional
-    public SalidaCaso decidir(EntradaDecision entrada, ContextoSesion ctx) {
-        OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
-
-        // AP-CU44-01 · R-UIF-07: la conclusion es la unica parte que sirve despues.
-        if (entrada.conclusion() == null || entrada.conclusion().trim().length() < 20) {
-            throw new ErrorDeNegocio(
-                    CodigoError.de(44, 1), "Una alerta no se cierra sin conclusion escrita (R-UIF-07).");
-        }
-        // AP-CU44-02: revisarse a uno mismo no es revisar.
-        if (entrada.revisadoPor() != null && entrada.revisadoPor().equals(entrada.analistaId())) {
-            throw new ErrorDeNegocio(CodigoError.de(44, 2), "La revision del caso tiene que ser independiente.");
-        }
-        // AP-CU44-03: decidir reportar sin narrativa deja a la UIF sin nada que leer.
-        if ("REPORTAR".equals(entrada.decision()) && entrada.reporteSospechosoId() == null) {
-            throw new ErrorDeNegocio(
-                    CodigoError.de(44, 3),
-                    "Reportar exige el reporte de operacion sospechosa ya radicado, con su narrativa y tipologia.");
-        }
-
-        return datos.conContexto(ctx, dsl -> {
-            var caso = casos.porId(dsl, entrada.casoId())
-                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(44, 6), "Ese caso no existe."));
-            // AP-CU44-04: pasado el plazo la decision se registra igual —no cerrar seria
-            // peor— pero queda marcada como fuera de plazo.
-            boolean vencido = ahora.isAfter(caso.plazoLimite());
-
-            // La transicion es condicional (estado <> CERRADO): si no paso, el caso ya tenia decision y
-            // seguir cerraria alertas y emitiria otro caso_decidido (backoffice carril A · H5.S2).
-            if (!casos.decidir(
-                    dsl,
-                    entrada.casoId(),
-                    entrada.decision(),
-                    entrada.conclusion(),
-                    entrada.revisadoPor(),
-                    entrada.reporteSospechosoId(),
-                    ahora)) {
-                // El reintento identico devuelve lo mismo sin segundo efecto; otra decision es AP-CU44-07.
-                boolean reintento = casos.decisionRegistrada(dsl, entrada.casoId())
-                        .filter(d -> d.repite(
-                                entrada.decision(),
-                                entrada.conclusion(),
-                                entrada.revisadoPor(),
-                                entrada.reporteSospechosoId()))
-                        .isPresent();
-                if (reintento) {
-                    return new SalidaCaso(
-                            entrada.casoId(), "CERRADO", caso.plazoLimite(), entrada.reporteSospechosoId());
-                }
-                throw new ErrorDeNegocio(CodigoError.de(44, 7), "Ese caso ya tiene su decision.");
-            }
-
-            for (UUID alertaId : entrada.alertaIds()) {
-                monitoreo.cerrar(
-                        dsl,
-                        alertaId,
-                        "DESCARTAR".equals(entrada.decision()) ? "DESCARTADA" : "ESCALADA",
-                        entrada.conclusion(),
-                        entrada.casoId(),
-                        ahora);
-            }
-
-            outbox.emitir(
-                    dsl,
-                    new EventoDominio(
-                            "cumplimiento.caso_decidido",
-                            "caso_investigacion_lft",
-                            entrada.casoId(),
-                            Map.of(
-                                    "decision", entrada.decision(),
-                                    "fueraDePlazo", Boolean.toString(vencido),
-                                    // NUNCA se notifica al titular: es el deber de
-                                    // reserva, y el evento lo dice explicito para que
-                                    // ningun consumidor lo intente.
-                                    "notificarAlTitular", "false"),
-                            UUID.fromString(ctx.traza().id())));
-
-            return new SalidaCaso(entrada.casoId(), "CERRADO", caso.plazoLimite(), entrada.reporteSospechosoId());
         });
     }
 
@@ -246,20 +164,7 @@ public class CU44InvestigarYReportar {
         };
     }
 
-    public record EntradaCaso(List<UUID> alertaIds, UUID analistaId, String resumen) {}
-
-    /**
-     * @param reporteSospechosoId el ROS vive en el esquema de auditoria y **no se
-     *     escribe desde aca** (invariante 11): llega ya radicado, con su narrativa
-     */
-    public record EntradaDecision(
-            UUID casoId,
-            List<UUID> alertaIds,
-            UUID analistaId,
-            UUID revisadoPor,
-            String decision,
-            String conclusion,
-            UUID reporteSospechosoId) {}
+    public record EntradaCaso(List<UUID> alertaIds, String resumen) {}
 
     public record SalidaCaso(UUID casoId, String estado, OffsetDateTime plazoLimite, UUID reporteSospechosoId) {}
 }

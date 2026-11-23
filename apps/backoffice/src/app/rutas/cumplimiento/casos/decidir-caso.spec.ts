@@ -10,7 +10,7 @@ const CONCLUSION = 'Las operaciones tienen respaldo documental suficiente.'
 
 function abrir() {
   const caso = { casoId: CASO_ID, codigo: 'LFT-2026-0007', estado: 'EN_ANALISIS' }
-  const montaje = montar(DecidirCaso, ['CUMPLIMIENTO_CASOS'], 'OFICIAL_CUMPLIMIENTO', { caso })
+  const montaje = montar(DecidirCaso, ['CUMPLIMIENTO_CASOS_DECIDIR'], 'OFICIAL_CUMPLIMIENTO', { caso })
   const c = montaje.fixture.componentInstance
   c.abierto.set(true)
   montaje.fixture.detectChanges()

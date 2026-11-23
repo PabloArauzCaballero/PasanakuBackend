@@ -65,7 +65,7 @@ class CU44DecisionTest extends BaseDeCumplimiento {
                 gobiernoFixtura.alerta(regla, titular, "ALTA", "5000.00", ahora),
                 gobiernoFixtura.alerta(regla, titular, "MEDIA", "900.00", ahora));
         var caso = transaccion.execute(t -> casoCU.abrirCaso(
-                new EntradaCaso(alertas, analista, "Fraccionamiento detectado en el periodo"), sesionDe(analista)));
+                new EntradaCaso(alertas, "Fraccionamiento detectado en el periodo"), sesionDe(analista)));
         return new Expediente(caso.casoId(), analista, alertas);
     }
 
@@ -155,7 +155,7 @@ class CU44DecisionTest extends BaseDeCumplimiento {
         int antes = contar("SELECT count(*)::int FROM cumplimiento.caso_investigacion_lft");
 
         var otraVez = transaccion.execute(t -> casoCU.abrirCaso(
-                new EntradaCaso(e.alertas(), e.analista(), "Fraccionamiento detectado en el periodo"),
+                new EntradaCaso(e.alertas(), "Fraccionamiento detectado en el periodo"),
                 sesionDe(e.analista())));
 
         assertThat(otraVez.casoId()).isEqualTo(e.casoId());
@@ -172,7 +172,7 @@ class CU44DecisionTest extends BaseDeCumplimiento {
 
         assertThatThrownBy(() -> transaccion.execute(t -> casoCU.abrirCaso(
                         new EntradaCaso(
-                                List.of(e.alertas().get(0)), otroAnalista, "Otro intento sobre la misma alerta"),
+                                List.of(e.alertas().get(0)), "Otro intento sobre la misma alerta"),
                         sesionDe(otroAnalista))))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .satisfies(x -> assertThat(codigo(x)).isEqualTo("AP-CU44-08"));

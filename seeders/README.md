@@ -47,7 +47,7 @@ local y en QA, y no deben tocar producción jamás.
 | `07-reportes-regulatorios.json` | calendario de 10 reportes obligatorios | ⚠ confirmar plazos |
 | `08-gobierno-y-licencia.json` | licencia, comités, puntos de reclamo, matriz de riesgo, tipologías | listo |
 | `09-reglas-operativas.json` | 8 reglas de entrega y 5 antifraude | revisar con riesgos |
-| `10-roles-y-permisos.json` | 15 roles, 29 permisos y la matriz que los une | listo |
+| `10-roles-y-permisos.json` | 15 roles, 30 permisos y la matriz que los une | listo |
 | `11-contratos-de-adhesion.json` | 4 contratos en borrador | redactar y registrar ante ASFI |
 | `12-calendario-habil.json` | 33 feriados nacionales de 2026 a 2028 | listo — ampliar cada año |
 | `13-politicas-de-token.json` | 13 políticas de token, una por propósito | listo |
