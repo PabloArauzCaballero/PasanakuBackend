@@ -185,11 +185,11 @@
   {
    "nombre": "tarifas",
    "descripcion": "Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder.",
-   "tablas": 29,
-   "tablasDeNegocio": 25,
-   "columnas": 327,
-   "relaciones": 62,
-   "appendOnly": 1,
+   "tablas": 32,
+   "tablasDeNegocio": 28,
+   "columnas": 353,
+   "relaciones": 65,
+   "appendOnly": 2,
    "conDatosPersonales": 4,
    "servicio": "tarifas"
   },
@@ -35623,6 +35623,18 @@
        "metodo": "POST",
        "ruta": "/pagos/{pagoId}/reembolsos",
        "operationId": "solicitarReembolso"
+      }
+     ]
+    },
+    {
+     "casoDeUso": "CU-23",
+     "titulo": "Cubrir un incumplimiento con el fondo",
+     "endpoints": [
+      {
+       "servicio": "garantia",
+       "metodo": "POST",
+       "ruta": "/incumplimientos/{expedienteId}/cobertura",
+       "operationId": "cubrirIncumplimiento"
       }
      ]
     },
@@ -82833,6 +82845,235 @@
    ]
   },
   {
+   "tabla": "parametro_congelado_grupo",
+   "esquema": "tarifas",
+   "tipo": "NEGOCIO",
+   "modulo": "11",
+   "nombreModulo": "Tarifas, Comisiones, Impuestos y Facturación",
+   "servicio": "tarifas",
+   "appendOnly": true,
+   "negocio": {
+    "queEs": "La versión de cada parámetro (y de cada nivel) que un grupo congeló al iniciar.",
+    "negocio": "Para que un cambio de parámetro rija solo para grupos nuevos (ADR-056 §6): los que ya empezaron siguen con lo que aceptaron, como con la tarifa congelada. garantia lee de acá lo que aplica a cada grupo.",
+    "porQue": "Porque sin congelamiento, cambiar el aporte al fondo cambiaría retroactivamente las reglas de un ciclo en curso. Es append-only para el rol de la aplicación."
+   },
+   "reglas": [
+    "uq_parametro_congelado_grupo"
+   ],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "grupo_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Referencia al grupo de pasanaku en el que se enmarca esta operación.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, índice b-tree.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "parametro_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "parametro_financiero",
+     "negocio": "Referencia por clave foránea a la entidad parametro_financiero.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a parametro_financiero.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "tarifas"
+    },
+    {
+     "nombre": "version_parametro_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "version_parametro",
+     "negocio": "Referencia por clave foránea a la entidad version_parametro.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a version_parametro.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "tarifas"
+    },
+    {
+     "nombre": "nivel_codigo",
+     "tipo": "VARCHAR(30)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Código normalizado o mnemotécnico de nivel.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(30), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "congelado_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de congelado en parametro_congelado_grupo.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "parametro_id",
+      "tabla": "parametro_financiero",
+      "esquema": "tarifas",
+      "columnaDestino": "id",
+      "restriccion": "fk_parametro_congelado_grupo_parametro_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "version_parametro_id",
+      "tabla": "version_parametro",
+      "esquema": "tarifas",
+      "columnaDestino": "id",
+      "restriccion": "fk_parametro_congelado_grupo_version_parametro_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     }
+    ],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema tarifas; la escribe y la lee solo el servicio tarifas (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de parametro_financiero, version_parametro. Reglas nombradas: uq_parametro_congelado_grupo.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": [
+    {
+     "casoDeUso": "CU-132",
+     "titulo": "Registrar, aprobar y congelar parámetros financieros",
+     "endpoints": []
+    }
+   ]
+  },
+  {
+   "tabla": "parametro_financiero",
+   "esquema": "tarifas",
+   "tipo": "NEGOCIO",
+   "modulo": "11",
+   "nombreModulo": "Tarifas, Comisiones, Impuestos y Facturación",
+   "servicio": "tarifas",
+   "appendOnly": false,
+   "negocio": {
+    "queEs": "El catálogo cerrado de los parámetros financieros del modelo A + D: su código, su unidad y si llevan un valor por nivel de puntualidad. No guarda valores.",
+    "negocio": "Para que «el aporte al fondo», «los días de gracia» o «el tope del recargo» sean una sola cosa con un solo nombre en todos los servicios. Una unidad todavía no decidida queda vacía y el parámetro no admite valores aprobados hasta que Pablo la decida.",
+    "porQue": "Porque un parámetro escrito en un .yml o en el código cambia sin que nadie lo apruebe ni quede rastro (DECISIONES, tanda 6)."
+   },
+   "reglas": [],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "codigo",
+     "tipo": "VARCHAR(50)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Código mnemotécnico o identificador legible para operadores y personas usuarias.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(50), obligatoria, restricción única.",
+     "sensibilidad": "NINGUNA",
+     "unica": true
+    },
+    {
+     "nombre": "descripcion",
+     "tipo": "VARCHAR(200)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Detalle descriptivo que explica el contenido, propósito o contexto de la entidad.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(200), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "unidad",
+     "tipo": "VARCHAR(12)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Atributo que representa unidad en el modelo de parametro_financiero.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(12), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "por_nivel",
+     "tipo": "BOOLEAN",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa por nivel en el modelo de parametro_financiero.",
+     "origenNegocio": "convencion",
+     "sistema": "BOOLEAN, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [],
+    "entrantes": [
+     {
+      "columna": "parametro_id",
+      "tabla": "version_parametro",
+      "esquema": "tarifas",
+      "columnaDestino": "id",
+      "restriccion": "fk_version_parametro_parametro_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "parametro_id",
+      "tabla": "parametro_congelado_grupo",
+      "esquema": "tarifas",
+      "columnaDestino": "id",
+      "restriccion": "fk_parametro_congelado_grupo_parametro_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     }
+    ]
+   },
+   "sistema": "Vive en el esquema tarifas; la escribe y la lee solo el servicio tarifas (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian parametro_congelado_grupo, version_parametro.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": [
+    {
+     "casoDeUso": "CU-132",
+     "titulo": "Registrar, aprobar y congelar parámetros financieros",
+     "endpoints": []
+    }
+   ]
+  },
+  {
    "tabla": "politica_redondeo",
    "esquema": "tarifas",
    "tipo": "NEGOCIO",
@@ -83795,6 +84036,220 @@
        "operationId": "crearSegmento"
       }
      ]
+    }
+   ]
+  },
+  {
+   "tabla": "version_parametro",
+   "esquema": "tarifas",
+   "tipo": "NEGOCIO",
+   "modulo": "11",
+   "nombreModulo": "Tarifas, Comisiones, Impuestos y Facturación",
+   "servicio": "tarifas",
+   "appendOnly": false,
+   "negocio": {
+    "queEs": "Un valor de un parámetro, con su vigencia, su procedencia, quién lo propuso y quién —otra persona— lo aprobó.",
+    "negocio": "Para cambiar un parámetro sin desplegar y con cuatro ojos reales: una persona propone, otra aprueba, las dos tomadas de su token (R-TAR-14). Lo aprobado no se edita: se corrige con una versión nueva (R-TAR-16).",
+    "porQue": "Porque un parámetro financiero decide cuánto paga cada participante; sin versión ni aprobación, nadie podría reconstruir con qué valor se calculó un recargo o una devolución."
+   },
+   "reglas": [
+    "ck_version_parametro_cuatro_ojos",
+    "ck_version_parametro_aprobada_completa",
+    "ck_version_parametro_valor"
+   ],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "parametro_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "parametro_financiero",
+     "negocio": "Referencia por clave foránea a la entidad parametro_financiero.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a parametro_financiero, índice b-tree.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "tarifas"
+    },
+    {
+     "nombre": "nivel_codigo",
+     "tipo": "VARCHAR(30)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Código normalizado o mnemotécnico de nivel.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(30), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "valor",
+     "tipo": "DECIMAL(16,6)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa valor en el modelo de version_parametro.",
+     "origenNegocio": "convencion",
+     "sistema": "DECIMAL(16,6), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "moneda",
+     "tipo": "CHAR(3)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).",
+     "origenNegocio": "convencion",
+     "sistema": "CHAR(3), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "vigente_desde",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "procedencia_fuente",
+     "tipo": "VARCHAR(200)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa procedencia fuente en el modelo de version_parametro.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(200), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "procedencia_referencia",
+     "tipo": "VARCHAR(300)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa procedencia referencia en el modelo de version_parametro.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(300), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "procedencia_fecha",
+     "tipo": "DATE",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de procedencia en version_parametro.",
+     "origenNegocio": "convencion",
+     "sistema": "DATE, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "propuesto_por",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa propuesto por en el modelo de version_parametro.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "propuesto_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de propuesto en version_parametro.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "aprobado_por",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Identificador del usuario con facultades que autorizó la operación.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "aprobado_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de aprobado en version_parametro.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "estado",
+     "tipo": "VARCHAR(12)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Estado operativo o fase del ciclo de vida en que se encuentra el registro.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(12), obligatoria, índice b-tree.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "clave_idempotencia",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, restricción única.",
+     "sensibilidad": "NINGUNA",
+     "unica": true
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "parametro_id",
+      "tabla": "parametro_financiero",
+      "esquema": "tarifas",
+      "columnaDestino": "id",
+      "restriccion": "fk_version_parametro_parametro_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     }
+    ],
+    "entrantes": [
+     {
+      "columna": "version_parametro_id",
+      "tabla": "parametro_congelado_grupo",
+      "esquema": "tarifas",
+      "columnaDestino": "id",
+      "restriccion": "fk_parametro_congelado_grupo_version_parametro_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     }
+    ]
+   },
+   "sistema": "Vive en el esquema tarifas; la escribe y la lee solo el servicio tarifas (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de parametro_financiero. La referencian parametro_congelado_grupo. Reglas nombradas: ck_version_parametro_cuatro_ojos, ck_version_parametro_aprobada_completa, ck_version_parametro_valor.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": [
+    {
+     "casoDeUso": "CU-132",
+     "titulo": "Registrar, aprobar y congelar parámetros financieros",
+     "endpoints": []
     }
    ]
   },

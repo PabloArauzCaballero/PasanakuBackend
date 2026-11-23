@@ -28,7 +28,8 @@ const METODOS = ['get', 'post', 'put', 'patch', 'delete']
 
 function codigosDeLinea(linea: string): EntradaDelCatalogo[] {
   const salida: EntradaDelCatalogo[] = []
-  const rx = /(AP-CU\d+-\d{2})\s+([A-Z][A-Z0-9_]{2,})?/g
+  // El nombre es opcional: `# AP-CU136-09: retirada…` (dos puntos, sin nombre) también menciona el código.
+  const rx = /(AP-CU\d+-\d{2})(?:\s+([A-Z][A-Z0-9_]{2,}))?/g
   for (const m of linea.matchAll(rx)) salida.push({ codigo: m[1] ?? m[0], nombre: m[2] })
   return salida
 }

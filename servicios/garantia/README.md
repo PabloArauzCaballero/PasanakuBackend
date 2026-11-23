@@ -17,9 +17,9 @@ Modulo 08 de la boveda — Garantía, Incumplimiento, Cobranza y Sanciones.
 
 | CU | Nombre | Estado |
 | --- | --- | --- |
-| CU-23 | Cubrir un incumplimiento con el fondo | Implementado |
+| CU-23 | Cubrir un incumplimiento con el fondo | Pendiente: la cobertura manual (F1.L2.M02) y el respaldo empresarial (F2.L2.M02) se retiraron; la cobertura con el fondo del grupo llega con F3.L2.M05 |
 | CU-25 | Declarar el incumplimiento con descargo y evidencia | Implementado |
-| CU-26 | Ejecutar el aval y subrogar la deuda | Implementado |
+| CU-26 | Ejecutar el aval y subrogar la deuda | Retirado (F2.L2.M04) |
 | CU-27 | Restringir al deudor e incluirlo en la lista interna | Implementado |
 | CU-29 | Devolver los aportes del fondo de garantia | Implementado |
 | CU-66 | Reemplazar a un participante moroso | Implementado |
@@ -48,29 +48,17 @@ por que se cubrio lo que se cubrio.
 **La restriccion no le cierra la puerta a pagar.** Bloquear al deudor de todo, incluido
 el camino para regularizarse, garantiza que no se regularice.
 
-## Respaldo empresarial del pozo (carril C, H7/H8)
+## Respaldo empresarial del pozo: RETIRADO (F2.L2.M02)
 
-Un mecanismo APARTE del fondo mutual (CU-23 original, `fondo_garantia`): la empresa reserva
-capacidad por ciclo y cubre lo que no llego al corte para que el pozo se entregue completo.
-Rutas `/garantia/respaldo/*`; el permiso de cada una vive en `GarantiaController` y la
-traduccion en `RespaldoWeb` (el generador agrupa por primer segmento de la ruta).
+La empresa no reserva ni cubre nada (ADR-055 E7, ADR-056): el faltante del pozo lo cubre el fondo del grupo
+(F3.L2.M05). Las seis rutas `/garantia/respaldo/*` quedan `deprecated` en `garantia.yaml` 1.3.0 y responden
+410 `AP-CU23-15` sin efecto (`RespaldoRetiradoWebTest`); se borran del contrato con la contraccion. Los casos de
+uso del respaldo, la contingencia de caja, `AsientoPropuesto` (cuentas `CAJA_EMPRESA` / `RESERVA_RESPALDO`) y
+sus repositorios ya no existen, y `garantia` no publica ningun topico `respaldo_*`. Las tablas del respaldo y sus
+restricciones (R-GAR-08 a R-GAR-13) siguen en el esquema hasta F2.L2.M03.
 
-| Clase | Hace |
-| --- | --- |
-| `CU23ReservarRespaldo` | Reserva (compite por la fila de capacidad, con candado), amplia (contingencia) y libera |
-| `CU23CubrirFaltanteDelCorte` | UNICA puerta HTTP para cubrir: pregunta a `aportes` el faltante, no cree al cliente |
-| `CU23CubrirConRespaldo` | Escritura atomica de la cobertura (todo o nada), una por turno |
-| `CU23RecuperarRespaldo` | Un aporte tardio devuelve a la empresa lo que adelanto, una vez por pago |
-| `CU23ReversarCobertura` | Contra-asiento; no se reversa una cobertura con recuperaciones |
-
-- Los contadores de `reserva_respaldo` y `capacidad_respaldo` son CACHE de `movimiento_reserva`
-  (append-only): los mantiene el trigger `tg_movimiento_reserva_aplica` (R-GAR-09).
-- Los asientos NO se escriben aca: viajan como `partidas` en el evento para que nucleo-financiero
-  las registre con CU-24. Cuentas LOGICAS (`CAJA_EMPRESA`, `RESERVA_RESPALDO`, `POZO_GRUPO`):
-  el mapeo al plan de cuentas es de contabilidad. **Hoy no hay consumidor**: ver el plan del carril C.
-- Orden de candados: reserva, luego cobertura, luego linea. Siempre.
-- Parametros SINTETICOS: el tope de capacidad lo carga gobierno (sin fila se deniega); ninguna
-  tarifa ni politica de recuperacion esta decidida (ambiguedades A1-A4).
+`RecaudoPorHttp` (puerto `RecaudoDelPeriodo`) queda sin uso hasta F3.L2.M05, que vuelve a leer de `aportes`
+la mora y el monto de la cuota impaga.
 
 ## Eventos que consume
 
@@ -95,12 +83,6 @@ docker compose --profile base up -d --wait
 ```
 
 Skills: `arrancar-carril` primero, despues las diecinueve de todo carril de backend.
-
-## Falta extraordinaria de caja (carril O2, H8.S1.M6)
-
-Si el respaldo no alcanza (o no hay reserva) sobre un compromiso existente, `CU23CubrirConRespaldo` abre un `plan_contingencia`
-(R-GAR-13: uno vivo por grupo), emite `garantia.contingencia_de_caja_activada` (responsables, obligaciones, comunicacion) y
-`CU23ReservarRespaldo` deniega reservas nuevas (`AP-CU23-10`) hasta que el faltante se cubra. Simulacro: `CU133ContingenciaTest`.
 
 ## Tercera vuelta (carril B3)
 

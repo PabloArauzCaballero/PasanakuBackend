@@ -100,7 +100,34 @@ class HechosPorHttpTest {
         respuestas.put("/usuarios/" + USUARIO + "/kyc", Respuesta.ok("{\"nivel\":\"INTERMEDIO\"}"));
         respuestas.put("/aportes/grupos/" + GRUPO + "/morosos", Respuesta.ok("{\"morosos\":1}"));
         assertThat(hechos.nivelDeKyc(USUARIO)).isEqualTo("INTERMEDIO");
-        assertThat(hechos.morososDelGrupo(GRUPO)).isEqualTo(1);
+        // F1.L1.M07: los morosos se preguntan con la identidad de servicio de grupos.
+        assertThat(conCredencial().morososDelGrupo(GRUPO)).isEqualTo(1);
+    }
+
+    @Test
+    void sinCredencialDeServicioLosMorososFaltanYNoSalePeticion() {
+        // F1.L1.M07: sin la identidad de servicio, aportes no contestaria; el dato falta y el ingreso falla cerrado.
+        respuestas.put("/aportes/grupos/" + GRUPO + "/morosos", Respuesta.ok("{\"morosos\":0}"));
+        assertThat(hechos.morososDelGrupo(GRUPO))
+                .isEqualTo(bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios.SIN_DATO_DE_MOROSOS);
+    }
+
+    private HechosPorHttp conCredencial() {
+        var fabrica = new SimpleClientHttpRequestFactory();
+        fabrica.setConnectTimeout(Duration.ofMillis(300));
+        fabrica.setReadTimeout(Duration.ofMillis(400));
+        String url = "http://127.0.0.1:" + servidor.getAddress().getPort();
+        return new HechosPorHttp(
+                RestClient.builder().requestFactory(fabrica),
+                url,
+                url,
+                url,
+                url,
+                url,
+                url,
+                url,
+                url,
+                bo.aportaya.plataforma.web.clientes.CredencialDeServicio.fija("token-de-servicio-grupos"));
     }
 
     @Test

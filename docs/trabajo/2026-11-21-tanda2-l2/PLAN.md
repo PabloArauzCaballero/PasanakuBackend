@@ -60,9 +60,10 @@ los pisos de cobertura sin cambios. **Estado:** A MEDIAS
 | ID | Microtarea | CA (binario) | DoD (comando) | Estado |
 |---|---|---|---|---|
 | P3.M1 | CU-22: la entrega nace solo del fondeo; retiro de `CU22LiquidarEntrega.liquidar/ejecutar`, `LiquidacionDeEntrega` y la ficha CU-22 reescrita | `grep -rn "liquidar(\|LiquidacionDeEntrega" servicios/entregas/src` vacío; los 3 escenarios de CU-22 con su prueba | `test` + `webTest` + verificadores locales; `integrationTest` en el CI del PR | HECHO (#471 mergeado con CI verde, incluidos «Los cinco corredores»; evidencia/punto3-cu22-sin-liquidacion.txt) |
+| F3.L2.M14 | Parámetros del modelo A obligatorios y sin valor por defecto (parte de garantía) | Con el modelo A encendido, falta un parámetro → no arranca y el error lo nombra; apagado, arranca como hoy | `ParametrosDelModeloATest` + semillas en base nueva | A MEDIAS (garantía y semilla hechas, evidencia/F3.L2.M14-parametros-garantia.txt; falta el productor en `tarifas` (L3L5, contrato en evidencia/F3.L2.M14-contrato-parametros-tarifas.md) y lo de entregas que es de M07 de L1 y de F3.L2.M05) |
 | F2.L2.M09 | Mercado de ofertas | Se resuelve con L2.S1.M1 | — | HECHO (con L2.S1.M1) |
 | F2.L2.M01 | Respaldo empresarial en entregas | `grep -rn Respaldo servicios/entregas/src` vacío | suites | A MEDIAS (local verde, evidencia/F2.L2.M01-sin-respaldo-entregas.txt; integración NO COMPROBADO local, la valida el CI del PR) |
-| F2.L2.M02 | Respaldo empresarial en garantía | Rutas `/garantia/respaldo/*` 410 | suites | TODO (después de F2.L2.M01) |
+| F2.L2.M02 | Respaldo empresarial en garantía | Rutas `/garantia/respaldo/*` 410 | suites | A MEDIAS (local verde, evidencia/F2.L2.M02-sin-respaldo-garantia.txt; integración NO COMPROBADO local; precondición en TEST: evidencia/F2.L2.M02-vigentes-respaldo.sql) |
 | F2.L2.M04 | Aval entre participantes | 410 y sin código | suites | A MEDIAS (código retirado y CU-26 marcado RETIRADO, evidencia/F2.L2.M04-cu26-retirado.txt; faltan las tablas) |
 
 ## Riesgos y bloqueos previstos

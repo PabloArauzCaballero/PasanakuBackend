@@ -31,8 +31,8 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU24-01",
-        "mensaje": "Asiento descuadrado",
+        "codigo": "AP-CU13-01",
+        "mensaje": "Cuenta inexistente",
         "detalle": {},
         "trazaId": "traza-consultarCuentaPropia-rechazo"
       }

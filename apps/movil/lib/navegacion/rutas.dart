@@ -3,6 +3,7 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../dominio/diagnostico_api.dart';
 import '../pantallas/alianzas/rutas.dart';
 import '../pantallas/billetera/rutas.dart';
 import '../pantallas/identidad/rutas.dart';
@@ -37,6 +38,7 @@ GoRouter crearEnrutador({
   refreshListenable: sesion,
   redirect: (context, state) {
     final interna = rutaInternaDesde(state.uri);
+    if (interna != null) registrarEnlaceRecibido(state.uri);
     final destino = interna == null ? state.uri : Uri.parse(interna);
     return decidirRuta(
           estado: sesion.estado,

@@ -1,5 +1,5 @@
 {
-  "descripcion": "Políticas operativas: billetera, redondeo, mora y cobertura del fondo de garantía.",
+  "descripcion": "Políticas operativas: billetera, redondeo y mora.",
   "entorno": "minimo",
   "revisar_con": "área de riesgos",
   "bloques": [
@@ -71,28 +71,6 @@
           "vigente_desde": {
             "$sql": "now()"
           }
-        }
-      ]
-    },
-    {
-      "tabla": "politica_cobertura",
-      "solo_si_vacia": true,
-      "conflicto": "ninguno",
-      "filas": [
-        {
-          "porcentaje_constitucion": 5.0,
-          "dias_mora_para_activar": 5,
-          "porcentaje_maximo_cobertura_por_aporte": 100.0,
-          "tope_cobertura_por_participante": 3000.0,
-          "tope_cobertura_por_periodo": 10000.0,
-          "max_coberturas_por_participante": 3,
-          "requiere_aprobacion_manual_desde": 2000.0,
-          "plazo_recuperacion_dias": 90,
-          "tasa_recargo_recuperacion": 1.5,
-          "vigente_desde": {
-            "$sql": "now()"
-          },
-          "exige_aval_previo": false
         }
       ]
     }

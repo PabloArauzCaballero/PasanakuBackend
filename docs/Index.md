@@ -3,8 +3,8 @@ tags:
   - moc
   - indice
 titulo: "AportaYa — modelo de datos"
-entidades: 336
-relaciones_fk: 682
+entidades: 339
+relaciones_fk: 685
 modulos: 14
 ---
 
@@ -21,14 +21,14 @@ modulos: 14
 docs/
 ├── Index.md                 ← estás acá
 ├── Modelos/
-│   ├── Entidades/           ← una nota por tabla (336), en 14 carpetas
+│   ├── Entidades/           ← una nota por tabla (339), en 14 carpetas
 │   │   ├── 01 - Identidad, Usuarios y Seguridad/
 │   │   ├── 02 - Grupos, Cupos, Turnos y Gobernanza/
 │   │   └── ...
-│   └── Relaciones/          ← una nota por clave foránea (682), en 14 carpetas
+│   └── Relaciones/          ← una nota por clave foránea (685), en 14 carpetas
 │       ├── 01 - Identidad, Usuarios y Seguridad/
 │       └── ...
-├── CasosDeUso/              ← un caso de uso por flujo (111), con criterios de aceptación
+├── CasosDeUso/              ← un caso de uso por flujo (112), con criterios de aceptación
 ├── Cumplimiento.md          ← matriz normativa ASFI · UIF · BCB · SIN · ISO
 ├── Restricciones.md         ← catálogo de restricciones con DDL
 └── entidades/               ← justificación de negocio + diagramas .puml
@@ -67,7 +67,7 @@ Casi todo el modelo se explica con cinco ideas. Si vas a leer solo cinco notas, 
 | 08 | Garantía, Incumplimiento, Cobranza y Sanciones | El grupo no se detiene, pero la deuda no se perdona sola | 39 | 117 | [[08_garantia_incumplimiento\|negocio]] |
 | 09 | Auditoría, Reportes y Cumplimiento | Poder demostrar todo lo anterior ante un reclamo o un regulador | 22 | 28 | [[09_auditoria_reportes\|negocio]] |
 | 10 | Billetera, Custodia y Dinero Electrónico | El saldo no se guarda: se deriva, y todos los días cuadra contra el banco | 28 | 69 | [[10_billetera_custodia\|negocio]] |
-| 11 | Tarifas, Comisiones, Impuestos y Facturación | La política de cobro es dato, no código: se cambia con un seeder | 27 | 65 | [[11_tarifas_comisiones\|negocio]] |
+| 11 | Tarifas, Comisiones, Impuestos y Facturación | La política de cobro es dato, no código: se cambia con un seeder | 30 | 68 | [[11_tarifas_comisiones\|negocio]] |
 | 12 | Cumplimiento Regulatorio y Consumidor Financiero | Que una inspección se responda con consultas, no armando carpetas | 47 | 102 | [[12_cumplimiento_asfi\|negocio]] |
 | 13 | Contabilidad Financiera y ERP | Que cerrar un mes no dependa de un Excel armado a mano | 18 | 39 | [[13_contabilidad_erp\|negocio]] |
 | 14 | Publicidad y Campañas | Que un partner se anuncie dentro de la app sin inventar un segundo cobro | 14 | 24 | [[14_publicidad_campanas\|negocio]] |
@@ -93,7 +93,7 @@ El grado (FK entrantes + salientes) es un buen proxy de importancia estructural:
 
 ## Acoplamiento entre módulos
 
-De las 682 claves foráneas, **356 cruzan módulos**. La matriz muestra
+De las 685 claves foráneas, **356 cruzan módulos**. La matriz muestra
 cuántas FK van de un módulo (fila) a otro (columna):
 
 | desde \ hacia | 01 | 02 | 03 | 04 | 05 | 06 | 07 | 08 | 09 | 10 | 11 | 12 | 13 | 14 |

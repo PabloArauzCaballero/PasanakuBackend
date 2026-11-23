@@ -3,12 +3,12 @@ tags:
   - moc
   - modulo/11-tarifas-comisiones-impuestos-y-facturacion
 modulo: "11 — Tarifas, Comisiones, Impuestos y Facturación"
-entidades: 27
+entidades: 30
 ---
 
 # 11 — Tarifas, Comisiones, Impuestos y Facturación · entidades
 
-Las **27 tablas** de este módulo. Justificación de negocio en [[11_tarifas_comisiones]].
+Las **30 tablas** de este módulo. Justificación de negocio en [[11_tarifas_comisiones]].
 
 [[_Entidades|← Todas las entidades]] · [[Index]]
 
@@ -22,6 +22,9 @@ Las **27 tablas** de este módulo. Justificación de negocio en [[11_tarifas_com
 | [[segmento_comercial]] | 6 | 0 | 2 |
 | [[asignacion_tarifario]] | 11 | 5 | 0 |
 | [[tarifa_congelada_grupo]] | 8 | 3 | 0 |
+| [[parametro_financiero]] | 5 | 0 | 2 |
+| [[version_parametro]] | 15 | 1 | 1 |
+| [[parametro_congelado_grupo]] | 6 | 2 | 0 |
 | [[simulacion_tarifa]] | 8 | 2 | 0 |
 | [[cambio_tarifario]] | 12 | 3 | 0 |
 | [[cotizacion_comision]] | 15 | 2 | 1 |

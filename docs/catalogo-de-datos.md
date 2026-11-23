@@ -4517,7 +4517,7 @@ La separación `saldoDisponible` / `saldoComprometido` es contabilidad prudente:
 
 **Por qué existe.** Sin fondo, la única respuesta al impago es que el beneficiario cobre menos. Con fondo, el grupo sigue funcionando y la deuda se persigue por separado.
 
-**Casos de uso que la nombran.** CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`) · CU-92 Evaluar el desempeño del organizador (`evaluarDesempeno`)
+**Casos de uso que la nombran.** CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`) · CU-92 Evaluar el desempeño del organizador (`evaluarDesempeno`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.grupo`, `nucleo_financiero.cuenta_contable`, `politica_cobertura`. La referencian `cobertura_incumplimiento`, `devolucion_fondo`, `movimiento_fondo`.
 
@@ -10033,6 +10033,47 @@ Una factura **no se edita ni se borra**: se anula y se emite nota de crédito. L
 | `fecha_emision` | TIMESTAMPTZ | Marca temporal o fecha de emision en `nota_credito_debito`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `estado_fiscal` | VARCHAR(20) | Atributo que representa estado fiscal en el modelo de `nota_credito_debito`. | VARCHAR(20), obligatoria. | NINGUNA |
 
+### `parametro_congelado_grupo`
+
+**Qué es.** La versión de cada parámetro (y de cada nivel) que un grupo congeló al iniciar.
+
+**Para qué sirve.** Para que un cambio de parámetro rija solo para grupos nuevos (ADR-056 §6): los que ya empezaron siguen con lo que aceptaron, como con la tarifa congelada. `garantia` lee de acá lo que aplica a cada grupo.
+
+**Por qué existe.** Porque sin congelamiento, cambiar el aporte al fondo cambiaría retroactivamente las reglas de un ciclo en curso. Es append-only para el rol de la aplicación.
+
+**Casos de uso que la nombran.** CU-132 Registrar, aprobar y congelar parámetros financieros
+
+**Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `parametro_financiero`, `version_parametro`. Reglas nombradas: `uq_parametro_congelado_grupo`.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `parametro_id` | UUID | Referencia por clave foránea a la entidad `parametro_financiero`. | UUID, obligatoria, referencia a `parametro_financiero`. | NINGUNA |
+| `version_parametro_id` | UUID | Referencia por clave foránea a la entidad `version_parametro`. | UUID, obligatoria, referencia a `version_parametro`. | NINGUNA |
+| `nivel_codigo` | VARCHAR(30) | Código normalizado o mnemotécnico de nivel. | VARCHAR(30), opcional. | NINGUNA |
+| `congelado_en` | TIMESTAMPTZ | Marca temporal o fecha de congelado en `parametro_congelado_grupo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `parametro_financiero`
+
+**Qué es.** El catálogo cerrado de los parámetros financieros del modelo A + D: su código, su unidad y si llevan un valor por nivel de puntualidad. No guarda valores.
+
+**Para qué sirve.** Para que «el aporte al fondo», «los días de gracia» o «el tope del recargo» sean una sola cosa con un solo nombre en todos los servicios. Una unidad todavía no decidida queda vacía y el parámetro no admite valores aprobados hasta que Pablo la decida.
+
+**Por qué existe.** Porque un parámetro escrito en un `.yml` o en el código cambia sin que nadie lo apruebe ni quede rastro (DECISIONES, tanda 6).
+
+**Casos de uso que la nombran.** CU-132 Registrar, aprobar y congelar parámetros financieros
+
+**Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `parametro_congelado_grupo`, `version_parametro`.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `codigo` | VARCHAR(50) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(50), obligatoria, restricción única. | NINGUNA |
+| `descripcion` | VARCHAR(200) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(200), obligatoria. | NINGUNA |
+| `unidad` | VARCHAR(12) | Atributo que representa unidad en el modelo de `parametro_financiero`. | VARCHAR(12), opcional. | NINGUNA |
+| `por_nivel` | BOOLEAN | Atributo que representa por nivel en el modelo de `parametro_financiero`. | BOOLEAN, obligatoria. | NINGUNA |
+
 ### `politica_redondeo`
 
 **Qué es.** Cómo se redondea el resultado del cálculo.
@@ -10162,6 +10203,36 @@ Una factura **no se edita ni se borra**: se anula y se emite nota de crédito. L
 | `hash_snapshot` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de snapshot. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
 | `congelada_en` | TIMESTAMPTZ | Marca temporal o fecha de congelada en `tarifa_congelada_grupo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `vigente_hasta_ciclo_nro` | SMALLINT | Atributo que representa vigente hasta ciclo nro en el modelo de `tarifa_congelada_grupo`. | SMALLINT, opcional. | NINGUNA |
+
+### `version_parametro`
+
+**Qué es.** Un valor de un parámetro, con su vigencia, su procedencia, quién lo propuso y quién —otra persona— lo aprobó.
+
+**Para qué sirve.** Para cambiar un parámetro sin desplegar y con cuatro ojos reales: una persona propone, otra aprueba, las dos tomadas de su token (`R-TAR-14`). Lo aprobado no se edita: se corrige con una versión nueva (`R-TAR-16`).
+
+**Por qué existe.** Porque un parámetro financiero decide cuánto paga cada participante; sin versión ni aprobación, nadie podría reconstruir con qué valor se calculó un recargo o una devolución.
+
+**Casos de uso que la nombran.** CU-132 Registrar, aprobar y congelar parámetros financieros
+
+**Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `parametro_financiero`. La referencian `parametro_congelado_grupo`. Reglas nombradas: `ck_version_parametro_cuatro_ojos`, `ck_version_parametro_aprobada_completa`, `ck_version_parametro_valor`.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `parametro_id` | UUID | Referencia por clave foránea a la entidad `parametro_financiero`. | UUID, obligatoria, referencia a `parametro_financiero`, índice b-tree. | NINGUNA |
+| `nivel_codigo` | VARCHAR(30) | Código normalizado o mnemotécnico de nivel. | VARCHAR(30), opcional. | NINGUNA |
+| `valor` | DECIMAL(16,6) | Atributo que representa valor en el modelo de `version_parametro`. | DECIMAL(16,6), obligatoria. | NINGUNA |
+| `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), opcional. | NINGUNA |
+| `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `procedencia_fuente` | VARCHAR(200) | Atributo que representa procedencia fuente en el modelo de `version_parametro`. | VARCHAR(200), obligatoria. | NINGUNA |
+| `procedencia_referencia` | VARCHAR(300) | Atributo que representa procedencia referencia en el modelo de `version_parametro`. | VARCHAR(300), obligatoria. | NINGUNA |
+| `procedencia_fecha` | DATE | Marca temporal o fecha de procedencia en `version_parametro`. | DATE, obligatoria. | NINGUNA |
+| `propuesto_por` | UUID | Atributo que representa propuesto por en el modelo de `version_parametro`. | UUID, obligatoria. | NINGUNA |
+| `propuesto_en` | TIMESTAMPTZ | Marca temporal o fecha de propuesto en `version_parametro`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `aprobado_por` | UUID | Identificador del usuario con facultades que autorizó la operación. | UUID, opcional. | NINGUNA |
+| `aprobado_en` | TIMESTAMPTZ | Marca temporal o fecha de aprobado en `version_parametro`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(12) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(12), obligatoria, índice b-tree. | NINGUNA |
+| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria, restricción única. | NINGUNA |
 
 ## Esquema `transparencia`
 
