@@ -59,7 +59,7 @@ fn_<dominio>_<accion>  función
 | `R-REP` | Reputación y transparencia | 7 |
 | `R-NOT` | Notificaciones | 3 |
 | `R-GAR` | Garantía, incumplimiento y cobranza | 13 |
-| `R-DES` | Desembolsos y entregas | 5 |
+| `R-DES` | Desembolsos y entregas | 6 |
 | `R-ORG` | Organizador y automatización | 7 |
 | `R-CTB` | Contabilidad financiera y ERP | 11 |
 | `R-PUB` | Publicidad y campañas | 6 |
@@ -2802,6 +2802,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_plan_contingencia_vivo
 | R-DES-03 | El fondeo del pozo cuadra: confirmado + mutual + faltante = pozo, y el pendiente es lo no cubierto | Integridad del pozo | [[CU-22 Liquidar y entregar el fondo]] |
 | R-DES-04 | Una oferta viva por turno | Integridad del mercado | [[CU-22 Liquidar y entregar el fondo]] |
 | R-DES-05 | Una cesión viva por turno, entre partes distintas, con retención antes del título | Integridad del mercado | [[CU-22 Liquidar y entregar el fondo]] |
+| R-DES-06 | Una incidencia de entrega sin autor solo si la abrió el sistema; la de una persona siempre lo lleva | Trazabilidad · debido proceso | [[CU-22 Liquidar y entregar el fondo]] |
 
 ```sql
 -- R-DES-01 · una orden viva por entrega; la clave corta el doble pago
@@ -2875,6 +2876,14 @@ ALTER TABLE cesion_derecho
   ADD CONSTRAINT ck_cesion_derecho_liquidada CHECK (
         estado <> 'LIQUIDADA' OR (liquidacion_ref IS NOT NULL AND liquidada_en IS NOT NULL)),
   ADD CONSTRAINT ck_cesion_derecho_fallo CHECK (estado <> 'FALLIDA' OR motivo_fallo IS NOT NULL);
+
+-- R-DES-06 · sin autor solo si la abrió el sistema (F3.L2.M01: la entrega automática con faltante).
+-- origen NULL es una fila anterior a la columna: cuenta como PERSONA (todas tienen autor). COALESCE porque
+-- un CHECK que da NULL se acepta.
+ALTER TABLE incidencia_entrega
+  ADD CONSTRAINT ck_incidencia_entrega_autor CHECK (
+        (COALESCE(origen, 'PERSONA') = 'SISTEMA' AND reportada_por IS NULL)
+     OR (COALESCE(origen, 'PERSONA') = 'PERSONA' AND reportada_por IS NOT NULL));
 ```
 
 ---

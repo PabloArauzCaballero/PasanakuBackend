@@ -357,6 +357,18 @@ que un organizador tenga que acordarse. Como todo grupo tiene un organizador hum
 
 *Fuente: CU-22 (R-DES-03, ADR-051); `docs/Restricciones.md`.*
 
+### `TurnoDelGrupo` / `turno_del_grupo`
+
+**Qué es.** La copia que guarda `entregas` de los turnos que publica `grupos`: qué turno cobra el pozo de cada periodo, de qué cupo y quién era el titular cuando `grupos` lo publicó.
+
+**Para qué sirve (negocio).** Que la entrega se arme sola cuando `aportes` avisa que el recaudo del periodo está listo, sin que nadie la pida a mano y sin que `entregas` tenga que preguntarle a `grupos` en el camino del dinero.
+
+**Por qué debe existir.** Un servicio no lee la base de otro (regla 98.1.1). Sin esta copia, la entrega automática tendría que llamar a `grupos` en cada fondeo (una cadena de tres saltos, regla 98.2.5) o adivinar el turno del periodo.
+
+**A nivel de sistema.** Dato replicado del evento `grupos.turnos_asignados` (pacto `contratos/pactos/grupos-entregas-turnos-asignados.json`): un periodo tiene un solo turno (`uq_turno_del_grupo_periodo_id`) y una fila solo se reemplaza con una `version` mayor, así que un evento viejo o repetido no pisa nada. No decide importes: el pozo sale del recaudo que afirma `aportes`. Si el titular cambió por una cesión, manda el título (`RegistroDelFondeo`).
+
+*Fuente: F3.L2.M01, anexo L2 del plan de correcciones; `docs/trabajo/2026-11-21-tanda2-l2/evidencia/F3.L2.M01-diseno-entrega-automatica.md`.*
+
 ### `OfertaTurno` / `oferta_turno`
 
 **Qué es.** La publicación de un participante que ofrece vender su derecho a cobrar un turno.

@@ -1,0 +1,39 @@
+{
+  "productor": "grupos",
+  "consumidor": "entregas",
+  "version": 1,
+  "estado": "PROPUESTA DEL CONSUMIDOR (F3.L2.M01): el productor todavia no lo emite; lo implementa el duenio de grupos",
+  "descripcion": "Los turnos que asigno el sorteo, con su periodo, su cupo y el titular del cupo: entregas guarda una copia de lectura para saber a quien entregar el pozo de cada periodo sin llamar a grupos en el camino del dinero (regla 98.2.5). Se emite por el outbox de grupos cuando el sorteo se revela (CU60Sortear) y otra vez, con el turno afectado, cada vez que cambia el titular de un cupo (reemplazo votado, retiro con reemplazo). El evento lleva la version del turno: entregas aplica solo una version mayor a la que ya tiene (orden). Consumidor: entregas (ConsumidorDeTurnosAsignadosKafka), idempotente por event_id.",
+  "topico": "aportaya.grupos.turnos_asignados",
+  "tipo": "grupos.turnos_asignados",
+  "agregado": "grupo",
+  "cabeceras": ["event_id", "correlation_id"],
+  "campos": {
+    "grupoId": "uuid del grupo (clave del mensaje)",
+    "turnos[].turnoId": "uuid de grupos.turno",
+    "turnos[].numero": "entero 1..N",
+    "turnos[].periodoId": "uuid de grupos.periodo cuyo pozo recibe ese turno",
+    "turnos[].cupoId": "uuid del cupo",
+    "turnos[].titularParticipanteId": "uuid del participante titular del cupo AL emitir",
+    "turnos[].version": "entero creciente por turno: el consumidor descarta una version vieja"
+  },
+  "consumidorExige": ["grupoId", "turnos[].turnoId", "turnos[].periodoId", "turnos[].cupoId", "turnos[].titularParticipanteId", "turnos[].version"],
+  "ejemplo": {
+    "grupoId": "e2000000-0000-4000-8000-000000000001",
+    "turnos": [
+      {
+        "turnoId": "e2000000-0000-4000-8000-000000000011",
+        "numero": 1,
+        "periodoId": "e2000000-0000-4000-8000-000000000021",
+        "cupoId": "e2000000-0000-4000-8000-000000000031",
+        "titularParticipanteId": "e2000000-0000-4000-8000-000000000041",
+        "version": 1
+      }
+    ]
+  },
+  "garantias": [
+    "grupos publica todos los turnos al revelar el sorteo, en la misma transaccion que los crea",
+    "un cambio de titular se republica con el turno afectado y una version mayor",
+    "sin datos personales: solo identificadores (regla 90.2)"
+  ]
+}

@@ -84,6 +84,9 @@ COLUMNAS_AGREGADAS = {
     # 2026-11-21 · F1.L1.M10: quien registro el bloqueo por autoridad. NULL solo en las
     # filas de antes; R-BIL-32 impide que levante el bloqueo la misma persona.
     ("bloqueo_saldo", "registrado_por"),
+    # 2026-11-21 · F3.L2.M01: quien abrio la incidencia, PERSONA o SISTEMA. NULL solo en las
+    # filas de antes (todas de persona); R-DES-06 exige autor salvo que la abra el sistema.
+    ("incidencia_entrega", "origen"),
 }
 COMENTARIO_AGREGADA = {}
 

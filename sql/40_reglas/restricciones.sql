@@ -2848,6 +2848,15 @@ ALTER TABLE cesion_derecho
         estado <> 'LIQUIDADA' OR (liquidacion_ref IS NOT NULL AND liquidada_en IS NOT NULL)),
   ADD CONSTRAINT ck_cesion_derecho_fallo CHECK (estado <> 'FALLIDA' OR motivo_fallo IS NOT NULL);
 
+-- R-DES-06 · sin autor solo si la abrió el sistema (F3.L2.M01: la entrega automática con faltante).
+-- origen NULL es una fila anterior a la columna: cuenta como PERSONA (todas tienen autor). COALESCE porque
+-- un CHECK que da NULL se acepta.
+ALTER TABLE incidencia_entrega DROP CONSTRAINT IF EXISTS ck_incidencia_entrega_autor;
+ALTER TABLE incidencia_entrega
+  ADD CONSTRAINT ck_incidencia_entrega_autor CHECK (
+        (COALESCE(origen, 'PERSONA') = 'SISTEMA' AND reportada_por IS NULL)
+     OR (COALESCE(origen, 'PERSONA') = 'PERSONA' AND reportada_por IS NOT NULL));
+
 
 -- ---------------------------------------------------------------------
 -- R-ORG — Organizador y automatización

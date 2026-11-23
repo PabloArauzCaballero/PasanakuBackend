@@ -155,6 +155,7 @@ public class FondeoRepositorio {
                 .fetchOptional(f -> f.get("id", UUID.class));
     }
 
+    /** {@code reportadaPor} vacio: la abre el sistema ({@code origen = SISTEMA}, R-DES-06). */
     public UUID abrirIncidencia(
             DSLContext dsl, UUID entregaId, UUID reportadaPor, String descripcion, int slaHoras, OffsetDateTime ahora) {
         UUID id = UUID.randomUUID();
@@ -165,6 +166,7 @@ public class FondeoRepositorio {
                 .set(DSL.field("severidad", String.class), "CRITICA")
                 .set(DSL.field("descripcion", String.class), descripcion)
                 .set(DSL.field("reportada_por", UUID.class), reportadaPor)
+                .set(DSL.field("origen", String.class), reportadaPor == null ? "SISTEMA" : "PERSONA")
                 .set(DSL.field("estado", String.class), "ABIERTA")
                 .set(DSL.field("sla_horas", Short.class), (short) slaHoras)
                 .set(DSL.field("fecha_limite_sla", OffsetDateTime.class), ahora.plusHours(slaHoras))

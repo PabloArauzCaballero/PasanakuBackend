@@ -66,6 +66,24 @@ los pisos de cobertura sin cambios. **Estado:** A MEDIAS
 | F2.L2.M02 | Respaldo empresarial en garantía | Rutas `/garantia/respaldo/*` 410 | suites | A MEDIAS (local verde, evidencia/F2.L2.M02-sin-respaldo-garantia.txt; integración NO COMPROBADO local; precondición en TEST: evidencia/F2.L2.M02-vigentes-respaldo.sql) |
 | F2.L2.M04 | Aval entre participantes | 410 y sin código | suites | A MEDIAS (código retirado y CU-26 marcado RETIRADO, evidencia/F2.L2.M04-cu26-retirado.txt; faltan las tablas) |
 
+### H1.S4 — Entrega automática al cobrarse el turno (F3.L2.M01)
+
+**CA:** Dado un periodo cuyo recaudo `aportes` avisa como listo y un turno conocido para ese periodo, cuando llega el
+aviso (una o varias veces, antes o después de los turnos), entonces `entregas` fondea ese turno una sola vez sin que
+nadie lo pida a mano. **DoD:** pruebas unitarias en los tres niveles contra dobles (regla 65) + integración con base
+real en el CI del PR + DDL regenerado sin deriva. **Estado:** A MEDIAS (las cinco microtareas HECHO contra dobles; falta la integración con los productores reales, que no existen). Diseño:
+[evidencia/F3.L2.M01-diseno-entrega-automatica.md](evidencia/F3.L2.M01-diseno-entrega-automatica.md). Los productores
+(`aportes.periodo_recaudado`, `grupos.turnos_asignados`) no existen: se trabaja contra dobles de sus pactos.
+
+| ID | Microtarea | CA (binario) | DoD (comando) | Estado |
+|---|---|---|---|---|
+| F3.L2.M01.a | Tabla `entregas.turno_del_grupo` en el modelo y DDL regenerado | La tabla existe con `periodo_id` único y sin FK a otro esquema | `generar_ddl.py` + aplicar en psql 5433 + deriva | HECHO (evidencia/F3.L2.M01.a-turno-del-grupo.txt; `verificar_boveda` TODO OK; el README y los planes pasan a 351 tablas porque `verificar_boveda` lo exige) |
+| F3.L2.M01.b | Copia de turnos: aplica `grupos.turnos_asignados` una vez por evento y solo con versión mayor | Duplicado y versión vieja no escriben | `test` (unitaria) + `integrationTest` (local contra Postgres real; el CI lo repite con Testcontainers) | HECHO (`AplicarTurnosAsignadosTest` 2/2 y `CU133EntregaAutomaticaTest.versionesDeTurnos`; evidencia/F3.L2.M01-integracion-local.txt y F3.L2.M01.bc-sql-saga-y-copia.txt) |
+| F3.L2.M01.c | Fondeo automático al consumir `aportes.periodo_recaudado` (clave `fondeo-auto-<periodoId>`; saga en `entregas.estado_saga`; sin turno conocido o aportes caído → el barrido reintenta) | Correcto, duplicado, fuera de orden y aportes caído dan un solo fondeo | `test` (unitaria, tres niveles) + `integrationTest` (local contra Postgres real; el CI lo repite) | HECHO (`EntregaAutomaticaTest` 11/11, `CU133EntregaAutomaticaTest` 6/6; evidencia/F3.L2.M01-integracion-local.txt) |
+| F3.L2.M01.d | Bordes Kafka de los dos eventos, apagados por omisión hasta la decisión del método de desembolso | Un mensaje sin cabecera o campo se rechaza; la lectura del pacto coincide | `test` de los consumidores con los ejemplos de los pactos | HECHO (`PactosDeLaEntregaAutomaticaTest` 5/5; evidencia/F3.L2.M01-suites.txt) |
+| F3.L2.M01.e | (no previsto, apareció en la integración) `incidencia_entrega.reportada_por` admite NULL: la incidencia que abre el sistema no tiene persona | Un fondeo automático con faltante abre su incidencia sin violar la FK | `CU133EntregaAutomaticaTest.graciaVencidaYDespuesCompleto` contra Postgres real + DDL regenerado | HECHO (falló con `fk_incidencia_entrega_reportada_por` antes del cambio y pasa después; evidencia/F3.L2.M01-integracion-local.txt y F3.L2.M01-boveda-y-esquema.txt) |
+| F3.L2.M01.f | (pedido del coordinador sobre M01.e) La incidencia guarda su `origen` (`PERSONA`\|`SISTEMA`) y R-DES-06 exige autor salvo origen SISTEMA | Persona sin autor, sistema con autor y fila vieja sin autor se rechazan; sistema sin autor y persona con autor se aceptan | psql de los seis casos + `CU22PozoYMercadoRechazosTest.rechazaRDES06` + integración | HECHO (evidencia/F3.L2.M01.f-rdes06-origen.txt; F3.L2.M01-integracion-local.txt) |
+
 ## Riesgos y bloqueos previstos
 
 | Riesgo | Impacto | Mitigación |

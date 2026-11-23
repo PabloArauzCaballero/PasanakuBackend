@@ -308,6 +308,8 @@ ALTER TABLE entregas.fondeo_entrega ALTER COLUMN cobertura_respaldo_id DROP NOT 
 ALTER TABLE entregas.fondeo_entrega ALTER COLUMN fondeada_en DROP NOT NULL;
 ALTER TABLE entregas.historial_estado_entrega ALTER COLUMN ejecutado_por DROP NOT NULL;
 ALTER TABLE entregas.incidencia_entrega ALTER COLUMN asignada_a DROP NOT NULL;
+ALTER TABLE entregas.incidencia_entrega ALTER COLUMN origen DROP NOT NULL;
+ALTER TABLE entregas.incidencia_entrega ALTER COLUMN reportada_por DROP NOT NULL;
 ALTER TABLE entregas.incidencia_entrega ALTER COLUMN resolucion DROP NOT NULL;
 ALTER TABLE entregas.incidencia_entrega ALTER COLUMN resuelta_en DROP NOT NULL;
 ALTER TABLE entregas.intento_desembolso ALTER COLUMN codigo_error DROP NOT NULL;

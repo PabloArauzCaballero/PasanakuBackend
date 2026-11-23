@@ -75,9 +75,9 @@
   {
    "nombre": "entregas",
    "descripcion": "Entregas de Fondo. Que la bolsa llegue completa, a la persona correcta, una sola vez.",
-   "tablas": 19,
-   "tablasDeNegocio": 15,
-   "columnas": 228,
+   "tablas": 20,
+   "tablasDeNegocio": 16,
+   "columnas": 236,
    "relaciones": 38,
    "appendOnly": 0,
    "conDatosPersonales": 1,
@@ -25344,7 +25344,9 @@
     "negocio": "Los ocho tipos son el catálogo de todo lo que puede salir mal en el momento más sensible: fondo incompleto, datos bancarios erróneos, desembolso rechazado, monto que no coincide, el beneficiario no recibió, entrega duplicada, reclamo de un tercero, sospecha de fraude.\n\nslaHoras y fechaLimiteSLA son lo que convierte el reclamo en algo con reloj. Una entrega que no llega es la emergencia máxima de la plataforma: la persona esperó meses su turno y contaba con esa plata para algo concreto. Un reclamo así no puede quedar en una bandeja sin dueño ni plazo.\n\nENTREGA_DUPLICADA está tipificada aunque las restricciones de base de datos la hagan improbable: si alguna vez ocurre por una vía inesperada, hay que poder gestionarla, no descubrirla en el cierre contable.",
     "porQue": "Sin incidencias, el problema en una entrega es una conversación de WhatsApp con soporte, sin trazabilidad, sin plazo y sin métrica."
    },
-   "reglas": [],
+   "reglas": [
+    "ck_incidencia_entrega_autor"
+   ],
    "columnas": [
     {
      "nombre": "id",
@@ -25401,14 +25403,24 @@
     {
      "nombre": "reportada_por",
      "tipo": "UUID",
-     "nulable": false,
+     "nulable": true,
      "pk": false,
      "referencia": "usuario",
      "negocio": "Referencia por clave foránea a la entidad usuario.",
      "origenNegocio": "convencion",
-     "sistema": "UUID, obligatoria, referencia a usuario.",
+     "sistema": "UUID, opcional, referencia a usuario.",
      "sensibilidad": "NINGUNA",
      "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "origen",
+     "tipo": "VARCHAR(10)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Atributo que representa origen en el modelo de incidencia_entrega.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(10), opcional.",
+     "sensibilidad": "NINGUNA"
     },
     {
      "nombre": "asignada_a",
@@ -25511,9 +25523,9 @@
       "esquema": "identidad",
       "columnaDestino": "id",
       "restriccion": "fk_incidencia_entrega_reportada_por",
-      "alBorrar": "RESTRICT",
+      "alBorrar": "SET NULL",
       "cardinalidad": "N:1",
-      "obligatoria": true
+      "obligatoria": false
      },
      {
       "columna": "asignada_a",
@@ -25528,7 +25540,7 @@
     ],
     "entrantes": []
    },
-   "sistema": "Vive en el esquema entregas; la escribe y la lee solo el servicio entregas (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de entrega_fondo, identidad.usuario.",
+   "sistema": "Vive en el esquema entregas; la escribe y la lee solo el servicio entregas (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de entrega_fondo, identidad.usuario. Reglas nombradas: ck_incidencia_entrega_autor.",
    "clasificacion": {
     "personales": 0,
     "financieros": 0,
@@ -26886,6 +26898,107 @@
    "clasificacion": {
     "personales": 0,
     "financieros": 3,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": []
+  },
+  {
+   "tabla": "turno_del_grupo",
+   "esquema": "entregas",
+   "tipo": "NEGOCIO",
+   "modulo": "04",
+   "nombreModulo": "Entregas de Fondo",
+   "servicio": "entregas",
+   "appendOnly": false,
+   "negocio": {
+    "queEs": "La copia que guarda entregas de los turnos que publica grupos: qué turno cobra el pozo de cada periodo, de qué cupo y quién era el titular cuando grupos lo publicó.",
+    "negocio": "Que la entrega se arme sola cuando aportes avisa que el recaudo del periodo está listo, sin que nadie la pida a mano y sin que entregas tenga que preguntarle a grupos en el camino del dinero.",
+    "porQue": "Un servicio no lee la base de otro (regla 98.1.1). Sin esta copia, la entrega automática tendría que llamar a grupos en cada fondeo (una cadena de tres saltos, regla 98.2.5) o adivinar el turno del periodo."
+   },
+   "notaDeSistema": "Dato replicado del evento grupos.turnos_asignados (pacto contratos/pactos/grupos-entregas-turnos-asignados.json): un periodo tiene un solo turno (uq_turno_del_grupo_periodo_id) y una fila solo se reemplaza con una version mayor, así que un evento viejo o repetido no pisa nada. No decide importes: el pozo sale del recaudo que afirma aportes. Si el titular cambió por una cesión, manda el título (RegistroDelFondeo).\n\n*Fuente: F3.L2.M01, anexo L2 del plan de correcciones; docs/trabajo/2026-11-21-tanda2-l2/evidencia/F3.L2.M01-diseno-entrega-automatica.md.*",
+   "reglas": [],
+   "columnas": [
+    {
+     "nombre": "turno_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador de referencia para el concepto de turno en turno_del_grupo.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "grupo_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Referencia al grupo de pasanaku en el que se enmarca esta operación.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, índice b-tree.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "periodo_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Identificador de referencia para el concepto de periodo en turno_del_grupo.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, restricción única.",
+     "sensibilidad": "NINGUNA",
+     "unica": true
+    },
+    {
+     "nombre": "cupo_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Identificador de referencia para el concepto de cupo en turno_del_grupo.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "titular_participante_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Identificador de referencia para el concepto de titular participante en turno_del_grupo.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "version",
+     "tipo": "INTEGER",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Número de versión para control de concurrencia optimista y auditoría de modificaciones.",
+     "origenNegocio": "convencion",
+     "sistema": "INTEGER, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "recibido_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de recibido en turno_del_grupo.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema entregas; la escribe y la lee solo el servicio entregas (regla 98.1.1): otro servicio la conoce por su API o por sus eventos.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
     "secretos": 0,
     "derivados": 0
    },
@@ -53934,9 +54047,9 @@
       "esquema": "entregas",
       "columnaDestino": "id",
       "restriccion": "fk_incidencia_entrega_reportada_por",
-      "alBorrar": "RESTRICT",
+      "alBorrar": "SET NULL",
       "cardinalidad": "N:1",
-      "obligatoria": true
+      "obligatoria": false
      },
      {
       "columna": "asignada_a",

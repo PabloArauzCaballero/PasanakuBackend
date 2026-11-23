@@ -3182,7 +3182,7 @@ Son dos conversaciones completamente distintas con dos personas distintas. Un so
 
 **Casos de uso que la nombran.** CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`)
 
-**Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `entrega_fondo`, `identidad.usuario`.
+**Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `entrega_fondo`, `identidad.usuario`. Reglas nombradas: `ck_incidencia_entrega_autor`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
@@ -3191,7 +3191,8 @@ Son dos conversaciones completamente distintas con dos personas distintas. Un so
 | `tipo` | VARCHAR(35) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(35), obligatoria. | NINGUNA |
 | `severidad` | VARCHAR(10) | Nivel de gravedad o criticidad asignado al incidente, alerta o evento. | VARCHAR(10), obligatoria. | NINGUNA |
 | `descripcion` | TEXT | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | TEXT, obligatoria. | NINGUNA |
-| `reportada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `reportada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `origen` | VARCHAR(10) | Atributo que representa origen en el modelo de `incidencia_entrega`. | VARCHAR(10), opcional. | NINGUNA |
 | `asignada_a` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
 | `sla_horas` | SMALLINT | Atributo que representa sla horas en el modelo de `incidencia_entrega`. | SMALLINT, obligatoria. | NINGUNA |
@@ -3381,6 +3382,26 @@ Son dos conversaciones completamente distintas con dos personas distintas. Un so
 | `motivo_fallo` | VARCHAR(200) | Atributo que representa motivo fallo en el modelo de `subasta_cupo`. | VARCHAR(200), opcional. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, restricción única. | NINGUNA |
 | `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
+
+### `turno_del_grupo`
+
+**Qué es.** La copia que guarda `entregas` de los turnos que publica `grupos`: qué turno cobra el pozo de cada periodo, de qué cupo y quién era el titular cuando `grupos` lo publicó.
+
+**Para qué sirve.** Que la entrega se arme sola cuando `aportes` avisa que el recaudo del periodo está listo, sin que nadie la pida a mano y sin que `entregas` tenga que preguntarle a `grupos` en el camino del dinero.
+
+**Por qué existe.** Un servicio no lee la base de otro (regla 98.1.1). Sin esta copia, la entrega automática tendría que llamar a `grupos` en cada fondeo (una cadena de tres saltos, regla 98.2.5) o adivinar el turno del periodo.
+
+**Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `turno_id` | UUID | Identificador de referencia para el concepto de turno en `turno_del_grupo`. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `periodo_id` | UUID | Identificador de referencia para el concepto de periodo en `turno_del_grupo`. | UUID, obligatoria, restricción única. | NINGUNA |
+| `cupo_id` | UUID | Identificador de referencia para el concepto de cupo en `turno_del_grupo`. | UUID, obligatoria. | NINGUNA |
+| `titular_participante_id` | UUID | Identificador de referencia para el concepto de titular participante en `turno_del_grupo`. | UUID, obligatoria. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
+| `recibido_en` | TIMESTAMPTZ | Marca temporal o fecha de recibido en `turno_del_grupo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `validacion_pre_entrega`
 
