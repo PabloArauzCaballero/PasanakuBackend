@@ -41,6 +41,6 @@ class CredencialDeServicioConfiguradaTest {
         assertThatThrownBy(() -> con("", "+59170000000", "clave", ""))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("ENTREGAS_SERVICIO_TOTP_SEMILLA");
-        assertThatThrownBy(() -> con("", "", "", "")).isInstanceOf(IllegalStateException.class);
+        assertThat(con("", "", "", "").vigente()).isEmpty();
     }
 }
