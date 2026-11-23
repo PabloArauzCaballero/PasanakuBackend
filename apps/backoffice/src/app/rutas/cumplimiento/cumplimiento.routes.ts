@@ -67,6 +67,14 @@ export const rutasCumplimiento: Routes = [
     title: 'Caso de cumplimiento · AportaYa',
   },
   {
+    // CU-17: los mismos códigos que `listarBloqueosPorAutoridad` (nucleo-financiero.yaml); levantar exige además
+    // `BLOQUEO_AUTORIDAD_LEVANTAR`, y eso lo decide la bandeja por fila y el servidor por petición.
+    path: 'bloqueos',
+    canMatch: [guardiaDe('bloqueos')],
+    loadComponent: () => import('./bloqueos/bandeja-de-bloqueos').then((m) => m.BandejaDeBloqueos),
+    title: 'Bloqueos de autoridad · AportaYa',
+  },
+  {
     path: 'uif/reportes',
     canMatch: [guardiaDe('uif/reportes')],
     loadComponent: () => import('./uif/bandeja-de-reportes').then((m) => m.BandejaDeReportes),

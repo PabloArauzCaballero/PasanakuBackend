@@ -1,0 +1,75 @@
+# Backoffice · bandeja de bloqueos por orden de autoridad (CU-17, pedido de L1)
+Fecha: 2026-11-21 · Contrato: rama L1 correcciones/tanda2-l1-listado-bloqueos (01074b9f), nucleo-financiero 1.4.0.
+Servidor SIMULADO, declarado: HttpTestingController (unitarias) y page.route (visual). No hay prueba contra nucleo-financiero corriendo.
+
+## Pruebas dirigidas (BLQ.M1–M4)
+$ yarn ng test --watch=false --reporters=verbose --include='src/app/rutas/cumplimiento/bloqueos/*.spec.ts' --include='src/app/rutas/cumplimiento/cumplimiento.routes.spec.ts'
+ ✓ bloqueos/bandeja-de-bloqueos.spec.ts > BandejaDeBloqueos · CU-17 listarBloqueosPorAutoridad > correcto: primera página sin cursor; la segunda viaja con el par (antesDe, antesDeId) que dio el servidor 186ms
+ ✓ bloqueos/bandeja-de-bloqueos.spec.ts > BandejaDeBloqueos · CU-17 listarBloqueosPorAutoridad > correcto: el filtro de estado viaja como `estado` (el único que admite el contrato) 32ms
+ ✓ bloqueos/bandeja-de-bloqueos.spec.ts > BandejaDeBloqueos · CU-17 listarBloqueosPorAutoridad > correcto: el monto parcial se muestra con su moneda desde la cadena exacta; el total dice «Todo el saldo» 52ms
+ ✓ bloqueos/bandeja-de-bloqueos.spec.ts > BandejaDeBloqueos · CU-17 listarBloqueosPorAutoridad > límite: vacío orienta (por qué está vacío y cuándo aparece un bloqueo) 28ms
+ ✓ bloqueos/bandeja-de-bloqueos.spec.ts > BandejaDeBloqueos · CU-17 listarBloqueosPorAutoridad > inválido: 403 → «sin acceso», sin tabla 22ms
+ ✓ bloqueos/bandeja-de-bloqueos.spec.ts > BandejaDeBloqueos · CU-17 listarBloqueosPorAutoridad > inválido: 422 AP-CU17-06 (cursor a medias) muestra el filtro inválido con su código de seguimiento 26ms
+ ✓ bloqueos/bandeja-de-bloqueos.spec.ts > BandejaDeBloqueos · acción «Levantar» (cuatro ojos) > con BLOQUEO_AUTORIDAD_LEVANTAR, «Levantar» aparece solo en la fila con puedeLevantar=true 53ms
+ ✓ bloqueos/bandeja-de-bloqueos.spec.ts > BandejaDeBloqueos · acción «Levantar» (cuatro ojos) > sin BLOQUEO_AUTORIDAD_LEVANTAR no se ofrece levantar, aunque el servidor diga puedeLevantar 44ms
+ ✓ bloqueos/bandeja-de-bloqueos.spec.ts > BandejaDeBloqueos · acción «Levantar» (cuatro ojos) > levantar abre la confirmación; al 200 avisa y recarga la bandeja 76ms
+ ✓ bloqueos/levantar-bloqueo.spec.ts > LevantarBloqueo · CU-17 levantarBloqueoPorAutoridad > correcto: POST sin cuerpo (quien levanta es la sesión), con Idempotency-Key y botón bloqueado durante el envío 18ms
+ ✓ bloqueos/levantar-bloqueo.spec.ts > LevantarBloqueo · CU-17 levantarBloqueoPorAutoridad > límite: un segundo «confirmar» mientras viaja no manda otro pedido (sin doble envío) 7ms
+ ✓ bloqueos/levantar-bloqueo.spec.ts > LevantarBloqueo · CU-17 levantarBloqueoPorAutoridad > inválido: 422 AP-CU17-04 (misma persona) explica que lo levanta otra persona; el diálogo sigue abierto 14ms
+ ✓ bloqueos/levantar-bloqueo.spec.ts > LevantarBloqueo · CU-17 levantarBloqueoPorAutoridad > inválido: 422 AP-CU17-05 (ya no vigente) pide actualizar la lista 12ms
+ ✓ cumplimiento.routes.spec.ts > rutasCumplimiento · el listado no tapa la ruta de su detalle > /cumplimiento/casos/caso-1 se abre sin el permiso del listado 78ms
+ ✓ cumplimiento.routes.spec.ts > rutasCumplimiento · el listado no tapa la ruta de su detalle > /cumplimiento/alertas/alerta-1 se abre sin el permiso del listado 13ms
+ ✓ cumplimiento.routes.spec.ts > rutasCumplimiento · el listado no tapa la ruta de su detalle > /cumplimiento/actas/acta-1 se abre sin el permiso del listado 8ms
+ ✓ cumplimiento.routes.spec.ts > rutasCumplimiento · el listado no tapa la ruta de su detalle > el listado sin su permiso sigue redirigiendo al tablero 4ms
+ ✓ cumplimiento.routes.spec.ts > rutasCumplimiento · bloqueos de autoridad (CU-17) > con BLOQUEO_AUTORIDAD_REGISTRAR se entra a la bandeja 5ms
+ ✓ cumplimiento.routes.spec.ts > rutasCumplimiento · bloqueos de autoridad (CU-17) > con BLOQUEO_AUTORIDAD_LEVANTAR se entra a la bandeja 3ms
+ ✓ cumplimiento.routes.spec.ts > rutasCumplimiento · bloqueos de autoridad (CU-17) > sin ninguno de los dos códigos de su listado, al tablero 3ms
+ Test Files  3 passed (3)
+      Tests  20 passed (20)
+
+## Accesibilidad (axe, WCAG 2.2 AA automático)
+$ yarn ng test --watch=false --include='src/app/rutas/cumplimiento/bloqueos/*.a11y.spec.ts'
+ ✓ con datos, la acción «Levantar» y su diálogo abierto, sin violaciones
+ ✓ vacía, sin violaciones
+ ✓ en error (422 AP-CU17-06), sin violaciones
+ Test Files  1 passed (1) · Tests  3 passed (3)
+
+## Regresión del backoffice (serial)
+$ yarn typecheck → exit 0 (sin salida)
+$ yarn lint
+TODO OK
+$ yarn test:front --watch=false
+ Test Files  188 passed (188)
+      Tests  1342 passed (1342)
+$ yarn test:a11y --watch=false
+ Test Files  46 passed (46)
+      Tests  97 passed (97)
+$ yarn ng test --include='src/app/nucleo/*.spec.ts' --include='src/app/rutas/cumplimiento/**/*.spec.ts'  # tras agregar la entrada del menú
+ Test Files  59 passed (59) · Tests  450 passed (450)
+
+## Prueba visual (3 viewports × 2 temas × datos/vacío/error + diálogo)
+$ npx playwright test e2e/visual-bloqueos.e2e.ts --trace off --retries=0
+✓   1 [chromium] › e2e/visual-bloqueos.e2e.ts:40:11 › bloqueos datos — movil × light (1.7s)
+✓   2 [chromium] › e2e/visual-bloqueos.e2e.ts:40:11 › bloqueos datos — movil × dark (1.6s)
+✓   3 [chromium] › e2e/visual-bloqueos.e2e.ts:40:11 › bloqueos datos — tablet × light (1.6s)
+✓   4 [chromium] › e2e/visual-bloqueos.e2e.ts:40:11 › bloqueos datos — tablet × dark (1.6s)
+✓   5 [chromium] › e2e/visual-bloqueos.e2e.ts:40:11 › bloqueos datos — escritorio × light (1.7s)
+✓   6 [chromium] › e2e/visual-bloqueos.e2e.ts:40:11 › bloqueos datos — escritorio × dark (1.6s)
+✓   7 [chromium] › e2e/visual-bloqueos.e2e.ts:40:11 › bloqueos vacio — movil × light (1.6s)
+✓   8 [chromium] › e2e/visual-bloqueos.e2e.ts:40:11 › bloqueos vacio — movil × dark (1.1s)
+✓   9 [chromium] › e2e/visual-bloqueos.e2e.ts:40:11 › bloqueos vacio — tablet × light (1.6s)
+✓  10 [chromium] › e2e/visual-bloqueos.e2e.ts:40:11 › bloqueos vacio — tablet × dark (1.5s)
+✓  11 [chromium] › e2e/visual-bloqueos.e2e.ts:40:11 › bloqueos vacio — escritorio × light (1.6s)
+✓  12 [chromium] › e2e/visual-bloqueos.e2e.ts:40:11 › bloqueos vacio — escritorio × dark (1.6s)
+✓  13 [chromium] › e2e/visual-bloqueos.e2e.ts:40:11 › bloqueos error — movil × light (1.5s)
+✓  14 [chromium] › e2e/visual-bloqueos.e2e.ts:40:11 › bloqueos error — movil × dark (1.6s)
+✓  15 [chromium] › e2e/visual-bloqueos.e2e.ts:40:11 › bloqueos error — tablet × light (1.7s)
+✓  16 [chromium] › e2e/visual-bloqueos.e2e.ts:40:11 › bloqueos error — tablet × dark (1.6s)
+✓  17 [chromium] › e2e/visual-bloqueos.e2e.ts:40:11 › bloqueos error — escritorio × light (1.6s)
+✓  18 [chromium] › e2e/visual-bloqueos.e2e.ts:40:11 › bloqueos error — escritorio × dark (1.6s)
+✓  19 [chromium] › e2e/visual-bloqueos.e2e.ts:59:5 › bloqueos — diálogo «Levantar» abierto (escritorio × claro) (1.7s)
+19 passed (1.1m)
+Capturas en .playwright/backoffice/visual/bloqueos/ (gitignored). Revisadas: datos escritorio claro y oscuro, datos móvil claro
+(tabla colapsada a tarjetas, acción visible), error tablet oscuro (mensaje propio + código de seguimiento + «Volver a intentar»),
+vacío móvil oscuro (orienta), diálogo escritorio claro (consecuencia y cuatro ojos, confirmar destructivo). Consola sin errores.
+Hallazgo corregido al mirarlas: el menú lateral no mostraba la entrada (nucleo/menu.ts enumera sus pantallas aparte); se agregó.
