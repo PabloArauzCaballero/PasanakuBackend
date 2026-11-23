@@ -1,11 +1,9 @@
 # Reporte — Tanda 2, lote L3L5
 
-> **AVANCE: 11 / 29 — 37,9 %.** A MEDIAS: F1.L3.M04, F1.L3.M05, F1.L5.M28, F3.S8.M6, F3.L2.M01a. Abiertos: #448, #486 y #492 (tope de 3); M6 empujado sin PR. Retoma: ver «Para quien retome».
+> **AVANCE: 11 / 29 — 37,9 %.** A MEDIAS: F1.L3.M04, F1.L3.M05, F1.L5.M28, F3.S8.M6, F3.L2.M01a. #448, #486 y #492 están mergeados a `dev` y promovidos por #498; no hay PR abiertos del lote. M6 sigue sin PR. Retoma: ver «Para quien retome».
 
-- Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md)
-- PR hacia `dev`: mergeados #428 (F1.L3.M04), #431 (F1.L3.M06), #434 (F1.L3.M07), #437 (F1.L3.M05), #453 (T2.M1);
-  #423 (T2.M0) incluido en #444. **Abierto: #448**, consolidado (F1.L5.M26, M27, M23, M21 y M28); #438, #440, #443
-  y #446 se cerraron absorbidos en #448 (tope de 3 PR abiertos por sesión, pedido de la coordinación).
+- Actualizado: 2026-11-23 · Plan: [PLAN.md](./PLAN.md) · `dev`: `3debc917`; `test`: #498 (`5dca19d6`).
+- PR hacia `dev`: #428, #431, #434, #437, #444, #448, #453, #485, #486 y #492 están mergeados; #423, #438, #440, #443 y #446 se cerraron al consolidarse sus cambios. #498 promovió `dev` a `test`. No hay PR abiertos de este lote.
 - Estado del CI: `origin/dev` (con #433 OSV, #419, #444 Mockito y #453 aliado) mergeado en toda la pila el
   2026-11-21; el CI de cada PR se vuelve a correr con eso. Antes: `osv-scan` en rojo por npm de `yarn.lock`
   (resuelto por #433) y #423 en rojo por `identidad · RotacionDeClavesDeFirmaTest` (cubierto por #444).
@@ -19,16 +17,9 @@
 
 - **Estado:** 11/29 (ver primera línea; +2 microtareas de H4, pedido de L2). Todo está empujado a `origin`; no queda nada solo en local.
 - **PR abiertos (tope: 3 por sesión):**
-  - **#448** · rama `correcciones/tanda2-l3l5-f1-tarifario` · F1.L5.M26, M27, M23, M21 y M28 (parcial). Es la punta
-    de la pila: acá viven `PLAN.md` y `REPORTE.md` al día. Absorbe a #438, #440, #443 y #446 (cerrados).
-  - **#486** · rama `correcciones/tanda2-l3l5-f3-parametros` · F3.S8.M2a: modelo del registro de parámetros en
-    `tarifas` + siembra de los 7 códigos sin valores (unidades: DECISIONES tanda 11, #489). Su copia de
-    `PLAN.md`/`REPORTE.md` es la de `dev`; la vigente es la de #448.
-  - **#492** · rama `correcciones/tanda2-l3l5-f3-parametros-api` · F3.S8.M2b: API de CU-132 (catálogo, proponer,
-    aprobar con cuatro ojos del token). Apilado sobre #486: se mergea después.
+  - #448, #486 y #492 ya están cerrados como mergeados: #448 consolidó notificaciones/transparencia/tarifas; #486 integró el modelo de parámetros y #492 la API CU-132. Todos están en `dev` y fueron promovidos por #498.
 - **Mergeados:** #428, #431, #434, #437, #453; #423 dentro de #444.
-- **Sin PR (tope de 3):** `correcciones/tanda2-l3l5-f3-parametros-congelamiento` (F3.S8.M6, apilada sobre #492) y `correcciones/tanda2-l3l5-turnos-asignados` (F3.L2.M01a, desde `dev`).
-  Abrir su PR hacia `dev` en cuanto se mergee #486 o #492.
+- **Sin PR:** `correcciones/tanda2-l3l5-f3-parametros-congelamiento` (F3.S8.M6) y `correcciones/tanda2-l3l5-turnos-asignados` (F3.L2.M01a). El tope ya no bloquea abrirlos; actualizar sus ramas con la punta de `dev`.
 - **Siguiente, en orden:** F3.S8.M4 (pantalla del backoffice). Lo ya hecho de M6: `GET /tarifas/parametros/grupos/{grupoId}` según el contrato de L2 en
   `docs/trabajo/2026-11-21-tanda2-l2/evidencia/F3.L2.M14-contrato-parametros-tarifas.md`: 200 / 404 sin congelamiento
   / 422 con el código que falta) y el consumidor idempotente de `grupos.grupo_iniciado` que escribe
@@ -39,8 +30,7 @@
   `docs/trabajo/2026-11-21-plan-correcciones/EJECUCION.md`; `generateJooq` solo declara salidas, así que tras un
   cambio de esquema hay que correrlo con `--rerun`. Para intermitentes: reproducir con `taskset -c 0` y 3 procesos
   ocupados (ver T2.M0 y T2.M1).
-- **Decisiones que esperan a Pablo:** ventana del webhook de mensajería (5 min, F1.L5.M23); fuente para derivar el
-  tipo de cambio del tarifario (F1.L5.M28, o F3.L5.M36); D-L5-3 (segundo firmante del tarifario).
+- **Decisiones que esperan a Pablo:** ventana del webhook de mensajería (5 min, F1.L5.M23); fuente para derivar el tipo de cambio del tarifario (F1.L5.M28, o F3.L5.M36); D-L5-3 (segundo firmante de la publicación operativa del tarifario).
 
 ## Completado
 | ID | Qué se logró | Comando | Resultado |
@@ -65,8 +55,7 @@
   campos que exige el pacto de #490 y que no viaja nada más; suites de `grupos` 122/122 y 184/184.
 - Qué no anda: no corrió `TurnosAsignadosRepositorioTest` (Testcontainers, sin Docker): la publicación real en
   `evento_dominio` está sin demostrar.
-- Qué falta exactamente: PR (hay 3 abiertos) para que CI la corra; cuando #490 entre a `dev`, que
-  `TurnoAsignadoTest` lea los campos del archivo del pacto; F3.L2.M01b.
+- Qué falta exactamente: abrir/actualizar el PR para que CI corra `TurnosAsignadosRepositorioTest`, ahora que #490 está en `dev`; después completar F3.L2.M01b.
 - Dónde quedó: rama `correcciones/tanda2-l3l5-turnos-asignados` (5f9c3ad5, desde `dev`), compila, empujada.
 
 ### F3.S8.M6 — Congelamiento de parámetros al iniciar el grupo
@@ -78,10 +67,8 @@
   `UPDATE`/`DELETE` lo rechaza R-AUD-01 ([evidencia](./evidencia/F3.S8.M6-congelamiento-por-grupo.txt)).
 - Qué no anda: no está demostrado con el código real que el mismo evento dos veces sea `DUPLICADO` (la marca
   `evento_consumido` con `Consumidos`): eso lo prueba `CU132CongelamientoTest`, que necesita Docker y no corrió.
-- Qué falta exactamente: abrir el PR (hoy hay 3 abiertos) para que CI corra `CU132CongelamientoTest`, `CU132Test`
-  y `ArranqueTest` de `tarifas` (listener nuevo); `SERVICIO_GARANTIA` llega con #483; el pacto del lado de
-  `garantia` (consumidor del GET) es de L2.
-- Dónde quedó: rama `correcciones/tanda2-l3l5-f3-parametros-congelamiento` (8e92a226), compila, empujada.
+- Qué falta exactamente: abrir/actualizar el PR para que CI corra `CU132CongelamientoTest`, `CU132Test` y `ArranqueTest` de `tarifas` (listener nuevo); `SERVICIO_GARANTIA` ya está integrado en #483 y el pacto del consumidor del GET corresponde a L2.
+- Dónde quedó: rama `correcciones/tanda2-l3l5-f3-parametros-congelamiento` (8e92a226), compila, empujada; actualizar contra la punta de `dev` antes de abrir PR.
 
 ### F1.L3.M04 — El retiro lo pide solo su titular
 - Qué anda: en la API, el participante sale del token y del `grupoId` de la ruta; otro integrante en el cuerpo,
@@ -177,8 +164,7 @@
 - F3.S8.M6: un código sin versión aprobada al iniciar queda faltante para siempre en ese grupo (no se completa con
   una versión posterior, ADR-056 §6). Que el grupo no pueda iniciar así lo decide `grupos` (contrato de L2, §4).
 - F3.S8.M6: el evento opcional `tarifas.parametros_congelados` no se emite; `garantia` usa el GET.
-- F3.S8.M2b: `TARIFARIO_ADMINISTRAR` propone y aprueba; la separación la da el cuatro-ojos (dos personas, dos
-  tokens), no dos permisos. A confirmar con Pablo (anotado en #492).
+- F3.S8.M2b: decisión confirmada por Pablo: `TARIFARIO_ADMINISTRAR` es el mismo permiso para proponer y aprobar; el cuatro-ojos exige dos personas y dos tokens. La aprobación no puede hacerla quien propuso.
 - F1.L5.M23: ventana del webhook de mensajería = 5 minutos (`aportaya.webhook.ventana: PT5M` en `application.yml`).
   No es un parámetro financiero; es un valor de seguridad elegido por esta sesión, a confirmar con Pablo. El formato
   de la carga firmada es el del puerto propio (no hay proveedor contratado, P-15).

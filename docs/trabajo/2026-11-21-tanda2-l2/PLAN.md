@@ -1,6 +1,6 @@
 # Plan — Tanda 2, lote L2 (garantía y entregas)
 
-- Fecha: 2026-11-21 · Repo: `PasanakuBackend` · Base: `origin/dev` 50cf3be9 · Predecesor: plan de correcciones
+- Actualizado: 2026-11-23 · Repo: `PasanakuBackend` · `dev`: `3debc917`; promovido a `test` por #498 (`5dca19d6`) · Predecesor: plan de correcciones
   (`docs/trabajo/2026-11-21-plan-correcciones/PLAN.md`, H1 = F1, H2 = F2) y su anexo
   `anexos/ANEXO-L2-garantia-entregas.md`. Decisiones: `docs/trabajo/2026-11-20-auditoria-consolidado/DECISIONES.md`.
 - Resultado observable: en `entregas` no queda camino para subastar un cupo ni comprar/vender el derecho a cobrar un
@@ -29,7 +29,7 @@
 **CA:** Dado `dev` con los PR del lote mergeados, cuando se busca la subasta, el mercado de turnos, el
 `numeroCifrado` del cliente y las demás vías del anexo L2, entonces no existen o están cerradas con su prueba.
 **DoD:** cada PR con CI verde y la salida pegada en `evidencia/`.
-**Estado:** A MEDIAS (mergeados en `dev` el 2026-11-21: #419, #421, #422, #424, #429, #459, #462 y #463)
+**Estado:** A MEDIAS (PRs #419, #421, #422, #424, #429, #459, #462, #463, #471, #472, #474, #477 y #490 mergeados en `dev`; promoción a `test` por #498)
 
 ### H1.S1 — Retiro de la cesión de turno (D-L2-1)
 
@@ -40,7 +40,7 @@ los pisos de cobertura sin cambios. **Estado:** A MEDIAS
 | ID | Microtarea | CA (binario) | DoD (comando) | Estado |
 |---|---|---|---|---|
 | L2.S1.M1 | Retirar subasta (CU-64 por subasta) y mercado de ofertas (CU-130): casos de uso, repositorios, adaptadores, trabajo programado, configuración y pruebas; las operaciones quedan `deprecated` y responden 410 | Las 10 operaciones responden 410 `AP-ENT-RETIRADA`; `grep -rln 'SubastaDelCupo\|GestionDeOfertas' servicios/entregas/src` vacío | `./gradlew :servicios:entregas:test :servicios:entregas:webTest` + grep | HECHO (evidencia/L2.S1.M1-retiro-cesion.txt; `integrationTest` lo corre el CI) |
-| L2.S1.M2 | Contracción del contrato y del modelo (borrar las operaciones del OpenAPI y las tablas `subasta_cupo`, `puja_subasta`, `oferta_turno`, `cesion_derecho`) | Las operaciones y tablas no existen | Regeneración DDL + deriva | TODO (precondición: L6 y L1 sueltan los consumidores; ver REPORTE) |
+| L2.S1.M2 | Contracción del contrato y del modelo (borrar las operaciones del OpenAPI y las tablas `subasta_cupo`, `puja_subasta`, `oferta_turno`, `cesion_derecho`) | Las operaciones y tablas no existen | Regeneración DDL + deriva | TODO (app #460 y consumidor de nucleo-financiero #461 integrados; falta ejecutar y verificar la contracción) |
 
 ### H1.S2 — Seguridad (F1.L2)
 
@@ -60,7 +60,7 @@ los pisos de cobertura sin cambios. **Estado:** A MEDIAS
 | ID | Microtarea | CA (binario) | DoD (comando) | Estado |
 |---|---|---|---|---|
 | P3.M1 | CU-22: la entrega nace solo del fondeo; retiro de `CU22LiquidarEntrega.liquidar/ejecutar`, `LiquidacionDeEntrega` y la ficha CU-22 reescrita | `grep -rn "liquidar(\|LiquidacionDeEntrega" servicios/entregas/src` vacío; los 3 escenarios de CU-22 con su prueba | `test` + `webTest` + verificadores locales; `integrationTest` en el CI del PR | HECHO (#471 mergeado con CI verde, incluidos «Los cinco corredores»; evidencia/punto3-cu22-sin-liquidacion.txt) |
-| F3.L2.M14 | Parámetros del modelo A obligatorios y sin valor por defecto (parte de garantía) | Con el modelo A encendido, falta un parámetro → no arranca y el error lo nombra; apagado, arranca como hoy | `ParametrosDelModeloATest` + semillas en base nueva | A MEDIAS (garantía y semilla hechas, evidencia/F3.L2.M14-parametros-garantia.txt; falta el productor en `tarifas` (L3L5, contrato en evidencia/F3.L2.M14-contrato-parametros-tarifas.md) y lo de entregas que es de M07 de L1 y de F3.L2.M05) |
+| F3.L2.M14 | Parámetros del modelo A obligatorios y sin valor por defecto (parte de garantía) | Con el modelo A encendido, falta un parámetro → no arranca y el error lo nombra; apagado, arranca como hoy | `ParametrosDelModeloATest` + semillas en base nueva | A MEDIAS (garantía/semilla y productor de `tarifas` (#486/#492) integrados y promovidos por #498; sigue pendiente la integración específica de entregas indicada por F3.L2.M05/M07, y los valores financieros requieren aprobación antes de habilitar el modelo A) |
 | F2.L2.M09 | Mercado de ofertas | Se resuelve con L2.S1.M1 | — | HECHO (con L2.S1.M1) |
 | F2.L2.M01 | Respaldo empresarial en entregas | `grep -rn Respaldo servicios/entregas/src` vacío | suites | A MEDIAS (local verde, evidencia/F2.L2.M01-sin-respaldo-entregas.txt; integración NO COMPROBADO local, la valida el CI del PR) |
 | F2.L2.M02 | Respaldo empresarial en garantía | Rutas `/garantia/respaldo/*` 410 | suites | A MEDIAS (local verde, evidencia/F2.L2.M02-sin-respaldo-garantia.txt; integración NO COMPROBADO local; precondición en TEST: evidencia/F2.L2.M02-vigentes-respaldo.sql) |
