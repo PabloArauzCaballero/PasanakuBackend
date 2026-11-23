@@ -66,6 +66,9 @@ class TarifarioAprobadorWebTest {
     @MockitoBean
     private CU36ResolverPrecio cu36;
 
+    @MockitoBean
+    private ParametrosWeb parametrosWeb;
+
     @BeforeEach
     void publicacionAceptada() {
         when(cu34.publicar(any(), any()))
