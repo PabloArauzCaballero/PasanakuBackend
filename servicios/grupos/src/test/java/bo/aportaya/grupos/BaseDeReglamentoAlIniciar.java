@@ -83,7 +83,7 @@ abstract class BaseDeReglamentoAlIniciar extends BaseDeInicio {
     protected void iniciarConElRolDelServicio(UUID grupo, UUID clave) {
         transaccion.execute(t -> {
             dsl.execute("SET LOCAL ROLE svc_grupos");
-            return inicio.iniciar(grupo, clave, de(organizador));
+            return inicio.iniciar(grupo, clave, de(organizador), NIVELES_APLICABLES);
         });
     }
 

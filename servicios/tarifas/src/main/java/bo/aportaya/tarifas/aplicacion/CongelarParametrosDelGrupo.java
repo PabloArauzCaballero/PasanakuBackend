@@ -5,15 +5,14 @@ import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.dominio.Traza;
 import bo.aportaya.plataforma.mensajeria.Consumidos;
-import bo.aportaya.tarifas.dominio.VersionDelParametro;
 import bo.aportaya.tarifas.dominio.VigenciaDeParametros;
 import bo.aportaya.tarifas.infraestructura.CongelamientoRepositorio;
 import bo.aportaya.tarifas.infraestructura.ParametroRepositorio;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,8 +45,9 @@ public class CongelarParametrosDelGrupo {
         DUPLICADO
     }
 
-    /** Lo que se usa de {@code grupos.grupo_iniciado}: solo identificadores y el momento del inicio. */
-    public record GrupoIniciado(UUID eventoId, UUID correlationId, UUID grupoId, OffsetDateTime iniciadoEn) {}
+    /** Lo que se usa de {@code grupos.grupo_iniciado}, incluida la instantánea del catálogo de Transparencia. */
+    public record GrupoIniciado(
+            UUID eventoId, UUID correlationId, UUID grupoId, OffsetDateTime iniciadoEn, List<String> nivelesAplicables) {}
 
     /** El desenlace y los códigos del catálogo que quedaron sin valor (vacío si el congelamiento está completo). */
     public record Resultado(Desenlace desenlace, Set<String> faltantes) {}
@@ -74,12 +74,15 @@ public class CongelarParametrosDelGrupo {
             if (!consumidos.registrar(dsl, grupo.eventoId(), CONSUMIDOR)) {
                 return new Resultado(Desenlace.DUPLICADO, Set.of());
             }
-            var vigentes = VigenciaDeParametros.vigentesAl(parametros.vivas(dsl), grupo.iniciadoEn());
+            var catalogo = parametros.catalogo(dsl);
+            var niveles = congelamientos.fijarNivelesAplicables(
+                    dsl, grupo.grupoId(), grupo.nivelesAplicables(), reloj.ahora().atOffset(ZoneOffset.UTC));
+            var vigentes = VigenciaDeParametros.vigentesAl(
+                    parametros.vivas(dsl), grupo.iniciadoEn(), catalogo, niveles);
             int nuevas = congelamientos.congelar(
                     dsl, grupo.grupoId(), vigentes, reloj.ahora().atOffset(ZoneOffset.UTC));
-            Set<UUID> conValor =
-                    vigentes.stream().map(VersionDelParametro::parametroId).collect(Collectors.toSet());
-            var faltantes = VigenciaDeParametros.faltantes(parametros.catalogo(dsl), conValor);
+            var congelados = congelamientos.delGrupo(dsl, grupo.grupoId());
+            var faltantes = VigenciaDeParametros.faltantes(catalogo, niveles, congelados);
             boolean yaEstaba = nuevas == 0 && !vigentes.isEmpty();
             return new Resultado(yaEstaba ? Desenlace.YA_CONGELADO : Desenlace.CONGELADO, faltantes);
         });

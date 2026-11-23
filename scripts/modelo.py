@@ -294,6 +294,7 @@ def rol_de(esquema):
 APPEND_ONLY = {
     # F3.S8.M6 · el congelamiento de parámetros de un grupo no se corrige: rige el ciclo entero.
     "parametro_congelado_grupo",
+    "nivel_aplicable_congelado_grupo",
     "decision_ingreso",
     "alta_grupo",
     "decision_habilitacion",

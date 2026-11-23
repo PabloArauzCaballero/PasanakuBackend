@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 abstract class BaseDeInicio extends BaseDeCU60 {
 
     private static final int PORCENTAJE = 75;
+    protected static final java.util.List<String> NIVELES_APLICABLES = java.util.List.of("SEMILLA", "INICIAL");
 
     protected CU69IniciarGrupo inicio;
 
@@ -38,7 +39,7 @@ abstract class BaseDeInicio extends BaseDeCU60 {
     }
 
     protected CU69IniciarGrupo.Iniciado iniciar(UUID grupo, UUID clave, UUID quien) {
-        return transaccion.execute(t -> inicio.iniciar(grupo, clave, de(quien)));
+        return transaccion.execute(t -> inicio.iniciar(grupo, clave, de(quien), NIVELES_APLICABLES));
     }
 
     /**

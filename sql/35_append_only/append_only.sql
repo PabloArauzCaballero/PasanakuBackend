@@ -193,6 +193,11 @@ CREATE TRIGGER tg_movimiento_reserva_append_only
   BEFORE UPDATE OR DELETE ON garantia.movimiento_reserva
   FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
 
+DROP TRIGGER IF EXISTS tg_nivel_aplicable_congelado_grupo_append_only ON tarifas.nivel_aplicable_congelado_grupo;
+CREATE TRIGGER tg_nivel_aplicable_congelado_grupo_append_only
+  BEFORE UPDATE OR DELETE ON tarifas.nivel_aplicable_congelado_grupo
+  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
+
 DROP TRIGGER IF EXISTS tg_pago_append_only ON aportes.pago;
 CREATE TRIGGER tg_pago_append_only
   BEFORE UPDATE OR DELETE ON aportes.pago

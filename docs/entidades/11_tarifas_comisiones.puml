@@ -819,6 +819,15 @@ entity "parametro_congelado_grupo" as paramcong {
   congelado_en : TIMESTAMPTZ
 }
 
+entity "nivel_aplicable_congelado_grupo" as nivelcong {
+  * id : UUID <<PK>>
+  --
+  grupo_id : UUID <<IDX>>
+  nivel_codigo : VARCHAR(30) <<UQ+grupo_id>>
+  orden : SMALLINT
+  congelado_en : TIMESTAMPTZ
+}
+
 entity "simulacion_tarifa" as simul {
   * id : UUID <<PK>>
   --

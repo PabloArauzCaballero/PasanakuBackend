@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Locale;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -92,7 +93,7 @@ class CU132CongelamientoTest extends BaseDeTarifas {
         UUID vieja = aprobada("3", INICIO.minusDays(30));
         aprobada("9", INICIO.plusDays(1));
 
-        var r = congelar.procesar(new GrupoIniciado(UUID.randomUUID(), UUID.randomUUID(), grupo, INICIO));
+        var r = congelar.procesar(new GrupoIniciado(UUID.randomUUID(), UUID.randomUUID(), grupo, INICIO, List.of("SEMILLA")));
 
         assertThat(r.desenlace()).isEqualTo(Desenlace.CONGELADO);
         assertThat(versionCongelada()).isEqualTo(vieja);
@@ -105,18 +106,19 @@ class CU132CongelamientoTest extends BaseDeTarifas {
         aprobada("3", INICIO.minusDays(30));
         UUID evento = UUID.randomUUID();
 
-        congelar.procesar(new GrupoIniciado(evento, UUID.randomUUID(), grupo, INICIO));
-        var repetido = congelar.procesar(new GrupoIniciado(evento, UUID.randomUUID(), grupo, INICIO));
-        congelar.procesar(new GrupoIniciado(UUID.randomUUID(), UUID.randomUUID(), grupo, INICIO));
+        congelar.procesar(new GrupoIniciado(evento, UUID.randomUUID(), grupo, INICIO, List.of("SEMILLA")));
+        var repetido = congelar.procesar(new GrupoIniciado(evento, UUID.randomUUID(), grupo, INICIO, List.of("SEMILLA")));
+        congelar.procesar(new GrupoIniciado(UUID.randomUUID(), UUID.randomUUID(), grupo, INICIO, List.of("CAMBIADO")));
 
         assertThat(repetido.desenlace()).isEqualTo(Desenlace.DUPLICADO);
         assertThat(filas()).isEqualTo(1);
+        assertThat(new CongelamientoRepositorio().nivelesAplicablesDelGrupo(dsl, grupo)).containsExactly("SEMILLA");
     }
 
     @Test
     @DisplayName("Rechaza completar un código sin versión aprobada al iniciar: no se congela nada y se informa")
     void sinVersionAprobada() {
-        var r = congelar.procesar(new GrupoIniciado(UUID.randomUUID(), UUID.randomUUID(), grupo, INICIO));
+        var r = congelar.procesar(new GrupoIniciado(UUID.randomUUID(), UUID.randomUUID(), grupo, INICIO, List.of("SEMILLA")));
 
         assertThat(filas()).isZero();
         assertThat(r.faltantes()).contains(codigo);

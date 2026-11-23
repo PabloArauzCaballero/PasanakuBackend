@@ -114,7 +114,8 @@ class CU69IngresoCerradoTest extends BaseDeCU68 {
                 .execute(t -> postularCU.postular(entrada(), de(otroQuePidio)))
                 .solicitudId();
 
-        var iniciado = transaccion.execute(t -> inicio.iniciar(grupo, UUID.randomUUID(), de(organizador)));
+        var iniciado = transaccion.execute(
+                t -> inicio.iniciar(grupo, UUID.randomUUID(), de(organizador), NIVELES_APLICABLES));
         assertThat(iniciado.cuposTotales()).isEqualTo(3);
     }
 

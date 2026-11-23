@@ -72,7 +72,7 @@ public class CU69IniciarGrupo {
     }
 
     @Transactional
-    public Iniciado iniciar(UUID grupoId, UUID clave, ContextoSesion ctx) {
+    public Iniciado iniciar(UUID grupoId, UUID clave, ContextoSesion ctx, List<String> nivelesAplicables) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
         // `cupo` y `participante` son del proceso interno (politica de fila); quien pide se comprueba abajo.
         ContextoSesion interno =
@@ -130,7 +130,7 @@ public class CU69IniciarGrupo {
                     ahora);
             ReglamentoAlIniciar.publicar(dsl, grupoId, g, ocupados, ctx.usuarioId(), ahora);
             calendario.generar(dsl, grupoId, ahora.toLocalDate());
-            emitirInicio(dsl, grupoId, g, ocupados, ahora, ctx);
+            emitirInicio(dsl, grupoId, g, ocupados, ahora, ctx, nivelesAplicables);
             return new Iniciado(grupoId, "CONFORMADO", ocupados, ocupados);
         });
     }
@@ -144,7 +144,13 @@ public class CU69IniciarGrupo {
      * Pacto: {@code contratos/pactos/grupos-aportes-grupo-iniciado.json}.
      */
     private void emitirInicio(
-            DSLContext dsl, UUID grupoId, Record g, int ocupados, OffsetDateTime ahora, ContextoSesion ctx) {
+            DSLContext dsl,
+            UUID grupoId,
+            Record g,
+            int ocupados,
+            OffsetDateTime ahora,
+            ContextoSesion ctx,
+            List<String> nivelesAplicables) {
         Record periodo = dsl.fetchOne(
                 """
                 SELECT id, fecha_inicio, fecha_limite_pago, fecha_fin_gracia, fecha_entrega_prevista
@@ -195,6 +201,7 @@ public class CU69IniciarGrupo {
         carga.put("moneda", g.get("moneda", String.class).trim());
         carga.put("cuposTotales", ocupados);
         carga.put("iniciadoEn", ahora.toString());
+        carga.put("nivelesAplicables", List.copyOf(nivelesAplicables));
         carga.put("periodo", periodoUno);
         carga.put("cupos", cupos);
         outbox.emitir(

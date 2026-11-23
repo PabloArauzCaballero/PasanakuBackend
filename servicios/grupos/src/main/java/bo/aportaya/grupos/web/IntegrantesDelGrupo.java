@@ -57,7 +57,13 @@ class IntegrantesDelGrupo {
 
     /** CU-69 · el organizador inicia el grupo al 75 %; la regla y la autorizacion sobre el grupo las decide el caso. */
     GrupoIniciado iniciar(UUID grupoId, UUID clave, ContextoSesion ctx) {
-        var i = inicio.iniciar(grupoId, clave, ctx);
+        var nivelesAplicables = afuera.catalogoDeEtapas()
+                .filter(catalogo -> !catalogo.isEmpty())
+                .map(catalogo -> catalogo.stream().map(Etapas.Etapa::codigo).distinct().toList())
+                .orElseThrow(() -> new ErrorDeNegocio(
+                        CodigoError.de(69, 20),
+                        "No se pudo obtener el catálogo vigente de niveles de Transparencia."));
+        var i = inicio.iniciar(grupoId, clave, ctx, nivelesAplicables);
         return new GrupoIniciado(
                 i.grupoId(), GrupoIniciado.EstadoEnum.fromValue(i.estado()), i.cuposTotales(), i.numPeriodos());
     }

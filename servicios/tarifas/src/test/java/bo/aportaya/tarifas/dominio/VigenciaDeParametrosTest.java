@@ -76,4 +76,41 @@ class VigenciaDeParametrosTest {
         assertThat(VigenciaDeParametros.faltantes(catalogo, Set.of())).containsExactly("ALFA", "ZETA");
         assertThat(VigenciaDeParametros.faltantes(catalogo, Set.of(P, Q))).isEmpty();
     }
+
+    @Test
+    @DisplayName("Niveles de Transparencia · congela exactamente una versión por parámetro y nivel aplicable")
+    void vigentesParaTodosLosNivelesAplicables() {
+        var catalogo = List.of(new ParametroDelCatalogo(
+                Q, "puntualidad", new PropuestaDeParametro.Catalogo("PUNTUALIDAD", Optional.empty(), true)));
+        var semillaVieja = v(Q, "SEMILLA", "APROBADA", INICIO.minusDays(3));
+        var semillaNueva = v(Q, "SEMILLA", "APROBADA", INICIO.minusDays(1));
+        var inicial = v(Q, "INICIAL", "APROBADA", INICIO.minusDays(2));
+        var otroNivel = v(Q, "AVANZADO", "APROBADA", INICIO.minusDays(1));
+
+        assertThat(VigenciaDeParametros.vigentesAl(
+                        List.of(semillaVieja, semillaNueva, inicial, otroNivel),
+                        INICIO,
+                        catalogo,
+                        List.of("SEMILLA", "INICIAL")))
+                .containsExactly(semillaNueva, inicial);
+    }
+
+    @Test
+    @DisplayName("Incompleto · informa el nivel puntual que no tenía versión congelada")
+    void faltaUnNivelAunqueOtroEsteCongelado() {
+        var catalogo = List.of(new ParametroDelCatalogo(
+                Q, "puntualidad", new PropuestaDeParametro.Catalogo("PUNTUALIDAD", Optional.empty(), true)));
+        var congelado = new VigenciaDeParametros.ParametroCongelado(
+                Q,
+                "PUNTUALIDAD",
+                Optional.of("SEMILLA"),
+                BigDecimal.ONE,
+                Optional.empty(),
+                Optional.empty(),
+                UUID.randomUUID(),
+                INICIO);
+
+        assertThat(VigenciaDeParametros.faltantes(catalogo, List.of("SEMILLA", "INICIAL"), List.of(congelado)))
+                .containsExactly("PUNTUALIDAD[INICIAL]");
+    }
 }

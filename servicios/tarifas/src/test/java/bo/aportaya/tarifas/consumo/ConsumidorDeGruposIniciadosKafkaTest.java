@@ -51,13 +51,14 @@ class ConsumidorDeGruposIniciadosKafkaTest {
         assertThat(iniciado.correlationId()).hasToString(CORRELACION);
         assertThat(iniciado.grupoId()).hasToString("d0000000-0000-4000-8000-000000000001");
         assertThat(iniciado.iniciadoEn()).isEqualTo(OffsetDateTime.parse("2026-10-30T15:00:00Z"));
+        assertThat(iniciado.nivelesAplicables()).containsExactly("SEMILLA", "INICIAL");
     }
 
     @Test
     @DisplayName("Límite · campos que tarifas no usa (cupos, montos) no hacen falta")
     void soloLoQueUsa() {
         var iniciado = ConsumidorDeGruposIniciadosKafka.leer(registro(
-                "{\"grupoId\":\"" + UUID.randomUUID() + "\",\"iniciadoEn\":\"2026-10-30T15:00:00-04:00\"}",
+                "{\"grupoId\":\"" + UUID.randomUUID() + "\",\"iniciadoEn\":\"2026-10-30T15:00:00-04:00\",\"nivelesAplicables\":[\"SEMILLA\",\"INICIAL\"]}",
                 "event_id",
                 EVENTO,
                 "correlation_id",
@@ -72,17 +73,21 @@ class ConsumidorDeGruposIniciadosKafkaTest {
         String grupo = UUID.randomUUID().toString();
         String bueno = "{\"grupoId\":\"" + grupo + "\",\"iniciadoEn\":\"2026-10-30T15:00:00Z\"}";
 
-        assertThatThrownBy(() -> ConsumidorDeGruposIniciadosKafka.leer(registro(bueno, "event_id", EVENTO)))
+        String conNiveles = bueno.substring(0, bueno.length() - 1) + ",\"nivelesAplicables\":[\"SEMILLA\"]}";
+        assertThatThrownBy(() -> ConsumidorDeGruposIniciadosKafka.leer(registro(conNiveles, "event_id", EVENTO)))
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> ConsumidorDeGruposIniciadosKafka.leer(
-                        registro(bueno.replace("grupoId", "otro"), "event_id", EVENTO, "correlation_id", CORRELACION)))
+                        registro(conNiveles.replace("grupoId", "otro"), "event_id", EVENTO, "correlation_id", CORRELACION)))
                 .hasMessageContaining("grupoId");
         assertThatThrownBy(() -> ConsumidorDeGruposIniciadosKafka.leer(registro(
-                        bueno.replace("iniciadoEn", "otro"), "event_id", EVENTO, "correlation_id", CORRELACION)))
+                        conNiveles.replace("iniciadoEn", "otro"), "event_id", EVENTO, "correlation_id", CORRELACION)))
                 .hasMessageContaining("iniciadoEn");
         assertThatThrownBy(() -> ConsumidorDeGruposIniciadosKafka.leer(registro(
-                        bueno.replace("15:00:00Z", "15:00:00"), "event_id", EVENTO, "correlation_id", CORRELACION)))
+                        conNiveles.replace("15:00:00Z", "15:00:00"), "event_id", EVENTO, "correlation_id", CORRELACION)))
                 .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> ConsumidorDeGruposIniciadosKafka.leer(registro(
+                        bueno, "event_id", EVENTO, "correlation_id", CORRELACION)))
+                .hasMessageContaining("nivelesAplicables");
         assertThatThrownBy(() -> ConsumidorDeGruposIniciadosKafka.leer(
                         registro("[1]", "event_id", EVENTO, "correlation_id", CORRELACION)))
                 .isInstanceOf(IllegalArgumentException.class);

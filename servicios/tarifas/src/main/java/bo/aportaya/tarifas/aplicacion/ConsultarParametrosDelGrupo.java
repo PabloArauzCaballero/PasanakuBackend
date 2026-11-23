@@ -11,7 +11,6 @@ import bo.aportaya.tarifas.infraestructura.ParametroRepositorio;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,12 +43,11 @@ public class ConsultarParametrosDelGrupo {
     public Optional<List<ParametroCongelado>> delGrupo(UUID grupoId, ContextoSesion ctx) {
         return datos.conContexto(ctx, dsl -> {
             var congelados = congelamientos.delGrupo(dsl, grupoId);
-            if (congelados.isEmpty()) {
+            var niveles = congelamientos.nivelesAplicablesDelGrupo(dsl, grupoId);
+            if (congelados.isEmpty() && niveles.isEmpty()) {
                 return Optional.empty();
             }
-            var conValor =
-                    congelados.stream().map(ParametroCongelado::parametroId).collect(Collectors.toSet());
-            var faltan = VigenciaDeParametros.faltantes(parametros.catalogo(dsl), conValor);
+            var faltan = VigenciaDeParametros.faltantes(parametros.catalogo(dsl), niveles, congelados);
             if (!faltan.isEmpty()) {
                 throw new ErrorDeNegocio(
                         INCOMPLETO, "El congelamiento del grupo está incompleto; faltan: " + String.join(", ", faltan));

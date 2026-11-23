@@ -9,6 +9,9 @@ import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.UUID;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 import org.slf4j.Logger;
@@ -20,8 +23,9 @@ import org.springframework.stereotype.Component;
 /**
  * El borde con Kafka de {@link CongelarParametrosDelGrupo}: escucha {@code grupos.grupo_iniciado} (CU-69).
  *
- * <p>Del evento usa solo las cabeceras {@code event_id} y {@code correlation_id} y, del cuerpo, {@code grupoId} e
- * {@code iniciadoEn} (pacto {@code contratos/pactos/grupos-tarifas-grupo-iniciado.json}). Lo demás (cupos,
+ * <p>Del evento usa solo las cabeceras {@code event_id} y {@code correlation_id} y, del cuerpo, {@code grupoId},
+ * {@code iniciadoEn} y la instantánea {@code nivelesAplicables} (pacto
+ * {@code contratos/pactos/grupos-tarifas-grupo-iniciado.json}). Lo demás (cupos,
  * participantes, montos) no se lee: no lo necesita y no se lleva a ningún registro (regla 90.2). Un mensaje al que
  * le falta algo se RECHAZA (excepción) y no se marca consumido: perderlo dejaría al grupo sin parámetros y a
  * {@code garantia} fallando cerrado para siempre.
@@ -62,10 +66,27 @@ public class ConsumidorDeGruposIniciadosKafka {
                     UUID.fromString(cabecera(registro, "event_id")),
                     UUID.fromString(cabecera(registro, "correlation_id")),
                     UUID.fromString(texto(cuerpo, "grupoId")),
-                    OffsetDateTime.parse(texto(cuerpo, "iniciadoEn")));
+                    OffsetDateTime.parse(texto(cuerpo, "iniciadoEn")),
+                    niveles(cuerpo));
         } catch (JsonProcessingException | IllegalArgumentException | DateTimeParseException ilegible) {
             throw new IllegalArgumentException("El evento no se puede leer: " + ilegible.getMessage(), ilegible);
         }
+    }
+
+    private static List<String> niveles(JsonNode cuerpo) {
+        JsonNode lista = cuerpo.get("nivelesAplicables");
+        if (lista == null || !lista.isArray() || lista.isEmpty()) {
+            throw new IllegalArgumentException("El evento no trae nivelesAplicables válidos");
+        }
+        List<String> niveles = new ArrayList<>();
+        HashSet<String> vistos = new HashSet<>();
+        for (JsonNode nivel : lista) {
+            if (!nivel.isTextual() || nivel.asText().isBlank() || !vistos.add(nivel.asText())) {
+                throw new IllegalArgumentException("nivelesAplicables contiene un código vacío, repetido o inválido");
+            }
+            niveles.add(nivel.asText());
+        }
+        return List.copyOf(niveles);
     }
 
     private static String texto(JsonNode cuerpo, String campo) {

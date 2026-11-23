@@ -57,7 +57,7 @@ class CU69IniciarGrupoConcurrenciaTest extends BaseDeInicio {
 
         var r = transaccion.execute(t -> {
             dsl.execute("SET LOCAL ROLE svc_grupos");
-            return inicio.iniciar(grupo, UUID.randomUUID(), de(organizador));
+            return inicio.iniciar(grupo, UUID.randomUUID(), de(organizador), NIVELES_APLICABLES);
         });
 
         assertThat(r.cuposTotales()).isEqualTo(8);

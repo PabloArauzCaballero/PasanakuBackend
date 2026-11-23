@@ -55,6 +55,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_version_parametro_clave_idempotencia
 CREATE INDEX IF NOT EXISTS ix_parametro_congelado_grupo_grupo_id
   ON tarifas.parametro_congelado_grupo (grupo_id);
 
+CREATE INDEX IF NOT EXISTS ix_nivel_aplicable_congelado_grupo_grupo_id
+  ON tarifas.nivel_aplicable_congelado_grupo (grupo_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_nivel_aplicable_congelado_grupo_grupo_id_nivel_codigo
+  ON tarifas.nivel_aplicable_congelado_grupo (grupo_id, nivel_codigo);
+
 CREATE INDEX IF NOT EXISTS ix_simulacion_tarifa_tarifario_id
   ON tarifas.simulacion_tarifa (tarifario_id);
 
