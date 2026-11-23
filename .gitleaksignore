@@ -31,3 +31,63 @@ b2d91e70e141cbbac48aa6e1e741be7127ef522b:packages/simulado/ejemplos/identidad/em
 # CodigoTotpTest y CredencialPorLoginContratoTest. Fingerprint exacto (no se ignora el
 # archivo ni la regla), hallado por CI run 44865471346, job 136728176735.
 c21797e9996a319fc4cf767abf2cbdd729a6ee8a:servicios/identidad/src/test/java/bo/aportaya/identidad/SemillaTotpTest.java:generic-api-key:48
+
+# 2026-11-23: falsos positivos generic-api-key en las plantillas de identidad simuladas. Son ejemplos estáticos del contrato y sus tokenId UUID son identificadores de prueba; el campo de token es una etiqueta ficticia, no una credencial.
+0871f9996800b5d7c8f3530dd24b0339161012a2:packages/simulado/ejemplos/identidad/consumirInvitacion.json:generic-api-key:10
+0871f9996800b5d7c8f3530dd24b0339161012a2:packages/simulado/ejemplos/identidad/consumirInvitacion.json:generic-api-key:20
+0871f9996800b5d7c8f3530dd24b0339161012a2:packages/simulado/ejemplos/identidad/consumirInvitacion.json:generic-api-key:30
+0871f9996800b5d7c8f3530dd24b0339161012a2:packages/simulado/ejemplos/identidad/consumirInvitacion.json:generic-api-key:40
+0871f9996800b5d7c8f3530dd24b0339161012a2:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:10
+0871f9996800b5d7c8f3530dd24b0339161012a2:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:18
+0871f9996800b5d7c8f3530dd24b0339161012a2:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:26
+0871f9996800b5d7c8f3530dd24b0339161012a2:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:34
+0c2e14884553c72a664ea6ce4af5c17f72b93a20:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:10
+0c2e14884553c72a664ea6ce4af5c17f72b93a20:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:18
+0c2e14884553c72a664ea6ce4af5c17f72b93a20:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:26
+0c2e14884553c72a664ea6ce4af5c17f72b93a20:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:34
+452446ac86f766fe56c23a75ee9eb2248db1a367:packages/simulado/ejemplos/identidad/consumirInvitacion.json:generic-api-key:10
+452446ac86f766fe56c23a75ee9eb2248db1a367:packages/simulado/ejemplos/identidad/consumirInvitacion.json:generic-api-key:20
+452446ac86f766fe56c23a75ee9eb2248db1a367:packages/simulado/ejemplos/identidad/consumirInvitacion.json:generic-api-key:30
+452446ac86f766fe56c23a75ee9eb2248db1a367:packages/simulado/ejemplos/identidad/consumirInvitacion.json:generic-api-key:40
+452446ac86f766fe56c23a75ee9eb2248db1a367:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:10
+452446ac86f766fe56c23a75ee9eb2248db1a367:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:18
+452446ac86f766fe56c23a75ee9eb2248db1a367:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:26
+452446ac86f766fe56c23a75ee9eb2248db1a367:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:34
+60f9fd1e244ac2e979c893faa4db229ad5c4771c:packages/simulado/ejemplos/identidad/consumirInvitacion.json:generic-api-key:10
+60f9fd1e244ac2e979c893faa4db229ad5c4771c:packages/simulado/ejemplos/identidad/consumirInvitacion.json:generic-api-key:20
+60f9fd1e244ac2e979c893faa4db229ad5c4771c:packages/simulado/ejemplos/identidad/consumirInvitacion.json:generic-api-key:30
+60f9fd1e244ac2e979c893faa4db229ad5c4771c:packages/simulado/ejemplos/identidad/consumirInvitacion.json:generic-api-key:40
+60f9fd1e244ac2e979c893faa4db229ad5c4771c:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:10
+60f9fd1e244ac2e979c893faa4db229ad5c4771c:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:18
+60f9fd1e244ac2e979c893faa4db229ad5c4771c:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:26
+60f9fd1e244ac2e979c893faa4db229ad5c4771c:packages/simulado/ejemplos/identidad/emitirTokenDeInvitacion.json:generic-api-key:34
+# 2026-11-23: falsos positivos generic-api-key en la evidencia de pruebas de identidad. Los registros capturan ejecuciones de prueba y solo registran tokenId, un UUID de identificador; el secreto de invitación es un campo separado y no forma parte del log.
+452446ac86f766fe56c23a75ee9eb2248db1a367:docs/trabajo/2026-10-08-endurecimiento-integral/evidencia/carril-L3/10-logs-test-solo-lectura.txt:generic-api-key:15
+452446ac86f766fe56c23a75ee9eb2248db1a367:docs/trabajo/2026-10-08-endurecimiento-integral/evidencia/carril-L3/10-logs-test-solo-lectura.txt:generic-api-key:18
+452446ac86f766fe56c23a75ee9eb2248db1a367:docs/trabajo/2026-10-08-endurecimiento-integral/evidencia/carril-L3/10-logs-test-solo-lectura.txt:generic-api-key:19
+452446ac86f766fe56c23a75ee9eb2248db1a367:docs/trabajo/2026-10-08-endurecimiento-integral/evidencia/carril-L3/10-logs-test-solo-lectura.txt:generic-api-key:20
+7a917f03d86d38e74f4cdaa13f53a46d4077b5d5:docs/trabajo/2026-10-08-endurecimiento-integral/evidencia/carril-L3/10-logs-test-solo-lectura.txt:generic-api-key:15
+7a917f03d86d38e74f4cdaa13f53a46d4077b5d5:docs/trabajo/2026-10-08-endurecimiento-integral/evidencia/carril-L3/10-logs-test-solo-lectura.txt:generic-api-key:18
+7a917f03d86d38e74f4cdaa13f53a46d4077b5d5:docs/trabajo/2026-10-08-endurecimiento-integral/evidencia/carril-L3/10-logs-test-solo-lectura.txt:generic-api-key:19
+7a917f03d86d38e74f4cdaa13f53a46d4077b5d5:docs/trabajo/2026-10-08-endurecimiento-integral/evidencia/carril-L3/10-logs-test-solo-lectura.txt:generic-api-key:20
+# 2026-11-23: falsos positivos generic-api-key en catálogo de operaciones. Son ejemplos estáticos de campos con formato UUID para documentar operaciones; tokenFirma/tokenFirmaId son UUID de identificador según el contrato OpenAPI, no material de autenticación.
+2489cacf3c0ca4f9a12b02626aab133f8ce98ea9:apps/backoffice/src/app/rutas/sistemas/operaciones/dominio/operaciones.json:generic-api-key:18056
+2489cacf3c0ca4f9a12b02626aab133f8ce98ea9:apps/backoffice/src/app/rutas/sistemas/operaciones/dominio/operaciones.json:generic-api-key:18181
+2489cacf3c0ca4f9a12b02626aab133f8ce98ea9:apps/backoffice/src/app/rutas/sistemas/operaciones/dominio/operaciones.json:generic-api-key:21602
+2489cacf3c0ca4f9a12b02626aab133f8ce98ea9:apps/backoffice/src/app/rutas/sistemas/operaciones/dominio/operaciones.json:generic-api-key:21712
+2489cacf3c0ca4f9a12b02626aab133f8ce98ea9:apps/backoffice/src/app/rutas/sistemas/operaciones/dominio/operaciones.json:generic-api-key:21844
+2489cacf3c0ca4f9a12b02626aab133f8ce98ea9:apps/backoffice/src/app/rutas/sistemas/operaciones/dominio/operaciones.json:generic-api-key:31893
+2489cacf3c0ca4f9a12b02626aab133f8ce98ea9:apps/backoffice/src/app/rutas/sistemas/operaciones/dominio/operaciones.json:generic-api-key:33304
+2489cacf3c0ca4f9a12b02626aab133f8ce98ea9:apps/backoffice/src/app/rutas/sistemas/operaciones/dominio/operaciones.json:generic-api-key:4355
+2489cacf3c0ca4f9a12b02626aab133f8ce98ea9:servicios/auditoria/src/main/resources/catalogo/catalogo-operaciones.json:generic-api-key:18056
+2489cacf3c0ca4f9a12b02626aab133f8ce98ea9:servicios/auditoria/src/main/resources/catalogo/catalogo-operaciones.json:generic-api-key:18181
+2489cacf3c0ca4f9a12b02626aab133f8ce98ea9:servicios/auditoria/src/main/resources/catalogo/catalogo-operaciones.json:generic-api-key:21602
+2489cacf3c0ca4f9a12b02626aab133f8ce98ea9:servicios/auditoria/src/main/resources/catalogo/catalogo-operaciones.json:generic-api-key:21712
+2489cacf3c0ca4f9a12b02626aab133f8ce98ea9:servicios/auditoria/src/main/resources/catalogo/catalogo-operaciones.json:generic-api-key:21844
+2489cacf3c0ca4f9a12b02626aab133f8ce98ea9:servicios/auditoria/src/main/resources/catalogo/catalogo-operaciones.json:generic-api-key:31893
+2489cacf3c0ca4f9a12b02626aab133f8ce98ea9:servicios/auditoria/src/main/resources/catalogo/catalogo-operaciones.json:generic-api-key:33304
+2489cacf3c0ca4f9a12b02626aab133f8ce98ea9:servicios/auditoria/src/main/resources/catalogo/catalogo-operaciones.json:generic-api-key:4355
+# 2026-11-23: falso positivo generic-api-key en una prueba unitaria cuyo propósito es verificar que el enmascarador oculte textos con forma de secreto; el literal es dato sintético de prueba, no credencial.
+d2d8c26b7225a7a7e57955af21c82bc5af7c8f95:plataforma/comun-web/src/test/java/bo/aportaya/plataforma/web/observabilidad/EnmascaradorPiiTest.java:generic-api-key:15
+# 2026-11-23: falso positivo generic-api-key en SHOWN_INPUTS de PLAN.md. Son identificadores públicos de campos del modelo usados en un ejemplo UI; mismo contexto que el fingerprint anterior de este archivo.
+452446ac86f766fe56c23a75ee9eb2248db1a367:docs/trabajo/2026-10-11-alta-atlas-sesion-premium/PLAN.md:generic-api-key:52147
