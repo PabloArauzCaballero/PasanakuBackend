@@ -1,6 +1,6 @@
 # Plan — Tanda 2, lote L3L5 (grupos, organizador y servicios de apoyo)
 
-- Fecha: 2026-11-21 · Repo: `PabloArauzCaballero/PasanakuBackend` · Base: `origin/dev` 50cf3be9
+- Actualizado: 2026-11-23 · Repo: `PabloArauzCaballero/PasanakuBackend` · `dev`: `3debc917`; promovido a `test` por #498 (`5dca19d6`).
 - Predecesor: plan de correcciones `docs/trabajo/2026-11-21-plan-correcciones/` (PLAN.md, anexos L3 y L5)
 - Resultado observable: (1) la suite unitaria de `grupos` deja de fallar de forma intermitente por el arranque
   de Mockito; (2) en los servicios del lote, nadie actúa sobre un recurso que no es suyo ni con identidad
@@ -63,13 +63,13 @@
 
 Cada fila se detalla con CA y DoD propios al abrirla (regla 50), antes de escribir código.
 
-## H3 — Registro central de parámetros financieros en `tarifas` (F3.S8.M2/M6, pedido de la coordinación; después de #448)
+## H3 — Registro central de parámetros financieros en `tarifas` (F3.S8.M2/M6; #448 ya integrado)
 **CA:** Dado un parámetro financiero sin versión aprobada, cuando una operación lo necesita, entonces falla con un error
 que nombra lo que falta; una versión la propone una persona y la aprueba otra (los dos del token), y un grupo en curso
 nunca ve una versión posterior a su inicio.
 **DoD:** los de cada microtarea; propuesta en [PROPUESTA-F3.S8-parametros.md](./PROPUESTA-F3.S8-parametros.md)
 (rama `correcciones/tanda2-l3l5-f3-parametros`).
-**Estado:** EN CURSO — modelo en #486, API en #492 (contrato de L2: #485); M6 en rama sin PR (tope); sigue M4.
+**Estado:** EN CURSO — modelo (#486), API (#492) y contrato de L2 (#485) integrados en `dev` y promovidos por #498; M6 sigue sin PR; sigue M4.
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
