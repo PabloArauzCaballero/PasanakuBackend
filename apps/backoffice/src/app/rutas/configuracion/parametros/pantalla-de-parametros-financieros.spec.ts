@@ -95,8 +95,8 @@ describe('PantallaDeParametrosFinancieros · CU-132 [UI con API simulada]', () =
     api(fixture).abrirPropuesta(PARAMETRO)
     api(fixture).enviarPropuesta(PARAMETRO)
     fixture.detectChanges()
-    expect(api(fixture).erroresDeCampo().valor).toContain('decimal')
-    expect(api(fixture).erroresDeCampo().fuente).toContain('Completá')
+    expect(api(fixture).erroresDeCampo()['valor']).toContain('decimal')
+    expect(api(fixture).erroresDeCampo()['fuente']).toContain('Completá')
     expect((fixture.nativeElement as HTMLElement).querySelector('input[aria-invalid="true"]')).not.toBeNull()
     http.expectNone((req) => req.method === 'POST')
   })
@@ -142,8 +142,8 @@ describe('PantallaDeParametrosFinancieros · CU-132 [UI con API simulada]', () =
     http.expectOne(`${CATALOGO}/TASA/versiones`).flush({ codigo: 'AP-CU132-02' }, { status: 422, statusText: 'Unprocessable Entity' })
     await fixture.whenStable()
     fixture.detectChanges()
-    expect(c.erroresDeCampo().nivel).toContain('no coincide')
-    expect(c.erroresDeCampo().moneda).toContain('no coincide')
+    expect(c.erroresDeCampo()['nivel']).toContain('no coincide')
+    expect(c.erroresDeCampo()['moneda']).toContain('no coincide')
   })
 
   it('correcto: muestra el historial con estados resueltos, incluidos los rechazados', async () => {
