@@ -3,12 +3,12 @@ tags:
   - moc
   - modulo/03-aportes-pagos-qr-y-conciliacion
 modulo: "03 — Aportes, Pagos QR y Conciliación"
-entidades: 25
+entidades: 27
 ---
 
 # 03 — Aportes, Pagos QR y Conciliación · entidades
 
-Las **25 tablas** de este módulo. Justificación de negocio en [[03_aportes_pagos_qr]].
+Las **27 tablas** de este módulo. Justificación de negocio en [[03_aportes_pagos_qr]].
 
 [[_Entidades|← Todas las entidades]] · [[Index]]
 
@@ -17,7 +17,7 @@ Las **25 tablas** de este módulo. Justificación de negocio en [[03_aportes_pag
 | [[politica_mora]] | 10 | 1 | 2 |
 | [[obligacion_aporte]] | 22 | 7 | 8 |
 | [[plan_regularizacion]] | 7 | 2 | 2 |
-| [[proveedor_pago]] | 13 | 0 | 8 |
+| [[proveedor_pago]] | 13 | 0 | 9 |
 | [[orden_cobro]] | 11 | 2 | 4 |
 | [[qr_cobro]] | 9 | 1 | 0 |
 | [[enlace_pago_rapido]] | 6 | 2 | 0 |
@@ -33,7 +33,9 @@ Las **25 tablas** de este módulo. Justificación de negocio en [[03_aportes_pag
 | [[movimiento_bancario]] | 9 | 1 | 2 |
 | [[conciliacion]] | 9 | 3 | 1 |
 | [[excepcion_conciliacion]] | 11 | 2 | 0 |
-| [[webhook_pasarela]] | 13 | 2 | 0 |
+| [[webhook_pasarela]] | 8 | 1 | 0 |
+| [[webhook_clave]] | 4 | 1 | 0 |
+| [[historial_estado_webhook]] | 9 | 1 | 0 |
 | [[tipo_cambio]] | 7 | 0 | 0 |
 | [[cuenta_contable]] | 12 | 3 | 12 |
 | [[asiento_contable]] | 11 | 4 | 12 |

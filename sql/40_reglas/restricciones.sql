@@ -371,17 +371,17 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_devengo_idem ON devengo_comision (
     clave_idempotencia);
 
 -- La misma regla, en el resto del sistema. Cada clave se ampara en el objeto
--- del que depende la operación. `webhook_pasarela` se ampara en el proveedor
+-- del que depende la operación. `webhook_clave` se ampara en el proveedor
 -- porque la clave la emite él: dos pasarelas distintas pueden mandar el mismo
--- identificador de evento sin que eso signifique que sea el mismo hecho.
+-- identificador de evento sin que eso signifique que sea el mismo hecho. Su PK
+-- `(proveedor_id, clave_idempotencia)` es la restricción global; no vive en la
+-- tabla raw particionada, cuya unicidad local no puede cubrir todos los meses.
 CREATE UNIQUE INDEX IF NOT EXISTS uq_orden_cobro_idem
   ON orden_cobro (obligacion_id, clave_idempotencia);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_intento_pago_idem
   ON intento_pago (orden_cobro_id, clave_idempotencia);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_pago_idem
   ON pago (obligacion_id, clave_idempotencia);
-CREATE UNIQUE INDEX IF NOT EXISTS uq_webhook_idem
-  ON webhook_pasarela (proveedor_id, clave_idempotencia);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_cotizacion_idem
   ON cotizacion_comision (referencia_id, clave_idempotencia);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_token_verificacion_idem ON token_verificacion (

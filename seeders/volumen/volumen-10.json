@@ -6661,10 +6661,11 @@
       ]
     },
     {
+      "comentario": "Webhook firmado. La clave global se conserva en webhook_clave; el estado es historial append-only.",
       "tabla": "webhook_pasarela",
       "conflicto": [
-        "proveedor_id",
-        "clave_idempotencia"
+        "id",
+        "recibido_en"
       ],
       "filas": [
         {
@@ -6685,17 +6686,7 @@
           "recibido_en": {
             "$sql": "(now() - interval '275 days') - interval '12 days'"
           },
-          "procesado_en": {
-            "$sql": "(now() - interval '275 days') - interval '12 days'"
-          },
-          "intentos_procesamiento": 1,
-          "estado": "PROCESADO",
-          "clave_idempotencia": "v10-webhook-p2-01",
-          "error_procesamiento": null,
-          "pago_id": {
-            "$ref": "pago",
-            "clave_idempotencia": "v10-pago-p2-01"
-          }
+          "id": "74253868-6f18-5254-a071-f0123581b0a9"
         },
         {
           "proveedor_id": {
@@ -6715,17 +6706,7 @@
           "recibido_en": {
             "$sql": "(now() - interval '275 days') - interval '12 days'"
           },
-          "procesado_en": {
-            "$sql": "(now() - interval '275 days') - interval '12 days'"
-          },
-          "intentos_procesamiento": 1,
-          "estado": "PROCESADO",
-          "clave_idempotencia": "v10-webhook-p2-02",
-          "error_procesamiento": null,
-          "pago_id": {
-            "$ref": "pago",
-            "clave_idempotencia": "v10-pago-p2-02"
-          }
+          "id": "4f5b445a-f7fe-509a-80cb-098d56001c72"
         },
         {
           "proveedor_id": {
@@ -6745,17 +6726,7 @@
           "recibido_en": {
             "$sql": "(now() - interval '275 days') - interval '11 days'"
           },
-          "procesado_en": {
-            "$sql": "(now() - interval '275 days') - interval '11 days'"
-          },
-          "intentos_procesamiento": 1,
-          "estado": "PROCESADO",
-          "clave_idempotencia": "v10-webhook-p2-03",
-          "error_procesamiento": null,
-          "pago_id": {
-            "$ref": "pago",
-            "clave_idempotencia": "v10-pago-p2-03"
-          }
+          "id": "7e0cfe2d-87a1-59ee-b617-b0cc830b254a"
         },
         {
           "proveedor_id": {
@@ -6775,17 +6746,7 @@
           "recibido_en": {
             "$sql": "(now() - interval '275 days') - interval '13 days'"
           },
-          "procesado_en": {
-            "$sql": "(now() - interval '275 days') - interval '13 days'"
-          },
-          "intentos_procesamiento": 1,
-          "estado": "PROCESADO",
-          "clave_idempotencia": "v10-webhook-p2-05",
-          "error_procesamiento": null,
-          "pago_id": {
-            "$ref": "pago",
-            "clave_idempotencia": "v10-pago-p2-05"
-          }
+          "id": "9b6a7dde-147b-5e84-ab2a-9bf4cc4a2f60"
         },
         {
           "proveedor_id": {
@@ -6805,12 +6766,167 @@
           "recibido_en": {
             "$sql": "(now() - interval '275 days') - interval '10 days'"
           },
+          "id": "df75b881-fc5e-5ee5-87d4-20ee11ee8e51"
+        }
+      ]
+    },
+    {
+      "comentario": "Reserva global de idempotencia para los webhooks de este proveedor.",
+      "tabla": "webhook_clave",
+      "conflicto": [
+        "proveedor_id",
+        "clave_idempotencia"
+      ],
+      "filas": [
+        {
+          "proveedor_id": {
+            "$ref": "proveedor_pago",
+            "codigo": "QR_INTEROP"
+          },
+          "clave_idempotencia": "v10-webhook-p2-01",
+          "webhook_id": "74253868-6f18-5254-a071-f0123581b0a9",
+          "webhook_recibido_en": {
+            "$sql": "(now() - interval '275 days') - interval '12 days'"
+          }
+        },
+        {
+          "proveedor_id": {
+            "$ref": "proveedor_pago",
+            "codigo": "QR_INTEROP"
+          },
+          "clave_idempotencia": "v10-webhook-p2-02",
+          "webhook_id": "4f5b445a-f7fe-509a-80cb-098d56001c72",
+          "webhook_recibido_en": {
+            "$sql": "(now() - interval '275 days') - interval '12 days'"
+          }
+        },
+        {
+          "proveedor_id": {
+            "$ref": "proveedor_pago",
+            "codigo": "QR_INTEROP"
+          },
+          "clave_idempotencia": "v10-webhook-p2-03",
+          "webhook_id": "7e0cfe2d-87a1-59ee-b617-b0cc830b254a",
+          "webhook_recibido_en": {
+            "$sql": "(now() - interval '275 days') - interval '11 days'"
+          }
+        },
+        {
+          "proveedor_id": {
+            "$ref": "proveedor_pago",
+            "codigo": "QR_INTEROP"
+          },
+          "clave_idempotencia": "v10-webhook-p2-05",
+          "webhook_id": "9b6a7dde-147b-5e84-ab2a-9bf4cc4a2f60",
+          "webhook_recibido_en": {
+            "$sql": "(now() - interval '275 days') - interval '13 days'"
+          }
+        },
+        {
+          "proveedor_id": {
+            "$ref": "proveedor_pago",
+            "codigo": "QR_INTEROP"
+          },
+          "clave_idempotencia": "v10-webhook-p2-06",
+          "webhook_id": "df75b881-fc5e-5ee5-87d4-20ee11ee8e51",
+          "webhook_recibido_en": {
+            "$sql": "(now() - interval '275 days') - interval '10 days'"
+          }
+        }
+      ]
+    },
+    {
+      "comentario": "Estado inicial del webhook; estados posteriores se agregan como nuevas filas.",
+      "tabla": "historial_estado_webhook",
+      "conflicto": [
+        "id",
+        "webhook_recibido_en"
+      ],
+      "filas": [
+        {
+          "id": "4347b26d-4e33-5cc5-8cdd-4ef23eeffd92",
+          "webhook_id": "74253868-6f18-5254-a071-f0123581b0a9",
+          "webhook_recibido_en": {
+            "$sql": "(now() - interval '275 days') - interval '12 days'"
+          },
+          "estado_anterior": null,
+          "estado_nuevo": "PROCESADO",
+          "procesado_en": {
+            "$sql": "(now() - interval '275 days') - interval '12 days'"
+          },
+          "intentos_procesamiento": 1,
+          "error_procesamiento": null,
+          "pago_id": {
+            "$ref": "pago",
+            "clave_idempotencia": "v10-pago-p2-01"
+          }
+        },
+        {
+          "id": "4a3c68f0-06ed-50cb-bc09-869d68a10a27",
+          "webhook_id": "4f5b445a-f7fe-509a-80cb-098d56001c72",
+          "webhook_recibido_en": {
+            "$sql": "(now() - interval '275 days') - interval '12 days'"
+          },
+          "estado_anterior": null,
+          "estado_nuevo": "PROCESADO",
+          "procesado_en": {
+            "$sql": "(now() - interval '275 days') - interval '12 days'"
+          },
+          "intentos_procesamiento": 1,
+          "error_procesamiento": null,
+          "pago_id": {
+            "$ref": "pago",
+            "clave_idempotencia": "v10-pago-p2-02"
+          }
+        },
+        {
+          "id": "e7e8fe2e-df28-554c-8e1e-11b3f747a8da",
+          "webhook_id": "7e0cfe2d-87a1-59ee-b617-b0cc830b254a",
+          "webhook_recibido_en": {
+            "$sql": "(now() - interval '275 days') - interval '11 days'"
+          },
+          "estado_anterior": null,
+          "estado_nuevo": "PROCESADO",
+          "procesado_en": {
+            "$sql": "(now() - interval '275 days') - interval '11 days'"
+          },
+          "intentos_procesamiento": 1,
+          "error_procesamiento": null,
+          "pago_id": {
+            "$ref": "pago",
+            "clave_idempotencia": "v10-pago-p2-03"
+          }
+        },
+        {
+          "id": "41836495-e8c3-5865-871e-aed827fc11db",
+          "webhook_id": "9b6a7dde-147b-5e84-ab2a-9bf4cc4a2f60",
+          "webhook_recibido_en": {
+            "$sql": "(now() - interval '275 days') - interval '13 days'"
+          },
+          "estado_anterior": null,
+          "estado_nuevo": "PROCESADO",
+          "procesado_en": {
+            "$sql": "(now() - interval '275 days') - interval '13 days'"
+          },
+          "intentos_procesamiento": 1,
+          "error_procesamiento": null,
+          "pago_id": {
+            "$ref": "pago",
+            "clave_idempotencia": "v10-pago-p2-05"
+          }
+        },
+        {
+          "id": "648d6836-e718-59e6-bfe4-8414622d15c7",
+          "webhook_id": "df75b881-fc5e-5ee5-87d4-20ee11ee8e51",
+          "webhook_recibido_en": {
+            "$sql": "(now() - interval '275 days') - interval '10 days'"
+          },
+          "estado_anterior": null,
+          "estado_nuevo": "PROCESADO",
           "procesado_en": {
             "$sql": "(now() - interval '275 days') - interval '10 days'"
           },
           "intentos_procesamiento": 1,
-          "estado": "PROCESADO",
-          "clave_idempotencia": "v10-webhook-p2-06",
           "error_procesamiento": null,
           "pago_id": {
             "$ref": "pago",

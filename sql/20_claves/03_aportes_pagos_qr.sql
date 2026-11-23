@@ -134,6 +134,11 @@ ALTER TABLE aportes.historial_estado_reembolso
   ADD CONSTRAINT fk_historial_estado_reembolso_reembolso_id
   FOREIGN KEY (reembolso_id) REFERENCES aportes.reembolso (id) ON DELETE RESTRICT ON UPDATE CASCADE;
 
+ALTER TABLE aportes.historial_estado_webhook DROP CONSTRAINT IF EXISTS fk_historial_estado_webhook_pago_id;
+ALTER TABLE aportes.historial_estado_webhook
+  ADD CONSTRAINT fk_historial_estado_webhook_pago_id
+  FOREIGN KEY (pago_id) REFERENCES aportes.pago (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
 ALTER TABLE aportes.intento_pago DROP CONSTRAINT IF EXISTS fk_intento_pago_orden_cobro_id;
 ALTER TABLE aportes.intento_pago
   ADD CONSTRAINT fk_intento_pago_orden_cobro_id
@@ -254,10 +259,10 @@ ALTER TABLE aportes.reembolso
   ADD CONSTRAINT fk_reembolso_solicitado_por
   FOREIGN KEY (solicitado_por) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
 
-ALTER TABLE aportes.webhook_pasarela DROP CONSTRAINT IF EXISTS fk_webhook_pasarela_pago_id;
-ALTER TABLE aportes.webhook_pasarela
-  ADD CONSTRAINT fk_webhook_pasarela_pago_id
-  FOREIGN KEY (pago_id) REFERENCES aportes.pago (id) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE aportes.webhook_clave DROP CONSTRAINT IF EXISTS fk_webhook_clave_proveedor_id;
+ALTER TABLE aportes.webhook_clave
+  ADD CONSTRAINT fk_webhook_clave_proveedor_id
+  FOREIGN KEY (proveedor_id) REFERENCES aportes.proveedor_pago (id) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 ALTER TABLE aportes.webhook_pasarela DROP CONSTRAINT IF EXISTS fk_webhook_pasarela_proveedor_id;
 ALTER TABLE aportes.webhook_pasarela

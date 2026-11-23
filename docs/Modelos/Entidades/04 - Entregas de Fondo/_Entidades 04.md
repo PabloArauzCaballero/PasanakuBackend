@@ -3,12 +3,12 @@ tags:
   - moc
   - modulo/04-entregas-de-fondo
 modulo: "04 — Entregas de Fondo"
-entidades: 13
+entidades: 16
 ---
 
 # 04 — Entregas de Fondo · entidades
 
-Las **13 tablas** de este módulo. Justificación de negocio en [[04_entregas_fondo]].
+Las **16 tablas** de este módulo. Justificación de negocio en [[04_entregas_fondo]].
 
 [[_Entidades|← Todas las entidades]] · [[Index]]
 
@@ -22,8 +22,11 @@ Las **13 tablas** de este módulo. Justificación de negocio en [[04_entregas_fo
 | [[orden_desembolso]] | 12 | 3 | 1 |
 | [[intento_desembolso]] | 9 | 1 | 0 |
 | [[confirmacion_recepcion]] | 10 | 2 | 0 |
-| [[incidencia_entrega]] | 14 | 3 | 0 |
+| [[incidencia_entrega]] | 15 | 3 | 0 |
 | [[historial_estado_entrega]] | 7 | 2 | 0 |
 | [[fondeo_entrega]] | 16 | 2 | 0 |
+| [[turno_del_grupo]] | 7 | 0 | 0 |
 | [[oferta_turno]] | 15 | 4 | 1 |
 | [[cesion_derecho]] | 17 | 4 | 0 |
+| [[subasta_cupo]] | 20 | 3 | 1 |
+| [[puja_subasta]] | 10 | 1 | 0 |

@@ -8,7 +8,7 @@ modulo: "03 — Aportes, Pagos QR y Conciliación"
 clave_primaria: [id]
 columnas: 13
 fk_salientes: 0
-fk_entrantes: 8
+fk_entrantes: 9
 append_only: false
 ---
 
@@ -53,11 +53,12 @@ append_only: false
 | [[orden_recarga]] | `proveedor_id` | ↗ 10 | [[orden_recarga.proveedor_id → proveedor_pago]] |
 | [[orden_retiro]] | `proveedor_id` | ↗ 10 | [[orden_retiro.proveedor_id → proveedor_pago]] |
 | [[pago]] | `proveedor_id` | 03 | [[pago.proveedor_id → proveedor_pago]] |
+| [[webhook_clave]] | `proveedor_id` | 03 | [[webhook_clave.proveedor_id → proveedor_pago]] |
 | [[webhook_pasarela]] | `proveedor_id` | 03 | [[webhook_pasarela.proveedor_id → proveedor_pago]] |
 
 ## Entidades vecinas
 
-[[costo_proveedor_operacion]] · [[extracto_bancario]] · [[orden_cobro]] · [[orden_desembolso]] · [[orden_recarga]] · [[orden_retiro]] · [[pago]] · [[webhook_pasarela]]
+[[costo_proveedor_operacion]] · [[extracto_bancario]] · [[orden_cobro]] · [[orden_desembolso]] · [[orden_recarga]] · [[orden_retiro]] · [[pago]] · [[webhook_clave]] · [[webhook_pasarela]]
 
 ## Ver también
 

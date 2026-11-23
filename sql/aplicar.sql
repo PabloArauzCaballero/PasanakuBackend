@@ -96,6 +96,8 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/03_aportes_pagos_qr/conciliacion.sql
 \ir 10_tablas/03_aportes_pagos_qr/excepcion_conciliacion.sql
 \ir 10_tablas/03_aportes_pagos_qr/webhook_pasarela.sql
+\ir 10_tablas/03_aportes_pagos_qr/webhook_clave.sql
+\ir 10_tablas/03_aportes_pagos_qr/historial_estado_webhook.sql
 \ir 10_tablas/03_aportes_pagos_qr/tipo_cambio.sql
 \ir 10_tablas/03_aportes_pagos_qr/cuenta_contable.sql
 \ir 10_tablas/03_aportes_pagos_qr/asiento_contable.sql
@@ -402,6 +404,9 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 
 -- 2d) Borradores de onboarding incompleto.
 \ir 15_infra/borradores.sql
+
+-- 2e) M08 · migración y mantenimiento de webhook_pasarela.
+\ir 15_infra/webhook_m08.sql
 
 -- 3) Claves foráneas (después de todas las tablas)
 \ir 20_claves/01_identidad_usuarios.sql

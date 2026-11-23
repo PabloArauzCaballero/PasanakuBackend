@@ -31,19 +31,21 @@ CREATE TABLE IF NOT EXISTS comun.bitacora_evento (
   CONSTRAINT ck_bitacora_evento_origen CHECK (origen IN ('API_PUBLICA', 'APP_MOVIL', 'APP_WEB', 'MIGRACION', 'ORGANIZADOR_DIGITAL', 'PANEL_ADMIN', 'SOPORTE_INTERNO', 'TAREA_PROGRAMADA', 'WEBHOOK_ENTRANTE'))
 ) PARTITION BY RANGE (fecha_hora);
 
-CREATE TABLE IF NOT EXISTS comun.bitacora_evento_desborde
-  PARTITION OF comun.bitacora_evento DEFAULT;
-
 DO $$
 DECLARE d DATE := date_trunc('year', current_date)::date;
 BEGIN
-  FOR i IN 0..23 LOOP
-    EXECUTE format(
+  IF EXISTS (SELECT 1 FROM pg_partitioned_table WHERE partrelid = to_regclass('comun.bitacora_evento')) THEN
+    CREATE TABLE IF NOT EXISTS comun.bitacora_evento_desborde
+      PARTITION OF comun.bitacora_evento DEFAULT;
+
+    FOR i IN 0..23 LOOP
+      EXECUTE format(
       'CREATE TABLE IF NOT EXISTS comun.bitacora_evento_%s PARTITION OF comun.bitacora_evento FOR VALUES FROM (%L) TO (%L)',
-      to_char(d + (i || ' month')::interval, 'YYYYMM'),
-      d + (i || ' month')::interval,
-      d + ((i + 1) || ' month')::interval);
-  END LOOP;
+        to_char(d + (i || ' month')::interval, 'YYYYMM'),
+        d + (i || ' month')::interval,
+        d + ((i + 1) || ' month')::interval);
+    END LOOP;
+  END IF;
 END $$;
 
 COMMENT ON TABLE comun.bitacora_evento IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. [append-only] El registro insert-only de cada cambio sobre cualquier dato del sistema, con valor anterior, valor nuevo y autor.';

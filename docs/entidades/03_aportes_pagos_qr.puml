@@ -456,16 +456,38 @@ package "Conciliacion" {
     - firma: String
     - firmaValida: Boolean
     - recibidoEn: DateTime
-    - procesadoEn: DateTime
-    - intentosProcesamiento: Integer
-    - estado: String <<RECIBIDO | PROCESADO | FALLIDO | DUPLICADO | DESCARTADO>>
-    - claveIdempotencia: String <<unica>>
-    - errorProcesamiento: String
+    - claveIdempotencia: String
     --
     + validarFirma(): Boolean
-    + procesar(): Pago
-    + reintentar()
-    + enviarAColaMuerta()
+    + reclamarClaveGlobal(): WebhookClave
+    + anexarResultado(): HistorialEstadoWebhook
+  }
+
+  class WebhookClave {
+    - proveedorId: UUID
+    - claveIdempotencia: String
+    - webhookId: UUID
+    - webhookRecibidoEn: DateTime
+  }
+
+  class HistorialEstadoWebhook {
+    - id: UUID
+    - webhookId: UUID
+    - webhookRecibidoEn: DateTime
+    - estadoAnterior: EstadoWebhook
+    - estadoNuevo: EstadoWebhook
+    - procesadoEn: DateTime
+    - intentosProcesamiento: Integer
+    - errorProcesamiento: String
+    - pagoId: UUID
+  }
+
+  enum EstadoWebhook {
+    DESCARTADO
+    DUPLICADO
+    FALLIDO
+    PROCESADO
+    RECIBIDO
   }
 }
 
@@ -587,6 +609,8 @@ Conciliacion "1" --> "0..1" MovimientoBancario
 Conciliacion "1" *-- "0..*" ExcepcionConciliacion
 ExtractoBancario "1" *-- "0..*" MovimientoBancario
 ProveedorPago "1" *-- "0..*" WebhookPasarela
+ProveedorPago "1" *-- "0..*" WebhookClave
+WebhookPasarela "1" *-- "0..*" HistorialEstadoWebhook
 WebhookPasarela ..> Pago : crea / actualiza >
 
 AsientoContable "1" *-- "2..*" MovimientoContable
@@ -959,10 +983,25 @@ entity "webhook_pasarela" as webh {
   firma : VARCHAR(255)
   firma_valida : BOOLEAN
   recibido_en : TIMESTAMPTZ <<IDX>>
+  clave_idempotencia : VARCHAR(120)
+}
+
+entity "webhook_clave" as whclave {
+  * proveedor_id : UUID <<PK, FK, IDX>>
+  * clave_idempotencia : VARCHAR(120) <<PK>>
+  webhook_id : UUID <<IDX>>
+  webhook_recibido_en : TIMESTAMPTZ
+}
+
+entity "historial_estado_webhook" as whhist {
+  * id : UUID <<PK>>
+  --
+  webhook_id : UUID <<IDX>>
+  webhook_recibido_en : TIMESTAMPTZ <<IDX>>
+  estado_anterior : VARCHAR(15) <<NULL, CK, UQ+webhook_id+webhook_recibido_en>>
+  estado_nuevo : VARCHAR(15) <<CK, IDX>>
   procesado_en : TIMESTAMPTZ <<NULL>>
   intentos_procesamiento : SMALLINT
-  estado : VARCHAR(15) <<CK, IDX>>
-  clave_idempotencia : VARCHAR(120)
   error_procesamiento : TEXT <<NULL>>
   # pago_id : UUID <<FK, NULL>>
 }

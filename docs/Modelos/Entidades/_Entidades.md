@@ -2,12 +2,12 @@
 tags:
   - moc
   - indice
-entidades: 328
+entidades: 342
 ---
 
 # Índice de entidades
 
-Las **328 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son claves foráneas salientes y entrantes.
+Las **342 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son claves foráneas salientes y entrantes.
 
 [[Index|← Índice general]] · [[_Relaciones|Relaciones →]]
 
@@ -17,7 +17,7 @@ Las **328 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 
 | Tabla | Columnas | Sal. | Ent. | Notas |
 | --- | --: | --: | --: | --- |
-| [[usuario]] | 18 | 0 | 219 | muy conectada |
+| [[usuario]] | 18 | 0 | 223 | muy conectada |
 | [[direccion_usuario]] | 8 | 1 | 0 | — |
 | [[perfil_financiero]] | 8 | 1 | 0 | — |
 | [[credencial_acceso]] | 8 | 1 | 0 | — |
@@ -51,14 +51,14 @@ Las **328 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 
 | Tabla | Columnas | Sal. | Ent. | Notas |
 | --- | --: | --: | --: | --- |
-| [[grupo]] | 27 | 1 | 49 | muy conectada |
+| [[grupo]] | 27 | 1 | 50 | muy conectada |
 | [[alta_grupo]] | 7 | 0 | 0 | — |
 | [[configuracion_grupo]] | 10 | 3 | 0 | — |
 | [[reglamento_grupo]] | 10 | 2 | 1 | — |
 | [[aceptacion_reglamento]] | 7 | 3 | 0 | — |
 | [[historial_estado_grupo]] | 7 | 2 | 0 | — |
-| [[participante]] | 13 | 3 | 28 | muy conectada |
-| [[cupo]] | 8 | 2 | 7 | muy conectada |
+| [[participante]] | 13 | 3 | 29 | muy conectada |
+| [[cupo]] | 8 | 2 | 8 | muy conectada |
 | [[traspaso_cupo]] | 10 | 4 | 0 | — |
 | [[solicitud_retiro]] | 9 | 2 | 0 | — |
 | [[solicitud_ingreso]] | 14 | 4 | 0 | — |
@@ -76,7 +76,7 @@ Las **328 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[criterio_emparejamiento]] | 8 | 0 | 1 | — |
 | [[propuesta_grupo]] | 10 | 2 | 1 | — |
 | [[propuesta_postulacion]] | 4 | 2 | 0 | — |
-| [[acuerdo]] | 15 | 2 | 8 | muy conectada |
+| [[acuerdo]] | 16 | 2 | 8 | muy conectada |
 | [[voto_participante]] | 7 | 2 | 0 | — |
 
 ## 03 — Aportes, Pagos QR y Conciliación
@@ -88,21 +88,25 @@ Las **328 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[politica_mora]] | 10 | 1 | 2 | — |
 | [[obligacion_aporte]] | 22 | 7 | 8 | muy conectada |
 | [[plan_regularizacion]] | 7 | 2 | 2 | — |
-| [[proveedor_pago]] | 12 | 0 | 8 | muy conectada |
+| [[proveedor_pago]] | 13 | 0 | 9 | muy conectada |
 | [[orden_cobro]] | 11 | 2 | 4 | — |
 | [[qr_cobro]] | 9 | 1 | 0 | — |
 | [[enlace_pago_rapido]] | 6 | 2 | 0 | — |
 | [[intento_pago]] | 10 | 1 | 1 | — |
-| [[pago]] | 19 | 4 | 10 | muy conectada |
+| [[pago]] | 19 | 4 | 11 | muy conectada |
 | [[comprobante_manual]] | 9 | 3 | 0 | — |
 | [[constancia_pago]] | 7 | 1 | 0 | — |
-| [[reembolso]] | 10 | 3 | 0 | — |
-| [[disputa_pago]] | 10 | 1 | 0 | — |
-| [[extracto_bancario]] | 10 | 2 | 1 | — |
+| [[reembolso]] | 12 | 3 | 1 | — |
+| [[historial_estado_pago]] | 6 | 1 | 0 | — |
+| [[historial_estado_reembolso]] | 6 | 2 | 0 | — |
+| [[disputa_pago]] | 11 | 1 | 0 | — |
+| [[extracto_bancario]] | 11 | 2 | 1 | — |
 | [[movimiento_bancario]] | 9 | 1 | 2 | — |
-| [[conciliacion]] | 8 | 3 | 1 | — |
-| [[excepcion_conciliacion]] | 10 | 2 | 0 | — |
-| [[webhook_pasarela]] | 13 | 2 | 0 | — |
+| [[conciliacion]] | 9 | 3 | 1 | — |
+| [[excepcion_conciliacion]] | 11 | 2 | 0 | — |
+| [[webhook_pasarela]] | 8 | 1 | 0 | — |
+| [[webhook_clave]] | 4 | 1 | 0 | — |
+| [[historial_estado_webhook]] | 9 | 1 | 0 | — |
 | [[tipo_cambio]] | 7 | 0 | 0 | — |
 | [[cuenta_contable]] | 12 | 3 | 12 | muy conectada |
 | [[asiento_contable]] | 11 | 4 | 12 | append-only, muy conectada |
@@ -123,11 +127,14 @@ Las **328 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[orden_desembolso]] | 12 | 3 | 1 | — |
 | [[intento_desembolso]] | 9 | 1 | 0 | — |
 | [[confirmacion_recepcion]] | 10 | 2 | 0 | — |
-| [[incidencia_entrega]] | 14 | 3 | 0 | — |
+| [[incidencia_entrega]] | 15 | 3 | 0 | — |
 | [[historial_estado_entrega]] | 7 | 2 | 0 | — |
 | [[fondeo_entrega]] | 16 | 2 | 0 | — |
+| [[turno_del_grupo]] | 7 | 0 | 0 | — |
 | [[oferta_turno]] | 15 | 4 | 1 | — |
 | [[cesion_derecho]] | 17 | 4 | 0 | — |
+| [[subasta_cupo]] | 20 | 3 | 1 | — |
+| [[puja_subasta]] | 10 | 1 | 0 | — |
 
 ## 05 — Notificaciones y Comunicaciones
 
@@ -158,7 +165,7 @@ Las **328 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 
 | Tabla | Columnas | Sal. | Ent. | Notas |
 | --- | --: | --: | --: | --- |
-| [[modelo_scoring]] | 12 | 0 | 3 | — |
+| [[modelo_scoring]] | 12 | 0 | 4 | — |
 | [[peso_factor]] | 7 | 1 | 0 | — |
 | [[regla_impacto_evento]] | 8 | 1 | 0 | — |
 | [[evento_reputacion]] | 15 | 4 | 1 | append-only |
@@ -168,6 +175,8 @@ Las **328 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[certificado_reputacion]] | 10 | 2 | 0 | — |
 | [[insignia_logro]] | 6 | 0 | 1 | — |
 | [[insignia_otorgada]] | 6 | 2 | 0 | — |
+| [[etapa]] | 7 | 1 | 1 | — |
+| [[desbloqueo_etapa]] | 6 | 1 | 0 | — |
 | [[metrica_grupo]] | 9 | 2 | 0 | — |
 | [[bloque_transparencia]] | 11 | 1 | 1 | — |
 | [[registro_sellado]] | 7 | 1 | 0 | append-only |
@@ -268,6 +277,7 @@ Las **328 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[proceso_anonimizacion]] | 8 | 2 | 0 | — |
 | [[ticket_soporte]] | 13 | 2 | 1 | — |
 | [[incidente_operativo]] | 13 | 0 | 3 | — |
+| [[disponibilidad_servicio_dia]] | 7 | 0 | 0 | — |
 
 ## 10 — Billetera, Custodia y Dinero Electrónico
 
@@ -278,13 +288,14 @@ Las **328 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[politica_billetera]] | 11 | 1 | 1 | — |
 | [[cuenta_billetera]] | 17 | 4 | 15 | muy conectada |
 | [[saldo_diario_billetera]] | 9 | 1 | 0 | append-only |
-| [[transaccion_billetera]] | 20 | 5 | 15 | append-only, muy conectada |
+| [[transaccion_billetera]] | 20 | 5 | 16 | append-only, muy conectada |
 | [[movimiento_billetera]] | 10 | 2 | 0 | append-only |
 | [[retencion_saldo]] | 12 | 3 | 2 | — |
-| [[reverso_transaccion]] | 10 | 3 | 0 | — |
+| [[reverso_transaccion]] | 10 | 3 | 1 | — |
+| [[solicitud_reverso]] | 11 | 4 | 0 | — |
 | [[instrumento_fondeo]] | 16 | 1 | 2 | — |
 | [[evidencia_mfa_consumida]] | 5 | 1 | 0 | — |
-| [[orden_recarga]] | 18 | 5 | 0 | — |
+| [[orden_recarga]] | 20 | 5 | 0 | — |
 | [[orden_retiro]] | 21 | 7 | 1 | muy conectada |
 | [[transferencia_p2p]] | 11 | 5 | 0 | — |
 | [[cuenta_custodia]] | 14 | 0 | 2 | — |
@@ -296,7 +307,7 @@ Las **328 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[respuesta_idempotente]] | 9 | 1 | 0 | — |
 | [[regla_antifraude]] | 10 | 1 | 0 | — |
 | [[evaluacion_antifraude]] | 11 | 3 | 0 | — |
-| [[bloqueo_saldo]] | 15 | 3 | 1 | — |
+| [[bloqueo_saldo]] | 16 | 4 | 1 | — |
 | [[estado_cuenta_billetera]] | 13 | 1 | 0 | — |
 | [[certificado_saldo]] | 10 | 2 | 0 | — |
 | [[solicitud_cierre_billetera]] | 10 | 3 | 0 | — |
@@ -317,6 +328,9 @@ Las **328 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[segmento_comercial]] | 6 | 0 | 2 | — |
 | [[asignacion_tarifario]] | 11 | 5 | 0 | — |
 | [[tarifa_congelada_grupo]] | 8 | 3 | 0 | — |
+| [[parametro_financiero]] | 5 | 0 | 2 | — |
+| [[version_parametro]] | 15 | 1 | 1 | — |
+| [[parametro_congelado_grupo]] | 6 | 2 | 0 | — |
 | [[simulacion_tarifa]] | 8 | 2 | 0 | — |
 | [[cambio_tarifario]] | 12 | 3 | 0 | — |
 | [[cotizacion_comision]] | 15 | 2 | 1 | — |

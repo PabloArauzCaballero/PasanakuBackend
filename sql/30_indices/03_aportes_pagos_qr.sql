@@ -127,8 +127,23 @@ CREATE INDEX IF NOT EXISTS ix_webhook_pasarela_proveedor_id
 CREATE INDEX IF NOT EXISTS ix_webhook_pasarela_recibido_en
   ON aportes.webhook_pasarela (recibido_en);
 
-CREATE INDEX IF NOT EXISTS ix_webhook_pasarela_estado
-  ON aportes.webhook_pasarela (estado);
+CREATE INDEX IF NOT EXISTS ix_webhook_clave_proveedor_id
+  ON aportes.webhook_clave (proveedor_id);
+
+CREATE INDEX IF NOT EXISTS ix_webhook_clave_webhook_id
+  ON aportes.webhook_clave (webhook_id);
+
+CREATE INDEX IF NOT EXISTS ix_historial_estado_webhook_webhook_id
+  ON aportes.historial_estado_webhook (webhook_id);
+
+CREATE INDEX IF NOT EXISTS ix_historial_estado_webhook_webhook_recibido_en
+  ON aportes.historial_estado_webhook (webhook_recibido_en);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_historial_estado_webhook_webhook_id_webhook_recibid_e676b9
+  ON aportes.historial_estado_webhook (webhook_id, webhook_recibido_en, estado_anterior) NULLS NOT DISTINCT;
+
+CREATE INDEX IF NOT EXISTS ix_historial_estado_webhook_estado_nuevo
+  ON aportes.historial_estado_webhook (estado_nuevo);
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_tipo_cambio_moneda_destino_fecha_moneda_origen
   ON catalogo.tipo_cambio (moneda_destino, fecha, moneda_origen);

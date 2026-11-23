@@ -20,19 +20,21 @@ CREATE TABLE IF NOT EXISTS comun.registro_acceso_datos (
   CONSTRAINT ck_registro_acceso_datos_operacion CHECK (operacion IN ('BUSQUEDA', 'EXPORTACION', 'LECTURA'))
 ) PARTITION BY RANGE (fecha_hora);
 
-CREATE TABLE IF NOT EXISTS comun.registro_acceso_datos_desborde
-  PARTITION OF comun.registro_acceso_datos DEFAULT;
-
 DO $$
 DECLARE d DATE := date_trunc('year', current_date)::date;
 BEGIN
-  FOR i IN 0..23 LOOP
-    EXECUTE format(
+  IF EXISTS (SELECT 1 FROM pg_partitioned_table WHERE partrelid = to_regclass('comun.registro_acceso_datos')) THEN
+    CREATE TABLE IF NOT EXISTS comun.registro_acceso_datos_desborde
+      PARTITION OF comun.registro_acceso_datos DEFAULT;
+
+    FOR i IN 0..23 LOOP
+      EXECUTE format(
       'CREATE TABLE IF NOT EXISTS comun.registro_acceso_datos_%s PARTITION OF comun.registro_acceso_datos FOR VALUES FROM (%L) TO (%L)',
-      to_char(d + (i || ' month')::interval, 'YYYYMM'),
-      d + (i || ' month')::interval,
-      d + ((i + 1) || ' month')::interval);
-  END LOOP;
+        to_char(d + (i || ' month')::interval, 'YYYYMM'),
+        d + (i || ' month')::interval,
+        d + ((i + 1) || ' month')::interval);
+    END LOOP;
+  END IF;
 END $$;
 
 COMMENT ON TABLE comun.registro_acceso_datos IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. [append-only] El registro de quién consultó datos sensibles de quién, con qué justificación.';

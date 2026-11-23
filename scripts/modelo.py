@@ -328,8 +328,9 @@ APPEND_ONLY = {
     "version_condiciones", "consentimiento_inversion", "devengo_dpf", "valor_cuota",
     "comprobante_inversion", "comision_exito", "conciliacion_interes",
     "distribucion_interes",
-    # F1.L1.M08 (R-BIL-30): el pago y el reembolso son hechos de dinero; su estado
-    # cambia agregando una fila a su historial, nunca con UPDATE sobre el hecho.
+    # F1.L1.M08 (R-BIL-30): el webhook, pago y reembolso son hechos de dinero;
+    # su estado cambia agregando una fila a su historial, nunca con UPDATE.
+    "webhook_pasarela", "historial_estado_webhook",
     "pago", "reembolso", "historial_estado_pago", "historial_estado_reembolso",
 }
 
@@ -352,7 +353,14 @@ APPEND_ONLY = {
 PARTICIONADAS = {
     "bitacora_evento": "fecha_hora",
     "registro_acceso_datos": "fecha_hora",
+    "webhook_pasarela": "recibido_en",
+    "historial_estado_webhook": "webhook_recibido_en",
 }
+
+# Los webhooks llegan con fecha fijada por el servidor; el trabajo con ShedLock
+# prepara meses futuros. No hay partición DEFAULT porque retendría datos sin una
+# cota mensual purgable y ocultaría una falla en el trabajo de mantenimiento.
+SIN_PARTICION_DESBORDE = {"webhook_pasarela", "historial_estado_webhook"}
 
 # CHECK de enumerado que se AMPLIO despues de que existieran bases. El CREATE TABLE
 # IF NOT EXISTS saltea una tabla que ya esta, asi que su CHECK viejo quedaria vivo

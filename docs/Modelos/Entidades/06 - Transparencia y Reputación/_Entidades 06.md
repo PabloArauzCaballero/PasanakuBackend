@@ -3,18 +3,18 @@ tags:
   - moc
   - modulo/06-transparencia-y-reputacion
 modulo: "06 — Transparencia y Reputación"
-entidades: 16
+entidades: 18
 ---
 
 # 06 — Transparencia y Reputación · entidades
 
-Las **16 tablas** de este módulo. Justificación de negocio en [[06_transparencia_reputacion]].
+Las **18 tablas** de este módulo. Justificación de negocio en [[06_transparencia_reputacion]].
 
 [[_Entidades|← Todas las entidades]] · [[Index]]
 
 | Tabla | Columnas | FK sal. | FK ent. |
 | --- | --: | --: | --: |
-| [[modelo_scoring]] | 12 | 0 | 3 |
+| [[modelo_scoring]] | 12 | 0 | 4 |
 | [[peso_factor]] | 7 | 1 | 0 |
 | [[regla_impacto_evento]] | 8 | 1 | 0 |
 | [[evento_reputacion]] | 15 | 4 | 1 |
@@ -24,6 +24,8 @@ Las **16 tablas** de este módulo. Justificación de negocio en [[06_transparenc
 | [[certificado_reputacion]] | 10 | 2 | 0 |
 | [[insignia_logro]] | 6 | 0 | 1 |
 | [[insignia_otorgada]] | 6 | 2 | 0 |
+| [[etapa]] | 7 | 1 | 1 |
+| [[desbloqueo_etapa]] | 6 | 1 | 0 |
 | [[metrica_grupo]] | 9 | 2 | 0 |
 | [[bloque_transparencia]] | 11 | 1 | 1 |
 | [[registro_sellado]] | 7 | 1 | 0 |

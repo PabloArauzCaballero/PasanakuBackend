@@ -1,6 +1,7 @@
-# F1.L1.M08 parte 2 · Propuesta: sellar `aportes.webhook_pasarela` sin perder la retención ni la idempotencia
+# F1.L1.M08 parte 2 · Diseño aprobado: sellar `aportes.webhook_pasarela` sin perder la retención ni la idempotencia
 
-- Fecha: 2026-11-21 · Para decidir: **Pablo** · Estado: propuesta, sin implementar.
+- Fecha: 2026-11-21 · Estado: Opción A aprobada por Pablo en T11-3; ejecución registrada en `PLAN.md`.
+- La retención se conserva según el catálogo vigente `sql/60_semillas/19-reportes-y-retencion.sql`: 12 meses en caliente, 24 meses totales, acción `ELIMINAR`.
 
 ## El conflicto
 
@@ -62,7 +63,4 @@ solo por la purga.
 - B es más barata, pero obliga a una excepción a R-AUD-01 o a cambiar una política de retención. Las dos cosas son
   de Pablo y de Cumplimiento, y abren un precedente.
 
-**Para decidir:**
-1. A o B.
-2. Si B: ¿la política pasa a `ARCHIVAR` o se aprueba la excepción de anonimizar?
-3. ¿Confirmamos los 24 meses para el respaldo de la conciliación?
+**Decisión:** T11-3 eligió A. No se crea una excepción a R-AUD-01 ni se modifica el plazo existente; solo se desprenden y eliminan particiones completas al cumplir la política vigente.

@@ -791,16 +791,45 @@ BEGIN
   END IF;
 END $siembra$;
 
+-- Webhook firmado. La clave global se conserva en webhook_clave; el estado es historial append-only.
 DO $siembra$
 BEGIN
   IF current_setting('app.dev_sembrado', true) IS DISTINCT FROM 'si' THEN
-    INSERT INTO webhook_pasarela (proveedor_id, evento, payload_crudo, firma, firma_valida, recibido_en, procesado_en, intentos_procesamiento, estado, clave_idempotencia, error_procesamiento, pago_id) VALUES
-      ((SELECT id FROM proveedor_pago WHERE codigo = 'QR_INTEROP'), 'pago.acreditado', '{"referencia": "BCO-P2-01-V09", "monto": 500.0, "moneda": "BOB", "orden": "AP-P2-01-V09", "estado": "APROBADO"}'::jsonb, 'hmac-v09-01', TRUE, (now() - interval '245 days') - interval '12 days', (now() - interval '245 days') - interval '12 days', 1, 'PROCESADO', 'v09-webhook-p2-01', NULL, (SELECT id FROM pago WHERE clave_idempotencia = 'v09-pago-p2-01')),
-      ((SELECT id FROM proveedor_pago WHERE codigo = 'QR_INTEROP'), 'pago.acreditado', '{"referencia": "BCO-P2-02-V09", "monto": 500.0, "moneda": "BOB", "orden": "AP-P2-02-V09", "estado": "APROBADO"}'::jsonb, 'hmac-v09-02', TRUE, (now() - interval '245 days') - interval '12 days', (now() - interval '245 days') - interval '12 days', 1, 'PROCESADO', 'v09-webhook-p2-02', NULL, (SELECT id FROM pago WHERE clave_idempotencia = 'v09-pago-p2-02')),
-      ((SELECT id FROM proveedor_pago WHERE codigo = 'QR_INTEROP'), 'pago.acreditado', '{"referencia": "BCO-P2-03-V09", "monto": 500.0, "moneda": "BOB", "orden": "AP-P2-03-V09", "estado": "APROBADO"}'::jsonb, 'hmac-v09-03', TRUE, (now() - interval '245 days') - interval '11 days', (now() - interval '245 days') - interval '11 days', 1, 'PROCESADO', 'v09-webhook-p2-03', NULL, (SELECT id FROM pago WHERE clave_idempotencia = 'v09-pago-p2-03')),
-      ((SELECT id FROM proveedor_pago WHERE codigo = 'QR_INTEROP'), 'pago.acreditado', '{"referencia": "BCO-P2-05-V09", "monto": 500.0, "moneda": "BOB", "orden": "AP-P2-05-V09", "estado": "APROBADO"}'::jsonb, 'hmac-v09-05', TRUE, (now() - interval '245 days') - interval '13 days', (now() - interval '245 days') - interval '13 days', 1, 'PROCESADO', 'v09-webhook-p2-05', NULL, (SELECT id FROM pago WHERE clave_idempotencia = 'v09-pago-p2-05')),
-      ((SELECT id FROM proveedor_pago WHERE codigo = 'QR_INTEROP'), 'pago.acreditado', '{"referencia": "BCO-P2-06-V09", "monto": 500.0, "moneda": "BOB", "orden": "AP-P2-06-V09", "estado": "APROBADO"}'::jsonb, 'hmac-v09-06', TRUE, (now() - interval '245 days') - interval '10 days', (now() - interval '245 days') - interval '10 days', 1, 'PROCESADO', 'v09-webhook-p2-06', NULL, (SELECT id FROM pago WHERE clave_idempotencia = 'v09-pago-p2-06'))
+    INSERT INTO webhook_pasarela (proveedor_id, evento, payload_crudo, firma, firma_valida, recibido_en, id) VALUES
+      ((SELECT id FROM proveedor_pago WHERE codigo = 'QR_INTEROP'), 'pago.acreditado', '{"referencia": "BCO-P2-01-V09", "monto": 500.0, "moneda": "BOB", "orden": "AP-P2-01-V09", "estado": "APROBADO"}'::jsonb, 'hmac-v09-01', TRUE, (now() - interval '245 days') - interval '12 days', '07a20f8d-b06b-513d-8d62-8f3dcbcb9e8b'),
+      ((SELECT id FROM proveedor_pago WHERE codigo = 'QR_INTEROP'), 'pago.acreditado', '{"referencia": "BCO-P2-02-V09", "monto": 500.0, "moneda": "BOB", "orden": "AP-P2-02-V09", "estado": "APROBADO"}'::jsonb, 'hmac-v09-02', TRUE, (now() - interval '245 days') - interval '12 days', 'b47a9746-bc94-5bf7-9cec-da031480f5a5'),
+      ((SELECT id FROM proveedor_pago WHERE codigo = 'QR_INTEROP'), 'pago.acreditado', '{"referencia": "BCO-P2-03-V09", "monto": 500.0, "moneda": "BOB", "orden": "AP-P2-03-V09", "estado": "APROBADO"}'::jsonb, 'hmac-v09-03', TRUE, (now() - interval '245 days') - interval '11 days', 'f06690fa-c343-5061-9eda-b4b43880ea6a'),
+      ((SELECT id FROM proveedor_pago WHERE codigo = 'QR_INTEROP'), 'pago.acreditado', '{"referencia": "BCO-P2-05-V09", "monto": 500.0, "moneda": "BOB", "orden": "AP-P2-05-V09", "estado": "APROBADO"}'::jsonb, 'hmac-v09-05', TRUE, (now() - interval '245 days') - interval '13 days', '03f42463-3a6f-5f7a-949a-48d19073d170'),
+      ((SELECT id FROM proveedor_pago WHERE codigo = 'QR_INTEROP'), 'pago.acreditado', '{"referencia": "BCO-P2-06-V09", "monto": 500.0, "moneda": "BOB", "orden": "AP-P2-06-V09", "estado": "APROBADO"}'::jsonb, 'hmac-v09-06', TRUE, (now() - interval '245 days') - interval '10 days', '0c1b750f-5c95-5ff8-a8aa-b17cb82dbb09')
+    ON CONFLICT (id, recibido_en) DO NOTHING;
+  END IF;
+END $siembra$;
+
+-- Reserva global de idempotencia para los webhooks de este proveedor.
+DO $siembra$
+BEGIN
+  IF current_setting('app.dev_sembrado', true) IS DISTINCT FROM 'si' THEN
+    INSERT INTO webhook_clave (proveedor_id, clave_idempotencia, webhook_id, webhook_recibido_en) VALUES
+      ((SELECT id FROM proveedor_pago WHERE codigo = 'QR_INTEROP'), 'v09-webhook-p2-01', '07a20f8d-b06b-513d-8d62-8f3dcbcb9e8b', (now() - interval '245 days') - interval '12 days'),
+      ((SELECT id FROM proveedor_pago WHERE codigo = 'QR_INTEROP'), 'v09-webhook-p2-02', 'b47a9746-bc94-5bf7-9cec-da031480f5a5', (now() - interval '245 days') - interval '12 days'),
+      ((SELECT id FROM proveedor_pago WHERE codigo = 'QR_INTEROP'), 'v09-webhook-p2-03', 'f06690fa-c343-5061-9eda-b4b43880ea6a', (now() - interval '245 days') - interval '11 days'),
+      ((SELECT id FROM proveedor_pago WHERE codigo = 'QR_INTEROP'), 'v09-webhook-p2-05', '03f42463-3a6f-5f7a-949a-48d19073d170', (now() - interval '245 days') - interval '13 days'),
+      ((SELECT id FROM proveedor_pago WHERE codigo = 'QR_INTEROP'), 'v09-webhook-p2-06', '0c1b750f-5c95-5ff8-a8aa-b17cb82dbb09', (now() - interval '245 days') - interval '10 days')
     ON CONFLICT (proveedor_id, clave_idempotencia) DO NOTHING;
+  END IF;
+END $siembra$;
+
+-- Estado inicial del webhook; estados posteriores se agregan como nuevas filas.
+DO $siembra$
+BEGIN
+  IF current_setting('app.dev_sembrado', true) IS DISTINCT FROM 'si' THEN
+    INSERT INTO historial_estado_webhook (id, webhook_id, webhook_recibido_en, estado_anterior, estado_nuevo, procesado_en, intentos_procesamiento, error_procesamiento, pago_id) VALUES
+      ('1f152b7c-51e1-5e02-852e-e4306bf4cceb', '07a20f8d-b06b-513d-8d62-8f3dcbcb9e8b', (now() - interval '245 days') - interval '12 days', NULL, 'PROCESADO', (now() - interval '245 days') - interval '12 days', 1, NULL, (SELECT id FROM pago WHERE clave_idempotencia = 'v09-pago-p2-01')),
+      ('ee87d50d-d295-5228-8a3d-b201ccfade4e', 'b47a9746-bc94-5bf7-9cec-da031480f5a5', (now() - interval '245 days') - interval '12 days', NULL, 'PROCESADO', (now() - interval '245 days') - interval '12 days', 1, NULL, (SELECT id FROM pago WHERE clave_idempotencia = 'v09-pago-p2-02')),
+      ('75f9a895-cfab-58ab-af7c-87597481a9d2', 'f06690fa-c343-5061-9eda-b4b43880ea6a', (now() - interval '245 days') - interval '11 days', NULL, 'PROCESADO', (now() - interval '245 days') - interval '11 days', 1, NULL, (SELECT id FROM pago WHERE clave_idempotencia = 'v09-pago-p2-03')),
+      ('6bd8755a-e72c-5237-a628-ea6497cb921a', '03f42463-3a6f-5f7a-949a-48d19073d170', (now() - interval '245 days') - interval '13 days', NULL, 'PROCESADO', (now() - interval '245 days') - interval '13 days', 1, NULL, (SELECT id FROM pago WHERE clave_idempotencia = 'v09-pago-p2-05')),
+      ('0767ae3a-53b9-5b7e-a8a2-154d4c576cec', '0c1b750f-5c95-5ff8-a8aa-b17cb82dbb09', (now() - interval '245 days') - interval '10 days', NULL, 'PROCESADO', (now() - interval '245 days') - interval '10 days', 1, NULL, (SELECT id FROM pago WHERE clave_idempotencia = 'v09-pago-p2-06'))
+    ON CONFLICT (id, webhook_recibido_en) DO NOTHING;
   END IF;
 END $siembra$;
 

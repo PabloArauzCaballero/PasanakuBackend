@@ -22,11 +22,11 @@
   {
    "nombre": "aportes",
    "descripcion": "Aportes, Pagos QR y Conciliación. Que \"pagué\" signifique \"el banco lo confirmó\".",
-   "tablas": 24,
-   "tablasDeNegocio": 20,
-   "columnas": 243,
-   "relaciones": 41,
-   "appendOnly": 4,
+   "tablas": 26,
+   "tablasDeNegocio": 22,
+   "columnas": 251,
+   "relaciones": 42,
+   "appendOnly": 6,
    "conDatosPersonales": 1,
    "servicio": "aportes"
   },
@@ -2200,6 +2200,134 @@
    ]
   },
   {
+   "tabla": "historial_estado_webhook",
+   "esquema": "aportes",
+   "tipo": "NEGOCIO",
+   "modulo": "03",
+   "nombreModulo": "Aportes, Pagos QR y Conciliación",
+   "servicio": "aportes",
+   "appendOnly": true,
+   "negocio": {},
+   "reglas": [],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "webhook_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Identificador de referencia para el concepto de webhook en historial_estado_webhook.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, índice b-tree.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "webhook_recibido_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de webhook recibido en historial_estado_webhook.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria, índice b-tree.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "estado_anterior",
+     "tipo": "VARCHAR(15)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Atributo que representa estado anterior en el modelo de historial_estado_webhook.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(15), opcional, restricción única.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "estado_nuevo",
+     "tipo": "VARCHAR(15)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa estado nuevo en el modelo de historial_estado_webhook.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(15), obligatoria, índice b-tree.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "procesado_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de procesado en historial_estado_webhook.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "intentos_procesamiento",
+     "tipo": "SMALLINT",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa intentos procesamiento en el modelo de historial_estado_webhook.",
+     "origenNegocio": "convencion",
+     "sistema": "SMALLINT, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "error_procesamiento",
+     "tipo": "TEXT",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Atributo que representa error procesamiento en el modelo de historial_estado_webhook.",
+     "origenNegocio": "convencion",
+     "sistema": "TEXT, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "pago_id",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "referencia": "pago",
+     "negocio": "Referencia por clave foránea a la entidad pago.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, opcional, referencia a pago.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "aportes"
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "pago_id",
+      "tabla": "pago",
+      "esquema": "aportes",
+      "columnaDestino": "id",
+      "restriccion": "fk_historial_estado_webhook_pago_id",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
+     }
+    ],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de pago.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": []
+  },
+  {
    "tabla": "intento_pago",
    "esquema": "aportes",
    "tipo": "NEGOCIO",
@@ -3864,10 +3992,10 @@
      },
      {
       "columna": "pago_id",
-      "tabla": "webhook_pasarela",
+      "tabla": "historial_estado_webhook",
       "esquema": "aportes",
       "columnaDestino": "id",
-      "restriccion": "fk_webhook_pasarela_pago_id",
+      "restriccion": "fk_historial_estado_webhook_pago_id",
       "alBorrar": "SET NULL",
       "cardinalidad": "N:1",
       "obligatoria": false
@@ -3914,7 +4042,7 @@
      }
     ]
    },
-   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de identidad.usuario, intento_pago, obligacion_aporte, proveedor_pago. La referencian comprobante_manual, conciliacion, constancia_pago, disputa_pago, garantia.abono_recuperacion, garantia.ejecucion_aval, garantia.recuperacion_respaldo, historial_estado_pago, nucleo_financiero.orden_recarga, reembolso, webhook_pasarela. Reglas nombradas: uq_pago_idem.",
+   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de identidad.usuario, intento_pago, obligacion_aporte, proveedor_pago. La referencian comprobante_manual, conciliacion, constancia_pago, disputa_pago, garantia.abono_recuperacion, garantia.ejecucion_aval, garantia.recuperacion_respaldo, historial_estado_pago, historial_estado_webhook, nucleo_financiero.orden_recarga, reembolso. Reglas nombradas: uq_pago_idem.",
    "clasificacion": {
     "personales": 1,
     "financieros": 3,
@@ -4663,6 +4791,16 @@
      },
      {
       "columna": "proveedor_id",
+      "tabla": "webhook_clave",
+      "esquema": "aportes",
+      "columnaDestino": "id",
+      "restriccion": "fk_webhook_clave_proveedor_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "proveedor_id",
       "tabla": "orden_desembolso",
       "esquema": "entregas",
       "columnaDestino": "id",
@@ -4703,7 +4841,7 @@
      }
     ]
    },
-   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian entregas.orden_desembolso, extracto_bancario, nucleo_financiero.orden_recarga, nucleo_financiero.orden_retiro, orden_cobro, pago, tarifas.costo_proveedor_operacion, webhook_pasarela. Reglas nombradas: uq_proveedor_pago_clave.",
+   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian entregas.orden_desembolso, extracto_bancario, nucleo_financiero.orden_recarga, nucleo_financiero.orden_retiro, orden_cobro, pago, tarifas.costo_proveedor_operacion, webhook_clave, webhook_pasarela. Reglas nombradas: uq_proveedor_pago_clave.",
    "clasificacion": {
     "personales": 0,
     "financieros": 0,
@@ -5337,21 +5475,97 @@
    "operaciones": []
   },
   {
-   "tabla": "webhook_pasarela",
+   "tabla": "webhook_clave",
    "esquema": "aportes",
    "tipo": "NEGOCIO",
    "modulo": "03",
    "nombreModulo": "Aportes, Pagos QR y Conciliación",
    "servicio": "aportes",
    "appendOnly": false,
+   "negocio": {},
+   "reglas": [],
+   "columnas": [
+    {
+     "nombre": "proveedor_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "referencia": "proveedor_pago",
+     "negocio": "Referencia por clave foránea a la entidad proveedor_pago.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria, referencia a proveedor_pago, índice b-tree.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "aportes"
+    },
+    {
+     "nombre": "clave_idempotencia",
+     "tipo": "VARCHAR(120)",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(120), obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "webhook_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Identificador de referencia para el concepto de webhook en webhook_clave.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, índice b-tree.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "webhook_recibido_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de webhook recibido en webhook_clave.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "proveedor_id",
+      "tabla": "proveedor_pago",
+      "esquema": "aportes",
+      "columnaDestino": "id",
+      "restriccion": "fk_webhook_clave_proveedor_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     }
+    ],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de proveedor_pago.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": []
+  },
+  {
+   "tabla": "webhook_pasarela",
+   "esquema": "aportes",
+   "tipo": "NEGOCIO",
+   "modulo": "03",
+   "nombreModulo": "Aportes, Pagos QR y Conciliación",
+   "servicio": "aportes",
+   "appendOnly": true,
    "negocio": {
     "queEs": "Cada notificación que la pasarela envía al sistema, guardada en crudo antes de procesarla.",
     "negocio": "Es el punto de entrada del dinero automático, y por eso es también el punto de mayor riesgo. Dos protecciones críticas:\n\n1. claveIdempotencia es UNIQUE. Las pasarelas reenvían el mismo evento —lo hacen sistemáticamente, por diseño, cuando no reciben confirmación a tiempo. Sin idempotencia, un reintento del proveedor acredita el aporte dos veces. Ese es el bug clásico que descuadra la bolsa y hace que alguien cobre de más.\n2. firmaValida se verifica ANTES de confiar en el payload. Un webhook es un endpoint público: cualquiera puede enviarle un JSON que diga \"pago aprobado por Bs 5.000\". La firma es lo único que distingue a la pasarela real de un atacante.\n\npayloadCrudo se guarda completo y sin interpretar. Cuando hay una disputa con el proveedor, lo que vale es lo que él mandó, no lo que el sistema entendió.",
     "porQue": "Sin persistir los webhooks, un fallo de procesamiento pierde el evento para siempre y el pago nunca se acredita. Con la tabla, se reintenta (intentosProcesamiento) o se manda a cola muerta para revisión manual."
    },
-   "reglas": [
-    "uq_webhook_idem"
-   ],
+   "reglas": [],
    "columnas": [
     {
      "nombre": "id",
@@ -5426,36 +5640,6 @@
      "sensibilidad": "NINGUNA"
     },
     {
-     "nombre": "procesado_en",
-     "tipo": "TIMESTAMPTZ",
-     "nulable": true,
-     "pk": false,
-     "negocio": "Marca temporal o fecha de procesado en webhook_pasarela.",
-     "origenNegocio": "convencion",
-     "sistema": "TIMESTAMPTZ, opcional.",
-     "sensibilidad": "NINGUNA"
-    },
-    {
-     "nombre": "intentos_procesamiento",
-     "tipo": "SMALLINT",
-     "nulable": false,
-     "pk": false,
-     "negocio": "Atributo que representa intentos procesamiento en el modelo de webhook_pasarela.",
-     "origenNegocio": "convencion",
-     "sistema": "SMALLINT, obligatoria.",
-     "sensibilidad": "NINGUNA"
-    },
-    {
-     "nombre": "estado",
-     "tipo": "VARCHAR(15)",
-     "nulable": false,
-     "pk": false,
-     "negocio": "Estado operativo o fase del ciclo de vida en que se encuentra el registro.",
-     "origenNegocio": "convencion",
-     "sistema": "VARCHAR(15), obligatoria, índice b-tree.",
-     "sensibilidad": "NINGUNA"
-    },
-    {
      "nombre": "clave_idempotencia",
      "tipo": "VARCHAR(120)",
      "nulable": false,
@@ -5464,28 +5648,6 @@
      "origenNegocio": "convencion",
      "sistema": "VARCHAR(120), obligatoria.",
      "sensibilidad": "NINGUNA"
-    },
-    {
-     "nombre": "error_procesamiento",
-     "tipo": "TEXT",
-     "nulable": true,
-     "pk": false,
-     "negocio": "Atributo que representa error procesamiento en el modelo de webhook_pasarela.",
-     "origenNegocio": "convencion",
-     "sistema": "TEXT, opcional.",
-     "sensibilidad": "NINGUNA"
-    },
-    {
-     "nombre": "pago_id",
-     "tipo": "UUID",
-     "nulable": true,
-     "pk": false,
-     "referencia": "pago",
-     "negocio": "Referencia por clave foránea a la entidad pago.",
-     "origenNegocio": "convencion",
-     "sistema": "UUID, opcional, referencia a pago.",
-     "sensibilidad": "NINGUNA",
-     "esquemaReferencia": "aportes"
     }
    ],
    "relaciones": {
@@ -5499,21 +5661,11 @@
       "alBorrar": "RESTRICT",
       "cardinalidad": "N:1",
       "obligatoria": true
-     },
-     {
-      "columna": "pago_id",
-      "tabla": "pago",
-      "esquema": "aportes",
-      "columnaDestino": "id",
-      "restriccion": "fk_webhook_pasarela_pago_id",
-      "alBorrar": "SET NULL",
-      "cardinalidad": "N:1",
-      "obligatoria": false
      }
     ],
     "entrantes": []
    },
-   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de pago, proveedor_pago. Reglas nombradas: uq_webhook_idem.",
+   "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de proveedor_pago.",
    "clasificacion": {
     "personales": 0,
     "financieros": 0,

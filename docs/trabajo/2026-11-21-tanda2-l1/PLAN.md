@@ -35,6 +35,18 @@
 | F1.L1.M09 | Idempotencia real del reembolso | dos envíos con la misma clave → un reembolso, mismo id | prueba de integración (psql + Java) | HECHO — PR #447 (solicitud) + PR #456 (aprobación y alta de proveedor) (`evidencia/M09-*`, `evidencia/M09b-*`) |
 | F1.L1.M12 | Moneda en reembolso y tablas de importe | reembolso de pago USD queda en USD | psql + prueba | HECHO — PR #449 (reembolso, disputa) + PR #454 (conciliacion, excepcion, extracto) (`evidencia/M12-*`, `evidencia/M12b-*`); columnas nullable (fase expandir, regla 97.3.5) |
 | F1.L1.M08 | Hechos de dinero de `aportes` inmutables | `UPDATE aportes.pago` como `svc_aportes` → permission denied | psql con `SET ROLE` | A MEDIAS — PR #455: pago y reembolso sellados con historial de estados (R-BIL-30); falta webhook_pasarela (exige particionarla por su retención de 24 meses) |
+
+### F1.L1.M08 — ejecución del webhook (T11-3 aprobada)
+
+**Decisión aplicada:** T11-3 en `docs/trabajo/2026-11-20-auditoria-consolidado/DECISIONES.md` elige Opción A: particiones mensuales de `webhook_pasarela`, deduplicación global en tabla aparte y purga de lo vencido por `DETACH` + `DROP`, sin excepción a R-AUD-01. Se conserva la política existente de 12 meses en caliente y 24 meses totales de `sql/60_semillas/19-reportes-y-retencion.sql`.
+
+| Microtarea | Criterio de aceptación | Definition of Done | Estado |
+|---|---|---|---|
+| M08.1 Modelo y DDL generado | `webhook_pasarela` y su historial son append-only y particionados por mes; `webhook_clave` garantiza unicidad global `(proveedor_id, clave_idempotencia)` | `python3 scripts/generar_ddl.py`; esquema fresco; humo y comparación bóveda/esquema | EN CURSO |
+| M08.2 Aplicación y lecturas | Recepción registra hecho, índice y transición en una transacción; el estado más reciente se deriva del historial | pruebas de duplicado, procesamiento y listado de webhooks | PENDIENTE |
+| M08.3 Migración expand/contract | Todo webhook existente conserva ID, payload, firma, proveedor, clave, timestamps, estado final, error, intentos y pago asociado; índices de FK y unicidad quedan recreados | migración ejecutada sobre fixture pre-M08 con filas en meses distintos; conteos y equivalencia exacta antes/después; copia legacy retenida hasta validar | PENDIENTE |
+| M08.4 Particiones y retención | Se crean particiones mensuales antes de recibir eventos; al vencer el plazo existente se desprenden historial/evento y se limpia la tabla de deduplicación dentro del mismo corte | prueba de límites mensual/24 meses, concurrencia de la tarea y segunda ejecución idempotente | PENDIENTE |
+| M08.5 Preparación de TEST | La promoción no modifica filas reales sin precondición demostrada | `chequear` confirma tabla vacía o evidencia de copia/migración respaldada y verificada; nunca se ejecuta `DELETE` de datos de dinero | PENDIENTE |
 | F1.L1.M04 | `nucleo-financiero` arranca sin dobles de desarrollo (adaptador fail-closed) | `ArranqueProduccionTest` sin `@MockitoBean` del puerto | `./gradlew :servicios:nucleo-financiero:test --tests '*ArranqueProduccion*'` | HECHO — PR #451 (`evidencia/M04-*`) |
 | F1.S4.M2 | Destino de transferencia por identificador único | alias duplicado no desvía la transferencia | prueba dirigida | DESCARTADO para L1 — vive en `grupos` (F1.L3.M03, lote L3); decidido por el alcance de la tanda ("si vive en tus servicios") |
 

@@ -14,14 +14,14 @@ Las **27 tablas** de este módulo. Justificación de negocio en [[02_grupos_turn
 
 | Tabla | Columnas | FK sal. | FK ent. |
 | --- | --: | --: | --: |
-| [[grupo]] | 27 | 1 | 49 |
+| [[grupo]] | 27 | 1 | 50 |
 | [[alta_grupo]] | 7 | 0 | 0 |
 | [[configuracion_grupo]] | 10 | 3 | 0 |
 | [[reglamento_grupo]] | 10 | 2 | 1 |
 | [[aceptacion_reglamento]] | 7 | 3 | 0 |
 | [[historial_estado_grupo]] | 7 | 2 | 0 |
-| [[participante]] | 13 | 3 | 28 |
-| [[cupo]] | 8 | 2 | 7 |
+| [[participante]] | 13 | 3 | 29 |
+| [[cupo]] | 8 | 2 | 8 |
 | [[traspaso_cupo]] | 10 | 4 | 0 |
 | [[solicitud_retiro]] | 9 | 2 | 0 |
 | [[solicitud_ingreso]] | 14 | 4 | 0 |

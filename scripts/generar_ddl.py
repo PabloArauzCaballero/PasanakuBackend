@@ -36,7 +36,7 @@ if hasattr(sys.stdout, "reconfigure"):
 from collections import defaultdict
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
-from modelo import (MODULOS, FOCO, APPEND_ONLY, PARTICIONADAS, CK_AMPLIADOS, CK_ESTRECHADOS,  # noqa: E402
+from modelo import (MODULOS, FOCO, APPEND_ONLY, PARTICIONADAS, SIN_PARTICION_DESBORDE, CK_AMPLIADOS, CK_ESTRECHADOS,  # noqa: E402
 
                     ESQUEMA, ESQUEMA_CATALOGO, CATALOGO, CATALOGO_ESCRITOR,
                     LIBRO_CONTABLE,
@@ -595,24 +595,24 @@ def generar():
                    f"CREATE TABLE IF NOT EXISTS {q(tabla)} (", cuerpo, cierre, ""]
 
             if particion:
-                # Una partición por mes del año en curso y del siguiente, más la
-                # de desborde: sin ella, un INSERT fuera de rango falla. El
-                # mantenimiento posterior lo hace CU-58 con la misma plantilla.
+                inicio = ("month" if tabla in SIN_PARTICION_DESBORDE else "year")
+                sql += ["DO $$", f"DECLARE d DATE := date_trunc('{inicio}', current_date)::date;", "BEGIN",
+                        f"  IF EXISTS (SELECT 1 FROM pg_partitioned_table WHERE partrelid = to_regclass('{q(tabla)}')) THEN"]
+                # El webhook no usa DEFAULT: escondería filas fuera del horizonte
+                # mensual y haría imposible purgarlas por partición.
+                if tabla not in SIN_PARTICION_DESBORDE:
+                    sql += [f"    CREATE TABLE IF NOT EXISTS {q(tabla)}_desborde",
+                            f"      PARTITION OF {q(tabla)} DEFAULT;", ""]
                 sql += [
-                    f"CREATE TABLE IF NOT EXISTS {q(tabla)}_desborde",
-                    f"  PARTITION OF {q(tabla)} DEFAULT;", ""]
-                sql += [
-                    "DO $$",
-                    "DECLARE d DATE := date_trunc('year', current_date)::date;",
-                    "BEGIN",
-                    "  FOR i IN 0..23 LOOP",
-                    "    EXECUTE format(",
+                    "    FOR i IN 0..23 LOOP",
+                    "      EXECUTE format(",
                     f"      'CREATE TABLE IF NOT EXISTS {q(tabla)}_%s PARTITION OF {q(tabla)} "
                     "FOR VALUES FROM (%L) TO (%L)',",
-                    "      to_char(d + (i || ' month')::interval, 'YYYYMM'),",
-                    "      d + (i || ' month')::interval,",
-                    "      d + ((i + 1) || ' month')::interval);",
-                    "  END LOOP;",
+                    "        to_char(d + (i || ' month')::interval, 'YYYYMM'),",
+                    "        d + (i || ' month')::interval,",
+                    "        d + ((i + 1) || ' month')::interval);",
+                    "    END LOOP;",
+                    "  END IF;",
                     "END $$;", ""]
             ampliadas = {ident("ck", tabla, c) for c in CK_AMPLIADOS.get(tabla, [])}
             estrechadas = {ident("ck", tabla, c) for c in CK_ESTRECHADOS.get(tabla, [])}
@@ -713,6 +713,7 @@ def generar():
     escribir_esquemas()
     escribir_infra_mensajeria()
     escribir_infra_borradores()
+    escribir_infra_webhook()
     escribir_permisos_finales()
     escribir_append_only()
     if {(t.split('.', 1)[1], c) for t, c, _ in agregadas} != COLUMNAS_AGREGADAS:
@@ -1284,6 +1285,153 @@ def escribir_infra_borradores():
     (d / "borradores.sql").write_text("\n".join(L), encoding="utf-8")
 
 
+def escribir_infra_webhook():
+    """F1.L1.M08 · particiona y sella webhooks sin descartar el esquema anterior.
+
+    En una base existente, crea un padre sombra, copia los hechos y su estado, valida
+    equivalencia exacta y solo entonces sustituye la tabla antigua. Todo corre dentro
+    de la transacción de aplicar.sql: cualquier discrepancia revierte la copia y deja
+    intacta la tabla de origen. La copia vieja se suelta únicamente después de validar
+    que cada hecho quedó en webhook_pasarela/webhook_clave/historial_estado_webhook.
+    """
+    d = OUT / "15_infra"
+    d.mkdir(parents=True, exist_ok=True)
+    L = [
+        "-- F1.L1.M08 · migración segura de webhook_pasarela y preparación mensual.",
+        "-- Generado por scripts/generar_ddl.py — no editar a mano.",
+        "-- aplicar.sql mantiene una sola transacción: las aserciones son el límite de seguridad.",
+        "-- No se purgan filas en esta migración; la retención se aplica en trabajo separado.",
+        "",
+        "DO $m08$",
+        "DECLARE",
+        "  padre regclass := to_regclass('aportes.webhook_pasarela');",
+        "  padre_particionado boolean;",
+        "  mes date;",
+        "  desde date;",
+        "  hasta date;",
+        "  total_origen bigint;",
+        "  total_copia bigint;",
+        "BEGIN",
+        "  IF padre IS NULL THEN",
+        "    RAISE EXCEPTION 'M08: falta aportes.webhook_pasarela antes de migrar';",
+        "  END IF;",
+        "  SELECT EXISTS (SELECT 1 FROM pg_partitioned_table WHERE partrelid = padre)",
+        "    INTO padre_particionado;",
+        "  IF padre_particionado THEN",
+        "    -- Una ejecución posterior solo prepara el horizonte; no reescribe datos.",
+        "    desde := date_trunc('month', current_date)::date;",
+        "    hasta := (desde + interval '23 months')::date;",
+        "    mes := desde;",
+        "    WHILE mes <= hasta LOOP",
+        "      EXECUTE format(",
+        "        'CREATE TABLE IF NOT EXISTS aportes.%I PARTITION OF aportes.webhook_pasarela FOR VALUES FROM (%L) TO (%L)',",
+        "        'webhook_pasarela_' || to_char(mes, 'YYYYMM'), mes, (mes + interval '1 month')::date);",
+        "      EXECUTE format(",
+        "        'CREATE TABLE IF NOT EXISTS aportes.%I PARTITION OF aportes.historial_estado_webhook FOR VALUES FROM (%L) TO (%L)',",
+        "        'historial_estado_webhook_' || to_char(mes, 'YYYYMM'), mes, (mes + interval '1 month')::date);",
+        "      mes := (mes + interval '1 month')::date;",
+        "    END LOOP;",
+        "    RETURN;",
+        "  END IF;",
+        "  IF (SELECT relkind FROM pg_class WHERE oid = padre) <> 'r' THEN",
+        "    RAISE EXCEPTION 'M08: webhook_pasarela no es una tabla ordinaria ni un padre particionado';",
+        "  END IF;",
+        "  IF to_regclass('aportes.webhook_pasarela_m08') IS NOT NULL THEN",
+        "    RAISE EXCEPTION 'M08: existe webhook_pasarela_m08 sin completar; revisar antes de reintentar';",
+        "  END IF;",
+        "  SELECT COALESCE(date_trunc('month', min(recibido_en))::date, date_trunc('month', current_date)::date)",
+        "    INTO desde FROM aportes.webhook_pasarela;",
+        "  SELECT GREATEST(",
+        "           COALESCE(date_trunc('month', max(recibido_en))::date, desde),",
+        "           (date_trunc('month', current_date)::date + interval '23 months')::date)",
+        "    INTO hasta FROM aportes.webhook_pasarela;",
+        "  CREATE TABLE aportes.webhook_pasarela_m08 (",
+        "    id uuid NOT NULL DEFAULT gen_random_uuid(),",
+        "    proveedor_id uuid NOT NULL,",
+        "    evento varchar(60) NOT NULL,",
+        "    payload_crudo jsonb NOT NULL,",
+        "    firma varchar(255) NOT NULL,",
+        "    firma_valida boolean NOT NULL DEFAULT false,",
+        "    recibido_en timestamptz NOT NULL DEFAULT now(),",
+        "    CONSTRAINT pk_webhook_pasarela_m08 PRIMARY KEY (id, recibido_en)",
+        "  ) PARTITION BY RANGE (recibido_en);",
+        "  mes := desde;",
+        "  WHILE mes <= hasta LOOP",
+        "    EXECUTE format(",
+        "      'CREATE TABLE aportes.%I PARTITION OF aportes.webhook_pasarela_m08 FOR VALUES FROM (%L) TO (%L)',",
+        "      'webhook_pasarela_' || to_char(mes, 'YYYYMM'), mes, (mes + interval '1 month')::date);",
+        "    -- El padre de historial ya nació desde el modelo; se extiende para cubrir cada fecha copiada.",
+        "    IF to_regclass('aportes.historial_estado_webhook_' || to_char(mes, 'YYYYMM')) IS NULL THEN",
+        "      EXECUTE format(",
+        "        'CREATE TABLE aportes.%I PARTITION OF aportes.historial_estado_webhook FOR VALUES FROM (%L) TO (%L)',",
+        "        'historial_estado_webhook_' || to_char(mes, 'YYYYMM'), mes, (mes + interval '1 month')::date);",
+        "    END IF;",
+        "    mes := (mes + interval '1 month')::date;",
+        "  END LOOP;",
+        "  SELECT count(*) INTO total_origen FROM aportes.webhook_pasarela;",
+        "  INSERT INTO aportes.webhook_pasarela_m08",
+        "    (id, proveedor_id, evento, payload_crudo, firma, firma_valida, recibido_en)",
+        "  SELECT id, proveedor_id, evento, payload_crudo, firma, firma_valida, recibido_en",
+        "    FROM aportes.webhook_pasarela;",
+        "  INSERT INTO aportes.webhook_clave",
+        "    (proveedor_id, clave_idempotencia, webhook_id, webhook_recibido_en)",
+        "  SELECT proveedor_id, clave_idempotencia, id, recibido_en",
+        "    FROM aportes.webhook_pasarela",
+        "  ON CONFLICT (proveedor_id, clave_idempotencia) DO NOTHING;",
+        "  INSERT INTO aportes.historial_estado_webhook",
+        "    (id, webhook_id, webhook_recibido_en, estado_anterior, estado_nuevo, procesado_en,",
+        "     intentos_procesamiento, error_procesamiento, pago_id)",
+        "  SELECT gen_random_uuid(), id, recibido_en, NULL, estado, procesado_en,",
+        "         intentos_procesamiento, error_procesamiento, pago_id",
+        "    FROM aportes.webhook_pasarela",
+        "  ON CONFLICT DO NOTHING;",
+        "  SELECT count(*) INTO total_copia FROM aportes.webhook_pasarela_m08;",
+        "  IF total_copia <> total_origen OR EXISTS (",
+        "    SELECT 1",
+        "      FROM aportes.webhook_pasarela original",
+        "      FULL JOIN aportes.webhook_pasarela_m08 copia",
+        "        ON copia.id = original.id AND copia.recibido_en = original.recibido_en",
+        "     WHERE original.id IS NULL OR copia.id IS NULL",
+        "        OR ROW(original.proveedor_id, original.evento, original.payload_crudo, original.firma,",
+        "               original.firma_valida, original.recibido_en)",
+        "           IS DISTINCT FROM ROW(copia.proveedor_id, copia.evento, copia.payload_crudo, copia.firma,",
+        "                               copia.firma_valida, copia.recibido_en)",
+        "  ) THEN",
+        "    RAISE EXCEPTION 'M08: la copia del webhook no coincide; se conserva íntegra la tabla de origen';",
+        "  END IF;",
+        "  IF (SELECT count(*) FROM aportes.webhook_clave) <> total_origen OR EXISTS (",
+        "    SELECT 1 FROM aportes.webhook_pasarela original",
+        "      LEFT JOIN aportes.webhook_clave clave",
+        "        ON clave.proveedor_id = original.proveedor_id",
+        "       AND clave.clave_idempotencia = original.clave_idempotencia",
+        "     WHERE clave.webhook_id IS DISTINCT FROM original.id",
+        "        OR clave.webhook_recibido_en IS DISTINCT FROM original.recibido_en",
+        "  ) THEN",
+        "    RAISE EXCEPTION 'M08: la deduplicación global no es equivalente; se conserva íntegra la tabla de origen';",
+        "  END IF;",
+        "  IF (SELECT count(*) FROM aportes.historial_estado_webhook WHERE estado_anterior IS NULL) <> total_origen OR EXISTS (",
+        "    SELECT 1 FROM aportes.webhook_pasarela original",
+        "      LEFT JOIN aportes.historial_estado_webhook estado",
+        "        ON estado.webhook_id = original.id",
+        "       AND estado.webhook_recibido_en = original.recibido_en",
+        "       AND estado.estado_anterior IS NULL",
+        "     WHERE estado.webhook_id IS NULL",
+        "        OR ROW(estado.estado_nuevo, estado.procesado_en, estado.intentos_procesamiento,",
+        "               estado.error_procesamiento, estado.pago_id)",
+        "           IS DISTINCT FROM ROW(original.estado, original.procesado_en, original.intentos_procesamiento,",
+        "                               original.error_procesamiento, original.pago_id)",
+        "  ) THEN",
+        "    RAISE EXCEPTION 'M08: el historial inicial no coincide con el estado actual; se conserva íntegra la tabla de origen';",
+        "  END IF;",
+        "  -- La tabla vieja solo se suelta después de comprobar raw, deduplicación e historial exactos.",
+        "  DROP TABLE aportes.webhook_pasarela;",
+        "  ALTER TABLE aportes.webhook_pasarela_m08 RENAME TO webhook_pasarela;",
+        "END $m08$;",
+        "",
+    ]
+    (d / "webhook_m08.sql").write_text("\n".join(L), encoding="utf-8")
+
+
 
 def escribir_orquestador(mods):
     L = ["-- Aplica el esquema completo en orden.",
@@ -1322,6 +1470,8 @@ def escribir_orquestador(mods):
           "\\ir 15_infra/nulabilidad.sql"]
     L += ["", "-- 2d) Borradores de onboarding incompleto.",
           "\\ir 15_infra/borradores.sql"]
+    L += ["", "-- 2e) M08 · migración y mantenimiento de webhook_pasarela.",
+          "\\ir 15_infra/webhook_m08.sql"]
     L += ["", "-- 3) Claves foráneas (después de todas las tablas)"]
     for k in sorted(mods):
         L.append(f"\\ir 20_claves/{k}_{MODULOS[k][1].split('_', 1)[1]}.sql")

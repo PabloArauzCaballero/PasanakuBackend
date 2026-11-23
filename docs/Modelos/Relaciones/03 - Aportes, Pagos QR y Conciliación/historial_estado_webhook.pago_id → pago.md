@@ -3,30 +3,29 @@ tags:
   - relacion
   - fk
   - modulo/03-aportes-pagos-qr-y-conciliacion
-origen: webhook_pasarela
+origen: historial_estado_webhook
 columna: pago_id
 destino: pago
 modulo_origen: "03"
 modulo_destino: "03"
 cross_modulo: false
 opcional: true
-cardinalidad: "muchos a uno opcional"
+cardinalidad: "no declarada en el diagrama"
 ---
 
-# webhook_pasarela.pago_id → pago
+# historial_estado_webhook.pago_id → pago
 
-> **[[webhook_pasarela]]** `.pago_id` → **[[pago]]**
+> **[[historial_estado_webhook]]** `.pago_id` → **[[pago]]**
 
 | | |
 | --- | --- |
-| Entidad origen | [[webhook_pasarela]] (módulo 03) |
+| Entidad origen | [[historial_estado_webhook]] (módulo 03) |
 | Entidad destino | [[pago]] (módulo 03) |
 | Columna | `pago_id` — UUID |
-| Cardinalidad | muchos a uno opcional |
+| Cardinalidad | no declarada en el diagrama |
 | Obligatoria | no (admite NULL) |
 | Uno a uno | no |
 | Cruza módulos | no |
-| Semántica | "genera" |
 
 > [!note] Opcional
 > La columna admite `NULL`: la relación puede no existir. Conviene revisar en la ficha de negocio qué significa su ausencia.

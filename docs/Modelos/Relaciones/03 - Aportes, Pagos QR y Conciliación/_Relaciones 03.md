@@ -3,12 +3,12 @@ tags:
   - moc
   - modulo/03-aportes-pagos-qr-y-conciliacion
 modulo: "03 — Aportes, Pagos QR y Conciliación"
-relaciones_fk: 51
+relaciones_fk: 52
 ---
 
 # 03 — Aportes, Pagos QR y Conciliación · relaciones
 
-Las **51 claves foráneas** que salen de las tablas de este módulo.
+Las **52 claves foráneas** que salen de las tablas de este módulo.
 
 [[_Relaciones|← Todas las relaciones]] · [[Index]]
 
@@ -39,6 +39,7 @@ Las **51 claves foráneas** que salen de las tablas de este módulo.
 | [[historial_estado_pago.pago_id → pago]] | [[pago]] | — | no |
 | [[historial_estado_reembolso.ejecutado_por → usuario]] | [[usuario]] | ↗ 01 | no |
 | [[historial_estado_reembolso.reembolso_id → reembolso]] | [[reembolso]] | — | no |
+| [[historial_estado_webhook.pago_id → pago]] | [[pago]] | — | sí |
 | [[intento_pago.orden_cobro_id → orden_cobro]] | [[orden_cobro]] | — | no |
 | [[movimiento_bancario.extracto_id → extracto_bancario]] | [[extracto_bancario]] | — | no |
 | [[movimiento_contable.asiento_id → asiento_contable]] | [[asiento_contable]] | — | no |
@@ -63,5 +64,5 @@ Las **51 claves foráneas** que salen de las tablas de este módulo.
 | [[reembolso.aprobado_por → usuario]] | [[usuario]] | ↗ 01 | sí |
 | [[reembolso.pago_id → pago]] | [[pago]] | — | no |
 | [[reembolso.solicitado_por → usuario]] | [[usuario]] | ↗ 01 | no |
-| [[webhook_pasarela.pago_id → pago]] | [[pago]] | — | sí |
+| [[webhook_clave.proveedor_id → proveedor_pago]] | [[proveedor_pago]] | — | no |
 | [[webhook_pasarela.proveedor_id → proveedor_pago]] | [[proveedor_pago]] | — | no |
