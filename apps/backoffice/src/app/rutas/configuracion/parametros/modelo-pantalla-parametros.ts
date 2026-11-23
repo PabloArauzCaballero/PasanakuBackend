@@ -17,4 +17,3 @@ export const BORRADOR_VACIO: Borrador = {
 }
 export const VALOR_DECIMAL = /^\d{1,10}(\.\d{1,6})?$/
 export const TONO: Record<VersionDeParametro['estado'], Tono> = { PROPUESTA: 'aviso', APROBADA: 'ok', RECHAZADA: 'neutro' }
-
