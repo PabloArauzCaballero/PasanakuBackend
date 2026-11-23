@@ -1,0 +1,47 @@
+# Goldens de billetera sin la sección «Cupos en subasta» (#460)
+Fecha: 2026-11-21 · Entorno igual al job «App — goldens (Linux)»: Linux, Flutter 3.44.8 (Dart 3.12.2), clientes Dart regenerados con el generador, tokens/diseno/movil build.
+
+## Antes (rama #460 + dev, goldens de dev)
+$ flutter test test/goldens --timeout 60s
+  ... and 4 more
+Fallan 8, los mismos que el CI: billetera · principal|vacio · claro|oscuro · 412|600 dp · texto 130 %. Los otros 266 coinciden píxel a píxel.
+
+## Regeneración (solo el archivo de billetera)
+$ flutter test test/goldens/h10_billetera_visual_test.dart --update-goldens
+00:04 +24: All tests passed!
+
+## Comparación viejo vs nuevo (PIL, ImageChops.difference)
+h10-billetera-cargando-claro-360-130.png idéntica
+h10-billetera-cargando-claro-412-130.png idéntica
+h10-billetera-cargando-claro-600-130.png idéntica
+h10-billetera-cargando-oscuro-360-130.png idéntica
+h10-billetera-cargando-oscuro-412-130.png idéntica
+h10-billetera-cargando-oscuro-600-130.png idéntica
+h10-billetera-error-claro-360-130.png idéntica
+h10-billetera-error-claro-412-130.png idéntica
+h10-billetera-error-claro-600-130.png idéntica
+h10-billetera-error-oscuro-360-130.png idéntica
+h10-billetera-error-oscuro-412-130.png idéntica
+h10-billetera-error-oscuro-600-130.png idéntica
+h10-billetera-principal-claro-360-130.png idéntica
+h10-billetera-principal-claro-412-130.png primera fila distinta y=819 de 850 (bbox (17, 819, 388, 839))
+h10-billetera-principal-claro-600-130.png primera fila distinta y=765 de 960 (bbox (16, 765, 584, 960))
+h10-billetera-principal-oscuro-360-130.png idéntica
+h10-billetera-principal-oscuro-412-130.png primera fila distinta y=819 de 850 (bbox (17, 819, 388, 839))
+h10-billetera-principal-oscuro-600-130.png primera fila distinta y=765 de 960 (bbox (16, 765, 584, 960))
+h10-billetera-vacio-claro-360-130.png idéntica
+h10-billetera-vacio-claro-412-130.png primera fila distinta y=819 de 850 (bbox (17, 819, 388, 839))
+h10-billetera-vacio-claro-600-130.png primera fila distinta y=765 de 960 (bbox (16, 765, 584, 945))
+h10-billetera-vacio-oscuro-360-130.png idéntica
+h10-billetera-vacio-oscuro-412-130.png primera fila distinta y=819 de 850 (bbox (17, 819, 388, 839))
+h10-billetera-vacio-oscuro-600-130.png primera fila distinta y=765 de 960 (bbox (16, 765, 584, 945))
+
+Lectura: en 412 dp la diferencia empieza en y=819 y en 600 dp en y=765, la fila del título «Cupos en subasta». Todo lo de arriba
+(saldo, acciones, «Tus pasanakus») es idéntico. En 360 dp, cargando y error no cambia nada (la sección estaba fuera del cuadro o no se dibujaba).
+Revisión a ojo (lado a lado): sale «Cupos en subasta · Ver todos» con su estado; «Movimientos · Ver extracto» sube a ese lugar. Nada más se movió.
+
+## Después
+$ flutter test test/goldens --timeout 60s   (apps/movil)
+00:51 +274: All tests passed!
+$ flutter test test/goldens   (packages/diseno_flutter)
+00:06 +20: All tests passed!
