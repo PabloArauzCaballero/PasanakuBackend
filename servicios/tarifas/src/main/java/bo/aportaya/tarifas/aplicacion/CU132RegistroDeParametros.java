@@ -91,7 +91,8 @@ public class CU132RegistroDeParametros {
     @Transactional(readOnly = true)
     public List<VersionDelParametro> historial(String codigo, ContextoSesion ctx) {
         return datos.conContexto(ctx, dsl -> {
-            parametros.porCodigo(dsl, codigo)
+            parametros
+                    .porCodigo(dsl, codigo)
                     .orElseThrow(() -> new ErrorDeNegocio(INEXISTENTE, "Ese parámetro no está en el catálogo."));
             return parametros.historial(dsl, codigo);
         });
