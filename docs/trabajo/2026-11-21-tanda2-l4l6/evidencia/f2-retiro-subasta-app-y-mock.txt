@@ -1,0 +1,39 @@
+# F2 (pedido de L2 vía coordinador): retirar de la app la subasta y del mock las operaciones que responden 410
+## Relocalizado en origin/dev 1f01e7d9
+entregas.yaml: abrirSubastaDeCupo, listarSubastasDeCupo, consultarSubastaDeCupo, pujarEnSubasta, cancelarSubastaDeCupo,
+  publicarOferta, listarOfertas, cancelarOferta, comprarOferta, anotarRespuestaDesembolso, liquidarEntrega  -> '410' Retirada
+garantia.yaml: cubrirIncumplimiento, devolverFondo, ejecutarAval -> '410'
+consultarOfertaParaPago NO declara 410 (sigue activa): su ejemplo se conserva.
+
+## App: 11 archivos de lib/pantallas/pasanaku (subasta y puja) + 3 pruebas eliminados; rutas, billetera y detalle del grupo sin referencias
+$ dart analyze lib test -> sin errores
+$ flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku test/a11y --timeout 60s
+02:13 +899 -6: Some tests failed.   (los 6 rojos son los ENVIRONMENT de siempre: SDK 3.50.1 local; mismos que en dev)
+
+## Mock: raíz en el generador (borrar el ejemplo no alcanzaba: `yarn build` lo volvía a fabricar con éxitos inventados)
+- generar-ejemplos.mjs: una operacion que declara 410 recibe SOLO el escenario `rechazo` 410 con el codigo que el contrato anota junto a su '410'.
+- catalogo.ts: `# AP-CU136-09: retirada…` (codigo con dos puntos, sin nombre) ahora cuenta como mencion de la operacion.
+  Efecto colateral correcto: 4 ejemplos tenian un rechazo con codigo ajeno a su operacion y se realinearon
+  (consultarOfertaParaPago -> AP-CU130-05, darDeAltaTercero -> AP-CU102-02, pagarFacturaDeProveedor -> AP-CU103-05,
+   consultarCuentaPropia -> AP-CU13-01).
+$ yarn workspace @aportaya/simulado build
+ejemplos: ... · 0 creados extra de exito para operaciones retiradas
+$ yarn vitest run (packages/simulado)
+      Tests  379 passed (379)
+$ yarn typecheck -> 0 · yarn lint -> 0
+Ejemplos resultantes (escenario unico):
+  entregas/{abrir,listar,consultar,cancelar}SubastaDeCupo, pujarEnSubasta -> 410 AP-CU136-09
+  entregas/{publicar,listar,cancelar,comprar}Oferta(s)                    -> 410 AP-CU130-10
+  entregas/anotarRespuestaDesembolso -> 410 AP-CU28-08 · liquidarEntrega -> 410 AP-CU22-10
+  garantia/cubrirIncumplimiento -> 410 AP-CU23-14 · devolverFondo -> 410 AP-CU29-06 · ejecutarAval -> 410 AP-CU26-08
+
+## Despues de mergear origin/dev 33ae20b4 (L2: #459, #462, #463)
+Barrido: toda operacion de entregas/garantia que declara 410 y su ejemplo:
+  entregas/ejecutarEntrega -> [200,200,200,202,503,422]   <- retirada (F1.L2.M08) pero el ejemplo CONSERVADO seguia mostrando exito
+  (las otras 14 ya eran [410])
+Causa: el generador nunca toca un ejemplo existente. Arreglo: si la operacion declara 410 y su ejemplo no es solo el 410,
+se reescribe aunque haya sido editado a mano.
+$ yarn workspace @aportaya/simulado build
+ejemplos: ... · 1 reescritos por retiro (410) · ...      -> ejecutarEntrega: rechazo 410 AP-CU22-11
+$ (segunda corrida) ejemplos: 0 creados · 0 reescritos por retiro (410) · 353 conservados   <- idempotente
+$ yarn vitest run -> Tests 381 passed (381) · lint 0 · typecheck 0

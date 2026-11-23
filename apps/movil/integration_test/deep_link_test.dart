@@ -28,7 +28,8 @@ void main() {
     await $('Crear mi cuenta').waitUntilVisible(); // la portada está viva
 
     await $.native.openUrl('aportaya://unirse/$codigoEnCaliente');
-    await $('Invitación al grupo').waitUntilVisible();
+    // Mismo plazo de Patrol; si falla, dice si el enlace no llegó, llegó tarde o quedó tapado.
+    await esperarVisibleConDiagnostico($, 'Invitación al grupo');
     await $('Ingresar').waitUntilVisible();
   });
 }
