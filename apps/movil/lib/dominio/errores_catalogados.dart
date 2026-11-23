@@ -33,3 +33,18 @@ String? campoDelDetalle(Object? detalle) => switch (detalle) {
   {'campo': final String campo} => campo,
   _ => null,
 };
+
+/// CU-21 · pagar la cuota con saldo (F1.L1.M11). El monto y el canal los fija el
+/// servidor: ninguno de estos textos le pide a la persona que los corrija.
+const Map<String, String> pagoDeCuotaConSaldo = {
+  'AP-CU21-01':
+      'Esta cuota ya no se puede pagar: puede que ya esté pagada. Revisá tu estado.',
+  'AP-CU21-02':
+      'El monto de la cuota cambió. Volvé a abrir la cuota para ver lo que queda pendiente.',
+  'AP-CU21-03':
+      'No te alcanza el saldo para esta cuota. Recargá tu billetera e intentá de nuevo.',
+  'AP-CU21-04': 'El período de esta cuota ya cerró y no admite pagos.',
+  'AP-CU21-06': 'Esta cuota no es tuya.',
+  'AP-CU21-07':
+      'No pudimos confirmar la cuota con el grupo. Esperá un momento y probá de nuevo.',
+};

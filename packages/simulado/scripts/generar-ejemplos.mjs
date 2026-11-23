@@ -51,6 +51,29 @@ function errorDeCatalogo(servicio, operacion, estado, forma) {
   if (forma === 'problema') return { tipo: 'about:blank', titulo: mensaje, estado, codigo: elegido.codigo, detalle: null }
   return { codigo: elegido.codigo, mensaje, detalle: {}, trazaId: `traza-${operacion}-rechazo` }
 }
+/**
+ * El codigo de RETIRO de la operacion: el que el contrato anota junto a su `'410':`
+ * (`# AP-CU136-09: retirada por ...`). Si no lo anota, el primero `*_RETIRADA` de la operacion.
+ */
+function errorDeRetiro(servicio, operacion) {
+  const yaml = contratos.find((c) => c.servicio === servicio)?.yaml ?? ''
+  const desde = yaml.search(new RegExp(`operationId:\\s*${operacion}\\b`))
+  let codigo = null
+  if (desde >= 0) {
+    const resto = yaml.slice(desde + 1)
+    const hasta = resto.search(/operationId:/)
+    const bloque = hasta >= 0 ? resto.slice(0, hasta) : resto
+    const tras410 = bloque.split(/'410':/)[1]
+    codigo = tras410?.split('\n').slice(0, 3).join('\n').match(/AP-CU\d+-\d{2}/)?.[0] ?? null
+  }
+  const nombreDe = (c) => catalogo.global.get(c) ?? ''
+  if (!codigo) {
+    const propios = catalogo.porOperacion.get(`${servicio}/${operacion}`) ?? []
+    codigo = propios.find((e) => /RETIRAD/.test(e.nombre ?? nombreDe(e.codigo)))?.codigo ?? null
+  }
+  if (!codigo) return null
+  return { codigo, mensaje: mensajeDeRegla(nombreDe(codigo), codigo), detalle: {}, trazaId: `traza-${operacion}-retirada` }
+}
 /** Forma del cuerpo de error que declara el contrato para ese estado. */
 function formaDeError(documento, operacion, estado) {
   const declarada = resolver(documento, operacion.responses?.[String(estado)] ?? {})
@@ -86,6 +109,7 @@ function alinearRechazo(destino, servicio, operationId, documento, operacion) {
   alineados += 1
 }
 let conservados = 0
+let reescritosPorRetiro = 0
 for (const archivo of readdirSync(GENERADO).filter((a) => a.endsWith('.json'))) {
   const servicio = archivo.replace(/\.json$/, '')
   const documento = JSON.parse(readFileSync(join(GENERADO, archivo), 'utf8'))
@@ -95,9 +119,28 @@ for (const archivo of readdirSync(GENERADO).filter((a) => a.endsWith('.json'))) 
       const operacion = operaciones[metodo]
       if (!operacion?.operationId) continue
       const destino = join(EJEMPLOS, servicio, `${operacion.operationId}.json`)
-      if (existsSync(destino) && !forzar) {
+      // Un ejemplo conservado de una operacion que despues se retiro (410) no puede seguir
+      // mostrando exitos: se reescribe con el 410, aunque haya sido editado a mano.
+      const retirada = Boolean(operacion.responses?.['410'])
+      const soloRetiro = (archivo) => {
+        const e = Object.values(archivo.escenarios ?? {})
+        return e.length === 1 && e[0].estado === 410
+      }
+      const reescribir = existsSync(destino) && !forzar && retirada && !soloRetiro(JSON.parse(readFileSync(destino, 'utf8')))
+      if (existsSync(destino) && !forzar && !reescribir) {
         conservados += 1
         alinearRechazo(destino, servicio, operacion.operationId, documento, operacion)
+        continue
+      }
+      // Retirada (declara 410): el servidor responde 410 sin efecto, y el mock dice lo mismo.
+      // Inventarle un exito haria que una pantalla vieja «funcione» contra el simulado.
+      if (retirada) {
+        const escenarios = {
+          rechazo: { estado: 410, cuerpo: errorDeRetiro(servicio, operacion.operationId) ?? cuerpo(documento, operacion, 410, 'representativo') },
+        }
+        writeFileSync(destino, `${JSON.stringify({ servicio, operacion: operacion.operationId, metodo, ruta, escenarios }, null, 2)}\n`, 'utf8')
+        if (reescribir) reescritosPorRetiro += 1
+        else creados += 1
         continue
       }
       const exito = estados(operacion, (c) => c >= 200 && c < 300)[0]
@@ -120,4 +163,4 @@ for (const archivo of readdirSync(GENERADO).filter((a) => a.endsWith('.json'))) 
     }
   }
 }
-console.log(`ejemplos: ${creados} creados · ${conservados} conservados (editados a mano, no se pisan) · ${alineados} rechazos alineados al catalogo de errores`)
+console.log(`ejemplos: ${creados} creados · ${reescritosPorRetiro} reescritos por retiro (410) · ${conservados} conservados (editados a mano, no se pisan) · ${alineados} rechazos alineados al catalogo de errores`)
