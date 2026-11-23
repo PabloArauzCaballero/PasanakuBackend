@@ -55,8 +55,8 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU18-01",
-        "mensaje": "Titular no coincide",
+        "codigo": "AP-CU130-05",
+        "mensaje": "La operación fue rechazada por la regla AP-CU130-05.",
         "detalle": {},
         "trazaId": "traza-consultarOfertaParaPago-rechazo"
       }
