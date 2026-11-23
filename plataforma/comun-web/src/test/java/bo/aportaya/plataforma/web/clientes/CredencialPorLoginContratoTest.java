@@ -177,7 +177,8 @@ class CredencialPorLoginContratoTest {
 
     @Test
     @DisplayName(
-            "rechaza · con credencial rechazada (422) no hay token y NO se vuelve a intentar antes de la espera: cada fallo cuenta para el bloqueo de la cuenta")
+            "rechaza · con credencial rechazada (422) no hay token y NO se vuelve a intentar antes de la espera: cada"
+                    + " fallo cuenta para el bloqueo de la cuenta")
     void rechazadaNoReintentaEnBucle() {
         estado = 422;
         respuesta = "{\"codigo\":\"AP-CU04-01\",\"mensaje\":\"El telefono o la credencial no coinciden.\"}";
@@ -233,8 +234,8 @@ class CredencialPorLoginContratoTest {
     }
 
     @Test
-    @DisplayName(
-            "rechaza · una cuenta de servicio configurada a medias no arranca (no degrada en silencio a sin credencial)")
+    @DisplayName("rechaza · una cuenta de servicio configurada a medias no arranca (no degrada en silencio a sin"
+            + " credencial)")
     void configuracionAMedias() {
         var uri = URI.create("http://identidad:8080");
         assertThatThrownBy(() -> CredencialDeServicioConfigurada.de(
@@ -246,8 +247,7 @@ class CredencialPorLoginContratoTest {
         assertThatThrownBy(() -> CredencialDeServicioConfigurada.de(
                         "pruebas", "PRUEBAS", uri, Duration.ofSeconds(1), "", "", "", "SEMILLA"))
                 .isInstanceOf(IllegalStateException.class);
-        assertThat(CredencialDeServicioConfigurada.de(
-                                "pruebas", "PRUEBAS", uri, Duration.ofSeconds(1), "", "", "", "")
+        assertThat(CredencialDeServicioConfigurada.de("pruebas", "PRUEBAS", uri, Duration.ofSeconds(1), "", "", "", "")
                         .vigente())
                 .as("sin nada configurado: vacio")
                 .isEmpty();
