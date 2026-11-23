@@ -24,6 +24,7 @@ import bo.aportaya.entregas.web.generado.modelo.VistaDeSubasta;
 import bo.aportaya.plataforma.dominio.ClaveIdempotencia;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
+import bo.aportaya.plataforma.dominio.OperacionRetirada;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
@@ -93,7 +94,7 @@ public class EntregasController implements EntregasApi {
                 "La entrega ya no se cierra a mano: queda entregada al acreditarse el desembolso.");
     }
 
-    /** Recibir mesa es recibir el pozo completo: el importe lo afirman aportes y garantia, no el cliente. */
+    /** Recibir mesa es recibir el pozo completo: el importe lo afirma aportes, no el cliente. */
     @Override
     @Permiso("ENTREGA_EJECUTAR")
     public ResponseEntity<SalidaFondeoDelPozo> fondearPozo(UUID idempotencyKey, EntradaFondeoDelPozo cuerpo) {

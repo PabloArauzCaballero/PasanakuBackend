@@ -3,7 +3,7 @@ tags:
   - moc
   - caso-uso
 titulo: "Casos de uso — AportaYa"
-total_casos: 111
+total_casos: 112
 fecha: 2026-08-14
 ---
 
@@ -96,7 +96,7 @@ Norma (docs/Cumplimiento.md)  →  Caso de uso (esta carpeta)  →  Restricción
 | [[CU-23 Cubrir un incumplimiento con el fondo]] | Cobertura y deuda exigible | Sistema | Contabilidad · debido proceso |
 | [[CU-24 Registrar el asiento contable de una operación]] | Doble partida y cierre | Sistema | Ley 393 · plan de cuentas |
 | [[CU-25 Declarar el incumplimiento con descargo y evidencia]] | Debido proceso antes de la sanción | Sistema · Grupo | Debido proceso · ASFI |
-| [[CU-26 Ejecutar el aval y subrogar la deuda]] | El que firmó responde, y pasa a ser acreedor | Sistema · Avalista | Debido proceso · contabilidad |
+| [[CU-26 Ejecutar el aval y subrogar la deuda]] | **RETIRADO** (F2.L2.M04): el aval se eliminó y el fondo del grupo cubre esos casos | Sistema · Avalista | Debido proceso · contabilidad |
 | [[CU-27 Restringir al deudor e incluirlo en la lista interna]] | Restricción proporcional y reversible | Cobranza | Consumidor financiero · datos |
 | [[CU-28 Emitir la orden de desembolso y ejecutar el intento]] | La plata sale una vez y con acuse | Sistema · Tesorería | BCB pagos · conciliación |
 | [[CU-29 Devolver los aportes del fondo de garantía]] | Cada uno recupera lo que puso menos lo que consumió | Sistema · Contabilidad | Contabilidad · transparencia |
@@ -112,6 +112,7 @@ Norma (docs/Cumplimiento.md)  →  Caso de uso (esta carpeta)  →  Restricción
 | [[CU-34 Publicar un tarifario nuevo con preaviso]] | Cambio de precios conforme | Producto · Directorio | ASFI Consumidor Financiero |
 | [[CU-35 Cerrar la liquidación mensual de ingresos]] | Resultado y conciliación | Contabilidad | Contabilidad · tributario |
 | [[CU-36 Segmentar comercialmente y aplicar precio diferenciado]] | Cobrar distinto con criterio explicable | Producto | ASFI transparencia · no discriminación |
+| [[CU-132 Registrar, aprobar y congelar parámetros financieros]] | Parámetros versionados, con cuatro ojos y congelados por grupo | Riesgos · Cumplimiento · Sistema | Regla 91 · ADR-056 §6 |
 
 ### Cumplimiento UIF y ASFI
 

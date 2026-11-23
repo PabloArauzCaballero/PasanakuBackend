@@ -33,6 +33,10 @@ class CostosDeProveedorWebTest {
     @Autowired
     private MockMvc mvc;
 
+    // CU-132: comparte controlador; no se llama acá.
+    @MockitoBean
+    private ParametrosWeb parametrosWeb;
+
     @MockitoBean
     private ConsultarCostosDeProveedor costos;
 

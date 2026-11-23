@@ -28,6 +28,8 @@ aportaya:
     # A quien se le pregunta. El paquete del sorteo vive en `grupos` y ese esquema no
     # se lee desde aca (invariante 11): se pide por su contrato.
     grupos: ${URL_GRUPOS:http://grupos:8080}
+    # F1.L5.M21: si la identidad del titular esta verificada se le pregunta a identidad, no al cuerpo.
+    identidad: ${URL_IDENTIDAD:http://identidad:8080}
   insignias:
     desempeno-minimo-de-organizador: 80
   resenas:

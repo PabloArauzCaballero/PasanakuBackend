@@ -12,10 +12,21 @@ import org.springframework.stereotype.Component;
 /** Nonce persistido y PRF secreta recuperan una respuesta perdida sin guardar el enlace. */
 @Component
 public class SecretoDeInvitacion {
+    static final int LARGO_MINIMO = 32;
+
     private final String clave;
     private final SecureRandom azar = new SecureRandom();
 
+    /**
+     * F1.L4.M03: la clave se valida <b>al arrancar</b>. Antes se validaba en el primer uso: el
+     * servicio quedaba sano (readiness verde) y toda invitacion fallaba con 500.
+     */
     public SecretoDeInvitacion(@Value("${aportaya.invitaciones.clave:}") String clave) {
+        if (clave == null || clave.length() < LARGO_MINIMO) {
+            throw new IllegalStateException(
+                    "aportaya.invitaciones.clave (INVITACIONES_CLAVE) es obligatoria y debe tener" + " al menos "
+                            + LARGO_MINIMO + " caracteres. Fail closed (F1.L4.M03, regla 90.3.4).");
+        }
         this.clave = clave;
     }
 
@@ -26,9 +37,6 @@ public class SecretoDeInvitacion {
     }
 
     public String firmar(String proposito, String valor) {
-        if (clave.length() < 32) {
-            throw new IllegalStateException("Configurar una clave secreta de invitaciones de al menos 32 caracteres.");
-        }
         try {
             var mac = Mac.getInstance("HmacSHA256");
             mac.init(new SecretKeySpec(clave.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));

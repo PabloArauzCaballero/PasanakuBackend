@@ -4,7 +4,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -195,8 +194,10 @@ class NotificacionesControllerWebTest {
         }
 
         @Test
-        @DisplayName("CU-82 · sin `canal` en el cuerpo, manda el proveedor de la ruta")
-        void elCanalCaeEnElProveedorDeLaRuta() throws Exception {
+        @DisplayName("CU-82 · sin `canal` afuera, el caso de uso no recibe el de la ruta: el canal sale de lo firmado")
+        void elCanalNoSaleDeLaRuta() throws Exception {
+            // F1.L5.M23 · reemplaza a «sin canal, manda el proveedor de la ruta»: la ruta no esta firmada, asi que
+            // ya no aporta el canal. El caso de uso lo lee de la carga firmada (CargaFirmada).
             when(cu82.ejecutar(any(), any()))
                     .thenReturn(new CU82ProcesarRespuesta.SalidaRespuesta(
                             null, "DESCONOCIDA", "TICKET_ABIERTO", NOTIFICACION));
@@ -206,7 +207,7 @@ class NotificacionesControllerWebTest {
             var capturada = ArgumentCaptor.forClass(CU82ProcesarRespuesta.EntradaRespuesta.class);
             verify(cu82).ejecutar(capturada.capture(), any());
             org.assertj.core.api.Assertions.assertThat(capturada.getValue().canal())
-                    .isEqualTo("whatsapp");
+                    .isNull();
         }
 
         @Test
@@ -217,12 +218,14 @@ class NotificacionesControllerWebTest {
         }
 
         @Test
-        @DisplayName("CU-82 · 400: sin clave de idempotencia, un reintento del proveedor sería un efecto de más")
-        void sinClaveNoSeProcesa() throws Exception {
+        @DisplayName("CU-82 · 400: sin la carga firmada no hay nada que verificar — no llega al caso de uso")
+        void sinCargaNoSeProcesa() throws Exception {
+            // F1.L5.M23 · reemplaza a «400 sin clave de idempotencia»: la clave ahora es el `idMensaje` FIRMADO dentro
+            // de la carga (una clave de afuera la elegia quien reenviaba). Lo que el contrato exige es la carga.
             entrante(
                             """
                             {"canal":"WHATSAPP","remitente":"+59171234567","firma":"sha256=abc123",
-                             "cargaUtil":"{}","contenido":"ya pague"}
+                             "contenido":"ya pague","claveIdempotencia":"wamid-77123"}
                             """)
                     .andExpect(status().isBadRequest());
             verifyNoInteractions(cu82);
@@ -241,9 +244,10 @@ class NotificacionesControllerWebTest {
     void supresionContestaSiONo() throws Exception {
         when(supresiones.estaSuprimido(any(), any(), any())).thenReturn(true);
 
-        String cuerpo = mvc.perform(get("/notificaciones/supresion")
-                        .param("identificador", "+59171234567")
-                        .param("categoria", "COMERCIAL")
+        // F1.L5.M27: la consulta va por POST con el contacto en el cuerpo (el GET con la query se retiro).
+        String cuerpo = mvc.perform(post("/notificaciones/supresion/consultas")
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content("{\"identificador\":\"+59171234567\",\"categoria\":\"COMERCIAL\"}")
                         .with(Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.suprimido").value(true))

@@ -292,6 +292,8 @@ def rol_de(esquema):
 # svc_* dueño para que el relevo del outbox pueda marcar publicado. El payload
 # es inmutable de facto (solo se otorga UPDATE sobre publicado_en/estado/intentos).
 APPEND_ONLY = {
+    # F3.S8.M6 · el congelamiento de parámetros de un grupo no se corrige: rige el ciclo entero.
+    "parametro_congelado_grupo",
     "decision_ingreso",
     "alta_grupo",
     "decision_habilitacion",
@@ -372,6 +374,23 @@ CK_AMPLIADOS = {
     "pago": ["monto_comision_proveedor", "monto_neto_acreditado"],
     "reembolso": ["monto"],
     "disputa_pago": ["monto_disputado"],
+}
+
+# CHECK de enumerado que se ESTRECHO despues de que existieran bases: un valor sale del
+# modelo por decision de negocio. Mismo DROP/ADD idempotente que CK_AMPLIADOS, con una
+# diferencia que no se puede esconder: el ADD revalida las filas que ya estan, asi que
+# aplicar el DDL FALLA si queda alguna con el valor retirado. Eso es lo buscado (la base no
+# acepta en silencio lo que el modelo prohibe), y por eso cada entrada lleva su consulta
+# previa: se corre en TEST antes de promover y tiene que dar 0.
+CK_ESTRECHADOS = {
+    # 2026-11-21: F1.L2.M09 — el organizador no es caja (RN-18, regla 91.5): sale
+    # EFECTIVO_ORGANIZADOR. Consulta previa:
+    #   SELECT count(*) FROM entregas.entrega_fondo WHERE metodo_desembolso = 'EFECTIVO_ORGANIZADOR';
+    "entrega_fondo": ["metodo_desembolso"],
+    # 2026-11-21: F1.L2.M02 — la cobertura no se pide a mano ni espera a un aprobador:
+    # sale SOLICITADA. Consulta previa:
+    #   SELECT count(*) FROM garantia.cobertura_incumplimiento WHERE estado = 'SOLICITADA';
+    "cobertura_incumplimiento": ["estado"],
 }
 
 # --- FK -> tabla destino: overrides donde el nombre de columna no coincide ---
@@ -467,6 +486,8 @@ POR_MODULO = {
     ("03", "proveedor_id"): "proveedor_pago", ("04", "proveedor_id"): "proveedor_pago",
     ("05", "proveedor_id"): "proveedor_mensajeria",
     ("10", "proveedor_id"): "proveedor_pago", ("11", "proveedor_id"): "proveedor_pago",
+    # F3.S8.M2 · el registro de parámetros financieros vive en tarifas (módulo 11).
+    ("11", "parametro_id"): "parametro_financiero",
     ("04", "regla_id"): "regla_entrega", ("07", "regla_id"): "regla_automatizacion",
     ("09", "regla_id"): "regla_cumplimiento",
     ("05", "evento_id"): "evento_notificable",

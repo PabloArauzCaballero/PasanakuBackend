@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -99,14 +100,14 @@ class AportesConsultasWebTest {
         @Test
         @DisplayName("200 con el estado del participante y los importes como cadena decimal")
         void estadoDelParticipante() throws Exception {
-            when(estados.ejecutar(any(), any()))
-                    .thenReturn(new EstadoDePagos(
+            when(estados.delUsuario(any(), any()))
+                    .thenReturn(java.util.Optional.of(new EstadoDePagos(
                             false,
                             new BigDecimal("1050.00"),
                             new BigDecimal("350.00"),
                             new BigDecimal("700.00"),
                             2,
-                            "BOB"));
+                            "BOB")));
 
             mvc.perform(get("/aportes/participantes/{id}/estado", PARTICIPANTE)
                             .with(Sesiones.como("PARTICIPANTE", "BILLETERA_VER")))
@@ -121,13 +122,32 @@ class AportesConsultasWebTest {
         @Test
         @DisplayName("quien no tiene obligaciones esta al dia, y eso viaja como tal")
         void sinObligacionesEstaAlDia() throws Exception {
-            when(estados.ejecutar(any(), any())).thenReturn(EstadoDePagos.sinObligaciones());
+            when(estados.delUsuario(any(), any())).thenReturn(java.util.Optional.of(EstadoDePagos.sinObligaciones()));
 
             mvc.perform(get("/aportes/participantes/{id}/estado", PARTICIPANTE)
                             .with(Sesiones.como("PARTICIPANTE", "BILLETERA_VER")))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.alDia").value(true))
                     .andExpect(jsonPath("$.obligacionesAbiertas").value(0));
+        }
+
+        @Test
+        @DisplayName("F1.L1.M07 · otro usuario u otro grupo: el estado de un participante ajeno es 404, sin cuerpo")
+        void estadoAjeno() throws Exception {
+            when(estados.delUsuario(any(), any())).thenReturn(java.util.Optional.empty());
+            mvc.perform(get("/aportes/participantes/{id}/estado", PARTICIPANTE)
+                            .with(Sesiones.comoOtro("PARTICIPANTE", "BILLETERA_VER")))
+                    .andExpect(status().isNotFound())
+                    .andExpect(content().string(""));
+        }
+
+        @Test
+        @DisplayName("F1.L1.M07 · sin BILLETERA_VER es 403 y sin token es 401: ninguno llega a preguntar")
+        void estadoSinPermisoNiToken() throws Exception {
+            mvc.perform(get("/aportes/participantes/{id}/estado", PARTICIPANTE).with(Sesiones.sinPermisos()))
+                    .andExpect(status().isForbidden());
+            mvc.perform(get("/aportes/participantes/{id}/estado", PARTICIPANTE)).andExpect(status().isUnauthorized());
+            verifyNoInteractions(estados);
         }
 
         @Test
@@ -140,12 +160,12 @@ class AportesConsultasWebTest {
         }
 
         @Test
-        @DisplayName("200 con la cuenta de morosos del grupo")
+        @DisplayName("200 con la cuenta de morosos del grupo, para grupos con su identidad de servicio")
         void morosos() throws Exception {
             when(estados.morososDelGrupo(any(), any())).thenReturn(3);
 
             mvc.perform(get("/aportes/grupos/{id}/morosos", OBLIGACION)
-                            .with(Sesiones.como("ORGANIZADOR", "BILLETERA_VER")))
+                            .with(Sesiones.como("PARTICIPANTE", "SERVICIO_GRUPOS")))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.morosos").value(3))
                     .andExpect(jsonPath("$.grupoId").value(OBLIGACION.toString()));
@@ -159,4 +179,8 @@ class AportesConsultasWebTest {
     // El controlador tambien responde la primera cuota (R-GRP-20): sin este doble no carga.
     @org.springframework.test.context.bean.override.mockito.MockitoBean
     private bo.aportaya.aportes.aplicacion.ConsultarPrimeraCuota primeraCuota;
+
+    // El controlador tambien responde el pago con saldo (F1.L1.M11): sin este doble no carga.
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    private bo.aportaya.aportes.aplicacion.CU21PagarConSaldo pagoConSaldo;
 }

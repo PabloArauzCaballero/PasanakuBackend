@@ -1,0 +1,55 @@
+BEGIN;
+BEGIN
+INSERT INTO entregas.turno_del_grupo (turno_id, grupo_id, periodo_id, cupo_id, titular_participante_id, version, recibido_en)
+VALUES ('e2000000-0000-4000-8000-000000000011','e2000000-0000-4000-8000-000000000001','e2000000-0000-4000-8000-000000000021','e2000000-0000-4000-8000-000000000031','e2000000-0000-4000-8000-000000000041',1,now())
+ON CONFLICT (turno_id) DO UPDATE SET titular_participante_id = excluded.titular_participante_id, version = excluded.version, recibido_en = excluded.recibido_en
+WHERE entregas.turno_del_grupo.version < excluded.version;
+INSERT 0 1
+INSERT INTO entregas.turno_del_grupo (turno_id, grupo_id, periodo_id, cupo_id, titular_participante_id, version, recibido_en)
+VALUES ('e2000000-0000-4000-8000-000000000011','e2000000-0000-4000-8000-000000000001','e2000000-0000-4000-8000-000000000021','e2000000-0000-4000-8000-000000000031','e2000000-0000-4000-8000-000000000042',1,now())
+ON CONFLICT (turno_id) DO UPDATE SET titular_participante_id = excluded.titular_participante_id, version = excluded.version, recibido_en = excluded.recibido_en
+WHERE entregas.turno_del_grupo.version < excluded.version;
+INSERT 0 0
+INSERT INTO entregas.turno_del_grupo (turno_id, grupo_id, periodo_id, cupo_id, titular_participante_id, version, recibido_en)
+VALUES ('e2000000-0000-4000-8000-000000000011','e2000000-0000-4000-8000-000000000001','e2000000-0000-4000-8000-000000000021','e2000000-0000-4000-8000-000000000031','e2000000-0000-4000-8000-000000000043',2,now())
+ON CONFLICT (turno_id) DO UPDATE SET titular_participante_id = excluded.titular_participante_id, version = excluded.version, recibido_en = excluded.recibido_en
+WHERE entregas.turno_del_grupo.version < excluded.version;
+INSERT 0 1
+SELECT titular_participante_id, version FROM entregas.turno_del_grupo;
+       titular_participante_id        | version 
+--------------------------------------+---------
+ e2000000-0000-4000-8000-000000000043 |       2
+(1 row)
+
+INSERT INTO entregas.estado_saga (tipo_saga, clave_negocio, paso, estado, datos)
+VALUES ('entrega-automatica', 'e2000000-0000-4000-8000-000000000021', 0, 'INICIADA', jsonb_build_object('grupoId', 'g'::text, 'motivo', 'GRACIA_VENCIDA'::text, 'correlationId', 'c'::text))
+ON CONFLICT (tipo_saga, clave_negocio) DO UPDATE SET estado = 'INICIADA', datos = excluded.datos, actualizado_en = now()
+WHERE entregas.estado_saga.estado = 'EN_CURSO';
+INSERT 0 1
+INSERT INTO entregas.estado_saga (tipo_saga, clave_negocio, paso, estado, datos)
+VALUES ('entrega-automatica', 'e2000000-0000-4000-8000-000000000021', 0, 'INICIADA', jsonb_build_object('grupoId', 'g'::text, 'motivo', 'GRACIA_VENCIDA'::text, 'correlationId', 'c'::text))
+ON CONFLICT (tipo_saga, clave_negocio) DO UPDATE SET estado = 'INICIADA', datos = excluded.datos, actualizado_en = now()
+WHERE entregas.estado_saga.estado = 'EN_CURSO';
+INSERT 0 0
+UPDATE entregas.estado_saga SET estado = 'EN_CURSO', paso = 1, actualizado_en = now() WHERE tipo_saga = 'entrega-automatica' AND clave_negocio = 'e2000000-0000-4000-8000-000000000021' AND estado = 'INICIADA';
+UPDATE 1
+INSERT INTO entregas.estado_saga (tipo_saga, clave_negocio, paso, estado, datos)
+VALUES ('entrega-automatica', 'e2000000-0000-4000-8000-000000000021', 0, 'INICIADA', jsonb_build_object('grupoId', 'g'::text, 'motivo', 'COMPLETO'::text, 'correlationId', 'c2'::text))
+ON CONFLICT (tipo_saga, clave_negocio) DO UPDATE SET estado = 'INICIADA', datos = excluded.datos, actualizado_en = now()
+WHERE entregas.estado_saga.estado = 'EN_CURSO';
+INSERT 0 1
+UPDATE entregas.estado_saga SET estado = 'COMPLETADA', paso = 2, actualizado_en = now() WHERE tipo_saga = 'entrega-automatica' AND clave_negocio = 'e2000000-0000-4000-8000-000000000021' AND estado = 'INICIADA';
+UPDATE 1
+INSERT INTO entregas.estado_saga (tipo_saga, clave_negocio, paso, estado, datos)
+VALUES ('entrega-automatica', 'e2000000-0000-4000-8000-000000000021', 0, 'INICIADA', jsonb_build_object('grupoId', 'g'::text, 'motivo', 'COMPLETO'::text, 'correlationId', 'c3'::text))
+ON CONFLICT (tipo_saga, clave_negocio) DO UPDATE SET estado = 'INICIADA', datos = excluded.datos, actualizado_en = now()
+WHERE entregas.estado_saga.estado = 'EN_CURSO';
+INSERT 0 0
+SELECT estado, paso, datos->>'motivo' AS motivo, datos->>'correlationId' AS correlacion FROM entregas.estado_saga WHERE tipo_saga = 'entrega-automatica';
+   estado   | paso |  motivo  | correlacion 
+------------+------+----------+-------------
+ COMPLETADA |    2 | COMPLETO | c2
+(1 row)
+
+ROLLBACK;
+ROLLBACK

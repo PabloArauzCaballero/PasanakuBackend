@@ -52,7 +52,6 @@ class TarifasControllerWebTest {
             """
             {"tarifarioBaseId":"b7000000-0000-4000-8000-000000000001","nombre":"Tarifario 2026-Q2",
              "tipoCambio":"INCREMENTO","diasPreaviso":30,
-             "aprobadoPor":"b7000000-0000-4000-8000-00000000000a",
              "actaComite":"ACTA-2026-014","urlPublicacion":"https://aportaya.bo/tarifas/2026q2",
              "hashDocumento":"%s","canalAviso":"CORREO","permiteRescisionSinCosto":true}
             """
@@ -62,6 +61,10 @@ class TarifasControllerWebTest {
     private MockMvc mvc;
 
     // Sistemas › Proveedores: comparte controlador; no se llama aca.
+    // CU-132: comparte controlador; no se llama acá.
+    @MockitoBean
+    private ParametrosWeb parametrosWeb;
+
     @MockitoBean
     private bo.aportaya.tarifas.aplicacion.ConsultarCostosDeProveedor consultarCostos;
 

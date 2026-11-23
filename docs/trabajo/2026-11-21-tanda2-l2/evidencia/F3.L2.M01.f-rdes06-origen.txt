@@ -1,0 +1,38 @@
+-- psql -p 5433 (base local con sql/15_infra/columnas_agregadas.sql y R-DES-06 aplicados). replica solo saltea la FK a la entrega; los CHECK se evaluan.
+BEGIN;
+BEGIN
+SET LOCAL session_replication_role = replica;
+SET
+INSERT INTO entregas.incidencia_entrega (id, entrega_id, tipo, severidad, descripcion, reportada_por, origen, estado, sla_horas, fecha_limite_sla, evidencias, abierta_en) VALUES (gen_random_uuid(), gen_random_uuid(), 'FONDO_INCOMPLETO', 'CRITICA', 'prueba', NULL, 'SISTEMA', 'ABIERTA', 24, now() + interval '24 hours', '[]'::jsonb, now());
+INSERT 0 1
+INSERT INTO entregas.incidencia_entrega (id, entrega_id, tipo, severidad, descripcion, reportada_por, origen, estado, sla_horas, fecha_limite_sla, evidencias, abierta_en) VALUES (gen_random_uuid(), gen_random_uuid(), 'FONDO_INCOMPLETO', 'CRITICA', 'prueba', gen_random_uuid(), 'PERSONA', 'ABIERTA', 24, now() + interval '24 hours', '[]'::jsonb, now());
+INSERT 0 1
+SAVEPOINT a;
+SAVEPOINT
+INSERT INTO entregas.incidencia_entrega (id, entrega_id, tipo, severidad, descripcion, reportada_por, origen, estado, sla_horas, fecha_limite_sla, evidencias, abierta_en) VALUES (gen_random_uuid(), gen_random_uuid(), 'FONDO_INCOMPLETO', 'CRITICA', 'prueba', NULL, 'PERSONA', 'ABIERTA', 24, now() + interval '24 hours', '[]'::jsonb, now());
+psql:/tmp/claude-0/-home-user-PasanakuBackend/bd1cc7de-d0c1-5769-a21a-89948fedaccc/scratchpad/rdes06.sql:9: ERROR:  new row for relation "incidencia_entrega" violates check constraint "ck_incidencia_entrega_autor"
+DETAIL:  Failing row contains (930c38c6-a3b3-448e-b2cd-eec16250af97, 845bebc3-3f91-45a5-a3eb-f7eeff82b524, FONDO_INCOMPLETO, CRITICA, prueba, null, null, ABIERTA, 24, 2026-11-22 23:50:12.020699+00, null, [], 2026-11-21 23:50:12.020699+00, null, PERSONA).
+ROLLBACK TO SAVEPOINT a;
+ROLLBACK
+INSERT INTO entregas.incidencia_entrega (id, entrega_id, tipo, severidad, descripcion, reportada_por, origen, estado, sla_horas, fecha_limite_sla, evidencias, abierta_en) VALUES (gen_random_uuid(), gen_random_uuid(), 'FONDO_INCOMPLETO', 'CRITICA', 'prueba', gen_random_uuid(), 'SISTEMA', 'ABIERTA', 24, now() + interval '24 hours', '[]'::jsonb, now());
+psql:/tmp/claude-0/-home-user-PasanakuBackend/bd1cc7de-d0c1-5769-a21a-89948fedaccc/scratchpad/rdes06.sql:12: ERROR:  new row for relation "incidencia_entrega" violates check constraint "ck_incidencia_entrega_autor"
+DETAIL:  Failing row contains (3137c965-ffc6-4c57-b70f-2970bf1bc174, 0c03a31e-0f11-470c-aa35-29126dc73f61, FONDO_INCOMPLETO, CRITICA, prueba, f4169d1b-659f-490c-89ba-f2d53ded99c9, null, ABIERTA, 24, 2026-11-22 23:50:12.020699+00, null, [], 2026-11-21 23:50:12.020699+00, null, SISTEMA).
+ROLLBACK TO SAVEPOINT a;
+ROLLBACK
+INSERT INTO entregas.incidencia_entrega (id, entrega_id, tipo, severidad, descripcion, reportada_por, origen, estado, sla_horas, fecha_limite_sla, evidencias, abierta_en) VALUES (gen_random_uuid(), gen_random_uuid(), 'FONDO_INCOMPLETO', 'CRITICA', 'prueba', NULL, NULL, 'ABIERTA', 24, now() + interval '24 hours', '[]'::jsonb, now());
+psql:/tmp/claude-0/-home-user-PasanakuBackend/bd1cc7de-d0c1-5769-a21a-89948fedaccc/scratchpad/rdes06.sql:15: ERROR:  new row for relation "incidencia_entrega" violates check constraint "ck_incidencia_entrega_autor"
+DETAIL:  Failing row contains (60648f2d-c7ea-46d2-84ae-89ce8317fbf7, 6a582143-7c67-4daa-93d1-1a49baf28088, FONDO_INCOMPLETO, CRITICA, prueba, null, null, ABIERTA, 24, 2026-11-22 23:50:12.020699+00, null, [], 2026-11-21 23:50:12.020699+00, null, null).
+ROLLBACK TO SAVEPOINT a;
+ROLLBACK
+INSERT INTO entregas.incidencia_entrega (id, entrega_id, tipo, severidad, descripcion, reportada_por, origen, estado, sla_horas, fecha_limite_sla, evidencias, abierta_en) VALUES (gen_random_uuid(), gen_random_uuid(), 'FONDO_INCOMPLETO', 'CRITICA', 'prueba', gen_random_uuid(), NULL, 'ABIERTA', 24, now() + interval '24 hours', '[]'::jsonb, now());
+INSERT 0 1
+SELECT origen, reportada_por IS NULL AS sin_autor FROM entregas.incidencia_entrega WHERE descripcion = 'prueba' ORDER BY origen;
+ origen  | sin_autor 
+---------+-----------
+ PERSONA | f
+ SISTEMA | t
+         | f
+(3 rows)
+
+ROLLBACK;
+ROLLBACK

@@ -183,12 +183,12 @@ public class CU12TransferirSaldo {
                             UUID.fromString(ctx.traza().id())));
 
             var despues = cuentas.ver(dsl, origen.id()).orElseThrow();
+            // Regla 90.2.1: solo identificadores; el importe es atribuible a una persona.
             BITACORA.info(
-                    "CU-12 · Transferencia P2P ejecutada: transaccion={}, origen={}, destino={}, monto={}",
+                    "CU-12 · Transferencia P2P ejecutada: transaccion={}, origen={}, destino={}",
                     transaccionId,
                     origen.id(),
-                    destino.id(),
-                    entrada.monto());
+                    destino.id());
             return new SalidaTransferencia(
                     transaccionId,
                     despues.disponible(),

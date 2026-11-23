@@ -60,14 +60,15 @@ class PrimeraCuotaWebTest {
     private ConsultarRecaudoDiario recaudosDiarios;
 
     @Test
-    @DisplayName("200: el organizador ve que cupos pagaron la cuota 1 y cuales faltan, solo identificadores")
+    @DisplayName(
+            "200: grupos (identidad de servicio) ve que cupos pagaron la cuota 1 y cuales faltan, solo identificadores")
     void organizador() throws Exception {
         when(primeraCuota.delGrupo(any(), any()))
                 .thenReturn(
                         new PrimeraCuotaDelGrupo(Optional.of(PERIODO), List.of(CUPO_PAGADO), List.of(CUPO_PENDIENTE)));
 
         mvc.perform(get("/aportes/grupos/{id}/primera-cuota", GRUPO)
-                        .with(Sesiones.como("ORGANIZADOR", "BILLETERA_VER")))
+                        .with(Sesiones.como("PARTICIPANTE", "SERVICIO_GRUPOS")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.grupoId").value(GRUPO.toString()))
                 .andExpect(jsonPath("$.periodoId").value(PERIODO.toString()))
@@ -82,7 +83,7 @@ class PrimeraCuotaWebTest {
                 .thenReturn(new PrimeraCuotaDelGrupo(Optional.empty(), List.of(), List.of()));
 
         mvc.perform(get("/aportes/grupos/{id}/primera-cuota", GRUPO)
-                        .with(Sesiones.como("PARTICIPANTE", "BILLETERA_VER")))
+                        .with(Sesiones.como("PARTICIPANTE", "SERVICIO_GRUPOS")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.periodoId").isEmpty())
                 .andExpect(jsonPath("$.cuposPagados").isEmpty())
@@ -97,7 +98,7 @@ class PrimeraCuotaWebTest {
     }
 
     @Test
-    @DisplayName("403 con sesion pero sin BILLETERA_VER")
+    @DisplayName("403 con sesion pero sin SERVICIO_GRUPOS")
     void sinPermiso() throws Exception {
         mvc.perform(get("/aportes/grupos/{id}/primera-cuota", GRUPO).with(Sesiones.sinPermisos()))
                 .andExpect(status().isForbidden());
@@ -108,8 +109,12 @@ class PrimeraCuotaWebTest {
     @DisplayName("400: un identificador de grupo que no es un identificador")
     void grupoQueNoEsUuid() throws Exception {
         mvc.perform(get("/aportes/grupos/{id}/primera-cuota", "no-soy-un-uuid")
-                        .with(Sesiones.como("ORGANIZADOR", "BILLETERA_VER")))
+                        .with(Sesiones.como("PARTICIPANTE", "SERVICIO_GRUPOS")))
                 .andExpect(status().isBadRequest());
         verifyNoInteractions(primeraCuota);
     }
+
+    // El controlador tambien responde el pago con saldo (F1.L1.M11): sin este doble no carga.
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    private bo.aportaya.aportes.aplicacion.CU21PagarConSaldo pagoConSaldo;
 }

@@ -88,6 +88,30 @@ class BilleteraMovimientosWebTest extends BaseDeOperacionesWeb {
     }
 
     @Test
+    @DisplayName(
+            "F1.L1.M01 · transferencia y retencion con importe negativo: 400 AP-VAL-01 con el campo, sin caso de uso")
+    void importesNegativos() throws Exception {
+        String transferencia =
+                """
+                {"cuentaOrigenId":"%s","destino":{"tipo":"ALIAS","valor":"ana.qr"},
+                 "monto":{"monto":"-50.00","moneda":"BOB"},"concepto":"Cuota"}"""
+                        .formatted(CUENTA);
+        mvc.perform(operar(post("/billetera/transferencias"), transferencia, "BILLETERA_OPERAR"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.codigo").value("AP-VAL-01"))
+                .andExpect(jsonPath("$.detalle['monto.monto']").exists());
+        String retencion =
+                """
+                {"cuentaBilleteraId":"%s","monto":{"monto":"-0.01","moneda":"BOB"},"motivo":"APORTE"}"""
+                        .formatted(CUENTA);
+        mvc.perform(operar(post("/billetera/retenciones"), retencion, "BILLETERA_OPERAR"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.codigo").value("AP-VAL-01"))
+                .andExpect(jsonPath("$.detalle['monto.monto']").exists());
+        verifyNoInteractions(movimientos, cu13);
+    }
+
+    @Test
     @DisplayName("transferencia · 200 con lo que responde el caso de uso; 403 con solo BILLETERA_VER")
     void transferir() throws Exception {
         var salida = new SalidaTransferencia();

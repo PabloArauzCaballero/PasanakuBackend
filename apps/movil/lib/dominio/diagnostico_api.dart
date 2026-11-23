@@ -33,3 +33,11 @@ String _rutaSegura(String path) {
   if (path == '/grupos' || path.startsWith('/grupos/')) return '/grupos/{ruta}';
   return '<ruta-omitida>';
 }
+
+/// Llegó un enlace externo al enrutador (en frío o con la app abierta). Solo el esquema y
+/// el host: el resto del enlace de invitación lleva un secreto. Sirve para saber, en el
+/// log del simulador, si el enlace llegó a Flutter y cuándo (intermitente de iOS, F12.1).
+void registrarEnlaceRecibido(Uri uri) {
+  if (!kDebugMode) return;
+  debugPrint('Enlace recibido por el enrutador: ${uri.scheme}://${uri.host}');
+}

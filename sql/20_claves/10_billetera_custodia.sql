@@ -19,6 +19,11 @@ ALTER TABLE nucleo_financiero.bloqueo_saldo
   ADD CONSTRAINT fk_bloqueo_saldo_levantada_por
   FOREIGN KEY (levantada_por) REFERENCES identidad.usuario (id) ON DELETE SET NULL ON UPDATE CASCADE;
 
+ALTER TABLE nucleo_financiero.bloqueo_saldo DROP CONSTRAINT IF EXISTS fk_bloqueo_saldo_registrado_por;
+ALTER TABLE nucleo_financiero.bloqueo_saldo
+  ADD CONSTRAINT fk_bloqueo_saldo_registrado_por
+  FOREIGN KEY (registrado_por) REFERENCES identidad.usuario (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
 ALTER TABLE nucleo_financiero.bloqueo_saldo DROP CONSTRAINT IF EXISTS fk_bloqueo_saldo_retencion_id;
 ALTER TABLE nucleo_financiero.bloqueo_saldo
   ADD CONSTRAINT fk_bloqueo_saldo_retencion_id

@@ -32,10 +32,10 @@ pasos:
   - id: cobrar-aporte
     actor: PARTICIPANTE
     servicio: aportes
-    operacion: cobrarAporte
-    # Hoy este endpoint también acepta canales declarados (EFECTIVO_AL_ORGANIZADOR, TRANSFERENCIA_BANCARIA,
-    # esManual) que ADR-055 E1 elimina (F2.M7). Lo vigente es el débito de saldo recargado por QR (P-06) y, cuando
-    # exista, el webhook firmado de la pasarela (H3.S1); los dos están descritos en objetivo-modelo-A.md.
+    operacion: pagarCuotaConSaldo
+    # F1.L1.M11: el cliente no dicta monto, canal ni referencia; paga el pendiente con el saldo recargado por QR
+    # (P-06). `cobrarAporte` se retira y mientras tanto solo admite lo mismo (AP-CU21-10 para el resto). El webhook
+    # firmado de la pasarela (H3.S1) es el otro camino, descrito en objetivo-modelo-A.md.
     precondicion: Obligación PENDIENTE del propio participante, en un período abierto.
     exito: aplicar-al-pozo
     errores:

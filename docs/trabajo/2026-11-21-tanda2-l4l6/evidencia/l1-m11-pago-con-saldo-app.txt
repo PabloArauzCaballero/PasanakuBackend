@@ -1,0 +1,29 @@
+# Pedido de L1 (F1.L1.M11): la app paga la cuota con saldo por pagarCuotaConSaldo
+Contrato usado: el de PR #478 (aportes.yaml), con el cliente Dart generado POR EL GENERADOR en local (sin commitear).
+- POST /aportes/obligaciones/{id}/pago-con-saldo, Idempotency-Key, 201 cobro / 200 reintento.
+- El servidor (#478, RutasDelCobroDeAportes:45) acepta SOLO cuerpo ausente o {}; el cliente dart-dio serializa
+  siempre el cuerpo (sin el viajaria el literal JSON null), asi que la app manda {} (valido contra EntradaPagoConSaldo).
+## Cambio
+- Fuera: cu21_cobrar_aporte.dart (cobrarAporte con canal, monto y referencia), selector de canal y campo de referencia.
+- Nuevo: cu21_pagar_cuota_con_saldo.dart (clave por obligacion; 4xx libera, duda conserva — F1.L6.M12).
+- Pantalla: el pendiente como dato + «Se paga con el saldo de tu billetera…»; boton bloqueado mientras carga.
+- Errores mapeados: AP-CU21-01, -02, -03 (saldo insuficiente), -04, -06, -07 (textos nuevos, P-16: los aprueba Pablo).
+## Pruebas (DOBLE del servidor, regla 65)
+$ flutter test test/widget/pantalla_aportar_test.dart -> +4: All tests passed!
+  sin canal/referencia/monto editable · correcto 201 con {} y clave · limite 200 (reintento) · invalido 422 AP-CU21-03 con texto de la app
+Mutante (la app vuelve a mandar monto) -> +3 -1
+$ flutter test (unidad, widget, contrato, identidad, pasanaku, a11y) -> +920 -6 (los 6 ENVIRONMENT de siempre)
+NO COMPROBADO: contra el servidor real (maquina de Pablo).
+
+## 2026-11-21 · reverificación en #460 sobre dev con #478 (Flutter 3.44.8, el del CI; clientes Dart regenerados con el generador)
+$ dart analyze lib test
+No issues found!
+Lint: errores.dart quedaba en 210 líneas (tope 200). Los textos AP-CU21 pasaron a errores_catalogados.dart (pagoDeCuotaConSaldo, mismo patrón que fallasDeLaBase).
+$ yarn lint
+TODO OK
+$ flutter test (front)
+02:21 +907: All tests passed!
+$ flutter test (a11y)
+00:02 +6: All tests passed!
+$ flutter test (goldens)
+00:56 +274: All tests passed!

@@ -159,6 +159,8 @@ POR_MODULO = {
     ("03", "proveedor_id"): "proveedor_pago", ("04", "proveedor_id"): "proveedor_pago",
     ("05", "proveedor_id"): "proveedor_mensajeria",
     ("10", "proveedor_id"): "proveedor_pago", ("11", "proveedor_id"): "proveedor_pago",
+    # F3.S8.M2 · el registro de parámetros financieros vive en tarifas (módulo 11); mismo mapa que modelo.py.
+    ("11", "parametro_id"): "parametro_financiero",
     ("04", "regla_id"): "regla_entrega", ("07", "regla_id"): "regla_automatizacion",
     ("09", "regla_id"): "regla_cumplimiento",
     ("05", "evento_id"): "evento_notificable",

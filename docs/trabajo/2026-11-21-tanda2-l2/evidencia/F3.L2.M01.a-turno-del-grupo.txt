@@ -1,0 +1,27 @@
+$ psql -p 5433 -f sql/10_tablas/04_entregas_fondo/turno_del_grupo.sql + índices (ver abajo)
+CREATE TABLE
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+COMMENT
+CREATE INDEX
+CREATE INDEX
+$ \d entregas.turno_del_grupo
+                               Table "entregas.turno_del_grupo"
+         Column          |           Type           | Collation | Nullable |      Default      
+-------------------------+--------------------------+-----------+----------+-------------------
+ turno_id                | uuid                     |           | not null | gen_random_uuid()
+ grupo_id                | uuid                     |           | not null | 
+ periodo_id              | uuid                     |           | not null | 
+ cupo_id                 | uuid                     |           | not null | 
+ titular_participante_id | uuid                     |           | not null | 
+ version                 | integer                  |           | not null | 0
+ recibido_en             | timestamp with time zone |           | not null | now()
+Indexes:
+    "pk_turno_del_grupo" PRIMARY KEY, btree (turno_id)
+    "ix_turno_del_grupo_grupo_id" btree (grupo_id)
+    "uq_turno_del_grupo_periodo_id" UNIQUE, btree (periodo_id)
+Check constraints:
+    "ck_turno_del_grupo_version" CHECK (version >= 0)
+

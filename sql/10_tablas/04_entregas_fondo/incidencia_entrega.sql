@@ -8,7 +8,8 @@ CREATE TABLE IF NOT EXISTS entregas.incidencia_entrega (
   tipo                               VARCHAR(35) NOT NULL,
   severidad                          VARCHAR(10) NOT NULL,
   descripcion                        TEXT NOT NULL,
-  reportada_por                      UUID NOT NULL,
+  reportada_por                      UUID,
+  origen                             VARCHAR(10),
   asignada_a                         UUID,
   estado                             VARCHAR(15) NOT NULL,
   sla_horas                          SMALLINT NOT NULL,
@@ -20,6 +21,7 @@ CREATE TABLE IF NOT EXISTS entregas.incidencia_entrega (
   CONSTRAINT pk_incidencia_entrega PRIMARY KEY (id),
   CONSTRAINT ck_incidencia_entrega_tipo CHECK (tipo IN ('BENEFICIARIO_NO_RECIBIO', 'DATOS_BANCARIOS_ERRONEOS', 'DESEMBOLSO_RECHAZADO', 'ENTREGA_DUPLICADA', 'FONDO_INCOMPLETO', 'MONTO_NO_COINCIDE', 'RECLAMO_DE_TERCERO', 'SOSPECHA_FRAUDE')),
   CONSTRAINT ck_incidencia_entrega_severidad CHECK (severidad IN ('ALTA', 'BAJA', 'CRITICA', 'MEDIA')),
+  CONSTRAINT ck_incidencia_entrega_origen CHECK (origen IN ('PERSONA', 'SISTEMA')),
   CONSTRAINT ck_incidencia_entrega_estado CHECK (estado IN ('ABIERTA', 'CERRADA', 'EN_GESTION', 'ESCALADA', 'RESUELTA'))
 );
 
@@ -28,7 +30,7 @@ COMMENT ON COLUMN entregas.incidencia_entrega.id IS 'Identificador estable de la
 COMMENT ON COLUMN entregas.incidencia_entrega.entrega_id IS 'FK, IDX';
 COMMENT ON COLUMN entregas.incidencia_entrega.tipo IS 'CK';
 COMMENT ON COLUMN entregas.incidencia_entrega.severidad IS 'CK';
-COMMENT ON COLUMN entregas.incidencia_entrega.reportada_por IS 'FK';
+COMMENT ON COLUMN entregas.incidencia_entrega.reportada_por IS 'FK, NULL';
 COMMENT ON COLUMN entregas.incidencia_entrega.asignada_a IS 'FK, NULL';
 COMMENT ON COLUMN entregas.incidencia_entrega.estado IS 'CK, IDX';
 COMMENT ON COLUMN entregas.incidencia_entrega.fecha_limite_sla IS 'IDX';

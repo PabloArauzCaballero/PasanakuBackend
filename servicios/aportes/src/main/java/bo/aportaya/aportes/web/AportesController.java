@@ -6,10 +6,8 @@ import bo.aportaya.aportes.aplicacion.ConsultarPrimeraCuota;
 import bo.aportaya.aportes.aplicacion.ConsultarRecaudoDelPeriodo;
 import bo.aportaya.aportes.aplicacion.ConsultarRecaudoDiario;
 import bo.aportaya.aportes.aplicacion.GenerarObligacionesDelPeriodo;
-import bo.aportaya.aportes.web.generado.AportesApi;
 import bo.aportaya.aportes.web.generado.modelo.CalendarioDeObligaciones;
 import bo.aportaya.aportes.web.generado.modelo.DiaSalteadoDelCalendario;
-import bo.aportaya.aportes.web.generado.modelo.EntradaCobro;
 import bo.aportaya.aportes.web.generado.modelo.EstadoDelParticipante;
 import bo.aportaya.aportes.web.generado.modelo.LineaDelCalendario;
 import bo.aportaya.aportes.web.generado.modelo.Morosos;
@@ -18,17 +16,12 @@ import bo.aportaya.aportes.web.generado.modelo.PrimeraCuota;
 import bo.aportaya.aportes.web.generado.modelo.RecaudoDelPeriodo;
 import bo.aportaya.aportes.web.generado.modelo.RecaudoDiario;
 import bo.aportaya.aportes.web.generado.modelo.RecaudoDiarioPorMoneda;
-import bo.aportaya.aportes.web.generado.modelo.SalidaCobro;
-import bo.aportaya.plataforma.dominio.CodigoError;
-import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import java.time.LocalDate;
-import java.util.Optional;
 import java.util.UUID;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -41,15 +34,13 @@ import org.springframework.web.bind.annotation.RestController;
  * {@code INSERT} abierta para el segundo intento.
  */
 @RestController
-public class AportesController implements AportesApi {
+public class AportesController extends RutasDelCobroDeAportes {
 
-    private final CU21CobrarAporte cu21;
     private final ConsultarEstadoDelParticipante estados;
     private final ConsultarRecaudoDelPeriodo recaudos;
     private final GenerarObligacionesDelPeriodo calendario;
     private final SesionDeLaPeticion sesion;
     private final ConsultarRecaudoDiario recaudosDiarios;
-    private final bo.aportaya.aportes.aplicacion.HechosDeGrupos grupos;
     private final ConsultarPrimeraCuota primeraCuota;
 
     public AportesController(
@@ -60,11 +51,11 @@ public class AportesController implements AportesApi {
             SesionDeLaPeticion sesion,
             bo.aportaya.aportes.aplicacion.HechosDeGrupos grupos,
             ConsultarRecaudoDiario recaudosDiarios,
-            ConsultarPrimeraCuota primeraCuota) {
-        this.grupos = grupos;
+            ConsultarPrimeraCuota primeraCuota,
+            bo.aportaya.aportes.aplicacion.CU21PagarConSaldo conSaldo) {
+        super(cu21, sesion, grupos, conSaldo);
         this.recaudosDiarios = recaudosDiarios;
         this.primeraCuota = primeraCuota;
-        this.cu21 = cu21;
         this.estados = estados;
         this.recaudos = recaudos;
         this.calendario = calendario;
@@ -82,7 +73,12 @@ public class AportesController implements AportesApi {
     public ResponseEntity<EstadoDelParticipante> consultarEstadoDelParticipante(UUID participanteId) {
         Traza.marcarCasoDeUso("CU-21", participanteId.toString());
 
-        var estado = estados.ejecutar(participanteId, sesion.actual());
+        // F1.L1.M07 (BOLA): el estado de otro participante es 404, sin confirmar que existe.
+        var encontrado = estados.delUsuario(participanteId, sesion.actual());
+        if (encontrado.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        var estado = encontrado.get();
 
         var respuesta = new EstadoDelParticipante();
         respuesta.setAlDia(estado.alDia());
@@ -94,8 +90,13 @@ public class AportesController implements AportesApi {
         return ResponseEntity.ok(respuesta);
     }
 
+    /**
+     * F1.L1.M07 (BOLA, regla 98.6): cuantos morosos tiene un grupo lo pregunta {@code grupos} con su identidad de
+     * servicio para decidir un ingreso, no una persona: con {@code BILLETERA_VER} cualquiera contaba los morosos de un
+     * grupo ajeno. No hay pantalla que lo pida.
+     */
     @Override
-    @Permiso("BILLETERA_VER")
+    @Permiso("SERVICIO_GRUPOS")
     public ResponseEntity<Morosos> contarMorosos(UUID grupoId) {
         Traza.marcarCasoDeUso("CU-21", grupoId.toString());
 
@@ -108,9 +109,10 @@ public class AportesController implements AportesApi {
     /**
      * Que cupos pagaron la cuota 1. Lo pregunta CU-60 antes de comprometer el sorteo (R-GRP-20): sin leer este esquema
      * y sin que lo afirme quien quiere sortear. Solo identificadores de cupo: nada de personas ni importes.
+     * F1.L1.M07: lo pregunta {@code grupos} con su identidad de servicio, no una persona.
      */
     @Override
-    @Permiso("BILLETERA_VER")
+    @Permiso("SERVICIO_GRUPOS")
     public ResponseEntity<PrimeraCuota> consultarPrimeraCuota(UUID grupoId) {
         Traza.marcarCasoDeUso("CU-60", grupoId.toString());
 
@@ -121,53 +123,6 @@ public class AportesController implements AportesApi {
         respuesta.setCuposPagados(estado.cuposPagados());
         respuesta.setCuposPendientes(estado.cuposPendientes());
         return ResponseEntity.ok(respuesta);
-    }
-
-    @Override
-    @Permiso("BILLETERA_OPERAR")
-    public ResponseEntity<SalidaCobro> cobrarAporte(UUID idempotencyKey, UUID obligacionId, EntradaCobro cuerpo) {
-        Traza.marcarCasoDeUso("CU-21", obligacionId.toString());
-
-        // Antes de tocar nada: la obligacion tiene que ser de quien paga y el periodo tiene que seguir
-        // abierto (B15/B5). Se pregunta a `grupos` FUERA de la transaccion del cobro (invariante 6).
-        var ctx = sesion.actual();
-        var contexto = cu21.contextoDe(obligacionId, ctx)
-                .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(21, 1), "Esa obligacion no existe."));
-        var admisibilidad = grupos.admisibilidad(contexto.participanteId(), contexto.periodoId())
-                .orElseThrow(() -> new ErrorDeNegocio(
-                        CodigoError.de(21, 7), "No pudimos verificar esa obligacion: intentalo de nuevo."));
-        if (!admisibilidad.esDelUsuario()) {
-            throw new ErrorDeNegocio(CodigoError.de(21, 6), "Esa obligacion no es tuya.");
-        }
-
-        var salida = cu21.acreditar(
-                new CU21CobrarAporte.EntradaCobro(
-                        idempotencyKey.toString(),
-                        obligacionId,
-                        MapeoDeAportes.dinero(cuerpo.getMonto()),
-                        cuerpo.getRecargo() == null
-                                ? bo.aportaya.plataforma.dominio.Dinero.cero(
-                                        MapeoDeAportes.dinero(cuerpo.getMonto()).moneda())
-                                : MapeoDeAportes.dinero(cuerpo.getRecargo()),
-                        cuerpo.getCanal().getValue(),
-                        cuerpo.getReferenciaProveedor(),
-                        Optional.ofNullable(cuerpo.getProveedorId()),
-                        Boolean.TRUE.equals(cuerpo.getEsManual()),
-                        admisibilidad.periodoAbierto()),
-                ctx);
-
-        var respuesta = new SalidaCobro();
-        respuesta.setPagoId(salida.pagoId());
-        respuesta.setObligacionId(salida.obligacionId());
-        respuesta.setEstadoObligacion(SalidaCobro.EstadoObligacionEnum.fromValue(salida.estadoObligacion()));
-        respuesta.setPendiente(MapeoDeAportes.dinero(salida.pendiente()));
-        respuesta.setEsNuevo(salida.esNuevo());
-
-        // 201 cuando el cobro se acredito ahora; 200 cuando el reintento devolvio el
-        // que ya existia. Que el cliente pueda distinguirlos es lo que hace que
-        // reintentar sea seguro sin adivinar.
-        var estado = salida.esNuevo() ? HttpStatus.CREATED : HttpStatus.OK;
-        return ResponseEntity.status(estado).body(respuesta);
     }
 
     /**
@@ -204,8 +159,14 @@ public class AportesController implements AportesApi {
         return ResponseEntity.ok(respuesta);
     }
 
+    /**
+     * El recaudo del pozo lo preguntan {@code entregas} y {@code garantia} con su identidad de servicio (F1.L1.M07,
+     * regla 98.6). {@code ENTREGA_EJECUTAR} queda solo mientras se despliegan las credenciales de servicio: se retira en
+     * el paso 3 (contraer), cuando los dos lleguen con la suya.
+     */
     @Override
-    @Permiso("ENTREGA_EJECUTAR")
+    @Permiso("SERVICIO_ENTREGAS")
+    @PermisoAlternativo({"SERVICIO_GARANTIA", "ENTREGA_EJECUTAR"})
     public ResponseEntity<RecaudoDelPeriodo> consultarRecaudoDelPeriodo(UUID periodoId) {
         Traza.marcarCasoDeUso("CU-21", periodoId.toString());
 

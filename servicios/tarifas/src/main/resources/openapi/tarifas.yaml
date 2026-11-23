@@ -41,6 +41,7 @@
 #   AP-CU34-02  TARIFARIO_VIGENTE_INMUTABLE · se publica la version siguiente (R-TAR-02)
 #   AP-CU34-03  SIN_ACTA_DE_APROBACION · falta el acta del comite (R-LIC-03)
 #   AP-CU34-04  VIGENCIAS_SOLAPADAS    · lo rechaza el EXCLUDE de la base (R-TAR-01)
+#   AP-CU34-06  APROBADOR_DEL_CUERPO   · el aprobador es el actor de la sesion (F1.L5.M28)
 #   AP-CU34-05  FILTRO_DE_LISTADO_INVALIDO · estado desconocido o cursor a medias en
 #                                        GET /tarifas/tarifarios (backoffice carril A · A6)
 #
@@ -373,6 +374,99 @@ paths:
               schema: { $ref: '#/components/schemas/SalidaSegmento' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
+  /tarifas/parametros:
+    get:
+      operationId: listarParametrosFinancieros    # CU-132
+      summary: Catalogo de parametros financieros con su version vigente (por nivel si aplica)
+      description: >-
+        Codigo, unidad y si es por nivel, con la version APROBADA vigente de cada uno y las
+        propuestas pendientes. Un parametro sin version vigente viaja con `vigentes` vacio: es
+        lo que el backoffice tiene que cargar. Exige TARIFARIO_ADMINISTRAR.
+      responses:
+        '200':
+          description: El catalogo entero (es cerrado y chico)
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ParametroFinanciero' }
+        '403':
+          description: Sin TARIFARIO_ADMINISTRAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: Sin token valido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+  /tarifas/parametros/{codigo}/versiones:
+    post:
+      operationId: proponerVersionDeParametro    # CU-132
+      summary: Proponer un valor para un parametro financiero
+      description: >-
+        Queda PROPUESTA. Quien propone sale del token. El valor viaja como cadena decimal, con
+        procedencia (fuente, referencia y fecha, regla 97.4.2). Moneda solo si la unidad es MONTO;
+        nivel solo si el parametro es por nivel. Repetir la misma clave con el mismo contenido
+        devuelve la misma version (regla 91.1.4).
+      parameters:
+        - { name: codigo, in: path, required: true, schema: { type: string, maxLength: 50 } }
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaVersionParametro' }
+      responses:
+        '201':
+          description: Version propuesta (o la misma, si es un reintento)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VersionDeParametro' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU132-01 PARAMETRO_INEXISTENTE · AP-CU132-02 PROPUESTA_INCOHERENTE · AP-CU132-05 CLAVE_REUTILIZADA
+        '403':
+          description: Sin TARIFARIO_ADMINISTRAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: Sin token valido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+  /tarifas/parametros/versiones/{versionId}/aprobacion:
+    post:
+      operationId: aprobarVersionDeParametro    # CU-132
+      summary: Aprobar una version propuesta (otra persona, con su propio token)
+      description: >-
+        Cuatro ojos reales (R-TAR-14): quien aprueba sale de su token y tiene que ser otra
+        persona, en otra sesion, que quien propuso. La transicion PROPUESTA -> APROBADA lleva la
+        precondicion en la escritura: aprobar dos veces no aprueba dos veces.
+      parameters:
+        - { name: versionId, in: path, required: true, schema: { type: string, format: uuid } }
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      responses:
+        '200':
+          description: Version aprobada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VersionDeParametro' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU132-01 VERSION_INEXISTENTE · AP-CU132-03 MISMA_PERSONA · AP-CU132-04 VERSION_YA_RESUELTA
+          # AP-CU132-02 SIN_UNIDAD_DECIDIDA
+        '403':
+          description: Sin TARIFARIO_ADMINISTRAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: Sin token valido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
   /tarifas/precios/resolver:
     post:
       operationId: resolverPrecio              # CU-36
@@ -596,7 +690,7 @@ components:
     EntradaPublicacion:
       type: object
       additionalProperties: false
-      required: [tarifarioBaseId, nombre, tipoCambio, diasPreaviso, aprobadoPor, actaComite,
+      required: [tarifarioBaseId, nombre, tipoCambio, diasPreaviso, actaComite,
                  urlPublicacion, hashDocumento, canalAviso]
       properties:
         tarifarioBaseId: { type: string, format: uuid }
@@ -605,7 +699,13 @@ components:
           type: string
           enum: [INCREMENTO, REDUCCION, NUEVO_CONCEPTO, ELIMINACION]
         diasPreaviso: { type: integer, minimum: 0, maximum: 90 }
-        aprobadoPor:  { type: string, format: uuid }
+        aprobadoPor:
+          type: string
+          format: uuid
+          deprecated: true
+          description: >-
+            DEPRECADO (F1.L5.M28, retiro 2027-02-28). El aprobador es el actor de la sesion; si se
+            envia y nombra a otra persona, 422 AP-CU34-06.
         actaComite:   { type: string, minLength: 1, maxLength: 60 }
         urlPublicacion: { type: string, format: uri }
         hashDocumento:  { type: string, minLength: 64, maxLength: 64 }
@@ -747,6 +847,53 @@ components:
           pattern: '^-?\d+\.\d{2}$'     # CADENA y SIN moneda: simulacion_tarifa no la modela
         usuariosImpactados: { type: integer }
         ejecutadaEn: { type: string, format: date-time }
+    ParametroFinanciero:
+      type: object
+      additionalProperties: false
+      required: [codigo, descripcion, porNivel, vigentes, propuestas]
+      properties:
+        codigo:      { type: string }
+        descripcion: { type: string }
+        unidad:      { type: [string, 'null'], enum: [PORCENTAJE, DIAS, MONTO, CONTEO, null] }
+        porNivel:    { type: boolean }
+        vigentes:
+          type: array
+          items: { $ref: '#/components/schemas/VersionDeParametro' }
+        propuestas:
+          type: array
+          items: { $ref: '#/components/schemas/VersionDeParametro' }
+    EntradaVersionParametro:
+      type: object
+      additionalProperties: false
+      required: [valor, vigenteDesde, procedencia]
+      properties:
+        nivel:        { type: [string, 'null'], maxLength: 30 }
+        valor:
+          type: string
+          pattern: '^\d{1,10}(\.\d{1,6})?$'     # CADENA decimal, nunca number; >= 0
+        moneda:       { type: [string, 'null'], enum: [BOB, USD, null] }
+        vigenteDesde: { type: string, format: date-time }
+        procedencia:  { $ref: '#/components/schemas/Procedencia' }
+    Procedencia:
+      type: object
+      additionalProperties: false
+      required: [fuente, referencia, fecha]
+      properties:
+        fuente:     { type: string, minLength: 1, maxLength: 200 }
+        referencia: { type: string, minLength: 1, maxLength: 300 }
+        fecha:      { type: string, format: date }
+    VersionDeParametro:
+      type: object
+      additionalProperties: false
+      required: [id, codigo, valor, vigenteDesde, estado]
+      properties:
+        id:           { type: string, format: uuid }
+        codigo:       { type: string }
+        nivel:        { type: [string, 'null'] }
+        valor:        { type: string }
+        moneda:       { type: [string, 'null'] }
+        vigenteDesde: { type: string, format: date-time }
+        estado:       { type: string, enum: [PROPUESTA, APROBADA, RECHAZADA] }
     Dinero:
       type: object
       additionalProperties: false

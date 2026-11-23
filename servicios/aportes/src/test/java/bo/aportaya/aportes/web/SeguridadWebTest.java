@@ -36,6 +36,9 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     private CU21CobrarAporte cu21CobrarAporte;
 
     @MockitoBean
+    private bo.aportaya.aportes.aplicacion.CU21PagarConSaldo cu21PagarConSaldo;
+
+    @MockitoBean
     private bo.aportaya.aportes.aplicacion.HechosDeGrupos hechosDeGrupos;
 
     @MockitoBean

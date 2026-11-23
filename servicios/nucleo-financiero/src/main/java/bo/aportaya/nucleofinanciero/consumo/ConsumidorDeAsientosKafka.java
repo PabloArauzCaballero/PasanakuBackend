@@ -43,13 +43,10 @@ public class ConsumidorDeAsientosKafka {
     }
 
     @KafkaListener(
+            // F2.L1.M01 (P-04): sin respaldo ni cobertura empresarial. La empresa no pone plata por quien no
+            // pago, asi que los eventos garantia.respaldo_* y garantia.cobertura_empresarial_* ya no tienen
+            // consumidor: aunque alguien los publique, no entra ningun asiento contra la caja de la empresa.
             topics = {
-                "aportaya.garantia.respaldo_reservado",
-                "aportaya.garantia.respaldo_ampliado",
-                "aportaya.garantia.respaldo_liberado",
-                "aportaya.garantia.respaldo_recuperado",
-                "aportaya.garantia.cobertura_empresarial_aplicada",
-                "aportaya.garantia.cobertura_empresarial_reversada",
                 // El desembolso que el proveedor CONFIRMO: entregas propone el asiento, el mayor lo registra una vez.
                 "aportaya.entregas.desembolso_acreditado"
             },

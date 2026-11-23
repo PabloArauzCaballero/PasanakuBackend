@@ -1,0 +1,29 @@
+F3.L2.M14 (parte de garantia) · parametros del modelo A obligatorios, sin valor por defecto, con interruptor
+Rama: correcciones/tanda2-l2-parametros-modelo-a (sobre origin/dev)
+Alcance acordado con el coordinador (2026-11-21): (1) ParametrosDelModeloA validado solo con el modelo A encendido;
+(2) la semilla minima sin el insert inferido de politica_cobertura; (3) contrato para el registro central en tarifas
+(F3.L2.M14-contrato-parametros-tarifas.md).
+
+$ ./gradlew :servicios:garantia:test --tests '*ParametrosDelModeloATest'
+  6 tests, 0 fallas (1,0 s):
+  - con el modelo A apagado (por omision) garantia arranca sin parametros, como hoy
+  - con el modelo A encendido y todos los parametros, arranca y los lee en decimal exacto   (perfil SINTETICO)
+  - rechaza arrancar sin los dias de gracia y el error nombra la clave                     (CA del anexo: ROJO)
+  - rechaza arrancar encendido y sin ningun parametro: los nombra a todos, sin inventar ninguno
+  - rechaza un porcentaje negativo, uno que no es decimal y dias de gracia con decimales
+  - rechaza un umbral en MONTO sin su moneda ISO 4217
+
+$ ./gradlew :servicios:garantia:test :servicios:garantia:webTest   -> EXIT 0 (test 49/49, webTest 50/50)
+$ ./gradlew spotlessCheck :servicios:garantia:check -x test -x jacocoTestCoverageVerification -x jacocoTestReport -> EXIT 0
+$ ./gradlew testBarrido -> EXIT 0
+  (primera corrida en rojo: sin-umbral-literal marco `new BigDecimal("100")`, un tope de porcentaje que yo habia
+   agregado y que ADR-056 no fija. Clasificacion: defecto del cambio. Correccion: se quito el tope, no la regla.)
+
+Semillas: ver F3.L2.M14-semillas.txt (base nueva: minimos x2 sin politica_cobertura; dev x2 la crea una sola vez,
+SINTETICO y SOLO DEV, porque fondo_garantia.politica_cobertura_id es NOT NULL; verificaciones OK).
+
+NO CUBIERTO / pendiente del DoD del anexo:
+- `grep -rn 'SINTETICO\|SOLO TEST' servicios/*/src/main/resources` NO queda vacio: en garantia, el comentario de los
+  valores del circuit breaker (resiliencia tecnica, no financiera); en entregas, `factor-fijo` (credencial de servicio,
+  de M07 de L1) y el SLA de la incidencia FONDO_INCOMPLETO (se retira con F3.L2.M05).
+- La lectura por grupo desde tarifas espera al productor (L3L5). Entregas no tiene parametros del modelo A.

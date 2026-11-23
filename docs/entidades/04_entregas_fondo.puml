@@ -540,7 +540,8 @@ entity "incidencia_entrega" as incid {
   tipo : VARCHAR(35) <<CK>>
   severidad : VARCHAR(10) <<CK>>
   descripcion : TEXT
-  # reportada_por : UUID <<FK>>
+  # reportada_por : UUID <<FK, NULL>>
+  origen : VARCHAR(10) <<CK: PERSONA|SISTEMA, NULL>>
   # asignada_a : UUID <<FK, NULL>>
   estado : VARCHAR(15) <<CK, IDX>>
   sla_horas : SMALLINT
@@ -584,6 +585,22 @@ entity "fondeo_entrega" as fondeo {
   fondeada_en : TIMESTAMPTZ <<NULL>>
   clave_idempotencia : VARCHAR(80) <<UQ>>
   version : INTEGER
+}
+
+' ----------------------------------------------------------------------------
+'  F3.L2.M01: copia de lectura de los turnos que publica grupos (grupos.turnos_asignados).
+'  Dato replicado (regla 98.4): sin FK a otro esquema; solo dice que turno cobra en cada
+'  periodo. El dinero se decide con el recaudo de aportes, nunca con esta copia.
+' ----------------------------------------------------------------------------
+entity "turno_del_grupo" as turnogrp {
+  * turno_id : UUID <<PK>>
+  --
+  grupo_id : UUID <<IDX>>
+  periodo_id : UUID <<UQ>>
+  cupo_id : UUID
+  titular_participante_id : UUID
+  version : INTEGER <<CK: >= 0>>
+  recibido_en : TIMESTAMPTZ
 }
 
 entity "oferta_turno" as ofturno {

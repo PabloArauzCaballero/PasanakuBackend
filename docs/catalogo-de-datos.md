@@ -67,7 +67,7 @@
 
 **Por qué existe.** En el pasanaku de cuaderno, la prueba de pago es la palabra del organizador. Acá es un documento verificable de forma independiente. Es una de las razones por las que alguien elegiría la plataforma sobre el cuaderno.
 
-**Casos de uso que la nombran.** CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-57 Operar un punto de atención y arquear el efectivo
+**Casos de uso que la nombran.** CU-57 Operar un punto de atención y arquear el efectivo
 
 **Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `pago`.
 
@@ -2986,7 +2986,7 @@ El envío guarda `numero_constancia`: la prueba de que se envió. La observació
 
 **Por qué existe.** Sin deducciones línea a línea, la única alternativa es un campo `total_descontado` que nadie puede auditar ni explicar. Y el beneficiario tiene todo el derecho a saber por qué recibió menos.
 
-**Casos de uso que la nombran.** CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`)
+**Casos de uso que la nombran.** CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`)
 
 **Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `entrega_fondo`. La referencian `tarifas.cargo_comision`.
 
@@ -3154,7 +3154,7 @@ Son dos conversaciones completamente distintas con dos personas distintas. Un so
 
 **Por qué existe.** El campo `estado` dice dónde está; el historial dice cuánto tardó cada paso y quién lo movió. Sin él no hay métricas de tiempo de entrega ni responsables identificables.
 
-**Casos de uso que la nombran.** CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`)
+**Casos de uso que la nombran.** CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`)
 
 **Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `entrega_fondo`, `identidad.usuario`.
 
@@ -3180,9 +3180,9 @@ Son dos conversaciones completamente distintas con dos personas distintas. Un so
 
 **Por qué existe.** Sin incidencias, el problema en una entrega es una conversación de WhatsApp con soporte, sin trazabilidad, sin plazo y sin métrica.
 
-**Casos de uso que la nombran.** CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`)
+**Casos de uso que la nombran.** CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`)
 
-**Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `entrega_fondo`, `identidad.usuario`.
+**Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `entrega_fondo`, `identidad.usuario`. Reglas nombradas: `ck_incidencia_entrega_autor`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
@@ -3191,7 +3191,8 @@ Son dos conversaciones completamente distintas con dos personas distintas. Un so
 | `tipo` | VARCHAR(35) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(35), obligatoria. | NINGUNA |
 | `severidad` | VARCHAR(10) | Nivel de gravedad o criticidad asignado al incidente, alerta o evento. | VARCHAR(10), obligatoria. | NINGUNA |
 | `descripcion` | TEXT | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | TEXT, obligatoria. | NINGUNA |
-| `reportada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `reportada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `origen` | VARCHAR(10) | Atributo que representa origen en el modelo de `incidencia_entrega`. | VARCHAR(10), opcional. | NINGUNA |
 | `asignada_a` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
 | `sla_horas` | SMALLINT | Atributo que representa sla horas en el modelo de `incidencia_entrega`. | SMALLINT, obligatoria. | NINGUNA |
@@ -3381,6 +3382,26 @@ Son dos conversaciones completamente distintas con dos personas distintas. Un so
 | `motivo_fallo` | VARCHAR(200) | Atributo que representa motivo fallo en el modelo de `subasta_cupo`. | VARCHAR(200), opcional. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, restricción única. | NINGUNA |
 | `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
+
+### `turno_del_grupo`
+
+**Qué es.** La copia que guarda `entregas` de los turnos que publica `grupos`: qué turno cobra el pozo de cada periodo, de qué cupo y quién era el titular cuando `grupos` lo publicó.
+
+**Para qué sirve.** Que la entrega se arme sola cuando `aportes` avisa que el recaudo del periodo está listo, sin que nadie la pida a mano y sin que `entregas` tenga que preguntarle a `grupos` en el camino del dinero.
+
+**Por qué existe.** Un servicio no lee la base de otro (regla 98.1.1). Sin esta copia, la entrega automática tendría que llamar a `grupos` en cada fondeo (una cadena de tres saltos, regla 98.2.5) o adivinar el turno del periodo.
+
+**Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `turno_id` | UUID | Identificador de referencia para el concepto de turno en `turno_del_grupo`. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `periodo_id` | UUID | Identificador de referencia para el concepto de periodo en `turno_del_grupo`. | UUID, obligatoria, restricción única. | NINGUNA |
+| `cupo_id` | UUID | Identificador de referencia para el concepto de cupo en `turno_del_grupo`. | UUID, obligatoria. | NINGUNA |
+| `titular_participante_id` | UUID | Identificador de referencia para el concepto de titular participante en `turno_del_grupo`. | UUID, obligatoria. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
+| `recibido_en` | TIMESTAMPTZ | Marca temporal o fecha de recibido en `turno_del_grupo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `validacion_pre_entrega`
 
@@ -3892,7 +3913,7 @@ Guardar cada evaluación con `valorEsperado` y `valorObtenido` responde la pregu
 
 **Por qué existe.** Append-only: los abonos no se editan. Si hubo un error, se registra la reversión (`revertido_en`). Es dinero: la trazabilidad no es opcional.
 
-**Casos de uso que la nombran.** CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`)
+**Casos de uso que la nombran.** CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `aportes.pago`, `deuda_participante`, `entregas.entrega_fondo`, `identidad.usuario`, `movimiento_fondo`.
 
@@ -4116,7 +4137,7 @@ El registro reputacional se mantiene. Si el deudor aparece años después querie
 
 **Por qué existe.** Sin castigo formal, las deudas incobrables se acumulan para siempre en la cartera y el fondo aparenta tener activos que no existen.
 
-**Casos de uso que la nombran.** CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`)
+**Casos de uso que la nombran.** CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `deuda_participante`, `identidad.usuario`, `nucleo_financiero.asiento_contable`.
 
@@ -4234,7 +4255,7 @@ Sin este canal, la única forma de reclamar es por WhatsApp al soporte, sin traz
 
 **Por qué existe.** Sancionar sin oír es arbitrario. Y en un sistema que maneja plata de la gente, la arbitrariedad es el riesgo reputacional más caro que existe.
 
-**Casos de uso que la nombran.** CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`) · CU-63 Proponer y votar un acuerdo (`proponerAcuerdo`, `votarAcuerdo`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`)
+**Casos de uso que la nombran.** CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`) · CU-63 Proponer y votar un acuerdo (`proponerAcuerdo`, `votarAcuerdo`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.participante`, `identidad.usuario`, `registro_incumplimiento`.
 
@@ -5187,7 +5208,7 @@ En el pasanaku presencial esto se resuelve en reunión. Digitalmente, `Acuerdo` 
 
 **Por qué existe.** Sin acuerdos, la plataforma le entrega al organizador un poder que en el pasanaku real nunca tuvo, y reproduce digitalmente el abuso que promete evitar.
 
-**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`) · CU-60 Sortear los turnos (`consultarPrimeraCuota`, `comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-62 Permutar turnos entre participantes (`solicitarPermuta`) · CU-63 Proponer y votar un acuerdo (`proponerAcuerdo`, `votarAcuerdo`) · CU-64 Traspasar un cupo (`listarAcuerdos`, `traspasarCupo`) · CU-65 Retirarse de un grupo (`solicitarRetiro`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`)
+**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`) · CU-60 Sortear los turnos (`consultarPrimeraCuota`, `comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-62 Permutar turnos entre participantes (`solicitarPermuta`) · CU-63 Proponer y votar un acuerdo (`proponerAcuerdo`, `votarAcuerdo`) · CU-64 Traspasar un cupo (`listarAcuerdos`, `traspasarCupo`) · CU-65 Retirarse de un grupo (`solicitarRetiro`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupo`, `identidad.usuario`. La referencian `garantia.acuerdo_quita`, `garantia.disolucion_anticipada`, `garantia.plan_contingencia`, `garantia.reemplazo_participante`, `garantia.sancion`, `tarifas.tarifa_congelada_grupo`, `traspaso_cupo`, `voto_participante`. Reglas nombradas: `uq_acuerdo_abierto`.
 
@@ -7701,7 +7722,7 @@ La diferencia con el opt-out del `CanalVinculado` es importante: la supresión e
 
 **Por qué existe.** Es lo que convierte un montón de filas de pagos en información financiera confiable y auditable.
 
-**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`, `pagarRecargaDePrueba`) · CU-11 Retirar saldo (`solicitarRetiro`) · CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`) · CU-14 Reversar una transacción (`reversarTransaccion`, `listarReversos`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-24 Registrar el asiento contable de una operación · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`) · CU-33 Devolver comisión y emitir nota de crédito (`devolverComision`) · CU-35 Cerrar la liquidación mensual de ingresos (`cerrarLiquidacion`) · CU-51 Ejecutar el cierre diario (`consultarRecaudoDiario`, `listarCierresDiarios`) · CU-65 Retirarse de un grupo (`solicitarRetiro`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`) · CU-100 Abrir y cerrar el período contable (`listarEjerciciosFiscales`, `abrirEjercicioFiscal`, `listarPeriodosDelEjercicio`, `consultarPeriodoVigente`, `cerrarPeriodoContable`) · CU-103 Registrar y pagar una factura de proveedor (`listarFacturasDeProveedor`, `registrarFacturaDeProveedor`, `pagarFacturaDeProveedor`) · CU-104 Cobrar una cuenta por cobrar (`listarCuentasPorCobrar`, `abrirCuentaPorCobrar`, `registrarCobro`) · CU-105 Depreciar un activo fijo (`listarActivosFijos`, `depreciarActivo`, `correrDepreciacionDelPeriodo`) · CU-106 Generar el estado financiero del período (`descargarEstadoFinanciero`, `generarEstadoFinanciero`, `validarPlantillaDeAsiento`)
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`, `pagarRecargaDePrueba`) · CU-11 Retirar saldo (`solicitarRetiro`) · CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`) · CU-14 Reversar una transacción (`reversarTransaccion`, `listarReversos`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-24 Registrar el asiento contable de una operación · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`) · CU-33 Devolver comisión y emitir nota de crédito (`devolverComision`) · CU-35 Cerrar la liquidación mensual de ingresos (`cerrarLiquidacion`) · CU-51 Ejecutar el cierre diario (`consultarRecaudoDiario`, `listarCierresDiarios`) · CU-65 Retirarse de un grupo (`solicitarRetiro`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`) · CU-100 Abrir y cerrar el período contable (`listarEjerciciosFiscales`, `abrirEjercicioFiscal`, `listarPeriodosDelEjercicio`, `consultarPeriodoVigente`, `cerrarPeriodoContable`) · CU-103 Registrar y pagar una factura de proveedor (`listarFacturasDeProveedor`, `registrarFacturaDeProveedor`, `pagarFacturaDeProveedor`) · CU-104 Cobrar una cuenta por cobrar (`listarCuentasPorCobrar`, `abrirCuentaPorCobrar`, `registrarCobro`) · CU-105 Depreciar un activo fijo (`listarActivosFijos`, `depreciarActivo`, `correrDepreciacionDelPeriodo`) · CU-106 Generar el estado financiero del período (`descargarEstadoFinanciero`, `generarEstadoFinanciero`, `validarPlantillaDeAsiento`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `asiento_contable`, `erp.periodo_contable`, `grupos.grupo`, `identidad.usuario`. La referencian `asiento_contable`, `erp.cobro_cuenta_por_cobrar`, `erp.depreciacion_activo`, `erp.factura_proveedor`, `erp.pago_a_proveedor`, `garantia.castigo_deuda`, `garantia.cobertura_incumplimiento`, `garantia.movimiento_fondo`, `movimiento_contable`, `tarifas.devengo_comision`, `tarifas.liquidacion_ingresos`, `transaccion_billetera`. Reglas nombradas: `ck_asiento_reversa_distinta`, `ck_asiento_reversado_enlazado`.
 
@@ -7729,7 +7750,7 @@ La diferencia con el opt-out del `CanalVinculado` es importante: la supresión e
 
 **Casos de uso que la nombran.** CU-11 Retirar saldo (`solicitarRetiro`) · CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`) · CU-17 Bloquear saldo por orden de autoridad (`bloquearPorAutoridad`) · CU-45 Atender un requerimiento de autoridad
 
-**Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `cuenta_billetera`, `identidad.usuario`, `retencion_saldo`. La referencian `cumplimiento.requerimiento_autoridad`. Reglas nombradas: `uq_bloqueo_oficio`.
+**Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `cuenta_billetera`, `identidad.usuario`, `retencion_saldo`. La referencian `cumplimiento.requerimiento_autoridad`. Reglas nombradas: `uq_bloqueo_oficio`, `ck_bloqueo_saldo_cuatro_ojos`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
@@ -7737,6 +7758,7 @@ La diferencia con el opt-out del `CanalVinculado` es importante: la supresión e
 | `cuenta_billetera_id` | UUID | Referencia a la billetera donde se debita o acredita el movimiento de fondos. | UUID, obligatoria, referencia a `cuenta_billetera`, índice b-tree. | NINGUNA |
 | `retencion_id` | UUID | Referencia por clave foránea a la entidad `retencion_saldo`. | UUID, opcional, referencia a `retencion_saldo`. | NINGUNA |
 | `levantada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `registrado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `autoridad` | VARCHAR(20) | Atributo que representa autoridad en el modelo de `bloqueo_saldo`. | VARCHAR(20), obligatoria. | NINGUNA |
 | `tipo_orden` | VARCHAR(30) | Atributo que representa tipo orden en el modelo de `bloqueo_saldo`. | VARCHAR(30), obligatoria. | NINGUNA |
 | `numero_oficio` | VARCHAR(60) | Numeración secuencial o identificador numérico de oficio. | VARCHAR(60), obligatoria. | NINGUNA |
@@ -8555,7 +8577,7 @@ Que la transacción sea una entidad separada de sus movimientos es lo que permit
 
 **Por qué existe.** Sin sobre transaccional, cada movimiento sería independiente y no habría forma de garantizar que un aporte deje la bolsa cuadrada: podría acreditarse el crédito al grupo y fallar el débito al participante.
 
-**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`, `pagarRecargaDePrueba`) · CU-11 Retirar saldo (`solicitarRetiro`) · CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`) · CU-13 Retener y liberar saldo (`debitarInversion`, `retenerSaldo`, `cerrarRetencion`, `pagarAlTercero`, `consultarSaldo`) · CU-14 Reversar una transacción (`reversarTransaccion`, `listarReversos`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`) · CU-33 Devolver comisión y emitir nota de crédito (`devolverComision`) · CU-41 Detectar umbral y registrar formulario PCC-01 · CU-42 Detectar umbral y registrar ROG · CU-52 Atender un reclamo en plazo (`listarBandejaDeReclamos`, `consultarEfectoDeReclamos`, `consultarReclamo`, `responderReclamo`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`)
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`, `pagarRecargaDePrueba`) · CU-11 Retirar saldo (`solicitarRetiro`) · CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`) · CU-13 Retener y liberar saldo (`debitarInversion`, `retenerSaldo`, `cerrarRetencion`, `pagarAlTercero`, `consultarSaldo`) · CU-14 Reversar una transacción (`reversarTransaccion`, `listarReversos`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`) · CU-33 Devolver comisión y emitir nota de crédito (`devolverComision`) · CU-41 Detectar umbral y registrar formulario PCC-01 · CU-42 Detectar umbral y registrar ROG · CU-52 Atender un reclamo en plazo (`listarBandejaDeReclamos`, `consultarEfectoDeReclamos`, `consultarReclamo`, `responderReclamo`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `asiento_contable`, `grupos.grupo`, `identidad.dispositivo`, `identidad.sesion`, `identidad.usuario`. La referencian `cumplimiento.alerta_monitoreo_lft`, `cumplimiento.declaracion_origen_fondos`, `cumplimiento.registro_operacion_relevante`, `evaluacion_antifraude`, `movimiento_billetera`, `orden_recarga`, `orden_retiro`, `qr_transferencia`, `retencion_saldo`, `reverso_transaccion`, `solicitud_reverso`, `tarifas.cargo_comision`, `tarifas.costo_proveedor_operacion`, `tarifas.devolucion_comision`, `transferencia_p2p`. Reglas nombradas: `uq_tx_idem`, `uq_tx_inversion_origen`, `uq_tx_rescate_origen`, `uq_tx_compra_mercado_origen`, `ix_transaccion_ocurrida`.
 
@@ -9532,7 +9554,7 @@ Sin comisión de por medio, `motivacion` gana peso en la evaluación: hay que en
 
 Que las tres vías cuelguen del mismo devengo es lo que permite cambiar la forma de cobro por configuración: el devengo no cambia, cambia por dónde se cobra.
 
-**Casos de uso que la nombran.** CU-11 Retirar saldo (`solicitarRetiro`) · CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`)
+**Casos de uso que la nombran.** CU-11 Retirar saldo (`solicitarRetiro`) · CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `aportes.obligacion_aporte`, `devengo_comision`, `entregas.deduccion_entrega`, `nucleo_financiero.transaccion_billetera`. Reglas nombradas: `uq_cargo_deduccion`.
 
@@ -9733,7 +9755,7 @@ Una factura **no se edita ni se borra**: se anula y se emite nota de crédito. L
 
 **Por qué existe.** Porque mezclar devengo y cobro produce el error clásico: reconocer como ingreso lo que nunca se cobró, o perder de vista lo cobrado que había que devolver.
 
-**Casos de uso que la nombran.** CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`) · CU-32 Emitir factura electrónica (`emitirFactura`) · CU-33 Devolver comisión y emitir nota de crédito (`devolverComision`) · CU-35 Cerrar la liquidación mensual de ingresos (`cerrarLiquidacion`) · CU-91 Firmar y rescindir el contrato de organizador (`firmarContrato`, `rescindirContrato`, `firmarHabilitacionBasica`, `emitirContrato`)
+**Casos de uso que la nombran.** CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`) · CU-32 Emitir factura electrónica (`emitirFactura`) · CU-33 Devolver comisión y emitir nota de crédito (`devolverComision`) · CU-35 Cerrar la liquidación mensual de ingresos (`cerrarLiquidacion`) · CU-91 Firmar y rescindir el contrato de organizador (`firmarContrato`, `rescindirContrato`, `firmarHabilitacionBasica`, `emitirContrato`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `catalogo.tarifario`, `concepto_tarifa`, `cotizacion_comision`, `grupos.grupo`, `grupos.participante`, `identidad.usuario`, `nucleo_financiero.asiento_contable`. La referencian `aplicacion_promocion`, `calculo_impuesto`, `cargo_comision`, `cuenta_por_cobrar_comision`, `devolucion_comision`, `factura_electronica`. Reglas nombradas: `uq_devengo_idem`, `uq_devengo_hecho`.
 
@@ -10032,6 +10054,47 @@ Una factura **no se edita ni se borra**: se anula y se emite nota de crédito. L
 | `fecha_emision` | TIMESTAMPTZ | Marca temporal o fecha de emision en `nota_credito_debito`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `estado_fiscal` | VARCHAR(20) | Atributo que representa estado fiscal en el modelo de `nota_credito_debito`. | VARCHAR(20), obligatoria. | NINGUNA |
 
+### `parametro_congelado_grupo`
+
+**Qué es.** La versión de cada parámetro (y de cada nivel) que un grupo congeló al iniciar.
+
+**Para qué sirve.** Para que un cambio de parámetro rija solo para grupos nuevos (ADR-056 §6): los que ya empezaron siguen con lo que aceptaron, como con la tarifa congelada. `garantia` lee de acá lo que aplica a cada grupo.
+
+**Por qué existe.** Porque sin congelamiento, cambiar el aporte al fondo cambiaría retroactivamente las reglas de un ciclo en curso. Es append-only para el rol de la aplicación.
+
+**Casos de uso que la nombran.** CU-132 Registrar, aprobar y congelar parámetros financieros
+
+**Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `parametro_financiero`, `version_parametro`. Reglas nombradas: `uq_parametro_congelado_grupo`.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `parametro_id` | UUID | Referencia por clave foránea a la entidad `parametro_financiero`. | UUID, obligatoria, referencia a `parametro_financiero`. | NINGUNA |
+| `version_parametro_id` | UUID | Referencia por clave foránea a la entidad `version_parametro`. | UUID, obligatoria, referencia a `version_parametro`. | NINGUNA |
+| `nivel_codigo` | VARCHAR(30) | Código normalizado o mnemotécnico de nivel. | VARCHAR(30), opcional. | NINGUNA |
+| `congelado_en` | TIMESTAMPTZ | Marca temporal o fecha de congelado en `parametro_congelado_grupo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `parametro_financiero`
+
+**Qué es.** El catálogo cerrado de los parámetros financieros del modelo A + D: su código, su unidad y si llevan un valor por nivel de puntualidad. No guarda valores.
+
+**Para qué sirve.** Para que «el aporte al fondo», «los días de gracia» o «el tope del recargo» sean una sola cosa con un solo nombre en todos los servicios. Una unidad todavía no decidida queda vacía y el parámetro no admite valores aprobados hasta que Pablo la decida.
+
+**Por qué existe.** Porque un parámetro escrito en un `.yml` o en el código cambia sin que nadie lo apruebe ni quede rastro (DECISIONES, tanda 6).
+
+**Casos de uso que la nombran.** CU-132 Registrar, aprobar y congelar parámetros financieros
+
+**Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `parametro_congelado_grupo`, `version_parametro`.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `codigo` | VARCHAR(50) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(50), obligatoria, restricción única. | NINGUNA |
+| `descripcion` | VARCHAR(200) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(200), obligatoria. | NINGUNA |
+| `unidad` | VARCHAR(12) | Atributo que representa unidad en el modelo de `parametro_financiero`. | VARCHAR(12), opcional. | NINGUNA |
+| `por_nivel` | BOOLEAN | Atributo que representa por nivel en el modelo de `parametro_financiero`. | BOOLEAN, obligatoria. | NINGUNA |
+
 ### `politica_redondeo`
 
 **Qué es.** Cómo se redondea el resultado del cálculo.
@@ -10147,7 +10210,7 @@ Una factura **no se edita ni se borra**: se anula y se emite nota de crédito. L
 
 **Por qué existe.** Porque sin él, subir el tarifario reescribe retroactivamente el costo de ciclos ya aceptados. Eso es, a la vez, un problema de confianza, un reclamo con razón y un incumplimiento contractual.
 
-**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-30 Cotizar la comisión antes de operar (`cotizarOperacion`, `cotizarComision`, `aceptarCotizacion`) · CU-34 Publicar un tarifario nuevo con preaviso (`listarTarifarios`, `publicarTarifario`, `ponerTarifarioVigente`) · CU-36 Segmentar comercialmente y aplicar precio diferenciado (`resolverPrecio`, `crearSegmento`)
+**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-30 Cotizar la comisión antes de operar (`cotizarOperacion`, `cotizarComision`, `aceptarCotizacion`) · CU-34 Publicar un tarifario nuevo con preaviso (`listarTarifarios`, `publicarTarifario`, `ponerTarifarioVigente`) · CU-36 Segmentar comercialmente y aplicar precio diferenciado (`resolverPrecio`, `crearSegmento`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `catalogo.tarifario`, `grupos.acuerdo`, `grupos.grupo`. Reglas nombradas: `uq_tarifa_congelada_grupo`.
 
@@ -10161,6 +10224,36 @@ Una factura **no se edita ni se borra**: se anula y se emite nota de crédito. L
 | `hash_snapshot` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de snapshot. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
 | `congelada_en` | TIMESTAMPTZ | Marca temporal o fecha de congelada en `tarifa_congelada_grupo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `vigente_hasta_ciclo_nro` | SMALLINT | Atributo que representa vigente hasta ciclo nro en el modelo de `tarifa_congelada_grupo`. | SMALLINT, opcional. | NINGUNA |
+
+### `version_parametro`
+
+**Qué es.** Un valor de un parámetro, con su vigencia, su procedencia, quién lo propuso y quién —otra persona— lo aprobó.
+
+**Para qué sirve.** Para cambiar un parámetro sin desplegar y con cuatro ojos reales: una persona propone, otra aprueba, las dos tomadas de su token (`R-TAR-14`). Lo aprobado no se edita: se corrige con una versión nueva (`R-TAR-16`).
+
+**Por qué existe.** Porque un parámetro financiero decide cuánto paga cada participante; sin versión ni aprobación, nadie podría reconstruir con qué valor se calculó un recargo o una devolución.
+
+**Casos de uso que la nombran.** CU-132 Registrar, aprobar y congelar parámetros financieros
+
+**Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `parametro_financiero`. La referencian `parametro_congelado_grupo`. Reglas nombradas: `ck_version_parametro_cuatro_ojos`, `ck_version_parametro_aprobada_completa`, `ck_version_parametro_valor`.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `parametro_id` | UUID | Referencia por clave foránea a la entidad `parametro_financiero`. | UUID, obligatoria, referencia a `parametro_financiero`, índice b-tree. | NINGUNA |
+| `nivel_codigo` | VARCHAR(30) | Código normalizado o mnemotécnico de nivel. | VARCHAR(30), opcional. | NINGUNA |
+| `valor` | DECIMAL(16,6) | Atributo que representa valor en el modelo de `version_parametro`. | DECIMAL(16,6), obligatoria. | NINGUNA |
+| `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), opcional. | NINGUNA |
+| `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `procedencia_fuente` | VARCHAR(200) | Atributo que representa procedencia fuente en el modelo de `version_parametro`. | VARCHAR(200), obligatoria. | NINGUNA |
+| `procedencia_referencia` | VARCHAR(300) | Atributo que representa procedencia referencia en el modelo de `version_parametro`. | VARCHAR(300), obligatoria. | NINGUNA |
+| `procedencia_fecha` | DATE | Marca temporal o fecha de procedencia en `version_parametro`. | DATE, obligatoria. | NINGUNA |
+| `propuesto_por` | UUID | Atributo que representa propuesto por en el modelo de `version_parametro`. | UUID, obligatoria. | NINGUNA |
+| `propuesto_en` | TIMESTAMPTZ | Marca temporal o fecha de propuesto en `version_parametro`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `aprobado_por` | UUID | Identificador del usuario con facultades que autorizó la operación. | UUID, opcional. | NINGUNA |
+| `aprobado_en` | TIMESTAMPTZ | Marca temporal o fecha de aprobado en `version_parametro`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(12) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(12), obligatoria, índice b-tree. | NINGUNA |
+| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria, restricción única. | NINGUNA |
 
 ## Esquema `transparencia`
 

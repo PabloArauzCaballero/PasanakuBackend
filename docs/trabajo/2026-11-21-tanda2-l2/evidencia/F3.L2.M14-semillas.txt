@@ -1,0 +1,17 @@
+$ python3 scripts/generar_semillas.py && git diff --stat -- seeders sql
+ seeders/dev/04-fondo-y-cuenta-del-grupo.json | 23 +++++++++++++++++++++++
+ seeders/minimos/02-politicas.json            | 24 +-----------------------
+ sql/60_semillas/02-politicas.sql             | 10 +---------
+ sql/61_dev/04-fondo-y-cuenta-del-grupo.sql   |  9 +++++++++
+ 4 files changed, 34 insertions(+), 32 deletions(-)
+
+== base nueva (sql/aplicar.sql), semillas minimas x2 y de dev x2
+aplicar exit=0
+sembrar 1 exit=0
+politica_cobertura tras minimos: 0
+sembrar 2 exit=0
+sembrar_dev 1 exit=0
+sembrar_dev 2 exit=0
+politica_cobertura tras dev x2: 1
+fondos de garantia con politica: 1
+verificaciones exit=0

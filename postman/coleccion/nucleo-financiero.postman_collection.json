@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AportaYa · nucleo-financiero",
-    "description": "# AportaYa · nucleo-financiero\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**30 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
+    "description": "# AportaYa · nucleo-financiero\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**32 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -267,7 +267,7 @@
         "description": "## Ver el precio de una recarga o un retiro antes de confirmarlo\n\n[CONTRATO] Que la persona vea el numero final ANTES de aceptar: base, comision, impuesto, costo total, neto y hasta cuando vale ese precio. No mueve nada ni compromete a nadie. La `Idempotency-Key` que se manda aca es la MISMA que despues lleva la recarga o el retiro, y `cotizacionId` es lo que esa operacion cita para confirmar. Pedir otro importe con la misma clave produce otra cotizacion: no se puede cobrar el precio de un importe sobre otro.\nEl precio lo fija `tarifas`; este servicio no lo calcula. Una operacion sin concepto en el tarifario es gratuita (`gratuita=true`, sin `cotizacionId`).\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `cotizarOperacion` |\n| **Ruta** | `POST /api/v1/billetera/cotizaciones` |\n| **Permiso** | `BILLETERA_OPERAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422`, `401` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"operacion\": \"RECARGA\",\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  }\n}",
+          "raw": "{\n  \"operacion\": \"RECARGA\",\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  }\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -351,7 +351,7 @@
         "description": "## Abre una orden de recarga y devuelve cuanto se va a acreditar\n\n[CONTRATO] Derivada de la implementacion del carril 2A, que llego antes que su contrato.\nLa orden NO acredita: reserva la intencion y vence. Acreditar es el paso siguiente y ocurre cuando el proveedor confirma, porque acreditar contra una promesa es acreditar plata que puede no llegar.\n`acreditara` viaja en la respuesta ya calculado: el cliente **no** resta el costo del proveedor por su cuenta. Un cliente que recalcula produce un numero que no es el del libro contable.\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `solicitarRecarga` |\n| **Ruta** | `POST /api/v1/billetera/recargas` |\n| **Permiso** | `BILLETERA_OPERAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU10-01` | Limite excedido |\n| `AP-CU10-02` | Saldo maximo alcanzado |\n| `AP-CU10-03` | Instrumento no verificado |\n| `AP-CU10-04` | Cuenta no operativa |\n| `AP-CU10-05` | Orden expirada |\n| `AP-CU10-06` | Cotizacion requerida |\n| `AP-CU10-07` | Cotizacion vencida |\n| `AP-CU10-08` | Cotizacion no coincide |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"costoProveedor\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"medio\": \"medio-de-prueba\",\n  \"instrumentoFondeoId\": \"{{instrumentoFondeoId}}\",\n  \"cotizacionId\": \"{{cotizacionId}}\"\n}",
+          "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"costoProveedor\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"medio\": \"medio-de-prueba\",\n  \"instrumentoFondeoId\": \"{{instrumentoFondeoId}}\",\n  \"cotizacionId\": \"{{cotizacionId}}\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -592,7 +592,7 @@
         "description": "## Aparta saldo sin sacarlo de la cuenta\n\n[CONTRATO] Retener no es debitar: el dinero sigue siendo del titular y por eso se ve como retenido y no desaparece. Lo que cambia es que deja de estar disponible mientras dure el motivo.\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `retenerSaldo` |\n| **Ruta** | `POST /api/v1/billetera/retenciones` |\n| **Permiso** | `BILLETERA_OPERAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU13-01` | Saldo insuficiente |\n| `AP-CU13-02` | Vencimiento requerido |\n| `AP-CU13-03` | Retencion ya ejecutada |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"motivo\": \"motivo-de-prueba\",\n  \"transaccionOrigenId\": \"{{transaccionOrigenId}}\",\n  \"referenciaTipo\": \"referenciaTipo-de-prueba\",\n  \"referenciaId\": \"{{referenciaId}}\",\n  \"expiraEn\": \"{{momento_ahora}}\"\n}",
+          "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"motivo\": \"motivo-de-prueba\",\n  \"transaccionOrigenId\": \"{{transaccionOrigenId}}\",\n  \"referenciaTipo\": \"referenciaTipo-de-prueba\",\n  \"referenciaId\": \"{{referenciaId}}\",\n  \"expiraEn\": \"{{momento_ahora}}\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -736,7 +736,7 @@
       ]
     },
     {
-      "name": "pagarAlTercero · Ejecuta una retencion de compra del mercado a favor del vendedor",
+      "name": "pagarAlTercero · RETIRADA (410) · ejecutaba una retencion de compra del mercado a favor del vendedor",
       "request": {
         "method": "POST",
         "header": [
@@ -769,7 +769,7 @@
             }
           ]
         },
-        "description": "## Ejecuta una retencion de compra del mercado a favor del vendedor\n\n[CONTRATO · SOLO SERVICIO] Lo pide `entregas` (identidad de servicio `SERVICIO_ENTREGAS`; una sesion de usuario final recibe 403 aunque tenga `BILLETERA_OPERAR`). NO lleva cuerpo: el beneficiario y el reparto NO los dicta quien llama. Se derivan en el servidor: la retencion `COMPRA_EN_MERCADO` nombra la oferta (`referencia_id`); se le pregunta a `entregas` quien es el vendedor, cual es el precio y cuales son los cargos (si no responde o no informa los cargos, no se paga). Reparto (decision adoptada por delegacion del dueno, 2026-10-11): el comprador paga el precio, que tiene que ser exactamente lo retenido (`AP-CU13-06` si no); el vendedor recibe `precio - cargos` y la plataforma los `cargos`, cada uno con su linea en la transaccion (regla 91.3.4); los cargos van entre 0 y el precio (`AP-CU13-06` si no). Una retencion se ejecuta una sola vez: la repetida con la misma `Idempotency-Key` devuelve el mismo resultado sin otro asiento; pagada o liberada se rechaza (R-BIL-24).\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `pagarAlTercero` |\n| **Ruta** | `POST /api/v1/billetera/retenciones/{retencionId}/pago-a-tercero` |\n| **Permiso** | `SERVICIO_ENTREGAS` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422`, `401`, `403` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU13-03` | Retencion ya ejecutada |\n| `AP-CU13-04` | Clave de otra operacion |\n| `AP-CU13-05` | Motivo incompatible |\n| `AP-CU13-06` | Monto distinto de lo retenido |\n| `AP-CU13-07` | Cuenta de sistema no configurada |\n| `AP-CU13-08` | Destinatario invalido |\n| `AP-CU13-09` | Solo servicio |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+        "description": "## RETIRADA (410) · ejecutaba una retencion de compra del mercado a favor del vendedor\n\nRETIRADA en 1.1.0 (D-L2-1): responde 410 AP-CU13-10 sin efecto. Lo que sigue describe lo que hacia. [CONTRATO · SOLO SERVICIO] Lo pide `entregas` (identidad de servicio `SERVICIO_ENTREGAS`; una sesion de usuario final recibe 403 aunque tenga `BILLETERA_OPERAR`). NO lleva cuerpo: el beneficiario y el reparto NO los dicta quien llama. Se derivan en el servidor: la retencion `COMPRA_EN_MERCADO` nombra la oferta (`referencia_id`); se le pregunta a `entregas` quien es el vendedor, cual es el precio y cuales son los cargos (si no responde o no informa los cargos, no se paga). Reparto (decision adoptada por delegacion del dueno, 2026-10-11): el comprador paga el precio, que tiene que ser exactamente lo retenido (`AP-CU13-06` si no); el vendedor recibe `precio - cargos` y la plataforma los `cargos`, cada uno con su linea en la transaccion (regla 91.3.4); los cargos van entre 0 y el precio (`AP-CU13-06` si no). Una retencion se ejecuta una sola vez: la repetida con la misma `Idempotency-Key` devuelve el mismo resultado sin otro asiento; pagada o liberada se rechaza (R-BIL-24).\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `pagarAlTercero` |\n| **Ruta** | `POST /api/v1/billetera/retenciones/{retencionId}/pago-a-tercero` |\n| **Permiso** | `SERVICIO_ENTREGAS` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422`, `410`, `401`, `403` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU13-03` | Retencion ya ejecutada |\n| `AP-CU13-04` | Clave de otra operacion |\n| `AP-CU13-05` | Motivo incompatible |\n| `AP-CU13-06` | Monto distinto de lo retenido |\n| `AP-CU13-07` | Cuenta de sistema no configurada |\n| `AP-CU13-08` | Destinatario invalido |\n| `AP-CU13-09` | Solo servicio |\n| `AP-CU13-10` | Operacion retirada |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
       },
       "response": [],
       "event": [
@@ -779,7 +779,7 @@
             "type": "text/javascript",
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
-              "const esperadas = [200, 401, 403, 422];",
+              "const esperadas = [200, 401, 403, 410, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",
@@ -927,7 +927,7 @@
         "description": "## Convierte la retencion de una inversion en el debito definitivo\n\n[CONTRATO · SOLO SERVICIO] Lo pide `inversiones` (DR-INV-05) con identidad de servicio `SERVICIO_INVERSIONES`; una sesion de usuario final recibe 403. La retencion `INVERSION_VOLUNTARIA` pasa a `EJECUTADA` y el importe sale del disponible Y del retenido hacia la custodia de inversion, en una sola transaccion que cuadra. El importe tiene que ser el retenido. Idempotente por `Idempotency-Key` y por orden: una orden se debita una sola vez (R-BIL-24). Saldo insuficiente no aplica aca —la plata ya estaba retenida—; ese rechazo ocurre al retener (AP-CU13-01).\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `debitarInversion` |\n| **Ruta** | `POST /api/v1/billetera/inversiones/debitos` |\n| **Permiso** | `SERVICIO_INVERSIONES` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422`, `401`, `403` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU13-09` | Solo servicio |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"retencionId\": \"{{retencionId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"titularId\": \"{{titularId}}\"\n}",
+          "raw": "{\n  \"retencionId\": \"{{retencionId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"titularId\": \"{{titularId}}\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -1012,7 +1012,7 @@
         "description": "## Acredita al titular un rescate de inversion desde la custodia\n\n[CONTRATO · SOLO SERVICIO] Lo pide `inversiones` (DR-INV-05). Acreditar es confirmar que la plata volvio, y eso no lo hace quien la espera (91.3): exige la identidad de servicio `SERVICIO_INVERSIONES`, no la del titular. Mueve el importe de la custodia de inversion a la billetera del titular en una transaccion que cuadra; la custodia no puede quedar en negativo. Idempotente por `Idempotency-Key` y por rescate (R-BIL-24).\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `acreditarRescate` |\n| **Ruta** | `POST /api/v1/billetera/inversiones/acreditaciones` |\n| **Permiso** | `SERVICIO_INVERSIONES` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422`, `401`, `403` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU12-06` | Clave de otra operacion |\n| `AP-CU12-07` | Custodia no configurada |\n| `AP-CU12-08` | Solo servicio |\n| `AP-CU40-01` | Sin limite configurado |\n| `AP-CU40-02` | Limite excedido |\n| `AP-CU40-03` | Cantidad excedida |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"referenciaId\": \"{{referenciaId}}\"\n}",
+          "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"referenciaId\": \"{{referenciaId}}\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -1182,7 +1182,7 @@
         "description": "## Solicitar un retiro hacia una cuenta de destino\n\nRetencion primero, pago despues, nunca al reves. Si se instruyera el pago antes de retener, entre las dos cosas la persona podria gastar el mismo saldo en otra operacion y el retiro saldria contra un disponible que ya no existe. El proveedor se instruye FUERA de la transaccion (invariante 6).\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `solicitarRetiro` |\n| **Ruta** | `POST /api/v1/billetera/retiros` |\n| **Permiso** | `BILLETERA_OPERAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU11-01` | Saldo insuficiente |\n| `AP-CU11-02` | Mfa requerido |\n| `AP-CU11-03` | Instrumento en enfriamiento |\n| `AP-CU11-04` | Titular no coincide |\n| `AP-CU11-05` | Bloqueo de autoridad |\n| `AP-CU11-06` | Encaje incumplido |\n| `AP-CU11-07` | Mfa invalido |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"instrumentoDestinoId\": \"{{instrumentoDestinoId}}\",\n  \"evidenciaMfa\": \"evidenciaMfa-de-prueba\",\n  \"factorMfa\": \"factorMfa-de-prueba\",\n  \"cotizacionId\": \"{{cotizacionId}}\"\n}",
+          "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"instrumentoDestinoId\": \"{{instrumentoDestinoId}}\",\n  \"evidenciaMfa\": \"evidenciaMfa-de-prueba\",\n  \"factorMfa\": \"factorMfa-de-prueba\",\n  \"cotizacionId\": \"{{cotizacionId}}\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -1358,7 +1358,7 @@
         "description": "## Transferir saldo entre billeteras\n\nLa unica operacion donde el dinero no entra ni sale del sistema: cambia de bolsillo, y el saldo total permanece constante. Las dos cuentas se bloquean en orden de identificador — dos transferencias cruzadas que bloqueen cada una primero la suya se esperan para siempre.\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `transferirSaldo` |\n| **Ruta** | `POST /api/v1/billetera/transferencias` |\n| **Permiso** | `BILLETERA_OPERAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU12-01` | Saldo insuficiente |\n| `AP-CU12-02` | Destino inexistente |\n| `AP-CU12-03` | Cuenta destino no operativa |\n| `AP-CU12-04` | Limite excedido |\n| `AP-CU12-05` | P |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"cuentaOrigenId\": \"{{cuentaOrigenId}}\",\n  \"destino\": {\n    \"tipo\": \"ALIAS\",\n    \"valor\": \"valor-de-prueba\"\n  },\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"concepto\": \"concepto-de-prueba\",\n  \"obligacionId\": \"{{obligacionId}}\"\n}",
+          "raw": "{\n  \"cuentaOrigenId\": \"{{cuentaOrigenId}}\",\n  \"destino\": {\n    \"tipo\": \"ALIAS\",\n    \"valor\": \"valor-de-prueba\"\n  },\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"concepto\": \"concepto-de-prueba\",\n  \"obligacionId\": \"{{obligacionId}}\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -1739,6 +1739,98 @@
       ]
     },
     {
+      "name": "listarBloqueosPorAutoridad · Bloqueos por orden de autoridad, del mas reciente al mas antiguo",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/billetera/bloqueos",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "billetera",
+            "bloqueos"
+          ],
+          "variable": [],
+          "query": [
+            {
+              "key": "limite",
+              "value": "1",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "estado",
+              "value": "VIGENTE",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "antesDe",
+              "value": "{{momento_ahora}}",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "antesDeId",
+              "value": "{{antesDeId}}",
+              "description": "",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "## Bloqueos por orden de autoridad, del mas reciente al mas antiguo\n\nLa bandeja de Cumplimiento: exige BLOQUEO_AUTORIDAD_REGISTRAR o BLOQUEO_AUTORIDAD_LEVANTAR. Paginada por cursor (recibidoEn, id) descendente: el desempate por id hace estable el orden aunque dos ordenes compartan el instante. Filtro opcional por estado. Cada fila trae lo necesario para decidir y nada mas (respuesta minima): ni el numero de oficio ni el documento de la orden viajan aca. La fila que registro quien consulta, o que ya no esta vigente, aparece con puedeLevantar=false: la segregacion (R-BIL-32) la vuelve a exigir levantarBloqueoPorAutoridad; esto solo evita ofrecer un boton muerto.\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `listarBloqueosPorAutoridad` |\n| **Ruta** | `GET /api/v1/billetera/bloqueos` |\n| **Permiso** | `BLOQUEO_AUTORIDAD_REGISTRAR` |\n| **Respuestas** | `200`, `422`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU17-06` | Cursor incompleto |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "bloquearPorAutoridad · Registrar un bloqueo por orden de autoridad",
       "request": {
         "method": "POST",
@@ -1768,10 +1860,10 @@
           ],
           "variable": []
         },
-        "description": "## Registrar un bloqueo por orden de autoridad\n\nEl unico caso en que una retencion no tiene fecha de fin: la levanta la misma autoridad que la puso, y ponerle vencimiento propio seria decidir por un juez cuando se acaba su orden. El documento de respaldo es obligatorio — inmovilizar la plata de alguien sin poder mostrar el papel es indefendible.\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `bloquearPorAutoridad` |\n| **Ruta** | `POST /api/v1/billetera/bloqueos` |\n| **Permiso** | `DATOS_SENSIBLES_LEER` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU17-01` | Oficio duplicado |\n| `AP-CU17-02` | Cuenta inexistente |\n| `AP-CU17-03` | Sin documento de respaldo |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Registrar un bloqueo por orden de autoridad\n\nEl unico caso en que una retencion no tiene fecha de fin: la levanta la misma autoridad que la puso, y ponerle vencimiento propio seria decidir por un juez cuando se acaba su orden. El documento de respaldo es obligatorio — inmovilizar la plata de alguien sin poder mostrar el papel es indefendible.\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `bloquearPorAutoridad` |\n| **Ruta** | `POST /api/v1/billetera/bloqueos` |\n| **Permiso** | `BLOQUEO_AUTORIDAD_REGISTRAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU17-01` | Oficio duplicado |\n| `AP-CU17-02` | Cuenta inexistente |\n| `AP-CU17-03` | Sin documento de respaldo |\n| `AP-CU17-04` | Misma persona levanta |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"autoridad\": \"ASFI\",\n  \"tipoOrden\": \"CONGELAMIENTO\",\n  \"numeroOficio\": \"numeroOficio-de-prueba\",\n  \"montoBloqueado\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"alcance\": \"PARCIAL\",\n  \"documentoUrl\": \"https://ejemplo.aportaya.bo/documento.pdf\",\n  \"hashDocumento\": \"0000000000000000000000000000000000000000000000000000000000000000\"\n}",
+          "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"autoridad\": \"ASFI\",\n  \"tipoOrden\": \"CONGELAMIENTO\",\n  \"numeroOficio\": \"numeroOficio-de-prueba\",\n  \"montoBloqueado\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"alcance\": \"PARCIAL\",\n  \"documentoUrl\": \"https://ejemplo.aportaya.bo/documento.pdf\",\n  \"hashDocumento\": \"0000000000000000000000000000000000000000000000000000000000000000\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -1788,6 +1880,85 @@
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
               "const esperadas = [201, 401, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "levantarBloqueoPorAutoridad · Levantar un bloqueo por orden de autoridad (otra persona que quien lo registro)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/billetera/bloqueos/:bloqueoId/levantamiento",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "billetera",
+            "bloqueos",
+            ":bloqueoId",
+            "levantamiento"
+          ],
+          "variable": [
+            {
+              "key": "bloqueoId",
+              "value": "{{bloqueoId}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## Levantar un bloqueo por orden de autoridad (otra persona que quien lo registro)\n\nF1.L1.M10 (R-BIL-32). Exige BLOQUEO_AUTORIDAD_LEVANTAR y una persona distinta de quien registro el bloqueo, ambas tomadas del token: quien lo registro recibe 422 AP-CU17-04. El saldo retenido vuelve a estar disponible en la misma transaccion. No lleva cuerpo: quien levanta no se declara, es el token.\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `levantarBloqueoPorAutoridad` |\n| **Ruta** | `POST /api/v1/billetera/bloqueos/{bloqueoId}/levantamiento` |\n| **Permiso** | `BLOQUEO_AUTORIDAD_LEVANTAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422`, `401`, `403` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU17-04` | Misma persona levanta |\n| `AP-CU17-05` | Bloqueo no vigente |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 401, 403, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",
@@ -1850,7 +2021,7 @@
         "description": "## Emitir un QR interno para cobrar\n\n[CONTRATO] Un QR INTERNO es un cobro que una billetera de Pasanaku publica; se paga entre billeteras de Pasanaku. El DINAMICO fija importe y vencimiento y se consume al pagarse. El ESTATICO no fija importe, no vence y se puede pagar muchas veces.\nEl `contenido` solo lleva un identificador y una firma: alterarlo lo invalida, nunca cambia a quien se paga ni cuanto. NO es un QR bancario ni interoperable: ese no se procesa (AP-CU12-10).\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `emitirQr` |\n| **Ruta** | `POST /api/v1/billetera/qr` |\n| **Permiso** | `BILLETERA_OPERAR` |\n| **Respuestas** | `201`, `422`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU12-03` | Cuenta no operativa |\n| `AP-CU12-07` | Qr no valido |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"modalidad\": \"DINAMICO\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"concepto\": \"concepto-de-prueba\"\n}",
+          "raw": "{\n  \"cuentaBilleteraId\": \"{{cuentaBilleteraId}}\",\n  \"modalidad\": \"DINAMICO\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  },\n  \"concepto\": \"concepto-de-prueba\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -2015,7 +2186,7 @@
         "description": "## Pagar un QR interno confirmando destinatario e importe\n\n[CONTRATO] Es una transferencia comun entre billeteras (CU-12), atada al QR en la misma transaccion. Un QR dinamico se paga por SU importe, que quien paga tiene que confirmar; y una sola vez: el segundo pago, de quien sea, se rechaza. Repetir la misma `Idempotency-Key` devuelve el mismo comprobante sin mover plata de nuevo.\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `pagarQr` |\n| **Ruta** | `POST /api/v1/billetera/qr/pagos` |\n| **Permiso** | `BILLETERA_OPERAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU12-01` | Saldo insuficiente |\n| `AP-CU12-11` | Importe no confirmado |\n| `AP-CU50-01` | Sin cierres diarios |\n| `AP-CU50-02` | Sin extracto bancario |\n| `AP-CU50-03` | Conciliacion duplicada |\n| `AP-CU50-04` | Filtro de listado invalido |\n| `AP-CU50-05` | Moneda distinta de la custodia |\n| `AP-CU50-06` | Custodia inexistente |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"contenido\": \"contenido-de-prueba\",\n  \"cuentaOrigenId\": \"{{cuentaOrigenId}}\",\n  \"monto\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  }\n}",
+          "raw": "{\n  \"contenido\": \"contenido-de-prueba\",\n  \"cuentaOrigenId\": \"{{cuentaOrigenId}}\",\n  \"monto\": {\n    \"monto\": \"1.11\",\n    \"moneda\": \"BOB\"\n  }\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -2529,6 +2700,10 @@
     },
     {
       "key": "base_url",
+      "value": ""
+    },
+    {
+      "key": "bloqueoId",
       "value": ""
     },
     {

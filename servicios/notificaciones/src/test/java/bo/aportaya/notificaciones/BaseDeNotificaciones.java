@@ -118,7 +118,8 @@ abstract class BaseDeNotificaciones {
                 consumidos,
                 outbox,
                 Reloj.delSistema(),
-                SECRETO_WEBHOOK);
+                SECRETO_WEBHOOK,
+                java.time.Duration.ofMinutes(5));
 
         loteCU = new CU83DespacharLote(
                 datos,

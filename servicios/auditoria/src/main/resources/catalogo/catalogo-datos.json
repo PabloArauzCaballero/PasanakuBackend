@@ -75,9 +75,9 @@
   {
    "nombre": "entregas",
    "descripcion": "Entregas de Fondo. Que la bolsa llegue completa, a la persona correcta, una sola vez.",
-   "tablas": 19,
-   "tablasDeNegocio": 15,
-   "columnas": 228,
+   "tablas": 20,
+   "tablasDeNegocio": 16,
+   "columnas": 236,
    "relaciones": 38,
    "appendOnly": 0,
    "conDatosPersonales": 1,
@@ -154,8 +154,8 @@
    "descripcion": "Billetera, Custodia y Dinero Electrónico. El saldo no se guarda: se deriva, y todos los días cuadra contra el banco.",
    "tablas": 34,
    "tablasDeNegocio": 31,
-   "columnas": 395,
-   "relaciones": 78,
+   "columnas": 396,
+   "relaciones": 79,
    "appendOnly": 8,
    "conDatosPersonales": 5,
    "servicio": "nucleo-financiero"
@@ -185,11 +185,11 @@
   {
    "nombre": "tarifas",
    "descripcion": "Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder.",
-   "tablas": 29,
-   "tablasDeNegocio": 25,
-   "columnas": 327,
-   "relaciones": 62,
-   "appendOnly": 1,
+   "tablas": 32,
+   "tablasDeNegocio": 28,
+   "columnas": 353,
+   "relaciones": 65,
+   "appendOnly": 2,
    "conDatosPersonales": 4,
    "servicio": "tarifas"
   },
@@ -775,36 +775,6 @@
     "derivados": 1
    },
    "operaciones": [
-    {
-     "casoDeUso": "CU-22",
-     "titulo": "Liquidar y entregar el fondo",
-     "endpoints": [
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas",
-       "operationId": "liquidarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/pozo-completo",
-       "operationId": "fondearPozo"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/autorizacion",
-       "operationId": "autorizarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/ejecucion",
-       "operationId": "ejecutarEntrega"
-      }
-     ]
-    },
     {
      "casoDeUso": "CU-57",
      "titulo": "Operar un punto de atención y arquear el efectivo",
@@ -24059,36 +24029,6 @@
    },
    "operaciones": [
     {
-     "casoDeUso": "CU-22",
-     "titulo": "Liquidar y entregar el fondo",
-     "endpoints": [
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas",
-       "operationId": "liquidarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/pozo-completo",
-       "operationId": "fondearPozo"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/autorizacion",
-       "operationId": "autorizarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/ejecucion",
-       "operationId": "ejecutarEntrega"
-      }
-     ]
-    },
-    {
      "casoDeUso": "CU-31",
      "titulo": "Devengar y cobrar la comisión",
      "endpoints": [
@@ -25336,6 +25276,36 @@
    },
    "operaciones": [
     {
+     "casoDeUso": "CU-22",
+     "titulo": "Liquidar y entregar el fondo",
+     "endpoints": [
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas",
+       "operationId": "liquidarEntrega"
+      },
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas/pozo-completo",
+       "operationId": "fondearPozo"
+      },
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas/{entregaId}/autorizacion",
+       "operationId": "autorizarEntrega"
+      },
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas/{entregaId}/ejecucion",
+       "operationId": "ejecutarEntrega"
+      }
+     ]
+    },
+    {
      "casoDeUso": "CU-28",
      "titulo": "Emitir la orden de desembolso y ejecutar el intento",
      "endpoints": [
@@ -25374,7 +25344,9 @@
     "negocio": "Los ocho tipos son el catálogo de todo lo que puede salir mal en el momento más sensible: fondo incompleto, datos bancarios erróneos, desembolso rechazado, monto que no coincide, el beneficiario no recibió, entrega duplicada, reclamo de un tercero, sospecha de fraude.\n\nslaHoras y fechaLimiteSLA son lo que convierte el reclamo en algo con reloj. Una entrega que no llega es la emergencia máxima de la plataforma: la persona esperó meses su turno y contaba con esa plata para algo concreto. Un reclamo así no puede quedar en una bandeja sin dueño ni plazo.\n\nENTREGA_DUPLICADA está tipificada aunque las restricciones de base de datos la hagan improbable: si alguna vez ocurre por una vía inesperada, hay que poder gestionarla, no descubrirla en el cierre contable.",
     "porQue": "Sin incidencias, el problema en una entrega es una conversación de WhatsApp con soporte, sin trazabilidad, sin plazo y sin métrica."
    },
-   "reglas": [],
+   "reglas": [
+    "ck_incidencia_entrega_autor"
+   ],
    "columnas": [
     {
      "nombre": "id",
@@ -25431,14 +25403,24 @@
     {
      "nombre": "reportada_por",
      "tipo": "UUID",
-     "nulable": false,
+     "nulable": true,
      "pk": false,
      "referencia": "usuario",
      "negocio": "Referencia por clave foránea a la entidad usuario.",
      "origenNegocio": "convencion",
-     "sistema": "UUID, obligatoria, referencia a usuario.",
+     "sistema": "UUID, opcional, referencia a usuario.",
      "sensibilidad": "NINGUNA",
      "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "origen",
+     "tipo": "VARCHAR(10)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Atributo que representa origen en el modelo de incidencia_entrega.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(10), opcional.",
+     "sensibilidad": "NINGUNA"
     },
     {
      "nombre": "asignada_a",
@@ -25541,9 +25523,9 @@
       "esquema": "identidad",
       "columnaDestino": "id",
       "restriccion": "fk_incidencia_entrega_reportada_por",
-      "alBorrar": "RESTRICT",
+      "alBorrar": "SET NULL",
       "cardinalidad": "N:1",
-      "obligatoria": true
+      "obligatoria": false
      },
      {
       "columna": "asignada_a",
@@ -25558,7 +25540,7 @@
     ],
     "entrantes": []
    },
-   "sistema": "Vive en el esquema entregas; la escribe y la lee solo el servicio entregas (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de entrega_fondo, identidad.usuario.",
+   "sistema": "Vive en el esquema entregas; la escribe y la lee solo el servicio entregas (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de entrega_fondo, identidad.usuario. Reglas nombradas: ck_incidencia_entrega_autor.",
    "clasificacion": {
     "personales": 0,
     "financieros": 0,
@@ -25566,6 +25548,36 @@
     "derivados": 0
    },
    "operaciones": [
+    {
+     "casoDeUso": "CU-22",
+     "titulo": "Liquidar y entregar el fondo",
+     "endpoints": [
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas",
+       "operationId": "liquidarEntrega"
+      },
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas/pozo-completo",
+       "operationId": "fondearPozo"
+      },
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas/{entregaId}/autorizacion",
+       "operationId": "autorizarEntrega"
+      },
+      {
+       "servicio": "entregas",
+       "metodo": "POST",
+       "ruta": "/entregas/{entregaId}/ejecucion",
+       "operationId": "ejecutarEntrega"
+      }
+     ]
+    },
     {
      "casoDeUso": "CU-28",
      "titulo": "Emitir la orden de desembolso y ejecutar el intento",
@@ -26886,6 +26898,107 @@
    "clasificacion": {
     "personales": 0,
     "financieros": 3,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": []
+  },
+  {
+   "tabla": "turno_del_grupo",
+   "esquema": "entregas",
+   "tipo": "NEGOCIO",
+   "modulo": "04",
+   "nombreModulo": "Entregas de Fondo",
+   "servicio": "entregas",
+   "appendOnly": false,
+   "negocio": {
+    "queEs": "La copia que guarda entregas de los turnos que publica grupos: qué turno cobra el pozo de cada periodo, de qué cupo y quién era el titular cuando grupos lo publicó.",
+    "negocio": "Que la entrega se arme sola cuando aportes avisa que el recaudo del periodo está listo, sin que nadie la pida a mano y sin que entregas tenga que preguntarle a grupos en el camino del dinero.",
+    "porQue": "Un servicio no lee la base de otro (regla 98.1.1). Sin esta copia, la entrega automática tendría que llamar a grupos en cada fondeo (una cadena de tres saltos, regla 98.2.5) o adivinar el turno del periodo."
+   },
+   "notaDeSistema": "Dato replicado del evento grupos.turnos_asignados (pacto contratos/pactos/grupos-entregas-turnos-asignados.json): un periodo tiene un solo turno (uq_turno_del_grupo_periodo_id) y una fila solo se reemplaza con una version mayor, así que un evento viejo o repetido no pisa nada. No decide importes: el pozo sale del recaudo que afirma aportes. Si el titular cambió por una cesión, manda el título (RegistroDelFondeo).\n\n*Fuente: F3.L2.M01, anexo L2 del plan de correcciones; docs/trabajo/2026-11-21-tanda2-l2/evidencia/F3.L2.M01-diseno-entrega-automatica.md.*",
+   "reglas": [],
+   "columnas": [
+    {
+     "nombre": "turno_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador de referencia para el concepto de turno en turno_del_grupo.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "grupo_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Referencia al grupo de pasanaku en el que se enmarca esta operación.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, índice b-tree.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "periodo_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Identificador de referencia para el concepto de periodo en turno_del_grupo.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, restricción única.",
+     "sensibilidad": "NINGUNA",
+     "unica": true
+    },
+    {
+     "nombre": "cupo_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Identificador de referencia para el concepto de cupo en turno_del_grupo.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "titular_participante_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Identificador de referencia para el concepto de titular participante en turno_del_grupo.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "version",
+     "tipo": "INTEGER",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Número de versión para control de concurrencia optimista y auditoría de modificaciones.",
+     "origenNegocio": "convencion",
+     "sistema": "INTEGER, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "recibido_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de recibido en turno_del_grupo.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema entregas; la escribe y la lee solo el servicio entregas (regla 98.1.1): otro servicio la conoce por su API o por sus eventos.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
     "secretos": 0,
     "derivados": 0
    },
@@ -31170,18 +31283,6 @@
    },
    "operaciones": [
     {
-     "casoDeUso": "CU-23",
-     "titulo": "Cubrir un incumplimiento con el fondo",
-     "endpoints": [
-      {
-       "servicio": "garantia",
-       "metodo": "POST",
-       "ruta": "/incumplimientos/{expedienteId}/cobertura",
-       "operationId": "cubrirIncumplimiento"
-      }
-     ]
-    },
-    {
      "casoDeUso": "CU-29",
      "titulo": "Devolver los aportes del fondo de garantía",
      "endpoints": [
@@ -32655,18 +32756,6 @@
    },
    "operaciones": [
     {
-     "casoDeUso": "CU-23",
-     "titulo": "Cubrir un incumplimiento con el fondo",
-     "endpoints": [
-      {
-       "servicio": "garantia",
-       "metodo": "POST",
-       "ruta": "/incumplimientos/{expedienteId}/cobertura",
-       "operationId": "cubrirIncumplimiento"
-      }
-     ]
-    },
-    {
      "casoDeUso": "CU-67",
      "titulo": "Disolver el grupo anticipadamente",
      "endpoints": [
@@ -33618,18 +33707,6 @@
     "derivados": 0
    },
    "operaciones": [
-    {
-     "casoDeUso": "CU-23",
-     "titulo": "Cubrir un incumplimiento con el fondo",
-     "endpoints": [
-      {
-       "servicio": "garantia",
-       "metodo": "POST",
-       "ruta": "/incumplimientos/{expedienteId}/cobertura",
-       "operationId": "cubrirIncumplimiento"
-      }
-     ]
-    },
     {
      "casoDeUso": "CU-25",
      "titulo": "Declarar el incumplimiento con descargo y evidencia",
@@ -40895,18 +40972,6 @@
        "metodo": "GET",
        "ruta": "/tarifas/vigentes/{codigo}",
        "operationId": "consultarTarifarioVigente"
-      }
-     ]
-    },
-    {
-     "casoDeUso": "CU-23",
-     "titulo": "Cubrir un incumplimiento con el fondo",
-     "endpoints": [
-      {
-       "servicio": "garantia",
-       "metodo": "POST",
-       "ruta": "/incumplimientos/{expedienteId}/cobertura",
-       "operationId": "cubrirIncumplimiento"
       }
      ]
     },
@@ -53982,9 +54047,9 @@
       "esquema": "entregas",
       "columnaDestino": "id",
       "restriccion": "fk_incidencia_entrega_reportada_por",
-      "alBorrar": "RESTRICT",
+      "alBorrar": "SET NULL",
       "cardinalidad": "N:1",
-      "obligatoria": true
+      "obligatoria": false
      },
      {
       "columna": "asignada_a",
@@ -54812,6 +54877,16 @@
       "esquema": "nucleo_financiero",
       "columnaDestino": "id",
       "restriccion": "fk_bloqueo_saldo_levantada_por",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
+     },
+     {
+      "columna": "registrado_por",
+      "tabla": "bloqueo_saldo",
+      "esquema": "nucleo_financiero",
+      "columnaDestino": "id",
+      "restriccion": "fk_bloqueo_saldo_registrado_por",
       "alBorrar": "SET NULL",
       "cardinalidad": "N:1",
       "obligatoria": false
@@ -63376,36 +63451,6 @@
      ]
     },
     {
-     "casoDeUso": "CU-22",
-     "titulo": "Liquidar y entregar el fondo",
-     "endpoints": [
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas",
-       "operationId": "liquidarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/pozo-completo",
-       "operationId": "fondearPozo"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/autorizacion",
-       "operationId": "autorizarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/ejecucion",
-       "operationId": "ejecutarEntrega"
-      }
-     ]
-    },
-    {
      "casoDeUso": "CU-23",
      "titulo": "Cubrir un incumplimiento con el fondo",
      "endpoints": [
@@ -63709,7 +63754,8 @@
    },
    "notaDeSistema": "UNIQUE (numero_oficio). Un bloqueo vigente impide cerrar la cuenta y bloquea el retiro por el monto afectado, no por el total (salvo alcance TOTAL).",
    "reglas": [
-    "uq_bloqueo_oficio"
+    "uq_bloqueo_oficio",
+    "ck_bloqueo_saldo_cuatro_ojos"
    ],
    "columnas": [
     {
@@ -63748,6 +63794,18 @@
     },
     {
      "nombre": "levantada_por",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "referencia": "usuario",
+     "negocio": "Referencia por clave foránea a la entidad usuario.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, opcional, referencia a usuario.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "registrado_por",
      "tipo": "UUID",
      "nulable": true,
      "pk": false,
@@ -63900,6 +63958,16 @@
       "alBorrar": "SET NULL",
       "cardinalidad": "N:1",
       "obligatoria": false
+     },
+     {
+      "columna": "registrado_por",
+      "tabla": "usuario",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_bloqueo_saldo_registrado_por",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
      }
     ],
     "entrantes": [
@@ -63915,7 +63983,7 @@
      }
     ]
    },
-   "sistema": "Vive en el esquema nucleo_financiero; la escribe y la lee solo el servicio nucleo-financiero (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de cuenta_billetera, identidad.usuario, retencion_saldo. La referencian cumplimiento.requerimiento_autoridad. Reglas nombradas: uq_bloqueo_oficio.",
+   "sistema": "Vive en el esquema nucleo_financiero; la escribe y la lee solo el servicio nucleo-financiero (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de cuenta_billetera, identidad.usuario, retencion_saldo. La referencian cumplimiento.requerimiento_autoridad. Reglas nombradas: uq_bloqueo_oficio, ck_bloqueo_saldo_cuatro_ojos.",
    "clasificacion": {
     "personales": 1,
     "financieros": 1,
@@ -71590,48 +71658,6 @@
      ]
     },
     {
-     "casoDeUso": "CU-22",
-     "titulo": "Liquidar y entregar el fondo",
-     "endpoints": [
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas",
-       "operationId": "liquidarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/pozo-completo",
-       "operationId": "fondearPozo"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/autorizacion",
-       "operationId": "autorizarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/ejecucion",
-       "operationId": "ejecutarEntrega"
-      }
-     ]
-    },
-    {
-     "casoDeUso": "CU-23",
-     "titulo": "Cubrir un incumplimiento con el fondo",
-     "endpoints": [
-      {
-       "servicio": "garantia",
-       "metodo": "POST",
-       "ruta": "/incumplimientos/{expedienteId}/cobertura",
-       "operationId": "cubrirIncumplimiento"
-      }
-     ]
-    },
-    {
      "casoDeUso": "CU-26",
      "titulo": "Ejecutar el aval y subrogar la deuda",
      "endpoints": [
@@ -78965,36 +78991,6 @@
      ]
     },
     {
-     "casoDeUso": "CU-22",
-     "titulo": "Liquidar y entregar el fondo",
-     "endpoints": [
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas",
-       "operationId": "liquidarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/pozo-completo",
-       "operationId": "fondearPozo"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/autorizacion",
-       "operationId": "autorizarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/ejecucion",
-       "operationId": "ejecutarEntrega"
-      }
-     ]
-    },
-    {
      "casoDeUso": "CU-31",
      "titulo": "Devengar y cobrar la comisión",
      "endpoints": [
@@ -80796,36 +80792,6 @@
     "derivados": 0
    },
    "operaciones": [
-    {
-     "casoDeUso": "CU-22",
-     "titulo": "Liquidar y entregar el fondo",
-     "endpoints": [
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas",
-       "operationId": "liquidarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/pozo-completo",
-       "operationId": "fondearPozo"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/autorizacion",
-       "operationId": "autorizarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/ejecucion",
-       "operationId": "ejecutarEntrega"
-      }
-     ]
-    },
     {
      "casoDeUso": "CU-31",
      "titulo": "Devengar y cobrar la comisión",
@@ -82992,6 +82958,235 @@
    ]
   },
   {
+   "tabla": "parametro_congelado_grupo",
+   "esquema": "tarifas",
+   "tipo": "NEGOCIO",
+   "modulo": "11",
+   "nombreModulo": "Tarifas, Comisiones, Impuestos y Facturación",
+   "servicio": "tarifas",
+   "appendOnly": true,
+   "negocio": {
+    "queEs": "La versión de cada parámetro (y de cada nivel) que un grupo congeló al iniciar.",
+    "negocio": "Para que un cambio de parámetro rija solo para grupos nuevos (ADR-056 §6): los que ya empezaron siguen con lo que aceptaron, como con la tarifa congelada. garantia lee de acá lo que aplica a cada grupo.",
+    "porQue": "Porque sin congelamiento, cambiar el aporte al fondo cambiaría retroactivamente las reglas de un ciclo en curso. Es append-only para el rol de la aplicación."
+   },
+   "reglas": [
+    "uq_parametro_congelado_grupo"
+   ],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "grupo_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Referencia al grupo de pasanaku en el que se enmarca esta operación.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, índice b-tree.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "parametro_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "parametro_financiero",
+     "negocio": "Referencia por clave foránea a la entidad parametro_financiero.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a parametro_financiero.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "tarifas"
+    },
+    {
+     "nombre": "version_parametro_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "version_parametro",
+     "negocio": "Referencia por clave foránea a la entidad version_parametro.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a version_parametro.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "tarifas"
+    },
+    {
+     "nombre": "nivel_codigo",
+     "tipo": "VARCHAR(30)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Código normalizado o mnemotécnico de nivel.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(30), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "congelado_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de congelado en parametro_congelado_grupo.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "parametro_id",
+      "tabla": "parametro_financiero",
+      "esquema": "tarifas",
+      "columnaDestino": "id",
+      "restriccion": "fk_parametro_congelado_grupo_parametro_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "version_parametro_id",
+      "tabla": "version_parametro",
+      "esquema": "tarifas",
+      "columnaDestino": "id",
+      "restriccion": "fk_parametro_congelado_grupo_version_parametro_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     }
+    ],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema tarifas; la escribe y la lee solo el servicio tarifas (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de parametro_financiero, version_parametro. Reglas nombradas: uq_parametro_congelado_grupo.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": [
+    {
+     "casoDeUso": "CU-132",
+     "titulo": "Registrar, aprobar y congelar parámetros financieros",
+     "endpoints": []
+    }
+   ]
+  },
+  {
+   "tabla": "parametro_financiero",
+   "esquema": "tarifas",
+   "tipo": "NEGOCIO",
+   "modulo": "11",
+   "nombreModulo": "Tarifas, Comisiones, Impuestos y Facturación",
+   "servicio": "tarifas",
+   "appendOnly": false,
+   "negocio": {
+    "queEs": "El catálogo cerrado de los parámetros financieros del modelo A + D: su código, su unidad y si llevan un valor por nivel de puntualidad. No guarda valores.",
+    "negocio": "Para que «el aporte al fondo», «los días de gracia» o «el tope del recargo» sean una sola cosa con un solo nombre en todos los servicios. Una unidad todavía no decidida queda vacía y el parámetro no admite valores aprobados hasta que Pablo la decida.",
+    "porQue": "Porque un parámetro escrito en un .yml o en el código cambia sin que nadie lo apruebe ni quede rastro (DECISIONES, tanda 6)."
+   },
+   "reglas": [],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "codigo",
+     "tipo": "VARCHAR(50)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Código mnemotécnico o identificador legible para operadores y personas usuarias.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(50), obligatoria, restricción única.",
+     "sensibilidad": "NINGUNA",
+     "unica": true
+    },
+    {
+     "nombre": "descripcion",
+     "tipo": "VARCHAR(200)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Detalle descriptivo que explica el contenido, propósito o contexto de la entidad.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(200), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "unidad",
+     "tipo": "VARCHAR(12)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Atributo que representa unidad en el modelo de parametro_financiero.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(12), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "por_nivel",
+     "tipo": "BOOLEAN",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa por nivel en el modelo de parametro_financiero.",
+     "origenNegocio": "convencion",
+     "sistema": "BOOLEAN, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [],
+    "entrantes": [
+     {
+      "columna": "parametro_id",
+      "tabla": "version_parametro",
+      "esquema": "tarifas",
+      "columnaDestino": "id",
+      "restriccion": "fk_version_parametro_parametro_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "parametro_id",
+      "tabla": "parametro_congelado_grupo",
+      "esquema": "tarifas",
+      "columnaDestino": "id",
+      "restriccion": "fk_parametro_congelado_grupo_parametro_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     }
+    ]
+   },
+   "sistema": "Vive en el esquema tarifas; la escribe y la lee solo el servicio tarifas (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian parametro_congelado_grupo, version_parametro.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": [
+    {
+     "casoDeUso": "CU-132",
+     "titulo": "Registrar, aprobar y congelar parámetros financieros",
+     "endpoints": []
+    }
+   ]
+  },
+  {
    "tabla": "politica_redondeo",
    "esquema": "tarifas",
    "tipo": "NEGOCIO",
@@ -83890,36 +84085,6 @@
      ]
     },
     {
-     "casoDeUso": "CU-22",
-     "titulo": "Liquidar y entregar el fondo",
-     "endpoints": [
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas",
-       "operationId": "liquidarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/pozo-completo",
-       "operationId": "fondearPozo"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/autorizacion",
-       "operationId": "autorizarEntrega"
-      },
-      {
-       "servicio": "entregas",
-       "metodo": "POST",
-       "ruta": "/entregas/{entregaId}/ejecucion",
-       "operationId": "ejecutarEntrega"
-      }
-     ]
-    },
-    {
      "casoDeUso": "CU-30",
      "titulo": "Cotizar la comisión antes de operar",
      "endpoints": [
@@ -83984,6 +84149,220 @@
        "operationId": "crearSegmento"
       }
      ]
+    }
+   ]
+  },
+  {
+   "tabla": "version_parametro",
+   "esquema": "tarifas",
+   "tipo": "NEGOCIO",
+   "modulo": "11",
+   "nombreModulo": "Tarifas, Comisiones, Impuestos y Facturación",
+   "servicio": "tarifas",
+   "appendOnly": false,
+   "negocio": {
+    "queEs": "Un valor de un parámetro, con su vigencia, su procedencia, quién lo propuso y quién —otra persona— lo aprobó.",
+    "negocio": "Para cambiar un parámetro sin desplegar y con cuatro ojos reales: una persona propone, otra aprueba, las dos tomadas de su token (R-TAR-14). Lo aprobado no se edita: se corrige con una versión nueva (R-TAR-16).",
+    "porQue": "Porque un parámetro financiero decide cuánto paga cada participante; sin versión ni aprobación, nadie podría reconstruir con qué valor se calculó un recargo o una devolución."
+   },
+   "reglas": [
+    "ck_version_parametro_cuatro_ojos",
+    "ck_version_parametro_aprobada_completa",
+    "ck_version_parametro_valor"
+   ],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "parametro_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "parametro_financiero",
+     "negocio": "Referencia por clave foránea a la entidad parametro_financiero.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a parametro_financiero, índice b-tree.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "tarifas"
+    },
+    {
+     "nombre": "nivel_codigo",
+     "tipo": "VARCHAR(30)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Código normalizado o mnemotécnico de nivel.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(30), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "valor",
+     "tipo": "DECIMAL(16,6)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa valor en el modelo de version_parametro.",
+     "origenNegocio": "convencion",
+     "sistema": "DECIMAL(16,6), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "moneda",
+     "tipo": "CHAR(3)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).",
+     "origenNegocio": "convencion",
+     "sistema": "CHAR(3), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "vigente_desde",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "procedencia_fuente",
+     "tipo": "VARCHAR(200)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa procedencia fuente en el modelo de version_parametro.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(200), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "procedencia_referencia",
+     "tipo": "VARCHAR(300)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa procedencia referencia en el modelo de version_parametro.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(300), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "procedencia_fecha",
+     "tipo": "DATE",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de procedencia en version_parametro.",
+     "origenNegocio": "convencion",
+     "sistema": "DATE, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "propuesto_por",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa propuesto por en el modelo de version_parametro.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "propuesto_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de propuesto en version_parametro.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "aprobado_por",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Identificador del usuario con facultades que autorizó la operación.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "aprobado_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de aprobado en version_parametro.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "estado",
+     "tipo": "VARCHAR(12)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Estado operativo o fase del ciclo de vida en que se encuentra el registro.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(12), obligatoria, índice b-tree.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "clave_idempotencia",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, restricción única.",
+     "sensibilidad": "NINGUNA",
+     "unica": true
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "parametro_id",
+      "tabla": "parametro_financiero",
+      "esquema": "tarifas",
+      "columnaDestino": "id",
+      "restriccion": "fk_version_parametro_parametro_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     }
+    ],
+    "entrantes": [
+     {
+      "columna": "version_parametro_id",
+      "tabla": "parametro_congelado_grupo",
+      "esquema": "tarifas",
+      "columnaDestino": "id",
+      "restriccion": "fk_parametro_congelado_grupo_version_parametro_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     }
+    ]
+   },
+   "sistema": "Vive en el esquema tarifas; la escribe y la lee solo el servicio tarifas (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de parametro_financiero. La referencian parametro_congelado_grupo. Reglas nombradas: ck_version_parametro_cuatro_ojos, ck_version_parametro_aprobada_completa, ck_version_parametro_valor.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": [
+    {
+     "casoDeUso": "CU-132",
+     "titulo": "Registrar, aprobar y congelar parámetros financieros",
+     "endpoints": []
     }
    ]
   },

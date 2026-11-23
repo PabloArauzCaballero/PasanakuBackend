@@ -3,7 +3,6 @@ package bo.aportaya.nucleofinanciero.infraestructura;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import bo.aportaya.nucleofinanciero.infraestructura.clientes.HechosPorHttp;
-import bo.aportaya.nucleofinanciero.infraestructura.clientes.OfertasPorHttp;
 import bo.aportaya.plataforma.dominio.Moneda;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
@@ -24,10 +23,9 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.web.client.RestClient;
 
 /**
- * Prueba de contrato del CONSUMIDOR de {@code aportes} (lo comprometido en pozos) y de {@code entregas} (la oferta),
- * en tres niveles (regla 65): correcto, limite e invalido. El de {@code aportes} se compara ademas con su OpenAPI real
- * (solo lectura); el de {@code entregas} es un contrato PROPUESTO que {@code entregas} todavia no publica: lo que queda
- * verificado es que nucleo FALLA CERRADO (sin oferta confirmada no se paga).
+ * Prueba de contrato del CONSUMIDOR de {@code aportes} (lo comprometido en pozos), en tres niveles (regla 65):
+ * correcto, limite e invalido, comparado ademas con su OpenAPI real (solo lectura). El consumidor de la oferta de
+ * {@code entregas} se retiro con la cesion de turnos (D-L2-1).
  */
 class ContratosConOtrosServiciosTest {
 
@@ -41,7 +39,6 @@ class ContratosConOtrosServiciosTest {
     private final UUID participante = UUID.randomUUID();
     private final AtomicReference<String> participaciones = new AtomicReference<>();
     private HechosPorHttp hechos;
-    private OfertasPorHttp ofertas;
 
     @BeforeEach
     void iniciar() throws IOException {
@@ -67,7 +64,6 @@ class ContratosConOtrosServiciosTest {
                         .build()));
         String url = "http://127.0.0.1:" + server.getAddress().getPort();
         hechos = new HechosPorHttp(RestClient.builder(), url, url);
-        ofertas = new OfertasPorHttp(RestClient.builder(), url);
     }
 
     @AfterEach
@@ -133,42 +129,5 @@ class ContratosConOtrosServiciosTest {
         assertThat(hechos.comprometidoEnPozos(usuario, Moneda.BOB)).isEmpty();
         cuerpo.set("{\"deudaVigente\":\"abc\",\"porAportar\":\"1.001\",\"moneda\":\"BOB\"}");
         assertThat(hechos.comprometidoEnPozos(usuario, Moneda.BOB)).isEmpty();
-    }
-
-    @Test
-    @DisplayName("correcto: la oferta trae vendedor, precio, cargos y estado")
-    void ofertaCorrecta() {
-        UUID oferta = UUID.randomUUID();
-        UUID vendedor = UUID.randomUUID();
-        cuerpo.set(
-                "{\"ofertaId\":\"%s\",\"vendedorUsuarioId\":\"%s\",\"precio\":{\"monto\":\"480.00\",\"moneda\":\"BOB\"},\"cargos\":{\"monto\":\"20.00\",\"moneda\":\"BOB\"},\"estado\":\"RESERVADA\"}"
-                        .formatted(oferta, vendedor));
-        var o = ofertas.oferta(oferta).orElseThrow();
-        assertThat(o.vendedorUsuarioId()).isEqualTo(vendedor);
-        assertThat(o.precio().toString()).isEqualTo("480.00");
-        assertThat(o.cargos().toString()).isEqualTo("20.00");
-        assertThat(o.estado()).isEqualTo("RESERVADA");
-        assertThat(ruta.get()).isEqualTo("/entregas/mercado/ofertas/" + oferta);
-    }
-
-    @Test
-    @DisplayName(
-            "invalido: oferta ajena a la pedida, sin vendedor, 404, 500 o importe mal formado fallan CERRADO (vacio)")
-    void ofertaInvalida() {
-        UUID oferta = UUID.randomUUID();
-        cuerpo.set(
-                "{\"ofertaId\":\"%s\",\"vendedorUsuarioId\":\"%s\",\"precio\":{\"monto\":\"480.00\",\"moneda\":\"BOB\"},\"estado\":\"RESERVADA\"}"
-                        .formatted(UUID.randomUUID(), UUID.randomUUID()));
-        assertThat(ofertas.oferta(oferta)).as("otra oferta").isEmpty();
-        cuerpo.set("{\"ofertaId\":\"%s\",\"precio\":{\"monto\":\"480.00\",\"moneda\":\"BOB\"}}".formatted(oferta));
-        assertThat(ofertas.oferta(oferta)).as("sin vendedor").isEmpty();
-        cuerpo.set(
-                "{\"ofertaId\":\"%s\",\"vendedorUsuarioId\":\"%s\",\"precio\":{\"monto\":\"480.001\",\"moneda\":\"BOB\"}}"
-                        .formatted(oferta, UUID.randomUUID()));
-        assertThat(ofertas.oferta(oferta)).as("importe con tres decimales").isEmpty();
-        for (int codigo : new int[] {404, 500}) {
-            estado.set(codigo);
-            assertThat(ofertas.oferta(oferta)).isEmpty();
-        }
     }
 }

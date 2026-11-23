@@ -4,21 +4,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import bo.aportaya.entregas.aplicacion.CU18RegistrarCuentaDestino.EntradaRegistro;
-import bo.aportaya.entregas.aplicacion.CU22LiquidarEntrega.EntradaLiquidacion;
 import bo.aportaya.entregas.aplicacion.CU28EmitirDesembolso.EntradaOrden;
 import bo.aportaya.entregas.aplicacion.CU28EmitirDesembolso.EntradaRespuesta;
 import bo.aportaya.entregas.aplicacion.CU28EmitirDesembolso.SalidaOrden;
-import bo.aportaya.entregas.dominio.LiquidacionDeEntrega;
 import bo.aportaya.entregas.dominio.ReintentoDeDesembolso;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Moneda;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -60,22 +56,9 @@ class CU28RechazosTest extends BaseDeEntregas {
                         cuenta.cuentaId());
             }
         }
-        var entrega = transaccion.execute(t -> entregaCU.liquidar(
-                new EntradaLiquidacion(
-                        escenario.grupoId(),
-                        escenario.periodoId(),
-                        escenario.turnoId(),
-                        escenario.cupoId(),
-                        escenario.participanteId(),
-                        bob("6000.00"),
-                        bob("6000.00"),
-                        List.of(new LiquidacionDeEntrega.Deduccion(
-                                "COMISION_PLATAFORMA", "Comision", bob("18.00"), UUID.randomUUID(), true)),
-                        "TRANSFERENCIA_BANCARIA",
-                        LocalDate.now()),
-                ctx));
-        transaccion.execute(t -> entregaCU.autorizar(entrega.entregaId(), contextoDe(fixtura.usuario())));
-        return new Caso(usuario, entrega.entregaId(), cuenta.cuentaId(), fixtura.proveedor(), ctx);
+        UUID entregaId = entregaFondeada(escenario, "TRANSFERENCIA_BANCARIA", ctx);
+        transaccion.execute(t -> entregaCU.autorizar(entregaId, contextoDe(fixtura.usuario())));
+        return new Caso(usuario, entregaId, cuenta.cuentaId(), fixtura.proveedor(), ctx);
     }
 
     private SalidaOrden emitir(Caso c, String clave) {
@@ -173,7 +156,7 @@ class CU28RechazosTest extends BaseDeEntregas {
                         INSERT INTO entregas.orden_desembolso
                             (id, entrega_id, proveedor_id, cuenta_destino_id, monto, moneda, estado,
                              glosa, clave_idempotencia)
-                        VALUES (gen_random_uuid(), '%s', '%s', '%s', 5982.00, 'BOB', 'CREADA', 'colada',
+                        VALUES (gen_random_uuid(), '%s', '%s', '%s', 6000.00, 'BOB', 'CREADA', 'colada',
                                 'bil-06')
                         """
                                 .formatted(c.entregaId(), c.proveedorId(), c.cuentaId())))
@@ -227,7 +210,7 @@ class CU28RechazosTest extends BaseDeEntregas {
                         INSERT INTO entregas.orden_desembolso
                             (id, entrega_id, proveedor_id, cuenta_destino_id, monto, moneda, estado,
                              glosa, clave_idempotencia)
-                        VALUES (gen_random_uuid(), '%s', '%s', '%s', 5982.00, 'BOB', 'CREADA', 'segunda viva',
+                        VALUES (gen_random_uuid(), '%s', '%s', '%s', 6000.00, 'BOB', 'CREADA', 'segunda viva',
                                 'des-01-otra')
                         """
                                 .formatted(c.entregaId(), c.proveedorId(), c.cuentaId())))
@@ -250,7 +233,7 @@ class CU28RechazosTest extends BaseDeEntregas {
                         INSERT INTO entregas.orden_desembolso
                             (id, entrega_id, proveedor_id, cuenta_destino_id, monto, moneda, estado,
                              glosa, clave_idempotencia)
-                        VALUES (gen_random_uuid(), '%s', '%s', '%s', 5982.00, 'BOB', 'CREADA',
+                        VALUES (gen_random_uuid(), '%s', '%s', '%s', 6000.00, 'BOB', 'CREADA',
                                 'saltando la app', 'des-02-base')
                         """
                                 .formatted(c.entregaId(), c.proveedorId(), c.cuentaId())))

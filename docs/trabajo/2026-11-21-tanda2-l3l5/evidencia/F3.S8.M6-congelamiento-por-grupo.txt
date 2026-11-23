@@ -1,0 +1,58 @@
+F3.S8.M6 · congelamiento por grupo ejercitado con psql contra Postgres 16 local (5433), base de la evidencia de M2b.
+Datos sintéticos (grupo e6000000-…). Ningún valor es real.
+
+set search_path = tarifas, public;
+\echo '== versión vigente al iniciar (2026-11-21): la APROBADA de DIAS_DE_GRACIA del paso M2b'
+select p.codigo, v.valor, v.estado, v.vigente_desde from version_parametro v join parametro_financiero p on p.id=v.parametro_id where v.estado='APROBADA';
+\echo '== 1. congelar (INSERT ... ON CONFLICT DO NOTHING, sin objetivo: el índice es de expresión)'
+insert into parametro_congelado_grupo (grupo_id, parametro_id, version_parametro_id, nivel_codigo, congelado_en)
+select 'e6000000-0000-4000-8000-000000000001', v.parametro_id, v.id, v.nivel_codigo, now() from version_parametro v where v.estado='APROBADA'
+on conflict do nothing;
+\echo '== 2. el mismo inicio re-emitido: 0 filas'
+insert into parametro_congelado_grupo (grupo_id, parametro_id, version_parametro_id, nivel_codigo, congelado_en)
+select 'e6000000-0000-4000-8000-000000000001', v.parametro_id, v.id, v.nivel_codigo, now() from version_parametro v where v.estado='APROBADA'
+on conflict do nothing;
+\echo '== 3. corregir lo congelado: rechazado (solo agregado)'
+update parametro_congelado_grupo set congelado_en = now() where grupo_id='e6000000-0000-4000-8000-000000000001';
+delete from parametro_congelado_grupo where grupo_id='e6000000-0000-4000-8000-000000000001';
+\echo '== 4. lectura de la consulta por grupo (la de CongelamientoRepositorio.delGrupo)'
+select p.codigo, c.nivel_codigo, v.valor, p.unidad, v.moneda
+from parametro_congelado_grupo c join version_parametro v on v.id=c.version_parametro_id join parametro_financiero p on p.id=c.parametro_id
+where c.grupo_id='e6000000-0000-4000-8000-000000000001' order by p.codigo, c.nivel_codigo nulls first;
+\echo '== 5. códigos del catálogo sin congelar para ese grupo (lo que la consulta responde como 422 AP-CU132-06)'
+select codigo from parametro_financiero p where not exists (select 1 from parametro_congelado_grupo c where c.grupo_id='e6000000-0000-4000-8000-000000000001' and c.parametro_id=p.id) order by codigo;
+
+---- salida ----
+SET
+== versión vigente al iniciar (2026-11-21): la APROBADA de DIAS_DE_GRACIA del paso M2b
+     codigo     |  valor   |  estado  |     vigente_desde      
+----------------+----------+----------+------------------------
+ DIAS_DE_GRACIA | 5.000000 | APROBADA | 2026-11-01 00:00:00+00
+(1 row)
+
+== 1. congelar (INSERT ... ON CONFLICT DO NOTHING, sin objetivo: el índice es de expresión)
+INSERT 0 1
+== 2. el mismo inicio re-emitido: 0 filas
+INSERT 0 0
+== 3. corregir lo congelado: rechazado (solo agregado)
+psql:/tmp/claude-0/-home-user-PasanakuBackend/cc09a7b1-a13c-5e9a-b722-e975cb129366/scratchpad/m6.sql:13: ERROR:  R-AUD-01: parametro_congelado_grupo es append-only; corrija con el movimiento inverso
+CONTEXT:  PL/pgSQL function fn_aud_bloquear_mutacion() line 3 at RAISE
+psql:/tmp/claude-0/-home-user-PasanakuBackend/cc09a7b1-a13c-5e9a-b722-e975cb129366/scratchpad/m6.sql:14: ERROR:  R-AUD-01: parametro_congelado_grupo es append-only; corrija con el movimiento inverso
+CONTEXT:  PL/pgSQL function fn_aud_bloquear_mutacion() line 3 at RAISE
+== 4. lectura de la consulta por grupo (la de CongelamientoRepositorio.delGrupo)
+     codigo     | nivel_codigo |  valor   | unidad | moneda 
+----------------+--------------+----------+--------+--------
+ DIAS_DE_GRACIA |              | 5.000000 | DIAS   | 
+(1 row)
+
+== 5. códigos del catálogo sin congelar para ese grupo (lo que la consulta responde como 422 AP-CU132-06)
+             codigo              
+---------------------------------
+ APORTE_FONDO_GRUPO
+ REDUCCION_APORTE_GRUPO_PERFECTO
+ TASA_DE_RECARGO
+ TOPE_DEL_RECARGO
+ UMBRAL_DE_DISOLUCION_POR_MORA
+ UMBRAL_DE_SOLVENCIA_DEL_FONDO
+(6 rows)
+

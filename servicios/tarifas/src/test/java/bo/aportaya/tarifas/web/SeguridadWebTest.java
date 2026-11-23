@@ -31,6 +31,10 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     @MockitoBean
     private bo.aportaya.tarifas.aplicacion.ConsultarCostosDeProveedor consultarCostos;
 
+    // CU-132: el borde de parámetros. La sábana solo comprueba que sin permiso no se llega.
+    @MockitoBean
+    private ParametrosWeb parametrosWeb;
+
     @MockitoBean
     private CU30CotizarComision cu30CotizarComision;
 

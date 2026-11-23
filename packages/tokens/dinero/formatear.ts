@@ -91,6 +91,3 @@ export function montoParaLectura(valor: ImporteDelContrato, etiqueta?: string): 
   const texto = formatearMonto(valor)
   return etiqueta ? `${etiqueta}: ${texto}` : texto
 }
-
-// La regla inversa (lo escrito → el contrato) vive al lado y sale por la misma entrada.
-export { interpretarMontoEscrito } from './interpretar'

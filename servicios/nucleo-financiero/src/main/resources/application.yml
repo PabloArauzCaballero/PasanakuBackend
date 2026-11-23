@@ -87,7 +87,8 @@ aportaya:
 
   contabilidad:
     consumo-de-asientos:
-      # D5: registrar en el mayor los asientos que garantia propone en sus eventos. Se enciende por entorno;
+      # D5: registrar en el mayor los asientos que otros servicios proponen (hoy, el desembolso de entregas; sin
+      # respaldo ni cobertura empresarial desde F2.L1.M01). Se enciende por entorno;
       # sin mapeo de cuentas logicas cada evento se rechaza (no se inventa un plan de cuentas).
       habilitado: ${CONSUMO_DE_ASIENTOS_HABILITADO:false}
     consumo-de-aportes:
@@ -101,9 +102,6 @@ aportaya:
     # contabilidad entregue el mapeo real y alguien ponga CUENTAS_LOGICAS_APTO_PRODUCCION=true.
     cuentas-logicas:
       apto-produccion: ${CUENTAS_LOGICAS_APTO_PRODUCCION:false}
-      CAJA_EMPRESA:
-        BOB: ${CUENTA_LOGICA_CAJA_EMPRESA_BOB:}
-        USD: ${CUENTA_LOGICA_CAJA_EMPRESA_USD:}
       RESERVA_RESPALDO:
         BOB: ${CUENTA_LOGICA_RESERVA_RESPALDO_BOB:}
         USD: ${CUENTA_LOGICA_RESERVA_RESPALDO_USD:}

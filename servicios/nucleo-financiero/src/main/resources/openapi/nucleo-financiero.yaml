@@ -29,13 +29,25 @@
 #                                      o otra instruccion la adelanto)
 #   AP-CU11-09  PAGO_NO_CONFIRMABLE  · la orden no esta EN_PROCESO, o el proveedor respondio
 #                                      algo que no coincide con la orden
+#   AP-CU11-15  PROVEEDOR_DE_DESEMBOLSO_NO_CONFIGURADO · no hay proveedor de desembolso
+#                                      contratado (P-15): la orden queda AUTORIZADA y retenida
 openapi: 3.1.0
 info:
   title: nucleo-financiero
-  version: 1.0.0
+  version: 1.5.0
   description: >-
     Servicio nucleo-financiero. Un caso de uso = una operacion, con el codigo CU en el
     operationId. Los importes viajan como CADENA decimal, nunca como number.
+
+
+    1.1.0 (2026-11-21) · RETIRO DEL PAGO DE COMPRAS DEL MERCADO DE TURNOS (D-L2-1: la cesion y la subasta de
+    turnos se eliminan). `pagarAlTercero` queda RETIRADA y responde 410 sin efecto (AP-CU13-10); su unico
+    consumidor (`entregas.comprarOferta`) ya responde 410. Contraccion (regla 98.1.3): se borra del contrato
+    junto con las operaciones del mercado de `entregas`; la fecha la fija Pablo al mergear.
+
+
+    1.2.0 (2026-11-21) · F1.L1.M10: nueva `levantarBloqueoPorAutoridad` (aditiva). El registro del bloqueo
+    pasa a exigir BLOQUEO_AUTORIDAD_REGISTRAR en vez de DATOS_SENSIBLES_LEER (permiso propio de la accion).
 
 servers:
   - url: /api/v1
@@ -312,8 +324,9 @@ paths:
   /billetera/retenciones/{retencionId}/pago-a-tercero:
     post:
       operationId: pagarAlTercero              # CU-13
-      summary: Ejecuta una retencion de compra del mercado a favor del vendedor
+      summary: RETIRADA (410) · ejecutaba una retencion de compra del mercado a favor del vendedor
       description: >-
+        RETIRADA en 1.1.0 (D-L2-1): responde 410 AP-CU13-10 sin efecto. Lo que sigue describe lo que hacia.
         [CONTRATO · SOLO SERVICIO] Lo pide `entregas` (identidad de servicio `SERVICIO_ENTREGAS`; una
         sesion de usuario final recibe 403 aunque tenga `BILLETERA_OPERAR`). NO lleva cuerpo: el
         beneficiario y el reparto NO los dicta quien llama. Se derivan en el servidor: la retencion
@@ -343,6 +356,9 @@ paths:
           # AP-CU13-05 MOTIVO_INCOMPATIBLE · AP-CU13-06 MONTO_DISTINTO_DE_LO_RETENIDO
           # AP-CU13-07 CUENTA_DE_SISTEMA_NO_CONFIGURADA · AP-CU13-08 DESTINATARIO_INVALIDO
           # AP-CU13-09 SOLO_SERVICIO
+        '410':
+          $ref: '#/components/responses/Retirada'
+          # AP-CU13-10 OPERACION_RETIRADA
         '401':
           $ref: '#/components/responses/NoAutenticado'
         '403':
@@ -709,6 +725,34 @@ paths:
           $ref: '#/components/responses/NoAutenticado'
 
   /billetera/bloqueos:
+    get:
+      operationId: listarBloqueosPorAutoridad  # CU-17 (backoffice)
+      summary: Bloqueos por orden de autoridad, del mas reciente al mas antiguo
+      description: >-
+        La bandeja de Cumplimiento: exige BLOQUEO_AUTORIDAD_REGISTRAR o BLOQUEO_AUTORIDAD_LEVANTAR. Paginada por
+        cursor (recibidoEn, id) descendente: el desempate por id hace estable el orden aunque dos ordenes compartan el
+        instante. Filtro opcional por estado. Cada fila trae lo necesario para decidir y nada mas (respuesta minima):
+        ni el numero de oficio ni el documento de la orden viajan aca. La fila que registro quien consulta, o que ya no
+        esta vigente, aparece con puedeLevantar=false: la segregacion (R-BIL-32) la vuelve a exigir
+        levantarBloqueoPorAutoridad; esto solo evita ofrecer un boton muerto.
+      parameters:
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: estado, in: query, required: false, schema: { type: string, enum: [VIGENTE, LEVANTADO, VENCIDO] } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina de bloqueos (vacia si no hay ninguno)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeBloqueos' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU17-06 CURSOR_INCOMPLETO · antesDe y antesDeId van juntos o ninguno
+        '403':
+          description: Sin BLOQUEO_AUTORIDAD_REGISTRAR ni BLOQUEO_AUTORIDAD_LEVANTAR
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
     post:
       operationId: bloquearPorAutoridad        # CU-17
       summary: Registrar un bloqueo por orden de autoridad
@@ -734,7 +778,36 @@ paths:
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU17-01 OFICIO_DUPLICADO · AP-CU17-02 CUENTA_INEXISTENTE
           # AP-CU17-03 SIN_DOCUMENTO_DE_RESPALDO
+          # AP-CU17-04 MISMA_PERSONA_LEVANTA (al levantar; R-BIL-32)
         '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/bloqueos/{bloqueoId}/levantamiento:
+    post:
+      operationId: levantarBloqueoPorAutoridad  # CU-17
+      summary: Levantar un bloqueo por orden de autoridad (otra persona que quien lo registro)
+      description: >-
+        F1.L1.M10 (R-BIL-32). Exige BLOQUEO_AUTORIDAD_LEVANTAR y una persona distinta de quien registro el
+        bloqueo, ambas tomadas del token: quien lo registro recibe 422 AP-CU17-04. El saldo retenido vuelve a
+        estar disponible en la misma transaccion. No lleva cuerpo: quien levanta no se declara, es el token.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - name: bloqueoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Bloqueo levantado y saldo liberado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaLevantamientoBloqueo' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU17-04 MISMA_PERSONA_LEVANTA · AP-CU17-05 BLOQUEO_NO_VIGENTE
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
           $ref: '#/components/responses/NoAutenticado'
 
   /billetera/qr:
@@ -1041,10 +1114,17 @@ components:
         autoridad: { type: string, enum: [ASFI, BCB, FISCALIA, JUZGADO, UIF, INTERNO] }
         tipoOrden: { type: string, enum: [CONGELAMIENTO, EMBARGO, INFORMATIVO, INMOVILIZACION, RETENCION] }
         numeroOficio: { type: string, maxLength: 60 }
-        montoBloqueado: { $ref: '#/components/schemas/Dinero' }
+        montoBloqueado: { $ref: '#/components/schemas/Importe' }
         alcance: { type: string, enum: [PARCIAL, TOTAL] }
         documentoUrl: { type: string, format: uri }
         hashDocumento: { type: string, minLength: 64, maxLength: 64 }
+    SalidaLevantamientoBloqueo:
+      type: object
+      additionalProperties: false
+      required: [bloqueoId, estado]
+      properties:
+        bloqueoId: { type: string, format: uuid }
+        estado: { type: string, enum: [LEVANTADO] }
     SalidaBloqueo:
       type: object
       additionalProperties: false
@@ -1090,7 +1170,7 @@ components:
           properties:
             tipo:  { type: string, enum: [ALIAS, GRUPO] }
             valor: { type: string }
-        monto:        { $ref: '#/components/schemas/Dinero' }
+        monto:        { $ref: '#/components/schemas/Importe' }
         concepto:     { type: string, maxLength: 140 }
         obligacionId: { type: string, format: uuid }
     SalidaTransferencia:
@@ -1108,7 +1188,7 @@ components:
       required: [cuentaBilleteraId, monto, instrumentoDestinoId]
       properties:
         cuentaBilleteraId:    { type: string, format: uuid }
-        monto:                { $ref: '#/components/schemas/Dinero' }
+        monto:                { $ref: '#/components/schemas/Importe' }
         instrumentoDestinoId: { type: string, format: uuid }
         # H2.S2.M5: evidenciaMfa reemplaza a factorMfa (JWT de evidencia step-up de
         # `identidad`, no un OTP corto). factorMfa se acepta hasta 2026-12-31 por
@@ -1131,7 +1211,7 @@ components:
       properties:
         operacion: { type: string, enum: [RECARGA, RETIRO] }
         cuentaBilleteraId: { type: string, format: uuid }
-        monto: { $ref: '#/components/schemas/Dinero' }
+        monto: { $ref: '#/components/schemas/Importe' }
     SalidaCotizacionOperacion:
       type: object
       additionalProperties: false
@@ -1214,10 +1294,10 @@ components:
         fecha: { type: string, format: date }
         saldoCustodia:
           description: El saldo segun el extracto bancario de ese dia.
-          allOf: [ { $ref: '#/components/schemas/Dinero' } ]
+          allOf: [ { $ref: '#/components/schemas/Importe' } ]
         saldoEnTransito:
           description: Movimientos ordenados y aun no impactados en el banco.
-          allOf: [ { $ref: '#/components/schemas/Dinero' } ]
+          allOf: [ { $ref: '#/components/schemas/Importe' } ]
     SalidaConciliacionCustodia:
       type: object
       additionalProperties: false
@@ -1302,6 +1382,36 @@ components:
           items: { $ref: '#/components/schemas/RetiroEnRevision' }
         proximoFecha: { type: [string, 'null'], format: date-time }
         proximoId:    { type: [string, 'null'], format: uuid }
+    PaginaDeBloqueos:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items: { type: array, maxItems: 100, items: { $ref: '#/components/schemas/BloqueoEnLista' } }
+        proximoAntesDe: { type: [string, 'null'], format: date-time }
+        proximoAntesDeId: { type: [string, 'null'], format: uuid }
+    BloqueoEnLista:
+      type: object
+      additionalProperties: false
+      required: [bloqueoId, cuentaBilleteraId, autoridad, tipoOrden, alcance, estado, recibidoEn, puedeLevantar]
+      properties:
+        bloqueoId:         { type: string, format: uuid }
+        cuentaBilleteraId: { type: string, format: uuid }
+        autoridad:         { type: string, enum: [ASFI, FISCALIA, INTERNO, JUZGADO, UIF] }
+        tipoOrden:         { type: string, enum: [CONGELAMIENTO, EMBARGO, INFORMATIVO, INMOVILIZACION, RETENCION] }
+        alcance:           { type: string, enum: [PARCIAL, TOTAL] }
+        estado:            { type: string, enum: [VIGENTE, LEVANTADO, VENCIDO] }
+        montoBloqueado:
+          description: Ausente cuando el alcance es TOTAL (se inmoviliza todo el saldo). La moneda es la de la cuenta.
+          allOf: [ { $ref: '#/components/schemas/Dinero' } ]
+        registradoPor:     { type: [string, 'null'], format: uuid }
+        levantadoPor:      { type: [string, 'null'], format: uuid }
+        recibidoEn:        { type: string, format: date-time }
+        venceEn:           { type: [string, 'null'], format: date-time }
+        levantadoEn:       { type: [string, 'null'], format: date-time }
+        puedeLevantar:
+          type: boolean
+          description: false cuando quien consulta registro el bloqueo (R-BIL-32) o el bloqueo ya no esta vigente
     RetiroEnRevision:
       type: object
       additionalProperties: false
@@ -1325,8 +1435,8 @@ components:
       required: [cuentaBilleteraId, monto, medio]
       properties:
         cuentaBilleteraId: { type: string, format: uuid }
-        monto: { $ref: '#/components/schemas/Dinero' }
-        costoProveedor: { $ref: '#/components/schemas/Dinero' }
+        monto: { $ref: '#/components/schemas/Importe' }
+        costoProveedor: { $ref: '#/components/schemas/Importe' }
         medio: { type: string, maxLength: 30 }
         instrumentoFondeoId: { type: string, format: uuid }
         cotizacionId:
@@ -1373,7 +1483,7 @@ components:
       required: [cuentaBilleteraId, monto, motivo]
       properties:
         cuentaBilleteraId: { type: string, format: uuid }
-        monto:  { $ref: '#/components/schemas/Dinero' }
+        monto:  { $ref: '#/components/schemas/Importe' }
         motivo: { type: string, maxLength: 40 }
         transaccionOrigenId: { type: string, format: uuid }
         referenciaTipo: { type: string, maxLength: 30 }
@@ -1414,7 +1524,7 @@ components:
       required: [retencionId, monto]
       properties:
         retencionId: { type: string, format: uuid }
-        monto:       { $ref: '#/components/schemas/Dinero' }
+        monto:       { $ref: '#/components/schemas/Importe' }
         # titularId: opcional. Si el servicio llamador ya valido a la persona y la informa, el libro
         # verifica que sea la dueña de la billetera retenida; si difiere, no se mueve nada.
         titularId:   { type: string, format: uuid }
@@ -1432,7 +1542,7 @@ components:
       required: [cuentaBilleteraId, monto, referenciaId]
       properties:
         cuentaBilleteraId: { type: string, format: uuid }
-        monto:             { $ref: '#/components/schemas/Dinero' }
+        monto:             { $ref: '#/components/schemas/Importe' }
         referenciaId:      { type: string, format: uuid }
     SalidaAcreditacionRescate:
       type: object
@@ -1448,7 +1558,7 @@ components:
       properties:
         cuentaBilleteraId: { type: string, format: uuid }
         modalidad: { type: string, enum: [DINAMICO, ESTATICO] }
-        monto: { $ref: '#/components/schemas/Dinero' }
+        monto: { $ref: '#/components/schemas/Importe' }
         concepto: { type: string, maxLength: 140 }
     SalidaQrEmitido:
       type: object
@@ -1486,7 +1596,7 @@ components:
         contenido: { type: string, maxLength: 2048 }
         cuentaOrigenId: { type: string, format: uuid }
         monto:
-          $ref: '#/components/schemas/Dinero'
+          $ref: '#/components/schemas/Importe'
     SalidaPagoQr:
       type: object
       additionalProperties: false
@@ -1498,6 +1608,21 @@ components:
         destinatario: { type: string, maxLength: 20 }
         concepto: { type: string, maxLength: 140 }
         saldoDespues: { $ref: '#/components/schemas/Dinero' }
+    Importe:
+      description: >-
+        F1.L1.M01 · un importe que ENTRA por el contrato: nunca negativo (regla 91.2.2). El signo lo da la
+        operacion, no el numero. Un "-50.00" se rechaza en el borde (400 AP-VAL-01, campo `monto`) antes de
+        llegar al caso de uso. Mismo JSON que `Dinero`, que sigue describiendo saldos de salida con signo.
+      type: object
+      additionalProperties: false
+      required: [monto, moneda]
+      properties:
+        monto:
+          type: string
+          pattern: '^\d{1,12}\.\d{2}$'     # CADENA: un number JSON es un doble; DECIMAL(14,2)
+        moneda:
+          type: string
+          enum: [BOB, USD]
     Dinero:
       type: object
       additionalProperties: false
@@ -1566,6 +1691,13 @@ components:
         glosa: { type: string, maxLength: 160 }
         registradoEn: { type: string, format: date-time }
   responses:
+    Retirada:
+      description: >-
+        La operacion fue retirada del producto y ya no tiene efecto (410, no 404: existio y no hay que
+        reintentar). El codigo dice cual.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
     ReglaDeNegocio:
       description: Regla de negocio de la aplicacion (422, no 400)
       content:

@@ -39,3 +39,13 @@ describe('rutasCumplimiento · el listado no tapa la ruta de su detalle', () => 
     expect(await navegar('/cumplimiento/casos', ['VERIFICACION_RESOLVER'])).toBe('/tablero')
   })
 })
+
+describe('rutasCumplimiento · bloqueos de autoridad (CU-17)', () => {
+  it.each([['BLOQUEO_AUTORIDAD_REGISTRAR'], ['BLOQUEO_AUTORIDAD_LEVANTAR']])('con %s se entra a la bandeja', async (permiso) => {
+    expect(await navegar('/cumplimiento/bloqueos', [permiso])).toBe('/cumplimiento/bloqueos')
+  })
+
+  it('sin ninguno de los dos códigos de su listado, al tablero', async () => {
+    expect(await navegar('/cumplimiento/bloqueos', ['CUMPLIMIENTO_CASOS'])).toBe('/tablero')
+  })
+})

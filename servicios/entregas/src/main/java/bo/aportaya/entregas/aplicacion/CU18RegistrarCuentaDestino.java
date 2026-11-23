@@ -41,6 +41,7 @@ public class CU18RegistrarCuentaDestino {
     private final Outbox outbox;
     private final Reloj reloj;
     private final String pimienta;
+    private final String llaveDeCifrado;
     private final int versionLlave;
     private final int maximoDeCuentas;
     private final Duration ventanaDeEnfriamiento;
@@ -51,6 +52,7 @@ public class CU18RegistrarCuentaDestino {
             Outbox outbox,
             Reloj reloj,
             @Value("${aportaya.seguridad.pimienta}") String pimienta,
+            @Value("${aportaya.seguridad.llave-cifrado-cuentas}") String llaveDeCifrado,
             @Value("${aportaya.seguridad.version-llave}") int versionLlave,
             @Value("${aportaya.cuentas.maximo-por-usuario}") int maximoDeCuentas,
             @Value("${aportaya.cuentas.enfriamiento}") Duration ventanaDeEnfriamiento) {
@@ -59,6 +61,13 @@ public class CU18RegistrarCuentaDestino {
         this.outbox = outbox;
         this.reloj = reloj;
         this.pimienta = pimienta;
+        // F1.L2.M07: una sola llave para el hash y el cifrado haria que filtrar una fuera filtrar las dos. Se valida al
+        // arrancar: el servicio no levanta con la llave vacia ni igual a la pimienta (regla 90.3.4).
+        if (llaveDeCifrado == null || llaveDeCifrado.isBlank() || llaveDeCifrado.equals(pimienta)) {
+            throw new IllegalStateException(
+                    "aportaya.seguridad.llave-cifrado-cuentas falta o es igual a la pimienta: entregas no arranca");
+        }
+        this.llaveDeCifrado = llaveDeCifrado;
         this.versionLlave = versionLlave;
         this.maximoDeCuentas = maximoDeCuentas;
         this.ventanaDeEnfriamiento = ventanaDeEnfriamiento;
@@ -69,7 +78,7 @@ public class CU18RegistrarCuentaDestino {
         // El enmascarado y el hash se calculan ANTES de tocar la base: el numero en
         // claro no entra a ninguna consulta, ni siquiera a una que vaya a fallar.
         // SEG-007: enmascarado, hash y cifrado salen del mismo numero, en el servidor.
-        var protegido = NumeroDeCuentaProtegido.de(entrada.numeroEnClaro(), pimienta, versionLlave);
+        var protegido = NumeroDeCuentaProtegido.de(entrada.numeroEnClaro(), pimienta, versionLlave, llaveDeCifrado);
         var enmascarada = protegido.enmascarada();
 
         // AP-CU18-01 · R-SEG-02: la cuenta es de quien la registra.

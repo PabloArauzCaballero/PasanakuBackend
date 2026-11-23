@@ -1,0 +1,23 @@
+# F1.L5.M23 — Webhook de mensajería: todo de la carga firmada, con ventana (2026-11-21)
+
+## Relocalización en origin/dev
+CU82ProcesarRespuesta: FirmaDeWebhook.verifica(cargaUtil, firma) y después usa entrada.remitente(), entrada.contenido(), entrada.claveIdempotencia() — campos de afuera, sin firmar. Sin ventana de tiempo. Vigente.
+
+## Doble del proveedor con firma real (HMAC-SHA256), tres niveles
+$ ./gradlew :servicios:notificaciones:test --tests '*WebhookDeMensajeriaTest' --rerun -> exit=0, 6 casos, 0 fallos
+  Correcto · firma válida: el remitente que se busca es el FIRMADO
+  Límite · el mismo mensaje firmado dos veces se procesa una sola vez
+  Límite · emitido justo en el borde de la ventana se acepta; un segundo después, no
+  Inválido · firma inválida: se rechaza sin tocar nada
+  Inválido · un par (carga, firma) capturado y reenviado con OTRO remitente se rechaza
+  Inválido · una carga firmada sin los campos del formato se rechaza
+
+## Regresión
+$ ./gradlew :servicios:notificaciones:spotlessCheck test webTest testBarrido --rerun -> exit=0
+test: 11 casos, 0 fallos
+webTest: 47 casos, 0 fallos
+testBarrido: 2 casos, 0 fallos
+generar_postman.py, verificar_pruebas_web.py, inventario_endpoints.py --check, verificar_seguridad.py -> exit 0
+
+NO COMPROBADO — requiere Docker: CU82Test (helper actualizado al formato firmado). ./gradlew :servicios:notificaciones:integrationTest --tests '*CU82*'
+No cubierto: proveedor real (no contratado, P-15); el formato de la carga es el del puerto propio y el adaptador de cada proveedor lo traduce.

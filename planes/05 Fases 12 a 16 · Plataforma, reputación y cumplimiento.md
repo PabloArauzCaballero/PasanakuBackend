@@ -536,7 +536,7 @@ efectos del acta se aplican en su misma transacción.
 ## 🏁 Hito: el sistema está completo
 
 Al cerrar la Fase 16, los **87 casos de uso del núcleo** están implementados, las
-**350 tablas** tienen código que las escribe y las **182 restricciones** tienen prueba
+**354 tablas** tienen código que las escribe y las **188 restricciones** tienen prueba
 de rechazo. Falta endurecerlo y desplegarlo: [[06 Fase 17 · Endurecimiento, E2E y despliegue]].
 
 ## Ver también

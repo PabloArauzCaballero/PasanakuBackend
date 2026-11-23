@@ -58,6 +58,9 @@ DE_DESARROLLO = {
     # desarrollo a la vista a proposito; en el desplegado lo pone el almacen de secretos.
     "MFA_LLAVES": "1:llave-local-mfa-no-es-la-de-produccion-0001",
     "MFA_LLAVE_VIGENTE": "1",
+    # Llave del cifrado del numero de cuenta de entregas (F1.L2.M07), distinta de la pimienta. Valor de
+    # desarrollo a la vista a proposito; en el desplegado lo pone el almacen de secretos.
+    "ENTREGAS_LLAVE_CIFRADO_CUENTAS": "llave-local-cuentas-no-es-la-de-produccion",
     # El servidor de archivos (ADR-034). La cedula, la selfie y los comprobantes van
     # ahi, no al disco del contenedor: un contenedor se reemplaza y la evidencia
     # legal no. En la columna queda una clave de objeto, nunca una URL publica.
@@ -66,6 +69,8 @@ DE_DESARROLLO = {
     "ARCHIVOS_CLAVE": "aportaya-local",
     "ARCHIVOS_BUCKET": "aportaya-archivos",
     "WEBHOOK_SECRETO": "secreto-local-no-es-el-de-produccion",
+    # F1.L1.M05: el secreto del webhook de la pasarela en aportes (>= 32 caracteres o no arranca).
+    "APORTES_WEBHOOK_SECRETO": "secreto-local-del-webhook-de-aportes-no-es-el-real",
     "CERTIFICADOS_CLAVE_FIRMA": "clave-local-no-es-la-de-produccion",
     "CUENTA_PUENTE_CUSTODIA": "00000000-0000-0000-0000-0000000000c0",
     "BASE_URL_PUBLICA": "http://localhost",
@@ -110,6 +115,11 @@ DE_DESARROLLO = {
     "GRUPOS_SERVICIO_CLAVE": "",
     "GRUPOS_SERVICIO_TOTP_SEMILLA": "",
     "GRUPOS_SERVICIO_FACTOR_FIJO": "",
+    # Cuenta de servicio de garantia en identidad (rol SERVICIO_GARANTIA, F1.L1.M07): con ella garantia pregunta el
+    # recaudo del periodo a aportes. Vacias en local: sin cuenta, el recaudo no se pregunta (falla cerrado).
+    "GARANTIA_SERVICIO_TELEFONO": "",
+    "GARANTIA_SERVICIO_CLAVE": "",
+    "GARANTIA_SERVICIO_TOTP_SEMILLA": "",
     "NUCLEO_FINANCIERO_URL": "http://nucleo-financiero:8080",
     # El mismo literal que application-local.yml (en local el perfil lo ignora).
     "APORTAYA_CORS_ORIGENES": "http://localhost:4200",
@@ -148,6 +158,9 @@ DE_DESARROLLO = {
     # grupos · consumo de entregas.derecho_cedido (el cupo cambia de titular al venderse un turno): ENCENDIDO. La venta ya
     # movio el dinero en otro servicio; apagarlo la deja pagada sin reflejo en el grupo.
     "CESION_CONSUMO_HABILITADO": "true",
+    # garantia · modelo A (ADR-056): APAGADO hasta la opinion de Cumplimiento (F3.S3.M7). Encendido, garantia no arranca
+    # sin sus parametros financieros, que no tienen valor por defecto (ParametrosDelModeloA, F3.L2.M14).
+    "MODELO_A_HABILITADO": "false",
     # nucleo-financiero · consumo de aportes.aporte_cobrado (debita al participante, acredita al grupo, asienta en el mayor):
     # ENCENDIDO. Sin el, el aporte queda PAGADO en `aportes` y no mueve billetera ni mayor.
     "CONSUMO_DE_APORTES_HABILITADO": "true",
@@ -202,7 +215,11 @@ DE_ENTORNO = {
     # secretos; sin ellas identidad NO arranca (regla 90.3.4). Nunca un valor en el repositorio.
     "MFA_LLAVES": "${MFA_LLAVES}",
     "MFA_LLAVE_VIGENTE": "${MFA_LLAVE_VIGENTE}",
+    # Llave del cifrado del numero de cuenta de entregas (F1.L2.M07). Sin valor por defecto: sin ella, o igual a
+    # la pimienta, entregas NO arranca (regla 90.3.4). Se carga en Coolify antes de promover.
+    "ENTREGAS_LLAVE_CIFRADO_CUENTAS": "${ENTREGAS_LLAVE_CIFRADO_CUENTAS}",
     "WEBHOOK_SECRETO": "${WEBHOOK_SECRETO}",
+    "APORTES_WEBHOOK_SECRETO": "${APORTES_WEBHOOK_SECRETO}",
     "CERTIFICADOS_CLAVE_FIRMA": "${CERTIFICADOS_CLAVE_FIRMA}",
     "CUENTA_PUENTE_CUSTODIA": "${CUENTA_PUENTE_CUSTODIA}",
     "BASE_URL_PUBLICA": "${BASE_URL_PUBLICA}",
@@ -224,30 +241,36 @@ DE_ENTORNO = {
     # Inversiones queda con el aliado DESHABILITADO hasta que exista uno contratado (DR-INV-01).
     "INVERSIONES_ALIADO_MODO": "deshabilitado",
     "INVERSIONES_ALIADO_URL": "http://127.0.0.1:4030",
-    "INVERSIONES_ALIADO_API_KEY": "",
-    "INVERSIONES_ALIADO_FIRMA_SECRETO": "",
-    "INVERSIONES_LIBRO_CREDENCIAL_SERVICIO": "",
+    "INVERSIONES_ALIADO_API_KEY": "${INVERSIONES_ALIADO_API_KEY:-}",
+    "INVERSIONES_ALIADO_FIRMA_SECRETO": "${INVERSIONES_ALIADO_FIRMA_SECRETO:-}",
+    "INVERSIONES_LIBRO_CREDENCIAL_SERVICIO": "${INVERSIONES_LIBRO_CREDENCIAL_SERVICIO:-}",
     # Cuenta de servicio de inversiones en identidad (rol SERVICIO_INVERSIONES). Vacias en el repo: las pone quien
     # opera el entorno; con una de las cuatro puesta y otra no, inversiones NO arranca.
-    "INVERSIONES_SERVICIO_TELEFONO": "",
-    "INVERSIONES_SERVICIO_CLAVE": "",
-    "INVERSIONES_SERVICIO_TOTP_SEMILLA": "",
-    "INVERSIONES_SERVICIO_FACTOR_FIJO": "",
+    "INVERSIONES_SERVICIO_TELEFONO": "${INVERSIONES_SERVICIO_TELEFONO:-}",
+    "INVERSIONES_SERVICIO_CLAVE": "${INVERSIONES_SERVICIO_CLAVE:-}",
+    "INVERSIONES_SERVICIO_TOTP_SEMILLA": "${INVERSIONES_SERVICIO_TOTP_SEMILLA:-}",
+    "INVERSIONES_SERVICIO_FACTOR_FIJO": "${INVERSIONES_SERVICIO_FACTOR_FIJO:-}",
     # Cuenta de servicio de entregas en identidad (rol SERVICIO_ENTREGAS): con ella entregas le paga al vendedor de un
     # turno (pago-a-tercero). Vacias en el repo: las pone quien opera el entorno; a medias, entregas NO arranca.
-    "ENTREGAS_LIBRO_CREDENCIAL_SERVICIO": "",
-    "ENTREGAS_SERVICIO_TELEFONO": "",
-    "ENTREGAS_SERVICIO_CLAVE": "",
-    "ENTREGAS_SERVICIO_TOTP_SEMILLA": "",
-    "ENTREGAS_SERVICIO_FACTOR_FIJO": "",
+    "ENTREGAS_LIBRO_CREDENCIAL_SERVICIO": "${ENTREGAS_LIBRO_CREDENCIAL_SERVICIO:-}",
+    "ENTREGAS_SERVICIO_TELEFONO": "${ENTREGAS_SERVICIO_TELEFONO:-}",
+    "ENTREGAS_SERVICIO_CLAVE": "${ENTREGAS_SERVICIO_CLAVE:-}",
+    "ENTREGAS_SERVICIO_TOTP_SEMILLA": "${ENTREGAS_SERVICIO_TOTP_SEMILLA:-}",
+    "ENTREGAS_SERVICIO_FACTOR_FIJO": "${ENTREGAS_SERVICIO_FACTOR_FIJO:-}",
     # Cuenta de servicio de grupos en identidad (rol SERVICIO_GRUPOS): con ella grupos lee la etapa de reputacion de
     # quien entra a un grupo (GET /reputacion/etapas/de-personas). Vacias en el repo: las pone quien opera el entorno;
     # sin ellas toda alta de grupo y todo ingreso fallan cerrados.
-    "GRUPOS_TRANSPARENCIA_CREDENCIAL_SERVICIO": "",
-    "GRUPOS_SERVICIO_TELEFONO": "",
-    "GRUPOS_SERVICIO_CLAVE": "",
-    "GRUPOS_SERVICIO_TOTP_SEMILLA": "",
-    "GRUPOS_SERVICIO_FACTOR_FIJO": "",
+    "GRUPOS_TRANSPARENCIA_CREDENCIAL_SERVICIO": "${GRUPOS_TRANSPARENCIA_CREDENCIAL_SERVICIO:-}",
+    "GRUPOS_SERVICIO_TELEFONO": "${GRUPOS_SERVICIO_TELEFONO:-}",
+    "GRUPOS_SERVICIO_CLAVE": "${GRUPOS_SERVICIO_CLAVE:-}",
+    "GRUPOS_SERVICIO_TOTP_SEMILLA": "${GRUPOS_SERVICIO_TOTP_SEMILLA:-}",
+    "GRUPOS_SERVICIO_FACTOR_FIJO": "${GRUPOS_SERVICIO_FACTOR_FIJO:-}",
+    # Cuenta de servicio de garantia en identidad (rol SERVICIO_GARANTIA, F1.L1.M07): se cargan en Coolify. Con
+    # `${X:-}` y no "" literal, para que Coolify pueda ponerlas; vacias = sin cuenta (el recaudo no se pregunta,
+    # falla cerrado). A medias (telefono sin clave o sin semilla TOTP), garantia NO arranca.
+    "GARANTIA_SERVICIO_TELEFONO": "${GARANTIA_SERVICIO_TELEFONO:-}",
+    "GARANTIA_SERVICIO_CLAVE": "${GARANTIA_SERVICIO_CLAVE:-}",
+    "GARANTIA_SERVICIO_TOTP_SEMILLA": "${GARANTIA_SERVICIO_TOTP_SEMILLA:-}",
     "NUCLEO_FINANCIERO_URL": "http://nucleo-financiero:8080",
     # Solo la leen staging/production (application-<perfil>.yml): sin valor por omision y nunca
     # `*`; el servicio no arranca si falta. Con el perfil `local` no tiene efecto. No es un secreto.
@@ -257,6 +280,9 @@ DE_ENTORNO = {
     # se puede pisar desde Coolify sin tocar el repo; el perfil `production` se niega a arrancar con esto
     # mientras CUENTAS_LOGICAS_APTO_PRODUCCION no sea true (GuardiaDeCuentasLogicas).
     "CONSUMO_DE_ASIENTOS_HABILITADO": "${CONSUMO_DE_ASIENTOS_HABILITADO:-true}",
+    # garantia · modelo A (ADR-056): APAGADO hasta la opinion de Cumplimiento (F3.S3.M7). Encenderlo exige cargar antes
+    # sus parametros financieros, que no tienen valor por defecto: sin ellos garantia no arranca (F3.L2.M14).
+    "MODELO_A_HABILITADO": "${MODELO_A_HABILITADO:-false}",
     "CUENTAS_LOGICAS_APTO_PRODUCCION": "false",
     "CUENTA_LOGICA_CAJA_EMPRESA_BOB": "${CUENTA_LOGICA_CAJA_EMPRESA_BOB:-9.1.01}",
     "CUENTA_LOGICA_RESERVA_RESPALDO_BOB": "${CUENTA_LOGICA_RESERVA_RESPALDO_BOB:-9.1.02}",
@@ -663,11 +689,22 @@ def variables_de(servicio):
     return sorted(set(re.findall(r"\$\{([A-Z_]+)[:}]", texto)))
 
 
+def _sin_vacios_fijos():
+    """Una credencial del desplegado con valor literal "" no se puede poner desde Coolify: el compose la fija vacia
+    y la variable del entorno nunca llega al contenedor. Paso asi con las cuentas de servicio de grupos, entregas e
+    inversiones en TEST (sorteo, entrega e inversiones fallando cerrados). Toda variable del desplegado lleva valor o
+    `${VAR:-}`."""
+    fijos = sorted(k for k, v in DE_ENTORNO.items() if v == "")
+    if fijos:
+        raise SystemExit("DE_ENTORNO con valores vacios fijos (usar ${VAR:-}): " + ", ".join(fijos))
+
+
 def main():
     # Un solo barrido y un solo cuadro de variables para los dos destinos: si el
     # desplegado tuviera su propio generador, divergirian, y la divergencia
     # aparece recien cuando el entorno de pruebas no arranca.
     desplegado = "--coolify" in sys.argv[1:]
+    _sin_vacios_fijos()
 
     servicios = sorted(
         d.name for d in SERVICIOS.iterdir() if (d / "descriptor.yml").is_file()

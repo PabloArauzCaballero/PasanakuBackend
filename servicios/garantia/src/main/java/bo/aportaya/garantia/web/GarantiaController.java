@@ -22,6 +22,7 @@ import bo.aportaya.garantia.web.generado.modelo.SalidaReemplazo;
 import bo.aportaya.garantia.web.generado.modelo.SalidaReservaRespaldo;
 import bo.aportaya.garantia.web.generado.modelo.SalidaReversaRespaldo;
 import bo.aportaya.plataforma.dominio.CodigoError;
+import bo.aportaya.plataforma.dominio.OperacionRetirada;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
@@ -31,7 +32,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Las paginas de {@code /garantia}: el fondo, el reemplazo y la disolucion.
+ * Las paginas de {@code /garantia}: el fondo, el reemplazo y la disolucion. El respaldo empresarial se retiro
+ * (F2.L2.M02): sus rutas responden 410.
  *
  * <p>La disolucion se inicia y se cierra en dos actos: entre uno y otro hay que
  * devolverle a cada quien lo suyo, y **ni un centavo se pierde ni se inventa** — el
@@ -42,14 +44,11 @@ public class GarantiaController implements GarantiaApi {
 
     private final CU66ReemplazarParticipante cu66;
     private final CU67DisolverGrupo cu67;
-    private final RespaldoWeb respaldo;
     private final SesionDeLaPeticion sesion;
 
-    public GarantiaController(
-            CU66ReemplazarParticipante cu66, CU67DisolverGrupo cu67, RespaldoWeb respaldo, SesionDeLaPeticion sesion) {
+    public GarantiaController(CU66ReemplazarParticipante cu66, CU67DisolverGrupo cu67, SesionDeLaPeticion sesion) {
         this.cu66 = cu66;
         this.cu67 = cu67;
-        this.respaldo = respaldo;
         this.sesion = sesion;
     }
 
@@ -134,45 +133,59 @@ public class GarantiaController implements GarantiaApi {
         return ResponseEntity.ok(respuesta);
     }
 
-    // --- respaldo empresarial (carril C): las seis rutas de /garantia/respaldo ---------------
-    // La traduccion vive en RespaldoWeb; el permiso, que es lo que la guardia lee, vive aca.
+    // --- respaldo empresarial: RETIRADO (F2.L2.M02, ADR-055 E7) --------------------------------
+    // La empresa no cubre ni reserva nada: el faltante lo cubre el fondo del grupo (F3.L2.M05). Las seis rutas de
+    // /garantia/respaldo quedan deprecated y responden 410 AP-CU23-15 sin efecto. El permiso se conserva para que
+    // la guardia siga respondiendo 401/403 antes que el 410: a quien no puede invocarla no se le cuenta que existio.
 
+    private static OperacionRetirada respaldoRetirado() {
+        return new OperacionRetirada(
+                CodigoError.de(23, 15),
+                "El respaldo empresarial se retiro: el faltante del pozo lo cubre el fondo del grupo.");
+    }
+
+    @Deprecated
     @Override
     @Permiso("ADMIN_PLATAFORMA")
     public ResponseEntity<SalidaReservaRespaldo> reservarRespaldo(UUID idempotencyKey, EntradaReservaRespaldo cuerpo) {
-        return respaldo.reservarRespaldo(idempotencyKey, cuerpo);
+        throw respaldoRetirado();
     }
 
+    @Deprecated
     @Override
     @Permiso("ADMIN_PLATAFORMA")
     public ResponseEntity<SalidaAmpliacionRespaldo> ampliarRespaldo(
             UUID reservaId, UUID idempotencyKey, EntradaAmpliacionRespaldo cuerpo) {
-        return respaldo.ampliarRespaldo(reservaId, idempotencyKey, cuerpo);
+        throw respaldoRetirado();
     }
 
+    @Deprecated
     @Override
     @Permiso("ADMIN_PLATAFORMA")
     public ResponseEntity<SalidaLiberacionRespaldo> liberarRespaldo(UUID reservaId, UUID idempotencyKey) {
-        return respaldo.liberarRespaldo(reservaId, idempotencyKey);
+        throw respaldoRetirado();
     }
 
+    @Deprecated
     @Override
     @Permiso("ENTREGA_EJECUTAR")
     public ResponseEntity<SalidaCoberturaRespaldo> cubrirConRespaldo(
             UUID idempotencyKey, EntradaCoberturaRespaldo cuerpo) {
-        return respaldo.cubrirConRespaldo(idempotencyKey, cuerpo);
+        throw respaldoRetirado();
     }
 
+    @Deprecated
     @Override
     @Permiso("ADMIN_PLATAFORMA")
     public ResponseEntity<SalidaReversaRespaldo> reversarCoberturaRespaldo(UUID coberturaId, UUID idempotencyKey) {
-        return respaldo.reversarCoberturaRespaldo(coberturaId, idempotencyKey);
+        throw respaldoRetirado();
     }
 
+    @Deprecated
     @Override
     @Permiso("ADMIN_PLATAFORMA")
     public ResponseEntity<SalidaRecuperacionRespaldo> recuperarRespaldo(
             UUID idempotencyKey, EntradaRecuperacionRespaldo cuerpo) {
-        return respaldo.recuperarRespaldo(idempotencyKey, cuerpo);
+        throw respaldoRetirado();
     }
 }

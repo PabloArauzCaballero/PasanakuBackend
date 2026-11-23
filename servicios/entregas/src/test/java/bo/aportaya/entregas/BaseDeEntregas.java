@@ -41,6 +41,9 @@ abstract class BaseDeEntregas {
      */
     protected static final String PIMIENTA = "pimienta-de-prueba-no-es-la-de-produccion";
 
+    /** La llave del cifrado del numero de cuenta: de prueba y distinta de la pimienta (F1.L2.M07). */
+    protected static final String LLAVE_DE_CIFRADO = "llave-de-cifrado-de-prueba-no-es-la-de-produccion";
+
     protected static final int VERSION_LLAVE = 1;
     protected static final int MAXIMO_DE_CUENTAS = 3;
     protected static final Duration ENFRIAMIENTO = Duration.ofHours(24);
@@ -56,7 +59,6 @@ abstract class BaseDeEntregas {
     protected static CU22LiquidarEntrega entregaCU;
     protected static RegistroDelFondeo registroDelFondeo;
     protected static DoblesDelPozo.Aportes aportesDoble;
-    protected static DoblesDelPozo.Garantia garantiaDoble;
     protected static CU22EntregarPozoCompleto pozoCU;
     protected static CU28EmitirDesembolso desembolsoCU;
 
@@ -78,7 +80,15 @@ abstract class BaseDeEntregas {
         var entregas = new EntregaRepositorio();
 
         cuentaCU = new CU18RegistrarCuentaDestino(
-                datos, cuentas, outbox, Reloj.delSistema(), PIMIENTA, VERSION_LLAVE, MAXIMO_DE_CUENTAS, ENFRIAMIENTO);
+                datos,
+                cuentas,
+                outbox,
+                Reloj.delSistema(),
+                PIMIENTA,
+                LLAVE_DE_CIFRADO,
+                VERSION_LLAVE,
+                MAXIMO_DE_CUENTAS,
+                ENFRIAMIENTO);
         entregaCU = new CU22LiquidarEntrega(datos, entregas, outbox, Reloj.delSistema());
         // En produccion Spring abre la transaccion en @Transactional; aca se arma a mano, asi que el
         // doble la abre alrededor de la escritura LOCAL y nada mas: las preguntas a otros servicios
@@ -96,15 +106,13 @@ abstract class BaseDeEntregas {
                     public Salida registrar(
                             Entrada e,
                             bo.aportaya.entregas.dominio.FondeoDelPozo.Resultado cifras,
-                            java.util.UUID coberturaId,
                             java.time.OffsetDateTime corte,
                             ContextoSesion ctx) {
-                        return transaccion.execute(t -> super.registrar(e, cifras, coberturaId, corte, ctx));
+                        return transaccion.execute(t -> super.registrar(e, cifras, corte, ctx));
                     }
                 };
         aportesDoble = new DoblesDelPozo.Aportes();
-        garantiaDoble = new DoblesDelPozo.Garantia();
-        pozoCU = new CU22EntregarPozoCompleto(aportesDoble, garantiaDoble, registroDelFondeo);
+        pozoCU = new CU22EntregarPozoCompleto(aportesDoble, registroDelFondeo);
         desembolsoCU = new CU28EmitirDesembolso(
                 datos,
                 new DesembolsoRepositorio(),
@@ -114,6 +122,32 @@ abstract class BaseDeEntregas {
                 Reloj.delSistema(),
                 INTENTOS_MAXIMOS,
                 Duration.ofMinutes(15));
+    }
+
+    /**
+     * Una entrega como nace hoy: del fondeo del pozo completo, con aportes confirmando Bs 6.000 en caja (el doble de
+     * aportes, regla 65). La liquidacion con importes del pedido se retiro (F1.L2.M09).
+     */
+    protected UUID entregaFondeada(FixturaDeEntregas.Escenario e, String metodo, ContextoSesion ctx) {
+        aportesDoble.responde(new bo.aportaya.entregas.dominio.puertos.RecaudoDelPozo.Recaudo(
+                e.periodoId(),
+                e.grupoId(),
+                java.time.OffsetDateTime.now(),
+                bo.aportaya.plataforma.dominio.Dinero.de("6000.00", bo.aportaya.plataforma.dominio.Moneda.BOB),
+                bo.aportaya.plataforma.dominio.Dinero.de("6000.00", bo.aportaya.plataforma.dominio.Moneda.BOB),
+                bo.aportaya.plataforma.dominio.Dinero.de("0.00", bo.aportaya.plataforma.dominio.Moneda.BOB)));
+        return pozoCU.fondear(
+                        new CU22EntregarPozoCompleto.Entrada(
+                                e.grupoId(),
+                                e.periodoId(),
+                                e.turnoId(),
+                                e.cupoId(),
+                                e.participanteId(),
+                                metodo,
+                                java.time.LocalDate.now(),
+                                "fondeo-" + e.turnoId()),
+                        ctx)
+                .entregaId();
     }
 
     protected ContextoSesion contextoDe(UUID usuarioId) {

@@ -49,10 +49,6 @@ class GarantiaControllerWebTest {
     @Autowired
     private MockMvc mvc;
 
-    // Las rutas de /garantia/respaldo las traduce RespaldoWeb y tienen su propia prueba.
-    @MockitoBean
-    private RespaldoWeb respaldoWeb;
-
     @MockitoBean
     private CU66ReemplazarParticipante cu66;
 
@@ -149,6 +145,17 @@ class GarantiaControllerWebTest {
                             .content(CUERPO))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.esNueva").value(false));
+        }
+
+        @Test
+        @DisplayName("F1.L2.M04 · 400: un importe negativo en la disolucion no llega al caso de uso")
+        void importeNegativo() throws Exception {
+            mvc.perform(post("/garantia/grupos/{id}/disolucion", GRUPO)
+                            .with(Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(CUERPO.replace("\"monto\":\"3000.00\"", "\"monto\":\"-3000.00\"")))
+                    .andExpect(status().isBadRequest());
+            verifyNoInteractions(cu67);
         }
 
         @Test

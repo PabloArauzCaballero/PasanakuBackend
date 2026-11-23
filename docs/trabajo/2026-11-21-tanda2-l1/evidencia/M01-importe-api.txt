@@ -1,0 +1,26 @@
+# F1.L1.M01 (parte API) · importe nunca negativo en las entradas — salidas (2026-11-21)
+
+$ ./gradlew :servicios:{aportes,nucleo-financiero}:spotlessCheck test webTest --continue
+BUILD SUCCESSFUL in 55s
+aportes test 53/53 · webTest 58/58 · nucleo-financiero test 97/97 · webTest 83/83
+
+--- control negativo: sin los dos chequeos de signo y con Importe admitiendo "-"
+AportesControllerWebTest > POST /aportes/obligaciones/{id}/pagos — cobrar > F1.L1.M01 · un cobro con monto negativo es 400 y no se acredita nada FAILED
+PagosControllerWebTest > Pedir un reembolso y aprobarlo son dos actos de dos personas > F1.L1.M01 · un reembolso de -50.00 es 400 con el error en el campo monto, sin solicitar nada FAILED
+58 tests completed, 2 failed
+> Task :servicios:aportes:webTest FAILED
+MapeoDeBilleteraImporteTest > invalido: un importe negativo se rechaza como entrada mal formada FAILED
+97 tests completed, 1 failed
+> Task :servicios:nucleo-financiero:test FAILED
+BilleteraFondeoWebTest > F1.L1.M01 · recarga con importe negativo: 400 en el borde, sin llegar al caso de uso FAILED
+83 tests completed, 1 failed
+> Task :servicios:nucleo-financiero:webTest FAILED
+BUILD FAILED in 38s
+
+$ python3 scripts/verificar_contratos_limites.py → Los contratos de request en el alcance de este gate declaran limites y additionalProperties: false.
+$ python3 scripts/verificar_boveda.py → TODO OK
+$ python3 scripts/verificar_seguridad.py → TODO OK · 7 aviso(s)
+$ python3 scripts/verificar_criterios.py → Sin divergencias entre la boveda y el codigo.
+$ python3 scripts/verificar_pruebas_web.py → La capa web esta cubierta segun ADR-043.
+
+Parte base (CHECK monto >= 0 en reembolso, obligacion, pago, disputa): ya en dev por #411 (evidencia en docs/trabajo/2026-11-21-f1-integridad-mayor/evidencia/M3-importes-*.txt).

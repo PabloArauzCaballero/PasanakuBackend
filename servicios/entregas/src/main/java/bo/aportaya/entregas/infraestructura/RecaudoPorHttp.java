@@ -3,12 +3,14 @@ package bo.aportaya.entregas.infraestructura;
 import bo.aportaya.entregas.dominio.puertos.RecaudoDelPozo;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.Moneda;
+import bo.aportaya.plataforma.web.clientes.CredencialDeServicio;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -20,23 +22,29 @@ import org.springframework.web.client.RestClient;
  * omision). FALLBACK declarado: con {@code aportes} caido el pozo no se puede afirmar, asi que la entrega NO se
  * liquida (el usuario ve «procesando», regla 98.4.1); NO se usa el ultimo recaudo conocido (decision de
  * Tesoreria pendiente, ver evidencia/carril-S2/DEUDA-circuit-breaker-clientes-http.md).
+ *
+ * <p>F1.L1.M07 (regla 98.6): la pregunta viaja con la identidad de SERVICIO de entregas ({@code SERVICIO_ENTREGAS}),
+ * nunca con el token de una sesion. Sin credencial de servicio no sale la peticion: vacio, y la entrega no avanza.
  */
 @Component
 public class RecaudoPorHttp implements RecaudoDelPozo {
 
     private final ClienteConCircuito cliente;
+    private final CredencialDeServicio servicio;
 
     @Autowired
     public RecaudoPorHttp(
             RestClient.Builder constructor,
             @Value("${aportaya.servicios.aportes}") String urlDeAportes,
-            ConfiguracionDeCircuito circuito) {
+            ConfiguracionDeCircuito circuito,
+            CredencialDeServicio servicio) {
         this.cliente = new ClienteConCircuito(constructor, urlDeAportes, "aportes", circuito);
+        this.servicio = servicio;
     }
 
-    /** Con los parametros del plan de resiliencia: la usan las pruebas del adaptador. */
-    RecaudoPorHttp(RestClient.Builder constructor, String urlDeAportes) {
-        this(constructor, urlDeAportes, ConfiguracionDeCircuito.porOmision());
+    /** Con los parametros del plan de resiliencia y una credencial a medida: la usan las pruebas del adaptador. */
+    RecaudoPorHttp(RestClient.Builder constructor, String urlDeAportes, CredencialDeServicio servicio) {
+        this(constructor, urlDeAportes, ConfiguracionDeCircuito.porOmision(), servicio);
     }
 
     /** Para pruebas y diagnostico: el estado del circuito hacia `aportes`. */
@@ -46,8 +54,16 @@ public class RecaudoPorHttp implements RecaudoDelPozo {
 
     @Override
     public Optional<Recaudo> consultar(UUID periodoId) {
+        var token = servicio.vigente();
+        if (token.isEmpty()) {
+            return Optional.empty();
+        }
         try {
-            return cliente.consultar("/aportes/periodos/" + periodoId + "/recaudo", Respuesta.class)
+            return Optional.ofNullable(cliente.ejecutar(rest -> rest.get()
+                            .uri("/aportes/periodos/{id}/recaudo", periodoId)
+                            .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.get())
+                            .retrieve()
+                            .body(Respuesta.class)))
                     .map(Respuesta::aRecaudo);
         } catch (RuntimeException noSePudo) {
             return Optional.empty();

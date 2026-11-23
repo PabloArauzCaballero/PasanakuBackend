@@ -115,6 +115,7 @@ public class CU17BloquearPorAutoridad {
                     entrada.alcance(),
                     entrada.documentoUrl(),
                     entrada.hashDocumento(),
+                    ctx.usuarioId(),
                     ahora);
 
             outbox.emitir(
@@ -140,9 +141,19 @@ public class CU17BloquearPorAutoridad {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
         return datos.conContexto(ctx, dsl -> {
-            if (!bloqueos.levantar(dsl, bloqueoId, ctx.usuarioId(), ahora)) {
-                throw new ErrorDeNegocio(CodigoError.de(17, 2), "Ese bloqueo no esta vigente.");
+            var vigente = bloqueos.vigente(dsl, bloqueoId)
+                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(17, 5), "Ese bloqueo no esta vigente."));
+            // AP-CU17-04 · R-BIL-32: quien lo registro no lo levanta (la base lo exige tambien).
+            if (vigente.registradoPor().map(ctx.usuarioId()::equals).orElse(false)) {
+                throw new ErrorDeNegocio(
+                        CodigoError.de(17, 4),
+                        "Quien registro el bloqueo no puede levantarlo: lo levanta otra persona.");
             }
+            if (!bloqueos.levantar(dsl, bloqueoId, ctx.usuarioId(), ahora)) {
+                throw new ErrorDeNegocio(CodigoError.de(17, 5), "Ese bloqueo no esta vigente.");
+            }
+            // F1.L1.M10: el saldo retenido vuelve en la MISMA transaccion; si no, la cuenta queda bloqueada sin orden.
+            vigente.retencionId().ifPresent(r -> retenciones.liberarDentroDe(dsl, r, ctx));
             outbox.emitir(
                     dsl,
                     new EventoDominio(
@@ -168,4 +179,64 @@ public class CU17BloquearPorAutoridad {
     public record SalidaBloqueo(UUID bloqueoId, UUID retencionId, Dinero montoBloqueado, Dinero saldoDisponible) {}
 
     public record SalidaLevantamiento(UUID bloqueoId, String estado) {}
+
+    /**
+     * La bandeja de bloqueos del backoffice de Cumplimiento. El permiso lo exige la pagina; aca se valida el cursor
+     * (AP-CU17-06) y se marca cada fila con {@code puedeLevantar}: falso si quien consulta la registro (R-BIL-32) o si ya
+     * no esta vigente. {@link #levantar} lo vuelve a exigir: la marca solo evita ofrecer un boton muerto.
+     */
+    @Transactional(readOnly = true)
+    public PaginaDeBloqueos listar(
+            Optional<String> estado,
+            Optional<OffsetDateTime> antesDe,
+            Optional<UUID> antesDeId,
+            int limite,
+            ContextoSesion ctx) {
+        if (antesDe.isPresent() != antesDeId.isPresent()) {
+            throw new ErrorDeNegocio(
+                    CodigoError.de(17, 6), "El cursor del listado va completo: antesDe y antesDeId juntos.");
+        }
+        var items = datos.conContexto(ctx, dsl -> bloqueos.listar(dsl, estado, antesDe, antesDeId, limite)).stream()
+                .map(f -> new FilaDelListado(
+                        f.id(),
+                        f.cuentaBilleteraId(),
+                        f.autoridad(),
+                        f.tipoOrden(),
+                        f.alcance(),
+                        f.estado(),
+                        f.montoBloqueado(),
+                        f.registradoPor(),
+                        f.levantadoPor(),
+                        f.recibidoEn(),
+                        f.venceEn(),
+                        f.levantadoEn(),
+                        "VIGENTE".equals(f.estado()) && !f.registradoPor().equals(Optional.of(ctx.usuarioId()))))
+                .toList();
+        // Pagina llena => puede haber mas: el cursor es la ultima fila. Pagina corta => se termino.
+        Optional<FilaDelListado> ultima =
+                items.size() == limite ? Optional.of(items.get(items.size() - 1)) : Optional.empty();
+        return new PaginaDeBloqueos(
+                items, ultima.map(FilaDelListado::recibidoEn), ultima.map(FilaDelListado::bloqueoId));
+    }
+
+    /** Una fila del listado, en terminos del caso de uso (la web no ve el registro del repositorio). */
+    public record FilaDelListado(
+            UUID bloqueoId,
+            UUID cuentaBilleteraId,
+            String autoridad,
+            String tipoOrden,
+            String alcance,
+            String estado,
+            Optional<Dinero> montoBloqueado,
+            Optional<UUID> registradoPor,
+            Optional<UUID> levantadoPor,
+            OffsetDateTime recibidoEn,
+            Optional<OffsetDateTime> venceEn,
+            Optional<OffsetDateTime> levantadoEn,
+            boolean puedeLevantar) {}
+
+    public record PaginaDeBloqueos(
+            java.util.List<FilaDelListado> items,
+            Optional<OffsetDateTime> proximoAntesDe,
+            Optional<UUID> proximoAntesDeId) {}
 }

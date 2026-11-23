@@ -1,0 +1,21 @@
+$ python3 scripts/generar_ddl.py -> EXIT=0 · Sin pendientes a nivel de datos.
+$ git diff --exit-code -- sql/ -> EXIT=0 · 
+$ python3 scripts/verificar_boveda.py -> EXIT=0 · TODO OK
+$ python3 scripts/verificar_seguridad.py -> EXIT=0 · TODO OK · 5 aviso(s)
+$ python3 scripts/verificar_carriles.py -> EXIT=0 · TODO OK (con avisos)
+$ python3 scripts/verificar_maqueta.py -> EXIT=0 · TODO OK
+$ python3 scripts/verificar_criterios.py -> EXIT=0 · Sin divergencias entre la boveda y el codigo.
+$ python3 -I scripts/verificar_narrativas.py -> EXIT=0 · Sin fallas.
+$ python3 -I scripts/test_catalogo_de_datos.py -> EXIT=0 · OK
+$ python3 -I scripts/catalogo_de_datos.py --escribir -> EXIT=0 · 401 tablas → docs/catalogo-de-datos.md y servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json
+$ git diff --exit-code -- docs/catalogo-de-datos.md servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json -> EXIT=0 · 
+$ python3 scripts/verificar_pruebas_web.py -> EXIT=0 · La capa web esta cubierta segun ADR-043.
+$ python3 scripts/validar_flujos.py -> EXIT=0 · Sin fallas.
+$ python3 scripts/generar_k8s.py -> EXIT=0 · total: 36 archivos generados · reglas de ADR-037 verificadas
+$ python3 scripts/generar_compose.py --coolify -> EXIT=0 ·   front movil -> despliegue/coolify/movil.yml
+$ python3 scripts/auditoria/verificar_limites_compose.py -> EXIT=0 · Límites de memoria/CPU, una réplica Java y Hikari TEST verificados en los cuatro compose.
+$ git diff --exit-code -- docker-compose.coolify.yml despliegue/coolify/ -> EXIT=0 · 
+$ python3 scripts/generar_semillas.py -> EXIT=0 · Guardado mapa de esquemas: /home/user/wt-l2/scripts/metadata_enriquecida.json
+$ python3 scripts/generar_postman.py -> EXIT=0 ·   cumplimiento: listarEventosDeRiesgo, listarIncidentesDeSeguridad, listarPruebasDeContinuidad, registrarPruebaDeContinu
+$ git diff --exit-code -- postman/ sql/ scripts/ -> EXIT=0 · 
+PASOS CON FALLA: 0

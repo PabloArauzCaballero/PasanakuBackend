@@ -97,6 +97,14 @@
           "descripcion": "Identidad de servicio: grupos consulta la etapa de quien entra a un grupo, nunca el puntaje"
         },
         {
+          "codigo": "SERVICIO_GARANTIA",
+          "nombre": "Identidad de servicio: garantia (lee el recaudo del periodo)",
+          "ambito": "GLOBAL",
+          "es_sistema": true,
+          "departamento": "SISTEMAS",
+          "descripcion": "Identidad de servicio: garantia consulta el recaudo del pozo en aportes (F1.L1.M07), nunca con el token de una persona"
+        },
+        {
           "codigo": "SERVICIO_INVERSIONES",
           "nombre": "Identidad de servicio: inversiones (debita y acredita)",
           "ambito": "GLOBAL",
@@ -433,6 +441,24 @@
           "accion": "LEER",
           "requiere_mfa": true,
           "nivel_riesgo": "ALTO",
+          "exige_motivo": true
+        },
+        {
+          "codigo": "BLOQUEO_AUTORIDAD_REGISTRAR",
+          "descripcion": "Registrar un bloqueo de saldo ordenado por una autoridad",
+          "recurso": "bloqueo_saldo",
+          "accion": "REGISTRAR",
+          "requiere_mfa": true,
+          "nivel_riesgo": "CRITICO",
+          "exige_motivo": true
+        },
+        {
+          "codigo": "BLOQUEO_AUTORIDAD_LEVANTAR",
+          "descripcion": "Levantar un bloqueo de saldo por autoridad (otra persona que quien lo registro)",
+          "recurso": "bloqueo_saldo",
+          "accion": "LEVANTAR",
+          "requiere_mfa": true,
+          "nivel_riesgo": "CRITICO",
           "exige_motivo": true
         },
         {
@@ -1011,6 +1037,26 @@
           },
           "permiso_id": {
             "$ref": "permiso",
+            "codigo": "BLOQUEO_AUTORIDAD_REGISTRAR"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "OFICIAL_CUMPLIMIENTO"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "BLOQUEO_AUTORIDAD_LEVANTAR"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "OFICIAL_CUMPLIMIENTO"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
             "codigo": "BILLETERA_VER_TERCEROS"
           }
         },
@@ -1042,6 +1088,16 @@
           "permiso_id": {
             "$ref": "permiso",
             "codigo": "DATOS_SENSIBLES_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "ANALISTA_CUMPLIMIENTO"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "BLOQUEO_AUTORIDAD_REGISTRAR"
           }
         },
         {

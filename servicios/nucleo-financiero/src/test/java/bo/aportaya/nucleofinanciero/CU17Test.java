@@ -134,9 +134,11 @@ class CU17Test extends BaseDeBilletera {
         Caso c = caso("8000.00");
         SalidaBloqueo b = bloquear(c, "3000.00", "OF-CARRERA");
 
-        transaccion.execute(t -> bloqueoCU.levantar(b.bloqueoId(), c.ctx()));
+        // F1.L1.M10 · R-BIL-32: lo levanta otra persona que la que lo registro.
+        ContextoSesion otra = contextoDe(fixtura.usuario());
+        transaccion.execute(t -> bloqueoCU.levantar(b.bloqueoId(), otra));
 
-        assertThatThrownBy(() -> transaccion.execute(t -> bloqueoCU.levantar(b.bloqueoId(), c.ctx())))
+        assertThatThrownBy(() -> transaccion.execute(t -> bloqueoCU.levantar(b.bloqueoId(), otra)))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("no esta vigente");
     }
