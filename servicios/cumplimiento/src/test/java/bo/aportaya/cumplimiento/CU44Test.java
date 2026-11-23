@@ -282,7 +282,6 @@ class CU44Test extends BaseDeCumplimiento {
                                 caso.casoId(), List.of(alertaId), analista, revisor, "REPORTAR", CONCLUSION, null),
                         ctx)))
                 .hasMessageContaining("narrativa");
-
         // El caso sigue abierto tras los tres fallos: nada quedo a medias.
         assertThat(contar(
                         "SELECT count(*)::int FROM cumplimiento.caso_investigacion_lft WHERE id = ? AND estado = 'ABIERTO'",
