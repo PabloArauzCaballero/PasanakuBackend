@@ -8,7 +8,7 @@
       "estado": 200,
       "cuerpo": {
         "usuarioId": "30dc263f-e889-45ab-827a-acc6c19653be",
-        "estado": "BAJA_VOLUNTARIA",
+        "estado": "BAJA_LABORAL",
         "asignacionesRevocadas": 2,
         "sesionesCerradas": 1,
         "yaEstabaDeBaja": false
@@ -18,7 +18,7 @@
       "estado": 200,
       "cuerpo": {
         "usuarioId": "30dc263f-e889-45ab-827a-acc6c19653be",
-        "estado": "BAJA_VOLUNTARIA",
+        "estado": "BAJA_LABORAL",
         "asignacionesRevocadas": 0,
         "sesionesCerradas": 0,
         "yaEstabaDeBaja": true
@@ -28,7 +28,7 @@
       "estado": 200,
       "cuerpo": {
         "usuarioId": "30dc263f-e889-45ab-827a-acc6c19653be",
-        "estado": "BAJA_VOLUNTARIA",
+        "estado": "BAJA_LABORAL",
         "asignacionesRevocadas": 0,
         "sesionesCerradas": 0,
         "yaEstabaDeBaja": false
@@ -38,7 +38,7 @@
       "estado": 202,
       "cuerpo": {
         "usuarioId": "30dc263f-e889-45ab-827a-acc6c19653be",
-        "estado": "BAJA_VOLUNTARIA",
+        "estado": "BAJA_LABORAL",
         "asignacionesRevocadas": 2,
         "sesionesCerradas": 1,
         "yaEstabaDeBaja": false

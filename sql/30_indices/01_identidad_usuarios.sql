@@ -126,3 +126,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_reputacion_usuario_usuario_id
 
 CREATE INDEX IF NOT EXISTS ix_solicitud_baja_usuario_id
   ON identidad.solicitud_baja (usuario_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_evidencia_step_up_consumida_jti
+  ON identidad.evidencia_step_up_consumida (jti);
+
+CREATE INDEX IF NOT EXISTS ix_evidencia_step_up_consumida_usuario_id
+  ON identidad.evidencia_step_up_consumida (usuario_id);
+
+CREATE INDEX IF NOT EXISTS ix_evidencia_step_up_consumida_vence_en
+  ON identidad.evidencia_step_up_consumida (vence_en);

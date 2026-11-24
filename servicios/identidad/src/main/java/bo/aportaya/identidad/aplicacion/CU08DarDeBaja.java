@@ -20,14 +20,14 @@ import org.springframework.transaction.annotation.Transactional;
  * CU-08 · Baja del empleado (flujo alternativo, GU-14).
  *
  * <p>En un acto: revoca todas sus asignaciones, cierra todas sus sesiones y deja la cuenta en
- * {@code BAJA_VOLUNTARIA}. No se borra nada ni se anonimiza: el historico de quien otorgo que a quien, y cuando
+ * {@code BAJA_LABORAL} (estado propio de la baja del personal interno, decision de Pablo 2026-11-24). No se borra nada ni se anonimiza: el historico de quien otorgo que a quien, y cuando
  * se revoco, es la evidencia que pide R-AUD-01. Una cuenta que ya esta de baja responde lo mismo sin volver a
  * escribir ni a anunciar.
  */
 @Service
 public class CU08DarDeBaja {
 
-    static final String ESTADO_DE_BAJA = "BAJA_VOLUNTARIA";
+    static final String ESTADO_DE_BAJA = "BAJA_LABORAL";
 
     private final Datos datos;
     private final GobiernoDeAccesosRepositorio gobierno;

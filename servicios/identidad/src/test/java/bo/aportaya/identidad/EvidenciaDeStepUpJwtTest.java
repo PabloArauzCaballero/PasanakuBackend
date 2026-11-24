@@ -3,8 +3,12 @@ package bo.aportaya.identidad;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import bo.aportaya.identidad.infraestructura.EvidenciaDeStepUpJwt;
+import bo.aportaya.identidad.infraestructura.EvidenciaStepUpConsumidaRepositorio;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.DisplayName;
@@ -65,7 +69,7 @@ class EvidenciaDeStepUpJwtTest {
         JwtDecoder firmaRota = token -> {
             throw new BadJwtException("firma invalida");
         };
-        assertThat(new EvidenciaDeStepUpJwt(firmaRota, AUDIENCIA).consumir(ACTOR, "evidencia"))
+        assertThat(new EvidenciaDeStepUpJwt(firmaRota, new ConsumoEnMemoria(), AUDIENCIA).consumir(ACTOR, "evidencia"))
                 .isFalse();
     }
 
@@ -82,6 +86,25 @@ class EvidenciaDeStepUpJwtTest {
                         .issuedAt(Instant.now().minusSeconds(5))
                         .expiresAt(Instant.now().plusSeconds(240)))
                 .build();
-        return new EvidenciaDeStepUpJwt(decodificador, AUDIENCIA);
+        return new EvidenciaDeStepUpJwt(decodificador, new ConsumoEnMemoria(), AUDIENCIA);
+    }
+
+    /**
+     * Doble DECLARADO del registro de consumo (regla 65): un conjunto en memoria con el mismo contrato que la tabla
+     * ({@code true} la primera vez, {@code false} despues). El consumo real contra PostgreSQL, con {@code UNIQUE
+     * (jti)}, lo prueba {@code EvidenciaStepUpConsumidaRepositorioTest}.
+     */
+    private static final class ConsumoEnMemoria extends EvidenciaStepUpConsumidaRepositorio {
+        private final Set<UUID> usados = new HashSet<>();
+
+        ConsumoEnMemoria() {
+            super(null);
+        }
+
+        @Override
+        public boolean consumir(
+                UUID jti, UUID usuarioId, String proposito, OffsetDateTime ahora, OffsetDateTime vence) {
+            return usados.add(jti);
+        }
     }
 }

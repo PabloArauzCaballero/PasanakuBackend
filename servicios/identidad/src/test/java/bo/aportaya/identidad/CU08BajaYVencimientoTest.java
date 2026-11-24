@@ -22,7 +22,7 @@ class CU08BajaYVencimientoTest extends BaseDeGobiernoCU08 {
 
     @Test
     @DisplayName(
-            "Dado un operador con asignaciones y una sesión abierta · Cuando se lo da de baja · Entonces todas sus asignaciones quedan revocadas con motivo sin borrarse · Y su sesión se cierra · Y la cuenta queda en BAJA_VOLUNTARIA")
+            "Dado un operador con asignaciones y una sesión abierta · Cuando se lo da de baja · Entonces todas sus asignaciones quedan revocadas con motivo sin borrarse · Y su sesión se cierra · Y la cuenta queda en BAJA_LABORAL")
     void bajaDelEmpleado() {
         enTransaccionQueSeDeshace(() -> {
             UUID administrador = operador();
@@ -43,7 +43,7 @@ class CU08BajaYVencimientoTest extends BaseDeGobiernoCU08 {
                     .isEqualTo(2);
             assertThat(sesionesVivas(empleado)).isZero();
             assertThat(columna("SELECT estado FROM identidad.usuario WHERE id = ?", empleado))
-                    .isEqualTo("BAJA_VOLUNTARIA");
+                    .isEqualTo("BAJA_LABORAL");
         });
     }
 

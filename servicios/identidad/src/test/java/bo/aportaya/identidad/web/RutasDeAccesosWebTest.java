@@ -213,12 +213,12 @@ class RutasDeAccesosWebTest {
     @DisplayName("baja: 200 con asignaciones revocadas y sesiones cerradas; 403 sin permiso; 422 sobre si mismo")
     void baja() throws Exception {
         when(baja.ejecutar(eq(OPERADOR), any(), any(), any()))
-                .thenReturn(new CU08DarDeBaja.ResultadoDeBaja(OPERADOR, "BAJA_VOLUNTARIA", 3, 1, false))
+                .thenReturn(new CU08DarDeBaja.ResultadoDeBaja(OPERADOR, "BAJA_LABORAL", 3, 1, false))
                 .thenThrow(new ErrorDeNegocio(CodigoError.de(8, 4), "Nadie gobierna su propio acceso."));
 
         mvc.perform(darDeBaja(Sesiones.como("ADMIN_PLATAFORMA", "ACCESOS_ADMINISTRAR")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.estado").value("BAJA_VOLUNTARIA"))
+                .andExpect(jsonPath("$.estado").value("BAJA_LABORAL"))
                 .andExpect(jsonPath("$.asignacionesRevocadas").value(3))
                 .andExpect(jsonPath("$.yaEstabaDeBaja").value(false));
         mvc.perform(darDeBaja(Sesiones.como("ADMIN_PLATAFORMA", "ACCESOS_ADMINISTRAR")))

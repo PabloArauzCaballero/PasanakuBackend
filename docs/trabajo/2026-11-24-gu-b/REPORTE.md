@@ -48,9 +48,7 @@
 ## Pendiente
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| Enganche de `RolesParaPersonalInterno.admite` en `GobiernoDeAccesos.asignar` | TODO | Que el lote A publique la clase (acordado por mensaje con A) |
 | Consumidor de `identidad.aviso_de_acceso_solicitado` en `notificaciones` + `evento_notificable` `ACCESO_DE_OPERADOR_CAMBIADO` | TODO | Asignar dueño (sesión principal) |
-| Tabla de evidencias step-up consumidas en `identidad` | TODO | Decisión de modelo (regla 97) |
 
 ## Evidencia
 ```text
@@ -81,14 +79,23 @@ Salida completa de los diez verificadores: `evidencia/verificadores.txt`.
 ## Riesgos residuales
 - **Orden de despliegue**: alta, suspensión/reactivación y desbloqueo exigen step-up desde este PR; el backoffice actual no lo envía hasta el lote D → esos botones fallarán con 422 `AP-CU08-09` en `test` si B se promueve antes que D.
 - `PUT …/roles` (deprecado) sigue sin step-up por compatibilidad: es una vía de cambio de roles sin segundo factor hasta que se retire.
-- Evidencia step-up reutilizable una vez por réplica dentro de su vida (5 min).
 - `motivo_revocacion` se recorta a 120 y el de sesión a 80; el texto completo queda en el evento.
 
 ## Decisiones y ambigüedades
-1. Ruta `/usuarios-internos/...` en lugar de `/accesos/...` — confirmar con Pablo.
-2. Revocar con `POST …/revocacion` en lugar de `DELETE` con cuerpo — confirmar con Pablo.
-3. Suspender revoca todos los roles; reactivar vuelve sin roles — confirmar con Pablo.
-4. Baja → estado `BAJA_VOLUNTARIA` (el enum no tiene baja de empleado) — confirmar con Pablo.
-5. El ámbito de la asignación debe ser el del rol (si no, `AP-CU08-02`) — supuesto de seguridad, confirmar con Pablo.
-6. Permiso de las rutas nuevas: `ACCESOS_ADMINISTRAR` o `USUARIOS_INTERNOS_GESTIONAR` (para que `INTERNAL_IDENTITY_ADMIN` opere, P-2b); la regla «nunca sin administrador» cuenta solo `ACCESOS_ADMINISTRAR`.
-7. Consumo del `jti` en memoria — decidir si se agrega tabla.
+
+### Decididas por Pablo (2026-11-24, vía sesión principal)
+1. **Suspensión**: queda como se implementó — suspender revoca todos los roles y reactivar vuelve sin roles (se reasignan a cuatro ojos).
+2. **Baja**: estado NUEVO `BAJA_LABORAL` (no `BAJA_VOLUNTARIA`), agregado por el modelo (`docs/entidades/01_identidad_usuarios.puml` → `generar_ddl.py`), con `CK_AMPLIADOS` para bases ya aplicadas. Evidencia: `evidencia/esquema-baja-laboral-y-step-up.txt`.
+3. **Step-up**: el `jti` consumido va a la tabla `identidad.evidencia_step_up_consumida` (`UNIQUE (jti)`, `vence_en`, append-only), no a memoria. Doble uso probado en SQL real (2 INSERT → 1 fila) y en `EvidenciaStepUpConsumidaRepositorioTest`.
+4. **Orden**: #516 entra a `dev` con CI verde; no se promueve a `test` hasta que el lote D esté en `dev`.
+
+### Acordadas con los otros lotes
+- Códigos: `AP-CU08-08` y `AP-CU08-12` del lote A; `09`–`11` de B. `RolesParaPersonalInterno.admite` conectado en `GobiernoDeAccesos.asignar`.
+- Eventos para el consumidor de auditoría del lote E: tipos `identidad.(rol|usuario_interno)_*`, carga con `actorId`, `actorRol`, `origen` (`PANEL_ADMIN` / `TAREA_PROGRAMADA`) y `motivo`.
+
+### Sin confirmar todavía
+1. Ruta `/usuarios-internos/...` en lugar de `/accesos/...` (el gateway no rutea `/accesos`).
+2. Revocar con `POST …/revocacion` en lugar de `DELETE` con cuerpo.
+3. El ámbito de la asignación debe ser el del rol (`AP-CU08-02`).
+4. Permiso de las rutas nuevas: `ACCESOS_ADMINISTRAR` o `USUARIOS_INTERNOS_GESTIONAR`; «nunca sin administrador» cuenta solo `ACCESOS_ADMINISTRAR`.
+5. Dueño del consumidor de `identidad.aviso_de_acceso_solicitado` en `notificaciones`.

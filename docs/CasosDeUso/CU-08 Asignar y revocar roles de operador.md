@@ -84,8 +84,8 @@ normas: [ASFI Seguridad de la Información, ASFI control interno, segregación d
 | — | El destinatario no es un operador con la cuenta `ACTIVO` | Rechazo `DESTINATARIO_NO_HABILITADO` (precondición 3) |
 | — | El ámbito pedido no es el del rol | Rechazo `AMBITO_INCOMPLETO`: el ámbito de la asignación es el del rol, como el que mira `R-SEG-10` |
 | — | La misma asignación viva ya existe | Idempotente: responde la misma `asignacionId` con `yaExistia=true`, sin escribir ni anunciar nada. Revocar una ya revocada responde `yaEstabaRevocada=true` |
-| — | Baja del empleado | Se revocan **todas** sus asignaciones en un acto (motivo `BAJA: …`), se cierran sus sesiones, la cuenta queda en `BAJA_VOLUNTARIA` y se conserva el histórico completo. Repetirla responde `yaEstabaDeBaja=true` |
-| — | Suspensión del operador | Suspender revoca **todas** sus asignaciones vivas (motivo `SUSPENSION: …`) y cierra sus sesiones. **Reactivar devuelve la cuenta sin roles**: se vuelven a otorgar uno por uno, con su justificación. Así ningún rol queda vivo esperando una reactivación sin revisión (GU-14; supuesto registrado en `docs/trabajo/2026-11-24-gu-b/PLAN.md`, a confirmar con Pablo) |
+| — | Baja del empleado | Se revocan **todas** sus asignaciones en un acto (motivo `BAJA: …`), se cierran sus sesiones, la cuenta queda en `BAJA_LABORAL` —estado propio de la baja del personal interno, distinto de la baja voluntaria del participante (decisión de Pablo 2026-11-24)— y se conserva el histórico completo. Repetirla responde `yaEstabaDeBaja=true` |
+| — | Suspensión del operador | Suspender revoca **todas** sus asignaciones vivas (motivo `SUSPENSION: …`) y cierra sus sesiones. **Reactivar devuelve la cuenta sin roles**: se vuelven a otorgar uno por uno, con su justificación. Así ningún rol queda vivo esperando una reactivación sin revisión (GU-14; decidido por Pablo el 2026-11-24: se reasignan a cuatro ojos) |
 | 6a | Una asignación vencida todavía sin revocar al reasignar el mismo rol | Se la cierra como vencida (`revocada_en = vigente_hasta`) y se escribe la nueva |
 | — | Acceso de emergencia fuera de horario | Se otorga con `vigente_hasta` de horas y queda marcado para revisión obligatoria del oficial de cumplimiento |
 
@@ -319,7 +319,7 @@ Dado un operador con asignaciones y una sesión abierta
 Cuando se lo da de baja
 Entonces todas sus asignaciones quedan revocadas con motivo sin borrarse
 Y su sesión se cierra
-Y la cuenta queda en BAJA_VOLUNTARIA
+Y la cuenta queda en BAJA_LABORAL
 
 Dado un operador dado de baja
 Cuando se repite la baja

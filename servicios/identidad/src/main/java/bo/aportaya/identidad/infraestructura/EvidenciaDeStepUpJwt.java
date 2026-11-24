@@ -2,10 +2,9 @@ package bo.aportaya.identidad.infraestructura;
 
 import bo.aportaya.identidad.dominio.puertos.EvidenciaDeStepUp;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,10 +22,9 @@ import org.springframework.stereotype.Component;
  * {@code iss}, audiencia, {@code sub} = quien actua, {@code proposito = ADMIN}, {@code acr = mfa} y por
  * ultimo el {@code jti} sin usar.
  *
- * <p><b>Riesgo residual declarado</b> (REPORTE de GU-B, ambiguedad 5): el {@code jti} consumido vive en
- * memoria de la replica, igual que los desafios abiertos de {@code CU04StepUp}. Con mas de una replica, la
- * misma evidencia podria usarse una vez por replica dentro de su vida (5 min). El arreglo es una tabla de
- * evidencias consumidas en {@code identidad}, que es un cambio de modelo pendiente de decision.
+ * <p>El {@code jti} se consume en {@code identidad.evidencia_step_up_consumida} con {@code UNIQUE (jti)} (decision
+ * de Pablo 2026-11-24): un solo uso entre replicas y reinicios, no en memoria. El consumo va en la transaccion del
+ * acto: si el acto revierte, la evidencia no se gasto.
  */
 @Component
 public class EvidenciaDeStepUpJwt implements EvidenciaDeStepUp {
@@ -37,13 +35,15 @@ public class EvidenciaDeStepUpJwt implements EvidenciaDeStepUp {
     private static final String ACR_MFA = "mfa";
 
     private final JwtDecoder decodificador;
+    private final EvidenciaStepUpConsumidaRepositorio consumidas;
     private final String audiencia;
-    private final Map<UUID, Instant> consumidas = new ConcurrentHashMap<>();
 
     public EvidenciaDeStepUpJwt(
             JwtDecoder decodificador,
+            EvidenciaStepUpConsumidaRepositorio consumidas,
             @Value("${aportaya.mfa.audiencia-evidencia:aportaya-nucleo-financiero}") String audiencia) {
         this.decodificador = decodificador;
+        this.consumidas = consumidas;
         this.audiencia = audiencia;
     }
 
@@ -80,8 +80,12 @@ public class EvidenciaDeStepUpJwt implements EvidenciaDeStepUp {
         } catch (IllegalArgumentException jtiNoEsUuid) {
             return false;
         }
-        consumidas.values().removeIf(vence -> vence.isBefore(ahora));
-        // putIfAbsent es la barrera: dos actos simultaneos con la misma evidencia, uno solo gana.
-        return consumidas.putIfAbsent(jti, jwt.getExpiresAt()) == null;
+        // Ultimo paso a proposito: todo lo anterior no escribe; el consumo es lo unico con efecto.
+        return consumidas.consumir(
+                jti,
+                actorId,
+                PROPOSITO_ADMIN,
+                ahora.atOffset(ZoneOffset.UTC),
+                jwt.getExpiresAt().atOffset(ZoneOffset.UTC));
     }
 }

@@ -168,7 +168,7 @@ paths:
           # AP-CU04-03 FACTOR_REQUERIDO   · AP-CU04-04 TOKEN_VENCIDO
           # AP-CU04-05 DEMASIADOS_INTENTOS · AP-CU04-06 FACTOR_NO_ENROLADO
           # AP-CU04-07 FACTOR_NO_ADMISIBLE (R-SEG-10)
-          # AP-CU04-02 tambien para cuenta no habilitada (SUSPENDIDO, BLOQUEADO_SEGURIDAD, BAJA_VOLUNTARIA, ELIMINADO)
+          # AP-CU04-02 tambien para cuenta no habilitada (SUSPENDIDO, BLOQUEADO_SEGURIDAD, BAJA_VOLUNTARIA, BAJA_LABORAL, ELIMINADO)
           # AP-CU04-10 FACTOR_ENVIADO_POR_CORREO: el codigo ya salio al correo verificado (vence en 10 minutos)
       # Con `plataforma: WEB` la respuesta 200 trae ademas `Set-Cookie: aportaya_refresco`
       # (HttpOnly; Secure; SameSite=Strict; Path=/api/v1/sesion), el refresh de ADR-010.
@@ -1131,7 +1131,7 @@ paths:
       summary: Baja del empleado — revoca todas sus asignaciones, cierra sus sesiones y conserva el historico
       description: >-
         En un acto: revoca todas las asignaciones vivas con el motivo, cierra todas las sesiones y deja la
-        cuenta en BAJA_VOLUNTARIA (no se borra ni se anonimiza: el historico de quien otorgo que queda).
+        cuenta en BAJA_LABORAL (estado propio de la baja del personal interno; no se borra ni se anonimiza: el historico de quien otorgo que queda).
         Exige step-up, nadie se da de baja a si mismo por aca y nunca deja la plataforma sin
         administrador de accesos. Idempotente: una cuenta ya dada de baja responde 200 con
         yaEstabaDeBaja=true.
@@ -1390,7 +1390,7 @@ components:
             INCOMPLETO_KYC: todavia no envio su documento. PENDIENTE_VERIFICACION: lo
             envio y esta en revision. ACTIVO: verificada. La app decide con esto que le
             ofrece a la persona antes de una operacion con dinero.
-          enum: [ACTIVO, BAJA_VOLUNTARIA, BLOQUEADO_SEGURIDAD, ELIMINADO, INCOMPLETO_KYC, PENDIENTE_VERIFICACION, PRE_REGISTRO, SUSPENDIDO]
+          enum: [ACTIVO, BAJA_LABORAL, BAJA_VOLUNTARIA, BLOQUEADO_SEGURIDAD, ELIMINADO, INCOMPLETO_KYC, PENDIENTE_VERIFICACION, PRE_REGISTRO, SUSPENDIDO]
     NivelKyc:
       type: object
       additionalProperties: false
