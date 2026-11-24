@@ -1,9 +1,9 @@
 # Reporte — GU-A · Segregación de funciones y correcciones de lectura (identidad)
 
-> **AVANCE: 15 / 16 — 93,8 %.** Falta solo H6.S1.M2 (CI del PR en verde), en curso.
+> **AVANCE: 16 / 16 — 100 %.** CI del PR #515 en verde; queda el merge, que hace la sesión principal.
 
 - Fecha: 2026-11-24 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/gu-a-segregacion` (desde `dev` 6729629d) · PR a `dev`
-- Peldaño de evidencia alcanzado: **TESTED** en backend (unitarios, web y la suite de integración completa de
+- Peldaño de evidencia alcanzado: **TESTED** (local y CI) en backend (unitarios, web y la suite de integración completa de
   `identidad` contra PostgreSQL real, en local) y en la semilla (aplicada dos veces sobre una base real ya sembrada).
   No es `VERIFIED`: no se ejercitó el camino HTTP completo con un `identidad` levantado ni el backoffice contra él.
   No hay cambio visual (solo una spec de matriz de roles), así que no aplica prueba visual.
@@ -26,17 +26,14 @@
 | H5.S1.M1 | `tieneSegundoFactor` = factor activo y confirmado | `UsuariosInternosLecturaRepositorioTest` | PASS |
 | H5.S1.M2 | Listado paginado `(creadoEn, id)` desc, filtro de rol en SQL, cursor a medias → AP-CU08-12, límite > 100 → 400 | repositorio + `ListarUsuariosInternosTest` + `UsuariosInternosListadoWebTest` | PASS |
 | H6.S1.M1 | Verificadores, DDL, postman, inventario, openapi validate, `check` estático, typecheck y 774 specs del backoffice | ver `evidencia/H6-gates.md` | PASS |
+| H6.S1.M2 | PR #515 a `dev` con CI verde en el head cbda32a6 (formato y compilación, base efímera y semillas, contratos, bóveda, los cinco corredores, frontend Flutter/Angular, imagen, Trivy) y mergeable sin conflicto | GitHub checks del PR | PASS |
 | H6.S1.M1b | `verificar_seguridad.py` acepta los bloques `sql` de la semilla | `python3 scripts/verificar_seguridad.py` | EXIT 0 |
 
 Regresión del módulo: `./gradlew :servicios:identidad:integrationTest` → 222 tests, 0 fallos (`evidencia/H3-H5-lecturas.md`).
 
 ## A medias
 
-### H6.S1.M2 — PR a `dev` con CI verde
-- Qué anda: todo lo anterior, en local (Gradle, Testcontainers, PostgreSQL 16, vitest).
-- Qué no anda: nada observado; la CI todavía no corrió al escribir esto.
-- Qué falta exactamente: que la CI del PR termine en verde; si falla, diagnosticar y corregir.
-- Dónde quedó: rama `claude/gu-a-segregacion`, compila (`check` local verde).
+ninguna
 
 ## Pendiente
 

@@ -42,7 +42,7 @@
 **CA:** Dado un operador con `ENTREGA_AUTORIZAR`, cuando se le asigna un rol con `ENTREGA_EJECUTAR`, entonces se
 rechaza con `INCOMPATIBILIDAD_DE_FUNCIONES`; ídem para cada par decidido y no conflictivo.
 **DoD:** unitarios de segregación en verde en CI; CU08 con códigos reales; `verificar_criterios.py` en 0.
-**Estado:** HECHO localmente (evidencia/H1-segregacion.md, H6-gates.md); CI pendiente al abrir el PR
+**Estado:** HECHO localmente (evidencia/H1-segregacion.md, H6-gates.md); CI verde en #515 (cbda32a6)
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
@@ -55,7 +55,7 @@ rechaza con `INCOMPATIBILIDAD_DE_FUNCIONES`; ídem para cada par decidido y no c
 `OFICIAL_CUMPLIMIENTO` no lo tiene, también en una base ya sembrada; la segunda corrida no cambia nada.
 **DoD:** `generar_semillas.py` sin errores; psql dos veces sobre base efímera (si hay PostgreSQL) o CI `base`; spec de
 matriz de roles en verde.
-**Estado:** HECHO localmente (evidencia en `evidencia/`); CI pendiente al abrir el PR
+**Estado:** HECHO localmente (evidencia en `evidencia/`); CI verde en #515 (cbda32a6)
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
@@ -68,7 +68,7 @@ matriz de roles en verde.
 **CA:** Dado un operador con un `bloqueo_cuenta` vigente, cuando se lista o consulta, entonces `bloqueadoHasta` y
 `motivoBloqueo` salen de ese bloqueo; liberado o vencido, salen nulos.
 **DoD:** test de repositorio contra PostgreSQL real (Testcontainers) en CI.
-**Estado:** HECHO localmente (evidencia en `evidencia/`); CI pendiente al abrir el PR
+**Estado:** HECHO localmente (evidencia en `evidencia/`); CI verde en #515 (cbda32a6)
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
@@ -79,7 +79,7 @@ matriz de roles en verde.
 `PARTICIPANTE`, `ORGANIZADOR`, ámbito `GRUPO`, `ANUNCIANTE` ni `SERVICIO_*`; sin el parámetro vienen todos; y asignar
 uno de esos a un operador se rechaza con `ROL_NO_ASIGNABLE`.
 **DoD:** unitario del átomo, web test de `/roles`, test de repositorio de `asignarRoles`.
-**Estado:** HECHO localmente (evidencia en `evidencia/`); CI pendiente al abrir el PR
+**Estado:** HECHO localmente (evidencia en `evidencia/`); CI verde en #515 (cbda32a6)
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
@@ -91,7 +91,7 @@ uno de esos a un operador se rechaza con `ROL_NO_ASIGNABLE`.
 **CA:** Un factor sin confirmar o inactivo no cuenta como segundo factor; el listado devuelve como mucho `limite`
 filas, en orden `creadoEn desc, id desc`, y el cursor trae la página siguiente sin repetir ni saltear.
 **DoD:** tests de repositorio y web en CI.
-**Estado:** HECHO localmente (evidencia en `evidencia/`); CI pendiente al abrir el PR
+**Estado:** HECHO localmente (evidencia en `evidencia/`); CI verde en #515 (cbda32a6)
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
@@ -103,7 +103,7 @@ filas, en orden `creadoEn desc, id desc`, y el cursor trae la página siguiente 
 |---|---|---|---|---|
 | H6.S1.M1 | Verificadores locales en 0 | todos exit 0 | `verificar_*.py`, `inventario_endpoints.py --check`, `generar_postman.py`/`generar_ddl.py` sin diff, `openapi-generator validate` | HECHO |
 | H6.S1.M1b | (agregada) `verificar_seguridad.py` acepta bloques `sql` sin `tabla` en la semilla (`b.get("tabla")`) | exit 0 | `python3 scripts/verificar_seguridad.py` | HECHO |
-| H6.S1.M2 | PR a `dev` con CI verde | checks verdes | GitHub checks | EN CURSO |
+| H6.S1.M2 | PR a `dev` con CI verde | checks verdes | GitHub checks | HECHO |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
