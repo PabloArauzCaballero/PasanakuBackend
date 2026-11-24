@@ -12,12 +12,16 @@ import 'enlace_para_compartir.dart';
 /// unirse; el organizador aprueba cada pedido. El servidor guarda solo el hash del
 /// código, así que la app del organizador lo recuerda en el almacenamiento seguro para
 /// volver a mostrarlo (y lo descarta si venció o lo anularon).
-/// El enlace que se comparte: `https://<app web>/g/<código>`. Android lo abre en la
-/// app instalada (App Links); sin la app, abre la app web en la misma pantalla.
+/// El enlace que se comparte: `https://<app web>/g#/g/<código>`. Android lo abre en la
+/// app instalada (App Links, `path="/g"`); sin la app, abre la app web, que enruta por `#`.
+///
+/// SEG-005: el código es la credencial para pedir entrar al grupo. En el fragmento el
+/// navegador no lo envía al servidor, así que no queda en el registro de acceso de nginx
+/// ni en proxies. Los enlaces ya compartidos (`/g/<código>`) se siguen leyendo.
 String? enlaceDelGrupo(String codigo, {String? baseWeb}) {
   final base = baseWeb ?? baseDeLaAppWeb(api: baseDelGateway);
   if (base == null || !esCodigoDeEnlaceDelGrupo(codigo)) return null;
-  return '$base/g/$codigo';
+  return '$base/g#/g/$codigo';
 }
 
 String mensajeDelEnlaceDelGrupo(String enlace, {String? nombreDelGrupo}) {
