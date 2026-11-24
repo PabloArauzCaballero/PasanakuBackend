@@ -31,6 +31,12 @@ public final class BitacoraDeAccesos {
     /** El evento notificable del catalogo de notificaciones que este pedido dispara. */
     static final String EVENTO_NOTIFICABLE = "ACCESO_DE_OPERADOR_CAMBIADO";
 
+    /**
+     * El canal del aviso (P-5). Es el NOMBRE del canal, no una direccion: la direccion la resuelve
+     * {@code notificaciones} por el canal verificado del destinatario y nunca viaja en el evento.
+     */
+    static final String CANAL_DEL_AVISO = "CORREO";
+
     /** Quien, ademas del afectado, se entera de todo cambio de acceso (P-5). */
     static final String ROL_QUE_SE_ENTERA = "OFICIAL_CUMPLIMIENTO";
 
@@ -70,7 +76,7 @@ public final class BitacoraDeAccesos {
                                 "eventoOrigen", accion.tipoDeEvento(),
                                 "accion", accion.name(),
                                 "afectadoId", hecho.afectadoId().toString(),
-                                "canal", "CORREO",
+                                "canal", CANAL_DEL_AVISO,
                                 "destinatarios", List.copyOf(destinatarios)),
                         correlacion));
     }
