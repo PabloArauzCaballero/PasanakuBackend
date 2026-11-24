@@ -131,3 +131,15 @@ protegidas, entonces ningún defecto abierto del inventario se reproduce y la su
 | H5.S2.M1 | Backoffice muestra esos datos en lugar del aviso de faltante | specs + E2E caso y parámetros verdes con el simulado regenerado | `yarn playwright test e2e/caso-de-cumplimiento.e2e.ts e2e/visual-parametros-financieros.e2e.ts` | HECHO — b2d6f20c; typecheck/lint OK, test:front 1361, a11y 98, E2E caso 19/19 y parámetros 12/12; capturas revisadas por la sesión principal |
 | H5.S3.M1 | PR de H5 a `dev` con CI verde y merge | `origin/dev` contiene la rama | check-runs + merge | HECHO — #510 → dev (cb651d9f); CI 12 success / 6 skipped |
 | H6.S1.M1 | Ninguna PR abierta en PasanakuBackend ni PasanakuFrontend | `pulls?state=open` vacío en ambos | `gh api repos/.../pulls?state=open` → [] | HECHO — `pulls?state=open` → 0 en PasanakuBackend y 0 en PasanakuFrontend (2026-11-24) |
+
+## H7 — Nombre del operador en vez del UUID (pedido de Pablo, 2026-11-24)
+**CA:** Dado un parámetro con versiones, cuando un operador abre «Parámetros financieros», entonces «Propuso» y «Aprobó» muestran el nombre del operador interno (y, si no se puede resolver, un texto que lo dice, nunca un UUID suelto ni un error crudo).
+**DoD:** consulta mínima de nombres en identidad (solo id + nombre, solo usuarios internos, límite de cantidad, autorización negativa probada) en CI verde · backoffice resuelve y muestra nombres con E2E y capturas · PR a `dev` mergeada · promoción a `test`.
+**Estado:** EN CURSO
+- Rama: `claude/nombre-operador-20261124` desde `origin/dev`.
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H7.S1.M1 | Identidad publica nombres de operadores internos por lote | respuesta con solo `usuarioId` + nombre; ids no internos se omiten; sin permiso → 403 | test web de identidad en CI + `openapi-generator validate` | TODO |
+| H7.S2.M1 | Backoffice muestra el nombre en Propuso/Aprobó | E2E parámetros verde con nombres y con fallo de resolución | `yarn playwright test e2e/visual-parametros-financieros.e2e.ts` | TODO |
+| H7.S3.M1 | PR a `dev` con CI verde, merge y promoción a `test` | `origin/test` contiene la rama | check-runs + merges | TODO |
