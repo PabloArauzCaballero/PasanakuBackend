@@ -19,8 +19,8 @@
 ### H1.S3.M3 — PR a `dev` con CI en verde
 - Qué anda: todos los verificadores que corre la CI sobre la bóveda pasan en local (ver Evidencia).
 - Qué no anda: todavía no se observó la CI del PR.
-- Qué falta exactamente: commit, push, abrir el PR y ver los checks en verde.
-- Dónde quedó: rama `claude/gu-g-cu-participantes`, solo documentos y el catálogo de datos regenerado.
+- Qué falta exactamente: ver los checks del PR #514 en verde (commit, push y PR ya hechos).
+- Dónde quedó: rama `claude/gu-g-cu-participantes`, PR https://github.com/PabloArauzCaballero/PasanakuBackend/pull/514 contra `dev`; solo documentos y el catálogo de datos regenerado.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
