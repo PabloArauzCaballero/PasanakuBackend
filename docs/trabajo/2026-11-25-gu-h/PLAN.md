@@ -18,12 +18,12 @@
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H1.S1.M1 | Firma de release desde variables de entorno / gradle properties; sin ellas falla con mensaje claro; quitar TODO de plantilla y firma debug | `assembleRelease` sin secretos falla con el mensaje; `assembleDebug` sigue igual | gradle sin secretos → exit≠0 con el mensaje | TODO |
-| H1.S1.M2 | `apk-de-prueba.yml` pasa la keystore estable por las variables nuevas (sin ejecutarlo) | el workflow sigue siendo YAML válido y lee solo secretos existentes | `python -c yaml.safe_load` | TODO |
-| H1.S1.M3 | Doc con los pasos de Pablo (keytool, nombres de secretos, workflow) | existe `docs/` con pasos exactos | lectura | TODO |
-| H1.S2.M1 | Texto del tour sobre el fondo ajustado a CU-23/CU-22, con fuente | sin cifras/coberturas sin fuente; no promete «el grupo no se frena» | test de textos en verde | TODO |
-| H1.S3.M1 | `AP-CU20-02` y `AP-CU69-10`: decidir contra el servidor real | decisión con grep del servidor; test de errores | `flutter test test/.../errores*` | TODO |
-| H1.S4.M1 | grupos/detalle según PENDIENTES/ANEXO-L3 | decisión escrita; si hay ruta, 4 estados + tests | tests + prueba visual | TODO |
+| H1.S1.M1 | Firma de release desde variables de entorno / gradle properties; sin ellas falla con mensaje claro; quitar TODO de plantilla y firma debug | `assembleRelease` sin secretos falla con el mensaje; `assembleDebug` sigue igual | gradle sin secretos → exit≠0 con el mensaje | A MEDIAS |
+| H1.S1.M2 | `apk-de-prueba.yml` pasa la keystore estable por las variables nuevas (sin ejecutarlo) | el workflow sigue siendo YAML válido y lee solo secretos existentes | `python -c yaml.safe_load` | HECHO |
+| H1.S1.M3 | Doc con los pasos de Pablo (keytool, nombres de secretos, workflow) | existe `docs/` con pasos exactos | lectura | HECHO |
+| H1.S2.M1 | Texto del tour sobre el fondo ajustado a CU-23/CU-22, con fuente | sin cifras/coberturas sin fuente; no promete «el grupo no se frena» | test de textos en verde | HECHO |
+| H1.S3.M1 | `AP-CU20-02` y `AP-CU69-10`: decidir contra el servidor real | decisión con grep del servidor; test de errores | `flutter test test/.../errores*` | HECHO |
+| H1.S4.M1 | grupos/detalle según PENDIENTES/ANEXO-L3 | decisión escrita; si hay ruta, 4 estados + tests | tests + prueba visual | A MEDIAS |
 | H1.S5.M1 | Gates móviles, PR, CI, aviso a la sesión principal | CI verde | salida pegada | TODO |
 
 ## Riesgos

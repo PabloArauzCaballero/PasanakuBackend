@@ -46,9 +46,9 @@ class TextosIdentidad {
   static const tour4Titulo = 'Si alguien no aporta,';
   static const tour4Destacado = 'la deuda no se pierde';
   static const tour4Texto =
-      'La deuda no se perdona: queda viva. Si el fondo del grupo alcanza, cubre la '
-      'cuota una sola vez y la deuda pasa a deberse al fondo; si no alcanza, la '
-      'entrega espera y el faltante se ve. La empresa no pone plata.';
+      'La deuda no se perdona. Si el fondo del grupo alcanza, cubre la cuota y la '
+      'deuda pasa a deberse al fondo; si no, la entrega espera. La empresa no '
+      'pone plata.';
   static const portadaCrearCuenta = 'Crear mi cuenta';
   static const portadaYaTengoCuenta = 'Ya tengo cuenta';
 

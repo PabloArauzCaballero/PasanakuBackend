@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// RESPALDO-003: la lámina del fondo no promete más que CU-23 / CU-22 (regla 97.5.4).
 void main() {
-  final lamina =
+  const lamina =
       TextosIdentidad.tour4Titulo +
       TextosIdentidad.tour4Destacado +
       TextosIdentidad.tour4Texto;
