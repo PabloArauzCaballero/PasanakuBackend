@@ -1,7 +1,12 @@
 package bo.aportaya.identidad;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import bo.aportaya.identidad.aplicacion.CU08AsignarRol.EntradaAsignacion;
+import bo.aportaya.identidad.dominio.SegregacionDeFunciones;
+import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -41,11 +46,41 @@ class CU08RechazosTest extends BaseDeCU08 {
     @DisplayName("rechaza por R-SEG-04")
     void rechazaRSEG04() {
         // Quien autoriza no ejecuta. El atomo lo detecta antes de llegar a la base,
-        // y la base lo vuelve a cortar en la entrega.
-        assertThat(bo.aportaya.identidad.dominio.SegregacionDeFunciones.viola(
-                        Set.of("ENTREGAS_AUTORIZAR", "ENTREGAS_EJECUTAR")))
+        // y la base lo vuelve a cortar en la entrega. Codigos del catalogo sembrado.
+        assertThat(SegregacionDeFunciones.viola(Set.of("ENTREGA_AUTORIZAR", "ENTREGA_EJECUTAR")))
                 .isTrue();
         assertThat(constraintExiste("ck_entrega_segregacion")).isTrue();
+    }
+
+    @Test
+    @DisplayName("rechaza por R-SEG-04 · quien registra bloqueos por autoridad no recibe el rol que los levanta")
+    void rechazaRSEG04Bloqueos() {
+        UUID administrador = fixtura.usuario("+59173000011");
+        UUID oficial = fixtura.usuario("+59173000012");
+        UUID registra = rolConPermisoDelCatalogo("BLQREG", "BLOQUEO_AUTORIDAD_REGISTRAR", "REGISTRAR");
+        UUID levanta = rolConPermisoDelCatalogo("BLQLEV", "BLOQUEO_AUTORIDAD_LEVANTAR", "LEVANTAR");
+        asignarComo(administrador, oficial, registra);
+
+        assertThatThrownBy(() -> asignarComo(administrador, oficial, levanta))
+                .isInstanceOfSatisfying(ErrorDeNegocio.class, e -> assertThat(e.detalle())
+                        .containsEntry(
+                                "parIncompatible", "BLOQUEO_AUTORIDAD_REGISTRAR con BLOQUEO_AUTORIDAD_LEVANTAR"));
+        assertThat(asignacionesDe(oficial)).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("rechaza por R-SEG-04 · quien modera piezas no aprueba campañas: publicidad son tres personas")
+    void rechazaRSEG04Publicidad() {
+        UUID administrador = fixtura.usuario("+59173000013");
+        UUID moderador = fixtura.usuario("+59173000014");
+        UUID modera = rolConPermisoDelCatalogo("PUBMOD", "PUBLICIDAD_MODERAR", "MODERAR");
+        UUID aprueba = rolConPermisoDelCatalogo("PUBAPR", "PUBLICIDAD_APROBAR_CAMPANA", "APROBAR");
+        asignarComo(administrador, moderador, modera);
+
+        assertThatThrownBy(() -> asignarComo(administrador, moderador, aprueba))
+                .isInstanceOfSatisfying(ErrorDeNegocio.class, e -> assertThat(e.detalle())
+                        .containsEntry("parIncompatible", "PUBLICIDAD_MODERAR con PUBLICIDAD_APROBAR_CAMPANA"));
+        assertThat(asignacionesDe(moderador)).isEqualTo(1);
     }
 
     @Test
@@ -108,6 +143,19 @@ class CU08RechazosTest extends BaseDeCU08 {
                         VALUES (gen_random_uuid(), 'CU08_REVERSAR', 'prueba', 'accesos', 'REVERSAR', 'ALTO', false)
                         """))
                 .contains("ck_permiso_decision_exige_mfa");
+    }
+
+    private UUID rolConPermisoDelCatalogo(String codigoRol, String codigoPermiso, String accion) {
+        UUID rol = fixtura.rolGlobal(codigoRol);
+        fixtura.darPermisoAlRol(rol, fixtura.permisoDelCatalogo(codigoPermiso, "segregacion", accion));
+        return rol;
+    }
+
+    private void asignarComo(UUID administrador, UUID destinatario, UUID rol) {
+        transaccion.execute(e -> asignar.ejecutar(
+                new EntradaAsignacion(
+                        destinatario, rol, "GLOBAL", Optional.empty(), Optional.empty(), "justificacion de prueba"),
+                comoAdministrador(administrador)));
     }
 
     /**

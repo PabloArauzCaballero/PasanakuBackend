@@ -33,7 +33,8 @@ INSERT INTO rol (codigo, nombre, ambito, es_sistema, departamento, descripcion) 
   ('DATA_GOVERNANCE_MANAGER', 'Jefatura de gobierno de datos', 'GLOBAL', TRUE, 'SISTEMAS', 'Jefatura de gobierno de datos'),
   ('DATA_QUALITY_ANALYST', 'Analista de calidad de datos', 'GLOBAL', TRUE, 'SISTEMAS', 'Analista de calidad de datos'),
   ('QA_ENGINEER', 'Ingeniería de aseguramiento QA', 'GLOBAL', TRUE, 'SISTEMAS', 'Ingeniería de aseguramiento QA'),
-  ('EXECUTIVE_READONLY', 'Acceso ejecutivo solo lectura', 'GLOBAL', TRUE, 'EJECUTIVO', 'Acceso ejecutivo solo lectura')
+  ('EXECUTIVE_READONLY', 'Acceso ejecutivo solo lectura', 'GLOBAL', TRUE, 'EJECUTIVO', 'Acceso ejecutivo solo lectura'),
+  ('SUPERVISOR_CUMPLIMIENTO', 'Supervisor de cumplimiento', 'GLOBAL', TRUE, 'CUMPLIMIENTO', 'Levanta los bloqueos de saldo por orden de autoridad que registró otra persona; no los registra (P-3, segregación de funciones)')
 ON CONFLICT (codigo) DO NOTHING;
 
 -- `requiere_mfa` marca los permisos que exigen segundo factor en el momento de usarlos, no solo al iniciar sesión: todo lo que mueve dinero, publica precios, edita catálogos o lee datos de terceros.
@@ -126,7 +127,6 @@ INSERT INTO rol_permiso (rol_id, permiso_id) VALUES
   ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'CUMPLIMIENTO_REPORTAR')),
   ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'DATOS_SENSIBLES_LEER')),
   ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'BLOQUEO_AUTORIDAD_REGISTRAR')),
-  ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'BLOQUEO_AUTORIDAD_LEVANTAR')),
   ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'BILLETERA_VER_TERCEROS')),
   ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'AUDITORIA_LEER')),
   ((SELECT id FROM rol WHERE codigo = 'ANALISTA_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'CUMPLIMIENTO_ALERTAS')),
@@ -280,5 +280,12 @@ INSERT INTO rol_permiso (rol_id, permiso_id) VALUES
   ((SELECT id FROM rol WHERE codigo = 'PARTICIPANTE'), (SELECT id FROM permiso WHERE codigo = 'INVERSION_OPERAR')),
   ((SELECT id FROM rol WHERE codigo = 'ADMIN_PLATAFORMA'), (SELECT id FROM permiso WHERE codigo = 'INVERSION_OPERAR')),
   ((SELECT id FROM rol WHERE codigo = 'ANALISTA_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'CUMPLIMIENTO_CASOS')),
-  ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'CUMPLIMIENTO_CASOS_DECIDIR'))
+  ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'CUMPLIMIENTO_CASOS_DECIDIR')),
+  ((SELECT id FROM rol WHERE codigo = 'SUPERVISOR_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'BLOQUEO_AUTORIDAD_LEVANTAR')),
+  ((SELECT id FROM rol WHERE codigo = 'SUPERVISOR_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'AUDITORIA_LEER'))
 ON CONFLICT (rol_id, permiso_id) DO NOTHING;
+
+-- P-3 (decisión de Pablo, 2026-11-24): quien registra un bloqueo por autoridad no lo levanta. El oficial de cumplimiento registra y el supervisor levanta. La siembra es DO NOTHING, así que una base ya sembrada conservaría la concesión vieja: este DELETE la retira y es re-ejecutable (la segunda corrida no borra nada).
+DELETE FROM rol_permiso
+ WHERE rol_id = (SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO')
+   AND permiso_id = (SELECT id FROM permiso WHERE codigo = 'BLOQUEO_AUTORIDAD_LEVANTAR');

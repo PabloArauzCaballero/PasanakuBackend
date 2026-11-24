@@ -263,6 +263,14 @@
           "departamento": "EJECUTIVO",
           "descripcion": "Acceso ejecutivo solo lectura",
           "es_sistema": true
+        },
+        {
+          "codigo": "SUPERVISOR_CUMPLIMIENTO",
+          "nombre": "Supervisor de cumplimiento",
+          "ambito": "GLOBAL",
+          "es_sistema": true,
+          "departamento": "CUMPLIMIENTO",
+          "descripcion": "Levanta los bloqueos de saldo por orden de autoridad que registró otra persona; no los registra (P-3, segregación de funciones)"
         }
       ]
     },
@@ -1047,16 +1055,6 @@
           "permiso_id": {
             "$ref": "permiso",
             "codigo": "BLOQUEO_AUTORIDAD_REGISTRAR"
-          }
-        },
-        {
-          "rol_id": {
-            "$ref": "rol",
-            "codigo": "OFICIAL_CUMPLIMIENTO"
-          },
-          "permiso_id": {
-            "$ref": "permiso",
-            "codigo": "BLOQUEO_AUTORIDAD_LEVANTAR"
           }
         },
         {
@@ -2598,8 +2596,32 @@
             "$ref": "permiso",
             "codigo": "CUMPLIMIENTO_CASOS_DECIDIR"
           }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "SUPERVISOR_CUMPLIMIENTO"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "BLOQUEO_AUTORIDAD_LEVANTAR"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "SUPERVISOR_CUMPLIMIENTO"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "AUDITORIA_LEER"
+          }
         }
       ]
+    },
+    {
+      "comentario": "P-3 (decisión de Pablo, 2026-11-24): quien registra un bloqueo por autoridad no lo levanta. El oficial de cumplimiento registra y el supervisor levanta. La siembra es DO NOTHING, así que una base ya sembrada conservaría la concesión vieja: este DELETE la retira y es re-ejecutable (la segunda corrida no borra nada).",
+      "sql": "DELETE FROM rol_permiso\n WHERE rol_id = (SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO')\n   AND permiso_id = (SELECT id FROM permiso WHERE codigo = 'BLOQUEO_AUTORIDAD_LEVANTAR');"
     }
   ]
 }
