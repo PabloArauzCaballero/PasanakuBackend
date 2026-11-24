@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS identidad.solicitud_recuperacion_acceso (
   CONSTRAINT ck_solicitud_recuperacion_acceso_estado CHECK (estado IN ('PENDIENTE', 'APROBADA', 'RECHAZADA', 'EMITIDA', 'COMPLETADA', 'VENCIDA'))
 );
 
-COMMENT ON TABLE identidad.solicitud_recuperacion_acceso IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
+COMMENT ON TABLE identidad.solicitud_recuperacion_acceso IS 'Módulo 01 — Identidad, Usuarios y Seguridad. El expediente con el que un operador del backoffice recupera su clave o reinscribe su segundo factor: quién lo pidió, quién lo decidió, cuándo termina el enfriamiento y qué invitación se emitió.';
 COMMENT ON COLUMN identidad.solicitud_recuperacion_acceso.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN identidad.solicitud_recuperacion_acceso.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN identidad.solicitud_recuperacion_acceso.alcance IS 'CK: CLAVE|FACTOR';

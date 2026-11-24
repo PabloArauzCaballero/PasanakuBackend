@@ -112,12 +112,14 @@ public class BitacoraDeCuenta {
 
     private List<UUID> oficialesVigentes(DSLContext dsl, OffsetDateTime ahora) {
         return dsl.fetch(
-                        "SELECT DISTINCT a.usuario_id FROM identidad.asignacion_rol a"
-                                + " JOIN identidad.rol r ON r.id = a.rol_id"
-                                + " JOIN identidad.usuario u ON u.id = a.usuario_id"
-                                + " WHERE r.codigo = ? AND a.revocada_en IS NULL"
-                                + " AND (a.vigente_hasta IS NULL OR a.vigente_hasta > ?::timestamptz)"
-                                + " AND u.estado = 'ACTIVO'",
+                        """
+                        SELECT DISTINCT a.usuario_id FROM identidad.asignacion_rol a
+                        JOIN identidad.rol r ON r.id = a.rol_id
+                        JOIN identidad.usuario u ON u.id = a.usuario_id
+                        WHERE r.codigo = ? AND a.revocada_en IS NULL
+                          AND (a.vigente_hasta IS NULL OR a.vigente_hasta > ?::timestamptz)
+                          AND u.estado = 'ACTIVO'
+                        """,
                         ROL_QUE_SE_ENTERA,
                         ahora)
                 .map(fila -> fila.get(0, UUID.class));

@@ -294,7 +294,7 @@
           "canales_permitidos": "CORREO",
           "exige_dispositivo_conocido": false,
           "invalida_anteriores": true,
-          "vigente_desde": "2026-11-25T00:00:00-04:00"
+          "vigente_desde": "2026-11-24T00:00:00-04:00"
         },
         {
           "proposito": "RECUPERACION_OPERADOR_CLAVE",
@@ -307,7 +307,7 @@
           "canales_permitidos": "CORREO",
           "exige_dispositivo_conocido": false,
           "invalida_anteriores": true,
-          "vigente_desde": "2026-11-25T00:00:00-04:00"
+          "vigente_desde": "2026-11-24T00:00:00-04:00"
         },
         {
           "proposito": "REINSCRIPCION_FACTOR",
@@ -320,7 +320,7 @@
           "canales_permitidos": "CORREO",
           "exige_dispositivo_conocido": false,
           "invalida_anteriores": true,
-          "vigente_desde": "2026-11-25T00:00:00-04:00"
+          "vigente_desde": "2026-11-24T00:00:00-04:00"
         }
       ]
     }

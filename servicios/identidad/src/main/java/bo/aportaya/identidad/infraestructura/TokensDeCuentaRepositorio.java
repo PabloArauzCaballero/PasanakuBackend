@@ -22,8 +22,15 @@ import org.springframework.stereotype.Component;
 public class TokensDeCuentaRepositorio {
 
     private static final String CANAL = "CORREO";
-    private static final String PROPOSITOS =
-            "'INVITACION_OPERADOR','RECUPERACION_OPERADOR_CLAVE','REINSCRIPCION_FACTOR'";
+    private static final String VIGENTE =
+            """
+            SELECT id, usuario_id, proposito, expira_en, intentos_fallidos FROM identidad.token_verificacion
+            WHERE hash_token = ?
+              AND proposito IN ('INVITACION_OPERADOR','RECUPERACION_OPERADOR_CLAVE','REINSCRIPCION_FACTOR')
+              AND estado IN ('EMITIDO','ENVIADO') AND expira_en > ?::timestamptz
+              AND intentos_fallidos < max_intentos
+            """;
+    private static final String VIGENTE_BLOQUEANDO = VIGENTE + "FOR UPDATE";
 
     private final SecretoDeInvitacion secretos;
     private final SecureRandom azar = new SecureRandom();
@@ -57,9 +64,11 @@ public class TokensDeCuentaRepositorio {
             String agente,
             UUID correlacion) {
         var politica = dsl.fetchOne(
-                "SELECT id, ttl_segundos, max_intentos_validacion FROM identidad.politica_token"
-                        + " WHERE proposito = ? AND vigente_desde <= ?::timestamptz"
-                        + " ORDER BY vigente_desde DESC LIMIT 1",
+                """
+                        SELECT id, ttl_segundos, max_intentos_validacion FROM identidad.politica_token
+                        WHERE proposito = ? AND vigente_desde <= ?::timestamptz
+                        ORDER BY vigente_desde DESC LIMIT 1
+                        """,
                 alcance.proposito(),
                 ahora);
         if (politica == null) {
@@ -67,9 +76,11 @@ public class TokensDeCuentaRepositorio {
                     "Falta la politica de token " + alcance.proposito() + " (sembrar 13-politicas-de-token)");
         }
         dsl.execute(
-                "UPDATE identidad.token_verificacion SET estado = 'INVALIDADO', invalidado_en = ?::timestamptz,"
-                        + " motivo_invalidacion = 'REEMITIDA_POR_NUEVA_EMISION'"
-                        + " WHERE usuario_id = ? AND proposito = ? AND estado IN ('EMITIDO','ENVIADO')",
+                """
+                        UPDATE identidad.token_verificacion SET estado = 'INVALIDADO', invalidado_en = ?::timestamptz,
+                        motivo_invalidacion = 'REEMITIDA_POR_NUEVA_EMISION'
+                        WHERE usuario_id = ? AND proposito = ? AND estado IN ('EMITIDO','ENVIADO')
+                        """,
                 ahora,
                 usuarioId,
                 alcance.proposito());
@@ -79,12 +90,14 @@ public class TokensDeCuentaRepositorio {
         UUID id = UUID.randomUUID();
         OffsetDateTime expira = ahora.plusSeconds(politica.get("ttl_segundos", Integer.class));
         dsl.execute(
-                "INSERT INTO identidad.token_verificacion (id, usuario_id, politica_id, tipo_token, proposito,"
-                        + " hash_token, algoritmo_hash, canal_entrega, destino_enmascarado, estado, emitido_en,"
-                        + " expira_en, intentos_fallidos, max_intentos, reenvios, ip_origen, agente_usuario,"
-                        + " correlation_id, clave_idempotencia, uso_unico, clicks)"
-                        + " VALUES (?, ?, ?, 'ENLACE', ?, ?, 'HMAC-SHA256', ?, ?, 'EMITIDO', ?::timestamptz,"
-                        + " ?::timestamptz, 0, ?, 0, ?::inet, ?, ?, ?, true, 0)",
+                """
+                        INSERT INTO identidad.token_verificacion (id, usuario_id, politica_id, tipo_token, proposito,
+                        hash_token, algoritmo_hash, canal_entrega, destino_enmascarado, estado, emitido_en,
+                        expira_en, intentos_fallidos, max_intentos, reenvios, ip_origen, agente_usuario,
+                        correlation_id, clave_idempotencia, uso_unico, clicks)
+                        VALUES (?, ?, ?, 'ENLACE', ?, ?, 'HMAC-SHA256', ?, ?, 'EMITIDO', ?::timestamptz,
+                        ?::timestamptz, 0, ?, 0, ?::inet, ?, ?, ?, true, 0)
+                        """,
                 id,
                 usuarioId,
                 politica.get("id", UUID.class),
@@ -112,11 +125,7 @@ public class TokensDeCuentaRepositorio {
             return Optional.empty();
         }
         var fila = dsl.fetchOne(
-                "SELECT id, usuario_id, proposito, expira_en, intentos_fallidos FROM identidad.token_verificacion"
-                        + " WHERE hash_token = ? AND proposito IN (" + PROPOSITOS + ")"
-                        + " AND estado IN ('EMITIDO','ENVIADO') AND expira_en > ?::timestamptz"
-                        + " AND intentos_fallidos < max_intentos"
-                        + (paraActualizar ? " FOR UPDATE" : ""),
+                paraActualizar ? VIGENTE_BLOQUEANDO : VIGENTE,
                 secretos.firmar("cuenta-token", token),
                 ahora);
         if (fila == null) {
@@ -134,12 +143,14 @@ public class TokensDeCuentaRepositorio {
     /** Un intento fallido que NO consume el token; al tope, el token muere. */
     public void registrarIntentoFallido(DSLContext dsl, UUID tokenId, OffsetDateTime ahora) {
         dsl.execute(
-                "UPDATE identidad.token_verificacion SET intentos_fallidos = intentos_fallidos + 1,"
-                        + " estado = CASE WHEN intentos_fallidos + 1 >= max_intentos THEN 'BLOQUEADO_POR_INTENTOS'"
-                        + " ELSE estado END,"
-                        + " invalidado_en = CASE WHEN intentos_fallidos + 1 >= max_intentos THEN ?::timestamptz"
-                        + " ELSE invalidado_en END"
-                        + " WHERE id = ?",
+                """
+                        UPDATE identidad.token_verificacion SET intentos_fallidos = intentos_fallidos + 1,
+                        estado = CASE WHEN intentos_fallidos + 1 >= max_intentos THEN 'BLOQUEADO_POR_INTENTOS'
+                        ELSE estado END,
+                        invalidado_en = CASE WHEN intentos_fallidos + 1 >= max_intentos THEN ?::timestamptz
+                        ELSE invalidado_en END
+                        WHERE id = ?
+                        """,
                 ahora,
                 tokenId);
     }
@@ -147,8 +158,10 @@ public class TokensDeCuentaRepositorio {
     /** La precondicion va en la escritura: dos que compiten, gana una. */
     public boolean consumir(DSLContext dsl, UUID tokenId, OffsetDateTime ahora) {
         return dsl.execute(
-                        "UPDATE identidad.token_verificacion SET estado = 'CONSUMIDO', consumido_en = ?::timestamptz"
-                                + " WHERE id = ? AND estado IN ('EMITIDO','ENVIADO') AND expira_en > ?::timestamptz",
+                        """
+                                UPDATE identidad.token_verificacion SET estado = 'CONSUMIDO', consumido_en = ?::timestamptz
+                                WHERE id = ? AND estado IN ('EMITIDO','ENVIADO') AND expira_en > ?::timestamptz
+                                """,
                         ahora,
                         tokenId,
                         ahora)

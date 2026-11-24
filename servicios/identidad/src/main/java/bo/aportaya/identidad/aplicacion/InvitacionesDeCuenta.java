@@ -216,8 +216,10 @@ public class InvitacionesDeCuenta {
             if (alcance.pideFactor()) {
                 // El factor viejo se apaga ANTES de confirmar el nuevo: nunca hay dos principales.
                 dsl.execute(
-                        "UPDATE identidad.factor_mfa SET activo = false, es_principal = false"
-                                + " WHERE usuario_id = ? AND tipo = 'TOTP' AND confirmado_en IS NOT NULL",
+                        """
+                        UPDATE identidad.factor_mfa SET activo = false, es_principal = false
+                        WHERE usuario_id = ? AND tipo = 'TOTP' AND confirmado_en IS NOT NULL
+                        """,
                         usuario);
                 OffsetDateTime inicioDelPaso = pasoAceptado.atOffset(ZoneOffset.UTC);
                 if (!factores.confirmar(dsl, usuario, entrada.factorId(), inicioDelPaso, ahora)) {

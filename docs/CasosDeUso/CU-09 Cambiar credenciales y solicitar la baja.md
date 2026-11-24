@@ -359,6 +359,11 @@ Dado un operador con una invitación de reinscripción del factor
 Cuando la completa con su clave actual y un código del TOTP nuevo
 Entonces el factor anterior queda inactivo y el nuevo confirmado
 Y todas sus sesiones quedan revocadas
+
+Dado un operador con la marca de cambio de clave pendiente
+Cuando cambia su clave con la actual correcta
+Entonces la marca queda en falso y la clave nueva rige
+Y todas sus sesiones, incluida la actual, quedan cerradas
 ```
 
 ## Ver también

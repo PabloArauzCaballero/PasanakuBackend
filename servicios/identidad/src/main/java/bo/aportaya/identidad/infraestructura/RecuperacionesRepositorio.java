@@ -25,18 +25,22 @@ public class RecuperacionesRepositorio {
     /** Una solicitud lista para emitir su invitacion. */
     public record Aprobada(UUID id, UUID usuarioId, String alcance) {}
 
-    private static final String COLUMNAS =
-            "s.id, s.usuario_id, u.nombres, u.apellidos, s.alcance, s.estado, s.solicitada_en, s.motivo,"
-                    + " s.decidida_por, s.decidida_en, s.motivo_decision, s.enfriamiento_hasta, s.emitida_en";
-    private static final String DESDE = " FROM identidad.solicitud_recuperacion_acceso s"
-            + " JOIN identidad.usuario u ON u.id = s.usuario_id";
+    private static final String SELECCION =
+            """
+            SELECT s.id, s.usuario_id, u.nombres, u.apellidos, s.alcance, s.estado, s.solicitada_en, s.motivo,
+                   s.decidida_por, s.decidida_en, s.motivo_decision, s.enfriamiento_hasta, s.emitida_en
+              FROM identidad.solicitud_recuperacion_acceso s
+              JOIN identidad.usuario u ON u.id = s.usuario_id
+            """;
 
     public Optional<Operador> operadorActivoPorCorreo(DSLContext dsl, String correo) {
         var filas = dsl.fetch(
-                "SELECT u.id, u.correo FROM identidad.usuario u"
-                        + " JOIN identidad.usuario_interno i ON i.usuario_id = u.id"
-                        + " WHERE lower(u.correo) = lower(?) AND u.estado = 'ACTIVO' AND u.eliminado_en IS NULL"
-                        + " LIMIT 2",
+                """
+                        SELECT u.id, u.correo FROM identidad.usuario u
+                        JOIN identidad.usuario_interno i ON i.usuario_id = u.id
+                        WHERE lower(u.correo) = lower(?) AND u.estado = 'ACTIVO' AND u.eliminado_en IS NULL
+                        LIMIT 2
+                        """,
                 correo.strip());
         if (filas.size() != 1) {
             return Optional.empty();
@@ -54,9 +58,11 @@ public class RecuperacionesRepositorio {
             String motivo,
             OffsetDateTime ahora) {
         return dsl.execute(
-                        "INSERT INTO identidad.solicitud_recuperacion_acceso (id, usuario_id, alcance, estado,"
-                                + " solicitada_por, solicitada_en, motivo, clave_idempotencia)"
-                                + " VALUES (?, ?, ?, 'PENDIENTE', ?, ?::timestamptz, ?, ?) ON CONFLICT DO NOTHING",
+                        """
+                                INSERT INTO identidad.solicitud_recuperacion_acceso (id, usuario_id, alcance, estado,
+                                solicitada_por, solicitada_en, motivo, clave_idempotencia)
+                                VALUES (?, ?, ?, 'PENDIENTE', ?, ?::timestamptz, ?, ?) ON CONFLICT DO NOTHING
+                                """,
                         solicitudId,
                         usuarioId,
                         alcance,
@@ -70,18 +76,22 @@ public class RecuperacionesRepositorio {
     /** La fila con su candado, para decidirla. */
     public Optional<Record> paraDecidir(DSLContext dsl, UUID id) {
         return Optional.ofNullable(dsl.fetchOne(
-                "SELECT id, usuario_id, estado, decidida_por FROM identidad.solicitud_recuperacion_acceso"
-                        + " WHERE id = ? FOR UPDATE",
+                """
+                        SELECT id, usuario_id, estado, decidida_por FROM identidad.solicitud_recuperacion_acceso
+                        WHERE id = ? FOR UPDATE
+                        """,
                 id));
     }
 
     public boolean aprobar(
             DSLContext dsl, UUID id, UUID aprobador, String motivo, OffsetDateTime ahora, OffsetDateTime enfriaHasta) {
         return dsl.execute(
-                        "UPDATE identidad.solicitud_recuperacion_acceso SET estado = 'APROBADA', decidida_por = ?,"
-                                + " decidida_en = ?::timestamptz, motivo_decision = ?,"
-                                + " enfriamiento_hasta = ?::timestamptz"
-                                + " WHERE id = ? AND estado = 'PENDIENTE'",
+                        """
+                                UPDATE identidad.solicitud_recuperacion_acceso SET estado = 'APROBADA', decidida_por = ?,
+                                decidida_en = ?::timestamptz, motivo_decision = ?,
+                                enfriamiento_hasta = ?::timestamptz
+                                WHERE id = ? AND estado = 'PENDIENTE'
+                                """,
                         aprobador,
                         ahora,
                         motivo,
@@ -92,9 +102,11 @@ public class RecuperacionesRepositorio {
 
     public boolean rechazar(DSLContext dsl, UUID id, UUID quien, String motivo, OffsetDateTime ahora) {
         return dsl.execute(
-                        "UPDATE identidad.solicitud_recuperacion_acceso SET estado = 'RECHAZADA', decidida_por = ?,"
-                                + " decidida_en = ?::timestamptz, motivo_decision = ?"
-                                + " WHERE id = ? AND estado = 'PENDIENTE'",
+                        """
+                                UPDATE identidad.solicitud_recuperacion_acceso SET estado = 'RECHAZADA', decidida_por = ?,
+                                decidida_en = ?::timestamptz, motivo_decision = ?
+                                WHERE id = ? AND estado = 'PENDIENTE'
+                                """,
                         quien,
                         ahora,
                         motivo,
@@ -104,14 +116,14 @@ public class RecuperacionesRepositorio {
 
     public Optional<SolicitudDeRecuperacion> porId(DSLContext dsl, UUID id) {
         return Optional.ofNullable(
-                dsl.fetchOne("SELECT " + COLUMNAS + DESDE + " WHERE s.id = ?", id))
+                dsl.fetchOne(SELECCION + " WHERE s.id = ?", id))
                 .map(RecuperacionesRepositorio::aSolicitud);
     }
 
     /** Pagina por cursor ({@code solicitada_en}, {@code id}), de la mas nueva a la mas vieja, con desempate estable. */
     public List<SolicitudDeRecuperacion> listar(
             DSLContext dsl, String estado, int limite, OffsetDateTime antesDe, UUID antesDeId) {
-        StringBuilder sql = new StringBuilder("SELECT " + COLUMNAS + DESDE + " WHERE 1 = 1");
+        StringBuilder sql = new StringBuilder(SELECCION).append(" WHERE 1 = 1");
         java.util.ArrayList<Object> valores = new java.util.ArrayList<>();
         if (estado != null) {
             sql.append(" AND s.estado = ?");
@@ -132,9 +144,11 @@ public class RecuperacionesRepositorio {
     /** Las aprobadas cuyo enfriamiento ya paso, con candado y sin esperar a quien las tenga tomadas. */
     public List<Aprobada> listasParaEmitir(DSLContext dsl, OffsetDateTime ahora, int tanda) {
         return dsl.fetch(
-                        "SELECT id, usuario_id, alcance FROM identidad.solicitud_recuperacion_acceso"
-                                + " WHERE estado = 'APROBADA' AND enfriamiento_hasta <= ?::timestamptz"
-                                + " ORDER BY enfriamiento_hasta, id LIMIT ? FOR UPDATE SKIP LOCKED",
+                        """
+                                SELECT id, usuario_id, alcance FROM identidad.solicitud_recuperacion_acceso
+                                WHERE estado = 'APROBADA' AND enfriamiento_hasta <= ?::timestamptz
+                                ORDER BY enfriamiento_hasta, id LIMIT ? FOR UPDATE SKIP LOCKED
+                                """,
                         ahora,
                         tanda)
                 .stream()
@@ -147,8 +161,10 @@ public class RecuperacionesRepositorio {
 
     public boolean marcarEmitida(DSLContext dsl, UUID id, UUID tokenId, OffsetDateTime ahora) {
         return dsl.execute(
-                        "UPDATE identidad.solicitud_recuperacion_acceso SET estado = 'EMITIDA', token_id = ?,"
-                                + " emitida_en = ?::timestamptz WHERE id = ? AND estado = 'APROBADA'",
+                        """
+                                UPDATE identidad.solicitud_recuperacion_acceso SET estado = 'EMITIDA', token_id = ?,
+                                emitida_en = ?::timestamptz WHERE id = ? AND estado = 'APROBADA'
+                                """,
                         tokenId,
                         ahora,
                         id)
@@ -158,8 +174,10 @@ public class RecuperacionesRepositorio {
     /** La invitacion se uso: el expediente se cierra. */
     public void marcarCompletadaPorToken(DSLContext dsl, UUID tokenId, OffsetDateTime ahora) {
         dsl.execute(
-                "UPDATE identidad.solicitud_recuperacion_acceso SET estado = 'COMPLETADA',"
-                        + " completada_en = ?::timestamptz WHERE token_id = ? AND estado = 'EMITIDA'",
+                """
+                        UPDATE identidad.solicitud_recuperacion_acceso SET estado = 'COMPLETADA',
+                        completada_en = ?::timestamptz WHERE token_id = ? AND estado = 'EMITIDA'
+                        """,
                 ahora,
                 tokenId);
     }
@@ -171,22 +189,28 @@ public class RecuperacionesRepositorio {
      */
     public int vencerLoAbandonado(DSLContext dsl, OffsetDateTime ahora, OffsetDateTime pedidosAnterioresA) {
         int pedidos = dsl.execute(
-                "UPDATE identidad.solicitud_recuperacion_acceso SET estado = 'VENCIDA'"
-                        + " WHERE estado = 'PENDIENTE' AND solicitada_en < ?::timestamptz",
+                """
+                        UPDATE identidad.solicitud_recuperacion_acceso SET estado = 'VENCIDA'
+                        WHERE estado = 'PENDIENTE' AND solicitada_en < ?::timestamptz
+                        """,
                 pedidosAnterioresA);
         int invitaciones = dsl.execute(
-                "UPDATE identidad.solicitud_recuperacion_acceso s SET estado = 'VENCIDA'"
-                        + " FROM identidad.token_verificacion t"
-                        + " WHERE s.token_id = t.id AND s.estado = 'EMITIDA' AND t.estado <> 'CONSUMIDO'"
-                        + " AND t.expira_en < ?::timestamptz",
+                """
+                        UPDATE identidad.solicitud_recuperacion_acceso s SET estado = 'VENCIDA'
+                        FROM identidad.token_verificacion t
+                        WHERE s.token_id = t.id AND s.estado = 'EMITIDA' AND t.estado <> 'CONSUMIDO'
+                        AND t.expira_en < ?::timestamptz
+                        """,
                 ahora);
         return pedidos + invitaciones;
     }
 
     public void vencer(DSLContext dsl, UUID id) {
         dsl.execute(
-                "UPDATE identidad.solicitud_recuperacion_acceso SET estado = 'VENCIDA'"
-                        + " WHERE id = ? AND estado = 'APROBADA'",
+                """
+                        UPDATE identidad.solicitud_recuperacion_acceso SET estado = 'VENCIDA'
+                        WHERE id = ? AND estado = 'APROBADA'
+                        """,
                 id);
     }
 
