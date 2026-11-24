@@ -32,7 +32,7 @@ class RolesControllerWebTest {
 
     /** GU-16: el controlador tambien lo gobierna; estas pruebas son de lectura y no lo tocan. */
     @MockitoBean
-    private bo.aportaya.identidad.aplicacion.GobiernoDeRoles gobierno;
+    private bo.aportaya.identidad.aplicacion.CU135GobernarRoles gobierno;
 
     @Test
     @DisplayName("catalogo roles: 200 con lista de roles")

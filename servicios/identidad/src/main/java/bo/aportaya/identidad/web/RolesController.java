@@ -1,11 +1,11 @@
 package bo.aportaya.identidad.web;
 
+import bo.aportaya.identidad.aplicacion.CU135GobernarRoles;
+import bo.aportaya.identidad.aplicacion.CU135GobernarRoles.PedidoDeCreacion;
+import bo.aportaya.identidad.aplicacion.CU135GobernarRoles.PedidoDeEdicion;
+import bo.aportaya.identidad.aplicacion.CU135GobernarRoles.Resultado;
+import bo.aportaya.identidad.aplicacion.CU135GobernarRoles.Solicitud;
 import bo.aportaya.identidad.aplicacion.GestionarUsuariosInternos;
-import bo.aportaya.identidad.aplicacion.GobiernoDeRoles;
-import bo.aportaya.identidad.aplicacion.GobiernoDeRoles.PedidoDeCreacion;
-import bo.aportaya.identidad.aplicacion.GobiernoDeRoles.PedidoDeEdicion;
-import bo.aportaya.identidad.aplicacion.GobiernoDeRoles.Resultado;
-import bo.aportaya.identidad.aplicacion.GobiernoDeRoles.Solicitud;
 import bo.aportaya.identidad.dominio.RolesParaPersonalInterno;
 import bo.aportaya.identidad.web.generado.RolesApi;
 import bo.aportaya.identidad.web.generado.modelo.EntradaDeCreacionDeRol;
@@ -30,10 +30,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class RolesController implements RolesApi {
 
     private final GestionarUsuariosInternos casoDeUso;
-    private final GobiernoDeRoles gobierno;
+    private final CU135GobernarRoles gobierno;
     private final SesionDeLaPeticion sesion;
 
-    public RolesController(GestionarUsuariosInternos casoDeUso, GobiernoDeRoles gobierno, SesionDeLaPeticion sesion) {
+    public RolesController(
+            GestionarUsuariosInternos casoDeUso, CU135GobernarRoles gobierno, SesionDeLaPeticion sesion) {
         this.casoDeUso = casoDeUso;
         this.gobierno = gobierno;
         this.sesion = sesion;
@@ -54,7 +55,7 @@ public class RolesController implements RolesApi {
         return ResponseEntity.ok(roles);
     }
 
-    // ---- GU-16 · CU-135: aca solo se traduce; las reglas viven en GobiernoDeRoles ----
+    // ---- GU-16 · CU-135: aca solo se traduce; las reglas viven en CU135GobernarRoles ----
 
     @Override
     @Permiso("ROLES_INTERNOS_GESTIONAR")

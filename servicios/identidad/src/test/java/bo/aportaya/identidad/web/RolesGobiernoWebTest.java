@@ -10,9 +10,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import bo.aportaya.identidad.aplicacion.CU135GobernarRoles;
+import bo.aportaya.identidad.aplicacion.CU135GobernarRoles.Resultado;
 import bo.aportaya.identidad.aplicacion.GestionarUsuariosInternos;
-import bo.aportaya.identidad.aplicacion.GobiernoDeRoles;
-import bo.aportaya.identidad.aplicacion.GobiernoDeRoles.Resultado;
 import bo.aportaya.identidad.dominio.ReglasDeRolPersonalizado;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
@@ -30,7 +30,7 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 /**
  * GU-16 (CU-135) en la capa web: el contrato, la matriz de autorizacion negativa (sin token, sin permiso, permiso de
  * lectura donde se pide el de gestion, rol de otro dominio) y que cada regla llegue como 422 con su codigo. El caso de
- * uso va con doble: la persistencia se prueba contra PostgreSQL en {@code GobiernoDeRolesTest}.
+ * uso va con doble: la persistencia se prueba contra PostgreSQL en {@code CU135GobernarRolesTest}.
  */
 @PruebaWeb(RolesController.class)
 class RolesGobiernoWebTest {
@@ -62,7 +62,7 @@ class RolesGobiernoWebTest {
     private GestionarUsuariosInternos casoDeUso;
 
     @MockitoBean
-    private GobiernoDeRoles gobierno;
+    private CU135GobernarRoles gobierno;
 
     @Test
     @DisplayName("crear: 201 con el rol creado cuando no hay riesgo alto")

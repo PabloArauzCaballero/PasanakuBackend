@@ -348,4 +348,4 @@ Y solo se revoca el que sale
 
 ## Ver también
 
-[[CU-04 Autenticar con MFA y registrar dispositivo]] · [[CU-09 Cambiar credenciales y solicitar la baja]] · [[ADR-038 Acceso administrativo · segundo factor y recuperación asistida]] · [[Seguridad]] · [[CU-49 Designar al oficial de cumplimiento y capacitar]] · [[CU-55 Gestionar un incidente de seguridad]] · [[CU-90 Postular a organizador y habilitarse]] · [[CU-91 Firmar y rescindir el contrato de organizador]]
+[[CU-04 Autenticar con MFA y registrar dispositivo]] · [[CU-09 Cambiar credenciales y solicitar la baja]] · [[ADR-038 Acceso administrativo · segundo factor y recuperación asistida]] · [[Seguridad]] · [[CU-49 Designar al oficial de cumplimiento y capacitar]] · [[CU-55 Gestionar un incidente de seguridad]] · [[CU-90 Postular a organizador y habilitarse]] · [[CU-91 Firmar y rescindir el contrato de organizador]] · [[CU-135 Crear, editar y retirar roles personalizados con step-up y cuatro ojos]]

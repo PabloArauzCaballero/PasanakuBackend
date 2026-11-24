@@ -3,12 +3,12 @@ tags:
   - moc
   - modulo/01-identidad-usuarios-y-seguridad
 modulo: "01 — Identidad, Usuarios y Seguridad"
-relaciones_fk: 34
+relaciones_fk: 43
 ---
 
 # 01 — Identidad, Usuarios y Seguridad · relaciones
 
-Las **34 claves foráneas** que salen de las tablas de este módulo.
+Las **43 claves foráneas** que salen de las tablas de este módulo.
 
 [[_Relaciones|← Todas las relaciones]] · [[Index]]
 
@@ -22,9 +22,14 @@ Las **34 claves foráneas** que salen de las tablas de este módulo.
 | [[bloqueo_cuenta.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[consentimiento.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[credencial_acceso.usuario_id → usuario]] | [[usuario]] | — | no |
+| [[cuenta_servicio.creada_por → usuario]] | [[usuario]] | — | no |
+| [[cuenta_servicio.revocada_por → usuario]] | [[usuario]] | — | sí |
+| [[cuenta_servicio.rol_id → rol]] | [[rol]] | — | no |
+| [[cuenta_servicio.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[direccion_usuario.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[dispositivo.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[documento_identidad.usuario_id → usuario]] | [[usuario]] | — | no |
+| [[evidencia_step_up_consumida.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[factor_mfa.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[historial_credencial.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[intento_autenticacion.usuario_id → usuario]] | [[usuario]] | — | sí |
@@ -35,11 +40,15 @@ Las **34 claves foráneas** que salen de las tablas de este módulo.
 | [[reputacion_usuario.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[restriccion_usuario.levantada_por → usuario]] | [[usuario]] | — | sí |
 | [[restriccion_usuario.usuario_id → usuario]] | [[usuario]] | — | no |
+| [[rol.creado_por → usuario]] | [[usuario]] | — | sí |
 | [[rol_permiso.permiso_id → permiso]] | [[permiso]] | — | no |
 | [[rol_permiso.rol_id → rol]] | [[rol]] | — | no |
 | [[sesion.dispositivo_id → dispositivo]] | [[dispositivo]] | — | no |
 | [[sesion.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[solicitud_baja.usuario_id → usuario]] | [[usuario]] | — | no |
+| [[solicitud_cambio_rol.propuesta_por → usuario]] | [[usuario]] | — | no |
+| [[solicitud_cambio_rol.resuelta_por → usuario]] | [[usuario]] | — | sí |
+| [[solicitud_cambio_rol.rol_id → rol]] | [[rol]] | — | sí |
 | [[token_verificacion.dispositivo_id → dispositivo]] | [[dispositivo]] | — | sí |
 | [[token_verificacion.politica_id → politica_sancion]] | [[politica_sancion]] | ↗ 08 | no |
 | [[token_verificacion.rotado_de_id → token_verificacion]] | [[token_verificacion]] | — | sí |

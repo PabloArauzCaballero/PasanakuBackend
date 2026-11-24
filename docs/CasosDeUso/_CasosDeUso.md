@@ -3,7 +3,7 @@ tags:
   - moc
   - caso-uso
 titulo: "Casos de uso — AportaYa"
-total_casos: 113
+total_casos: 114
 fecha: 2026-08-14
 ---
 
@@ -71,6 +71,7 @@ Norma (docs/Cumplimiento.md)  →  Caso de uso (esta carpeta)  →  Restricción
 | [[CU-08 Asignar y revocar roles de operador]] | Permiso mínimo, temporal y auditable; el alta cierra con el enrolamiento del TOTP | Administrador | ASFI Seguridad · segregación |
 | [[CU-09 Cambiar credenciales y solicitar la baja]] | Clave, recuperación y baja sin dejar deudas; la del operador la aprueba otra identidad | Usuario · Soporte · Seguridad | ASFI Seguridad · Consumidor Financiero |
 | [[CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso]] | **Borrador para aprobación (P-11).** Ver solo lo necesario con rastro de lectura; suspender o bloquear con causal cerrada, descargo y apelación por otra persona | Soporte · Seguridad · Participante | Debido proceso · protección de datos · ASFI Seguridad |
+| [[CU-135 Crear, editar y retirar roles personalizados con step-up y cuatro ojos]] | **GU-16 (P-9).** Crear, editar y retirar roles personalizados desde el backoffice: step-up y motivo, sin pares incompatibles, cuatro ojos para permisos de riesgo alto | Administrador de identidades · Segunda persona aprobadora | Segregación de funciones · ASFI control interno |
 
 ### Billetera, custodia y saldo
 

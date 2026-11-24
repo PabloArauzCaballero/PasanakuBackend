@@ -29,7 +29,12 @@ import org.springframework.stereotype.Component;
 public class AccesosRepositorio {
 
     public Optional<String> ambitoDelRol(DSLContext dsl, UUID rolId) {
-        return dsl.select(ROL.AMBITO).from(ROL).where(ROL.ID.eq(rolId)).fetchOptional(ROL.AMBITO);
+        // Un rol retirado (GU-16) deja de existir para asignar: no se borra, pero tampoco se otorga mas.
+        return dsl.select(ROL.AMBITO)
+                .from(ROL)
+                .where(ROL.ID.eq(rolId))
+                .and(ROL.RETIRADO_EN.isNull())
+                .fetchOptional(ROL.AMBITO);
     }
 
     public Set<String> permisosDelRol(DSLContext dsl, UUID rolId) {

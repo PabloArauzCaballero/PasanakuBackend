@@ -42,7 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
  * {@code UPDATE} del repositorio tambien lo excluye.
  */
 @Service
-public class GobiernoDeRoles {
+public class CU135GobernarRoles {
 
     private static final ObjectMapper JSON = new ObjectMapper();
     private static final int LIMITE_DE_SOLICITUDES = 100;
@@ -54,7 +54,7 @@ public class GobiernoDeRoles {
     private final Outbox outbox;
     private final Reloj reloj;
 
-    public GobiernoDeRoles(
+    public CU135GobernarRoles(
             Datos datos,
             RolesPersonalizadosRepositorio roles,
             AccesosRepositorio accesos,
@@ -199,7 +199,7 @@ public class GobiernoDeRoles {
     @Transactional(readOnly = true)
     public List<Solicitud> solicitudesPendientes(ContextoSesion ctx) {
         return datos.conContexto(ctx, dsl -> roles.solicitudesPendientes(dsl, LIMITE_DE_SOLICITUDES).stream()
-                .map(GobiernoDeRoles::aSolicitud)
+                .map(CU135GobernarRoles::aSolicitud)
                 .toList());
     }
 
