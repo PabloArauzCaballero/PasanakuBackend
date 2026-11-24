@@ -94,6 +94,7 @@ Máximo 4 sesiones a la vez (CLAUDE.md, regla 70); cada una con su PLAN.md, REPO
 | P-2a contrato CU-08 | **Por asignación**: `ámbito`, vigencia opcional, justificación; revocación individual con motivo; se conserva quién y cuándo otorgó. |
 | P-2b ubicación | **Sección propia visible** «Personal y accesos», abierta por permisos (incluye `INTERNAL_IDENTITY_ADMIN`); nunca se muestra a quien recibiría 403. |
 | P-3 segregación | Pares: `ENTREGA_AUTORIZAR`↔`ENTREGA_EJECUTAR`; `CONTABILIDAD_ERP_PAGAR`↔`TESORERIA`/`ENTREGA_EJECUTAR`; `PUBLICIDAD_ANUNCIANTES`↔`PUBLICIDAD_APROBAR_CAMPANA`↔`PUBLICIDAD_MODERAR` (tres personas); `BLOQUEO_AUTORIDAD_REGISTRAR`↔`BLOQUEO_AUTORIDAD_LEVANTAR`. |
+| P-3 corrección (consulta del lote A) | Contabilidad/Tesorería: el par es **aprueba ≠ paga** (`CONTABILIDAD_ERP_CUENTAS_POR_PAGAR` ↔ `CONTABILIDAD_ERP_PAGAR`), reemplaza el par anterior mal planteado; roles sin cambios. Publicidad: **partir el rol** — `OPERADOR_PUBLICIDAD` (anunciantes + liquidar) y nuevo `APROBADOR_PUBLICIDAD` (aprobar campaña). |
 | P-3 bloqueo | `OFICIAL_CUMPLIMIENTO` registra; **rol nuevo `SUPERVISOR_CUMPLIMIENTO`** levanta (con lectura de cumplimiento). |
 | P-4 recuperación | **Asistida a cuatro ojos** (ADR-038): pedido → aprobación de otra persona de seguridad → enfriamiento → invitación de un solo uso. Se modela aprobador y plazo. |
 | P-5 avisos | **Bitácora + correo** a la persona afectada y al oficial de cumplimiento. |
