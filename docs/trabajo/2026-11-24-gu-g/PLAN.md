@@ -80,7 +80,7 @@
 ### H3.S2 — Contrato `identidad.yaml` (tag Participantes, solo operaciones nuevas)
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H3.S2.M1 | Operaciones y esquemas de búsqueda, ficha, revelación, medida, descargo, decisión, apelación y resolución, con `AP-CU134-01..11` | Contrato válido y con límites | `verificar_contratos_limites.py` exit 0 | TODO |
+| H3.S2.M1 | Operaciones y esquemas de búsqueda, ficha, revelación, medida, descargo, decisión, apelación y resolución, con `AP-CU134-01..11` | Contrato válido y con límites | `verificar_contratos_limites.py` exit 0 | HECHO |
 
 ### H3.S3 — Backend `identidad`
 | ID | Microtarea | CA (binario) | DoD | Estado |

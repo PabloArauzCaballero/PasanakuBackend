@@ -100,7 +100,7 @@ Este caso **no** reemplaza a ninguno de estos; los invoca o se aparta de ellos.
      casos de cumplimiento.
    La apertura escribe [[registro_acceso_datos]] con `operacion='LECTURA'` en la **misma
    transacción** que lee (si no se puede registrar, no se muestra).
-3. **Revelar un dato** (teléfono, correo, documento) exige el permiso `DATOS_SENSIBLES_LEER`
+3. **Revelar un dato** (teléfono o correo; el documento solo se muestra por tipo y últimos dígitos) exige el permiso `DATOS_SENSIBLES_LEER`
    (existe en la semilla), **segundo factor en el momento** (`R-SEG-12`) y una justificación
    propia. Se revela **un campo por vez**, deja su propia fila en [[registro_acceso_datos]]
    y el valor no se guarda en el navegador ni en logs.
@@ -248,17 +248,17 @@ export const BusquedaCU134 = z.object({
   ticketSoporteId: z.string().max(30).nullable(),
   cursor: z.string().nullable(),
   limite: z.number().int().min(1).max(50),
-}).strict()   // POST /backoffice/participantes/busquedas
+}).strict()   // POST /identidad/participantes/busquedas
 
 export const AperturaFichaCU134 = z.object({
   justificacion: z.string().min(10).max(300),
   ticketSoporteId: z.string().max(30).nullable(),
-}).strict()   // POST /backoffice/participantes/{usuarioId}/ficha
+}).strict()   // POST /identidad/participantes/{usuarioId}/ficha
 
 export const RevelacionCU134 = z.object({
-  campo: z.enum(['TELEFONO','CORREO','DOCUMENTO_IDENTIDAD']),
+  campo: z.enum(['TELEFONO','CORREO']),   // el documento va cifrado: solo tipo y ultimos digitos
   justificacion: z.string().min(10).max(300),
-}).strict()   // POST /backoffice/participantes/{usuarioId}/revelaciones  (step-up)
+}).strict()   // POST /identidad/participantes/{usuarioId}/revelaciones  (step-up)
 
 export const EntradaMedidaCU134 = z.object({
   causal: z.enum(['CUENTA_COMPROMETIDA','FRAUDE_CON_EVIDENCIA',
@@ -270,20 +270,19 @@ export const EntradaMedidaCU134 = z.object({
     descripcion: z.string().max(300), referenciaId: z.string().uuid().nullable(),
   })).min(1).max(20),
   vigenteHasta: z.string().datetime().nullable(),
-  claveIdempotencia: z.string().min(16).max(80),
-}).strict()   // POST /backoffice/participantes/{usuarioId}/medidas
+}).strict()   // la clave de idempotencia viaja en la cabecera Idempotency-Key   // POST /identidad/participantes/{usuarioId}/medidas
 
 export const DecisionCU134 = z.object({
   resultado: z.enum(['CONFIRMADA','DESESTIMADA']),
   fundamento: z.string().min(50).max(4000),
-}).strict()   // POST /backoffice/medidas-cuenta/{expedienteId}/decision
+}).strict()   // POST /identidad/medidas-cuenta/{expedienteId}/decision
 
 export const DescargoCU134 = z.object({
   argumento: z.string().min(20).max(4000),
   evidencias: z.array(z.object({ descripcion: z.string().max(300) })).max(10),
-}).strict()   // POST /medidas-cuenta/{expedienteId}/descargo   (app, titular)
+}).strict()   // POST /identidad/medidas-cuenta/{expedienteId}/descargo   (app, titular)
 
-export const ApelacionCU134 = DescargoCU134   // POST /medidas-cuenta/{expedienteId}/apelacion
+export const ApelacionCU134 = DescargoCU134   // POST /identidad/medidas-cuenta/{expedienteId}/apelacion
 
 export const SalidaMedidaCU134 = z.object({
   expedienteId: z.string().uuid(),
@@ -336,7 +335,7 @@ export const ErroresCU134 = {
 | Molécula | `RevocadorDeSesiones` | Compartido con [[CU-04 Autenticar con MFA y registrar dispositivo]] |
 | Organismo | `CU134ConsultarParticipante` | Transacción: lectura + registro de lectura |
 | Organismo | `CU134ProponerMedida` · `CU134DecidirMedida` · `CU134ResolverApelacion` | Transacción: expediente, estado de cuenta, bloqueo, sesiones y evento |
-| Página | `POST /backoffice/participantes/busquedas` · `POST /backoffice/participantes/{id}/ficha` · `POST /backoffice/participantes/{id}/medidas` · `POST /backoffice/medidas-cuenta/{id}/decision` | Traduce y delega |
+| Página | `POST /identidad/participantes/busquedas` · `POST /identidad/participantes/{id}/ficha` · `POST /identidad/participantes/{id}/medidas` · `POST /identidad/medidas-cuenta/{id}/decision` | Traduce y delega |
 
 ## Eventos, trabajos y permisos
 
