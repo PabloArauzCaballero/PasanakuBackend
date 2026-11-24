@@ -49,7 +49,6 @@ class GuardiaDeRecargaDePruebaTest {
     @Test
     @DisplayName("límite: en TEST (perfil local) el modo prueba sigue disponible")
     void arrancaEnLocalConPrueba() {
-        en("local").withPropertyValues(MODO + "=prueba").run(c -> assertThat(c)
-                .hasNotFailed());
+        en("local").withPropertyValues(MODO + "=prueba").run(c -> assertThat(c).hasNotFailed());
     }
 }
