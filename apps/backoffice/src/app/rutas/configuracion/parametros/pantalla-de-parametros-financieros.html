@@ -78,7 +78,7 @@
           }
 
           <section class="historial" aria-label="Historial de versiones">
-            <ap-boton variante="terciario" [deshabilitado]="cargandoHistorial()[p.codigo]" (pulsado)="alternarHistorial(p.codigo)">
+            <ap-boton variante="fantasma" [deshabilitado]="cargandoHistorial()[p.codigo] ?? false" (pulsado)="alternarHistorial(p.codigo)">
               {{ historialAbierto()[p.codigo] ? t.parametros.ocultarHistorial : t.parametros.verHistorial }}
             </ap-boton>
             @if (cargandoHistorial()[p.codigo]) { <p class="estado" role="status">{{ t.parametros.cargandoHistorial }}</p> }
@@ -98,7 +98,7 @@
     @if (versionEnAprobacion(); as v) {
       <ap-dialogo-de-confirmacion
         [titulo]="t.parametros.confirmarAprobacion"
-        [descripcion]="t.parametros.confirmarAprobacionDescripcion(v.codigo, v.valor, v.moneda)"
+        [descripcion]="t.parametros.confirmarAprobacionDescripcion(v.codigo, v.valor, v.moneda ?? null)"
         [textoDeConfirmar]="t.parametros.aprobar"
         [cargando]="enviando()"
         [(abierto)]="confirmandoAprobacion"
