@@ -11841,6 +11841,11 @@
        "operationId": "revisarColumna"
       }
      ]
+    },
+    {
+     "casoDeUso": "CU-134",
+     "titulo": "Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso",
+     "endpoints": []
     }
    ]
   },
@@ -12153,6 +12158,11 @@
        "operationId": "ejecutarReporte"
       }
      ]
+    },
+    {
+     "casoDeUso": "CU-134",
+     "titulo": "Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso",
+     "endpoints": []
     }
    ]
   },
@@ -17981,6 +17991,11 @@
        "operationId": "activarRegla"
       }
      ]
+    },
+    {
+     "casoDeUso": "CU-134",
+     "titulo": "Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso",
+     "endpoints": []
     }
    ]
   },
@@ -32021,6 +32036,11 @@
        "operationId": "proponerReemplazo"
       }
      ]
+    },
+    {
+     "casoDeUso": "CU-134",
+     "titulo": "Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso",
+     "endpoints": []
     }
    ]
   },
@@ -38066,6 +38086,11 @@
        "operationId": "sancionarOrganizador"
       }
      ]
+    },
+    {
+     "casoDeUso": "CU-134",
+     "titulo": "Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso",
+     "endpoints": []
     }
    ]
   },
@@ -39935,6 +39960,11 @@
        "operationId": "proponerReemplazo"
       }
      ]
+    },
+    {
+     "casoDeUso": "CU-134",
+     "titulo": "Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso",
+     "endpoints": []
     }
    ]
   },
@@ -48508,6 +48538,11 @@
        "operationId": "verificarDesafioDeStepUp"
       }
      ]
+    },
+    {
+     "casoDeUso": "CU-134",
+     "titulo": "Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso",
+     "endpoints": []
     }
    ]
   },
@@ -49446,6 +49481,11 @@
      "casoDeUso": "CU-09",
      "titulo": "Cambiar credenciales y solicitar la baja",
      "endpoints": []
+    },
+    {
+     "casoDeUso": "CU-134",
+     "titulo": "Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso",
+     "endpoints": []
     }
    ]
   },
@@ -50349,6 +50389,11 @@
     {
      "casoDeUso": "CU-09",
      "titulo": "Cambiar credenciales y solicitar la baja",
+     "endpoints": []
+    },
+    {
+     "casoDeUso": "CU-134",
+     "titulo": "Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso",
      "endpoints": []
     }
    ]
@@ -51948,6 +51993,11 @@
        "operationId": "habilitarOrganizador"
       }
      ]
+    },
+    {
+     "casoDeUso": "CU-134",
+     "titulo": "Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso",
+     "endpoints": []
     }
    ]
   },
@@ -52481,6 +52531,11 @@
        "operationId": "reportarIncidente"
       }
      ]
+    },
+    {
+     "casoDeUso": "CU-134",
+     "titulo": "Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso",
+     "endpoints": []
     }
    ]
   },
@@ -56251,6 +56306,11 @@
        "operationId": "verificarTitularidad"
       }
      ]
+    },
+    {
+     "casoDeUso": "CU-134",
+     "titulo": "Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso",
+     "endpoints": []
     }
    ]
   },
@@ -61321,6 +61381,11 @@
        "operationId": "listarEnvios"
       }
      ]
+    },
+    {
+     "casoDeUso": "CU-134",
+     "titulo": "Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso",
+     "endpoints": []
     }
    ]
   },
@@ -85948,6 +86013,11 @@
        "operationId": "moderarResena"
       }
      ]
+    },
+    {
+     "casoDeUso": "CU-134",
+     "titulo": "Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso",
+     "endpoints": []
     }
    ]
   },

@@ -166,4 +166,4 @@ Entonces ve cada uno una sola vez, del más reciente al más antiguo, con su pla
 
 ## Ver también
 
-[[CU-04 Autenticar con MFA y registrar dispositivo]] · [[CU-07 Ejercer derechos sobre datos personales]] · [[CU-08 Asignar y revocar roles de operador]] · [[CU-09 Cambiar credenciales y solicitar la baja]] · [[CU-54 Registrar un evento de riesgo operativo]]
+[[CU-04 Autenticar con MFA y registrar dispositivo]] · [[CU-07 Ejercer derechos sobre datos personales]] · [[CU-08 Asignar y revocar roles de operador]] · [[CU-09 Cambiar credenciales y solicitar la baja]] · [[CU-54 Registrar un evento de riesgo operativo]] · [[CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso]]

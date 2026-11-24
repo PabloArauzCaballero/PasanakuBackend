@@ -145,4 +145,4 @@ Entonces existe un registro_acceso_datos con justificación
 
 ## Ver también
 
-[[CU-09 Cambiar credenciales y solicitar la baja]] · [[CU-16 Cerrar billetera y devolver saldo]] · [[CU-55 Gestionar un incidente de seguridad]] · [[CU-75 Emitir un certificado de reputación verificable]] · [[Cumplimiento]] · [[Restricciones]]
+[[CU-09 Cambiar credenciales y solicitar la baja]] · [[CU-16 Cerrar billetera y devolver saldo]] · [[CU-55 Gestionar un incidente de seguridad]] · [[CU-75 Emitir un certificado de reputación verificable]] · [[Cumplimiento]] · [[Restricciones]] · [[CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso]]

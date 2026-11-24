@@ -246,7 +246,7 @@ del CI empieza a fallar sin que nadie entienda por qué.
 | **Puesto · tramo · fase** | **P1** · Mac M5 · **T1** · fase 2 |
 | **Documento** | [[02 Fases 1 y 2 · Capa de datos y núcleo transversal]] |
 | **Alcance** | `plataforma/comun-web/`: `conContexto`, contexto de sesión para RLS por `SET LOCAL`, catálogo de errores, idempotencia, el relevo del outbox y el planificador con ShedLock, **descubrimiento de servicios por barrido de Gradle** |
-| **Tamaño** | ●●●●○ · define la forma de los 112 casos de uso |
+| **Tamaño** | ●●●●○ · define la forma de los 113 casos de uso |
 
 **Necesita en `dev`.** `T1` cerrado, con las entidades congeladas.
 

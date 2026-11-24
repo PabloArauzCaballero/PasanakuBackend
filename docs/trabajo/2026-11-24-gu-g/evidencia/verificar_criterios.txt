@@ -1,0 +1,4 @@
+casos de uso implementados y verificados: 107
+pendientes de implementar (6): CU-05 (identidad), CU-134 (identidad), CU-23 (garantia), CU-26 (garantia), CU-51 (aportes), CU-57 (nucleo-financiero)
+Sin divergencias entre la boveda y el codigo.
+exit=0

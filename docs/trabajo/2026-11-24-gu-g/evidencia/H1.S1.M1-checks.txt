@@ -1,0 +1,4 @@
+sql/10_tablas/01_identidad_usuarios/bloqueo_cuenta.sql:14:  CONSTRAINT ck_bloqueo_cuenta_motivo CHECK (motivo IN ('FRAUDE', 'INTENTOS_FALLIDOS', 'ORDEN_ADMIN', 'SOLICITUD_USUARIO'))
+sql/10_tablas/01_identidad_usuarios/restriccion_usuario.sql:17:  CONSTRAINT ck_restriccion_usuario_tipo CHECK (tipo IN ('LIMITE_MONTO', 'NO_CREAR_GRUPO', 'NO_SER_ORGANIZADOR', 'NO_UNIRSE')),
+sql/10_tablas/01_identidad_usuarios/restriccion_usuario.sql:18:  CONSTRAINT ck_restriccion_usuario_origen CHECK (origen IN ('INCUMPLIMIENTO', 'LEGAL', 'RIESGO'))
+sql/10_tablas/01_identidad_usuarios/usuario.sql:25:  CONSTRAINT ck_usuario_estado CHECK (estado IN ('ACTIVO', 'BAJA_VOLUNTARIA', 'BLOQUEADO_SEGURIDAD', 'ELIMINADO', 'INCOMPLETO_KYC', 'PENDIENTE_VERIFICACION', 'PRE_REGISTRO', 'SUSPENDIDO')),
