@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
-import 'package:aportaya_movil/app_real.dart';
+import 'package:aportaya_movil/localizacion.dart';
 import 'package:aportaya_movil/dominio/cliente.dart';
 import 'package:aportaya_movil/navegacion/rutas.dart';
 import 'package:aportaya_movil/proveedores/sesion.dart';
@@ -95,8 +95,8 @@ Future<(AdaptadorPorContrato, Future<List<String>> Function())> montarRuta(
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
         locale: localeDeAportaYa,
-        supportedLocales: localesDeAportaYa,
-        localizationsDelegates: delegadosDeLocalizacionDeAportaYa,
+        supportedLocales: idiomasDeLaApp,
+        localizationsDelegates: delegadosDeIdioma,
         theme: temaDesde(Tokens.claro, Brightness.light),
         darkTheme: temaDesde(Tokens.oscuro, Brightness.dark),
         themeMode: brillo == Brightness.dark ? ThemeMode.dark : ThemeMode.light,
