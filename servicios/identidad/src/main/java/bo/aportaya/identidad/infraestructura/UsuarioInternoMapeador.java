@@ -5,16 +5,22 @@ import static bo.aportaya.identidad.generado.Tables.USUARIO_INTERNO;
 
 import bo.aportaya.identidad.web.generado.modelo.UsuarioInternoDetalle;
 import bo.aportaya.identidad.web.generado.modelo.UsuarioInternoResumen;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.jooq.Record;
 
 final class UsuarioInternoMapeador {
 
+    /** El bloqueo de {@code bloqueo_cuenta} que rige ahora; {@code hasta} es nulo si es indefinido. */
+    record BloqueoVigente(OffsetDateTime hasta, String motivo) {}
+
     private UsuarioInternoMapeador() {}
 
-    static UsuarioInternoResumen aResumen(Record r, UUID usuarioId, Set<String> rolesVigentes, boolean tieneMfa) {
+    static UsuarioInternoResumen aResumen(
+            Record r, UUID usuarioId, Set<String> rolesVigentes, boolean tieneMfa, Optional<BloqueoVigente> bloqueo) {
         UsuarioInternoResumen resumen = new UsuarioInternoResumen();
         resumen.setId(r.get(USUARIO_INTERNO.ID));
         resumen.setUsuarioId(usuarioId);
@@ -28,14 +34,20 @@ final class UsuarioInternoMapeador {
         resumen.setEstado(r.get(USUARIO.ESTADO));
         resumen.setDebeCambiarContrasena(r.get(USUARIO_INTERNO.DEBE_CAMBIAR_CONTRASENA));
         resumen.setTieneSegundoFactor(tieneMfa);
-        resumen.setBloqueadoHasta(r.get(USUARIO_INTERNO.BLOQUEADO_HASTA));
-        resumen.setMotivoBloqueo(r.get(USUARIO_INTERNO.MOTIVO_BLOQUEO));
+        resumen.setBloqueadoHasta(bloqueo.map(BloqueoVigente::hasta).orElse(null));
+        resumen.setMotivoBloqueo(bloqueo.map(BloqueoVigente::motivo).orElse(null));
         resumen.setRoles(new ArrayList<>(rolesVigentes));
+        resumen.setCreadoEn(r.get(USUARIO.FECHA_REGISTRO));
         return resumen;
     }
 
     static UsuarioInternoDetalle aDetalle(
-            Record r, UUID usuarioId, Set<String> rolesVigentes, Set<String> permisosEfectivos, boolean tieneMfa) {
+            Record r,
+            UUID usuarioId,
+            Set<String> rolesVigentes,
+            Set<String> permisosEfectivos,
+            boolean tieneMfa,
+            Optional<BloqueoVigente> bloqueo) {
         UsuarioInternoDetalle detalle = new UsuarioInternoDetalle();
         detalle.setId(r.get(USUARIO_INTERNO.ID));
         detalle.setUsuarioId(usuarioId);
@@ -49,8 +61,8 @@ final class UsuarioInternoMapeador {
         detalle.setEstado(r.get(USUARIO.ESTADO));
         detalle.setDebeCambiarContrasena(r.get(USUARIO_INTERNO.DEBE_CAMBIAR_CONTRASENA));
         detalle.setTieneSegundoFactor(tieneMfa);
-        detalle.setBloqueadoHasta(r.get(USUARIO_INTERNO.BLOQUEADO_HASTA));
-        detalle.setMotivoBloqueo(r.get(USUARIO_INTERNO.MOTIVO_BLOQUEO));
+        detalle.setBloqueadoHasta(bloqueo.map(BloqueoVigente::hasta).orElse(null));
+        detalle.setMotivoBloqueo(bloqueo.map(BloqueoVigente::motivo).orElse(null));
         detalle.setCreadoEn(r.get(USUARIO.FECHA_REGISTRO));
         detalle.setRoles(new ArrayList<>(rolesVigentes));
         detalle.setPermisosEfectivos(new ArrayList<>(permisosEfectivos));

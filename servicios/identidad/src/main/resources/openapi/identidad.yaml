@@ -888,7 +888,11 @@ paths:
       operationId: listarUsuariosInternos
       summary: Lista de usuarios internos con sus roles y estado
       description: >-
-        Permite filtrar por estado, codigo de rol y busqueda libre.
+        Permite filtrar por estado, codigo de rol vigente y busqueda libre. Paginada por cursor (GU-17):
+        orden creadoEn descendente y, a igual fecha, id descendente; como mucho `limite` filas (50 si no
+        se pide). La pagina siguiente se pide con `antesDe` = creadoEn y `antesDeId` = id de la ultima fila
+        recibida; una pagina con menos filas que `limite` es la ultima. El cursor va en los dos parametros
+        o en ninguno: a medias, 422 AP-CU08-12. El cursor no lleva datos de la persona (fecha e id).
       parameters:
         - name: estado
           in: query
@@ -902,9 +906,12 @@ paths:
           in: query
           required: false
           schema: { type: string }
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
       responses:
         '200':
-          description: Lista de usuarios internos
+          description: Pagina de usuarios internos (vacia si no hay mas)
           content:
             application/json:
               schema:
@@ -912,6 +919,9 @@ paths:
                 items: { $ref: '#/components/schemas/UsuarioInternoResumen' }
         '401': { $ref: '#/components/responses/NoAutenticado' }
         '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU08-12 FILTRO_DE_LISTADO_INVALIDO
     post:
       operationId: crearUsuarioInterno
       summary: Alta de usuario interno con contrasena provisional
@@ -987,7 +997,9 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/UsuarioInternoDetalle' }
-        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU08-08 ROL_NO_ASIGNABLE: rol de participante, de grupo, de anunciante o de servicio (GU-13)
 
   /usuarios-internos/{id}/desbloquear:
     post:
@@ -1057,6 +1069,12 @@ paths:
     get:
       operationId: listarRoles
       summary: Catalogo de roles con departamento, descripcion y permisos
+      description: >-
+        Sin parametros devuelve el catalogo completo. Con `asignablesAPersonalInterno=true` (GU-13) deja
+        afuera los roles que no se otorgan a un humano interno: los de participante (`PARTICIPANTE`,
+        `ORGANIZADOR` y todo rol de ambito GRUPO), `ANUNCIANTE` y las identidades de servicio (`SERVICIO_*`).
+      parameters:
+        - { name: asignablesAPersonalInterno, in: query, required: false, schema: { type: boolean, default: false } }
       responses:
         '200':
           description: Catalogo de roles
@@ -1651,12 +1669,27 @@ components:
         cargo: { type: string }
         estado: { type: string }
         debeCambiarContrasena: { type: boolean }
-        tieneSegundoFactor: { type: boolean }
-        bloqueadoHasta: { type: string, format: date-time, nullable: true }
-        motivoBloqueo: { type: string, nullable: true }
+        tieneSegundoFactor:
+          type: boolean
+          description: Tiene un factor activo y confirmado. Uno a medio enrolar no cuenta (GU-17).
+        bloqueadoHasta:
+          type: string
+          format: date-time
+          nullable: true
+          description: >-
+            Fin del bloqueo de acceso vigente (`bloqueo_cuenta`, el que lee el ingreso). Nulo sin bloqueo o
+            con un bloqueo indefinido: en ese caso `motivoBloqueo` viene informado (GU-10).
+        motivoBloqueo:
+          type: string
+          nullable: true
+          description: Motivo del bloqueo vigente (INTENTOS_FALLIDOS, FRAUDE, ORDEN_ADMIN, SOLICITUD_USUARIO); nulo si no hay.
         roles:
           type: array
           items: { type: string }
+        creadoEn:
+          type: string
+          format: date-time
+          description: Alta del usuario; primera mitad del cursor del listado.
 
     UsuarioInternoDetalle:
       type: object
@@ -1674,9 +1707,20 @@ components:
         cargo: { type: string }
         estado: { type: string }
         debeCambiarContrasena: { type: boolean }
-        tieneSegundoFactor: { type: boolean }
-        bloqueadoHasta: { type: string, format: date-time, nullable: true }
-        motivoBloqueo: { type: string, nullable: true }
+        tieneSegundoFactor:
+          type: boolean
+          description: Tiene un factor activo y confirmado. Uno a medio enrolar no cuenta (GU-17).
+        bloqueadoHasta:
+          type: string
+          format: date-time
+          nullable: true
+          description: >-
+            Fin del bloqueo de acceso vigente (`bloqueo_cuenta`, el que lee el ingreso). Nulo sin bloqueo o
+            con un bloqueo indefinido: en ese caso `motivoBloqueo` viene informado (GU-10).
+        motivoBloqueo:
+          type: string
+          nullable: true
+          description: Motivo del bloqueo vigente (INTENTOS_FALLIDOS, FRAUDE, ORDEN_ADMIN, SOLICITUD_USUARIO); nulo si no hay.
         roles:
           type: array
           items: { type: string }

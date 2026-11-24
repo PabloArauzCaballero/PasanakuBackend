@@ -134,7 +134,7 @@ class PublicidadListadosWebTest {
 
         mvc.perform(get("/publicidad/campanas")
                         .param("estados", "EN_REVISION,PAUSADA")
-                        .with(Sesiones.como("OPERADOR_PUBLICIDAD", "PUBLICIDAD_APROBAR_CAMPANA")))
+                        .with(Sesiones.como("APROBADOR_PUBLICIDAD", "PUBLICIDAD_APROBAR_CAMPANA")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.items[0].presupuestoTotal.monto").value("900.00"))
                 .andExpect(jsonPath("$.items[0].estado").value("EN_REVISION"))
@@ -196,7 +196,7 @@ class PublicidadListadosWebTest {
                 .andExpect(jsonPath("$.codigo").value("AP-CU112-04"));
         mvc.perform(get("/publicidad/campanas")
                         .param("limite", "101")
-                        .with(Sesiones.como("OPERADOR_PUBLICIDAD", "PUBLICIDAD_APROBAR_CAMPANA")))
+                        .with(Sesiones.como("APROBADOR_PUBLICIDAD", "PUBLICIDAD_APROBAR_CAMPANA")))
                 .andExpect(status().isBadRequest());
     }
 }

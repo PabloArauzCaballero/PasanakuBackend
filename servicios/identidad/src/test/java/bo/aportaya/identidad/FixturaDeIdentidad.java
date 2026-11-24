@@ -110,6 +110,24 @@ final class FixturaDeIdentidad {
         return id;
     }
 
+    /**
+     * Un permiso del catalogo REAL por su codigo. La base de prueba no corre las semillas, asi que lo crea si falta; si
+     * otra prueba ya lo creo, lo reusa (el codigo es unico). Va con segundo factor, como los de decision del catalogo.
+     */
+    UUID permisoDelCatalogo(String codigo, String recurso, String accion) {
+        dsl.execute(
+                """
+                INSERT INTO identidad.permiso (id, codigo, descripcion, recurso, accion, nivel_riesgo, requiere_mfa)
+                VALUES (gen_random_uuid(), ?, 'permiso del catalogo', ?, ?, 'CRITICO', true)
+                ON CONFLICT (codigo) DO NOTHING
+                """,
+                codigo,
+                recurso,
+                accion);
+        return dsl.fetchOne("SELECT id FROM identidad.permiso WHERE codigo = ?", codigo)
+                .get(0, UUID.class);
+    }
+
     void darPermisoAlRol(UUID rolId, UUID permisoId) {
         dsl.execute("INSERT INTO identidad.rol_permiso (rol_id, permiso_id) VALUES (?, ?)", rolId, permisoId);
     }

@@ -8,7 +8,6 @@ import bo.aportaya.identidad.web.generado.modelo.EntradaAsignarRolesUsuarioInter
 import bo.aportaya.identidad.web.generado.modelo.PermisoCatalogo;
 import bo.aportaya.identidad.web.generado.modelo.RolCatalogo;
 import bo.aportaya.identidad.web.generado.modelo.UsuarioInternoDetalle;
-import bo.aportaya.identidad.web.generado.modelo.UsuarioInternoResumen;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Reloj;
@@ -43,12 +42,6 @@ public class GestionarUsuariosInternos {
         this.rolesYPermisos = rolesYPermisos;
         this.reloj = reloj;
         this.outbox = outbox;
-    }
-
-    @Transactional(readOnly = true)
-    public List<UsuarioInternoResumen> listar(String estado, String rol, String busqueda, ContextoSesion ctx) {
-        OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
-        return datos.conContexto(ctx, dsl -> repositorio.listar(dsl, estado, rol, busqueda, ahora));
     }
 
     @Transactional

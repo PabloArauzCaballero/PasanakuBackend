@@ -61,7 +61,9 @@ class BloqueoListadoWebTest extends BaseDeOperacionesWeb {
     }
 
     @ParameterizedTest(name = "correcto · {0} con {1} ve la bandeja: 200 con la respuesta minima")
-    @CsvSource({"ANALISTA_CUMPLIMIENTO, BLOQUEO_AUTORIDAD_REGISTRAR", "OFICIAL_CUMPLIMIENTO, BLOQUEO_AUTORIDAD_LEVANTAR"
+    @CsvSource({
+        "ANALISTA_CUMPLIMIENTO, BLOQUEO_AUTORIDAD_REGISTRAR",
+        "SUPERVISOR_CUMPLIMIENTO, BLOQUEO_AUTORIDAD_LEVANTAR"
     })
     void conPermiso(String rol, String permiso) throws Exception {
         when(cu17.listar(any(), any(), any(), anyInt(), any())).thenReturn(unaFila());
@@ -88,12 +90,12 @@ class BloqueoListadoWebTest extends BaseDeOperacionesWeb {
         mvc.perform(get("/billetera/bloqueos")
                         .param("estado", "LEVANTADO")
                         .param("limite", "100")
-                        .with(Sesiones.como("OFICIAL_CUMPLIMIENTO", "BLOQUEO_AUTORIDAD_LEVANTAR")))
+                        .with(Sesiones.como("SUPERVISOR_CUMPLIMIENTO", "BLOQUEO_AUTORIDAD_LEVANTAR")))
                 .andExpect(status().isOk());
         verify(cu17).listar(eq(Optional.of("LEVANTADO")), eq(Optional.empty()), eq(Optional.empty()), eq(100), any());
 
         mvc.perform(get("/billetera/bloqueos")
-                        .with(Sesiones.como("OFICIAL_CUMPLIMIENTO", "BLOQUEO_AUTORIDAD_LEVANTAR")))
+                        .with(Sesiones.como("SUPERVISOR_CUMPLIMIENTO", "BLOQUEO_AUTORIDAD_LEVANTAR")))
                 .andExpect(status().isOk());
         verify(cu17).listar(eq(Optional.empty()), eq(Optional.empty()), eq(Optional.empty()), eq(25), any());
     }
@@ -123,7 +125,7 @@ class BloqueoListadoWebTest extends BaseDeOperacionesWeb {
     void entradaInvalida(String parametro, String valor) throws Exception {
         mvc.perform(get("/billetera/bloqueos")
                         .param(parametro, valor)
-                        .with(Sesiones.como("OFICIAL_CUMPLIMIENTO", "BLOQUEO_AUTORIDAD_LEVANTAR")))
+                        .with(Sesiones.como("SUPERVISOR_CUMPLIMIENTO", "BLOQUEO_AUTORIDAD_LEVANTAR")))
                 .andExpect(status().isBadRequest());
         verifyNoInteractions(cu17);
     }
@@ -136,7 +138,7 @@ class BloqueoListadoWebTest extends BaseDeOperacionesWeb {
 
         mvc.perform(get("/billetera/bloqueos")
                         .param("antesDe", "2026-11-20T15:00:00Z")
-                        .with(Sesiones.como("OFICIAL_CUMPLIMIENTO", "BLOQUEO_AUTORIDAD_LEVANTAR")))
+                        .with(Sesiones.como("SUPERVISOR_CUMPLIMIENTO", "BLOQUEO_AUTORIDAD_LEVANTAR")))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.codigo").value("AP-CU17-06"));
     }

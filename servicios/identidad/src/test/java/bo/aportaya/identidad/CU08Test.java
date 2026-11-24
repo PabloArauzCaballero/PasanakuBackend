@@ -40,13 +40,16 @@ class CU08Test extends BaseDeCU08 {
     void criterio2() {
         UUID administrador = fixtura.usuario("+59172000003");
         UUID operador = fixtura.usuario("+59172000004");
-        UUID autoriza = rolConPermiso("AUT1", "ENTREGAS_AUTORIZAR", "entregas", "AUTORIZAR");
-        UUID ejecuta = rolConPermiso("EJE1", "ENTREGAS_EJECUTAR", "entregas", "EJECUTAR");
+        // Los codigos son los del catalogo sembrado (ENTREGA_*, sin S): con los inventados la prueba pasaba aunque
+        // la regla no se disparara nunca contra un permiso real.
+        UUID autoriza = rolConPermisoDelCatalogo("AUT1", "ENTREGA_AUTORIZAR", "entrega_fondo", "AUTORIZAR");
+        UUID ejecuta = rolConPermisoDelCatalogo("EJE1", "ENTREGA_EJECUTAR", "entrega_fondo", "EJECUTAR");
         asignarComo(administrador, operador, autoriza, "GLOBAL", Optional.empty());
 
         assertThatThrownBy(() -> asignarComo(administrador, operador, ejecuta, "GLOBAL", Optional.empty()))
-                .isInstanceOf(ErrorDeNegocio.class)
-                .hasMessageContaining("autoriza y ejecuta");
+                .hasMessageContaining("autoriza y ejecuta")
+                .isInstanceOfSatisfying(ErrorDeNegocio.class, e -> assertThat(e.detalle())
+                        .containsEntry("parIncompatible", "ENTREGA_AUTORIZAR con ENTREGA_EJECUTAR"));
     }
 
     @Test
@@ -172,6 +175,12 @@ class CU08Test extends BaseDeCU08 {
         boolean esDecision = Set.of("AUTORIZAR", "APROBAR", "EJECUTAR", "REVERSAR", "PUBLICAR", "ENVIAR", "CERRAR")
                 .contains(accion);
         fixtura.darPermisoAlRol(rol, fixtura.permiso(codigoPermiso, recurso, accion, esDecision));
+        return rol;
+    }
+
+    private UUID rolConPermisoDelCatalogo(String codigoRol, String codigoPermiso, String recurso, String accion) {
+        UUID rol = fixtura.rolGlobal(codigoRol);
+        fixtura.darPermisoAlRol(rol, fixtura.permisoDelCatalogo(codigoPermiso, recurso, accion));
         return rol;
     }
 

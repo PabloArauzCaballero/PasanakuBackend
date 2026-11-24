@@ -37,6 +37,9 @@ const seccionesDe = (rol: string) => SECCIONES.filter((s) => alcanza(s, tokenDe(
 const ESPERADO: Record<string, string[]> = {
   ADMIN_PLATAFORMA: ['operacion', 'cumplimiento', 'admisiones', 'sistemas', 'configuracion'],
   OFICIAL_CUMPLIMIENTO: ['operacion', 'cumplimiento', 'configuracion'],
+  // P-3 (2026-11-24): el oficial registra los bloqueos por autoridad y el supervisor los levanta. Con
+  // BLOQUEO_AUTORIDAD_LEVANTAR entra a Cumplimiento (la bandeja de bloqueos); AUDITORIA_LEER no abre otra sección.
+  SUPERVISOR_CUMPLIMIENTO: ['cumplimiento'],
   ANALISTA_CUMPLIMIENTO: ['operacion', 'cumplimiento'],
   AUDITOR_INTERNO: ['operacion', 'cumplimiento', 'contabilidad', 'configuracion'],
   RESPONSABLE_RIESGOS: ['operacion', 'cumplimiento', 'configuracion'],
@@ -46,6 +49,9 @@ const ESPERADO: Record<string, string[]> = {
   SOPORTE: ['operacion'],
   PUNTO_RECLAMO: ['operacion'],
   OPERADOR_PUBLICIDAD: ['publicidad'],
+  // P-3 (2026-11-24): publicidad son tres personas. El operador da de alta anunciantes y liquida; el aprobador aprueba
+  // campañas (PUBLICIDAD_APROBAR_CAMPANA, que abre la cola de campañas); el moderador modera piezas.
+  APROBADOR_PUBLICIDAD: ['publicidad'],
   MODERADOR_CONTENIDO: ['publicidad'],
   // Tableros por rol (2026-10-16): COMERCIAL ve su tablero (`/tablero/comercial`, TABLERO_COMERCIAL_VER). Desde CU-132
   // (2026-11-23) TARIFARIO_ADMINISTRAR —que COMERCIAL ya tenía por CU-36— propone y aprueba parámetros financieros
@@ -76,8 +82,8 @@ const ESPERADO: Record<string, string[]> = {
 }
 
 describe('matriz de roles · qué secciones abre cada rol del catálogo', () => {
-  it('el catálogo parseado tiene los treinta y dos roles y la prueba cubre cada uno (si se agrega un rol, hay que decidir qué ve)', () => {
-    expect(CATALOGO.roles.size).toBe(32)
+  it('el catálogo parseado tiene los treinta y cuatro roles y la prueba cubre cada uno (si se agrega un rol, hay que decidir qué ve)', () => {
+    expect(CATALOGO.roles.size).toBe(34)
     expect([...CATALOGO.roles].sort()).toEqual(Object.keys(ESPERADO).sort())
   })
 
