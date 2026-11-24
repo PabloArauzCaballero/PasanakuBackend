@@ -21,12 +21,12 @@
 ## H1 — Sección propia «Personal y accesos» abierta por permisos
 **CA:** Dado `INTERNAL_IDENTITY_ADMIN`, cuando entra, entonces ve «Personal y accesos» y abre sus pantallas; dado `RESPONSABLE_SEGURIDAD`, entonces no la ve y la URL directa lo devuelve; cada pestaña aparece solo si su permiso real la abre.
 **DoD:** `menu-y-guardias.spec`, `menu.spec`, `matriz-de-roles.spec`, `guardia-rol-sistemas.spec` verdes; `yarn typecheck`.
-**Estado:** TODO
+**Estado:** HECHO (peldaño TESTED; verificación en navegador en H6)
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H1.S1.M1 | Entrada propia en `menu.ts` con requisitos por pantalla y trazo `personal` | La pestaña X aparece ⇔ el permiso real de X | `vitest menu.spec menu-y-guardias.spec` | TODO |
-| H1.S1.M2 | Guardia por permiso para las pantallas de personal; `soloRolesDeSistemas` sigue cerrada para el resto | INTERNAL_IDENTITY_ADMIN abre; RESPONSABLE_SEGURIDAD no | `vitest guardia-rol-sistemas.spec` | TODO |
-| H1.S1.M3 | Matriz de roles: `INTERNAL_IDENTITY_ADMIN`/`RESPONSABLE_SEGURIDAD` esperados + verify | matriz coincide con catálogo | `vitest matriz-de-roles.spec` | TODO |
+| H1.S1.M1 | Entrada propia en `menu.ts` con requisitos por pantalla y trazo `personal` | La pestaña X aparece ⇔ el permiso real de X | `vitest menu.spec menu-y-guardias.spec` | HECHO (evidencia/H1-seccion-por-permisos.txt) |
+| H1.S1.M2 | Guardia por permiso para las pantallas de personal; `soloRolesDeSistemas` sigue cerrada para el resto | INTERNAL_IDENTITY_ADMIN abre; RESPONSABLE_SEGURIDAD no | `vitest guardia-rol-sistemas.spec` | HECHO (evidencia/H1-seccion-por-permisos.txt) |
+| H1.S1.M3 | Matriz de roles: `INTERNAL_IDENTITY_ADMIN`/`RESPONSABLE_SEGURIDAD` esperados + verify | matriz coincide con catálogo | `vitest matriz-de-roles.spec` | HECHO (evidencia/H1-seccion-por-permisos.txt) |
 
 ## H2 — Capa de datos nueva y segundo factor (step-up)
 **CA:** Dado un acto de gobierno, cuando la persona escribe motivo y el código de su app, entonces el backoffice abre el desafío, lo verifica y manda `evidenciaMfa` con la acción; un código malo muestra el error en el campo y conserva lo escrito.

@@ -68,4 +68,36 @@ describe('soloRolesDeSistemas · barrera de interfaz', () => {
     const resultado = TestBed.runInInjectionContext(() => soloRolesDeSistemas({} as never, {} as never, {} as never))
     expect(resultado).toBeInstanceOf(UrlTree)
   })
+
+  describe('pantallas de «Personal y accesos» (GU-09): las abre el permiso, no el rol de Sistemas', () => {
+    const ir = (primero: string) => TestBed.runInInjectionContext(() => soloRolesDeSistemas({} as never, [{ path: primero }] as never, {} as never))
+
+    it('correcto: INTERNAL_IDENTITY_ADMIN (rol OPERADOR, ACCESOS_ADMINISTRAR) abre usuarios-internos, roles y accesos', () => {
+      configurar()
+      TestBed.inject(Sesion).abrir('token', ['INTERNAL_IDENTITY_ADMIN', 'ACCESOS_ADMINISTRAR', 'USUARIOS_INTERNOS_GESTIONAR'], 'OPERADOR')
+      for (const p of ['usuarios-internos', 'roles-internos', 'permisos-internos', 'accesos']) expect(ir(p), p).toBe(true)
+    })
+
+    it('límite: con solo USUARIOS_INTERNOS_LEER abre usuarios-internos y el informe, pero no roles ni permisos', () => {
+      configurar()
+      TestBed.inject(Sesion).abrir('token', ['USUARIOS_INTERNOS_LEER'], 'OPERADOR')
+      expect(ir('usuarios-internos')).toBe(true)
+      expect(ir('accesos')).toBe(true)
+      expect(ir('roles-internos')).not.toBe(true)
+      expect(ir('permisos-internos')).not.toBe(true)
+    })
+
+    it('inválido: RESPONSABLE_SEGURIDAD entra a Sistemas pero no a Personal y accesos (recibiría 403)', () => {
+      configurar()
+      TestBed.inject(Sesion).abrir('token', ['RESPONSABLE_SEGURIDAD', 'SEGURIDAD_ACCESO_RESTABLECER'], 'OPERADOR')
+      expect(ir('servicios')).toBe(true)
+      for (const p of ['usuarios-internos', 'roles-internos', 'permisos-internos', 'accesos']) expect(ir(p), p).toBeInstanceOf(UrlTree)
+    })
+
+    it('inválido: ni siquiera el rol PLATAFORMA entra sin el permiso real (la interfaz sigue al servidor)', () => {
+      configurar()
+      TestBed.inject(Sesion).abrir('token', [], 'PLATAFORMA')
+      expect(ir('usuarios-internos')).toBeInstanceOf(UrlTree)
+    })
+  })
 })
