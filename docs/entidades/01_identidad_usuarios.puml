@@ -904,7 +904,7 @@ entity "sesion" as sesion {
   expira_en : TIMESTAMPTZ <<IDX>>
   ip_origen : INET
   geolocalizacion_aprox : VARCHAR(80) <<NULL>>
-  revocada_en : TIMESTAMPTZ <<NULL>>
+  revocada_en : TIMESTAMPTZ <<NULL, IDX>>
   motivo_revocacion : VARCHAR(80) <<NULL>>
 }
 

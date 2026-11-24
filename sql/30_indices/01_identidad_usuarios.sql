@@ -64,6 +64,9 @@ CREATE INDEX IF NOT EXISTS ix_sesion_usuario_id
 CREATE INDEX IF NOT EXISTS ix_sesion_expira_en
   ON identidad.sesion (expira_en);
 
+CREATE INDEX IF NOT EXISTS ix_sesion_revocada_en
+  ON identidad.sesion (revocada_en);
+
 CREATE INDEX IF NOT EXISTS ix_intento_autenticacion_usuario_id
   ON identidad.intento_autenticacion (usuario_id);
 
