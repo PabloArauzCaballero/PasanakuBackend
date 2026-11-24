@@ -1,0 +1,12 @@
+$ python3 scripts/verificar_criterios.py → rc=1 ·   - CU-04 · identidad: prueba sin criterio en la boveda — «Dado un participante sin actividad hace 16 min · Cuando refresca · Entonces
+$ python3 scripts/verificar_boveda.py → rc=0 · TODO OK
+$ python3 scripts/verificar_seguridad.py → rc=1 · 1 FALLAS
+$ python3 scripts/verificar_carriles.py → rc=0 · TODO OK (con avisos)
+$ python3 scripts/verificar_maqueta.py → rc=0 · TODO OK
+$ python3 scripts/verificar_contratos_limites.py → rc=0 · Los contratos de request en el alcance de este gate declaran limites y additionalProperties: false.
+$ python3 scripts/verificar_pruebas_web.py → rc=0 · La capa web esta cubierta segun ADR-043.
+$ python3 scripts/verificar_narrativas.py → rc=0 · Sin fallas.
+$ python3 scripts/validar_flujos.py → rc=0 · Sin fallas.
+$ python3 scripts/inventario_endpoints.py --check → rc=0 · El inventario esta alineado: todo lo implementado tiene contrato y viceversa.
+$ test_catalogo_de_datos.py → rc=0
+$ generar_ddl + catalogo_de_datos --escribir + generar_postman; git diff --stat → 

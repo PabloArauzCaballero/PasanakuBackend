@@ -323,6 +323,18 @@ Dado un interno con un bloqueo_cuenta vigente
 Cuando un operador lo desbloquea
 Entonces el login ya no ve un bloqueo vigente
 Y queda registrado quién lo liberó
+
+Dado un operador sin actividad hace 16 min
+Cuando refresca
+Entonces se niega y la sesion queda revocada por INACTIVIDAD
+
+Dado un operador con actividad hace 14 min
+Cuando refresca
+Entonces renueva y su actividad se actualiza
+
+Dado un participante sin actividad hace 16 min
+Cuando refresca
+Entonces renueva: el corte es solo del backoffice
 ```
 
 ## Ver también
