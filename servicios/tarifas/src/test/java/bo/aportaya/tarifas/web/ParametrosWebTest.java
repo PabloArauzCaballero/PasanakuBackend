@@ -114,6 +114,21 @@ class ParametrosWebTest {
     }
 
     @Test
+    @DisplayName("Correcto · el historial devuelve versiones ordenadas por el servicio y no expone identidades")
+    void historial() throws Exception {
+        when(cu132.historial(eq("DIAS_DE_GRACIA"), any()))
+                .thenReturn(java.util.List.of(version("APROBADA"), version("RECHAZADA")));
+
+        mvc.perform(get("/tarifas/parametros/{codigo}/versiones", "DIAS_DE_GRACIA")
+                        .with(Sesiones.enSesion(Sesiones.USUARIO, UUID.randomUUID(), "ADMIN_PLATAFORMA", PERMISO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].estado").value("APROBADA"))
+                .andExpect(jsonPath("$[1].estado").value("RECHAZADA"))
+                .andExpect(jsonPath("$[0].propuestoPor").doesNotExist())
+                .andExpect(jsonPath("$[0].aprobadoPor").doesNotExist());
+    }
+
+    @Test
     @DisplayName("Inválido · un proponente en el cuerpo es un campo no declarado (400) y no se registra nada")
     void identidadEnElCuerpo() throws Exception {
         proponer(
@@ -166,6 +181,9 @@ class ParametrosWebTest {
     @DisplayName("Inválido · rol insuficiente recibe 403 en las tres rutas")
     void sinPermiso() throws Exception {
         mvc.perform(get("/tarifas/parametros").with(Sesiones.sinPermisos())).andExpect(status().isForbidden());
+        mvc.perform(get("/tarifas/parametros/{codigo}/versiones", "DIAS_DE_GRACIA")
+                        .with(Sesiones.sinPermisos()))
+                .andExpect(status().isForbidden());
         proponer(Sesiones.sinPermisos(), CUERPO).andExpect(status().isForbidden());
         aprobar(Sesiones.comoOtro("ADMIN_PLATAFORMA", "TARIFARIO_PUBLICAR")).andExpect(status().isForbidden());
         verifyNoInteractions(cu132);
@@ -175,6 +193,8 @@ class ParametrosWebTest {
     @DisplayName("Inválido · sin token recibe 401")
     void sinToken() throws Exception {
         mvc.perform(get("/tarifas/parametros")).andExpect(status().isUnauthorized());
+        mvc.perform(get("/tarifas/parametros/{codigo}/versiones", "DIAS_DE_GRACIA"))
+                .andExpect(status().isUnauthorized());
         mvc.perform(post("/tarifas/parametros/versiones/{v}/aprobacion", VERSION)
                         .header("Idempotency-Key", CLAVE))
                 .andExpect(status().isUnauthorized());

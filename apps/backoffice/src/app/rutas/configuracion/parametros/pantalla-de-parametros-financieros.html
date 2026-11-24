@@ -1,0 +1,116 @@
+    <section class="pantalla" [attr.aria-busy]="cargando() || enviando()">
+      <ap-cabecera-de-pagina eyebrow="Configuración" [titulo]="t.parametros.titulo" [descripcion]="t.parametros.proposito" />
+      <ap-alerta tono="info">{{ t.parametros.cuatroOjos }}</ap-alerta>
+      @if (aviso()) { <ap-alerta tono="ok" role="status">{{ aviso() }}</ap-alerta> }
+      @if (error(); as e) {
+        <ap-alerta tono="error" role="alert">
+          {{ e.mensaje }}
+          @if (e.trazaId) { <p>{{ t.comun.traza }}: <code>{{ e.trazaId }}</code></p> }
+          <ap-boton variante="secundario" (pulsado)="recargar()">{{ t.comun.reintentar }}</ap-boton>
+        </ap-alerta>
+      }
+      @if (cargando()) { <p class="estado" role="status">{{ t.parametros.cargando }}</p> }
+      @else if (!error() && parametros().length === 0) {
+        <section class="vacio" aria-labelledby="vacio-titulo">
+          <h2 id="vacio-titulo">{{ t.parametros.vacio }}</h2>
+          <p>{{ t.parametros.vacioAyuda }}</p>
+        </section>
+      }
+      @for (p of parametros(); track p.codigo) {
+        <article class="parametro">
+          <header class="encabezado">
+            <div>
+              <h2>{{ p.descripcion }}</h2>
+              <p class="codigo"><code>{{ p.codigo }}</code> · {{ p.unidad ?? t.parametros.unidadPendiente }}{{ p.porNivel ? ' · ' + t.parametros.porNivel : '' }}</p>
+            </div>
+            @if (puedeAdministrar()) {
+              <ap-boton variante="secundario" [deshabilitado]="enviando() || p.unidad === null" (pulsado)="abrirPropuesta(p)">{{ t.parametros.proponer }}</ap-boton>
+            }
+          </header>
+
+          <div class="versiones" aria-label="Versiones actuales y pendientes">
+            <section>
+              <h3>{{ t.parametros.vigentes }}</h3>
+              @for (v of p.vigentes; track v.id) { <ng-container [ngTemplateOutlet]="version" [ngTemplateOutletContext]="{ $implicit: v }" /> }
+              @empty { <p class="ayuda">{{ t.parametros.sinVigente }}</p> }
+            </section>
+            <section>
+              <h3>{{ t.parametros.pendientes }}</h3>
+              @for (v of p.propuestas; track v.id) {
+                <div class="version-pendiente">
+                  <ng-container [ngTemplateOutlet]="version" [ngTemplateOutletContext]="{ $implicit: v }" />
+                  @if (puedeAdministrar()) {
+                    <ap-boton variante="secundario" tamano="sm" [deshabilitado]="enviando()" (pulsado)="pedirAprobacion(v)">{{ t.parametros.aprobar }}</ap-boton>
+                  }
+                </div>
+              }
+              @empty { <p class="ayuda">{{ t.parametros.sinPendiente }}</p> }
+              @if (erroresDeAprobacion()[p.codigo]; as e) { <ap-alerta tono="error" role="alert">{{ e.mensaje }}</ap-alerta> }
+            </section>
+          </div>
+
+          @if (codigoEnEdicion() === p.codigo) {
+            <section class="formulario" aria-labelledby="formulario-titulo">
+              <h3 id="formulario-titulo">{{ t.parametros.proponer }} · {{ p.codigo }}</h3>
+              <p class="ayuda">{{ t.parametros.procedenciaAyuda }}</p>
+              @if (errorDePropuesta(); as e) { <ap-alerta tono="error" role="alert">{{ e.mensaje }}</ap-alerta> }
+              <form (submit)="$event.preventDefault(); enviarPropuesta(p)" novalidate>
+                <div class="campos">
+                  <ap-campo etiqueta="Valor (decimal)" modoDeEntrada="decimal" [valor]="borrador().valor" (valorChange)="editar('valor', $event)" [error]="erroresDeCampo().valor ?? ''" [deshabilitado]="enviando()" />
+                  @if (p.porNivel) { <ap-campo [etiqueta]="t.parametros.nivel" [valor]="borrador().nivel" (valorChange)="editar('nivel', $event)" [error]="erroresDeCampo().nivel ?? ''" [deshabilitado]="enviando()" /> }
+                  @if (p.unidad === 'MONTO') {
+                    <ap-lista-de-opciones etiqueta="Moneda" [opciones]="monedas" [valor]="borrador().moneda" (valorChange)="editar('moneda', $event)" [error]="erroresDeCampo().moneda ?? ''" [deshabilitado]="enviando()" />
+                  }
+                  <label class="campo-fecha">{{ t.parametros.vigenteDesde }}
+                    <input type="datetime-local" [value]="borrador().vigenteDesde" [disabled]="enviando()" [attr.aria-invalid]="erroresDeCampo().vigenteDesde ? 'true' : null" [attr.aria-describedby]="erroresDeCampo().vigenteDesde ? 'vigente-desde-error' : null" (input)="editar('vigenteDesde', $any($event.target).value)" />
+                    @if (erroresDeCampo().vigenteDesde) { <span id="vigente-desde-error" class="error-campo" role="alert">{{ erroresDeCampo().vigenteDesde }}</span> }
+                  </label>
+                  <ap-campo [etiqueta]="t.parametros.fuente" [valor]="borrador().fuente" (valorChange)="editar('fuente', $event)" [error]="erroresDeCampo().fuente ?? ''" [deshabilitado]="enviando()" />
+                  <ap-campo [etiqueta]="t.parametros.referencia" [valor]="borrador().referencia" (valorChange)="editar('referencia', $event)" [error]="erroresDeCampo().referencia ?? ''" [deshabilitado]="enviando()" />
+                  <ap-campo [etiqueta]="t.parametros.fechaFuente" tipo="date" [valor]="borrador().fecha" (valorChange)="editar('fecha', $event)" [error]="erroresDeCampo().fecha ?? ''" [deshabilitado]="enviando()" />
+                </div>
+                <div class="acciones">
+                  <ap-boton variante="primario" tipo="submit" [deshabilitado]="enviando()">{{ enviando() ? t.parametros.enviando : t.parametros.enviar }}</ap-boton>
+                  <ap-boton variante="secundario" [deshabilitado]="enviando()" (pulsado)="cerrarPropuesta()">{{ t.parametros.cancelar }}</ap-boton>
+                </div>
+              </form>
+            </section>
+          }
+
+          <section class="historial" aria-label="Historial de versiones">
+            <ap-boton variante="fantasma" [deshabilitado]="cargandoHistorial()[p.codigo] ?? false" (pulsado)="alternarHistorial(p.codigo)">
+              {{ historialAbierto()[p.codigo] ? t.parametros.ocultarHistorial : t.parametros.verHistorial }}
+            </ap-boton>
+            @if (cargandoHistorial()[p.codigo]) { <p class="estado" role="status">{{ t.parametros.cargandoHistorial }}</p> }
+            @if (erroresHistorial()[p.codigo]; as e) { <ap-alerta tono="error" role="alert">{{ e.mensaje }}</ap-alerta> }
+            @if (historialAbierto()[p.codigo]) {
+              @if ((historial()[p.codigo] ?? []).length === 0) { <p class="ayuda">{{ t.parametros.historialVacio }}</p> }
+              <ol class="lista-historial">
+                @for (v of historial()[p.codigo] ?? []; track v.id) {
+                  <li><ng-container [ngTemplateOutlet]="version" [ngTemplateOutletContext]="{ $implicit: v }" /></li>
+                }
+              </ol>
+            }
+          </section>
+        </article>
+      }
+    </section>
+    @if (versionEnAprobacion(); as v) {
+      <ap-dialogo-de-confirmacion
+        [titulo]="t.parametros.confirmarAprobacion"
+        [descripcion]="t.parametros.confirmarAprobacionDescripcion(v.codigo, v.valor, v.moneda ?? null)"
+        [textoDeConfirmar]="t.parametros.aprobar"
+        [cargando]="enviando()"
+        [(abierto)]="confirmandoAprobacion"
+        (confirmar)="aprobar(v)"
+        (cancelar)="cancelarAprobacion()"
+      />
+    }
+    <ng-template #version let-v>
+      <div class="version">
+        <ap-chip-estado [tono]="tono(v.estado)">{{ estado(v.estado) }}</ap-chip-estado>
+        <span>{{ t.parametros.valor }}: <strong>{{ v.valor }}{{ v.moneda ? ' ' + v.moneda : '' }}</strong></span>
+        @if (v.nivel) { <span>{{ t.parametros.nivel }}: {{ v.nivel }}</span> }
+        <span>{{ t.parametros.vigenteDesde }}: <time [attr.datetime]="v.vigenteDesde">{{ v.vigenteDesde }}</time></span>
+      </div>
+    </ng-template>

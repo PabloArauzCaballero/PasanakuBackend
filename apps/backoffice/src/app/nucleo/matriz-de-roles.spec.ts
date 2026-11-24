@@ -47,9 +47,10 @@ const ESPERADO: Record<string, string[]> = {
   PUNTO_RECLAMO: ['operacion'],
   OPERADOR_PUBLICIDAD: ['publicidad'],
   MODERADOR_CONTENIDO: ['publicidad'],
-  // Tableros por rol (2026-10-16): COMERCIAL solo ve su tablero (`/tablero/comercial`, TABLERO_COMERCIAL_VER), que no es
-  // una sección operativa. No abre operación, cumplimiento ni ninguna otra.
-  COMERCIAL: [],
+  // Tableros por rol (2026-10-16): COMERCIAL ve su tablero (`/tablero/comercial`, TABLERO_COMERCIAL_VER). Desde CU-132
+  // (2026-11-23) TARIFARIO_ADMINISTRAR —que COMERCIAL ya tenía por CU-36— propone y aprueba parámetros financieros
+  // (decisión de Pablo), así que abre Configuración, y en ella solo «Parámetros financieros». El servidor ya lo autorizaba.
+  COMERCIAL: ['configuracion'],
   // Roles de la app: no son de backoffice. Un participante o un organizador que llegara con su token no abre NINGUNA sección.
   PARTICIPANTE: [],
   ORGANIZADOR: [],

@@ -401,6 +401,38 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
   /tarifas/parametros/{codigo}/versiones:
+    get:
+      operationId: listarVersionesDeParametro
+      summary: Historial inmutable de versiones de un parametro financiero
+      description: >-
+        Devuelve todas las versiones (PROPUESTA, APROBADA y RECHAZADA) del codigo, de la
+        vigencia mas reciente a la mas antigua. No expone identidades de operadores. Exige
+        TARIFARIO_ADMINISTRAR, como el catalogo y las operaciones de CU-132.
+      parameters:
+        - { name: codigo, in: path, required: true, schema: { type: string, maxLength: 50 } }
+      responses:
+        '200':
+          description: Historial append-only del parametro
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/VersionDeParametro' }
+        '422':
+          description: El codigo no pertenece al catalogo cerrado (AP-CU132-01)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '403':
+          description: Sin TARIFARIO_ADMINISTRAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: Sin token valido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
     post:
       operationId: proponerVersionDeParametro    # CU-132
       summary: Proponer un valor para un parametro financiero

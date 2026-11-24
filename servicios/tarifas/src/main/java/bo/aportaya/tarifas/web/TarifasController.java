@@ -249,6 +249,12 @@ public class TarifasController implements TarifasApi {
 
     @Override
     @Permiso("TARIFARIO_ADMINISTRAR")
+    public ResponseEntity<List<VersionDeParametro>> listarVersionesDeParametro(String codigo) {
+        return ResponseEntity.ok(parametros.historial(codigo));
+    }
+
+    @Override
+    @Permiso("TARIFARIO_ADMINISTRAR")
     public ResponseEntity<VersionDeParametro> proponerVersionDeParametro(
             String codigo, UUID idempotencyKey, EntradaVersionParametro cuerpo) {
         return ResponseEntity.status(HttpStatus.CREATED).body(parametros.proponer(codigo, idempotencyKey, cuerpo));

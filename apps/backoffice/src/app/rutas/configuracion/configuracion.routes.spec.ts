@@ -29,6 +29,14 @@ describe('rutasConfiguracion · cada listado exige el permiso de su contrato', (
     expect(decide('reportes')).toBe(true)
   })
 
+  it('correcto: parámetros financieros exige TARIFARIO_ADMINISTRAR', () => {
+    preparar(['TARIFARIO_ADMINISTRAR'])
+    expect(decide('parametros-financieros')).toBe(true)
+    TestBed.resetTestingModule()
+    preparar(['TARIFARIO_PUBLICAR'])
+    expect(decide('parametros-financieros')).toBe('/tablero')
+  })
+
   it('límite: TARIFARIO_PUBLICAR solo no abre mensajería ni reportes', () => {
     preparar(['TARIFARIO_PUBLICAR'])
     expect(decide('mensajeria')).toBe('/tablero')
@@ -37,7 +45,7 @@ describe('rutasConfiguracion · cada listado exige el permiso de su contrato', (
 
   it('inválido: sin permiso, ninguna ruta monta: va al tablero', () => {
     preparar(['RECLAMO_VER'])
-    for (const p of ['tarifario', 'mensajeria', 'reportes']) expect(decide(p)).toBe('/tablero')
+    for (const p of ['tarifario', 'parametros-financieros', 'mensajeria', 'reportes']) expect(decide(p)).toBe('/tablero')
   })
 
   it('toda ruta con pantalla de datos tiene canMatch', () => {
@@ -54,7 +62,8 @@ describe('PantallaDeConfiguracion · entrada filtrada por permiso', () => {
     return { raiz, rutas: Array.from(raiz.querySelectorAll('[data-seccion]')).map((a) => a.getAttribute('data-seccion')) }
   }
 
-  it('AUDITORIA_LEER ve las tres', () => expect(secciones(['AUDITORIA_LEER']).rutas).toEqual(['tarifario', 'mensajeria', 'reportes']))
+  it('AUDITORIA_LEER ve solo las vistas de lectura', () => expect(secciones(['AUDITORIA_LEER']).rutas).toEqual(['tarifario', 'mensajeria', 'reportes']))
+  it('TARIFARIO_ADMINISTRAR ve parámetros y no otras secciones', () => expect(secciones(['TARIFARIO_ADMINISTRAR']).rutas).toEqual(['parametros-financieros']))
   it('TARIFARIO_PUBLICAR ve solo el tarifario', () => expect(secciones(['TARIFARIO_PUBLICAR']).rutas).toEqual(['tarifario']))
   it('sin permiso, el vacío lo explica', () => expect(secciones([]).raiz.textContent).toContain('Tu rol no tiene acceso a ninguna parte de la configuración.'))
 })
