@@ -1,6 +1,6 @@
 # Reporte — Lote H: pendientes de la app móvil
 
-> **AVANCE: 3 / 7 — 42,9 %.** (HECHO: H1.S1.M2, H1.S1.M3 sin ejecutar nada de CI, H1.S2.M1, H1.S3.M1 según PLAN; ver cuadro. A MEDIAS: H1.S1.M1 y H1.S4.M1. H1.S5.M1 pendiente de CI.) 
+> **AVANCE: 4 / 7 — 57,1 %.** (A MEDIAS cuentan como no hechas: H1.S1.M1 y H1.S4.M1; H1.S5.M1 pendiente de CI.)
 
 - Fecha: 2026-11-25 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/gu-h-pendientes-app` → PR a `dev`
 - Peldaño de evidencia: tour y errores `TESTED` (tests dirigidos); firma de release `WRITTEN`; grupos/detalle `DISCOVERED`.
