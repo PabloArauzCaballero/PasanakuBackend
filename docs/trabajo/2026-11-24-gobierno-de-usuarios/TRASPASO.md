@@ -1,5 +1,7 @@
 # Traspaso — gobierno de usuarios y traspaso general de Pasanaku
 
+> **Autorización de Pablo (2026-11-24 23:25 UTC):** mergear a `dev` lo que sea necesario y promover a `test`. `main` sigue prohibido sin autorización explícita. Orden de integración: #516 (B) → dev; PRs de D, C y F → dev con CI verde; luego promoción `dev → test` por PR.
+
 > **Para quien lo retome (otra cuenta u otra sesión):** leé este archivo entero, después `INVENTARIO.md` (misma carpeta) y `docs/trabajo/2026-11-23-continuar-traspaso/{PLAN,REPORTE}.md`. Lo que no está acá no se hizo. Actualizá la tabla «Estado» y el «Registro» al final cada vez que cambie algo y commiteá en `claude/modest-newton-4ckcid`.
 
 - Repos: `PabloArauzCaballero/PasanakuBackend` y `PabloArauzCaballero/PasanakuFrontend` (monorepo; el frontend solo recibe dependabot).
@@ -15,9 +17,10 @@
 | Lote A — segregación | **HECHO** | #515 en dev `2c963e46`. |
 | Lote E — revocación/inactividad/auditoría | **HECHO** | #517 en dev `5eb62e76`. Ambigüedades A1–A6 de su PLAN: confirmar con Pablo antes de promover a test; crear el tema Kafka `aportaya.identidad.revocacion` con `despliegue/host/crear-topicos.sh`. |
 | Lote B — CU-08 por asignación | **#516 abierto**, fix de test en `2c29b16b`, esperando CI verde | Sesión `session_01ATKb2QKXrRcFwGMW5Biabx`. Cuando la CI esté verde: mergear a `dev`. |
-| Lote G — CU-134 participantes | **#514 abierto, CI verde, NO mergear** | Espera aprobación de Pablo (preguntas D-1…D-15 en `docs/trabajo/2026-11-24-gu-g/REPORTE.md`). |
+| Lote G — CU-134 participantes | **HECHO el documento: #514 en dev `9cd4d2c4`** (Pablo autorizó mergear a dev lo necesario, 2026-11-24 23:25) | El CU sigue en estado BORRADOR dentro del documento: Pablo aún debe aprobar D-1…D-15 (`docs/trabajo/2026-11-24-gu-g/REPORTE.md`) ANTES de implementarlo. |
 | Lote D — backoffice «Personal y accesos» | **LANZADO 2026-11-24 23:24 UTC** | Sesión `session_01ATKb2NFv1aTGuXmnRXK9eP`, rama `claude/gu-d-backoffice`, contra el contrato de B (rama `claude/gu-b-cu08`) con doble declarado; rebasea cuando #516 entre a dev. |
-| Ola 2: C (credencial/invitación/recuperación), F (roles propios + cuentas de servicio) | **SIN LANZAR** | Lanzar cuando #516 esté en dev (comparten `identidad.yaml` con B). Plan y archivos disjuntos en `INVENTARIO.md`. |
+| Lote C — credencial/invitación/recuperación | **LANZADO 23:26 UTC** | `session_01ATKb2NNuSvsGjpcaPm4hVu`, rama `claude/gu-c-credencial`. |
+| Lote F — roles propios + cuentas de servicio | **LANZADO 23:26 UTC** | `session_01ATKb2KrP6yE7LdUMcadjtq`, rama `claude/gu-f-roles-servicio`. |
 | Participantes (CU-134 implementación) | Bloqueado | Después de que Pablo apruebe el CU. |
 
 ## Decisiones de Pablo vigentes (no volver a preguntar)
@@ -50,3 +53,4 @@ Aprobar CU-134; confirmar A1–A6 del lote E; correr `estado` en TEST (SSH bloqu
 | 2026-11-24 23:22 | B corrigió el TEST_BUG de `FixturaDeIdentidad.otorgante()` (`2c29b16b`); espera CI de #516. |
 | 2026-11-24 23:30 | Se creó este traspaso y una tarea programada horaria que arranca una sesión nueva leyéndolo. |
 | 2026-11-24 23:24 | Lanzado el lote D (`session_01ATKb2NFv1aTGuXmnRXK9eP`). |
+| 2026-11-24 23:26 | #514 mergeado a dev; lanzados C y F en paralelo con D. Autorización de Pablo para mergear y promover a test. |
