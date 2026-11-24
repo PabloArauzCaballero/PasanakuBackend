@@ -142,3 +142,16 @@ Reglas comunes: cada sesión parte de `dev` (con #512 integrada), trabaja en su 
 - 2026-11-24 15:04 UTC: las cuatro sesiones hijas se detuvieron por límite de uso de la cuenta (`usage_limit_reached`); se reanudaron con un mensaje cuando el límite se restableció.
 - Coordinación A↔B: A agrega en `identidad.yaml` solo parámetros opcionales de `GET /usuarios-internos` (`limite`, `antesDe`, `antesDeId`), `UsuarioInternoResumen.creadoEn` y `GET /roles?asignablesAPersonalInterno`; crea `RolesParaPersonalInterno.admite(codigo, ambito)` y en `UsuariosInternosRepositorio` toca solo `listar`/`consultar`/`asignarRoles` (AP-CU08-08 `ROL_NO_ASIGNABLE`). B llama a `admite` desde `CU08AsignarRol` y no toca esas secciones. Quien mergea segundo rebasea y regenera postman/inventario.
 - Lote G abrió #514 (CU-134 borrador, solo docs). CI: «Los cinco corredores» rojo por 429 de Maven Central al resolver `org.jacoco.ant:0.8.14` (ENVIRONMENT, no relacionado al cambio); se relanza al terminar la corrida. **No se mergea hasta que Pablo apruebe el CU** (15 decisiones D-1…D-15 en `docs/trabajo/2026-11-24-gu-g/REPORTE.md`).
+
+### Estado al 2026-11-24 ~19:40 UTC
+
+| Lote | PR | Estado |
+|---|---|---|
+| A — segregación y lecturas | #515 | **En dev** (`2c963e46`). CI verde en `cbda32a6`; el último commit solo tocó docs del lote. Sin cambio visual; capturas de roles y personal tomadas por la sesión principal con el catálogo real de la semilla. |
+| E — revocación, inactividad, auditoría | #517 | **En dev** (`5eb62e76`). CI verde en `31e71f57` (+ commit de docs). 12 capturas de inactividad revisadas. Ambigüedades A1–A6 (latencia, clave `sesion_id`, vigía en vez de «mismo commit», arranque en frío falla cerrado, actor en bitácora, inactividad por latido) quedan para Pablo antes de promover a test. |
+| B — CU-08 por asignación | #516 | Abierto. Conflicto con dev tras A/E (CU-08.md, postman, `UsuariosInternosController`): B hace merge de dev. Falta: fila AP-CU08-12, `admite()` en `GobiernoDeAccesos.asignar`, prefijos y actor en eventos. |
+| G — CU-134 participantes | #514 | Abierto, CI verde. **No se mergea** hasta que Pablo apruebe CU-134 (D-1…D-15). |
+
+**Decisiones de Pablo sobre B (2026-11-24):** suspender revoca todos los roles y reactivar vuelve sin roles; la baja laboral usa un **estado nuevo** propio (no `BAJA_VOLUNTARIA`); el `jti` del step-up consumido va a una **tabla** con vencimiento (no memoria); #516 entra a dev con CI verde y **no se promueve a test hasta que D esté en dev** (con B solo, alta/suspender/reactivar/desbloquear del backoffice responden 422 `AP-CU08-09`).
+
+**Riesgo anotado por E:** `ArranqueRateLimitGatewayTest` (gateway) falló una vez por tiempo y pasó al relanzar; fuera del alcance, para el dueño del gateway.
