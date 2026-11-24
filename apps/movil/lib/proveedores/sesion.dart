@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../dominio/reclamos_del_token.dart';
 import '../dominio/puertos/almacen_seguro.dart';
+import '../infraestructura/almacen_de_progreso_seguro.dart';
 import '../infraestructura/plataforma.dart';
 
 export '../dominio/reclamos_del_token.dart';
@@ -144,6 +145,8 @@ class Sesion extends ChangeNotifier {
     await _almacen.borrar(_claveAcceso);
     await _almacen.borrar(_claveRefresco);
     await _almacen.borrar(_claveInicio);
+    // DOC-001: el avance de los tutoriales es de la persona, no del teléfono.
+    await _almacen.borrar(claveDeProgreso);
   }
 
   bool _actualizarReclamos(String? acceso) {
