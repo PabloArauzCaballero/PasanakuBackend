@@ -68,7 +68,7 @@ normas: [ASFI Seguridad de la Información, ASFI control interno, segregación d
 | # | Situación | Resultado |
 | :-: | --- | --- |
 | 1a | El rol es de ámbito `GRUPO` y no se indica `ambito_id` | Rechazo `AMBITO_INCOMPLETO`: un rol de grupo sin grupo sería un rol de plataforma disfrazado |
-| 3a | La combinación de roles rompe la segregación de funciones | Rechazo `INCOMPATIBILIDAD_DE_FUNCIONES`: nadie autoriza y ejecuta el mismo tipo de operación (`R-SEG-04`) |
+| 3a | La combinación de roles rompe la segregación de funciones | Rechazo `INCOMPATIBILIDAD_DE_FUNCIONES`: nadie autoriza y ejecuta el mismo tipo de operación (`R-SEG-04`). Pares cerrados (P-3, decisión de Pablo 2026-11-24): `ENTREGA_AUTORIZAR`↔`ENTREGA_EJECUTAR`; `CONTABILIDAD_ERP_CUENTAS_POR_PAGAR`↔`CONTABILIDAD_ERP_PAGAR`; `BLOQUEO_AUTORIDAD_REGISTRAR`↔`BLOQUEO_AUTORIDAD_LEVANTAR`; `PUBLICIDAD_ANUNCIANTES`↔`PUBLICIDAD_APROBAR_CAMPANA`↔`PUBLICIDAD_MODERAR` (tres personas) |
 | 3b | El rol es `GLOBAL` y el usuario no tiene TOTP | La asignación **se crea y es válida** —[[asignacion_rol]] no tiene columna de estado y no se inventa una—, pero el usuario no abre sesión hasta enrolar el factor (`R-SEG-10`). La respuesta lo dice con `SIN_MFA_CONFIGURADO` y deriva al enrolamiento |
 | 5a | Se revoca el último rol con permiso de administración | Rechazo: la plataforma nunca queda sin quien administre accesos |
 | — | Baja del empleado | Se revocan **todas** sus asignaciones en un acto, se cierran sus sesiones y se conserva el histórico completo |
@@ -113,6 +113,8 @@ export const ErroresCU08 = {
   SIN_MFA_CONFIGURADO:          'AP-CU08-05',
   ULTIMO_ADMINISTRADOR:         'AP-CU08-06',
   LOTE_CON_REPETIDOS:           'AP-CU08-07',
+  ROL_NO_ASIGNABLE:             'AP-CU08-08',
+  FILTRO_DE_LISTADO_INVALIDO:   'AP-CU08-09',
 } as const
 ```
 
@@ -125,6 +127,8 @@ export const ErroresCU08 = {
 | `SIN_MFA_CONFIGURADO` | El rol es de ámbito `GLOBAL` y el usuario no tiene TOTP confirmado: la asignación queda escrita, pero no podrá entrar hasta enrolarlo (`R-SEG-10`) |
 | `ULTIMO_ADMINISTRADOR` | La revocación dejaría la plataforma sin administrador de accesos |
 | `LOTE_CON_REPETIDOS` | Al resolver los nombres de operadores que firmaron (`POST /usuarios-internos/nombres`), la lista repite un identificador |
+| `ROL_NO_ASIGNABLE` | El rol existe pero no se otorga a personal interno: de participante (`PARTICIPANTE`, `ORGANIZADOR`, todo rol de ámbito `GRUPO`), `ANUNCIANTE` o una identidad de servicio `SERVICIO_*` (GU-13) |
+| `FILTRO_DE_LISTADO_INVALIDO` | Al listar personal interno (`GET /usuarios-internos`), el cursor llega a medias: `antesDe` sin `antesDeId` o al revés (GU-17) |
 
 ## Descomposición atómica
 

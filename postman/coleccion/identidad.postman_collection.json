@@ -2565,10 +2565,28 @@
               "value": "busqueda-de-prueba",
               "description": "",
               "disabled": true
+            },
+            {
+              "key": "limite",
+              "value": "1",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "antesDe",
+              "value": "{{momento_ahora}}",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "antesDeId",
+              "value": "{{antesDeId}}",
+              "description": "",
+              "disabled": true
             }
           ]
         },
-        "description": "## Lista de usuarios internos con sus roles y estado\n\nPermite filtrar por estado, codigo de rol y busqueda libre.\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `listarUsuariosInternos` |\n| **Ruta** | `GET /api/v1/usuarios-internos` |\n| **Permiso** | `USUARIOS_INTERNOS_LEER` |\n| **Respuestas** | `200`, `401`, `403` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+        "description": "## Lista de usuarios internos con sus roles y estado\n\nPermite filtrar por estado, codigo de rol vigente y busqueda libre. Paginada por cursor (GU-17): orden creadoEn descendente y, a igual fecha, id descendente; como mucho `limite` filas (50 si no se pide). La pagina siguiente se pide con `antesDe` = creadoEn y `antesDeId` = id de la ultima fila recibida; una pagina con menos filas que `limite` es la ultima. El cursor va en los dos parametros o en ninguno: a medias, 422 AP-CU08-09. El cursor no lleva datos de la persona (fecha e id).\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `listarUsuariosInternos` |\n| **Ruta** | `GET /api/v1/usuarios-internos` |\n| **Permiso** | `USUARIOS_INTERNOS_LEER` |\n| **Respuestas** | `200`, `401`, `403`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU08-09` | Filtro de listado invalido |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
       },
       "response": [],
       "event": [
@@ -2578,7 +2596,7 @@
             "type": "text/javascript",
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
-              "const esperadas = [200, 401, 403];",
+              "const esperadas = [200, 401, 403, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",
@@ -2885,7 +2903,7 @@
             }
           ]
         },
-        "description": "## Actualizar roles de un usuario interno con motivo (CU-08)\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `asignarRolesUsuarioInterno` |\n| **Ruta** | `PUT /api/v1/usuarios-internos/{id}/roles` |\n| **Permiso** | `USUARIOS_INTERNOS_GESTIONAR` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Actualizar roles de un usuario interno con motivo (CU-08)\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `asignarRolesUsuarioInterno` |\n| **Ruta** | `PUT /api/v1/usuarios-internos/{id}/roles` |\n| **Permiso** | `USUARIOS_INTERNOS_GESTIONAR` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU08-08` | Rol no asignable |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"roles\": [\n    \"roles-de-prueba\"\n  ],\n  \"motivo\": \"motivo-de-prueba\"\n}",
@@ -3122,9 +3140,17 @@
           "path": [
             "roles"
           ],
-          "variable": []
+          "variable": [],
+          "query": [
+            {
+              "key": "asignablesAPersonalInterno",
+              "value": "True",
+              "description": "",
+              "disabled": true
+            }
+          ]
         },
-        "description": "## Catalogo de roles con departamento, descripcion y permisos\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `listarRoles` |\n| **Ruta** | `GET /api/v1/roles` |\n| **Permiso** | `ROLES_INTERNOS_LEER` |\n| **Respuestas** | `200` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+        "description": "## Catalogo de roles con departamento, descripcion y permisos\n\nSin parametros devuelve el catalogo completo. Con `asignablesAPersonalInterno=true` (GU-13) deja afuera los roles que no se otorgan a un humano interno: los de participante (`PARTICIPANTE`, `ORGANIZADOR` y todo rol de ambito GRUPO), `ANUNCIANTE` y las identidades de servicio (`SERVICIO_*`).\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `listarRoles` |\n| **Ruta** | `GET /api/v1/roles` |\n| **Permiso** | `ROLES_INTERNOS_LEER` |\n| **Respuestas** | `200` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
       },
       "response": [],
       "event": [
@@ -3264,6 +3290,10 @@
       "value": ""
     },
     {
+      "key": "antesDeId",
+      "value": ""
+    },
+    {
       "key": "base_url",
       "value": ""
     },
@@ -3293,6 +3323,10 @@
     },
     {
       "key": "id",
+      "value": ""
+    },
+    {
+      "key": "momento_ahora",
       "value": ""
     },
     {

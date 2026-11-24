@@ -79,7 +79,7 @@ class CU08RechazosTest extends BaseDeCU08 {
 
         assertThatThrownBy(() -> asignarComo(administrador, moderador, aprueba))
                 .isInstanceOfSatisfying(ErrorDeNegocio.class, e -> assertThat(e.detalle())
-                        .containsEntry("parIncompatible", "PUBLICIDAD_MODERAR con PUBLICIDAD_APROBAR_CAMPANA"));
+                        .containsEntry("parIncompatible", "PUBLICIDAD_APROBAR_CAMPANA con PUBLICIDAD_MODERAR"));
         assertThat(asignacionesDe(moderador)).isEqualTo(1);
     }
 

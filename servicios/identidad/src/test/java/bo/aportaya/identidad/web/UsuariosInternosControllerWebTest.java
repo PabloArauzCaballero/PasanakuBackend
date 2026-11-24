@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import bo.aportaya.identidad.aplicacion.GestionarUsuariosInternos;
+import bo.aportaya.identidad.aplicacion.ListarUsuariosInternos;
 import bo.aportaya.identidad.aplicacion.ResolverNombresDeUsuariosInternos;
 import bo.aportaya.identidad.web.generado.modelo.EntradaActualizarUsuarioInterno;
 import bo.aportaya.identidad.web.generado.modelo.EntradaAltaUsuarioInterno;
@@ -42,6 +43,9 @@ class UsuariosInternosControllerWebTest {
     private GestionarUsuariosInternos casoDeUso;
 
     @MockitoBean
+    private ListarUsuariosInternos listado;
+
+    @MockitoBean
     private ResolverNombresDeUsuariosInternos nombres;
 
     @Test
@@ -57,7 +61,7 @@ class UsuariosInternosControllerWebTest {
         u.setCargo("Analista de Riesgo");
         u.setEstado("ACTIVO");
 
-        when(casoDeUso.listar(any(), any(), any(), any())).thenReturn(List.of(u));
+        when(listado.listar(any(), any(), any(), any(), any(), any(), any())).thenReturn(List.of(u));
 
         mvc.perform(get("/usuarios-internos").with(Sesiones.como("SISTEMAS_ADMIN", "USUARIOS_INTERNOS_LEER")))
                 .andExpect(status().isOk())

@@ -31,9 +31,11 @@ class SegregacionDeFuncionesTest {
     @ParameterizedTest(name = "P-3 · {0} con {1} es incompatible, en cualquier orden")
     @CsvSource({
         "ENTREGA_AUTORIZAR, ENTREGA_EJECUTAR",
+        "CONTABILIDAD_ERP_CUENTAS_POR_PAGAR, CONTABILIDAD_ERP_PAGAR",
         "BLOQUEO_AUTORIDAD_REGISTRAR, BLOQUEO_AUTORIDAD_LEVANTAR",
-        "PUBLICIDAD_MODERAR, PUBLICIDAD_ANUNCIANTES",
-        "PUBLICIDAD_MODERAR, PUBLICIDAD_APROBAR_CAMPANA"
+        "PUBLICIDAD_ANUNCIANTES, PUBLICIDAD_APROBAR_CAMPANA",
+        "PUBLICIDAD_ANUNCIANTES, PUBLICIDAD_MODERAR",
+        "PUBLICIDAD_APROBAR_CAMPANA, PUBLICIDAD_MODERAR"
     })
     void cadaParDecididoSeDetecta(String uno, String otro) {
         assertThat(SegregacionDeFunciones.viola(Set.of(uno, otro, "AUDITORIA_LEER")))
@@ -48,7 +50,8 @@ class SegregacionDeFuncionesTest {
         "ENTREGA_EJECUTAR",
         "BLOQUEO_AUTORIDAD_REGISTRAR",
         "BLOQUEO_AUTORIDAD_LEVANTAR",
-        "PUBLICIDAD_MODERAR"
+        "CONTABILIDAD_ERP_PAGAR",
+        "PUBLICIDAD_APROBAR_CAMPANA"
     })
     void unLadoSoloNoEsConflicto(String permiso) {
         assertThat(SegregacionDeFunciones.conflicto(Set.of(permiso, "AUDITORIA_LEER")))
@@ -78,7 +81,8 @@ class SegregacionDeFuncionesTest {
     void ningunRolSembradoLaRompe() throws IOException {
         Map<String, Set<String>> roles = permisosPorRol();
 
-        assertThat(roles).containsKeys("TESORERIA", "OFICIAL_CUMPLIMIENTO", "SUPERVISOR_CUMPLIMIENTO");
+        assertThat(roles)
+                .containsKeys("TESORERIA", "OFICIAL_CUMPLIMIENTO", "SUPERVISOR_CUMPLIMIENTO", "APROBADOR_PUBLICIDAD");
         roles.forEach((rol, permisos) -> assertThat(SegregacionDeFunciones.conflicto(permisos))
                 .as("rol %s", rol)
                 .isEmpty());
@@ -95,6 +99,21 @@ class SegregacionDeFuncionesTest {
         assertThat(roles.get("SUPERVISOR_CUMPLIMIENTO"))
                 .contains("BLOQUEO_AUTORIDAD_LEVANTAR")
                 .doesNotContain("BLOQUEO_AUTORIDAD_REGISTRAR");
+    }
+
+    @Test
+    @DisplayName("P-3 · publicidad son tres personas: alta de anunciantes, aprobacion de campanas y moderacion en roles"
+            + " distintos")
+    void publicidadEnTresRoles() throws IOException {
+        Map<String, Set<String>> roles = permisosPorRol();
+
+        assertThat(roles.get("OPERADOR_PUBLICIDAD"))
+                .contains("PUBLICIDAD_ANUNCIANTES", "PUBLICIDAD_LIQUIDAR")
+                .doesNotContain("PUBLICIDAD_APROBAR_CAMPANA");
+        assertThat(roles.get("APROBADOR_PUBLICIDAD"))
+                .contains("PUBLICIDAD_APROBAR_CAMPANA")
+                .doesNotContain("PUBLICIDAD_ANUNCIANTES", "PUBLICIDAD_MODERAR");
+        assertThat(roles.get("MODERADOR_CONTENIDO")).contains("PUBLICIDAD_MODERAR");
     }
 
     private static Set<String> permisosDelCatalogo() throws IOException {

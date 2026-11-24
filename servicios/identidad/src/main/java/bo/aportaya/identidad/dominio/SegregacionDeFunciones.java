@@ -13,14 +13,10 @@ import java.util.Set;
  * los codigos son los del catalogo real ({@code seeders/minimos/10-roles-y-permisos.json}):
  * una prueba falla si alguno deja de existir.
  *
- * <p>La lista es la cerrada de P-3 (decision de Pablo, 2026-11-24). Los tres permisos de
- * publicidad son de tres personas distintas, asi que cada par entre ellos es incompatible.
- * Dos pares de P-3 todavia NO estan activos porque el catalogo los da hoy a un mismo rol
- * y activarlos dejaria ese rol inasignable: {@code CONTABILIDAD_ERP_PAGAR} con
- * {@code TESORERIA_OPERAR}/{@code ENTREGA_EJECUTAR} (rol {@code TESORERIA}) y
- * {@code PUBLICIDAD_ANUNCIANTES} con {@code PUBLICIDAD_APROBAR_CAMPANA} (rol
- * {@code OPERADOR_PUBLICIDAD}). Como se parten esos roles es una decision de negocio
- * pendiente (AMB-1 de {@code docs/trabajo/2026-11-24-gu-a}).
+ * <p>La lista es la cerrada de P-3 (decision de Pablo, 2026-11-24, corregida el mismo dia para el par contable):
+ * quien autoriza una entrega no la ejecuta; quien aprueba una factura de proveedor no la paga; quien registra un
+ * bloqueo por autoridad no lo levanta; y los tres permisos de publicidad (alta de anunciantes, aprobacion de campanas
+ * y moderacion de piezas) son de tres personas distintas, asi que cada par entre ellos es incompatible.
  */
 public final class SegregacionDeFunciones {
 
@@ -39,9 +35,11 @@ public final class SegregacionDeFunciones {
 
     private static final List<Par> PARES_INCOMPATIBLES = List.of(
             new Par("ENTREGA_AUTORIZAR", "ENTREGA_EJECUTAR"),
+            new Par("CONTABILIDAD_ERP_CUENTAS_POR_PAGAR", "CONTABILIDAD_ERP_PAGAR"),
             new Par("BLOQUEO_AUTORIDAD_REGISTRAR", "BLOQUEO_AUTORIDAD_LEVANTAR"),
-            new Par("PUBLICIDAD_MODERAR", "PUBLICIDAD_ANUNCIANTES"),
-            new Par("PUBLICIDAD_MODERAR", "PUBLICIDAD_APROBAR_CAMPANA"));
+            new Par("PUBLICIDAD_ANUNCIANTES", "PUBLICIDAD_APROBAR_CAMPANA"),
+            new Par("PUBLICIDAD_ANUNCIANTES", "PUBLICIDAD_MODERAR"),
+            new Par("PUBLICIDAD_APROBAR_CAMPANA", "PUBLICIDAD_MODERAR"));
 
     private SegregacionDeFunciones() {}
 

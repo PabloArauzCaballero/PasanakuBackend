@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import bo.aportaya.identidad.aplicacion.GestionarUsuariosInternos;
+import bo.aportaya.identidad.aplicacion.ListarUsuariosInternos;
 import bo.aportaya.identidad.aplicacion.ResolverNombresDeUsuariosInternos;
 import bo.aportaya.identidad.web.generado.modelo.NombreDeUsuarioInterno;
 import bo.aportaya.plataforma.dominio.CodigoError;
@@ -36,6 +37,9 @@ class NombresDeUsuariosInternosWebTest {
 
     @MockitoBean
     private GestionarUsuariosInternos casoDeUso;
+
+    @MockitoBean
+    private ListarUsuariosInternos listado;
 
     @MockitoBean
     private ResolverNombresDeUsuariosInternos nombres;

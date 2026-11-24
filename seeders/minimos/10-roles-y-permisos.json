@@ -271,6 +271,14 @@
           "es_sistema": true,
           "departamento": "CUMPLIMIENTO",
           "descripcion": "Levanta los bloqueos de saldo por orden de autoridad que registró otra persona; no los registra (P-3, segregación de funciones)"
+        },
+        {
+          "codigo": "APROBADOR_PUBLICIDAD",
+          "nombre": "Aprobador de publicidad",
+          "ambito": "GLOBAL",
+          "es_sistema": true,
+          "departamento": "COMERCIAL",
+          "descripcion": "Aprueba o rechaza campañas publicitarias; no da de alta anunciantes ni modera piezas (P-3, segregación de funciones)"
         }
       ]
     },
@@ -1504,16 +1512,6 @@
           },
           "permiso_id": {
             "$ref": "permiso",
-            "codigo": "PUBLICIDAD_APROBAR_CAMPANA"
-          }
-        },
-        {
-          "rol_id": {
-            "$ref": "rol",
-            "codigo": "OPERADOR_PUBLICIDAD"
-          },
-          "permiso_id": {
-            "$ref": "permiso",
             "codigo": "PUBLICIDAD_LIQUIDAR"
           }
         },
@@ -2616,12 +2614,22 @@
             "$ref": "permiso",
             "codigo": "AUDITORIA_LEER"
           }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "APROBADOR_PUBLICIDAD"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PUBLICIDAD_APROBAR_CAMPANA"
+          }
         }
       ]
     },
     {
-      "comentario": "P-3 (decisión de Pablo, 2026-11-24): quien registra un bloqueo por autoridad no lo levanta. El oficial de cumplimiento registra y el supervisor levanta. La siembra es DO NOTHING, así que una base ya sembrada conservaría la concesión vieja: este DELETE la retira y es re-ejecutable (la segunda corrida no borra nada).",
-      "sql": "DELETE FROM rol_permiso\n WHERE rol_id = (SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO')\n   AND permiso_id = (SELECT id FROM permiso WHERE codigo = 'BLOQUEO_AUTORIDAD_LEVANTAR');"
+      "comentario": "P-3 (decisión de Pablo, 2026-11-24): nadie reúne funciones incompatibles. El oficial de cumplimiento registra los bloqueos por autoridad y el supervisor los levanta; el operador de publicidad da de alta anunciantes y liquida, y el aprobador de publicidad aprueba campañas. La siembra es DO NOTHING, así que una base ya sembrada conservaría las concesiones viejas: estos DELETE las retiran y son re-ejecutables (la segunda corrida no borra nada).",
+      "sql": "DELETE FROM rol_permiso\n WHERE rol_id = (SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO')\n   AND permiso_id = (SELECT id FROM permiso WHERE codigo = 'BLOQUEO_AUTORIDAD_LEVANTAR');\nDELETE FROM rol_permiso\n WHERE rol_id = (SELECT id FROM rol WHERE codigo = 'OPERADOR_PUBLICIDAD')\n   AND permiso_id = (SELECT id FROM permiso WHERE codigo = 'PUBLICIDAD_APROBAR_CAMPANA');"
     }
   ]
 }

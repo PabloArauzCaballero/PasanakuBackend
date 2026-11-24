@@ -59,8 +59,8 @@
     "rechazo": {
       "estado": 401,
       "cuerpo": {
-        "codigo": "AP-CU01-03",
-        "mensaje": "Cuenta ya existe",
+        "codigo": "AP-CU08-09",
+        "mensaje": "Filtro de listado invalido",
         "detalle": {},
         "trazaId": "traza-listarUsuariosInternos-rechazo"
       }
