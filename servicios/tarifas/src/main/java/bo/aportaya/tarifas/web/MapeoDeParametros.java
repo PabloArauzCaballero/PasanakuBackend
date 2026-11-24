@@ -5,7 +5,11 @@ import bo.aportaya.tarifas.dominio.VersionDelParametro;
 import bo.aportaya.tarifas.web.generado.modelo.ParametroFinanciero;
 import bo.aportaya.tarifas.web.generado.modelo.VersionDeParametro;
 
-/** Del registro de parámetros al contrato de {@code /tarifas/parametros}. Sin identidades: no las necesita la vista. */
+/**
+ * Del registro de parámetros al contrato de {@code /tarifas/parametros}. Las identidades que viajan son las de los
+ * operadores internos que firmaron (propuso / aprobó), como UUID: el mismo patrón que {@code aprobadoPor} del
+ * tarifario. Nunca un nombre ni un dato de un participante.
+ */
 final class MapeoDeParametros {
 
     private MapeoDeParametros() {}
@@ -33,6 +37,9 @@ final class MapeoDeParametros {
         r.setMoneda(v.moneda().orElse(null));
         r.setVigenteDesde(v.vigenteDesde());
         r.setEstado(VersionDeParametro.EstadoEnum.fromValue(v.estado()));
+        r.setPropuestoPor(v.propuestoPor());
+        // Nulo mientras espera la segunda firma o si se rechazó sin ella (R-TAR-14).
+        r.setAprobadoPor(v.aprobadoPor().orElse(null));
         return r;
     }
 }
