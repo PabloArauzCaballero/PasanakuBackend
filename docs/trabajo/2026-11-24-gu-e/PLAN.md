@@ -59,11 +59,11 @@
 
 **CA:** Dado un operador sin actividad, a los 13 min ve un aviso «tu sesión se cierra en 2 minutos» con «Seguir trabajando»; a los 15 min la sesión se cierra en el servidor y vuelve al ingreso con el motivo y con `volverA` a su pantalla. Del lado del servidor, un refresco de operador con más de 15 min sin actividad se niega y revoca la sesión.
 **DoD:** `CU04InactividadTest` (integración) en CI; `yarn test:front` con la spec del vigilante; `yarn typecheck` y `yarn lint` en 0.
-**Estado:** A MEDIAS (H2.S1.M1 espera la CI)
+**Estado:** HECHO
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H2.S1.M1 | `RenovarSesion`: operador con `ultima_actividad_en` vieja → revoca `INACTIVIDAD` y rechaza | operador inactivo rechazado y sesión revocada; operador activo y participante inactivo renuevan | `./gradlew :servicios:identidad:integrationTest --tests '*CU04InactividadTest'` (CI) | A MEDIAS (espera CI: integrationTest) |
+| H2.S1.M1 | `RenovarSesion`: operador con `ultima_actividad_en` vieja → revoca `INACTIVIDAD` y rechaza | operador inactivo rechazado y sesión revocada; operador activo y participante inactivo renuevan | `./gradlew :servicios:identidad:integrationTest --tests '*CU04InactividadTest'` (CI) | HECHO (CI #45462788268: integrationTest de identidad y auditoría BUILD SUCCESSFUL) |
 | H2.S2.M1 | `VigilanteDeInactividad` (actividad humana, latido, aviso, cierre, entre pestañas) | aviso a los 13 min, cierre a los 15, latido cada 5 min con actividad, reinicio con actividad | `yarn workspace @aportaya/backoffice test:front` (spec dirigida) | HECHO |
 | H2.S2.M2 | Aviso en el shell + mensaje en el ingreso | el diálogo aparece, «Seguir trabajando» lo cierra; el ingreso explica el motivo | spec del shell/ingreso + `yarn typecheck` + `yarn lint` | HECHO |
 
@@ -71,19 +71,19 @@
 
 **CA:** Dado un evento `identidad.usuario_interno_*` o `identidad.rol_*` publicado, cuando auditoría lo consume, entonces queda una fila en `comun.bitacora_evento` con entidad, acción, motivo, correlación y carga; el mismo evento dos veces deja una sola fila; un campo nuevo en la carga no rompe el consumo.
 **DoD:** `CUBitacoraDeAccesosTest` (integración, PostgreSQL real) y prueba unitaria del lector del mensaje en CI.
-**Estado:** A MEDIAS (H3.S1.M2 espera la CI)
+**Estado:** HECHO
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
 | H3.S1.M1 | Lector del mensaje (tipo → acción/entidad, tolerante a campos nuevos, rechaza sin cabeceras) | mapea los seis tipos actuales; ignora campos desconocidos; rechaza mensaje sin `event_id` | `./gradlew :servicios:auditoria:test --tests '*ConsumidorDeCambiosDeAccesoTest'` (CI) | HECHO |
-| H3.S1.M2 | `RegistroDeCambiosDeAcceso` idempotente por `event_id` | duplicado → una fila | `./gradlew :servicios:auditoria:integrationTest --tests '*CUBitacoraDeAccesosTest'` (CI) | A MEDIAS (espera CI: integrationTest) |
+| H3.S1.M2 | `RegistroDeCambiosDeAcceso` idempotente por `event_id` | duplicado → una fila | `./gradlew :servicios:auditoria:integrationTest --tests '*CUBitacoraDeAccesosTest'` (CI) | HECHO (CI #45462788268: integrationTest de identidad y auditoría BUILD SUCCESSFUL) |
 
 ## H4 — Cierre
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
 | H4.S1.M1 | Verificadores de `scripts/` en 0 y generadores sin diff | todos rc=0 | comandos pegados en `evidencia/verificadores.txt` | HECHO |
-| H4.S1.M2 | Push, PR a `dev`, CI en verde | checks verdes | enlace al PR + estado de checks | A MEDIAS (PR #517 abierto contra `dev`; falta la CI en verde, que incluye `integrationTest` de H2.S1.M1 y H3.S1.M2. No hay contrato que simular: es la ejecución de la CI sobre el código ya publicado) |
+| H4.S1.M2 | Push, PR a `dev`, CI en verde | checks verdes | enlace al PR + estado de checks | HECHO (PR #517, CI en verde en 31e71f57 tras re-ejecutar una vez un fallo de tiempo del gateway, ajeno al diff) |
 | H4.S1.M3 | REPORTE.md | tres secciones + evidencia | archivo en disco | HECHO |
 
 ## Simulación de los colaboradores (regla 65)

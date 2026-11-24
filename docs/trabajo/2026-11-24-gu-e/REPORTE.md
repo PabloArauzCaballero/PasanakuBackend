@@ -1,6 +1,6 @@
 # Reporte — GU-E · Revocación inmediata, inactividad del backoffice y bitácora de cambios de acceso
 
-> **AVANCE: 13 / 16 — 81,3 %.** Dos microtareas esperan su prueba de integración en la CI (necesitan Docker, que este entorno no tiene) y una es el propio PR.
+> **AVANCE: 16 / 16 — 100 %.** CI del PR #517 en verde. Peldaño global `TESTED`: la revocación no se ejercitó contra un Kafka real.
 
 - Fecha: 2026-11-24 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/gu-e-revocacion` (desde `dev` 6729629d)
 - Peldaño de evidencia alcanzado:
@@ -25,27 +25,14 @@
 | H2.S2.M2 | Aviso accesible en el shell (`ap-dialogo`), cierre real (`DELETE /sesion`) y vuelta al ingreso con motivo y `volverA` | 2 specs + `e2e/inactividad-visual.e2e.ts` | PASS 4/4 + 6/6 E2E — capturas `evidencia/visual-inactividad-*.png` (12) |
 | H3.S1.M1 | Lector del evento de acceso: seis tipos actuales, tipos nuevos, campos nuevos, sin datos de contacto, rechaza sin `event_id` | `./gradlew :servicios:auditoria:test --tests '*ConsumidorDeCambiosDeAcceso*'` | PASS 6/6 |
 | H4.S1.M1 | Verificadores de `scripts/` en 0 y generadores sin diff | ver `evidencia/verificadores.txt` | PASS (12 comandos rc=0) |
+| H2.S1.M1 | Operador inactivo 16 min → refresco negado y sesión revocada `INACTIVIDAD`; activo 14 min y participante → renuevan | `./gradlew integrationTest` (CI, `CU04InactividadTest`) | PASS — `:servicios:identidad:integrationTest`, BUILD SUCCESSFUL, job 138705280550 |
+| H3.S1.M2 | El cambio de acceso entra una sola vez a la bitácora y es consultable | `./gradlew integrationTest` (CI, `CUBitacoraDeAccesosTest`) | PASS — `:servicios:auditoria:integrationTest`, BUILD SUCCESSFUL, job 138705280550 |
+| H4.S1.M2 | PR #517 contra `dev` con la CI en verde (incluye `jacocoTestCoverageVerification`) | checks del PR | PASS en `31e71f57` |
 | H4.S1.M3 | Este reporte | — | escrito |
 
 ## A medias
 
-### H2.S1.M1 — Inactividad del operador en el servidor (`RenovarSesion`)
-- Qué anda: compila sin avisos (`./gradlew :servicios:identidad:compileTestJava` rc=0); la regresión unitaria y web de identidad sigue verde (104 + 167, `evidencia/regresion-java.txt`); el criterio está en el gherkin de CU-04 y `verificar_criterios.py` da rc=0.
-- Qué no anda / no está demostrado: `CU04InactividadTest` (operador inactivo 16 min → rechazado y revocado `INACTIVIDAD`; activo 14 min → renueva; participante → sin corte) no se ejecutó: necesita Testcontainers y aquí no hay Docker.
-- Qué falta exactamente: que el job `integrationTest` de la CI lo corra en verde.
-- Dónde quedó: `servicios/identidad/src/main/java/.../aplicacion/RenovarSesion.java`, `servicios/identidad/src/test/java/.../CU04InactividadTest.java`, rama `claude/gu-e-revocacion`, compila.
-
-### H3.S1.M2 — Registro idempotente en la bitácora (`RegistroDeCambiosDeAcceso`)
-- Qué anda: las mismas sentencias, ejecutadas con el rol real `svc_auditoria` en PostgreSQL 16 local, escriben la fila con hash de 64 y la segunda entrega del mismo `event_id` no inserta nada (`INSERT 0 0`); el rol no puede borrar la bitácora (`evidencia/h3s1m2-sql-bitacora.txt`).
-- Qué no anda / no está demostrado: `CUBitacoraDeAccesosTest` (Java, Testcontainers) no se ejecutó aquí.
-- Qué falta exactamente: `integrationTest` en la CI.
-- Dónde quedó: `servicios/auditoria/.../aplicacion/RegistroDeCambiosDeAcceso.java`, `.../infraestructura/BitacoraRepositorio.java`, `.../consumo/ConsumidorDeCambiosDeAccesoKafka.java`; compila.
-
-### H4.S1.M2 — PR y CI
-- Qué anda: rama publicada y PR #517 abierto contra `dev`, con la sesión suscrita a su actividad.
-- Qué no anda / no está demostrado: la CI todavía no terminó.
-- Qué falta exactamente: CI en verde (incluye `integrationTest` de H2.S1.M1 y H3.S1.M2); si algo falla, diagnosticar y corregir en la misma rama.
-- Dónde quedó: `claude/gu-e-revocacion`, compila; PR https://github.com/PabloArauzCaballero/PasanakuBackend/pull/517.
+Ninguna. Las tres que esperaban la CI se cerraron (ver Completado: H2.S1.M1, H3.S1.M2, H4.S1.M2).
 
 ## Pendiente
 
@@ -83,7 +70,6 @@ Argumento, no medición contra broker: el vigía mira cada 250 ms en su propio h
 
 - Ningún componente de la revocación corrió contra un **Kafka real**: el tema compactado, `crear-topicos.sh`, el `KafkaConsumer` real y la latencia de punta a punta quedan para `e2eTest`/TEST.
 - Prueba de **caída del dependido** (regla 98.8.4): no se apagó Kafka de verdad; está simulado (envío fallido → reintento; lector sin broker → no al día).
-- `CU04InactividadTest` y `CUBitacoraDeAccesosTest` (Testcontainers) — dependen de la CI.
 - Sincronía de actividad **entre pestañas** (`BroadcastChannel`): escrita, sin prueba automatizada.
 - El consumidor Kafka de auditoría con `@KafkaListener` real (patrón de temas, reintentos del `DefaultErrorHandler`).
 - Lector de pantalla real sobre el aviso (se verificó por rol/nombre y el diálogo existente tiene sus pruebas de foco).
@@ -98,6 +84,8 @@ Argumento, no medición contra broker: el vigía mira cada 250 ms en su propio h
 - **Gradle local funcionó** (Maven Central respondió, con 429 intermitentes): se pudo compilar y correr las pruebas sin contenedor aquí.
 
 ## Riesgos residuales y deuda
+
+- **Prueba inestable ajena**: en la primera corrida de la CI falló `ArranqueRateLimitGatewayTest.agotaElBurstYCorta` (`:plataforma:gateway`; 0 respuestas 429 de 15 peticiones concurrentes). Este diff no toca el gateway, que no depende de `comun-web`; pasó al re-ejecutar el job una vez. La prueba depende del tiempo de reposición del limitador: conviene que la mire el dueño del gateway (no se tocó).
 
 - **Arranque en frío falla cerrado**: si Kafka no responde cuando un servicio arranca, ese servicio rechaza todo token con sesión (401) y su sonda `revocacion` queda DOWN hasta alcanzar el tema. Es lo que pide ADR-030 §3 sin el endpoint de respaldo; puede sorprender en un entorno con Kafka caído. Se apaga por servicio con `aportaya.revocacion.lector.habilitado=false` (vuelve al comportamiento anterior y lo dice en el log).
 - **Tema inexistente = al día**: con `KAFKA_AUTO_CREATE_TOPICS_ENABLE=false`, si nadie corrió `crear-topicos.sh` los servicios aceptan tokens (no hay revocaciones que leer) y el vigía de identidad no puede publicar (lo registra en el log y reintenta). Hay que correr el script en cada entorno.
