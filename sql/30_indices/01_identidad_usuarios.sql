@@ -126,3 +126,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_reputacion_usuario_usuario_id
 
 CREATE INDEX IF NOT EXISTS ix_solicitud_baja_usuario_id
   ON identidad.solicitud_baja (usuario_id);
+
+CREATE INDEX IF NOT EXISTS ix_solicitud_recuperacion_acceso_usuario_id
+  ON identidad.solicitud_recuperacion_acceso (usuario_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_solicitud_recuperacion_acceso_token_id
+  ON identidad.solicitud_recuperacion_acceso (token_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_solicitud_recuperacion_acceso_clave_idempotencia
+  ON identidad.solicitud_recuperacion_acceso (clave_idempotencia);

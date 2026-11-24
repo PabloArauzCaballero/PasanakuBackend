@@ -47,6 +47,7 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/01_identidad_usuarios/preferencia_notificacion.sql
 \ir 10_tablas/01_identidad_usuarios/reputacion_usuario.sql
 \ir 10_tablas/01_identidad_usuarios/solicitud_baja.sql
+\ir 10_tablas/01_identidad_usuarios/solicitud_recuperacion_acceso.sql
 --    módulo 02 — Grupos, Cupos, Turnos y Gobernanza
 \ir 10_tablas/02_grupos_turnos/grupo.sql
 \ir 10_tablas/02_grupos_turnos/alta_grupo.sql

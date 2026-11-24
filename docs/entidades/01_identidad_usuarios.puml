@@ -164,6 +164,9 @@ package "Tokens de Verificacion y Credenciales" {
     AUTORIZACION_DISPOSITIVO
     FIRMA_REGLAMENTO
     EXPORTACION_DATOS
+    INVITACION_OPERADOR
+    RECUPERACION_OPERADOR_CLAVE
+    REINSCRIPCION_FACTOR
   }
 
   enum EstadoToken {
@@ -1120,11 +1123,32 @@ entity "solicitud_baja" as baja {
   bloqueada_por_obligaciones : BOOLEAN
 }
 
+entity "solicitud_recuperacion_acceso" as solrec {
+  * id : UUID <<PK>>
+  --
+  # usuario_id : UUID <<FK, IDX>>
+  alcance : VARCHAR(10) <<CK: CLAVE|FACTOR>>
+  estado : VARCHAR(12) <<CK: PENDIENTE|APROBADA|RECHAZADA|EMITIDA|COMPLETADA|VENCIDA>>
+  solicitada_por : UUID <<FK, NULL>>
+  solicitada_en : TIMESTAMPTZ
+  motivo : VARCHAR(200)
+  decidida_por : UUID <<FK, NULL>>
+  decidida_en : TIMESTAMPTZ <<NULL>>
+  motivo_decision : VARCHAR(200) <<NULL>>
+  enfriamiento_hasta : TIMESTAMPTZ <<NULL>>
+  # token_id : UUID <<FK, NULL, UQ>>
+  emitida_en : TIMESTAMPTZ <<NULL>>
+  completada_en : TIMESTAMPTZ <<NULL>>
+  clave_idempotencia : VARCHAR(80) <<UQ>>
+}
+
 usuario ||--o| dir : "reside en"
 usuario ||--o| perfin : "declara"
 usuario ||--|| cred : "autentica con"
 usuario ||--o{ histcred : "historico de"
 usuario ||--o{ token : "recibe"
+usuario ||--o{ solrec : "pide recuperar su acceso"
+solrec }o--o| token : "emite"
 usuario ||--o{ mfa : "protege con"
 usuario ||--o{ disp : "usa"
 usuario ||--o{ sesion : "abre"

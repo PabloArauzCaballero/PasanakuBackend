@@ -364,6 +364,22 @@ COMMENT ON COLUMN identidad.solicitud_baja.motivo IS '[NEGOCIO] Justificación d
 COMMENT ON COLUMN identidad.solicitud_baja.solicitada_en IS '[NEGOCIO] Marca temporal o fecha de solicitada en `solicitud_baja`. [SISTEMA] timestamptz, obligatoria (NOT NULL).';
 COMMENT ON COLUMN identidad.solicitud_baja.fecha_efectiva IS '[NEGOCIO] Marca temporal o fecha de efectiva en `solicitud_baja`. [SISTEMA] timestamptz, opcional.';
 COMMENT ON COLUMN identidad.solicitud_baja.bloqueada_por_obligaciones IS '[NEGOCIO] Atributo que representa bloqueada por obligaciones en el modelo de `solicitud_baja`. [SISTEMA] boolean, obligatoria (NOT NULL).';
+COMMENT ON TABLE identidad.solicitud_recuperacion_acceso IS '[NEGOCIO] Entidad del módulo 01. Entidad de negocio solrec [SISTEMA] Esquema `identidad`, servicio dueño `identidad`.';
+COMMENT ON COLUMN identidad.solicitud_recuperacion_acceso.id IS '[NEGOCIO] Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. [SISTEMA] uuid, obligatoria (NOT NULL), clave primaria (PK).';
+COMMENT ON COLUMN identidad.solicitud_recuperacion_acceso.usuario_id IS '[NEGOCIO] Referencia al usuario titular de la cuenta o actor principal de la operación. [SISTEMA] uuid, obligatoria (NOT NULL), clave foránea (FK) hacia `usuario`, con índice B-tree.';
+COMMENT ON COLUMN identidad.solicitud_recuperacion_acceso.alcance IS '[NEGOCIO] Atributo que representa alcance en el modelo de `solicitud_recuperacion_acceso`. [SISTEMA] varchar(10), obligatoria (NOT NULL).';
+COMMENT ON COLUMN identidad.solicitud_recuperacion_acceso.estado IS '[NEGOCIO] Estado operativo o fase del ciclo de vida en que se encuentra el registro. [SISTEMA] varchar(12), obligatoria (NOT NULL).';
+COMMENT ON COLUMN identidad.solicitud_recuperacion_acceso.solicitada_por IS '[NEGOCIO] Referencia por clave foránea a la entidad `usuario`. [SISTEMA] uuid, opcional, clave foránea (FK) hacia `usuario`.';
+COMMENT ON COLUMN identidad.solicitud_recuperacion_acceso.solicitada_en IS '[NEGOCIO] Marca temporal o fecha de solicitada en `solicitud_recuperacion_acceso`. [SISTEMA] timestamptz, obligatoria (NOT NULL).';
+COMMENT ON COLUMN identidad.solicitud_recuperacion_acceso.motivo IS '[NEGOCIO] Justificación declarada o causal que originó la creación, rechazo o transición del registro. [SISTEMA] varchar(200), obligatoria (NOT NULL).';
+COMMENT ON COLUMN identidad.solicitud_recuperacion_acceso.decidida_por IS '[NEGOCIO] Referencia por clave foránea a la entidad `usuario`. [SISTEMA] uuid, opcional, clave foránea (FK) hacia `usuario`.';
+COMMENT ON COLUMN identidad.solicitud_recuperacion_acceso.decidida_en IS '[NEGOCIO] Marca temporal o fecha de decidida en `solicitud_recuperacion_acceso`. [SISTEMA] timestamptz, opcional.';
+COMMENT ON COLUMN identidad.solicitud_recuperacion_acceso.motivo_decision IS '[NEGOCIO] Atributo que representa motivo decision en el modelo de `solicitud_recuperacion_acceso`. [SISTEMA] varchar(200), opcional.';
+COMMENT ON COLUMN identidad.solicitud_recuperacion_acceso.enfriamiento_hasta IS '[NEGOCIO] Atributo que representa enfriamiento hasta en el modelo de `solicitud_recuperacion_acceso`. [SISTEMA] timestamptz, opcional.';
+COMMENT ON COLUMN identidad.solicitud_recuperacion_acceso.token_id IS '[NEGOCIO] Referencia por clave foránea a la entidad `token_verificacion`. [SISTEMA] uuid, opcional, clave foránea (FK) hacia `token_verificacion`, restricción UNIQUE, sensibilidad SECRETO.';
+COMMENT ON COLUMN identidad.solicitud_recuperacion_acceso.emitida_en IS '[NEGOCIO] Marca temporal o fecha de emitida en `solicitud_recuperacion_acceso`. [SISTEMA] timestamptz, opcional.';
+COMMENT ON COLUMN identidad.solicitud_recuperacion_acceso.completada_en IS '[NEGOCIO] Marca temporal o fecha de completada en `solicitud_recuperacion_acceso`. [SISTEMA] timestamptz, opcional.';
+COMMENT ON COLUMN identidad.solicitud_recuperacion_acceso.clave_idempotencia IS '[NEGOCIO] Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). [SISTEMA] varchar(80), obligatoria (NOT NULL), restricción UNIQUE.';
 
 -- ===========================================================================
 -- MÓDULO 02 — GRUPOS, CUPOS, TURNOS Y GOBERNANZA

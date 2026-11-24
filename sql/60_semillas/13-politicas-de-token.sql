@@ -37,3 +37,10 @@ ON CONFLICT (proposito, vigente_desde) DO NOTHING;
 INSERT INTO politica_token (proposito, ttl_segundos, longitud_codigo, max_intentos_validacion, max_reenvios_por_hora, cooldown_reenvio_segundos, max_emisiones_por_dia, canales_permitidos, exige_dispositivo_conocido, invalida_anteriores, vigente_desde) VALUES
   ('FIRMA_CONTRATO', 900, 32, 1, 5, 0, 10, 'APP', FALSE, FALSE, '2026-10-17T00:00:00-04:00')
 ON CONFLICT (proposito, vigente_desde) DO NOTHING;
+
+-- Primer acceso y recuperación asistida del operador del backoffice (P-1, P-4, ADR-038): enlace de un solo uso al correo institucional, solo su hash con pepper queda en la base. La invitación vive 72 h y la recuperación 24 h una vez cumplido el enfriamiento; ambos plazos son parámetro a confirmar con el responsable de seguridad.
+INSERT INTO politica_token (proposito, ttl_segundos, longitud_codigo, max_intentos_validacion, max_reenvios_por_hora, cooldown_reenvio_segundos, max_emisiones_por_dia, canales_permitidos, exige_dispositivo_conocido, invalida_anteriores, vigente_desde) VALUES
+  ('INVITACION_OPERADOR', 259200, 32, 5, 0, 300, 5, 'CORREO', FALSE, TRUE, '2026-11-25T00:00:00-04:00'),
+  ('RECUPERACION_OPERADOR_CLAVE', 86400, 32, 5, 0, 300, 5, 'CORREO', FALSE, TRUE, '2026-11-25T00:00:00-04:00'),
+  ('REINSCRIPCION_FACTOR', 86400, 32, 5, 0, 300, 5, 'CORREO', FALSE, TRUE, '2026-11-25T00:00:00-04:00')
+ON CONFLICT (proposito, vigente_desde) DO NOTHING;

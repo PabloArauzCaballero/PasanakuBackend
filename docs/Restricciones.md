@@ -1535,6 +1535,7 @@ ALTER TABLE estado_cuenta_billetera
 | R-SEG-10 | Un operador no abre sesión sin segundo factor confirmado, y su factor nunca es SMS ni WhatsApp | ASFI Seguridad · ISO 27001 A.5.17, A.8.2, A.8.5 | [[CU-04 Autenticar con MFA y registrar dispositivo]] |
 | R-SEG-11 | Cambiar la credencial de un operador no deja sesión viva, dispositivo confiable ni refresco emitido | ASFI Seguridad · toma de cuenta privilegiada | [[CU-09 Cambiar credenciales y solicitar la baja]] |
 | R-SEG-12 | Toda acción de decisión irreversible o de lectura de terceros exige segundo factor | ISO 27001 A.8.2 · segregación de funciones | [[CU-08 Asignar y revocar roles de operador]] |
+| R-SEG-13 | Nadie aprueba su propia recuperación de acceso, y una recuperación aprobada tiene aprobador, fecha y enfriamiento | ISO 27001 A.5.17, A.8.2 · ADR-038 §4 | [[CU-09 Cambiar credenciales y solicitar la baja]] |
 
 ```sql
 -- R-SEG-01 · solo hash, token y enmascarado
@@ -2047,6 +2048,25 @@ ALTER TABLE permiso
    OR accion NOT IN ('AUTORIZAR', 'APROBAR', 'EJECUTAR', 'REVERSAR',
                      'PUBLICAR', 'ENVIAR', 'CERRAR', 'LEER_TERCEROS')
   );
+
+-- R-SEG-13 · nadie aprueba su propia recuperación de acceso
+--
+-- ADR-038 §4 dejaba la aprobación a cargo de la aplicación («hueco declarado»): ninguna tabla
+-- guardaba al aprobador. Ahora lo guarda `solicitud_recuperacion_acceso`, y la base rechaza la
+-- autoaprobación y una aprobación sin aprobador, fecha ni enfriamiento.
+ALTER TABLE solicitud_recuperacion_acceso DROP CONSTRAINT IF EXISTS ck_recuperacion_no_autoaprobada;
+ALTER TABLE solicitud_recuperacion_acceso DROP CONSTRAINT IF EXISTS ck_recuperacion_decision_completa;
+ALTER TABLE solicitud_recuperacion_acceso
+  ADD CONSTRAINT ck_recuperacion_no_autoaprobada CHECK (decidida_por IS NULL OR decidida_por <> usuario_id),
+  ADD CONSTRAINT ck_recuperacion_decision_completa CHECK (
+        estado = 'PENDIENTE'
+     OR estado = 'VENCIDA'
+     OR (decidida_por IS NOT NULL AND decidida_en IS NOT NULL AND motivo_decision IS NOT NULL
+         AND (estado = 'RECHAZADA' OR enfriamiento_hasta IS NOT NULL)));
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_recuperacion_viva
+  ON solicitud_recuperacion_acceso (usuario_id, alcance)
+  WHERE (estado IN ('PENDIENTE','APROBADA','EMITIDA'));
 ```
 
 ---
