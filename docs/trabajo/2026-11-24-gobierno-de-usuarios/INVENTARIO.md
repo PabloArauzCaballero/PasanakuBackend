@@ -136,3 +136,9 @@ Reglas comunes: cada sesión parte de `dev` (con #512 integrada), trabaja en su 
 | B | `session_01ATKb2QKXrRcFwGMW5Biabx` | `claude/gu-b-cu08` |
 | E | `session_01ATKb2PBBXchB5voCrHukT6` | `claude/gu-e-revocacion` |
 | G | `session_01ATKb2PY4e3m7Fhxv5ifoZs` | `claude/gu-g-cu-participantes` |
+
+## Seguimiento de la ola 1
+
+- 2026-11-24 15:04 UTC: las cuatro sesiones hijas se detuvieron por límite de uso de la cuenta (`usage_limit_reached`); se reanudaron con un mensaje cuando el límite se restableció.
+- Coordinación A↔B: A agrega en `identidad.yaml` solo parámetros opcionales de `GET /usuarios-internos` (`limite`, `antesDe`, `antesDeId`), `UsuarioInternoResumen.creadoEn` y `GET /roles?asignablesAPersonalInterno`; crea `RolesParaPersonalInterno.admite(codigo, ambito)` y en `UsuariosInternosRepositorio` toca solo `listar`/`consultar`/`asignarRoles` (AP-CU08-08 `ROL_NO_ASIGNABLE`). B llama a `admite` desde `CU08AsignarRol` y no toca esas secciones. Quien mergea segundo rebasea y regenera postman/inventario.
+- Lote G abrió #514 (CU-134 borrador, solo docs). CI: «Los cinco corredores» rojo por 429 de Maven Central al resolver `org.jacoco.ant:0.8.14` (ENVIRONMENT, no relacionado al cambio); se relanza al terminar la corrida. **No se mergea hasta que Pablo apruebe el CU** (15 decisiones D-1…D-15 en `docs/trabajo/2026-11-24-gu-g/REPORTE.md`).

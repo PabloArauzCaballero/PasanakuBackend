@@ -142,4 +142,4 @@ protegidas, entonces ningún defecto abierto del inventario se reproduce y la su
 |---|---|---|---|---|
 | H7.S1.M1 | Identidad publica nombres de operadores internos por lote | respuesta con solo `usuarioId` + nombre; ids no internos se omiten; sin permiso → 403 | test web de identidad en CI + `openapi-generator validate` | HECHO — cb4ad819 + 4fbd17c5 (pruebas separadas por el barrido de 300 líneas); CI de #512 12 success |
 | H7.S2.M1 | Backoffice muestra el nombre en Propuso/Aprobó | E2E parámetros verde con nombres y con fallo de resolución | `yarn playwright test e2e/visual-parametros-financieros.e2e.ts` | HECHO — e196ad49; E2E parámetros 16/16; capturas revisadas |
-| H7.S3.M1 | PR a `dev` con CI verde, merge y promoción a `test` | `origin/test` contiene la rama | check-runs + merges | EN CURSO — #512 → dev (6729629d); promoción #513 abierta |
+| H7.S3.M1 | PR a `dev` con CI verde, merge y promoción a `test` | `origin/test` contiene la rama | check-runs + merges | HECHO — #512 → dev (6729629d); promoción #513 (24 success, 11 skipped) → test f957167b |

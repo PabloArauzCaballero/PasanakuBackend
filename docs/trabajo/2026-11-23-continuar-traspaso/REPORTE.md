@@ -1,6 +1,6 @@
 # Reporte — Continuar traspaso Pasanaku: PRs a dev, correcciones y rediseños, contrato y promoción a TEST
 
-> **AVANCE: 31 / 37 — 83,8 %.** (`plan_status.py`). Sin PRs abiertas en PasanakuBackend ni PasanakuFrontend. Falta 1 TODO (salud de TEST, la ejecuta Pablo) y 5 BLOQUEADOS por decisiones o insumos de Pablo.
+> **AVANCE: 34 / 40 — 85,0 %.** (`plan_status.py`). Única PR abierta: #514 (borrador del CU-134, espera aprobación de Pablo; no se mergea). Falta 1 TODO (salud de TEST, la ejecuta Pablo) y 5 BLOQUEADOS por decisiones o insumos de Pablo.
 
 - Fecha: 2026-11-23 / 24 · Plan: [PLAN.md](./PLAN.md)
 - Integrado en `dev` y promovido a `test` (#511, `d75ac069`): #503, #504, #505, #506, #507, #508, #510.
@@ -29,6 +29,7 @@
 | H5.S1.M2 | CU-44 `GET /cumplimiento/casos/{casoId}` con alerta de origen y titular enmascarado | CI de #510 (`servicios:cumplimiento:test`, verificar_criterios) | BUILD SUCCESSFUL |
 | H5.S2.M1 | Backoffice muestra esos datos | E2E caso 19/19, parámetros 12/12 | verde |
 | H5.S3.M1 | #510 integrada | merge | cb651d9f |
+| H7 | Nombre del operador en vez del UUID: #512 → dev, promoción #513 → test | check-runs 6729629d | 24 success / 11 skipped → merge f957167b |
 | H6.S1.M1 | Cero PRs abiertas | `gh api repos/.../pulls?state=open` | 0 y 0 |
 
 ## A medias
