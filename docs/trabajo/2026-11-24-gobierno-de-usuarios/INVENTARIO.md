@@ -126,3 +126,12 @@ Reglas comunes: cada sesión parte de `dev` (con #512 integrada), trabaja en su 
 | F — Roles personalizados y cuentas de servicio | `claude/gu-f-roles-servicio` | GU-16, GU-18 | B y D |
 
 **Ola 3:** implementación de participantes, una vez aprobado el CU de G.
+
+## Ola 1 lanzada (2026-11-24 14:49 UTC, desde `dev` 6729629d)
+
+| Lote | Sesión hija | Rama |
+|---|---|---|
+| A | `session_01ATKb2NdFtpsf82ZU3SGQYf` | `claude/gu-a-segregacion` |
+| B | `session_01ATKb2QKXrRcFwGMW5Biabx` | `claude/gu-b-cu08` |
+| E | `session_01ATKb2PBBXchB5voCrHukT6` | `claude/gu-e-revocacion` |
+| G | `session_01ATKb2PY4e3m7Fhxv5ifoZs` | `claude/gu-g-cu-participantes` |
