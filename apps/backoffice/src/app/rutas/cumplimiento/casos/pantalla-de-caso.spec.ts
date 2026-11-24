@@ -56,6 +56,18 @@ describe('PantallaDeCaso · gate del carril', () => {
     expect(boton.disabled).toBe(false)
   })
 
+  it('el resumen del caso dice qué caso es, el paso en curso, la causal elegida y que el contrato no publica la alerta ni el titular', async () => {
+    const fixture = await montar('caso-resumen')
+    const resumen = () => (fixture.nativeElement.querySelector('ap-resumen-de-caso') as HTMLElement).textContent ?? ''
+    expect(resumen()).toContain('caso-resumen')
+    expect(fixture.nativeElement.querySelector('ap-barra-de-pasos')?.getAttribute('aria-label')).toBe('Paso 1 de 6: Causal')
+    expect(resumen()).toContain('Sin elegir todavía')
+    expect(resumen()).toContain('todavía no los publica')
+    ;(fixture.nativeElement.querySelector('input[type="radio"]') as HTMLInputElement).click()
+    fixture.detectChanges()
+    expect(resumen()).toContain('Fraccionamiento de operaciones')
+  })
+
   it('el formulario largo guarda borrador con ServicioBorrador y lo recupera tras una sesión caída', async () => {
     const primera = await montar('caso-borrador')
     const area = primera.nativeElement.querySelector('textarea') as HTMLTextAreaElement

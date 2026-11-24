@@ -74,6 +74,16 @@ export const textosConfiguracion = {
     cargandoHistorial: 'Cargando historial…',
     historialVacio: 'Este parámetro no tiene versiones registradas.',
     estados: { PROPUESTA: 'Propuesta pendiente', APROBADA: 'Aprobada', RECHAZADA: 'Rechazada' },
+    errorCarga: 'No se pudo cargar el catálogo de parámetros.',
+    resumen: (total: number, pendientes: number) =>
+      `${total} ${total === 1 ? 'parámetro' : 'parámetros'} en el catálogo · ${pendientes === 0 ? 'ninguna propuesta espera aprobación' : `${pendientes} ${pendientes === 1 ? 'propuesta espera' : 'propuestas esperan'} aprobación`}`,
+    rigeHoy: 'Rige hoy',
+    esperaAprobacion: 'Espera aprobación',
+    cuatroOjosCorto: 'La aprueba una persona distinta de quien la propuso.',
+    historial: 'Historial de versiones',
+    historialNota: 'El contrato publica el valor, el estado y la vigencia de cada versión; todavía no publica quién la propuso ni quién la aprobó.',
+    columnas: { estado: 'Estado', valor: 'Valor', nivel: 'Nivel', vigenteDesde: 'Vigente desde' },
+    sinNivel: 'Único',
   },
   mensajeria: {
     canales: <Record<string, string>>{ CORREO: 'Correo', SMS: 'SMS', WHATSAPP: 'WhatsApp', PUSH: 'Notificación push', IN_APP: 'En la app' },

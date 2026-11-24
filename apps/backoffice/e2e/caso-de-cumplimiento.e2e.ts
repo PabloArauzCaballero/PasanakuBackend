@@ -51,6 +51,9 @@ async function entrarConPermiso(page: Page): Promise<void> {
     window.dispatchEvent(new PopStateEvent('popstate'))
   }, '/cumplimiento/casos/e2e-demo')
   await expect(page).toHaveURL(/\/cumplimiento\/casos\/e2e-demo/)
+  // La URL cambia con el `pushState` antes de que el Router pinte la ruta: sin esperar el título del caso, las
+  // capturas «inicial» salían del tablero (TEST_BUG visto en las capturas del 2026-11-24).
+  await expect(page.locator('h1')).toHaveText('Caso de cumplimiento')
 }
 
 test.describe('pantalla de caso — E2E dirigido', () => {
@@ -98,6 +101,31 @@ const VIEWPORTS = [
   { nombre: 'escritorio', width: 1440, height: 900 },
 ] as const
 
+test.describe('pantalla de caso — disposición', () => {
+  test('móvil: la causal queda en el primer pliegue y la escalera se despliega a pedido', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await entrarConPermiso(page)
+    await expect(page.getByRole('radiogroup', { name: 'Causal del catálogo' })).toBeVisible()
+    const primera = page.getByRole('radio').first()
+    await expect(primera).toBeInViewport()
+    const desplegar = page.getByText('Ver las 6 etapas del debido proceso')
+    await desplegar.click()
+    await expect(page.getByRole('list', { name: 'Etapa 1 de 6: Causal' })).toBeVisible()
+    await page.screenshot({ path: '../../evidencia/visual-caso-movil-claro-etapas-desplegadas.png', fullPage: true, animations: 'disabled' })
+  })
+
+  test('escritorio: la escalera es un riel lateral junto al formulario', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await entrarConPermiso(page)
+    const riel = page.getByRole('complementary', { name: 'Debido proceso' })
+    await expect(riel).toBeVisible()
+    await expect(page.getByText('Ver las 6 etapas del debido proceso')).toBeHidden()
+    const cajaRiel = await riel.boundingBox()
+    const cajaCausal = await page.getByRole('radiogroup', { name: 'Causal del catálogo' }).boundingBox()
+    expect(cajaRiel && cajaCausal && cajaRiel.x + cajaRiel.width <= cajaCausal.x).toBe(true)
+  })
+})
+
 test.describe('pantalla de caso — comparación visual (3 viewports × 2 temas)', () => {
   for (const vp of VIEWPORTS) {
     for (const tema of ['claro', 'oscuro'] as const) {
@@ -114,7 +142,8 @@ test.describe('pantalla de caso — comparación visual (3 viewports × 2 temas)
         await page.emulateMedia({ colorScheme: tema === 'oscuro' ? 'dark' : 'light' })
         await entrarConPermiso(page)
         await page.getByRole('radio').first().check()
-        await page.screenshot({ path: `../../evidencia/visual-caso-${vp.nombre}-${tema}-con-causal.png` })
+        await expect(page.getByRole('button', { name: 'Confirmar decisión' })).toBeEnabled()
+        await page.screenshot({ path: `../../evidencia/visual-caso-${vp.nombre}-${tema}-con-causal.png`, fullPage: true, animations: 'disabled' })
       })
     }
   }

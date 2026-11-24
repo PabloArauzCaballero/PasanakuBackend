@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core'
 import { NgTemplateOutlet } from '@angular/common'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
 import { Boton } from '@aportaya/ui/boton/boton'
@@ -6,6 +6,10 @@ import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pa
 import { Campo } from '@aportaya/ui/campo/campo'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { DialogoDeConfirmacion } from '@aportaya/ui/dialogo-de-confirmacion/dialogo-de-confirmacion'
+import { Esqueleto } from '@aportaya/ui/esqueleto/esqueleto'
+import { EstadoDeError } from '@aportaya/ui/estado-de-error/estado-de-error'
+import { EstadoVacio } from '@aportaya/ui/estado-vacio/estado-vacio'
+import { Fecha } from '@aportaya/ui/fecha/fecha'
 import { ListaDeOpciones } from '@aportaya/ui/lista-de-opciones/lista-de-opciones'
 import type { Tono } from '@aportaya/ui/tono/tono'
 import { EntradaVersionParametroMonedaEnum } from 'clientes/angular/tarifas/model/entradaVersionParametro'
@@ -22,13 +26,13 @@ import {
   type VersionDeParametro,
 } from '../dominio/cu132-parametros'
 import { textosConfiguracion } from '../textos'
-import { BORRADOR_VACIO, TONO, VALOR_DECIMAL, type Borrador, type CampoDePropuesta, type ErroresDeCampo, type Historial } from './modelo-pantalla-parametros'
+import { BORRADOR_VACIO, TONO, validarBorrador, type Borrador, type CampoDePropuesta, type ErroresDeCampo, type Historial } from './modelo-pantalla-parametros'
 
 /** CU-132 · Administrar valores solo desde el catálogo y con fuente declarada; el catálogo no incorpora valores por defecto. */
 @Component({
   selector: 'ap-pantalla-de-parametros-financieros',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alerta, Boton, CabeceraDePagina, Campo, ChipEstado, DialogoDeConfirmacion, ListaDeOpciones, NgTemplateOutlet],
+  imports: [Alerta, Boton, CabeceraDePagina, Campo, ChipEstado, DialogoDeConfirmacion, Esqueleto, EstadoDeError, EstadoVacio, Fecha, ListaDeOpciones, NgTemplateOutlet],
   templateUrl: './pantalla-de-parametros-financieros.html',
   styleUrl: './pantalla-de-parametros-financieros.scss',
 })
@@ -41,6 +45,7 @@ export class PantallaDeParametrosFinancieros implements OnInit {
   protected readonly monedas = [{ valor: 'BOB', texto: 'BOB' }, { valor: 'USD', texto: 'USD' }]
   protected readonly cargando = signal(false)
   protected readonly parametros = signal<ParametroFinanciero[]>([])
+  protected readonly pendientes = computed(() => this.parametros().reduce((n, p) => n + p.propuestas.length, 0))
   protected readonly error = signal<ErrorTraducido | null>(null)
   protected readonly errorDePropuesta = signal<ErrorTraducido | null>(null)
   protected readonly versionEnAprobacion = signal<VersionDeParametro | null>(null)
@@ -98,14 +103,7 @@ export class PantallaDeParametrosFinancieros implements OnInit {
   protected enviarPropuesta(p: ParametroFinanciero): void {
     if (this.enviando()) return
     const b = this.borrador()
-    const errores: ErroresDeCampo = {}
-    if (!VALOR_DECIMAL.test(b['valor'].trim())) errores['valor'] = this.t.parametros.valorInvalido
-    if (p.porNivel && (!b['nivel'].trim() || b['nivel'].trim().length > 30)) errores['nivel'] = this.t.parametros.nivelInvalido
-    if (p.unidad === 'MONTO' && !['BOB', 'USD'].includes(b['moneda'])) errores['moneda'] = this.t.parametros.monedaRequerida
-    if (!b['vigenteDesde'] || Number.isNaN(Date.parse(b['vigenteDesde']))) errores['vigenteDesde'] = this.t.parametros.campoRequerido
-    if (!b['fuente'].trim() || b['fuente'].trim().length > 200) errores['fuente'] = this.t.parametros.campoRequerido
-    if (!b['referencia'].trim() || b['referencia'].trim().length > 300) errores['referencia'] = this.t.parametros.campoRequerido
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(b['fecha']) || Number.isNaN(Date.parse(`${b['fecha']}T00:00:00Z`))) errores['fecha'] = this.t.parametros.fechaInvalida
+    const errores = validarBorrador(p, b, this.t.parametros)
     this.erroresDeCampo.set(errores)
     if (Object.keys(errores).length) return
 

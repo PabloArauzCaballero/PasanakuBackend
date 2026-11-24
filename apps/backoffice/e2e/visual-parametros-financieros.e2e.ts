@@ -18,8 +18,8 @@ const PROPUESTA = { id: 'v-2', codigo: 'DIAS_DE_GRACIA', valor: '6.000000', mone
 const PARAMETROS = [{ codigo: 'DIAS_DE_GRACIA', descripcion: 'Días de gracia', unidad: 'DIAS', porNivel: false, vigentes: [VERSION], propuestas: [PROPUESTA] }]
 const HISTORIAL = [PROPUESTA, VERSION, { ...VERSION, id: 'v-0', valor: '4.000000', estado: 'RECHAZADA' }]
 
-async function abrir(page: Page): Promise<void> {
-  await page.route(BASE, (route) => route.fulfill({ status: 200, json: PARAMETROS }))
+async function abrir(page: Page, catalogo: { status: number; json: unknown } = { status: 200, json: PARAMETROS }): Promise<void> {
+  await page.route(BASE, (route) => route.fulfill(catalogo))
   await page.route(`${BASE}/DIAS_DE_GRACIA/versiones`, (route) => route.fulfill({ status: 200, json: HISTORIAL }))
   await iniciarSesionDePrueba(page, ['TARIFARIO_ADMINISTRAR'])
   await navegarSinRecargar(page, '/configuracion/parametros-financieros')
@@ -39,6 +39,9 @@ for (const viewport of VIEWPORTS) {
       await expect(page.getByText('6.000000')).toBeVisible()
       await page.getByRole('button', { name: 'Ver historial completo' }).click()
       await expect(page.getByText('Rechazada')).toBeVisible()
+      // Abrir el historial desplaza la página; la captura de página completa dibujaría la barra fija a mitad de la imagen.
+      await page.evaluate(() => window.scrollTo(0, 0))
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
       await page.screenshot({ path: `../../.playwright/backoffice/visual/parametros/${viewport.nombre}.${tema}.png`, fullPage: true })
       const desborde = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
       expect(desborde, `${viewport.nombre} ${tema}: sin desborde horizontal`).toBeLessThanOrEqual(0)
@@ -54,4 +57,31 @@ test('parámetros CU-132 — el formulario asocia errores locales a sus campos',
   await expect(page.getByLabel('Valor (decimal)')).toHaveAttribute('aria-invalid', 'true')
   await expect(page.getByLabel('Fuente de la decisión')).toHaveAttribute('aria-invalid', 'true')
   await expect(page.getByText('Ingresá un decimal no negativo, con hasta 10 dígitos y 6 decimales.')).toBeVisible()
+})
+
+const CAPTURAS = '../../.playwright/backoffice/visual/parametros'
+
+test('parámetros CU-132 — vacío orienta (móvil claro)', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await abrir(page, { status: 200, json: [] })
+  await expect(page.getByText('No hay parámetros disponibles.')).toBeVisible()
+  await page.screenshot({ path: `${CAPTURAS}/estado-vacio.movil.light.png`, fullPage: true })
+})
+
+test('parámetros CU-132 — error accionable con reintento (escritorio oscuro)', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.emulateMedia({ colorScheme: 'dark' })
+  await abrir(page, { status: 503, json: { codigo: 'X', mensaje: 'detalle interno', trazaId: 'traza-e2e' } })
+  await expect(page.getByRole('button', { name: 'Volver a intentar' })).toBeVisible()
+  await expect(page.getByText('detalle interno')).toHaveCount(0)
+  await page.screenshot({ path: `${CAPTURAS}/estado-error.escritorio.dark.png`, fullPage: true })
+})
+
+test('parámetros CU-132 — propuesta abierta con errores por campo (tablet claro)', async ({ page }) => {
+  await page.setViewportSize({ width: 834, height: 1194 })
+  await abrir(page)
+  await page.getByRole('button', { name: 'Proponer una versión' }).click()
+  await page.getByRole('button', { name: 'Registrar propuesta' }).click()
+  await expect(page.getByLabel('Valor (decimal)')).toHaveAttribute('aria-invalid', 'true')
+  await page.screenshot({ path: `${CAPTURAS}/propuesta-con-errores.tablet.light.png`, fullPage: true })
 })
