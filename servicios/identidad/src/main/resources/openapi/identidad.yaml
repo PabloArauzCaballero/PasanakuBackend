@@ -414,7 +414,7 @@ paths:
         - bearerAuth: []
       tags: [Cuenta]
       parameters:
-        - { name: estado, in: query, required: false, schema: { type: string, enum: [PENDIENTE, APROBADA, RECHAZADA, EMITIDA, COMPLETADA, VENCIDA] } }
+        - { name: estado, in: query, required: false, schema: { type: string, maxLength: 12 } }
         - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
         - { name: antesDe, in: query, required: false, schema: { type: string, format: date-time } }
         - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
@@ -1341,7 +1341,7 @@ components:
       additionalProperties: false
       required: [alcance, venceEn, requiereClaveActual, requiereFactor]
       properties:
-        alcance: { type: string, enum: [ALTA, CLAVE, FACTOR] }
+        alcance: { type: string, maxLength: 10, description: 'ALTA, CLAVE o FACTOR' }
         nombres: { type: string, maxLength: 80 }
         venceEn: { type: string, format: date-time }
         requiereClaveActual: { type: boolean }
@@ -1361,7 +1361,7 @@ components:
       additionalProperties: false
       required: [alcance, sesionesCerradas]
       properties:
-        alcance: { type: string, enum: [ALTA, CLAVE, FACTOR] }
+        alcance: { type: string, maxLength: 10, description: 'ALTA, CLAVE o FACTOR' }
         sesionesCerradas: { type: integer, minimum: 0 }
     EntradaCambioDeClave:
       type: object
@@ -1383,7 +1383,7 @@ components:
       required: [correo, alcance]
       properties:
         correo: { type: string, format: email, maxLength: 150 }
-        alcance: { type: string, enum: [CLAVE, FACTOR] }
+        alcance: { type: string, pattern: '^(CLAVE|FACTOR)$', description: 'CLAVE o FACTOR' }
         motivo: { type: string, minLength: 5, maxLength: 200 }
     SalidaPedidoDeRecuperacion:
       type: object
@@ -1400,8 +1400,8 @@ components:
         usuarioId: { type: string, format: uuid }
         nombres: { type: string, maxLength: 80 }
         apellidos: { type: string, maxLength: 80 }
-        alcance: { type: string, enum: [CLAVE, FACTOR] }
-        estado: { type: string, enum: [PENDIENTE, APROBADA, RECHAZADA, EMITIDA, COMPLETADA, VENCIDA] }
+        alcance: { type: string, pattern: '^(CLAVE|FACTOR)$', description: 'CLAVE o FACTOR' }
+        estado: { type: string, maxLength: 12, description: 'PENDIENTE, APROBADA, RECHAZADA, EMITIDA, COMPLETADA o VENCIDA' }
         solicitadaEn: { type: string, format: date-time }
         motivo: { type: string, maxLength: 200 }
         decididaPor: { type: string, format: uuid, nullable: true }
