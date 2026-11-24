@@ -19,6 +19,10 @@ final _exigenIdentidad = <RegExp>[
   RegExp(r'^/pasanaku/grupos/nuevo$'),
   RegExp(r'^/pasanaku/grupos/[^/]+/pedir-cupo$'),
   RegExp(r'^/pasanaku/obligaciones/[^/]+/aportar$'),
+  // UX-A11Y-001: el servidor ya los rechaza sin identidad; sin esto el 403 llegaba al enviar.
+  RegExp(r'^/pasanaku/grupos/[^/]+/retiro$'),
+  RegExp(r'^/pasanaku/grupos/[^/]+/cupos/[^/]+/traspaso$'),
+  RegExp(r'^/pasanaku/turnos/permuta$'),
 ];
 
 bool exigeIdentidadVerificada(String ruta) {
