@@ -104,3 +104,16 @@ protegidas, entonces ningún defecto abierto del inventario se reproduce y la su
 | Rate-limit 429 de Maven Central en CI | rojo espurio | re-ejecutar el job; si persiste, registrar como ENVIRONMENT |
 | Sin Java/Gradle/Postgres local | no se reproduce local | usar CI como verificación, declarado |
 | SSH a TEST bloqueado | no se observa el health | Pablo ejecuta `estado` (acción en su host, no simulable) |
+
+## H4 — Rediseño visual de las pantallas mostradas (pedido de Pablo, 2026-11-24)
+**CA:** Dado el pedido de mejorar sustancialmente los visuales, cuando Pablo abre la recarga QR (app), el caso de cumplimiento y los parámetros financieros (backoffice), entonces ve jerarquía clara (lo que hay que hacer primero), estado vivo y legible, y el mismo comportamiento y textos de negocio, en claro y oscuro y en 3 anchos.
+**DoD:** suites de la app y del backoffice en verde · analyze/lint/format · E2E visuales re-generados · capturas antes/después inspeccionadas · PR a `dev` con CI verde.
+**Estado:** EN CURSO
+- Rama: `claude/visuales-20261124` (desde 2915db44, cabeza de #506). Sólo tokens del sistema de diseño, componentes existentes primero, sin librerías nuevas, sin cambiar contratos ni reglas de dinero.
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H4.S1.M1 | App: recarga QR con monto como protagonista, estado «esperando confirmación» visible y saldo secundario | capturas 3 anchos × 2 temas × 4 estados muestran la nueva jerarquía; tests de recarga verdes | `flutter test test/billetera` + capturas | TODO |
+| H4.S2.M1 | Backoffice: caso de cumplimiento con cabecera de resumen y escalera compacta en móvil / lateral en escritorio | E2E `caso-de-cumplimiento` 16/16 + capturas nuevas | `yarn playwright test e2e/caso-de-cumplimiento.e2e.ts` | TODO |
+| H4.S2.M2 | Backoffice: parámetros financieros con vigente / propuesta pendiente / historial jerarquizados | spec + E2E visual verdes | `ng test` del componente + `yarn playwright test e2e/visual-parametros-financieros.e2e.ts` | TODO |
+| H4.S3.M1 | PR de H4 a `dev` con CI verde y merge | `origin/dev` contiene la rama | check-runs + `git branch -r --contains` | TODO |
