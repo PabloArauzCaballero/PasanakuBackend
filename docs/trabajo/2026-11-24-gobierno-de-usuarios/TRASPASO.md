@@ -35,9 +35,13 @@ Ver `INVENTARIO.md` («Decisiones de Pablo»). Sobre B (2026-11-24): suspender r
 4. Si una sesión hija se corta por límite de uso (`usage_limit_reached` en `list_events kinds=["result"]`), reanudarla con `send_message` diciéndole que retome desde su PLAN/REPORTE.
 5. Mantener este archivo, `INVENTARIO.md` y los PLAN/REPORTE; mandar capturas y el HTML de avance (artefacto «Avance Pasanaku», https://claude.ai/artifact/SKh1SnUvcNRzCcacHcmVFE; la fuente es la tabla de arriba: porcentaje = microtareas HECHO / total de cada PLAN, con `python .claude/hooks/plan_status.py --path <PLAN.md>`).
 
-## Pendiente que solo Pablo puede resolver
+## Aprobaciones de Pablo (2026-11-24 ~23:30 UTC, «aprobado todo»)
 
-Aprobar CU-134; confirmar A1–A6 del lote E; correr `estado` en TEST (SSH bloqueado desde la nube); clave de release de Android (CONFIG-001); texto del tour del fondo de garantía (RESPALDO-003); retiro de AP-CU20-02 / AP-CU69-10 (APROB-001); detalle de grupos; prueba en dispositivo real.
+Aprobado todo lo que estaba bloqueado por él: **CU-134 con la recomendación de cada D-1…D-15 y el número CU-134** (lote G implementa, ver su sesión); las suposiciones A1–A6 del lote E tal como están escritas en su PLAN; RESPALDO-003, APROB-001 y grupos/detalle: opción recomendada en los documentos o, si no hay propuesta concreta, la conservadora, registrada en el REPORTE del lote H (`session_01ATKb2NR2voBqug9DCL1pZ2`, rama `claude/gu-h-pendientes-app`).
+
+## Pendiente que solo Pablo puede resolver (lo demás ya está aprobado)
+
+Correr `estado` en TEST (SSH bloqueado desde la nube); **crear la keystore de release de Android y sus secretos de Actions** (acción sobre algo compartido; el lote H deja los pasos exactos); crear el tema Kafka `aportaya.identidad.revocacion` con `despliegue/host/crear-topicos.sh` al desplegar; prueba en dispositivo real (push FCM, rostros reales, goldens macOS).
 
 ## Cómo verificar sin la máquina de la sesión anterior
 
@@ -54,3 +58,4 @@ Aprobar CU-134; confirmar A1–A6 del lote E; correr `estado` en TEST (SSH bloqu
 | 2026-11-24 23:30 | Se creó este traspaso y una tarea programada horaria que arranca una sesión nueva leyéndolo. |
 | 2026-11-24 23:24 | Lanzado el lote D (`session_01ATKb2NFv1aTGuXmnRXK9eP`). |
 | 2026-11-24 23:26 | #514 mergeado a dev; lanzados C y F en paralelo con D. Autorización de Pablo para mergear y promover a test. |
+| 2026-11-24 23:32 | Pablo aprobó todo lo bloqueado: G implementa CU-134; lanzado lote H (`session_01ATKb2NR2voBqug9DCL1pZ2`) para CONFIG-001/RESPALDO-003/APROB-001/grupos-detalle. |
