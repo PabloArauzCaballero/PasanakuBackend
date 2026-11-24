@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import bo.aportaya.identidad.aplicacion.GestionarUsuariosInternos;
+import bo.aportaya.identidad.aplicacion.ResolverNombresDeUsuariosInternos;
 import bo.aportaya.identidad.web.generado.modelo.EntradaActualizarUsuarioInterno;
 import bo.aportaya.identidad.web.generado.modelo.EntradaAltaUsuarioInterno;
 import bo.aportaya.identidad.web.generado.modelo.EntradaAsignarRolesUsuarioInterno;
@@ -39,6 +40,9 @@ class UsuariosInternosControllerWebTest {
 
     @MockitoBean
     private GestionarUsuariosInternos casoDeUso;
+
+    @MockitoBean
+    private ResolverNombresDeUsuariosInternos nombres;
 
     @Test
     @DisplayName("listar: 200 con lista de usuarios internos")

@@ -21,11 +21,13 @@ import {
   crearAprobarVersionDeParametro,
   crearCargarHistorialDeParametro,
   crearProponerVersionDeParametro,
+  operadoresDe,
   type EntradaVersionDeParametro,
   type ParametroFinanciero,
   type VersionDeParametro,
 } from '../dominio/cu132-parametros'
 import { textosConfiguracion } from '../textos'
+import { crearNombresDeOperadores } from './nombres-de-operadores'
 import { BORRADOR_VACIO, TONO, validarBorrador, type Borrador, type CampoDePropuesta, type ErroresDeCampo, type Historial } from './modelo-pantalla-parametros'
 
 /** CU-132 · Administrar valores solo desde el catálogo y con fuente declarada; el catálogo no incorpora valores por defecto. */
@@ -60,6 +62,7 @@ export class PantallaDeParametrosFinancieros implements OnInit {
   protected readonly cargandoHistorial = signal<Record<string, boolean>>({})
   protected readonly erroresHistorial = signal<Record<string, ErrorTraducido | undefined>>({})
   protected readonly erroresDeAprobacion = signal<Record<string, ErrorTraducido | undefined>>({})
+  protected readonly operadores = crearNombresDeOperadores(textosConfiguracion.parametros)
   private readonly sesion = inject(Sesion)
   protected readonly puedeAdministrar = () => this.sesion.puede('TARIFARIO_ADMINISTRAR')
   private readonly cargarCatalogo = cargadorDeParametrosFinancieros()
@@ -75,7 +78,7 @@ export class PantallaDeParametrosFinancieros implements OnInit {
     this.cargando.set(true)
     this.error.set(null)
     this.cargarCatalogo.subscribe({
-      next: (lista) => { this.parametros.set(lista); this.cargando.set(false) },
+      next: (lista) => { this.parametros.set(lista); this.cargando.set(false); this.operadores.resolver(operadoresDe(lista.flatMap((p) => [...p.vigentes, ...p.propuestas]))) },
       error: (e: ErrorTraducido) => { this.error.set(e); this.cargando.set(false) },
     })
   }
@@ -179,6 +182,7 @@ export class PantallaDeParametrosFinancieros implements OnInit {
       next: (versiones) => {
         this.historial.update((h) => ({ ...h, [codigo]: versiones }))
         this.cargandoHistorial.update((c) => ({ ...c, [codigo]: false }))
+        this.operadores.resolver(operadoresDe(versiones))
       },
       error: (e: ErrorTraducido) => {
         this.erroresHistorial.update((actual) => ({ ...actual, [codigo]: e }))

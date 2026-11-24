@@ -1,0 +1,65 @@
+{
+  "servicio": "identidad",
+  "operacion": "resolverNombresDeUsuariosInternos",
+  "metodo": "post",
+  "ruta": "/usuarios-internos/nombres",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "usuarioId": "c1320000-0000-4000-8000-00000000a001",
+          "nombre": "Carla Gutiérrez Rojas"
+        },
+        {
+          "usuarioId": "c1320000-0000-4000-8000-00000000b002",
+          "nombre": "Luis Fernando Mamani Choque"
+        }
+      ]
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": []
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "usuarioId": "c1320000-0000-4000-8000-00000000a001",
+          "nombre": "Carla Gutiérrez Rojas"
+        }
+      ]
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": [
+        {
+          "usuarioId": "c1320000-0000-4000-8000-00000000a001",
+          "nombre": "Carla Gutiérrez Rojas"
+        },
+        {
+          "usuarioId": "c1320000-0000-4000-8000-00000000b002",
+          "nombre": "Luis Fernando Mamani Choque"
+        }
+      ]
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU08-07",
+        "mensaje": "La lista repite un identificador de operador.",
+        "detalle": {},
+        "trazaId": "traza-resolverNombresDeUsuariosInternos-rechazo"
+      }
+    }
+  }
+}

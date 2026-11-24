@@ -1,0 +1,2 @@
+Validating spec (servicios/identidad/src/main/resources/openapi/identidad.yaml)
+No validation issues detected.

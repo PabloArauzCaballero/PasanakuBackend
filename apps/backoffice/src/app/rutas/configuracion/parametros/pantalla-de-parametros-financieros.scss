@@ -34,11 +34,15 @@ h2, h3, p, dl, dd { margin: 0; }
 .detalle dd ap-fecha { color: var(--text); }
 .oculto { position: absolute; width: var(--borde-fino); height: var(--borde-fino); overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .cuatro-ojos { font: var(--t-ayuda); color: var(--text-2); }
-/* Quién firmó: el identificador del operador en monoespaciada, como el resto de identificadores del backoffice. */
+/* Quién firmó: el nombre del operador; el identificador interno queda en la ayuda y en el texto para lectores. */
 .detalle .actor { flex-basis: 100%; }
 .detalle .actor dd, .tabla-historial .actor { overflow-wrap: anywhere; }
 code { font-family: var(--mono); font-size: .92em; color: var(--text); overflow-wrap: anywhere; }
 .sin-firma { color: var(--text-2); }
+/* El color del texto y no el gris: sobre el verde de marca el gris no llega a 4,5:1. «No disponible» se distingue
+   por la cursiva y por las palabras, no por el color. */
+.operador { color: var(--text); font-weight: 600; overflow-wrap: anywhere; }
+.operador.no-disponible { font-weight: 400; font-style: italic; }
 
 .formulario { display: grid; gap: var(--s3); min-width: 0; padding: var(--s4); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); background: var(--surface-2); }
 .formulario h3 { font: var(--t-titulo-3); letter-spacing: var(--t-titulo-3-track); overflow-wrap: anywhere; }
