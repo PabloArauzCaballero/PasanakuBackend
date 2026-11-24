@@ -15,30 +15,30 @@
 ## H1 — El backoffice nombra a quien propuso y a quien aprobó
 **CA:** Dado un parámetro con versión propuesta y aprobada por dos operadores internos, cuando un administrador del tarifario abre la pantalla, entonces ve los nombres de ambos y nunca un UUID suelto.
 **DoD:** verificadores del repo en 0 · spec del componente y E2E en verde · capturas revisadas.
-**Estado:** TODO
+**Estado:** A MEDIAS
 
 ### H1.S1 — Identidad resuelve nombres por lote
 **CA:** Dado un operador con permiso de backoffice, cuando pide nombres de ≤50 ids, entonces recibe solo `{usuarioId, nombre}` de usuarios internos activos.
 **DoD:** validación OpenAPI + verificadores; pruebas Java escritas (Gradle local no funciona: la CI las compila y corre).
-**Estado:** TODO
+**Estado:** A MEDIAS
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H1.S1.M1 | Contrato `resolverNombresDeUsuariosInternos` | El YAML valida y el esquema tiene lista blanca y límites | `java -jar openapi-generator-cli validate -i identidad.yaml` → «No validation issues» | TODO |
-| H1.S1.M2 | Controlador + caso de uso + repositorio jOOQ | Implementa la interfaz generada con `@Permiso` + alternativos | `python3 scripts/inventario_endpoints.py --check` → 0 | TODO |
-| H1.S1.M3 | Prueba web con matriz negativa y prueba de repositorio | 401/403/400/422 y omisión de clientes cubiertos | `python3 scripts/verificar_pruebas_web.py` → 0 (ejecución Java: CI) | TODO |
-| H1.S1.M4 | Ejemplo del simulado, Postman e inventario regenerados | Sin diff tras regenerar | `python3 scripts/generar_postman.py && git diff --stat postman/` | TODO |
+| H1.S1.M1 | Contrato `resolverNombresDeUsuariosInternos` | El YAML valida y el esquema tiene lista blanca y límites | `java -jar openapi-generator-cli validate -i identidad.yaml` → «No validation issues» | HECHO |
+| H1.S1.M2 | Controlador + caso de uso + repositorio jOOQ | Implementa la interfaz generada con `@Permiso` + alternativos | `python3 scripts/inventario_endpoints.py --check` → 0 | HECHO |
+| H1.S1.M3 | Prueba web con matriz negativa y prueba de repositorio | 401/403/400/422 y omisión de clientes cubiertos | `python3 scripts/verificar_pruebas_web.py` → 0 (ejecución Java: CI) | A MEDIAS — pruebas escritas y `verificar_pruebas_web.py` en 0; sin ejecutar (Gradle local 429): las corre la CI |
+| H1.S1.M4 | Ejemplo del simulado, Postman e inventario regenerados | Sin diff tras regenerar | `python3 scripts/generar_postman.py && git diff --stat postman/` | HECHO |
 
 ### H1.S2 — La pantalla usa los nombres
 **CA:** Dado el catálogo cargado, cuando la pantalla pinta «Propuso»/«Aprobó», entonces muestra el nombre o «Operador no disponible» si la resolución falla.
 **DoD:** spec + E2E + capturas.
-**Estado:** TODO
+**Estado:** HECHO
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H1.S2.M1 | Cliente Angular regenerado y función de dominio `resolverNombresDeOperadores` | Tipos del cliente compilan | `yarn tsc -p apps/backoffice/tsconfig.app.json --noEmit` → 0 | TODO |
-| H1.S2.M2 | Pantalla: una llamada por carga, nombre o texto de respaldo | Spec cubre nombres resueltos y fallo | `yarn vitest run …parametros…spec` → verde | TODO |
-| H1.S2.M3 | E2E con capturas en `evidencia/nombre-operador/` | 4 capturas revisadas | `yarn playwright test e2e/visual-parametros-financieros.e2e.ts` → verde | TODO |
+| H1.S2.M1 | Cliente Angular regenerado y función de dominio `resolverNombresDeOperadores` | Tipos del cliente compilan | `yarn tsc -p apps/backoffice/tsconfig.app.json --noEmit` → 0 | HECHO |
+| H1.S2.M2 | Pantalla: una llamada por carga, nombre o texto de respaldo | Spec cubre nombres resueltos y fallo | `yarn vitest run …parametros…spec` → verde | HECHO |
+| H1.S2.M3 | E2E con capturas en `evidencia/nombre-operador/` | 4 capturas revisadas | `yarn playwright test e2e/visual-parametros-financieros.e2e.ts` → verde | HECHO |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
