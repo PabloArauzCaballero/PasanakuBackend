@@ -892,7 +892,7 @@ paths:
         orden creadoEn descendente y, a igual fecha, id descendente; como mucho `limite` filas (50 si no
         se pide). La pagina siguiente se pide con `antesDe` = creadoEn y `antesDeId` = id de la ultima fila
         recibida; una pagina con menos filas que `limite` es la ultima. El cursor va en los dos parametros
-        o en ninguno: a medias, 422 AP-CU08-09. El cursor no lleva datos de la persona (fecha e id).
+        o en ninguno: a medias, 422 AP-CU08-12. El cursor no lleva datos de la persona (fecha e id).
       parameters:
         - name: estado
           in: query
@@ -921,7 +921,7 @@ paths:
         '403': { $ref: '#/components/responses/ReglaDeNegocio' }
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
-          # AP-CU08-09 FILTRO_DE_LISTADO_INVALIDO
+          # AP-CU08-12 FILTRO_DE_LISTADO_INVALIDO
     post:
       operationId: crearUsuarioInterno
       summary: Alta de usuario interno con contrasena provisional

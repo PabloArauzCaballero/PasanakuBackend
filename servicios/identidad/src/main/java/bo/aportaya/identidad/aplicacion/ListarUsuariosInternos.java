@@ -24,8 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ListarUsuariosInternos {
 
-    /** AP-CU08-09: el cursor llego con una sola de sus dos mitades. */
-    static final CodigoError FILTRO_DE_LISTADO_INVALIDO = CodigoError.de(8, 9);
+    /** AP-CU08-12 (09 a 11 son de los accesos de CU-08): el cursor llego con una sola de sus dos mitades. */
+    static final CodigoError FILTRO_DE_LISTADO_INVALIDO = CodigoError.de(8, 12);
 
     private final Datos datos;
     private final UsuariosInternosRepositorio repositorio;

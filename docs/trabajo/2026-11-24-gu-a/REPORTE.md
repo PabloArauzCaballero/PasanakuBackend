@@ -24,7 +24,7 @@
 | H4.S1.M2 | `GET /roles?asignablesAPersonalInterno=true` filtra; sin parámetro, igual que antes; 401/403 | `RolesControllerWebTest` | PASS 5/5 |
 | H4.S1.M3 | `PUT /usuarios-internos/{id}/roles` rechaza rol de servicio o de grupo con AP-CU08-08 y no cambia nada | `UsuariosInternosLecturaRepositorioTest` | PASS |
 | H5.S1.M1 | `tieneSegundoFactor` = factor activo y confirmado | `UsuariosInternosLecturaRepositorioTest` | PASS |
-| H5.S1.M2 | Listado paginado `(creadoEn, id)` desc, filtro de rol en SQL, cursor a medias → AP-CU08-09, límite > 100 → 400 | repositorio + `ListarUsuariosInternosTest` + `UsuariosInternosListadoWebTest` | PASS |
+| H5.S1.M2 | Listado paginado `(creadoEn, id)` desc, filtro de rol en SQL, cursor a medias → AP-CU08-12, límite > 100 → 400 | repositorio + `ListarUsuariosInternosTest` + `UsuariosInternosListadoWebTest` | PASS |
 | H6.S1.M1 | Verificadores, DDL, postman, inventario, openapi validate, `check` estático, typecheck y 774 specs del backoffice | ver `evidencia/H6-gates.md` | PASS |
 | H6.S1.M1b | `verificar_seguridad.py` acepta los bloques `sql` de la semilla | `python3 scripts/verificar_seguridad.py` | EXIT 0 |
 
@@ -79,8 +79,11 @@ pegada contiene datos de personas.
 - H6.S1.M1b agregada: la semilla usa un bloque `sql` (formato que `generar_semillas.py` ya admite) y
   `verificar_seguridad.py` indexaba `b["tabla"]` en cada bloque (KeyError). Se cambió a `b.get("tabla")` en 4 líneas.
 - La lectura se movió a `LecturaDeUsuariosInternos` porque `UsuariosInternosRepositorio` tenía 292 líneas (el barrido
-  corta en 300). `UsuariosInternosRepositorio.listar(dsl, estado, rol, busqueda, ahora)` se conserva acotado a una
-  página para `GestionarUsuariosInternos.listar`, que ya no tiene ruta (B puede borrarlo).
+  corta en 300). Por acuerdo con B (vía sesión principal) se borraron `GestionarUsuariosInternos.listar` y el `listar`
+  sin paginar del repositorio: ninguna ruta los usaba.
+- El error de cursor a medias es AP-CU08-12: AP-CU08-09…11 quedaron para B (acuerdo vía sesión principal). Como
+  `verificar_boveda.py` exige códigos correlativos en CU-08, la fila `FILTRO_DE_LISTADO_INVALIDO · AP-CU08-12` NO se
+  agregó al documento todavía: la agrega quien mergee segundo, después de las 09–11 de B (está en el contrato y el código).
 - La constante de tamaño de página se llamó `FILAS_POR_PAGINA` y no `LIMITE_POR_DEFECTO`: el barrido
   `sin-umbral-literal` trata los nombres `LIMITE*` como cifras regulatorias, y esto no lo es.
 - Se tocó CU-08 (lista de pares en el flujo 3a, errores AP-CU08-08/09) y el ejemplo generado del simulado de

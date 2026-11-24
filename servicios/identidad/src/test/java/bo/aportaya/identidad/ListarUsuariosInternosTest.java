@@ -21,20 +21,20 @@ class ListarUsuariosInternosTest {
             UUID.randomUUID(), "BACKOFFICE", new Traza(UUID.randomUUID().toString()));
 
     @Test
-    @DisplayName("cursor a medias: antesDe sin antesDeId es AP-CU08-09")
+    @DisplayName("cursor a medias: antesDe sin antesDeId es AP-CU08-12")
     void soloLaFecha() {
         assertThatThrownBy(() -> listar.listar(null, null, null, 10, OffsetDateTime.now(), null, ctx))
                 .isInstanceOfSatisfying(
                         ErrorDeNegocio.class,
-                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU08-09"));
+                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU08-12"));
     }
 
     @Test
-    @DisplayName("cursor a medias: antesDeId sin antesDe es AP-CU08-09")
+    @DisplayName("cursor a medias: antesDeId sin antesDe es AP-CU08-12")
     void soloElId() {
         assertThatThrownBy(() -> listar.listar(null, null, null, 10, null, UUID.randomUUID(), ctx))
                 .isInstanceOfSatisfying(
                         ErrorDeNegocio.class,
-                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU08-09"));
+                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU08-12"));
     }
 }

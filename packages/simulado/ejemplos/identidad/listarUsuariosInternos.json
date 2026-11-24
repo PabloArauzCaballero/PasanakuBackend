@@ -59,7 +59,7 @@
     "rechazo": {
       "estado": 401,
       "cuerpo": {
-        "codigo": "AP-CU08-09",
+        "codigo": "AP-CU08-12",
         "mensaje": "Filtro de listado invalido",
         "detalle": {},
         "trazaId": "traza-listarUsuariosInternos-rechazo"

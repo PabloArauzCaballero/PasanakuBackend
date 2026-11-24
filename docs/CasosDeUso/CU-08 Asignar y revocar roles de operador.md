@@ -114,7 +114,6 @@ export const ErroresCU08 = {
   ULTIMO_ADMINISTRADOR:         'AP-CU08-06',
   LOTE_CON_REPETIDOS:           'AP-CU08-07',
   ROL_NO_ASIGNABLE:             'AP-CU08-08',
-  FILTRO_DE_LISTADO_INVALIDO:   'AP-CU08-09',
 } as const
 ```
 
@@ -128,7 +127,6 @@ export const ErroresCU08 = {
 | `ULTIMO_ADMINISTRADOR` | La revocación dejaría la plataforma sin administrador de accesos |
 | `LOTE_CON_REPETIDOS` | Al resolver los nombres de operadores que firmaron (`POST /usuarios-internos/nombres`), la lista repite un identificador |
 | `ROL_NO_ASIGNABLE` | El rol existe pero no se otorga a personal interno: de participante (`PARTICIPANTE`, `ORGANIZADOR`, todo rol de ámbito `GRUPO`), `ANUNCIANTE` o una identidad de servicio `SERVICIO_*` (GU-13) |
-| `FILTRO_DE_LISTADO_INVALIDO` | Al listar personal interno (`GET /usuarios-internos`), el cursor llega a medias: `antesDe` sin `antesDeId` o al revés (GU-17) |
 
 ## Descomposición atómica
 

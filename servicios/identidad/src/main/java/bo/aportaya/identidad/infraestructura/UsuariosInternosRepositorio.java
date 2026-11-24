@@ -42,16 +42,6 @@ public class UsuariosInternosRepositorio {
         this.lectura = new LecturaDeUsuariosInternos(accesos);
     }
 
-    /** Primera pagina sin cursor; queda para {@code GestionarUsuariosInternos.listar}, que ya no tiene ruta. */
-    public List<UsuarioInternoResumen> listar(
-            DSLContext dsl, String estado, String rol, String busqueda, OffsetDateTime ahora) {
-        return listar(
-                dsl,
-                new FiltroDeUsuariosInternos(
-                        estado, rol, busqueda, FiltroDeUsuariosInternos.FILAS_POR_PAGINA, null, null),
-                ahora);
-    }
-
     public List<UsuarioInternoResumen> listar(DSLContext dsl, FiltroDeUsuariosInternos filtro, OffsetDateTime ahora) {
         return lectura.listar(dsl, filtro, ahora);
     }

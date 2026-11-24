@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import bo.aportaya.identidad.dominio.puertos.HasheadorDeCredencial;
 import bo.aportaya.identidad.infraestructura.AccesosRepositorio;
 import bo.aportaya.identidad.infraestructura.Argon2Hasheador;
+import bo.aportaya.identidad.infraestructura.FiltroDeUsuariosInternos;
 import bo.aportaya.identidad.infraestructura.NombresDeUsuariosInternosRepositorio;
 import bo.aportaya.identidad.infraestructura.RolesYPermisosRepositorio;
 import bo.aportaya.identidad.infraestructura.UsuariosInternosRepositorio;
@@ -116,7 +117,8 @@ class UsuariosInternosRepositorioTest {
         fixtura.rolGlobal(rol);
         UsuarioInternoDetalle detalle = tx.execute(s -> repositorio.crear(dsl, entrada(sufijo, rol), otorgante, AHORA));
 
-        var lista = tx.execute(s -> repositorio.listar(dsl, null, null, "prueba." + sufijo, AHORA));
+        var lista = tx.execute(s -> repositorio.listar(
+                dsl, new FiltroDeUsuariosInternos(null, null, "prueba." + sufijo, 50, null, null), AHORA));
 
         assertThat(lista).hasSize(1);
         assertThat(lista.get(0).getUsuarioId()).isEqualTo(detalle.getUsuarioId());
