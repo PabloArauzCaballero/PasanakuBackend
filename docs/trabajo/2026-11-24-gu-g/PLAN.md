@@ -48,7 +48,7 @@
 |---|---|---|---|---|
 | H1.S3.M1 | Correr los verificadores de bóveda locales del workflow `boveda-y-esquema.yml` | Todos exit 0 | `verificar_seguridad.py; verificar_boveda.py; verificar_carriles.py; verificar_criterios.py` → exit 0 | HECHO |
 | H1.S3.M2 | REPORTE.md con preguntas para Pablo | Tres secciones + preguntas | `python3 .claude/hooks/report_gate.py --self-test` y lectura del archivo | HECHO |
-| H1.S3.M3 | Commit, push y PR a `dev` con CI en verde | PR abierto, checks verdes | estado de checks del PR | A MEDIAS — PR #514 abierto; esperando la CI |
+| H1.S3.M3 | Commit, push y PR a `dev` con CI en verde | PR abierto, checks verdes | estado de checks del PR | A MEDIAS — PR #514: falló «Los cinco corredores» por 429 de Maven Central (EXTERNAL); re-run lanzado |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |

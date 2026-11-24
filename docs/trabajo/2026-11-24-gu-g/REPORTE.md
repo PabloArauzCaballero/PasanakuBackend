@@ -18,8 +18,8 @@
 ## A medias
 ### H1.S3.M3 — PR a `dev` con CI en verde
 - Qué anda: todos los verificadores que corre la CI sobre la bóveda pasan en local (ver Evidencia).
-- Qué no anda: todavía no se observó la CI del PR.
-- Qué falta exactamente: ver los checks del PR #514 en verde (commit, push y PR ya hechos).
+- Qué no anda: en el PR #514 pasaron «Bóveda, seguridad, carriles y despliegue coherentes», «La boveda y el esquema no divergen», «Esquema, semillas y prueba de humo sobre PostgreSQL real» y «Base efimera, semillas y permisos»; falló «Los cinco corredores» (job 138542891268) en `jacocoTestReport`: `Could not GET 'https://repo.maven.apache.org/maven2/org/jacoco/org.jacoco.ant/0.8.14/org.jacoco.ant-0.8.14.pom'. Received status code 429 from server: Too Many Requests`. Clasificación: `EXTERNAL` (límite de Maven Central); el diff no toca Java ni Gradle.
+- Qué falta exactamente: que termine el único re-run de los jobs fallidos (run 45419868730, lanzado 2026-11-24 18:23 UTC) y quede en verde. Si vuelve a fallar con 429, se deja un comentario en el PR y queda `BLOQUEADO` por `EXTERNAL`, sin más re-runs.
 - Dónde quedó: rama `claude/gu-g-cu-participantes`, PR https://github.com/PabloArauzCaballero/PasanakuBackend/pull/514 contra `dev`; solo documentos y el catálogo de datos regenerado.
 
 ## Pendiente
