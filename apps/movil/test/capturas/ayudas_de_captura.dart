@@ -102,3 +102,29 @@ Future<void> cargarFuentesReales() async {
     '$cache/hosted/pub.dev/lucide_icons_flutter-3.1.20/assets/lucide.ttf',
   ]);
 }
+
+/// Monta [pantalla] como una ruta apilada sobre otra, como llega en la app (desde la billetera):
+/// así la captura muestra el botón de volver de su cabecera en vez de una pantalla sin salida.
+class ComoRutaApilada extends StatefulWidget {
+  const ComoRutaApilada({super.key, required this.pantalla});
+  final Widget pantalla;
+
+  @override
+  State<ComoRutaApilada> createState() => _ComoRutaApiladaState();
+}
+
+class _ComoRutaApiladaState extends State<ComoRutaApilada> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute<void>(builder: (_) => widget.pantalla));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => const Scaffold();
+}
