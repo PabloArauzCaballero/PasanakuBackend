@@ -3,6 +3,7 @@ package bo.aportaya.identidad;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * El punto de arranque de identidad. No tiene logica: si aparece un if sobre una
@@ -13,6 +14,9 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
  */
 @SpringBootApplication
 @ConfigurationPropertiesScan
+// Sin esto, `@Scheduled` nunca suena: el vencimiento diario de accesos temporales (CU-08, GU-08)
+// pareceria escrito y estaria muerto.
+@EnableScheduling
 public class Aplicacion {
 
     public static void main(String[] argumentos) {

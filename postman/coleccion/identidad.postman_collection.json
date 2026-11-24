@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AportaYa · identidad",
-    "description": "# AportaYa · identidad\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**41 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
+    "description": "# AportaYa · identidad\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**45 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -2645,7 +2645,7 @@
         "description": "## Alta de usuario interno con contrasena provisional\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `crearUsuarioInterno` |\n| **Ruta** | `POST /api/v1/usuarios-internos` |\n| **Permiso** | `USUARIOS_INTERNOS_GESTIONAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"nombres\": \"nombres-de-prueba\",\n  \"apellidos\": \"apellidos-de-prueba\",\n  \"correo\": \"correo-de-prueba\",\n  \"telefono\": \"telefono-de-prueba\",\n  \"departamento\": \"departamento-de-prueba\",\n  \"cargo\": \"cargo-de-prueba\",\n  \"rolCodigo\": \"rolCodigo-de-prueba\"\n}",
+          "raw": "{\n  \"nombres\": \"nombres-de-prueba\",\n  \"apellidos\": \"apellidos-de-prueba\",\n  \"correo\": \"correo-de-prueba\",\n  \"telefono\": \"telefono-de-prueba\",\n  \"departamento\": \"departamento-de-prueba\",\n  \"cargo\": \"cargo-de-prueba\",\n  \"rolCodigo\": \"rolCodigo-de-prueba\",\n  \"motivo\": \"motivo-de-prueba\",\n  \"evidenciaMfa\": \"evidenciaMfa-de-prueba\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -2802,7 +2802,7 @@
         "description": "## Actualizar departamento, cargo o suspender con motivo\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `actualizarUsuarioInterno` |\n| **Ruta** | `PATCH /api/v1/usuarios-internos/{id}` |\n| **Permiso** | `USUARIOS_INTERNOS_GESTIONAR` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"departamento\": \"departamento-de-prueba\",\n  \"cargo\": \"cargo-de-prueba\",\n  \"estado\": \"ACTIVO\",\n  \"motivo\": \"motivo-de-prueba\"\n}",
+          "raw": "{\n  \"departamento\": \"departamento-de-prueba\",\n  \"cargo\": \"cargo-de-prueba\",\n  \"estado\": \"ACTIVO\",\n  \"motivo\": \"motivo-de-prueba\",\n  \"evidenciaMfa\": \"evidenciaMfa-de-prueba\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -2854,7 +2854,7 @@
       ]
     },
     {
-      "name": "asignarRolesUsuarioInterno · Actualizar roles de un usuario interno con motivo (CU-08)",
+      "name": "asignarRolesUsuarioInterno · Actualizar roles de un usuario interno con motivo (CU-08) — DEPRECADO",
       "request": {
         "method": "PUT",
         "header": [
@@ -2885,7 +2885,7 @@
             }
           ]
         },
-        "description": "## Actualizar roles de un usuario interno con motivo (CU-08)\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `asignarRolesUsuarioInterno` |\n| **Ruta** | `PUT /api/v1/usuarios-internos/{id}/roles` |\n| **Permiso** | `USUARIOS_INTERNOS_GESTIONAR` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Actualizar roles de un usuario interno con motivo (CU-08) — DEPRECADO\n\nDEPRECADO desde 2026-11-24 (GU-05): reemplazado por asignarRolDeOperador y revocarAsignacionDeRol, que llevan ambito, vigencia, justificacion y step-up. Se mantiene compatible mientras el backoffice migra (lote D); se retira cuando ningun cliente lo llame. Desde GU-06 aplica la DIFERENCIA: los roles que siguen conservan quien y cuando los otorgo, solo se revocan los que salen (con el motivo) y solo se asignan como GLOBAL los que entran; las sesiones se cierran solo si se quito algun rol. Nadie cambia sus propios roles y nunca deja la plataforma sin administrador de accesos.\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `asignarRolesUsuarioInterno` |\n| **Ruta** | `PUT /api/v1/usuarios-internos/{id}/roles` |\n| **Permiso** | `USUARIOS_INTERNOS_GESTIONAR` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"roles\": [\n    \"roles-de-prueba\"\n  ],\n  \"motivo\": \"motivo-de-prueba\"\n}",
@@ -2974,7 +2974,7 @@
         "description": "## Desbloquear usuario interno con motivo\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `desbloquearUsuarioInterno` |\n| **Ruta** | `POST /api/v1/usuarios-internos/{id}/desbloquear` |\n| **Permiso** | `USUARIOS_INTERNOS_GESTIONAR` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"motivo\": \"motivo-de-prueba\"\n}",
+          "raw": "{\n  \"motivo\": \"motivo-de-prueba\",\n  \"evidenciaMfa\": \"evidenciaMfa-de-prueba\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -2991,6 +2991,367 @@
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
               "const esperadas = [200, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "asignarRolDeOperador · Asignar UN rol a un operador, con ambito, vigencia opcional y justificacion",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/usuarios-internos/:id/asignaciones",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "usuarios-internos",
+            ":id",
+            "asignaciones"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "{{id}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## Asignar UN rol a un operador, con ambito, vigencia opcional y justificacion\n\nCU-08 por asignacion (decision P-2a). Agrega una asignacion sin tocar las demas: quien y cuando otorgo los roles que no cambian se conservan (GU-06) y agregar un rol NO cierra sesiones. Exige step-up (evidenciaMfa con proposito ADMIN de quien actua, un solo uso) y nadie se asigna nada a si mismo. Idempotente por contenido: si ya hay una asignacion viva igual (usuario, rol, ambito, ambitoId) responde 200 con la misma asignacionId y yaExistia=true, sin escribir ni emitir nada. requiereMfa=true avisa que el destinatario no tiene TOTP confirmado y no podra entrar (R-SEG-10). Cada asignacion deja un evento de bitacora y un pedido de aviso (CU-08 § Eventos).\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `asignarRolDeOperador` |\n| **Ruta** | `POST /api/v1/usuarios-internos/{id}/asignaciones` |\n| **Permiso** | `ACCESOS_ADMINISTRAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `200`, `400`, `401`, `403`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU08-01` | Rol inexistente |\n| `AP-CU08-02` | Ambito incompleto |\n| `AP-CU08-03` | Incompatibilidad de funciones |\n| `AP-CU08-04` | Autoasignacion |\n| `AP-CU08-09` | Step up requerido |\n| `AP-CU08-10` | Destinatario no habilitado |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"rolId\": \"{{rolId}}\",\n  \"ambito\": \"GLOBAL\",\n  \"ambitoId\": \"{{ambitoId}}\",\n  \"vigenteHasta\": \"{{momento_ahora}}\",\n  \"justificacion\": \"justificacion-de-prueba\",\n  \"evidenciaMfa\": \"evidenciaMfa-de-prueba\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 201, 400, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "revocarAsignacionDeRol · Revocar UNA asignacion con motivo, cerrando o no las sesiones del titular",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/usuarios-internos/asignaciones/:asignacionId/revocacion",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "usuarios-internos",
+            "asignaciones",
+            ":asignacionId",
+            "revocacion"
+          ],
+          "variable": [
+            {
+              "key": "asignacionId",
+              "value": "{{asignacionId}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## Revocar UNA asignacion con motivo, cerrando o no las sesiones del titular\n\nEscribe revocada_en y motivo_revocacion; la fila no se borra (R-AUD-01). cerrarSesiones (true por omision) invalida las sesiones del titular en la misma transaccion. Exige step-up; nadie revoca sus propias asignaciones; nunca deja la plataforma sin un titular vigente y ACTIVO de ACCESOS_ADMINISTRAR (AP-CU08-06). Idempotente: revocar una asignacion ya revocada responde 200 con yaEstabaRevocada=true y no escribe ni emite nada. Es POST y no DELETE porque lleva cuerpo (motivo).\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `revocarAsignacionDeRol` |\n| **Ruta** | `POST /api/v1/usuarios-internos/asignaciones/{asignacionId}/revocacion` |\n| **Permiso** | `ACCESOS_ADMINISTRAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `400`, `401`, `403`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU08-06` | Ultimo administrador |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"motivoRevocacion\": \"motivoRevocacion-de-prueba\",\n  \"cerrarSesiones\": true,\n  \"evidenciaMfa\": \"evidenciaMfa-de-prueba\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 400, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "darDeBajaUsuarioInterno · Baja del empleado — revoca todas sus asignaciones, cierra sus sesiones y conserva el historico",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/usuarios-internos/:id/baja",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "usuarios-internos",
+            ":id",
+            "baja"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "{{id}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## Baja del empleado — revoca todas sus asignaciones, cierra sus sesiones y conserva el historico\n\nEn un acto: revoca todas las asignaciones vivas con el motivo, cierra todas las sesiones y deja la cuenta en BAJA_VOLUNTARIA (no se borra ni se anonimiza: el historico de quien otorgo que queda). Exige step-up, nadie se da de baja a si mismo por aca y nunca deja la plataforma sin administrador de accesos. Idempotente: una cuenta ya dada de baja responde 200 con yaEstabaDeBaja=true.\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `darDeBajaUsuarioInterno` |\n| **Ruta** | `POST /api/v1/usuarios-internos/{id}/baja` |\n| **Permiso** | `ACCESOS_ADMINISTRAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `400`, `401`, `403`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"motivo\": \"motivo-de-prueba\",\n  \"evidenciaMfa\": \"evidenciaMfa-de-prueba\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 400, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "informeDeAccesos · Informe de accesos — vivos, por vencer en 7 dias y operadores sin TOTP confirmado",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/usuarios-internos/accesos/informe",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "usuarios-internos",
+            "accesos",
+            "informe"
+          ],
+          "variable": [],
+          "query": [
+            {
+              "key": "seccion",
+              "value": "VIVOS",
+              "description": "",
+              "disabled": false
+            },
+            {
+              "key": "pagina",
+              "value": "1",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "limite",
+              "value": "1",
+              "description": "",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "## Informe de accesos — vivos, por vencer en 7 dias y operadores sin TOTP confirmado\n\nUna fila por asignacion viva (ni revocada ni vencida). seccion=VIVOS las lista todas, POR_VENCER solo las que vencen dentro del horizonte (7 dias por omision) y SIN_TOTP las de rol GLOBAL cuyo titular no tiene un TOTP activo y confirmado. Orden determinista: VIVOS y SIN_TOTP por apellidos, nombres, rol y asignacionId; POR_VENCER por vigenteHasta y asignacionId. Paginado por numero de pagina. Devuelve el nombre del operador, nunca su correo ni su telefono.\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `informeDeAccesos` |\n| **Ruta** | `GET /api/v1/usuarios-internos/accesos/informe` |\n| **Permiso** | `ACCESOS_ADMINISTRAR` |\n| **Respuestas** | `200`, `400`, `401`, `403` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 400, 401, 403];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",
@@ -3264,6 +3625,14 @@
       "value": ""
     },
     {
+      "key": "ambitoId",
+      "value": ""
+    },
+    {
+      "key": "asignacionId",
+      "value": ""
+    },
+    {
       "key": "base_url",
       "value": ""
     },
@@ -3296,7 +3665,15 @@
       "value": ""
     },
     {
+      "key": "momento_ahora",
+      "value": ""
+    },
+    {
       "key": "prefijo_api",
+      "value": ""
+    },
+    {
+      "key": "rolId",
       "value": ""
     },
     {

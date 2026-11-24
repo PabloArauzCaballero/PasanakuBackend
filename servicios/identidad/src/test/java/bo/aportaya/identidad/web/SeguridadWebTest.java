@@ -41,6 +41,12 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
         })
 @Import(CookieDeRefresco.class)
 @MockitoBean(types = bo.aportaya.identidad.aplicacion.ConsultarContactoEnGrupo.class)
+@MockitoBean(
+        types = {
+            bo.aportaya.identidad.aplicacion.GobiernoDeAccesos.class,
+            bo.aportaya.identidad.aplicacion.CU08DarDeBaja.class,
+            bo.aportaya.identidad.aplicacion.CU08InformeDeAccesos.class
+        })
 class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean

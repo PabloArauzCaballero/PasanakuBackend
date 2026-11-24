@@ -1,8 +1,10 @@
 package bo.aportaya.identidad.web;
 
+import bo.aportaya.identidad.aplicacion.CU08DarDeBaja;
+import bo.aportaya.identidad.aplicacion.CU08InformeDeAccesos;
 import bo.aportaya.identidad.aplicacion.GestionarUsuariosInternos;
+import bo.aportaya.identidad.aplicacion.GobiernoDeAccesos;
 import bo.aportaya.identidad.aplicacion.ResolverNombresDeUsuariosInternos;
-import bo.aportaya.identidad.web.generado.UsuariosInternosApi;
 import bo.aportaya.identidad.web.generado.modelo.EntradaActualizarUsuarioInterno;
 import bo.aportaya.identidad.web.generado.modelo.EntradaAltaUsuarioInterno;
 import bo.aportaya.identidad.web.generado.modelo.EntradaAsignarRolesUsuarioInterno;
@@ -22,14 +24,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class UsuariosInternosController implements UsuariosInternosApi {
+public class UsuariosInternosController extends RutasDeAccesos {
 
     private final GestionarUsuariosInternos casoDeUso;
     private final ResolverNombresDeUsuariosInternos nombres;
     private final SesionDeLaPeticion sesion;
 
     public UsuariosInternosController(
-            GestionarUsuariosInternos casoDeUso, ResolverNombresDeUsuariosInternos nombres, SesionDeLaPeticion sesion) {
+            GestionarUsuariosInternos casoDeUso,
+            ResolverNombresDeUsuariosInternos nombres,
+            SesionDeLaPeticion sesion,
+            GobiernoDeAccesos gobierno,
+            CU08DarDeBaja baja,
+            CU08InformeDeAccesos informe) {
+        super(gobierno, baja, informe, sesion);
         this.casoDeUso = casoDeUso;
         this.nombres = nombres;
         this.sesion = sesion;
@@ -72,6 +80,8 @@ public class UsuariosInternosController implements UsuariosInternosApi {
         return ResponseEntity.ok(casoDeUso.actualizar(id, entrada, ctx));
     }
 
+    /** DEPRECADO (GU-05): reemplazado por {@code RutasDeAccesos}; compatible mientras el backoffice migra. */
+    @Deprecated
     @Override
     @Permiso("USUARIOS_INTERNOS_GESTIONAR")
     @PermisoAlternativo("ACCESOS_ADMINISTRAR")
@@ -87,7 +97,7 @@ public class UsuariosInternosController implements UsuariosInternosApi {
     public ResponseEntity<UsuarioInternoDetalle> desbloquearUsuarioInterno(
             UUID id, EntradaDesbloqueoUsuarioInterno entrada) {
         ContextoSesion ctx = sesion.actual();
-        return ResponseEntity.ok(casoDeUso.desbloquear(id, entrada.getMotivo(), ctx));
+        return ResponseEntity.ok(casoDeUso.desbloquear(id, entrada.getMotivo(), entrada.getEvidenciaMfa(), ctx));
     }
 
     // CU-132: la pantalla de parametros financieros muestra quien propuso y quien aprobo. La abre quien administra

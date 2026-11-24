@@ -1,0 +1,69 @@
+{
+  "servicio": "identidad",
+  "operacion": "informeDeAccesos",
+  "metodo": "get",
+  "ruta": "/usuarios-internos/accesos/informe",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "seccion": "POR_VENCER",
+        "generadoEn": "2026-11-24T15:00:00Z",
+        "items": [
+          {
+            "asignacionId": "b3668c43-b73a-42dd-845c-fe9e6aa0ff20",
+            "usuarioId": "30dc263f-e889-45ab-827a-acc6c19653be",
+            "nombre": "Laura Rojas",
+            "estadoCuenta": "ACTIVO",
+            "rolCodigo": "OPERATIONS_ANALYST",
+            "ambito": "GLOBAL",
+            "otorgadaPor": "7c1d2e3f-4a5b-4c6d-8e7f-90a1b2c3d4e5",
+            "otorgadaEn": "2026-11-01T14:00:00Z",
+            "vigenteHasta": "2026-11-28T23:59:00Z",
+            "totpConfirmado": true
+          }
+        ],
+        "pagina": 1,
+        "limite": 50,
+        "total": 1,
+        "totalPaginas": 1
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "seccion": "POR_VENCER",
+        "generadoEn": "2026-11-24T15:00:00Z",
+        "items": [],
+        "pagina": 1,
+        "limite": 50,
+        "total": 0,
+        "totalPaginas": 0
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "seccion": "SIN_TOTP",
+        "generadoEn": "2026-11-24T15:00:00Z",
+        "items": [
+          {
+            "asignacionId": "5e6f7a8b-9c0d-4e1f-a2b3-c4d5e6f7a8b9",
+            "usuarioId": "1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+            "nombre": "Carlos Mamani",
+            "estadoCuenta": "ACTIVO",
+            "rolCodigo": "RISK_ANALYST",
+            "ambito": "GLOBAL",
+            "otorgadaPor": "7c1d2e3f-4a5b-4c6d-8e7f-90a1b2c3d4e5",
+            "otorgadaEn": "2026-11-01T14:00:00Z",
+            "totpConfirmado": false
+          }
+        ],
+        "pagina": 1,
+        "limite": 50,
+        "total": 1,
+        "totalPaginas": 1
+      }
+    }
+  }
+}

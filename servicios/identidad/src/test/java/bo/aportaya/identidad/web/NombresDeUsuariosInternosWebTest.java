@@ -29,6 +29,13 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @PruebaWeb(UsuariosInternosController.class)
+// CU-08 por asignacion (GU-B): las rutas de accesos viven en el mismo controlador.
+@MockitoBean(
+        types = {
+            bo.aportaya.identidad.aplicacion.GobiernoDeAccesos.class,
+            bo.aportaya.identidad.aplicacion.CU08DarDeBaja.class,
+            bo.aportaya.identidad.aplicacion.CU08InformeDeAccesos.class
+        })
 class NombresDeUsuariosInternosWebTest {
 
     @Autowired
