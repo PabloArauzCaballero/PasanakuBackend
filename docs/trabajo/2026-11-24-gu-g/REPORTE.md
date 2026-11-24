@@ -1,6 +1,6 @@
 # Reporte — Lote G · CU de gobierno de participantes (borrador para aprobación)
 
-> **AVANCE: 9 / 10 — 90,0 %.** H1 cerrado (PR #514 y #518 en `dev`). H2: CU-134 pasa a APROBADO (decisión de Pablo del 2026-11-24); falta la CI del PR. Siguen abiertos los números de plazo (D-3) y la entrega durante la medida (D-11).
+> **AVANCE: 9 / 10 — 90,0 %.** H1 cerrado (PR #514 y #518 en `dev`). H2: CU-134 pasa a APROBADO (decisión de Pablo del 2026-11-24); falta la CI del PR. D-3 (5/5 días hábiles, 12 meses, 90 días) y D-11 (retener la entrega) resueltas por Pablo el mismo día; abiertas A-1 y A-2.
 
 - Fecha: 2026-11-24 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/gu-g-cu-participantes` → PR a `dev`
 - Peldaño de evidencia alcanzado: `RUNS` sobre la bóveda, en local y en la CI del PR #514 (los verificadores corren en exit 0 con el CU nuevo). Es un documento: no hay comportamiento que ejercitar; el CU queda **BORRADOR** hasta que Pablo lo apruebe (decisión P-11).
@@ -27,8 +27,8 @@
 | ID | Estado | Qué lo destraba |
 |---|---|---|
 | Implementación de CU-134 (Ola 3) | `TODO` | Aprobada por la sesión principal; arranca cuando #516 (lote B) esté en `dev` o contra un doble declarado de su contrato |
-| D-3 números de plazo | `DECISION_REQUIRED` | Pablo: días de descargo, apelación, prescripción y duración máxima de la suspensión |
-| D-11 entrega durante la medida | `DECISION_REQUIRED` | Pablo: decisión de dinero sin opción recomendada |
+| A-1 destino de la entrega retenida si la medida queda firme | `DECISION_REQUIRED` | Pablo |
+| A-2 prescripción en meses vs. columna en días; sin columna para duración máxima | `TODO` | Se resuelve en el modelo al implementar; Pablo si exige elegir equivalencia |
 
 ## Hallazgos (relevamiento)
 | Hecho | Ruta |
@@ -124,7 +124,8 @@ Archivos completos: [evidencia/](./evidencia/).
 - CU-44 menciona un estado `CONGELADA` de cuenta que no existe en `usuario.estado` (sí en `cuenta_billetera`): inconsistencia previa, anotada, no corregida (fuera de alcance).
 
 ## Decisiones y ambigüedades
-- 2026-11-24: Pablo aprobó todo el lote G («Aprobado todo lo de G ya mismo»), comunicado por la sesión principal. Se aplicó la opción recomendada en cada D-n. D-3 (números) y D-11 no tenían recomendación y siguen abiertas; D-13 no aplica porque D-2 no incluye inhabilitación definitiva.
+- 2026-11-24: Pablo aprobó todo el lote G («Aprobado todo lo de G ya mismo»), comunicado por la sesión principal. Se aplicó la opción recomendada en cada D-n. D-13 no aplica porque D-2 no incluye inhabilitación definitiva.
+- 2026-11-24: Pablo fijó D-3 (descargo 5 días hábiles, apelación 5 días hábiles, prescripción 12 meses, suspensión máxima 90 días; valor de plataforma sin fuente normativa) y D-11 (retener la entrega en custodia hasta resolver), comunicado por la sesión principal.
 - Número **CU-134** (no CU-133) — supuesto; confirmar con Pablo.
 - Servicio dueño `identidad` — supuesto; confirmar con Pablo.
 - Título del CU: el pedido literal del lote G.

@@ -5,7 +5,7 @@ tags:
   - modulo/09-auditoria-reportes-y-cumplimiento
 codigo: CU-134
 criticidad: alta
-estado_documento: APROBADO — decisión de Pablo del 2026-11-24 («Aprobado todo lo de G ya mismo»); quedan abiertos los números de plazo de D-3 y la decisión de dinero D-11
+estado_documento: APROBADO — decisión de Pablo del 2026-11-24 («Aprobado todo lo de G ya mismo»), con D-3 y D-11 resueltas por Pablo el mismo día
 actores: [Soporte, Analista de fraude, Responsable de seguridad, Segunda instancia, Participante, Sistema]
 normas: [Debido proceso, protección de datos personales, ASFI Seguridad de la Información, ASFI Consumidor Financiero]
 ---
@@ -23,10 +23,10 @@ normas: [Debido proceso, protección de datos personales, ASFI Seguridad de la I
 > bóveda que Pablo aprueba; recién después se implementa»). **Pablo lo aprobó el 2026-11-24**
 > («Aprobado todo lo de G ya mismo», comunicado por la sesión principal del trabajo): las
 > decisiones D-1 a D-15 quedan con la opción recomendada en el borrador, listadas en
-> *Decisiones aprobadas*. Lo marcado **APROBADO** era propuesta en el borrador. Dos puntos
-> **no** se cierran con esa aprobación porque el borrador no proponía un valor: los **números**
-> de los plazos (D-3) y **qué pasa con la entrega** si el turno cae durante la medida (D-11).
-> Siguen `DECISION_REQUIRED` y no se inventan (reglas 91 y 97.5.4).
+> *Decisiones aprobadas*. Lo marcado **APROBADO** era propuesta en el borrador. Los números
+> de plazo (D-3) y la retención de la entrega (D-11) los fijó Pablo aparte, el mismo día, **sin
+> fuente normativa**: son valores de plataforma editables sin tocar código. Queda abierto qué se
+> hace con una entrega retenida cuando la medida queda firme (ver *Ambigüedades abiertas*).
 
 ## Qué ya existe y no se duplica
 
@@ -71,8 +71,8 @@ Este caso **no** reemplaza a ninguno de estos; los invoca o se aparta de ellos.
 4. Para proponer una medida existe **causal del catálogo cerrado** (paso 6) y al menos
    una evidencia.
 5. Existe una política vigente **anterior al hecho** que fija plazos de descargo,
-   apelación y prescripción para estas medidas (*APROBADO*, ver D-3: hoy
-   [[politica_sancion]] con `grupo_id` nulo podría servir de política de plataforma).
+   apelación y prescripción para estas medidas (*APROBADO*, D-3): [[politica_sancion]] con
+   `grupo_id` nulo es la política de plataforma, sembrada con los valores de D-3.
 
 ## Flujo principal
 
@@ -195,9 +195,14 @@ Este caso **no** reemplaza a ninguno de estos; los invoca o se aparta de ellos.
     pendientes **siguen exigibles** y la persona puede pagarlas durante la medida (coherente
     con CU-27 §3); **no se la reemplaza** en el grupo por esta medida
     ([[CU-66 Reemplazar a un participante moroso]] sigue siendo solo para mora).
-    **Sigue abierto (D-11):** qué pasa con su entrega si su turno cae durante la medida. Hasta
-    que Pablo lo decida, la implementación **no** toca entregas ni cupos: solo cambia el
-    estado de la cuenta y lo informa.
+    **Entrega durante la medida (D-11 aprobada):** si el turno del participante cae mientras
+    tiene una medida vigente, su entrega **se retiene en custodia** sin perderse ni moverse a
+    otro: no se le acredita hasta resolver. Se **libera** a su cuenta verificada si la medida
+    se levanta, se desestima, se revierte o vence. Si la medida **queda firme**, el destino de
+    lo retenido **no está decidido** (ver *Ambigüedades abiertas*): queda retenido. La retención
+    la ejecuta el servicio `entregas` al consultar a `identidad` si el beneficiario tiene medida
+    vigente; el contrato entre servicios y su idempotencia se definen al implementar (reglas 91
+    y 98), sin cambiar la liquidación más de lo necesario.
 
 ## Flujos alternativos
 
@@ -457,7 +462,7 @@ principal del trabajo de gobierno de usuarios.
 | — | Número del caso | **CU-134** (CU-133 y CU-136 se usan como prefijo de pruebas en `servicios/entregas`) |
 | D-1 | Causales | Catálogo cerrado de cuatro: `CUENTA_COMPROMETIDA`, `FRAUDE_CON_EVIDENCIA`, `ABUSO_CONTRA_PARTICIPANTES`, `CUENTA_DUPLICADA_O_DE_TERCERO` |
 | D-2 | Medidas | Bloqueo cautelar y suspensión temporal. **No** hay inhabilitación definitiva ni amonestación |
-| D-3 | Plazos | Viven en [[politica_sancion]] con `grupo_id` nulo, como política de plataforma. **Los números (días de descargo, apelación, prescripción y duración máxima) siguen `DECISION_REQUIRED`**: el borrador no proponía valores |
+| D-3 | Plazos | Viven en [[politica_sancion]] con `grupo_id` nulo, como política de plataforma: **descargo 5 días hábiles, apelación 5 días hábiles, prescripción del expediente 12 meses, duración máxima de la suspensión 90 días**. Valor de plataforma aprobado por Pablo el 2026-11-24, **sin fuente normativa**; editable sin tocar código |
 | D-4 | Expediente | Tablas nuevas `expediente_medida_cuenta` y `apelacion_medida_cuenta` en el esquema `identidad` |
 | D-5 | Quién actúa | Permisos nuevos `PARTICIPANTES_MEDIDA_PROPONER`, `PARTICIPANTES_MEDIDA_DECIDIR` y `PARTICIPANTES_APELACION_RESOLVER`, asignados de inicio a `FRAUD_ANALYST`, `RESPONSABLE_SEGURIDAD` y el comité de gobierno respectivamente; tres personas distintas por expediente |
 | D-6 | Defensa con cuenta suspendida | Modo restringido: con `SUSPENDIDO` entra solo a ver la medida, presentar descargo y apelación, pagar y reclamar. Con cuenta comprometida, canal verificado alternativo |
@@ -465,11 +470,18 @@ principal del trabajo de gobierno de usuarios.
 | D-8 | Reputación | Solo una medida firme por `FRAUDE_CON_EVIDENCIA` o `ABUSO_CONTRA_PARTICIPANTES` produce evento de reputación |
 | D-9 | Base legal | Contrato de adhesión + seguridad de la información + prevención del fraude ([[Cumplimiento]] §5) |
 | D-10 | Aportes pendientes | Siguen exigibles y la persona puede pagarlos |
-| D-11 | Entrega durante la medida | **Sigue `DECISION_REQUIRED`**: el borrador no recomendaba ninguna opción por ser una decisión de dinero sin respaldo. Hasta que se decida, la medida no toca entregas |
+| D-11 | Entrega durante la medida | **Se retiene en custodia hasta resolver** (decisión de Pablo del 2026-11-24): se libera si la medida se levanta, se desestima, se revierte o vence; si queda firme, el destino se decide aparte |
 | D-12 | Reemplazo en el grupo | Nunca por esta medida |
 | D-13 | Inhabilitación con saldo o deuda | No aplica: D-2 no incluye inhabilitación definitiva |
 | D-14 | Registro de lectura | Se agregan `FICHA_PARTICIPANTE` y `CORREO` a `registro_acceso_datos.tipo_dato` |
 | D-15 | Motivo de bloqueo | Se agrega `CUENTA_COMPROMETIDA` al CHECK de [[bloqueo_cuenta]] |
+
+## Ambigüedades abiertas
+
+| ID | Ambigüedad | Supuesto mientras tanto | A quién confirmar |
+| --- | --- | --- | --- |
+| A-1 | Destino de una entrega retenida cuando la medida queda firme (D-11) | Sigue retenida; nadie la mueve | Pablo |
+| A-2 | La prescripción es de 12 meses, pero `politica_sancion.prescribe_en_dias` guarda días, y la duración máxima de 90 días no tiene columna | Se resuelve en el modelo al implementar, sin convertir meses a un número de días por cuenta propia | Pablo, si el modelo exige elegir una equivalencia |
 
 ## Ver también
 
