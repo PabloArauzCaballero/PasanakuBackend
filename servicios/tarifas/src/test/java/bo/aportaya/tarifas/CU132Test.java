@@ -112,6 +112,37 @@ class CU132Test extends BaseDeTarifas {
     }
 
     @Test
+    @DisplayName("Dado un parámetro con versiones aprobadas y propuestas · Cuando se consulta su historial · Entonces"
+            + " devuelve todas las versiones en orden de vigencia descendente")
+    void historialCompleto() {
+        var anterior = proponer("5", UUID.randomUUID());
+        var nuevaPropuesta = new CU132RegistroDeParametros.Propuesta(
+                Optional.empty(),
+                new BigDecimal("6"),
+                Optional.empty(),
+                VIGENTE.plusDays(1),
+                FUENTE,
+                REFERENCIA,
+                FECHA);
+        var posterior = proponer(nuevaPropuesta, UUID.randomUUID());
+        aprobar(posterior.id(), aprueba);
+
+        var historial = transaccion.execute(t -> cu132.historial(codigo, contextoDe(aprueba)));
+
+        assertThat(historial).extracting(VersionDelParametro::id).containsExactly(posterior.id(), anterior.id());
+        assertThat(historial).extracting(VersionDelParametro::estado).containsExactly("APROBADA", "PROPUESTA");
+    }
+
+    @Test
+    @DisplayName("Dado un código de parámetro que no existe · Cuando se consulta su historial · Entonces falla con"
+            + " AP-CU132-01")
+    void historialDeParametroInexistente() {
+        assertThatThrownBy(() -> transaccion.execute(t -> cu132.historial("NO_EXISTE", contextoDe(aprueba))))
+                .isInstanceOfSatisfying(ErrorDeNegocio.class, error -> assertThat(error.codigo())
+                        .isEqualTo(CodigoError.de(132, 1)));
+    }
+
+    @Test
     @DisplayName("Rechaza reutilizar la misma clave de propuesta con distinta fuente, referencia o fecha")
     void claveReutilizadaConOtraProcedencia() {
         UUID clave = UUID.randomUUID();

@@ -1,0 +1,12 @@
+$ yarn typecheck                       -> rc=0
+$ yarn lint                            -> rc=0 (ng lint + verificar_frontend.py; antes del ajuste: FALLA «más de 200 líneas» en pantalla-de-parametros-financieros.spec.ts (210) -> corregido a 200)
+$ ng test (casos + parametros + dominio) -> Test Files 9 passed (9) · Tests 57 passed (57)
+$ yarn test:front                      -> Test Files 189 passed (189) · Tests 1361 passed (1361)
+$ yarn test:a11y                       -> Test Files 46 passed (46) · Tests 98 passed (98)
+  (primera corrida: FALLA axe dlitem — div con role=status dentro del <dl>; PRODUCT_BUG, corregido con aria-live en el <dd>)
+$ yarn playwright test e2e/caso-de-cumplimiento.e2e.ts --workers=1 --retries=0
+  primera corrida: 1 failed — «móvil: la causal queda en el primer pliegue» (el resumen creció con alerta+titular; PRODUCT_BUG de layout)
+  tras compactar el titular a una línea: 19 passed (49.0s)
+$ yarn playwright test e2e/visual-parametros-financieros.e2e.ts --workers=1 --retries=0
+  12 passed (38.6s)
+Capturas (abiertas y revisadas): docs/trabajo/2026-11-23-continuar-traspaso/evidencia/contrato/

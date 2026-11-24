@@ -59,20 +59,17 @@ el token de la persona (o, en un reintento del reloj sin sesión, la credencial 
 La credencial es el token de acceso de una **cuenta de servicio** con el rol `SERVICIO_INVERSIONES`, emitido por
 identidad (RS256, 15 min, el único emisor, ADR-024). Dos formas, ambas secretas y por entorno (nunca en el repo):
 
-1. **Cuenta de servicio** (la forma de operar): `INVERSIONES_SERVICIO_TELEFONO`, `INVERSIONES_SERVICIO_CLAVE` y un
-   segundo factor (`INVERSIONES_SERVICIO_TOTP_SEMILLA`; en TEST, con el perfil `local` de identidad,
-   `INVERSIONES_SERVICIO_FACTOR_FIJO`). El servicio entra por `POST /sesiones` (CU-04) y **renueva el token solo**
+1. **Cuenta de servicio** (la forma de operar): `INVERSIONES_SERVICIO_TELEFONO`, `INVERSIONES_SERVICIO_CLAVE` y
+   `INVERSIONES_SERVICIO_TOTP_SEMILLA`. El servicio entra por `POST /sesiones` (CU-04) y **renueva el token solo**
    antes de que venza (`CredencialPorLogin`); si identidad no responde espera 30 s antes de volver a intentar
    (cada intento fallido cuenta para el bloqueo de la cuenta) y mientras tanto falla cerrado. Configuración a
    medias = el servicio no arranca.
 2. **Token emitido** (`INVERSIONES_LIBRO_CREDENCIAL_SERVICIO`): vive minutos; sirve para una prueba manual.
 
 El nucleo reconoce al servicio por el permiso `SERVICIO_INVERSIONES` del token (el reclamo `rol` de un token real
-es `BACKOFFICE`; `IdentidadDeServicio` en nucleo-financiero lo mapea). **Pendiente del lado de identidad (no es de
-este servicio):** hoy identidad solo valida un segundo factor real en el perfil `local` (código fijo), y no existe
-el endpoint de credenciales de cliente que pide el ADR-028; hasta entonces TEST usa la cuenta de servicio con el
-factor fijo y producción no puede usarla. Aprovisionar la cuenta (usuario, rol `SERVICIO_INVERSIONES`, factor) es
-una acción del entorno, no de una semilla (la tabla de usuarios no entra a `seeders/minimos`).
+es `BACKOFFICE`; `IdentidadDeServicio` en nucleo-financiero lo mapea). Aprovisionar la cuenta (usuario, rol
+`SERVICIO_INVERSIONES` y semilla TOTP) es una acción del entorno, no de una semilla (la tabla de usuarios no entra a
+`seeders/minimos`).
 
 ## Eventos que emite
 

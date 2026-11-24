@@ -5,7 +5,8 @@ import 'package:aportaya_movil/pantallas/pasanaku/dominio/enlace_del_grupo.dart'
 import 'package:aportaya_movil/pantallas/pasanaku/dominio/enlace_para_compartir.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// El enlace del grupo (2026-10-19): `https://<app web>/g/<tokenId>.<64 hex>`, que abre
+/// El enlace del grupo: `https://<app web>/g#/g/<tokenId>.<64 hex>` (SEG-005: el código en el
+/// fragmento no llega al servidor) — antes `/g/<código>`, que se sigue leyendo. Abre
 /// la app (App Links) o se escanea como QR.
 void main() {
   const base = 'https://app.aportaya.161.97.85.216.sslip.io';
@@ -15,9 +16,31 @@ void main() {
 
   group('el código', () {
     test('correcto: el enlace se arma con la app web y el código', () {
-      expect(enlaceDelGrupo(codigo, baseWeb: base), '$base/g/$codigo');
-      expect(codigoDeEnlaceDelGrupo(Uri.parse('$base/g/$codigo')), codigo);
+      expect(enlaceDelGrupo(codigo, baseWeb: base), '$base/g#/g/$codigo');
+      expect(
+        codigoDeEnlaceDelGrupo(
+          Uri.parse(enlaceDelGrupo(codigo, baseWeb: base)!),
+        ),
+        codigo,
+      );
     });
+
+    test(
+      'SEG-005: el código no viaja al servidor (ni en el path ni en la consulta)',
+      () {
+        final uri = Uri.parse(enlaceDelGrupo(codigo, baseWeb: base)!);
+        expect(uri.path, '/g');
+        expect(uri.query, isEmpty);
+        expect(uri.path.contains(codigo.split('.').last), isFalse);
+      },
+    );
+
+    test(
+      'compatibilidad: los enlaces ya compartidos (/g/<código>) se siguen leyendo',
+      () {
+        expect(codigoDeEnlaceDelGrupo(Uri.parse('$base/g/$codigo')), codigo);
+      },
+    );
 
     test('límite: también se lee con la ruta de la app web (#/g/…)', () {
       expect(codigoDeEnlaceDelGrupo(Uri.parse('$base/#/g/$codigo')), codigo);
@@ -37,6 +60,7 @@ void main() {
     test(
       'correcto: el enlace https (App Links) va a la pantalla de unirse',
       () {
+        expect(rutaInternaDesde(Uri.parse('$base/g#/g/$codigo')), '/g/$codigo');
         expect(rutaInternaDesde(Uri.parse('$base/g/$codigo')), '/g/$codigo');
       },
     );
@@ -44,6 +68,10 @@ void main() {
     test(
       'límite: el escáner acepta el QR del grupo solo del dominio propio',
       () {
+        expect(
+          rutaDeInvitacionDesdeQr('$base/g#/g/$codigo', appWeb: base),
+          '/g/$codigo',
+        );
         expect(
           rutaDeInvitacionDesdeQr('$base/g/$codigo', appWeb: base),
           '/g/$codigo',

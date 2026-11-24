@@ -34,6 +34,7 @@ void main() {
     WidgetTester tester, {
     required List<String> permisos,
     required void Function(dynamic adaptador) responder,
+    Future<bool> Function()? renovar,
   }) async {
     final (:dio, :adaptador) = dioSimulado();
     responder(adaptador);
@@ -58,7 +59,7 @@ void main() {
           sesionProvider.overrideWithValue(sesion),
           renovarAccesoProvider.overrideWithValue(() async {
             renovaciones++;
-            return true;
+            return renovar == null ? true : renovar();
           }),
         ],
         child: const MaterialApp(
@@ -136,6 +137,25 @@ void main() {
     expect(r.renovaciones(), 0);
     expect(find.text('Inicio'), findsOneWidget);
   });
+
+  testWidgets(
+    'inválido: un error de programación no se traga, se informa (PARCHE-001)',
+    (tester) async {
+      await montar(
+        tester,
+        permisos: const [],
+        responder: (a) =>
+            a.onGet(perfil, (s) => s.reply(200, cuenta('ACTIVO'))),
+        renovar: () async => throw StateError('defecto de programación'),
+      );
+
+      await tester.pump(intervalo);
+      await asentar(tester);
+
+      expect(tester.takeException(), isA<StateError>());
+      expect(find.text('Inicio'), findsOneWidget);
+    },
+  );
 
   testWidgets('con la cuenta ya habilitada no consulta nada', (tester) async {
     final r = await montar(

@@ -169,7 +169,7 @@ void main() {
       expect(find.textContaining('/g/$_codigo'), findsOneWidget);
       await tester.tap(find.text('Compartir enlace por WhatsApp'));
       await asentar(tester);
-      expect(compartir.texto, contains('$_web/g/$_codigo'));
+      expect(compartir.texto, contains('$_web/g#/g/$_codigo'));
       expect(compartir.imagenRuta, isNull);
     });
 

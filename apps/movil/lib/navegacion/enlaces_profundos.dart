@@ -10,10 +10,16 @@ import '../pantallas/pasanaku/dominio/enlace_para_compartir.dart';
 /// reenvía la URI recibida como ruta inicial (o como navegación en caliente si la
 /// app ya estaba abierta) por el canal de sistema `flutter/navigation`, sin
 /// necesitar un paquete de pub adicional.
+/// Hosts cuyo destino no recibe parámetros: un segmento de más se ignora en lugar de
+/// armar una ruta que no existe.
+const Set<String> _hostsSinResto = {'aporte'};
+
 const Map<String, String> _prefijosPorHost = {
   'unirse': '/pasanaku/unirse',
   'billetera': '/billetera/inicio',
-  'aporte': '/billetera/aportes',
+  // El recordatorio de cuota lleva a «Mi estado», donde se ve la cuota pendiente y se
+  // paga con el saldo (P-06). HUECO-001: antes apuntaba a /billetera/aportes, que no existe.
+  'aporte': '/pasanaku/mi-estado',
   'notificaciones': '/notificaciones/bandeja',
 };
 
@@ -35,6 +41,6 @@ String? rutaInternaDesde(Uri uri) {
   final prefijo = _prefijosPorHost[uri.host];
   if (prefijo == null) return null;
   final resto = uri.pathSegments;
-  if (resto.isEmpty) return prefijo;
+  if (resto.isEmpty || _hostsSinResto.contains(uri.host)) return prefijo;
   return '$prefijo/${resto.join('/')}';
 }

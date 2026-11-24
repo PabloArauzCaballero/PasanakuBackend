@@ -100,7 +100,8 @@ jobs:
           flutter build apk --release \
             --build-number=${{ github.run_number }} \
             --dart-define=API=${{ env.API_TEST }} \
-            --dart-define=HOSTS_PERMITIDOS=${{ env.HOST_TEST }}
+            --dart-define=HOSTS_PERMITIDOS=${{ env.HOST_TEST }} \
+            --dart-define=PAGOS_DE_PRUEBA=true
           mv build/app/outputs/flutter-apk/app-release.apk \
             "build/aportaya-test-${{ github.run_number }}.apk"
           ls -l build/*.apk

@@ -6,15 +6,26 @@ import '../proveedores/sesion.dart';
 /// comparten el mismo `Future` en vez de disparar un `POST /sesion/refrescar` cada
 /// una. Sale por un `Dio` propio, sin los interceptores de la app: si pasara por
 /// `_TrazaYSesion`, un `401` del propio refresco reentraría a este mismo mecanismo.
+///
+/// El refresco en vuelo se comparte **por sesión**, no por instancia (DEFECTO-003):
+/// `cliente.dart`, `renovar_acceso.dart` y `habilitacion_basica.dart` crean cada uno su
+/// `Refrescador`, y dos refrescos simultáneos gastarían el mismo token de refresco dos
+/// veces, lo que el servidor castiga revocando la sesión por reuso.
 class Refrescador {
   Refrescador(this._sesion, this._dioSinInterceptores);
   final Sesion _sesion;
   final Dio _dioSinInterceptores;
-  Future<bool>? _enVuelo;
+  static final Expando<Future<bool>> _enVueloPorSesion = Expando();
 
-  Future<bool> refrescar() => _enVuelo ??= _hacerRefresco().whenComplete(() {
-    _enVuelo = null;
-  });
+  Future<bool> refrescar() {
+    final enVuelo = _enVueloPorSesion[_sesion];
+    if (enVuelo != null) return enVuelo;
+    final nuevo = _hacerRefresco().whenComplete(() {
+      _enVueloPorSesion[_sesion] = null;
+    });
+    _enVueloPorSesion[_sesion] = nuevo;
+    return nuevo;
+  }
 
   Future<bool> _hacerRefresco() async {
     final refresco = await _sesion.tokenDeRefresco();

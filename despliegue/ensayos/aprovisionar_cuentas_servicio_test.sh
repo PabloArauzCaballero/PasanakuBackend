@@ -29,9 +29,9 @@
 #   del contenedor con `docker exec … printenv`, viajan por entorno (no por argumentos) y no se guardan.
 #
 # DESPUES DE CORRERLO (lo dice tambien al final)
-#   En Coolify, por servicio, cargar las TRES variables del archivo (cat del archivo en el VPS, sin copiarlo a otro lado)
-#   y dejar VACIA <PREFIJO>_SERVICIO_FACTOR_FIJO. Ojo: si docker-compose.coolify.yml sigue declarando esas variables
-#   con valor literal vacio, lo que se cargue en Coolify NO llega al contenedor: hay que pasarlas como ${VAR:-} en
+#   En Coolify, por servicio, cargar las TRES variables del archivo (cat del archivo en el VPS, sin copiarlo a otro lado).
+#   El servicio solo acepta TOTP; no se configura ningún factor fijo. Si el compose declara las variables de cuenta con
+#   valor literal vacío, lo cargado en Coolify NO llega al contenedor: hay que pasarlas como ${VAR:-} en
 #   scripts/generar_compose.py. El guion lo detecta y lo avisa.
 #
 # COMO SE CORRE (desde tu maquina)
@@ -243,7 +243,7 @@ SQL
   echo "[cuentas] despues:"; for s in "${servicios[@]}"; do estado_de "$s" | sed 's/^/[cuentas]   /'; done
   echo "[cuentas] creadas: $creadas · completadas: $completadas"
   echo "[cuentas] En Coolify, por servicio: cargar las 3 variables de $DIR/<servicio>-cuenta-servicio-test.env"
-  echo "[cuentas]   (<PREFIJO>_SERVICIO_TELEFONO, _CLAVE y _TOTP_SEMILLA) y dejar VACIA <PREFIJO>_SERVICIO_FACTOR_FIJO."
+  echo "[cuentas]   (<PREFIJO>_SERVICIO_TELEFONO, _CLAVE y _TOTP_SEMILLA)."
   avisar_compose "$PG"
 }
 

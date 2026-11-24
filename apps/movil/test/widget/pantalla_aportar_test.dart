@@ -31,8 +31,8 @@ void main() {
     await asentar(tester);
   }
 
-  Map<String, dynamic> cobroOk() =>
-      ejemplo('aportes', 'cobrarAporte', 'ok')['cuerpo']
+  Map<String, dynamic> pagoOk() =>
+      ejemplo('aportes', 'pagarCuotaConSaldo', 'ok')['cuerpo']
           as Map<String, dynamic>;
 
   testWidgets('sin canal, sin referencia y sin monto editable', (tester) async {
@@ -59,7 +59,7 @@ void main() {
     final (:dio, :adaptador) = dioSimulado();
     Object? cuerpoEnviado = 'sin pedido';
     String? clave;
-    adaptador.onPost(_ruta, (s) => s.reply(201, cobroOk()));
+    adaptador.onPost(_ruta, (s) => s.reply(201, pagoOk()));
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (o, h) {
@@ -83,7 +83,7 @@ void main() {
     tester,
   ) async {
     final (:dio, :adaptador) = dioSimulado();
-    adaptador.onPost(_ruta, (s) => s.reply(200, cobroOk()));
+    adaptador.onPost(_ruta, (s) => s.reply(200, pagoOk()));
     await abrir(tester, dio);
     await tester.tap(find.widgetWithText(Boton, 'Aportar Bs 4,44'));
     await asentar(tester);

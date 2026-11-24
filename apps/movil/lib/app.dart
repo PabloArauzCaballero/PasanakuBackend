@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-export 'app_real.dart'
-    show localeDeAportaYa, localesDeAportaYa, delegadosDeLocalizacionDeAportaYa;
+export 'localizacion.dart'
+    show localeDeAportaYa, idiomasDeLaApp, delegadosDeIdioma;
+
+import 'localizacion.dart';
 
 import 'dominio/cierre_de_sesion.dart';
 import 'dominio/vigilante_de_sesion.dart';
@@ -140,8 +142,8 @@ class _AppAportaYaState extends ConsumerState<AppAportaYa> {
         child: MaterialApp(
           title: 'AportaYa',
           locale: localeDeAportaYa,
-          supportedLocales: localesDeAportaYa,
-          localizationsDelegates: delegadosDeLocalizacionDeAportaYa,
+          supportedLocales: idiomasDeLaApp,
+          localizationsDelegates: delegadosDeIdioma,
           theme: temaDesde(Tokens.claro, Brightness.light),
           home: Scaffold(body: AperturaDeMarca(alTerminar: () {})),
         ),

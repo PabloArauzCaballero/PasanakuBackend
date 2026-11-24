@@ -36,9 +36,9 @@ import org.springframework.test.web.servlet.MockMvc;
 /**
  * Backoffice carril A · H5.S2 · el contrato HTTP de abrir y decidir un caso LFT.
  *
- * <p>Lo que solo se ve aca: que el cuerpo de la decision NO puede declarar quien revisa ni quien
- * analizo (el contrato rechaza esos campos: el revisor es la sesion), que sin {@code CUMPLIMIENTO_CASOS}
- * un analista no decide, y que los rechazos de negocio llegan con su codigo.
+ * <p>Lo que solo se ve aca: la apertura atribuye el analista al actor autenticado aun si un cliente
+ * desplegado manda el campo heredado, la decisión exige su permiso separado y usa el actor de sesión,
+ * y los rechazos de negocio llegan con su código.
  */
 @PruebaWeb(CumplimientoController.class)
 class LftAccionesWebTest {
@@ -85,7 +85,7 @@ class LftAccionesWebTest {
     }
 
     @Test
-    @DisplayName("201: el oficial abre un caso con alertas y analista, y recibe el plazo guardado")
+    @DisplayName("201: la sesión se registra como analista; el campo heredado del cliente se ignora")
     void abreCaso() throws Exception {
         when(cu44.abrirCaso(any(), any()))
                 .thenReturn(new CU44InvestigarYReportar.SalidaCaso(CASO, "ABIERTO", PLAZO, null));
@@ -101,8 +101,7 @@ class LftAccionesWebTest {
                 .andExpect(jsonPath("$.estado").value("ABIERTO"));
         verify(cu44)
                 .abrirCaso(
-                        eq(new CU44InvestigarYReportar.EntradaCaso(
-                                List.of(ALERTA), ANALISTA, "Fraccionamiento detectado")),
+                        eq(new CU44InvestigarYReportar.EntradaCaso(List.of(ALERTA), "Fraccionamiento detectado")),
                         any());
     }
 
@@ -114,7 +113,7 @@ class LftAccionesWebTest {
                 .thenReturn(new CU44DecidirComoRevisor.Decision(CASO, "DESCARTAR", oficial, 2, false, null));
 
         mvc.perform(post("/cumplimiento/casos/{id}/decision", CASO)
-                        .with(Sesiones.como("OFICIAL_CUMPLIMIENTO", "CUMPLIMIENTO_CASOS"))
+                        .with(Sesiones.como("OFICIAL_CUMPLIMIENTO", "CUMPLIMIENTO_CASOS_DECIDIR"))
                         .header("Idempotency-Key", CLAVE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(cuerpoDecision("")))
@@ -129,13 +128,13 @@ class LftAccionesWebTest {
             "400: el cuerpo no puede declarar revisadoPor ni analistaId: suplantar al revisor no llega al caso de uso")
     void noSeDeclaraElRevisor() throws Exception {
         mvc.perform(post("/cumplimiento/casos/{id}/decision", CASO)
-                        .with(Sesiones.como("OFICIAL_CUMPLIMIENTO", "CUMPLIMIENTO_CASOS"))
+                        .with(Sesiones.como("OFICIAL_CUMPLIMIENTO", "CUMPLIMIENTO_CASOS_DECIDIR"))
                         .header("Idempotency-Key", CLAVE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(cuerpoDecision(",\"revisadoPor\":\"" + ANALISTA + "\"")))
                 .andExpect(status().isBadRequest());
         mvc.perform(post("/cumplimiento/casos/{id}/decision", CASO)
-                        .with(Sesiones.como("OFICIAL_CUMPLIMIENTO", "CUMPLIMIENTO_CASOS"))
+                        .with(Sesiones.como("OFICIAL_CUMPLIMIENTO", "CUMPLIMIENTO_CASOS_DECIDIR"))
                         .header("Idempotency-Key", CLAVE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(cuerpoDecision(",\"analistaId\":\"" + ANALISTA + "\"")))
@@ -147,7 +146,7 @@ class LftAccionesWebTest {
     @DisplayName("400: una conclusion de menos de 20 caracteres la corta el contrato (R-UIF-07)")
     void conclusionCorta() throws Exception {
         mvc.perform(post("/cumplimiento/casos/{id}/decision", CASO)
-                        .with(Sesiones.como("OFICIAL_CUMPLIMIENTO", "CUMPLIMIENTO_CASOS"))
+                        .with(Sesiones.como("OFICIAL_CUMPLIMIENTO", "CUMPLIMIENTO_CASOS_DECIDIR"))
                         .header("Idempotency-Key", CLAVE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"decision\":\"DESCARTAR\",\"conclusion\":\"revisado\"}"))
@@ -156,22 +155,38 @@ class LftAccionesWebTest {
     }
 
     @Test
-    @DisplayName("403: el analista (solo CUMPLIMIENTO_ALERTAS) no abre ni decide casos")
+    @DisplayName("403: el analista con permiso de casos, sin permiso de decisión, no puede decidir")
     void analistaNoDecide() throws Exception {
         mvc.perform(post("/cumplimiento/casos/{id}/decision", CASO)
-                        .with(Sesiones.como("ANALISTA_CUMPLIMIENTO", "CUMPLIMIENTO_ALERTAS"))
+                        .with(Sesiones.como("ANALISTA_CUMPLIMIENTO", "CUMPLIMIENTO_ALERTAS", "CUMPLIMIENTO_CASOS"))
                         .header("Idempotency-Key", CLAVE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(cuerpoDecision("")))
                 .andExpect(status().isForbidden());
-        mvc.perform(post("/cumplimiento/casos")
-                        .with(Sesiones.como("ANALISTA_CUMPLIMIENTO", "CUMPLIMIENTO_ALERTAS"))
+        verifyNoInteractions(decision, cu44);
+    }
+
+    @Test
+    @DisplayName("403: el permiso para abrir/listar casos no permite decidirlos")
+    void permisoDeAperturaNoPermiteDecidir() throws Exception {
+        mvc.perform(post("/cumplimiento/casos/{id}/decision", CASO)
+                        .with(Sesiones.como("ANALISTA_CUMPLIMIENTO", "CUMPLIMIENTO_CASOS"))
                         .header("Idempotency-Key", CLAVE)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"alertaIds\":[\"" + ALERTA + "\"],\"analistaId\":\"" + ANALISTA
-                                + "\",\"resumen\":\"x\"}"))
+                        .content(cuerpoDecision("")))
                 .andExpect(status().isForbidden());
-        verifyNoInteractions(decision, cu44);
+        verifyNoInteractions(decision);
+    }
+
+    @Test
+    @DisplayName("401: sin sesion no se puede decidir un caso")
+    void decisionSinSesion() throws Exception {
+        mvc.perform(post("/cumplimiento/casos/{id}/decision", CASO)
+                        .header("Idempotency-Key", CLAVE)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(cuerpoDecision("")))
+                .andExpect(status().isUnauthorized());
+        verifyNoInteractions(decision);
     }
 
     @Test
@@ -181,7 +196,7 @@ class LftAccionesWebTest {
                 .thenThrow(new ErrorDeNegocio(CodigoError.de(44, 7), "Ese caso ya tiene su decision."));
 
         mvc.perform(post("/cumplimiento/casos/{id}/decision", CASO)
-                        .with(Sesiones.como("OFICIAL_CUMPLIMIENTO", "CUMPLIMIENTO_CASOS"))
+                        .with(Sesiones.como("OFICIAL_CUMPLIMIENTO", "CUMPLIMIENTO_CASOS_DECIDIR"))
                         .header("Idempotency-Key", CLAVE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(cuerpoDecision("")))

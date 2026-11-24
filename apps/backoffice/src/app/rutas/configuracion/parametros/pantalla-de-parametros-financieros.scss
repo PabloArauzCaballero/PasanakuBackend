@@ -1,0 +1,81 @@
+.pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
+.ayuda { margin: 0; color: var(--text-2); font: var(--t-cuerpo-chico); }
+.resumen { margin: 0; font: var(--t-cuerpo-chico); font-weight: 600; color: var(--text-2); }
+h2, h3, p, dl, dd { margin: 0; }
+
+/* Un parámetro es una ficha: qué es, qué rige hoy, qué espera aprobación y su historia, en ese orden de peso. */
+.parametro { container-type: inline-size; display: grid; gap: var(--s4); min-width: 0; padding: var(--s4); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }
+.encabezado { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--s3); }
+.identidad { display: grid; gap: var(--s1); min-width: 0; }
+.identidad h2 { font: var(--t-titulo-2); letter-spacing: var(--t-titulo-2-track); color: var(--text); overflow-wrap: anywhere; }
+.meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s1) var(--s2); color: var(--text-2); font: var(--t-cuerpo-chico); }
+.meta code { padding: 0 var(--s2); border-radius: var(--r-sm); background: var(--surface-2); color: var(--text); font-family: var(--mono); overflow-wrap: anywhere; }
+.meta span + span::before { content: '·'; margin-right: var(--s2); color: var(--text-3); }
+
+.tablero { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; gap: var(--s3); }
+.carril { display: grid; align-content: start; gap: var(--s3); min-width: 0; padding: var(--s4); border-radius: var(--r-md); border: var(--borde-fino) solid var(--border); }
+.carril h3 { font: var(--t-etiqueta); letter-spacing: var(--t-etiqueta-track); text-transform: uppercase; color: var(--text-2); }
+.rige { background: var(--brand-bg); border-color: color-mix(in srgb, var(--verde-solido) 30%, transparent); }
+.rige h3 { color: var(--brand-texto); }
+/* Sobre el verde de marca el gris secundario no llega a 4,5:1 en oscuro: los rótulos van en el color del texto. */
+.rige .detalle dt { color: var(--text); }
+.espera { background: var(--surface); border-style: dashed; }
+.espera.con-pendientes { background: var(--warn-bg); border-style: solid; border-color: color-mix(in srgb, var(--warn) 45%, transparent); }
+.espera.con-pendientes h3 { color: var(--aviso-texto); }
+.version-actual, .version-pendiente { display: grid; gap: var(--s2); justify-items: start; min-width: 0; }
+.version-actual + .version-actual, .version-pendiente + .version-pendiente { padding-top: var(--s3); border-top: var(--borde-fino) solid var(--border); }
+.cifra { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--s2); font: var(--t-cifra-grande); letter-spacing: var(--t-cifra-grande-track); color: var(--text); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.cifra.chica { font: var(--t-cifra); letter-spacing: var(--t-cifra-track); }
+.moneda { font: var(--t-cuerpo-fuerte); color: var(--text-2); }
+.detalle { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2) var(--s4); }
+.detalle div { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--s2); min-width: 0; }
+.detalle dt { font: var(--t-cuerpo-chico); color: var(--text-2); white-space: nowrap; }
+.detalle dd { font: var(--t-cuerpo-chico); color: var(--text); }
+.detalle dd ap-fecha { color: var(--text); }
+.oculto { position: absolute; width: var(--borde-fino); height: var(--borde-fino); overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.cuatro-ojos { font: var(--t-ayuda); color: var(--text-2); }
+/* Quién firmó: el identificador del operador en monoespaciada, como el resto de identificadores del backoffice. */
+.detalle .actor { flex-basis: 100%; }
+.detalle .actor dd, .tabla-historial .actor { overflow-wrap: anywhere; }
+code { font-family: var(--mono); font-size: .92em; color: var(--text); overflow-wrap: anywhere; }
+.sin-firma { color: var(--text-2); }
+
+.formulario { display: grid; gap: var(--s3); min-width: 0; padding: var(--s4); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); background: var(--surface-2); }
+.formulario h3 { font: var(--t-titulo-3); letter-spacing: var(--t-titulo-3-track); overflow-wrap: anywhere; }
+.formulario form { display: grid; gap: var(--s3); }
+.campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: var(--s3); }
+.campo-fecha { display: grid; align-content: start; gap: var(--s1); color: var(--text-2); font-weight: 600; }
+.campo-fecha input { width: 100%; min-width: 0; min-height: var(--area-tactil); padding: var(--s2) var(--s3); border: var(--borde-fino) solid var(--borde-control); border-radius: var(--r-md); background: var(--field); color: var(--text); font: inherit; }
+.campo-fecha input:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
+.campo-fecha input[aria-invalid='true'] { border-color: var(--err); }
+.error-campo { color: var(--err-texto); font-size: .85em; font-weight: 400; }
+.acciones { display: flex; flex-wrap: wrap; gap: var(--s2); }
+
+.historial { display: grid; gap: var(--s3); padding-top: var(--s3); border-top: var(--borde-fino) solid var(--border); }
+.historial-cabecera { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s2); }
+.historial-cabecera h3 { font: var(--t-cuerpo-fuerte); color: var(--text); }
+.nota { font: var(--t-ayuda); color: var(--text-3); }
+
+/* En angosto cada versión es una tarjeta con sus rótulos; los `role` mantienen la tabla para el lector de pantalla. */
+.tabla-historial { display: grid; gap: var(--s2); width: 100%; border-collapse: collapse; }
+.tabla-historial thead { display: none; }
+.tabla-historial tbody { display: grid; gap: var(--s2); }
+.tabla-historial tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s2) var(--s3); padding: var(--s3); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); }
+.tabla-historial td { display: grid; gap: var(--s1); min-width: 0; font: var(--t-cuerpo-chico); color: var(--text); overflow-wrap: anywhere; }
+.tabla-historial .actor { grid-column: 1 / -1; }
+.tabla-historial td::before { content: attr(data-etiqueta); font: var(--t-etiqueta); letter-spacing: var(--t-etiqueta-track); text-transform: uppercase; color: var(--text-3); }
+.tabla-historial td ap-fecha { color: var(--text); }
+
+@container (min-width: 44rem) {
+  .parametro { padding: var(--s5); }
+  .tablero { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tabla-historial { display: table; }
+  .tabla-historial thead { display: table-header-group; }
+  .tabla-historial tbody { display: table-row-group; }
+  .tabla-historial tr { display: table-row; padding: 0; border: 0; }
+  .tabla-historial th { padding: var(--s2) var(--s3); text-align: left; font: var(--t-cabecera-tabla); letter-spacing: var(--t-cabecera-tabla-track); color: var(--text-2); border-bottom: var(--borde-fino) solid var(--border); }
+  .tabla-historial td { display: table-cell; padding: var(--s2) var(--s3); vertical-align: middle; border-bottom: var(--borde-fino) solid var(--border); }
+  .tabla-historial td::before { content: none; }
+  .tabla-historial .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .tabla-historial tbody tr:last-child td { border-bottom: 0; }
+}

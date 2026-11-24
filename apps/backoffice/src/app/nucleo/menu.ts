@@ -187,6 +187,7 @@ export const MENU: readonly Grupo[] = [
         prefijos: ['/configuracion'],
         pantallas: [
           { ruta: '/configuracion/tarifario', texto: 'Tarifario', icono: 'etiqueta', requiere: [CONFIGURACION, p('TARIFARIO_PUBLICAR', 'AUDITORIA_LEER')] },
+          { ruta: '/configuracion/parametros-financieros', texto: 'Parámetros financieros', icono: 'moneda', requiere: [CONFIGURACION, p('TARIFARIO_ADMINISTRAR')] },
           { ruta: '/configuracion/mensajeria', texto: 'Mensajería', icono: 'correo', requiere: [CONFIGURACION, p('AUDITORIA_LEER')] },
           { ruta: '/configuracion/reportes', texto: 'Reportes', icono: 'documento', requiere: [CONFIGURACION, p('AUDITORIA_LEER')] },
           sis('catalogos-operativos', 'Catálogos operativos', 'engranaje'),

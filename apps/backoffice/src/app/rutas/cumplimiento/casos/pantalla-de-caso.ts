@@ -2,15 +2,18 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, si
 import { RouterLink } from '@angular/router'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
 import { Icono } from '@aportaya/ui/icono/icono'
-import type { CasoEnBandeja, SalidaDecisionCasoLft } from 'clientes/angular/cumplimiento'
+import type { CasoEnBandeja, FichaDeCasoLft, SalidaDecisionCasoLft } from 'clientes/angular/cumplimiento'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { ServicioBorrador } from '../../../nucleo/borrador'
+import type { ErrorTraducido } from '../../../nucleo/errores'
+import { crearConsultarCaso } from '../dominio/cu44-bandejas'
 import { CATALOGO_DE_CAUSALES, etapasDelCaso, puedeConfirmar, type CasoDeCumplimiento } from '../dominio/cu44-caso'
 import { textosCumplimiento } from '../textos'
 import { textosLft } from '../textos-lft'
 import { DecidirCaso } from './decidir-caso'
 import { FormularioDeCaso } from './formulario-de-caso'
+import { ResumenDeCaso, type EstadoDeFicha } from './resumen-de-caso'
 
 /**
  * CU-44 · De alerta de monitoreo a reporte de operación sospechosa, con el patrón de
@@ -24,13 +27,21 @@ import { FormularioDeCaso } from './formulario-de-caso'
 @Component({
   selector: 'ap-pantalla-de-caso',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CabeceraDePagina, FormularioDeCaso, DecidirCaso, Alerta, Icono, RouterLink],
+  imports: [CabeceraDePagina, ResumenDeCaso, FormularioDeCaso, DecidirCaso, Alerta, Icono, RouterLink],
   template: `
     <section class="pantalla">
       <a class="volver" routerLink="/cumplimiento/casos"><ap-icono nombre="flechaIzquierda" tamano="s4" />Volver a los casos</a>
-      <ap-cabecera-de-pagina [eyebrow]="'Cumplimiento · caso ' + casoId()" [titulo]="t.titulo" [descripcion]="t.proposito" />
+      <ap-cabecera-de-pagina eyebrow="Cumplimiento" [titulo]="t.titulo" [descripcion]="t.proposito" />
       @if (recibo()) { <ap-alerta tono="ok">{{ recibo() }}</ap-alerta> }
-      <div class="tarjeta">
+      <ap-resumen-de-caso
+        [codigo]="ficha()?.codigo ?? casoId()"
+        [etapas]="nombresDeEtapas()"
+        [actual]="progreso().actual"
+        [causal]="textoDeCausal()"
+        [notificadoEn]="casoResuelto().notificadoEn"
+        [plazoVenceEn]="casoResuelto().plazoVenceEn"
+        [ficha]="estadoDeFicha()"
+      />
       <ap-formulario-de-caso
         [etapas]="progreso().etapas"
         [etapaActual]="progreso().actual"
@@ -43,17 +54,18 @@ import { FormularioDeCaso } from './formulario-de-caso'
         [textoSinCausal]="t.sinCausal"
         [textoBorradorRecuperado]="t.borradorRecuperado"
         [textoConfirmar]="t.confirmar"
+        [textoNarrativaAyuda]="t.narrativaAyuda"
+        [textoDebidoProceso]="t.debidoProceso"
+        [textoVerEtapas]="t.verEtapas(progreso().etapas.length)"
         (seEligioCausal)="alEscribirCausal($event)"
         (seEscribioNarrativa)="alEscribirNarrativa($event)"
         (seQuiereConfirmar)="confirmar()"
       />
-      </div>
       <ap-decidir-caso [(abierto)]="decidiendo" [caso]="casoParaDecidir()" [conclusionInicial]="conclusionInicial()" (decidio)="alDecidir($event)" />
     </section>
   `,
   styles: `
     .pantalla { display: flex; flex-direction: column; gap: var(--s4); min-width: 0; }
-    .tarjeta { padding: var(--s5); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }
     .volver { display: inline-flex; align-items: center; gap: var(--s1); align-self: flex-start; min-height: var(--area-tactil); color: var(--brand-texto); font: var(--t-cuerpo-chico); font-weight: 600; text-decoration: none; }
     .volver:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
   `,
@@ -77,7 +89,7 @@ export class PantallaDeCaso implements OnInit {
    * argumento de `input()`, que demostró no ser confiable contra el router real.
    */
   readonly caso = input<CasoDeCumplimiento | undefined>(undefined)
-  private readonly casoResuelto = computed<CasoDeCumplimiento>(
+  protected readonly casoResuelto = computed<CasoDeCumplimiento>(
     () =>
       this.caso() ?? {
         id: 'demo',
@@ -91,6 +103,12 @@ export class PantallaDeCaso implements OnInit {
   )
 
   protected readonly progreso = computed(() => etapasDelCaso(this.casoResuelto()))
+  protected readonly nombresDeEtapas = computed(() => this.progreso().etapas.map((e) => e.nombre))
+  /** La causal elegida en la ficha manda sobre la guardada: es lo que el oficial está por firmar. */
+  protected readonly textoDeCausal = computed(() => {
+    const valor = this.causal() ?? this.casoResuelto().causal
+    return CATALOGO_DE_CAUSALES.find((c) => c.valor === valor)?.texto ?? null
+  })
   protected readonly causal = signal<string | null>(null)
   protected readonly narrativa = signal('')
   protected readonly borradorRecuperado = signal(false)
@@ -102,7 +120,20 @@ export class PantallaDeCaso implements OnInit {
     return `cumplimiento:caso:${this.casoId()}:narrativa`
   }
 
+  /** La ficha del servidor (`obtenerCasoLft`): alerta de origen y titular enmascarado. El resto del caso sigue local. */
+  private readonly consultarCaso = crearConsultarCaso()
+  protected readonly ficha = signal<FichaDeCasoLft | null>(null)
+  private readonly fichaError = signal<ErrorTraducido | null>(null)
+  protected readonly estadoDeFicha = computed<EstadoDeFicha>(() => {
+    const e = this.fichaError()
+    if (e) return { tipo: 'error', mensaje: e.estado === 403 ? this.t.resumen.fichaSinAcceso : this.t.resumen.fichaError }
+    const f = this.ficha()
+    if (!f) return { tipo: 'cargando' }
+    return { tipo: 'lista', alerta: f.alertaDeOrigen ?? null, alertasEnlazadas: f.alertasEnlazadas, titularEnmascarado: f.titularEnmascarado }
+  })
+
   async ngOnInit(): Promise<void> {
+    this.consultarCaso(this.casoId()).subscribe({ next: (f) => this.ficha.set(f), error: (e: ErrorTraducido) => this.fichaError.set(e) })
     const guardado = await this.servicioBorrador.leer<string>(this.claveBorrador())
     if (guardado) {
       this.narrativa.set(guardado)

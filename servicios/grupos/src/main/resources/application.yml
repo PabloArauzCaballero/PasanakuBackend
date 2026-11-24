@@ -104,7 +104,6 @@ aportaya:
         telefono: ${GRUPOS_SERVICIO_TELEFONO:}
         clave: ${GRUPOS_SERVICIO_CLAVE:}
         factor-totp-semilla: ${GRUPOS_SERVICIO_TOTP_SEMILLA:}
-        factor-fijo: ${GRUPOS_SERVICIO_FACTOR_FIJO:}   # SOLO TEST: el codigo fijo del perfil local de identidad
     sustitucion:
       # DECISION PENDIENTE (negocio y cumplimiento): al revocarse la habilitacion del organizador, sustituye al
       # administrador una PERSONA de backoffice (false, supuesto vigente) o el proceso con una regla sintetica (true)?

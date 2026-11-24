@@ -1,0 +1,140 @@
+    <section class="pantalla" [attr.aria-busy]="cargando() || enviando()">
+      <ap-cabecera-de-pagina eyebrow="Configuración" [titulo]="t.parametros.titulo" [descripcion]="t.parametros.proposito" />
+      <ap-alerta tono="info">{{ t.parametros.cuatroOjos }}</ap-alerta>
+      @if (aviso()) { <ap-alerta tono="ok" role="status">{{ aviso() }}</ap-alerta> }
+      @if (error(); as e) {
+        <ap-estado-de-error [titulo]="t.parametros.errorCarga" [mensaje]="e.mensaje" [trazaId]="e.trazaId" [textoReintentar]="t.comun.reintentar" (reintentar)="recargar()" />
+      }
+      @if (cargando()) { <ap-esqueleto forma="filas" [lineas]="4" [etiqueta]="t.parametros.cargando" /> }
+      @else if (!error() && parametros().length === 0) {
+        <ap-estado-vacio [titulo]="t.parametros.vacio" [explicacion]="t.parametros.vacioAyuda" />
+      }
+      @else if (parametros().length) { <p class="resumen" role="status">{{ t.parametros.resumen(parametros().length, pendientes()) }}</p> }
+      @for (p of parametros(); track p.codigo) {
+        <article class="parametro" [attr.aria-labelledby]="'param-' + p.codigo">
+          <header class="encabezado">
+            <div class="identidad">
+              <h2 [id]="'param-' + p.codigo">{{ p.descripcion }}</h2>
+              <p class="meta"><code>{{ p.codigo }}</code><span>{{ p.unidad ?? t.parametros.unidadPendiente }}</span>@if (p.porNivel) { <span>{{ t.parametros.porNivel }}</span> }</p>
+            </div>
+            @if (puedeAdministrar()) {
+              <ap-boton variante="secundario" icono="mas" [deshabilitado]="enviando() || p.unidad === null" (pulsado)="abrirPropuesta(p)">{{ t.parametros.proponer }}</ap-boton>
+            }
+          </header>
+
+          <div class="tablero">
+            <section class="carril rige" [attr.aria-label]="t.parametros.vigentes">
+              <h3>{{ t.parametros.rigeHoy }}</h3>
+              @for (v of p.vigentes; track v.id) {
+                <div class="version-actual">
+                  <p class="cifra">{{ v.valor }}@if (v.moneda) { <span class="moneda">{{ v.moneda }}</span> }</p>
+                  <ng-container [ngTemplateOutlet]="detalle" [ngTemplateOutletContext]="{ $implicit: v }" />
+                </div>
+              }
+              @empty { <p class="ayuda">{{ t.parametros.sinVigente }}</p> }
+            </section>
+            <section class="carril espera" [class.con-pendientes]="p.propuestas.length > 0" [attr.aria-label]="t.parametros.pendientes">
+              <h3>{{ t.parametros.esperaAprobacion }}</h3>
+              @for (v of p.propuestas; track v.id) {
+                <div class="version-pendiente">
+                  <p class="cifra chica">{{ v.valor }}@if (v.moneda) { <span class="moneda">{{ v.moneda }}</span> }</p>
+                  <ng-container [ngTemplateOutlet]="detalle" [ngTemplateOutletContext]="{ $implicit: v }" />
+                  <p class="cuatro-ojos">{{ t.parametros.cuatroOjosCorto }}</p>
+                  @if (puedeAdministrar()) {
+                    <ap-boton variante="primario" tamano="sm" icono="aprobar" [deshabilitado]="enviando()" (pulsado)="pedirAprobacion(v)">{{ t.parametros.aprobar }}</ap-boton>
+                  }
+                </div>
+              }
+              @empty { <p class="ayuda">{{ t.parametros.sinPendiente }}</p> }
+              @if (erroresDeAprobacion()[p.codigo]; as e) { <ap-alerta tono="error" role="alert">{{ e.mensaje }}</ap-alerta> }
+            </section>
+          </div>
+
+          @if (codigoEnEdicion() === p.codigo) {
+            <section class="formulario" aria-labelledby="formulario-titulo">
+              <h3 id="formulario-titulo">{{ t.parametros.proponer }} · {{ p.codigo }}</h3>
+              <p class="ayuda">{{ t.parametros.procedenciaAyuda }}</p>
+              @if (errorDePropuesta(); as e) { <ap-alerta tono="error" role="alert">{{ e.mensaje }}</ap-alerta> }
+              <form (submit)="$event.preventDefault(); enviarPropuesta(p)" novalidate>
+                <div class="campos">
+                  <ap-campo etiqueta="Valor (decimal)" modoDeEntrada="decimal" [valor]="borrador().valor" (valorChange)="editar('valor', $event)" [error]="erroresDeCampo().valor ?? ''" [deshabilitado]="enviando()" />
+                  @if (p.porNivel) { <ap-campo [etiqueta]="t.parametros.nivel" [valor]="borrador().nivel" (valorChange)="editar('nivel', $event)" [error]="erroresDeCampo().nivel ?? ''" [deshabilitado]="enviando()" /> }
+                  @if (p.unidad === 'MONTO') {
+                    <ap-lista-de-opciones etiqueta="Moneda" [opciones]="monedas" [valor]="borrador().moneda" (valorChange)="editar('moneda', $event)" [error]="erroresDeCampo().moneda ?? ''" [deshabilitado]="enviando()" />
+                  }
+                  <label class="campo-fecha">{{ t.parametros.vigenteDesde }}
+                    <input type="datetime-local" [value]="borrador().vigenteDesde" [disabled]="enviando()" [attr.aria-invalid]="erroresDeCampo().vigenteDesde ? 'true' : null" [attr.aria-describedby]="erroresDeCampo().vigenteDesde ? 'vigente-desde-error' : null" (input)="editar('vigenteDesde', $any($event.target).value)" />
+                    @if (erroresDeCampo().vigenteDesde) { <span id="vigente-desde-error" class="error-campo" role="alert">{{ erroresDeCampo().vigenteDesde }}</span> }
+                  </label>
+                  <ap-campo [etiqueta]="t.parametros.fuente" [valor]="borrador().fuente" (valorChange)="editar('fuente', $event)" [error]="erroresDeCampo().fuente ?? ''" [deshabilitado]="enviando()" />
+                  <ap-campo [etiqueta]="t.parametros.referencia" [valor]="borrador().referencia" (valorChange)="editar('referencia', $event)" [error]="erroresDeCampo().referencia ?? ''" [deshabilitado]="enviando()" />
+                  <ap-campo [etiqueta]="t.parametros.fechaFuente" tipo="date" [valor]="borrador().fecha" (valorChange)="editar('fecha', $event)" [error]="erroresDeCampo().fecha ?? ''" [deshabilitado]="enviando()" />
+                </div>
+                <div class="acciones">
+                  <ap-boton variante="primario" tipo="submit" [deshabilitado]="enviando()">{{ enviando() ? t.parametros.enviando : t.parametros.enviar }}</ap-boton>
+                  <ap-boton variante="secundario" [deshabilitado]="enviando()" (pulsado)="cerrarPropuesta()">{{ t.parametros.cancelar }}</ap-boton>
+                </div>
+              </form>
+            </section>
+          }
+
+          <section class="historial" [attr.aria-label]="t.parametros.historial">
+            <div class="historial-cabecera">
+              <h3>{{ t.parametros.historial }}</h3>
+              <ap-boton variante="fantasma" tamano="sm" icono="historial" [deshabilitado]="cargandoHistorial()[p.codigo] ?? false" (pulsado)="alternarHistorial(p.codigo)">
+                {{ historialAbierto()[p.codigo] ? t.parametros.ocultarHistorial : t.parametros.verHistorial }}
+              </ap-boton>
+            </div>
+            @if (cargandoHistorial()[p.codigo]) { <p class="ayuda" role="status">{{ t.parametros.cargandoHistorial }}</p> }
+            @if (erroresHistorial()[p.codigo]; as e) { <ap-alerta tono="error" role="alert">{{ e.mensaje }}</ap-alerta> }
+            @if (historialAbierto()[p.codigo]) {
+              @if ((historial()[p.codigo] ?? []).length === 0) { <p class="ayuda">{{ t.parametros.historialVacio }}</p> }
+              @else {
+                <table class="tabla-historial" role="table">
+                  <thead role="rowgroup"><tr role="row">
+                    <th role="columnheader" scope="col">{{ t.parametros.columnas.estado }}</th><th role="columnheader" scope="col" class="num">{{ t.parametros.columnas.valor }}</th>
+                    <th role="columnheader" scope="col">{{ t.parametros.columnas.nivel }}</th><th role="columnheader" scope="col">{{ t.parametros.columnas.vigenteDesde }}</th>
+                    <th role="columnheader" scope="col">{{ t.parametros.columnas.propuso }}</th><th role="columnheader" scope="col">{{ t.parametros.columnas.aprobo }}</th>
+                  </tr></thead>
+                  <tbody role="rowgroup">
+                    @for (v of historial()[p.codigo] ?? []; track v.id) {
+                      <tr role="row">
+                        <td role="cell" [attr.data-etiqueta]="t.parametros.columnas.estado"><ap-chip-estado [tono]="tono(v.estado)">{{ estado(v.estado) }}</ap-chip-estado></td>
+                        <td role="cell" class="num" [attr.data-etiqueta]="t.parametros.columnas.valor"><strong>{{ v.valor }}{{ v.moneda ? ' ' + v.moneda : '' }}</strong></td>
+                        <td role="cell" [attr.data-etiqueta]="t.parametros.columnas.nivel">{{ v.nivel ?? t.parametros.sinNivel }}</td>
+                        <td role="cell" [attr.data-etiqueta]="t.parametros.columnas.vigenteDesde"><ap-fecha [iso]="v.vigenteDesde" /></td>
+                        <td role="cell" class="actor" [attr.data-etiqueta]="t.parametros.columnas.propuso"><code>{{ v.propuestoPor ?? t.parametros.sinDato }}</code></td>
+                        <td role="cell" class="actor" [attr.data-etiqueta]="t.parametros.columnas.aprobo">
+                          @if (v.aprobadoPor) { <code>{{ v.aprobadoPor }}</code> } @else { <span class="sin-firma">{{ t.parametros.sinAprobador(v.estado) }}</span> }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              }
+              <p class="nota">{{ t.parametros.historialNota }}</p>
+            }
+          </section>
+        </article>
+      }
+    </section>
+    @if (versionEnAprobacion(); as v) {
+      <ap-dialogo-de-confirmacion
+        [titulo]="t.parametros.confirmarAprobacion"
+        [descripcion]="t.parametros.confirmarAprobacionDescripcion(v.codigo, v.valor, v.moneda ?? null)"
+        [textoDeConfirmar]="t.parametros.aprobar"
+        [cargando]="enviando()"
+        [(abierto)]="confirmandoAprobacion"
+        (confirmar)="aprobar(v)"
+        (cancelar)="cancelarAprobacion()"
+      />
+    }
+    <ng-template #detalle let-v>
+      <dl class="detalle">
+        <div><dt>{{ t.parametros.vigenteDesde }}</dt><dd><ap-fecha [iso]="v.vigenteDesde" /></dd></div>
+        @if (v.nivel) { <div><dt>{{ t.parametros.nivel }}</dt><dd>{{ v.nivel }}</dd></div> }
+        @if (v.propuestoPor) { <div class="actor"><dt>{{ t.parametros.propuso }}</dt><dd><code>{{ v.propuestoPor }}</code></dd></div> }
+        <div class="actor"><dt>{{ t.parametros.aprobo }}</dt><dd>@if (v.aprobadoPor) { <code>{{ v.aprobadoPor }}</code> } @else { {{ t.parametros.sinAprobador(v.estado) }} }</dd></div>
+        <div><dt class="oculto">{{ t.parametros.columnas.estado }}</dt><dd><ap-chip-estado [tono]="tono(v.estado)">{{ estado(v.estado) }}</ap-chip-estado></dd></div>
+      </dl>
+    </ng-template>

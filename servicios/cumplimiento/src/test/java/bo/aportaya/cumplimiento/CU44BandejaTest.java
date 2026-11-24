@@ -106,8 +106,7 @@ class CU44BandejaTest extends BaseDeCumplimiento {
         UUID alerta = gobiernoFixtura.alerta(regla, titular, "ALTA", "5000.00", OffsetDateTime.now(ZoneOffset.UTC));
         UUID analistaId = fixtura.usuario();
         var caso = transaccion.execute(t -> casoCU.abrirCaso(
-                new EntradaCaso(List.of(alerta), analistaId, "Fraccionamiento detectado en el periodo"),
-                analista(analistaId)));
+                new EntradaCaso(List.of(alerta), "Fraccionamiento detectado en el periodo"), analista(analistaId)));
         OffsetDateTime vencio = OffsetDateTime.of(2001, 1, 2, 0, 0, 0, 0, ZoneOffset.UTC);
         dslFixtura.execute(
                 """
@@ -129,6 +128,43 @@ class CU44BandejaTest extends BaseDeCumplimiento {
         assertThat(Caso.class.getRecordComponents())
                 .extracting(c -> c.getName())
                 .doesNotContain("usuarioId", "resumen", "hallazgos");
+    }
+
+    @Test
+    @DisplayName("Dado un caso abierto con dos alertas · Cuando el oficial abre su ficha · Entonces ve la alerta mas"
+            + " antigua como origen, cuantas hay, y el titular solo enmascarado")
+    void fichaDelCaso() {
+        OffsetDateTime ahora = OffsetDateTime.now(ZoneOffset.UTC);
+        UUID primera = gobiernoFixtura.alerta(regla, titular, "ALTA", "5000.00", ahora.minusHours(2));
+        UUID segunda = gobiernoFixtura.alerta(regla, titular, "ALTA", "7000.00", ahora.minusHours(1));
+        var caso = transaccion.execute(t -> casoCU.abrirCaso(
+                new EntradaCaso(List.of(segunda, primera), "Fraccionamiento detectado en el periodo"),
+                analista(fixtura.usuario())));
+
+        var ficha = transaccion.execute(t -> bandejas.ficha(caso.casoId(), analista(fixtura.usuario())));
+
+        assertThat(ficha.casoId()).isEqualTo(caso.casoId());
+        assertThat(ficha.alertasEnlazadas()).isEqualTo(2);
+        assertThat(ficha.alertaDeOrigen()).map(o -> o.alertaId()).contains(primera);
+        assertThat(ficha.alertaDeOrigen().orElseThrow().reglaCodigo()).startsWith("RM-");
+        String sinGuiones = titular.toString().replace("-", "");
+        assertThat(ficha.titularEnmascarado())
+                .matches("^\\*{4}[0-9a-f]{4}$")
+                .isEqualTo("****" + sinGuiones.substring(sinGuiones.length() - 4))
+                .doesNotContain(titular.toString());
+        assertThat(ConsultarBandejasLft.Ficha.class.getRecordComponents())
+                .extracting(c -> c.getName())
+                .doesNotContain("usuarioId", "resumen", "hallazgos");
+    }
+
+    @Test
+    @DisplayName("rechaza la ficha de un caso que no existe con AP-CU44-06")
+    void fichaInexistente() {
+        var ctx = analista(fixtura.usuario());
+        assertThatThrownBy(() -> transaccion.execute(t -> bandejas.ficha(UUID.randomUUID(), ctx)))
+                .isInstanceOf(ErrorDeNegocio.class)
+                .satisfies(
+                        e -> assertThat(((ErrorDeNegocio) e).codigo().valor()).isEqualTo("AP-CU44-06"));
     }
 
     @Test

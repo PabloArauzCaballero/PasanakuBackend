@@ -74,8 +74,8 @@ export const PERMISOS_POR_SECCION: Readonly<Record<string, readonly string[]>> =
   'ver:publicidad': ['PUBLICIDAD_ANUNCIANTES', 'PUBLICIDAD_APROBAR_CAMPANA', 'PUBLICIDAD_LIQUIDAR', 'PUBLICIDAD_MODERAR'],
   // Tarifario, mensajería y reportes: `listarTarifarios` pide TARIFARIO_PUBLICAR o AUDITORIA_LEER (tarifas.yaml); los listados de
   // `notificaciones.yaml` y `auditoria.yaml` piden AUDITORIA_LEER. La sección la abren TARIFARIO_PUBLICAR y los roles a los que el
-  // plan §3 da Reportes (oficial, auditor, riesgos); AUDITORIA_LEER solo no la abre (lo tienen casi todos los roles).
-  'ver:configuracion': ['TARIFARIO_PUBLICAR', 'OFICIAL_CUMPLIMIENTO', 'AUDITOR_INTERNO', 'RESPONSABLE_RIESGOS'],
+  // plan §3 da Reportes (oficial, auditor, riesgos); `TARIFARIO_ADMINISTRAR` abre la sección solo para CU-132.
+  'ver:configuracion': ['TARIFARIO_PUBLICAR', 'TARIFARIO_ADMINISTRAR', 'OFICIAL_CUMPLIMIENTO', 'AUDITOR_INTERNO', 'RESPONSABLE_RIESGOS'],
 }
 
 /**

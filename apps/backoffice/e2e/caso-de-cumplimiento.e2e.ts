@@ -29,6 +29,10 @@ function tokenConClaims(claims: Record<string, unknown>): string {
   return `${base64url(JSON.stringify({ alg: 'none' }))}.${base64url(JSON.stringify(claims))}.firma-e2e`
 }
 
+/** Un caso con forma de UUID: el simulado sirve la ficha de `obtenerCasoLft` (escenario `ok`, datos sintéticos). */
+const CASO = '66947425-f599-4f17-86cf-204ce5c2e033'
+const CONTRATO = '../../docs/trabajo/2026-11-23-continuar-traspaso/evidencia/contrato'
+
 const TOKEN_CUMPLIMIENTO = tokenConClaims({ sub: 'e2e-oficial', permisos: ['ver:cumplimiento'], rol: 'oficial' })
 
 async function entrarConPermiso(page: Page): Promise<void> {
@@ -49,8 +53,11 @@ async function entrarConPermiso(page: Page): Promise<void> {
   await page.evaluate((ruta: string) => {
     history.pushState(null, '', ruta)
     window.dispatchEvent(new PopStateEvent('popstate'))
-  }, '/cumplimiento/casos/e2e-demo')
-  await expect(page).toHaveURL(/\/cumplimiento\/casos\/e2e-demo/)
+  }, `/cumplimiento/casos/${CASO}`)
+  await expect(page).toHaveURL(new RegExp(`/cumplimiento/casos/${CASO}`))
+  // La URL cambia con el `pushState` antes de que el Router pinte la ruta: sin esperar el título del caso, las
+  // capturas «inicial» salían del tablero (TEST_BUG visto en las capturas del 2026-11-24).
+  await expect(page.locator('h1')).toHaveText('Caso de cumplimiento')
 }
 
 test.describe('pantalla de caso — E2E dirigido', () => {
@@ -73,6 +80,22 @@ test.describe('pantalla de caso — E2E dirigido', () => {
     await area.fill('La contraparte fraccionó cinco depósitos el mismo día.')
     await page.getByRole('radio').first().check()
     await expect(area).toHaveValue('La contraparte fraccionó cinco depósitos el mismo día.')
+  })
+
+  test('el resumen trae del contrato la alerta de origen y el titular enmascarado, sin el aviso de «no publicado»', async ({ page }) => {
+    await entrarConPermiso(page)
+    const resumen = page.getByRole('region', { name: /Caso/ }).first()
+    await expect(resumen).toContainText('RM-FRACCIONAMIENTO')
+    await expect(resumen).toContainText('Fraccionamiento de operaciones')
+    await expect(resumen).toContainText('****7c2e')
+    await expect(resumen).toContainText('LFT-2026-0042')
+    await expect(page.getByText('todavía no los publica')).toHaveCount(0)
+    for (const [vp, tema] of [[VIEWPORTS[0], 'claro'], [VIEWPORTS[2], 'claro'], [VIEWPORTS[0], 'oscuro'], [VIEWPORTS[2], 'oscuro']] as const) {
+      await page.setViewportSize({ width: vp.width, height: vp.height })
+      await page.emulateMedia({ colorScheme: tema === 'oscuro' ? 'dark' : 'light' })
+      await expect(resumen).toContainText('****7c2e')
+      await resumen.screenshot({ path: `${CONTRATO}/caso-resumen-alerta-titular.${vp.nombre}.${tema}.png`, animations: 'disabled' })
+    }
   })
 
   test('consola y red sin errores nuevos al cargar', async ({ page }) => {
@@ -98,6 +121,31 @@ const VIEWPORTS = [
   { nombre: 'escritorio', width: 1440, height: 900 },
 ] as const
 
+test.describe('pantalla de caso — disposición', () => {
+  test('móvil: la causal queda en el primer pliegue y la escalera se despliega a pedido', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await entrarConPermiso(page)
+    await expect(page.getByRole('radiogroup', { name: 'Causal del catálogo' })).toBeVisible()
+    const primera = page.getByRole('radio').first()
+    await expect(primera).toBeInViewport()
+    const desplegar = page.getByText('Ver las 6 etapas del debido proceso')
+    await desplegar.click()
+    await expect(page.getByRole('list', { name: 'Etapa 1 de 6: Causal' })).toBeVisible()
+    await page.screenshot({ path: '../../evidencia/visual-caso-movil-claro-etapas-desplegadas.png', fullPage: true, animations: 'disabled' })
+  })
+
+  test('escritorio: la escalera es un riel lateral junto al formulario', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await entrarConPermiso(page)
+    const riel = page.getByRole('complementary', { name: 'Debido proceso' })
+    await expect(riel).toBeVisible()
+    await expect(page.getByText('Ver las 6 etapas del debido proceso')).toBeHidden()
+    const cajaRiel = await riel.boundingBox()
+    const cajaCausal = await page.getByRole('radiogroup', { name: 'Causal del catálogo' }).boundingBox()
+    expect(cajaRiel && cajaCausal && cajaRiel.x + cajaRiel.width <= cajaCausal.x).toBe(true)
+  })
+})
+
 test.describe('pantalla de caso — comparación visual (3 viewports × 2 temas)', () => {
   for (const vp of VIEWPORTS) {
     for (const tema of ['claro', 'oscuro'] as const) {
@@ -114,7 +162,8 @@ test.describe('pantalla de caso — comparación visual (3 viewports × 2 temas)
         await page.emulateMedia({ colorScheme: tema === 'oscuro' ? 'dark' : 'light' })
         await entrarConPermiso(page)
         await page.getByRole('radio').first().check()
-        await page.screenshot({ path: `../../evidencia/visual-caso-${vp.nombre}-${tema}-con-causal.png` })
+        await expect(page.getByRole('button', { name: 'Confirmar decisión' })).toBeEnabled()
+        await page.screenshot({ path: `../../evidencia/visual-caso-${vp.nombre}-${tema}-con-causal.png`, fullPage: true, animations: 'disabled' })
       })
     }
   }

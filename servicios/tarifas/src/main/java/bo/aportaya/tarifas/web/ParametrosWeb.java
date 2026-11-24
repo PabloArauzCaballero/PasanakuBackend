@@ -43,6 +43,13 @@ class ParametrosWeb {
                 .toList();
     }
 
+    List<VersionDeParametro> historial(String codigo) {
+        Traza.marcarCasoDeUso("CU-132", codigo + "/historial");
+        return cu132.historial(codigo, sesion.actual()).stream()
+                .map(MapeoDeParametros::version)
+                .toList();
+    }
+
     VersionDeParametro proponer(String codigo, UUID clave, EntradaVersionParametro cuerpo) {
         Traza.marcarCasoDeUso("CU-132", codigo);
         // Quien propone tiene que poder ser el primer actor de un cuatro ojos: token con sesión.

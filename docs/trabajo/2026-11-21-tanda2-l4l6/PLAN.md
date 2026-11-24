@@ -44,7 +44,7 @@
 |---|---|---|
 | F1.L4.M03 | Arranque fail-closed de secretos. CA: sin `JWT_CLAVE_FIRMA` o con `INVITACIONES_CLAVE` corta, fuera de un entorno descartable declarado, no arranca. DoD: `RotacionDeClavesDeFirmaTest` + `SecretoDeInvitacionArranqueTest` | A MEDIAS (identidad hecho; falta el compose local y `${…:?}` en coolify, fuera de alcance) |
 | F1.L4.M05 | Diligencia PEP con cuatro ojos reales | TODO |
-| F1.L4.M06 | Caso LFT analista ≠ revisor, analista del token | TODO |
+| F1.L4.M06 | Caso LFT analista ≠ revisor, analista de la sesión | A MEDIAS (cambio implementado; pruebas pendientes por resolución de dependencias Gradle, ver REPORTE) |
 | F1.L4.M07 | Segregación del reporte UIF sin hueco por NULL | TODO |
 | F1.L4.M12 | OTP de correo: reintento sobre código consumido | TODO |
 | F1.L4.M18 | `VerificarTitularidad` contra KYC aprobado vigente | TODO |
@@ -67,7 +67,7 @@
 | F2.L4.M02 | Retirar el organizador profesional de identidad y backoffice de cumplimiento | TODO |
 | F2.L6.M13 | Shell del backoffice sin aprobaciones eliminables | TODO |
 | F2.L2-pedido | (Pedido de L2 vía coordinador) App sin subasta; mock sin éxitos de operaciones que responden 410. CA: no queda pantalla ni ruta de subasta y el simulado responde 410. DoD: `dart analyze` + `flutter test` + vitest de simulado | HECHO en PR #460 (`evidencia/f2-retiro-subasta-app-y-mock.txt`, en esa rama) |
-| L1-pedido-bloqueos | (Pedido de L1 vía coordinador) Backoffice: bandeja «Bloqueos de autoridad» en `rutas/cumplimiento/bloqueos` contra `listarBloqueosPorAutoridad` y `levantarBloqueoPorAutoridad` (contrato de nucleo-financiero 1.4.0 integrado en #488). Se parte en BLQ.M1–M4. | PR #493 abierto; BLQ.M1–M5 validados con servidor simulado |
+| L1-pedido-bloqueos | (Pedido de L1 vía coordinador) Backoffice: bandeja «Bloqueos de autoridad» en `rutas/cumplimiento/bloqueos` contra `listarBloqueosPorAutoridad` y `levantarBloqueoPorAutoridad` (contrato de nucleo-financiero 1.4.0 integrado en #488). Se parte en BLQ.M1–M5. | HECHO en #493; mergeado en `dev` y promovido a `test` por #498 |
 | BLQ.M1 | Dominio `cu17-bloqueos.ts`: cargador con cursor `antesDe`/`antesDeId` y filtro `estado`, y `levantar` con `Idempotency-Key`. CA: la 2.ª página viaja con el par del servidor; el POST lleva clave. DoD: `yarn ng test` sobre `bandeja-de-bloqueos.spec.ts` | HECHO (`evidencia/bloqueos-backoffice.txt`; servidor simulado) |
 | BLQ.M2 | Bandeja con los 4 estados (cargando, datos, vacío que orienta, error accionable con AP-CU17-06). CA: vacío y 403/422 con texto propio. DoD: ídem | HECHO (`evidencia/bloqueos-backoffice.txt`; servidor simulado) |
 | BLQ.M3 | Acción «Levantar» solo si `puedeLevantar` y la sesión tiene `BLOQUEO_AUTORIDAD_LEVANTAR`; diálogo con la consecuencia; AP-CU17-04/05 traducidos; sin doble envío. CA: quien registró no ve el botón; 422 muestra el motivo. DoD: `levantar-bloqueo.spec.ts` | HECHO (`evidencia/bloqueos-backoffice.txt`; servidor simulado) |

@@ -32,6 +32,10 @@ describe('alcanza · de permiso real a sección', () => {
     expect(alcanza('ver:seccion-nueva', ['ACCESOS_ADMINISTRAR'], true)).toBe(false)
   })
 
+  it('TARIFARIO_ADMINISTRAR abre Configuración para gestionar CU-132', () => {
+    expect(alcanza('ver:configuracion', ['TARIFARIO_ADMINISTRAR'], true)).toBe(true)
+  })
+
   it('el administrador de plataforma del catálogo ve tablero, cumplimiento, la consulta de grupos (por AUDITORIA_LEER, solo lectura), sistemas y configuración (plan §3: tarifario y reportes), y nada de dinero', () => {
     const admin = ['CATALOGO_EDITAR', 'ACCESOS_ADMINISTRAR', 'TARIFARIO_PUBLICAR', 'AUDITORIA_LEER', 'SEGURIDAD_ACCESO_RESTABLECER', 'SEGURIDAD_FACTOR_REINSCRIBIR', 'VERIFICACION_RESOLVER']
     const abiertas = ['ver:tablero', ...Object.keys(PERMISOS_POR_SECCION)].filter((s) => alcanza(s, admin, true))

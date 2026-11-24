@@ -9,9 +9,9 @@ import org.jooq.DSLContext;
 import org.springframework.stereotype.Component;
 
 /**
- * Las bandejas de alertas y casos LFT (CU-44, backoffice carril A · H5): solo lectura.
+ * Las bandejas de alertas y casos LFT (CU-44, backoffice carril A · H5) y la ficha de un caso: solo lectura.
  *
- * <p>Deber de reserva y respuesta minima: ninguna de las dos consultas lee {@code usuario_id},
+ * <p>Deber de reserva y respuesta minima: ninguna de las dos bandejas lee {@code usuario_id},
  * montos, {@code detalle}, {@code resumen} ni {@code hallazgos}. Lo que no se lee no se puede
  * filtrar por error a la respuesta.
  */
@@ -95,6 +95,67 @@ public class BandejasLftRepositorio {
                         f.get("cerrado_en", OffsetDateTime.class)));
     }
 
+    /**
+     * La ficha de un caso (CU-44, 2026-11-24): la fila del caso, su alerta enlazada mas antigua y cuantas tiene.
+     *
+     * <p>Es la unica consulta de este repositorio que lee {@code usuario_id}, y lo lee solo para que
+     * {@link FichaDeCaso#titularEnmascarado()} lo reduzca a cuatro caracteres antes de salir de aca: el
+     * seudonimo entero no lo ve ni el caso de uso. Sigue sin leer {@code resumen} ni {@code hallazgos}.
+     */
+    public Optional<FichaDeCaso> ficha(DSLContext dsl, UUID casoId) {
+        var caso = dsl.fetchOptional(
+                """
+                SELECT c.id, c.codigo, c.origen, c.estado, c.prioridad, c.abierto_en, c.plazo_limite,
+                       c.usuario_id::text AS titular
+                  FROM cumplimiento.caso_investigacion_lft c
+                 WHERE c.id = ?""",
+                casoId);
+        if (caso.isEmpty()) {
+            return Optional.empty();
+        }
+        var f = caso.get();
+        // La de origen es la mas antigua; el desempate por id deja el resultado estable.
+        Optional<AlertaDeOrigen> origen = dsl.fetchOptional(
+                        """
+                SELECT a.id, r.codigo, r.tipologia, a.severidad, a.detectada_en
+                  FROM cumplimiento.alerta_monitoreo_lft a
+                  JOIN cumplimiento.regla_monitoreo_lft r ON r.id = a.regla_monitoreo_id
+                 WHERE a.caso_id = ?
+                 ORDER BY a.detectada_en, a.id
+                 LIMIT 1""",
+                        casoId)
+                .map(a -> new AlertaDeOrigen(
+                        a.get("id", UUID.class),
+                        a.get("codigo", String.class),
+                        a.get("tipologia", String.class),
+                        a.get("severidad", String.class),
+                        a.get("detectada_en", OffsetDateTime.class)));
+        Integer enlazadas = dsl.fetchOne(
+                        "SELECT count(*)::int FROM cumplimiento.alerta_monitoreo_lft WHERE caso_id = ?", casoId)
+                .get(0, Integer.class);
+        return Optional.of(new FichaDeCaso(
+                f.get("id", UUID.class),
+                f.get("codigo", String.class),
+                f.get("origen", String.class),
+                f.get("estado", String.class),
+                f.get("prioridad", String.class),
+                f.get("abierto_en", OffsetDateTime.class),
+                f.get("plazo_limite", OffsetDateTime.class),
+                origen,
+                enlazadas == null ? 0 : enlazadas,
+                enmascarar(f.get("titular", String.class))));
+    }
+
+    /**
+     * Cuatro asteriscos y los cuatro ultimos caracteres del seudonimo (el patron de {@code CuentaEnmascarada} de
+     * entregas). Distingue titulares entre casos sin identificar a ninguno: el nombre y el documento ni siquiera
+     * viven en este servicio.
+     */
+    static String enmascarar(String seudonimo) {
+        String limpio = seudonimo.replace("-", "").toLowerCase(java.util.Locale.ROOT);
+        return "****" + limpio.substring(limpio.length() - 4);
+    }
+
     public record AlertaEnBandeja(
             UUID id,
             String reglaCodigo,
@@ -118,4 +179,19 @@ public class BandejasLftRepositorio {
             OffsetDateTime plazoLimite,
             String decision,
             OffsetDateTime cerradoEn) {}
+
+    public record AlertaDeOrigen(
+            UUID alertaId, String reglaCodigo, String tipologia, String severidad, OffsetDateTime detectadaEn) {}
+
+    public record FichaDeCaso(
+            UUID id,
+            String codigo,
+            String origen,
+            String estado,
+            String prioridad,
+            OffsetDateTime abiertoEn,
+            OffsetDateTime plazoLimite,
+            Optional<AlertaDeOrigen> alertaDeOrigen,
+            int alertasEnlazadas,
+            String titularEnmascarado) {}
 }

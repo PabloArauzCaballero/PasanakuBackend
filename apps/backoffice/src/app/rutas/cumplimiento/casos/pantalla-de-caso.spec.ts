@@ -30,6 +30,21 @@ class ServicioBorradorEnMemoria {
 
 const borradorCompartido = new ServicioBorradorEnMemoria()
 
+/** Ficha sintética de `obtenerCasoLft`: el titular ya viene enmascarado del servidor. */
+const FICHA = {
+  casoId: 'c1000000-0000-4000-8000-0000000000a2',
+  codigo: 'LFT-2026-0042',
+  origen: 'ALERTA',
+  estado: 'EN_ANALISIS',
+  prioridad: 'ALTA',
+  abiertoEn: '2026-01-15T10:30:00Z',
+  plazoLimite: '2026-02-14T10:30:00Z',
+  vencido: false,
+  alertaDeOrigen: { alertaId: 'c1000000-0000-4000-8000-0000000000a1', reglaCodigo: 'RM-FRACCIONAMIENTO', tipologia: 'Fraccionamiento de operaciones', severidad: 'ALTA', detectadaEn: '2026-01-14T18:05:00Z' },
+  alertasEnlazadas: 3,
+  titularEnmascarado: '****7c2e',
+}
+
 async function montar(casoId = 'caso-1') {
   TestBed.resetTestingModule()
   TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection(), provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: GATEWAY, useValue: 'http://gw/api/v1' }, { provide: ServicioBorrador, useValue: borradorCompartido }] })
@@ -54,6 +69,53 @@ describe('PantallaDeCaso · gate del carril', () => {
     await fixture.whenStable()
 
     expect(boton.disabled).toBe(false)
+  })
+
+  it('el resumen del caso dice qué caso es, el paso en curso y la causal, y declara que la ficha está cargando', async () => {
+    const fixture = await montar('caso-resumen')
+    const resumen = () => (fixture.nativeElement.querySelector('ap-resumen-de-caso') as HTMLElement).textContent ?? ''
+    expect(resumen()).toContain('caso-resumen')
+    expect(fixture.nativeElement.querySelector('ap-barra-de-pasos')?.getAttribute('aria-label')).toBe('Paso 1 de 6: Causal')
+    expect(resumen()).toContain('Sin elegir todavía')
+    expect(resumen()).toContain('Cargando la ficha del caso')
+    expect(resumen()).not.toContain('todavía no los publica')
+    ;(fixture.nativeElement.querySelector('input[type="radio"]') as HTMLInputElement).click()
+    fixture.detectChanges()
+    expect(resumen()).toContain('Fraccionamiento de operaciones')
+  })
+
+  it('con la ficha del servidor muestra la alerta de origen y el titular ENMASCARADO (nunca otro dato de la persona)', async () => {
+    const fixture = await montar('c1000000-0000-4000-8000-0000000000a2')
+    const http = TestBed.inject(HttpTestingController)
+    http.expectOne('http://gw/api/v1/cumplimiento/casos/c1000000-0000-4000-8000-0000000000a2').flush(FICHA)
+    fixture.detectChanges()
+    const resumen = (fixture.nativeElement.querySelector('ap-resumen-de-caso') as HTMLElement).textContent ?? ''
+    expect(resumen).toContain('LFT-2026-0042')
+    expect(resumen).toContain('RM-FRACCIONAMIENTO')
+    expect(resumen).toContain('Fraccionamiento de operaciones')
+    expect(resumen).toContain('Alta')
+    expect(resumen).toContain('3 alertas enlazadas')
+    expect(resumen).toContain('****7c2e')
+    expect(resumen).not.toMatch(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/)
+    http.verify()
+  })
+
+  it('un caso sin alerta de origen lo dice, y un 403 de la ficha se explica sin el error crudo', async () => {
+    const sinAlerta = await montar('caso-denuncia')
+    const http = TestBed.inject(HttpTestingController)
+    http.expectOne('http://gw/api/v1/cumplimiento/casos/caso-denuncia').flush({ ...FICHA, origen: 'DENUNCIA', alertaDeOrigen: null, alertasEnlazadas: 0 })
+    sinAlerta.detectChanges()
+    expect(sinAlerta.nativeElement.textContent).toContain('El caso no nació de una alerta de monitoreo')
+
+    const prohibido = await montar('caso-ajeno')
+    const http2 = TestBed.inject(HttpTestingController)
+    http2.expectOne('http://gw/api/v1/cumplimiento/casos/caso-ajeno').flush({ codigo: 'X', mensaje: 'detalle interno', trazaId: 't' }, { status: 403, statusText: 'Forbidden' })
+    prohibido.detectChanges()
+    await prohibido.whenStable()
+    prohibido.detectChanges()
+    const texto = prohibido.nativeElement.textContent as string
+    expect(texto).not.toContain('detalle interno')
+    expect(texto).toMatch(/Tu rol no puede ver la ficha de este caso|No se pudo cargar la ficha del caso/)
   })
 
   it('el formulario largo guarda borrador con ServicioBorrador y lo recupera tras una sesión caída', async () => {
@@ -91,6 +153,7 @@ describe('PantallaDeCaso · gate del carril', () => {
   it('el borrador se borra recién cuando el servidor registró la decisión, y se ve el recibo', async () => {
     const fixture = await montar('caso-recibo')
     const http = TestBed.inject(HttpTestingController)
+    http.expectOne('http://gw/api/v1/cumplimiento/casos/caso-recibo').flush({ ...FICHA, casoId: 'caso-recibo' })
     await borradorCompartido.guardar('cumplimiento:caso:caso-recibo:narrativa', 'texto')
     ;(fixture.componentInstance as unknown as { alDecidir: (s: unknown) => void }).alDecidir({ decision: 'DESCARTAR', alertasCerradas: 2, fueraDePlazo: false })
     fixture.detectChanges()

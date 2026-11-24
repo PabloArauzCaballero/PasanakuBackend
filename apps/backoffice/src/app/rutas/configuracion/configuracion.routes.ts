@@ -2,10 +2,8 @@ import { Routes } from '@angular/router'
 import { requiereAlgunPermiso } from './guardia'
 
 /**
- * Las rutas de configuración (carril B · L4: CU-34, CU-80, CU-83, CU-58), **todas de solo lectura**. El shell las carga
- * por `loadChildren` detrás de `ver:configuracion`; cada una vuelve a exigir el permiso que declara su contrato
- * (`tarifas.yaml` `listarTarifarios`; `notificaciones.yaml` `listarPlantillas`/`listarEnvios`; `auditoria.yaml`
- * `listarDefinicionesDeReporte`/`listarEjecucionesDeReporte`). El 403 del servidor respalda esto, nunca al revés.
+ * Las rutas de configuración (carril B · L4: CU-34, CU-80, CU-83, CU-58 y CU-132). El shell las carga por
+ * `loadChildren` detrás de `ver:configuracion`; cada una vuelve a exigir el permiso que declara su contrato.
  */
 export const rutasConfiguracion: Routes = [
   {
@@ -19,6 +17,12 @@ export const rutasConfiguracion: Routes = [
     loadComponent: () => import('./tarifario/pantalla-de-tarifario').then((m) => m.PantallaDeTarifario),
     title: 'Tarifario · AportaYa',
     canMatch: [requiereAlgunPermiso('TARIFARIO_PUBLICAR', 'AUDITORIA_LEER')],
+  },
+  {
+    path: 'parametros-financieros',
+    loadComponent: () => import('./parametros/pantalla-de-parametros-financieros').then((m) => m.PantallaDeParametrosFinancieros),
+    title: 'Parámetros financieros · AportaYa',
+    canMatch: [requiereAlgunPermiso('TARIFARIO_ADMINISTRAR')],
   },
   {
     path: 'mensajeria',

@@ -95,7 +95,7 @@ export class BandejaDeCasos {
   protected readonly fecha = (iso: string) => formatearFecha(iso)
   protected readonly sePuedeDecidir = (c: CasoEnBandeja) => c.estado !== 'CERRADO' && !c.decision
 
-  protected readonly puedeDecidir = computed(() => tieneAlguno(this.sesion, ['CUMPLIMIENTO_CASOS']))
+  protected readonly puedeDecidir = computed(() => tieneAlguno(this.sesion, ['CUMPLIMIENTO_CASOS_DECIDIR']))
   protected readonly elegido = signal<CasoEnBandeja | null>(null)
   protected readonly dialogoAbierto = signal(false)
   protected readonly recibo = signal<string | null>(null)

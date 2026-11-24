@@ -82,7 +82,8 @@ class ParametrosWebTest {
                 "REF-PRUEBA-1",
                 LocalDate.parse("2026-11-20"),
                 Sesiones.USUARIO,
-                Optional.empty(),
+                // Solo una version APROBADA tiene segunda firma; pendiente o rechazada, ninguna.
+                "APROBADA".equals(estado) ? Optional.of(Sesiones.OTRO_USUARIO) : Optional.empty(),
                 estado);
     }
 
@@ -101,7 +102,7 @@ class ParametrosWebTest {
     }
 
     @Test
-    @DisplayName("Correcto · propone con su token: 201, valor como cadena decimal y sin identidades en la respuesta")
+    @DisplayName("Correcto · propone con su token: 201, valor como cadena decimal, quien propuso y aprobador nulo")
     void propone() throws Exception {
         when(cu132.proponer(eq("DIAS_DE_GRACIA"), any(), eq(UUID.fromString(CLAVE)), any()))
                 .thenReturn(version("PROPUESTA"));
@@ -110,7 +111,25 @@ class ParametrosWebTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.valor").value("5.000000"))
                 .andExpect(jsonPath("$.estado").value("PROPUESTA"))
-                .andExpect(jsonPath("$.propuestoPor").doesNotExist());
+                .andExpect(jsonPath("$.propuestoPor").value(Sesiones.USUARIO.toString()))
+                .andExpect(jsonPath("$.aprobadoPor").isEmpty());
+    }
+
+    @Test
+    @DisplayName("Correcto · el historial trae quien propuso y quien aprobo cada version (nulo si rechazada)")
+    void historial() throws Exception {
+        when(cu132.historial(eq("DIAS_DE_GRACIA"), any()))
+                .thenReturn(java.util.List.of(version("APROBADA"), version("RECHAZADA")));
+
+        mvc.perform(get("/tarifas/parametros/{codigo}/versiones", "DIAS_DE_GRACIA")
+                        .with(Sesiones.enSesion(Sesiones.USUARIO, UUID.randomUUID(), "ADMIN_PLATAFORMA", PERMISO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].estado").value("APROBADA"))
+                .andExpect(jsonPath("$[1].estado").value("RECHAZADA"))
+                .andExpect(jsonPath("$[0].propuestoPor").value(Sesiones.USUARIO.toString()))
+                .andExpect(jsonPath("$[0].aprobadoPor").value(Sesiones.OTRO_USUARIO.toString()))
+                .andExpect(jsonPath("$[1].propuestoPor").value(Sesiones.USUARIO.toString()))
+                .andExpect(jsonPath("$[1].aprobadoPor").isEmpty());
     }
 
     @Test
@@ -133,7 +152,7 @@ class ParametrosWebTest {
     }
 
     @Test
-    @DisplayName("Correcto · otra persona, con su token, aprueba (200)")
+    @DisplayName("Correcto · otra persona, con su token, aprueba (200) y la respuesta nombra a las dos")
     void otraPersonaAprueba() throws Exception {
         when(cu132.propuestaPor(eq(VERSION), any())).thenReturn(Sesiones.USUARIO);
         when(cu132.aprobar(eq(VERSION), any())).thenReturn(version("APROBADA"));
@@ -141,7 +160,8 @@ class ParametrosWebTest {
         aprobar(Sesiones.enSesion(Sesiones.OTRO_USUARIO, UUID.randomUUID(), "ADMIN_PLATAFORMA", PERMISO))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.estado").value("APROBADA"))
-                .andExpect(jsonPath("$.aprobadoPor").doesNotExist());
+                .andExpect(jsonPath("$.propuestoPor").value(Sesiones.USUARIO.toString()))
+                .andExpect(jsonPath("$.aprobadoPor").value(Sesiones.OTRO_USUARIO.toString()));
     }
 
     @Test
@@ -166,6 +186,9 @@ class ParametrosWebTest {
     @DisplayName("Inválido · rol insuficiente recibe 403 en las tres rutas")
     void sinPermiso() throws Exception {
         mvc.perform(get("/tarifas/parametros").with(Sesiones.sinPermisos())).andExpect(status().isForbidden());
+        mvc.perform(get("/tarifas/parametros/{codigo}/versiones", "DIAS_DE_GRACIA")
+                        .with(Sesiones.sinPermisos()))
+                .andExpect(status().isForbidden());
         proponer(Sesiones.sinPermisos(), CUERPO).andExpect(status().isForbidden());
         aprobar(Sesiones.comoOtro("ADMIN_PLATAFORMA", "TARIFARIO_PUBLICAR")).andExpect(status().isForbidden());
         verifyNoInteractions(cu132);
@@ -175,6 +198,8 @@ class ParametrosWebTest {
     @DisplayName("Inválido · sin token recibe 401")
     void sinToken() throws Exception {
         mvc.perform(get("/tarifas/parametros")).andExpect(status().isUnauthorized());
+        mvc.perform(get("/tarifas/parametros/{codigo}/versiones", "DIAS_DE_GRACIA"))
+                .andExpect(status().isUnauthorized());
         mvc.perform(post("/tarifas/parametros/versiones/{v}/aprobacion", VERSION)
                         .header("Idempotency-Key", CLAVE))
                 .andExpect(status().isUnauthorized());

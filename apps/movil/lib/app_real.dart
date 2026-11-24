@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:aportaya_diseno/moviles/alcance_haptica.dart';
 
 import 'dominio/cierre_de_sesion.dart';
+import 'localizacion.dart';
 import 'pantallas/identidad/capa_de_bloqueo.dart';
 import 'pantallas/soporte/capa_de_apertura.dart';
 import 'pantallas/soporte/capa_de_aviso_de_contrato.dart';
@@ -14,14 +14,6 @@ import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
 import 'package:aportaya_diseno/moviles/como_en_un_telefono.dart';
 import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
-
-const localeDeAportaYa = Locale('es', 'BO');
-const localesDeAportaYa = <Locale>[localeDeAportaYa];
-const delegadosDeLocalizacionDeAportaYa = <LocalizationsDelegate<dynamic>>[
-  GlobalMaterialLocalizations.delegate,
-  GlobalWidgetsLocalizations.delegate,
-  GlobalCupertinoLocalizations.delegate,
-];
 
 class AppAportaYaReal extends StatelessWidget {
   const AppAportaYaReal({
@@ -40,8 +32,8 @@ class AppAportaYaReal extends StatelessWidget {
       child: MaterialApp.router(
         title: 'Aporteo',
         locale: localeDeAportaYa,
-        supportedLocales: localesDeAportaYa,
-        localizationsDelegates: delegadosDeLocalizacionDeAportaYa,
+        supportedLocales: idiomasDeLaApp,
+        localizationsDelegates: delegadosDeIdioma,
         theme: temaDesde(Tokens.claro, Brightness.light),
         darkTheme: temaDesde(Tokens.oscuro, Brightness.dark),
         themeMode: ThemeMode.system,

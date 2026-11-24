@@ -2,7 +2,7 @@
 
 > **AVANCE: 9 / 10 — 90 %** de las microtareas abiertas hasta ahora (T2.M1–T2.M4, F1.L6.M04, F1.L4.M25, F1.L6.M12, TOK.M1 y L1-M11-app HECHO; F1.L4.M03 A MEDIAS). El resto de F1/F2 de L4 y L6 sigue en TODO.
 
-- Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · Base: `origin/dev` 50cf3be9
+- Actualizado: 2026-11-23 · Plan: [PLAN.md](./PLAN.md) · Base actual `dev`: `e798cfbf`; promovido a `test` por #498 (`5dca19d6`).
 - Ramas y PR (apilados, se mergean en orden):
   1. `correcciones/tanda2-l4l6-f1s3m1-token-vigente` — F1.S3.M1 (resto) · PR #420
   2. `correcciones/tanda2-l4l6-f1s4m1-campo-monto` — F1.S4.M1 / F1.L6.M03 · PR #426
@@ -50,11 +50,20 @@
 
 ## Pendiente
 
+### F1.L4.M06 — separación de analista y revisor LFT
+- Implementado en `codex/l4l6-resume`: `abrirCaso` persiste como analista al usuario de sesión y ya no recibe `analistaId` en el comando de aplicación; el campo HTTP antiguo sigue aceptándose y se ignora para no romper clientes desplegados. `CU44InvestigarYReportar.decidir` y su comando fueron retirados; la decisión usa `CU44DecidirComoRevisor`, que toma el revisor de la sesión y compara contra el analista guardado. El endpoint exige `CUMPLIMIENTO_CASOS_DECIDIR`, con permiso separado en la semilla; el backoffice oculta la acción sin ese permiso.
+- Pruebas actualizadas: decisión por el servicio seguro, intento del mismo analista, permiso insuficiente, y decisión sin sesión. La apertura web aún manda el campo legacy para comprobar que no se reenvía al caso de uso.
+- Validaciones locales: `git diff --check` y `python3 -m json.tool seeders/minimos/10-roles-y-permisos.json` pasaron; el generador de semillas validó 7.696 filas y dejó los SQL generados al día.
+- No validado: Gradle no pudo resolver el plugin `org.gradle.toolchains.foojay-resolver-convention:1.0.0` por falta de acceso DNS al repositorio; el intento del wrapper tampoco pudo descargar la distribución. No hay resultado de compilación ni tests. El typecheck Angular no corrió porque Corepack no pudo crear su caché local y no hay dependencias instaladas en este worktree. Evidencia: [`evidencia/f1-l4-m06-separacion-lft.txt`](./evidencia/f1-l4-m06-separacion-lft.txt).
+- Siguiente acción: correr `:servicios:cumplimiento:test --tests '*CU44*' --tests '*LftAccionesWebTest'`, `webTest`, typecheck y specs dirigidos del backoffice en un runner con dependencias disponibles; solo marcar HECHO con esas salidas.
+
+La bandeja CU-17 (BLQ.M1–M5; PR #493) y el contrato `GET /billetera/bloqueos` (#488) ya están mergeados en `dev` y promovidos a `test` mediante #498. Las filas históricas de bloqueo de autoridad se cerraron con esos cambios.
+
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| L1-pedido-bloqueos (b) — pantalla de bloqueos por autoridad en el backoffice | BLOQUEADO | **Necesita `GET /billetera/bloqueos` (L1).** Ni `dev` ni #476 lo tienen: #476 solo agrega `POST /billetera/bloqueos/{bloqueoId}/levantamiento`. La especificación (`docs/Flujo de pantallas · backoffice administrador.md:263`) dice que levantar es una decisión humana (CU-17), pero no define una pantalla de bloqueos. Cuando exista el listado: pantalla con los 4 estados, errores por campo y cuatro ojos (quien registra no levanta), con `BLOQUEO_AUTORIDAD_REGISTRAR` y `_LEVANTAR`. |
-| L1-pedido-bloqueos (a) — mock y clientes con el generador | BLOQUEADO | Se hace apenas #476 entre en `dev`. |
-| F1.L4.M06 (LFT: analista del token, decisión con otro permiso) | TODO | Toca el contrato, el formulario del backoffice y `CU44Test`/`CU44RechazosTest` (Testcontainers). El permiso nuevo `CUMPLIMIENTO_CASOS_DECIDIR` vive en `seeders/minimos/10-roles-y-permisos.json`, que es compartido |
+| L1-pedido-bloqueos (b) — pantalla de bloqueos por autoridad en el backoffice | HECHO | #488 incorporó `GET /billetera/bloqueos`; #493 implementó bandeja, estados, errores y acción de levantar a cuatro ojos. Mergeado en `dev` y promovido a `test` por #498. |
+| L1-pedido-bloqueos (a) — mock y clientes con el generador | HECHO | Los contratos de listar/levantar se integraron en #488 y la pantalla en #493; ambos están en `dev` y fueron promovidos a `test` por #498. |
+| F1.L4.M06 (LFT: analista de sesión, decisión con otro permiso) | A MEDIAS | Cambios implementados en `codex/l4l6-resume`; falta ejecutar tests y typecheck en runner con dependencias disponibles. Evidencia y causa del bloqueo arriba. |
 | F1.L4.M05, M07, M08, M11, M20, M24 (cambios de esquema en `docs/entidades` de identidad/cumplimiento) | TODO | Siguiente sesión del carril; dependen de F0.L4.M04 |
 | F1.L4.M04, M09, M10, M12–M14, M16–M19, M21–M23, M26 | TODO | Siguiente sesión del carril (M15, M17, M21–M23 coordinan con L1 o con `plataforma`) |
 | F1.L6.M05–M11 | TODO | M07 (gateway) y M08 (SSR) tocan `plataforma`; M06 depende de F4.L5.M52; M11 es la otra mitad de M12 |

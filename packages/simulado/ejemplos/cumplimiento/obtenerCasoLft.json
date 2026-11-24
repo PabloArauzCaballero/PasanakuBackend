@@ -1,0 +1,77 @@
+{
+  "servicio": "cumplimiento",
+  "operacion": "obtenerCasoLft",
+  "metodo": "get",
+  "ruta": "/cumplimiento/casos/{casoId}",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "casoId": "66947425-f599-4f17-86cf-204ce5c2e033",
+        "codigo": "LFT-2026-0042",
+        "origen": "ALERTA",
+        "estado": "EN_ANALISIS",
+        "prioridad": "ALTA",
+        "abiertoEn": "2026-01-15T10:30:00Z",
+        "plazoLimite": "2026-02-14T10:30:00Z",
+        "vencido": false,
+        "alertaDeOrigen": {
+          "alertaId": "4a4d2708-42ab-42a6-88e6-45ae8cf889ae",
+          "reglaCodigo": "RM-FRACCIONAMIENTO",
+          "tipologia": "Fraccionamiento de operaciones",
+          "severidad": "ALTA",
+          "detectadaEn": "2026-01-14T18:05:00Z"
+        },
+        "alertasEnlazadas": 3,
+        "titularEnmascarado": "****7c2e"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "casoId": "66947425-f599-4f17-86cf-204ce5c2e033",
+        "codigo": "LFT-2026-0043",
+        "origen": "DENUNCIA",
+        "estado": "EN_ANALISIS",
+        "prioridad": "ALTA",
+        "abiertoEn": "2026-01-15T10:30:00Z",
+        "plazoLimite": "2026-02-14T10:30:00Z",
+        "vencido": false,
+        "alertaDeOrigen": null,
+        "alertasEnlazadas": 0,
+        "titularEnmascarado": "****19ab"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "casoId": "66947425-f599-4f17-86cf-204ce5c2e033",
+        "codigo": "LFT-2026-0007",
+        "origen": "ALERTA",
+        "estado": "EN_ANALISIS",
+        "prioridad": "URGENTE",
+        "abiertoEn": "2026-01-15T10:30:00Z",
+        "plazoLimite": "2026-01-20T10:30:00Z",
+        "vencido": true,
+        "alertaDeOrigen": {
+          "alertaId": "4a4d2708-42ab-42a6-88e6-45ae8cf889ae",
+          "reglaCodigo": "RM-CONTRAPARTE-LISTA",
+          "tipologia": "Contraparte en lista restrictiva",
+          "severidad": "CRITICA",
+          "detectadaEn": "2026-01-14T18:05:00Z"
+        },
+        "alertasEnlazadas": 3,
+        "titularEnmascarado": "****7c2e"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU44-06",
+        "mensaje": "Ese caso no existe.",
+        "detalle": {},
+        "trazaId": "traza-obtenerCasoLft-rechazo"
+      }
+    }
+  }
+}

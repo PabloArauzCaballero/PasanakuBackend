@@ -71,15 +71,23 @@ abstract final class TextosBilletera {
   static const recargaPendiente = 'Tu recarga quedó en camino.';
   static const recargaPendienteDetalle =
       'Te avisamos cuando el banco la confirme.';
-  // QR dinámico de la orden: la persona lo escanea desde la app de su banco.
-  static const pagaConElQr = 'Pagá con este QR';
-  static const pagaConElQrDetalle =
-      'Escanealo desde la app de tu banco. Tu saldo sube cuando el banco confirma el pago.';
+  // QR dinámico de la orden: la persona lo escanea desde la app de su banco. Mientras el banco no
+  // confirma, la pantalla lo dice en presente; no promete la acreditación (regla 91.3).
   static const qrDeLaRecarga = 'Código QR para pagar tu recarga';
+  static const esperandoAlBanco = 'Esperando la confirmación del banco';
+  static const pagoSinConfirmar = 'El pago no se pudo confirmar';
+  static const comoPagar = 'Cómo pagar';
+  static const pasoAbriTuBanco = 'Abrí la app de tu banco.';
+  static const pasoEscaneaElQr = 'Escaneá este QR y confirmá el pago.';
+  static const pasoSubeTuSaldo = 'Tu saldo sube cuando el banco lo confirma.';
+  static const saldoActual = 'Saldo actual';
+  static const tuSaldoAhora = 'Tu saldo ahora';
+  static const acreditado = 'Acreditado';
+  static const volverALaBilletera = 'Volver a mi billetera';
   // QR de ambiente de prueba: no lo paga ningún banco; se simula el pago.
   static const qrDePrueba = 'QR de prueba';
   static const qrDePruebaDetalle =
-      'Este QR no se puede pagar desde un banco. Tocá «Simular pago» para probar cómo sube tu saldo.';
+      'Ningún banco puede pagarlo: «Simular pago» acredita como si el banco hubiera confirmado.';
   static const simularPago = 'Simular pago';
   static const tuSaldo = 'Tu saldo';
   static const recargaAcreditada = 'Tu recarga se acreditó.';

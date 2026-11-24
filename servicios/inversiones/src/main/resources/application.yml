@@ -67,7 +67,6 @@ aportaya:
         telefono: ${INVERSIONES_SERVICIO_TELEFONO:}
         clave: ${INVERSIONES_SERVICIO_CLAVE:}
         factor-totp-semilla: ${INVERSIONES_SERVICIO_TOTP_SEMILLA:}
-        factor-fijo: ${INVERSIONES_SERVICIO_FACTOR_FIJO:}   # SOLO TEST: el codigo fijo del perfil local de identidad
     valor-cuota:
       tolerancia-dias: 3            # tecnico, no comercial: cuantos dias de antiguedad tolera la pantalla sin avisar
     # Instrucciones pendientes al libro: espera exponencial desde que nacieron y un maximo de intentos.

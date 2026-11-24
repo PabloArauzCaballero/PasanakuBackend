@@ -401,6 +401,38 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
   /tarifas/parametros/{codigo}/versiones:
+    get:
+      operationId: listarVersionesDeParametro
+      summary: Historial inmutable de versiones de un parametro financiero
+      description: >-
+        Devuelve todas las versiones (PROPUESTA, APROBADA y RECHAZADA) del codigo, de la
+        vigencia mas reciente a la mas antigua. No expone identidades de operadores. Exige
+        TARIFARIO_ADMINISTRAR, como el catalogo y las operaciones de CU-132.
+      parameters:
+        - { name: codigo, in: path, required: true, schema: { type: string, maxLength: 50 } }
+      responses:
+        '200':
+          description: Historial append-only del parametro
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/VersionDeParametro' }
+        '422':
+          description: El codigo no pertenece al catalogo cerrado (AP-CU132-01)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '403':
+          description: Sin TARIFARIO_ADMINISTRAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: Sin token valido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
     post:
       operationId: proponerVersionDeParametro    # CU-132
       summary: Proponer un valor para un parametro financiero
@@ -894,6 +926,18 @@ components:
         moneda:       { type: [string, 'null'] }
         vigenteDesde: { type: string, format: date-time }
         estado:       { type: string, enum: [PROPUESTA, APROBADA, RECHAZADA] }
+        propuestoPor:
+          type: string
+          format: uuid
+          description: >-
+            Identificador del operador que propuso la version (sale de su token, CU-132). Aditivo
+            (2026-11-24): los clientes anteriores lo ignoran.
+        aprobadoPor:
+          type: [string, 'null']
+          format: uuid
+          description: >-
+            Identificador del operador que la aprobo (cuatro ojos, R-TAR-14). Nulo mientras esta
+            PROPUESTA o si se rechazo sin aprobacion.
     Dinero:
       type: object
       additionalProperties: false

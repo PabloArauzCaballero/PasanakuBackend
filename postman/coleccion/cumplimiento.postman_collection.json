@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AportaYa · cumplimiento",
-    "description": "# AportaYa · cumplimiento\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**28 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
+    "description": "# AportaYa · cumplimiento\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**29 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -1381,7 +1381,7 @@
       ]
     },
     {
-      "name": "abrirCasoLft · Agrupar alertas de un titular en un caso de investigacion y asignarle analista",
+      "name": "abrirCasoLft · Agrupar alertas de un titular en un caso de investigacion iniciado por el analista autenticado",
       "request": {
         "method": "POST",
         "header": [
@@ -1410,7 +1410,7 @@
           ],
           "variable": []
         },
-        "description": "## Agrupar alertas de un titular en un caso de investigacion y asignarle analista\n\nCU-44, paso 4. Las alertas quedan enlazadas al caso desde que se abre. El plazo se guarda al abrir segun la severidad mas alta (R-UIF-08). Reintentar con las mismas alertas y el mismo analista devuelve el caso ya abierto, no uno nuevo. Exige CUMPLIMIENTO_CASOS.\n\n| | |\n| --- | --- |\n| **Servicio** | `cumplimiento` |\n| **Operacion** | `abrirCasoLft` |\n| **Ruta** | `POST /api/v1/cumplimiento/casos` |\n| **Permiso** | `CUMPLIMIENTO_CASOS` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU44-08` | Alertas invalidas |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Agrupar alertas de un titular en un caso de investigacion iniciado por el analista autenticado\n\nCU-44, paso 4. Las alertas quedan enlazadas al caso desde que se abre. El plazo se guarda al abrir segun la severidad mas alta (R-UIF-08). El analista es la persona autenticada en esta sesion. Reintentar con las mismas alertas devuelve el caso abierto por ese mismo actor. El campo heredado `analistaId` se acepta por compatibilidad con clientes desplegados, pero se ignora. Exige CUMPLIMIENTO_CASOS.\n\n| | |\n| --- | --- |\n| **Servicio** | `cumplimiento` |\n| **Operacion** | `abrirCasoLft` |\n| **Ruta** | `POST /api/v1/cumplimiento/casos` |\n| **Permiso** | `CUMPLIMIENTO_CASOS` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU44-08` | Alertas invalidas |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"alertaIds\": [\n    \"{{alertaIds}}\"\n  ],\n  \"analistaId\": \"{{analistaId}}\",\n  \"resumen\": \"resumen-de-prueba\"\n}",
@@ -1430,6 +1430,79 @@
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
               "const esperadas = [201, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "obtenerCasoLft · La ficha de un caso de investigacion LFT, con su alerta de origen y el titular enmascarado",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/cumplimiento/casos/:casoId",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "cumplimiento",
+            "casos",
+            ":casoId"
+          ],
+          "variable": [
+            {
+              "key": "casoId",
+              "value": "{{casoId}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## La ficha de un caso de investigacion LFT, con su alerta de origen y el titular enmascarado\n\nAditivo (2026-11-24). Lo que la bandeja no lleva por deber de reserva se resuelve aca, en la ficha, con el mismo permiso que la bandeja de casos (CUMPLIMIENTO_CASOS). La alerta de origen es la mas antigua enlazada al caso (nula si el caso no nacio de una alerta). El titular NUNCA viaja en claro: ni nombre, ni documento, ni contacto; solo `titularEnmascarado`, cuatro caracteres del seudonimo interno precedidos de asteriscos, para distinguir titulares entre casos sin identificarlos.\n\n| | |\n| --- | --- |\n| **Servicio** | `cumplimiento` |\n| **Operacion** | `obtenerCasoLft` |\n| **Ruta** | `GET /api/v1/cumplimiento/casos/{casoId}` |\n| **Permiso** | `CUMPLIMIENTO_CASOS` |\n| **Respuestas** | `200`, `422`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU44-06` | Caso inexistente |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 401, 403, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",
@@ -1502,7 +1575,7 @@
             }
           ]
         },
-        "description": "## La decision del oficial sobre un caso\n\nCU-44, pasos 5 a 8. El revisor es la sesion —nunca un campo del cuerpo— y tiene que ser distinto del analista GUARDADO en el caso. Cierra las alertas del caso (las enlazadas al abrirlo), una sola decision por caso: la misma decision del mismo oficial repetida devuelve el mismo resultado sin otro evento; otra decision es AP-CU44-07. REPORTAR exige el ROS ya radicado (vive en auditoria). Nunca se notifica al titular (deber de reserva). Exige CUMPLIMIENTO_CASOS (solo OFICIAL_CUMPLIMIENTO lo tiene sembrado).\n\n| | |\n| --- | --- |\n| **Servicio** | `cumplimiento` |\n| **Operacion** | `decidirCasoLft` |\n| **Ruta** | `POST /api/v1/cumplimiento/casos/{casoId}/decision` |\n| **Permiso** | `CUMPLIMIENTO_CASOS` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU44-01` | Conclusion requerida |\n| `AP-CU44-02` | Revisor es analista |\n| `AP-CU44-03` | Reporte sin narrativa |\n| `AP-CU44-06` | Caso inexistente |\n| `AP-CU44-07` | Caso ya decidido |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## La decision del oficial sobre un caso\n\nCU-44, pasos 5 a 8. El revisor es la sesion —nunca un campo del cuerpo— y tiene que ser distinto del analista GUARDADO en el caso. Cierra las alertas del caso (las enlazadas al abrirlo), una sola decision por caso: la misma decision del mismo oficial repetida devuelve el mismo resultado sin otro evento; otra decision es AP-CU44-07. REPORTAR exige el ROS ya radicado (vive en auditoria). Nunca se notifica al titular (deber de reserva). Exige CUMPLIMIENTO_CASOS_DECIDIR; el revisor autenticado debe ser distinto del analista guardado.\n\n| | |\n| --- | --- |\n| **Servicio** | `cumplimiento` |\n| **Operacion** | `decidirCasoLft` |\n| **Ruta** | `POST /api/v1/cumplimiento/casos/{casoId}/decision` |\n| **Permiso** | `CUMPLIMIENTO_CASOS_DECIDIR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU44-01` | Conclusion requerida |\n| `AP-CU44-02` | Revisor es analista |\n| `AP-CU44-03` | Reporte sin narrativa |\n| `AP-CU44-06` | Caso inexistente |\n| `AP-CU44-07` | Caso ya decidido |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"decision\": \"DESCARTAR\",\n  \"conclusion\": \"conclusion-de-prueba\",\n  \"reporteSospechosoId\": \"{{reporteSospechosoId}}\"\n}",

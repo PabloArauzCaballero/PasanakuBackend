@@ -87,6 +87,32 @@ public class ConsultarBandejasLft {
                 ultima.map(BandejasLftRepositorio.CasoEnBandeja::id));
     }
 
+    /**
+     * La ficha de un caso (CU-44, 2026-11-24): lo que la bandeja calla por deber de reserva, con el mismo permiso.
+     * El titular ya llega enmascarado del repositorio; {@code vencido} se marca igual que en la bandeja.
+     */
+    @Transactional(readOnly = true)
+    public Ficha ficha(UUID casoId, ContextoSesion ctx) {
+        OffsetDateTime ahora = OffsetDateTime.ofInstant(reloj.ahora(), Reloj.ZONA);
+        var f = datos.conContexto(ctx, dsl -> bandejas.ficha(dsl, casoId))
+                .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(44, 6), "Ese caso no existe."));
+        boolean vencido = !"CERRADO".equals(f.estado()) && f.plazoLimite().isBefore(ahora);
+        return new Ficha(
+                f.id(),
+                f.codigo(),
+                f.origen(),
+                f.estado(),
+                f.prioridad(),
+                f.abiertoEn(),
+                f.plazoLimite(),
+                vencido,
+                f.alertaDeOrigen()
+                        .map(a -> new AlertaDeOrigen(
+                                a.alertaId(), a.reglaCodigo(), a.tipologia(), a.severidad(), a.detectadaEn())),
+                f.alertasEnlazadas(),
+                f.titularEnmascarado());
+    }
+
     private static boolean vacio(List<String> lista) {
         return lista == null || lista.isEmpty();
     }
@@ -151,6 +177,24 @@ public class ConsultarBandejasLft {
             boolean vencido,
             Optional<String> decision,
             Optional<OffsetDateTime> cerradoEn) {}
+
+    /** Sin {@code usuarioId}: el titular solo existe enmascarado (regla 90.2). */
+    public record Ficha(
+            UUID casoId,
+            String codigo,
+            String origen,
+            String estado,
+            String prioridad,
+            OffsetDateTime abiertoEn,
+            OffsetDateTime plazoLimite,
+            boolean vencido,
+            Optional<AlertaDeOrigen> alertaDeOrigen,
+            int alertasEnlazadas,
+            String titularEnmascarado) {}
+
+    /** La alerta mas antigua enlazada al caso: regla y severidad, sin persona, monto ni detalle. */
+    public record AlertaDeOrigen(
+            UUID alertaId, String reglaCodigo, String tipologia, String severidad, OffsetDateTime detectadaEn) {}
 
     public record PaginaDeAlertas(
             List<Alerta> items, Optional<OffsetDateTime> proximoFecha, Optional<UUID> proximoId) {}

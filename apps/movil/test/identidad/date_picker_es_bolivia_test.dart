@@ -9,8 +9,8 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         locale: localeDeAportaYa,
-        supportedLocales: localesDeAportaYa,
-        localizationsDelegates: delegadosDeLocalizacionDeAportaYa,
+        supportedLocales: idiomasDeLaApp,
+        localizationsDelegates: delegadosDeIdioma,
         home: Builder(
           builder: (context) => Scaffold(
             body: TextButton(

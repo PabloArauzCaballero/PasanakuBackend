@@ -2,9 +2,7 @@
 
 > **AVANCE: 12 / 22 — 54,5 %.**
 
-- Fecha: 2026-11-21 · Plan: [PLAN.md](./PLAN.md) · PR mergeados en `dev`: #419, #421, #422, #424, #429, #459, #462
-  y #463, todos con CI verde, incluidos los cinco corredores. #464 se consolidó en #463 por el tope de 3 PR abiertos.
-  #463 todavía no está en `test`: espera a que se cargue `ENTREGAS_LLAVE_CIFRADO_CUENTAS` en Coolify.
+- Actualizado: 2026-11-23 · Plan: [PLAN.md](./PLAN.md) · PRs mergeados en `dev`: #419, #421, #422, #424, #429, #459, #462, #463, #471, #472, #474, #477 y #490. #464 se cerró al consolidarse en #463. #484 también está integrado. #498 promovió `dev` a `test`; no quedan PR abiertos de este lote.
 - Peldaño de evidencia alcanzado: `TESTED` en L2.S1.M1 (`test` + `webTest` + gates estáticos locales en verde).
   `integrationTest` (Testcontainers) no corre en esta nube: lo corre el CI del PR. Todo lo demás del lote: `UNKNOWN`.
 
@@ -27,7 +25,7 @@
 
 ## A medias
 
-### H1.S4 / F3.L2.M01 — Entrega automática al cobrarse el turno
+### H1.S4 / F3.L2.M01 — Entrega automática al cobrarse el turno (#490 integrado y promovido por #498)
 - Qué anda: con la propiedad `aportaya.entrega-automatica.habilitada=true` y un método de desembolso configurado, el
   aviso `aportes.periodo_recaudado` fondea el turno del periodo sin pedido manual. El aviso queda en la saga
   `entregas.estado_saga` en la misma transacción que la marca del evento; el barrido (`BarridoDeEntregaAutomatica`,
@@ -42,8 +40,7 @@
   de productor; (3) Pablo decide el método de desembolso (ver Decisiones); (4) se enciende en `test` con
   `APORTAYA_ENTREGAAUTOMATICA_HABILITADA=true` y `APORTAYA_ENTREGAAUTOMATICA_METODODESEMBOLSO`, y se prueba con Kafka
   real y con `aportes` apagado de verdad (regla 98.8.4).
-- Dónde quedó: rama `correcciones/tanda2-l2-entrega-automatica` (PR #490); compila; `test`, `webTest`, `testBarrido`
-  y la integración local en verde.
+- Dónde quedó: PR #490 integrado en `dev` y promovido a `test` por #498; `test`, `webTest`, `testBarrido` y la integración local en verde. La función sigue apagada por omisión hasta que existan los productores y Pablo confirme el método de desembolso.
 
 `CU22LiquidarEntrega.liquidar`/`ejecutar` ya no existen (#471). `CU23CubrirIncumplimiento` se retira en #472.
 
@@ -134,17 +131,17 @@
 - Qué no anda: las 10 operaciones siguen en el contrato y las tablas `oferta_turno`, `cesion_derecho`, `subasta_cupo`
   y `puja_subasta` siguen en el modelo.
 - Qué falta exactamente (fuera de mi alcance, por eso no lo hice):
-  1. L6 (app móvil): borrar `apps/movil/lib/pantallas/pasanaku/dominio/subasta_del_cupo.dart`, sus pantallas y las
+  1. L6 (app móvil; retiro de subasta integrado en #460 y promovido por #498): borrar `apps/movil/lib/pantallas/pasanaku/dominio/subasta_del_cupo.dart`, sus pantallas y las
      pruebas `subastar_cupo_test.dart`, `pujar_en_subasta_test.dart`, `subasta_capturas_test.dart`; y
      `packages/simulado/ejemplos/entregas/{publicarOferta,listarOfertas,cancelarOferta,comprarOferta,consultarOfertaParaPago,abrirSubastaDeCupo,listarSubastasDeCupo,consultarSubastaDeCupo,pujarEnSubasta,cancelarSubastaDeCupo}.json`.
-  2. L1 (nucleo-financiero): retirar `OfertasDelMercado`/`OfertasPorHttp`, el pago a tercero que lo usa,
+  2. L1 (nucleo-financiero; retiro del consumidor integrado en #461 y promovido por #498): retirar `OfertasDelMercado`/`OfertasPorHttp`, el pago a tercero que lo usa,
      `PactoConEntregasContratoTest` (lee `entregas.yaml` y corta en `/entregas/mercado/ofertas/{ofertaId}/cancelacion:`)
      y el pacto `contratos/pactos/nucleo-financiero-entregas.json`.
   3. Después de 1 y 2 (este lote): borrar las operaciones del OpenAPI (versión 2.0.0), las tablas del
      `docs/entidades/04_entregas_fondo.puml` (más R-DES-04 y R-DES-05 de `docs/Restricciones.md`), regenerar `sql/`,
      quitar `CesionRepositorio` del fondeo y las URL de `grupos`/`nucleo-financiero` de `application.yml` (con el
      compose regenerado). Antes, la consulta de vivas de abajo.
-- Dónde quedó: rama `correcciones/tanda2-l2-retiro-subasta`; compila.
+- Dónde quedó: consumidores de L6/L1 integrados (#460/#461) y promovidos por #498. La contracción del contrato y esquema sigue pendiente; confirmar que no queden consumidores antes de regenerar DDL.
 
 ## Pendiente
 
