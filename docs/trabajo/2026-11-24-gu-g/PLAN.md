@@ -80,7 +80,7 @@
 ### H3.S2 — Contrato `identidad.yaml` (tag Participantes, solo operaciones nuevas)
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H3.S2.M1 | Operaciones y esquemas de búsqueda, ficha, revelación, medida, descargo, decisión, apelación y resolución, con `AP-CU134-01..11` | Contrato válido y con límites | `verificar_contratos_limites.py` exit 0 | HECHO |
+| H3.S2.M1 | Operaciones y esquemas de búsqueda, ficha, revelación, medida, descargo, decisión, apelación y resolución, con `AP-CU134-01..11` | Contrato válido y con límites | `verificar_contratos_limites.py` exit 0 | A MEDIAS — escrito y validado (`verificar_contratos_limites.py` exit 0), guardado como `evidencia/H3.S2-contrato-participantes.patch` y no aplicado a `identidad.yaml`: sin controladores, `inventario_endpoints.py --check` falla, y el build que los permite está bloqueado (H3.S3.M1). Se aplica con `git apply` junto con H3.S3 |
 
 ### H3.S3 — Backend `identidad`
 | ID | Microtarea | CA (binario) | DoD | Estado |
