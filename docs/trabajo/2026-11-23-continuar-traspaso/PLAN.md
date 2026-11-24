@@ -27,7 +27,7 @@
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
 | H1.S1.M1 | Corregir TS4111 en el spec (acceso con corchetes) | typecheck del backoffice sin errores TS4111 | `yarn typecheck` en apps/backoffice → exit 0 | HECHO — 31234da (TS4111) + 28cb588b (plantilla estricta: variante, `?? false`, `?? null`); CI de 28cb588b ya compiló el bundle |
-| H1.S1.M2 | Re-ejecutar CI de #503 (429 era de entorno) | Formato y Frontend en success | check-runs del head nuevo | EN CURSO — head bcfc6274 en CI; la única falla restante (matriz COMERCIAL) corregida y 43/43 local |
+| H1.S1.M2 | Re-ejecutar CI de #503 (429 era de entorno) | Formato y Frontend en success | check-runs del head nuevo | HECHO — CI de bcfc6274: 12 success / 0 fallos |
 | H1.S1.M3 | Confirmar doble aprobación por persona distinta con `TARIFARIO_ADMINISTRAR` | existe test/control que rechaza aprobación del mismo proponente | `grep` del control + test pasando en CI | HECHO — `CU132RegistroDeParametros.java:168` + `@Permiso("TARIFARIO_ADMINISTRAR")` (TarifasController:245-265) + test `mismaPersona` |
 ### H1.S2 — #504 turnos asignados
 | ID | Microtarea | CA (binario) | DoD | Estado |
@@ -41,7 +41,7 @@
 ### H1.S4 — Integración
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H1.S4.M1 | Merge a `dev` de cada PR verde | `origin/dev` contiene los heads | `git branch -r --contains <head>` | EN CURSO — #505 → dev (64da8b97), #504 → dev (98b03005); falta #503 |
+| H1.S4.M1 | Merge a `dev` de cada PR verde | `origin/dev` contiene los heads | `git branch -r --contains <head>` | HECHO — #505 (64da8b97), #504 (98b03005), #503 (d62225d9) en `origin/dev` |
 ## H2 — Promoción dev → test
 **CA:** Dado `dev` con #503–#505 y CI verde, cuando se promueve, entonces `test` apunta a ese contenido y el health responde.
 **DoD:** CI de `dev` verde · promoción por la ruta acordada · `estado` ejecutado por Pablo en su host (fuera de este entorno: SSH bloqueado).
@@ -49,7 +49,7 @@
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H2.S1.M1 | Revisar diff `test..dev` y CI de `dev` | sin cambios inesperados, CI verde | `git diff --stat origin/test origin/dev` + check-runs | TODO |
+| H2.S1.M1 | Revisar diff `test..dev` y CI de `dev` | sin cambios inesperados, CI verde | `git diff --stat origin/test origin/dev` + check-runs | HECHO — 78 archivos, +1851/−402, sólo #499–#505; sin M08/M6 |
 | H2.S1.M2 | Promover `dev → test` | `origin/test` contiene `dev` | `git branch -r --contains` | TODO |
 | H2.S1.M3 | Health en TEST | `estado` responde OK | salida provista por Pablo | TODO |
 
@@ -83,8 +83,8 @@ protegidas, entonces ningún defecto abierto del inventario se reproduce y la su
 ### H3.S2 — Requieren app + backend
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H3.S2.M1 | FLUJO-QR-001: «Simular pago» solo con `--dart-define` y el backend falla al arrancar en producción con modo=prueba | build sin define no muestra el botón | test widget + test de arranque del backend | EN CURSO — f66cdb94: app rojo→verde 8/8; guardia backend escrita, espera CI de #506 (local sin Maven) |
-| H3.S2.M2 | SEG-005: secreto de invitación en el fragmento, no en el path (`rutas.dart:122`, `enlaces_profundos.dart:32`, `lectura_de_qr.dart:40`) | la URL compartida no lleva el secreto en el path | tests de enlaces + contrato | TODO |
+| H3.S2.M1 | FLUJO-QR-001: «Simular pago» solo con `--dart-define` y el backend falla al arrancar en producción con modo=prueba | build sin define no muestra el botón | test widget + test de arranque del backend | EN CURSO — f66cdb94 + guardia backend; CI de #506 tumbó la compilación por deprecación (2915db44 lo corrige), espera CI |
+| H3.S2.M2 | SEG-005: secreto de invitación en el fragmento, no en el path (`rutas.dart:122`, `enlaces_profundos.dart:32`, `lectura_de_qr.dart:40`) | la URL compartida no lleva el secreto en el path | tests de enlaces + contrato | HECHO — e7698bc9: enlace `/g#/g/<codigo>`, manifest `path=/g`, nginx 302; tests de enlaces verdes (suite 957) |
 | H3.S2.M3 | `cobrarAporte` marcado `deprecated: true` en `aportes.yaml:70` (se conserva por la app desplegada) | el OpenAPI lo marca deprecado, sin quitarlo | verificador de contratos en verde | HECHO — 19d7c756; validate sin problemas; postman/catálogo sin deriva; app sin issues |
 ### H3.S3 — Decisión de negocio (DECISION_REQUIRED, Pablo)
 | ID | Microtarea | CA (binario) | DoD | Estado |
