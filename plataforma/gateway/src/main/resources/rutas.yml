@@ -18,6 +18,17 @@ spring:
       server:
         webflux:
           routes:
+            - id: identidad-sensible-cuenta
+              uri: http://identidad:8080
+              predicates:
+                - Path=/api/v1/cuenta/**
+              filters:
+                - StripPrefix=2
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 5
+                    redis-rate-limiter.burstCapacity: 10
+                    key-resolver: "#{@ipYUsuarioKeyResolver}"
             - id: identidad-sensible-sesiones
               uri: http://identidad:8080
               predicates:
@@ -107,7 +118,7 @@ spring:
             - id: identidad
               uri: http://identidad:8080
               predicates:
-                - Path=/api/v1/identidad/**,/api/v1/permisos/**,/api/v1/roles/**,/api/v1/sesion/**,/api/v1/sesiones/**,/api/v1/usuarios/**,/api/v1/usuarios-internos/**
+                - Path=/api/v1/cuenta/**,/api/v1/identidad/**,/api/v1/permisos/**,/api/v1/roles/**,/api/v1/sesion/**,/api/v1/sesiones/**,/api/v1/usuarios/**,/api/v1/usuarios-internos/**
               filters:
                 - StripPrefix=2
             - id: inversiones
