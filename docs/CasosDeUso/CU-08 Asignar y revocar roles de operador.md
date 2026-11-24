@@ -112,6 +112,7 @@ export const ErroresCU08 = {
   AUTOASIGNACION:               'AP-CU08-04',
   SIN_MFA_CONFIGURADO:          'AP-CU08-05',
   ULTIMO_ADMINISTRADOR:         'AP-CU08-06',
+  LOTE_CON_REPETIDOS:           'AP-CU08-07',
 } as const
 ```
 
@@ -123,6 +124,7 @@ export const ErroresCU08 = {
 | `AUTOASIGNACION` | Quien otorga es el destinatario: **nadie se amplía sus propios permisos** |
 | `SIN_MFA_CONFIGURADO` | El rol es de ámbito `GLOBAL` y el usuario no tiene TOTP confirmado: la asignación queda escrita, pero no podrá entrar hasta enrolarlo (`R-SEG-10`) |
 | `ULTIMO_ADMINISTRADOR` | La revocación dejaría la plataforma sin administrador de accesos |
+| `LOTE_CON_REPETIDOS` | Al resolver los nombres de operadores que firmaron (`POST /usuarios-internos/nombres`), la lista repite un identificador |
 
 ## Descomposición atómica
 

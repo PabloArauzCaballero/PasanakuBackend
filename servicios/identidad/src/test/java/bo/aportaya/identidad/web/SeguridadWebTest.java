@@ -124,4 +124,8 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private bo.aportaya.identidad.aplicacion.GestionarUsuariosInternos gestionarUsuariosInternos;
+
+    // UsuariosInternosController resuelve nombres de operadores desde 2026-11-24 (CU-132).
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.ResolverNombresDeUsuariosInternos resolverNombresDeUsuariosInternos;
 }

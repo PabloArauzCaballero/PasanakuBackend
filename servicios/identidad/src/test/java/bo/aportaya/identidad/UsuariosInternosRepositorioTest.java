@@ -5,12 +5,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import bo.aportaya.identidad.dominio.puertos.HasheadorDeCredencial;
 import bo.aportaya.identidad.infraestructura.AccesosRepositorio;
 import bo.aportaya.identidad.infraestructura.Argon2Hasheador;
+import bo.aportaya.identidad.infraestructura.NombresDeUsuariosInternosRepositorio;
 import bo.aportaya.identidad.infraestructura.RolesYPermisosRepositorio;
 import bo.aportaya.identidad.infraestructura.UsuariosInternosRepositorio;
 import bo.aportaya.identidad.web.generado.modelo.EntradaAltaUsuarioInterno;
 import bo.aportaya.identidad.web.generado.modelo.UsuarioInternoDetalle;
 import bo.aportaya.plataforma.pruebas.BaseDePrueba;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
@@ -118,5 +120,29 @@ class UsuariosInternosRepositorioTest {
 
         assertThat(lista).hasSize(1);
         assertThat(lista.get(0).getUsuarioId()).isEqualTo(detalle.getUsuarioId());
+    }
+
+    @Test
+    @DisplayName("nombres · solo un operador interno ACTIVO sale; un cliente, un suspendido y un id inventado no")
+    void losNombresSoloSonDeOperadoresActivos() {
+        UUID otorgante = fixtura.usuario(telefonoUnico());
+        String rol = "ROL_" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        fixtura.rolGlobal(rol);
+        String sufijoActivo = UUID.randomUUID().toString().substring(0, 8);
+        String sufijoSuspendido = UUID.randomUUID().toString().substring(0, 8);
+        UUID activo = tx.execute(s -> repositorio.crear(dsl, entrada(sufijoActivo, rol), otorgante, AHORA))
+                .getUsuarioId();
+        UUID suspendido = tx.execute(s -> repositorio.crear(dsl, entrada(sufijoSuspendido, rol), otorgante, AHORA))
+                .getUsuarioId();
+        dsl.execute("UPDATE identidad.usuario SET estado = 'SUSPENDIDO' WHERE id = ?", suspendido);
+        UUID cliente = fixtura.usuario(telefonoUnico());
+        UUID inventado = UUID.randomUUID();
+
+        var nombres = tx.execute(s -> new NombresDeUsuariosInternosRepositorio()
+                .activos(dsl, List.of(activo, suspendido, cliente, inventado)));
+
+        assertThat(nombres).containsOnlyKeys(activo);
+        assertThat(nombres.get(activo).nombres()).isEqualTo("Prueba");
+        assertThat(nombres.get(activo).apellidos()).isEqualTo("Contable");
     }
 }
