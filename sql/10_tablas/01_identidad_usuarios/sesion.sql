@@ -24,5 +24,5 @@ COMMENT ON COLUMN identidad.sesion.dispositivo_id IS 'FK';
 COMMENT ON COLUMN identidad.sesion.refresco_familia_id IS 'NULL';
 COMMENT ON COLUMN identidad.sesion.expira_en IS 'IDX';
 COMMENT ON COLUMN identidad.sesion.geolocalizacion_aprox IS 'NULL';
-COMMENT ON COLUMN identidad.sesion.revocada_en IS 'NULL';
+COMMENT ON COLUMN identidad.sesion.revocada_en IS 'NULL, IDX';
 COMMENT ON COLUMN identidad.sesion.motivo_revocacion IS 'NULL';

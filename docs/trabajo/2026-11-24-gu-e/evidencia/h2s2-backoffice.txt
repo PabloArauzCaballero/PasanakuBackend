@@ -1,0 +1,26 @@
+$ yarn typecheck → rc=0
+$ yarn lint → rc=0
+=== apps/backoffice (Angular) ===
+  OK    · sin red en vista 
+  OK    · sin literal de diseño 
+  OK    · sin formato de dinero 
+  OK    · sin console 
+  OK    · ningún archivo de más de 200 líneas 
+=== packages/tutoriales (Angular) ===
+  OK    · sin red fuera del puerto 
+  OK    · sin literal de diseño 
+  OK    · sin console 
+  OK    · ningún archivo de más de 200 líneas 
+  OK    · sin literal de diseño en @aportaya/ui 
+
+TODO OK
+
+$ yarn ng test --include (3 specs dirigidas de inactividad)
+ Test Files  3 passed (3)
+      Tests  11 passed (11)
+$ yarn test:front
+ Test Files  193 passed (193)
+      Tests  1375 passed (1375)
+$ yarn test:a11y
+ Test Files  46 passed (46)
+      Tests  98 passed (98)
