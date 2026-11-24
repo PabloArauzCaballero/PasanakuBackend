@@ -3,3 +3,4 @@ psql:/tmp/claude-0/prueba.sql:8: ERROR:  new row for relation "solicitud_cambio_
 psql:/tmp/claude-0/prueba.sql:18: ERROR:  new row for relation "solicitud_cambio_rol" violates check constraint "ck_solicitud_cambio_rol_rol_requerido"
 
 psql:/tmp/claude-0/prueba.sql:21: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql: ERROR: new row for relation "cuenta_servicio" violates check constraint "ck_cuenta_servicio_revocacion"  (REVOCADA sin revocada_por/motivo)
