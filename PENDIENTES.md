@@ -29,13 +29,13 @@ Actualizado: 2026-10-14. Rama de trabajo: `codex/alta-atlas-sesion-premium-2026-
 |---|---|
 | `H3.S3.M3` | Capturas con teclado abierto en tres selects; no existe select de soporte inventariado. Seguir con AVD para los selects existentes y aclarar/implementar el de soporte solo si corresponde al producto. |
 | `H6.S2.M3` | Revisión de umbrales requiere 10 altas con rostros/personas reales. Mantener pendiente hasta disponer de participantes y consentimiento; no sustituirlos por imágenes sintéticas. |
-| `H8.S4.M4` | “Grupos/detalle” no tiene pantalla/ruta/contrato local; decidir alcance de producto antes de completar la inspección oscura de esa superficie. Las 20 superficies existentes sí están inspeccionadas. |
+| `H8.S4.M4` | **Resuelto en el alcance (2026-11-25, lote H):** «grupos/detalle» SÍ tiene pantalla, ruta y contrato (`PantallaDelGrupo`, `/pasanaku/grupos/:grupoId` en `rutas.dart`, `consultarDetalleDelGrupo`); el pendiente era la inspección visual, que ahora tiene su prueba `test/goldens/h11_grupos_detalle_visual_test.dart` y capturas en `docs/trabajo/2026-11-25-gu-h/evidencia/grupos-detalle/`. Ver el REPORTE de ese trabajo. |
 | `H10.S2.M2` | Recorrido de alta integral depende de backend/storage y cuenta de prueba. Ejecutar en AVD cuando estén disponibles; las pruebas con rostros reales siguen pendientes. |
 | `H10.S2.M3` | Recorrido de sesión durante 20 minutos depende de backend y cuenta de ensayo; hacer en AVD cuando estén disponibles. |
 | `H10.S2.M4` | Flujo de candado de sesión depende de backend/sesión de ensayo; ejecutar en AVD cuando estén disponibles. |
 | `H10.S2.M5` | Cierre y cambio limpio de cuenta requiere backend y dos cuentas de ensayo; ejecutar en AVD cuando estén disponibles. |
 | `H10.S2.M6` | Selectores con teclado requieren completar el recorrido de alta en AVD con IME Android y datos de backend. |
-| `H10.S3.M1` | Falta la matriz visual de grupos/detalle porque esa pantalla no tiene ruta/contrato local; resolver alcance antes de producir capturas. Las 228 celdas de 20 superficies existentes ya se inspeccionaron. |
+| `H10.S3.M1` | **Resuelto en el alcance (2026-11-25, lote H):** la matriz de grupos/detalle (3 anchos × 2 temas × datos/cargando/error) está en `docs/trabajo/2026-11-25-gu-h/evidencia/grupos-detalle/`. Las 228 celdas de las otras 20 superficies ya estaban inspeccionadas. |
 
 ## Errores y riesgos conocidos
 
