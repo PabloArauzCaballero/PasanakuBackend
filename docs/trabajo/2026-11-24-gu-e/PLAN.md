@@ -27,64 +27,64 @@
 
 **CA:** Dado un operador con token vigente, cuando identidad revoca su sesión, entonces cualquier servicio con `comun-web` rechaza ese token con 401 en cuanto recibe la revocación, y un token de otra sesión sigue entrando.
 **DoD:** tests dirigidos de `comun-web` e identidad en verde en CI (`test`, `integrationTest`); compilación sin avisos; verificadores de `scripts/` en 0.
-**Estado:** TODO
+**Estado:** HECHO (peldaño TESTED: contra dobles de Kafka; broker real pendiente)
 
 ### H1.S1 — identidad publica la revocación
 
 **CA:** Dada una sesión revocada por cualquier vía, entonces identidad publica `{sesionId, usuarioId, revocadaEn, venceEn}` en `aportaya.identidad.revocacion` con clave `sesion_id`, sin outbox.
 **DoD:** prueba unitaria del vigía con dobles (correcto / límite / inválido) + DDL regenerado sin deriva.
-**Estado:** TODO
+**Estado:** HECHO
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H1.S1.M1 | Índice `ix_sesion_revocada_en` desde el `.puml` | `generar_ddl.py` produce el índice y no deja otro diff | `python3 scripts/generar_ddl.py && git diff --stat sql/` → solo `30_indices/01_identidad_usuarios.sql` (+ catálogo derivado si aplica) | TODO |
-| H1.S1.M2 | Contrato `RevocacionDeSesion` (record + JSON) en `comun-web/seguridad` | serializa/lee ida y vuelta; rechaza JSON sin `sesionId` o con fecha inválida | `./gradlew :plataforma:comun-web:test --tests '*RevocacionDeSesionTest'` (CI) | TODO |
-| H1.S1.M3 | `VigiaDeRevocaciones` en identidad: lee `sesion.revocada_en` con margen y publica directo | publica una vez por sesión; repasa el margen; un fallo de Kafka no adelanta la marca | `./gradlew :servicios:identidad:test --tests '*VigiaDeRevocacionesTest'` (CI) | TODO |
-| H1.S1.M4 | Tema compactado en `crear-topicos.sh` | el script crea `aportaya.identidad.revocacion` con `cleanup.policy=compact,delete` | `bash -n despliegue/host/crear-topicos.sh` + `grep` de la línea | TODO |
+| H1.S1.M1 | Índice `ix_sesion_revocada_en` desde el `.puml` | `generar_ddl.py` produce el índice y no deja otro diff | `python3 scripts/generar_ddl.py && git diff --stat sql/` → solo `30_indices/01_identidad_usuarios.sql` (+ catálogo derivado si aplica) | HECHO |
+| H1.S1.M2 | Contrato `RevocacionDeSesion` (record + JSON) en `comun-web/seguridad` | serializa/lee ida y vuelta; rechaza JSON sin `sesionId` o con fecha inválida | `./gradlew :plataforma:comun-web:test --tests '*RevocacionDeSesionTest'` (CI) | HECHO |
+| H1.S1.M3 | `VigiaDeRevocaciones` en identidad: lee `sesion.revocada_en` con margen y publica directo (desvío: paginado por clave `(revocada_en, id)`, ver reporte) | publica una vez por sesión; repasa el margen; un fallo de Kafka no adelanta la marca | `./gradlew :servicios:identidad:test --tests '*VigiaDeRevocacionesTest'` (CI) | HECHO |
+| H1.S1.M4 | Tema compactado en `crear-topicos.sh` | el script crea `aportaya.identidad.revocacion` con `cleanup.policy=compact,delete` | `bash -n despliegue/host/crear-topicos.sh` + `grep` de la línea | HECHO |
 
 ### H1.S2 — cada servicio rechaza el token revocado
 
 **CA:** Dado un servicio con la lista al día, cuando llega un token cuya sesión está revocada, entonces 401; si la sesión no está revocada, entra; un servicio recién arrancado sin rehidratar no acepta tokens con `sesion_id`.
 **DoD:** pruebas unitarias del validador, la lista y el lector con `MockConsumer` (rehidratación tras reinicio) en CI.
-**Estado:** TODO
+**Estado:** HECHO
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H1.S2.M1 | `ListaDeRevocaciones` en memoria con vencimiento | una revocación vence a `venceEn`; consulta O(1) | `--tests '*ListaDeRevocacionesTest'` (CI) | TODO |
-| H1.S2.M2 | `ValidadorDeRevocacion` en el decodificador | revocado → error `sesion_revocada`; vivo → ok; sin rehidratar → error | `--tests '*ValidadorDeRevocacionTest'` (CI) | TODO |
-| H1.S2.M3 | `LectorDeRevocaciones` (Kafka sin grupo, desde el inicio) | reconstruye la lista desde el tema al arrancar y marca «al día» al alcanzar el fin | `--tests '*LectorDeRevocacionesTest'` con `MockConsumer` (CI) | TODO |
-| H1.S2.M4 | Readiness y métrica `revocacion_propagacion_segundos` | readiness DOWN hasta estar al día; la métrica registra commit→recepción | `--tests '*SaludDeRevocacionesTest'` (CI) | TODO |
+| H1.S2.M1 | `ListaDeRevocaciones` en memoria con vencimiento | una revocación vence a `venceEn`; consulta O(1) | `--tests '*ListaDeRevocacionesTest'` (CI) | HECHO |
+| H1.S2.M2 | `ValidadorDeRevocacion` en el decodificador | revocado → error `sesion_revocada`; vivo → ok; sin rehidratar → error | `--tests '*ValidadorDeRevocacionTest'` (CI) | HECHO |
+| H1.S2.M3 | `LectorDeRevocaciones` (Kafka sin grupo, desde el inicio) | reconstruye la lista desde el tema al arrancar y marca «al día» al alcanzar el fin | `--tests '*LectorDeRevocacionesTest'` con `MockConsumer` (CI) | HECHO |
+| H1.S2.M4 | Readiness y métrica `revocacion_propagacion_segundos` | readiness DOWN hasta estar al día; la métrica registra commit→recepción | `--tests '*SaludDeRevocacionesTest'` (CI) | HECHO |
 
 ## H2 — Cierre por 15 minutos de inactividad en el backoffice (P-8, ADR-038 §1)
 
 **CA:** Dado un operador sin actividad, a los 13 min ve un aviso «tu sesión se cierra en 2 minutos» con «Seguir trabajando»; a los 15 min la sesión se cierra en el servidor y vuelve al ingreso con el motivo y con `volverA` a su pantalla. Del lado del servidor, un refresco de operador con más de 15 min sin actividad se niega y revoca la sesión.
 **DoD:** `CU04InactividadTest` (integración) en CI; `yarn test:front` con la spec del vigilante; `yarn typecheck` y `yarn lint` en 0.
-**Estado:** TODO
+**Estado:** A MEDIAS (H2.S1.M1 espera la CI)
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H2.S1.M1 | `RenovarSesion`: operador con `ultima_actividad_en` vieja → revoca `INACTIVIDAD` y rechaza | operador inactivo rechazado y sesión revocada; operador activo y participante inactivo renuevan | `./gradlew :servicios:identidad:integrationTest --tests '*CU04InactividadTest'` (CI) | TODO |
-| H2.S2.M1 | `VigilanteDeInactividad` (actividad humana, latido, aviso, cierre, entre pestañas) | aviso a los 13 min, cierre a los 15, latido cada 5 min con actividad, reinicio con actividad | `yarn workspace @aportaya/backoffice test:front` (spec dirigida) | TODO |
-| H2.S2.M2 | Aviso en el shell + mensaje en el ingreso | el diálogo aparece, «Seguir trabajando» lo cierra; el ingreso explica el motivo | spec del shell/ingreso + `yarn typecheck` + `yarn lint` | TODO |
+| H2.S1.M1 | `RenovarSesion`: operador con `ultima_actividad_en` vieja → revoca `INACTIVIDAD` y rechaza | operador inactivo rechazado y sesión revocada; operador activo y participante inactivo renuevan | `./gradlew :servicios:identidad:integrationTest --tests '*CU04InactividadTest'` (CI) | A MEDIAS (espera CI: integrationTest) |
+| H2.S2.M1 | `VigilanteDeInactividad` (actividad humana, latido, aviso, cierre, entre pestañas) | aviso a los 13 min, cierre a los 15, latido cada 5 min con actividad, reinicio con actividad | `yarn workspace @aportaya/backoffice test:front` (spec dirigida) | HECHO |
+| H2.S2.M2 | Aviso en el shell + mensaje en el ingreso | el diálogo aparece, «Seguir trabajando» lo cierra; el ingreso explica el motivo | spec del shell/ingreso + `yarn typecheck` + `yarn lint` | HECHO |
 
 ## H3 — Bitácora de cambios de acceso (GU-07 consumidor, P-5)
 
 **CA:** Dado un evento `identidad.usuario_interno_*` o `identidad.rol_*` publicado, cuando auditoría lo consume, entonces queda una fila en `comun.bitacora_evento` con entidad, acción, motivo, correlación y carga; el mismo evento dos veces deja una sola fila; un campo nuevo en la carga no rompe el consumo.
 **DoD:** `CUBitacoraDeAccesosTest` (integración, PostgreSQL real) y prueba unitaria del lector del mensaje en CI.
-**Estado:** TODO
+**Estado:** A MEDIAS (H3.S1.M2 espera la CI)
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H3.S1.M1 | Lector del mensaje (tipo → acción/entidad, tolerante a campos nuevos, rechaza sin cabeceras) | mapea los seis tipos actuales; ignora campos desconocidos; rechaza mensaje sin `event_id` | `./gradlew :servicios:auditoria:test --tests '*ConsumidorDeCambiosDeAccesoTest'` (CI) | TODO |
-| H3.S1.M2 | `RegistroDeCambiosDeAcceso` idempotente por `event_id` | duplicado → una fila | `./gradlew :servicios:auditoria:integrationTest --tests '*CUBitacoraDeAccesosTest'` (CI) | TODO |
+| H3.S1.M1 | Lector del mensaje (tipo → acción/entidad, tolerante a campos nuevos, rechaza sin cabeceras) | mapea los seis tipos actuales; ignora campos desconocidos; rechaza mensaje sin `event_id` | `./gradlew :servicios:auditoria:test --tests '*ConsumidorDeCambiosDeAccesoTest'` (CI) | HECHO |
+| H3.S1.M2 | `RegistroDeCambiosDeAcceso` idempotente por `event_id` | duplicado → una fila | `./gradlew :servicios:auditoria:integrationTest --tests '*CUBitacoraDeAccesosTest'` (CI) | A MEDIAS (espera CI: integrationTest) |
 
 ## H4 — Cierre
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H4.S1.M1 | Verificadores de `scripts/` en 0 y generadores sin diff | todos rc=0 | comandos pegados en `evidencia/verificadores.txt` | TODO |
-| H4.S1.M2 | Push, PR a `dev`, CI en verde | checks verdes | enlace al PR + estado de checks | TODO |
-| H4.S1.M3 | REPORTE.md | tres secciones + evidencia | archivo en disco | TODO |
+| H4.S1.M1 | Verificadores de `scripts/` en 0 y generadores sin diff | todos rc=0 | comandos pegados en `evidencia/verificadores.txt` | HECHO |
+| H4.S1.M2 | Push, PR a `dev`, CI en verde | checks verdes | enlace al PR + estado de checks | EN CURSO |
+| H4.S1.M3 | REPORTE.md | tres secciones + evidencia | archivo en disco | HECHO |
 
 ## Simulación de los colaboradores (regla 65)
 
