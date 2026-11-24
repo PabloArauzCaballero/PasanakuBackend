@@ -5,7 +5,7 @@ tags:
   - modulo/09-auditoria-reportes-y-cumplimiento
 codigo: CU-134
 criticidad: alta
-estado_documento: BORRADOR — requiere aprobación de Pablo antes de implementarse (decisión P-11, 2026-11-24)
+estado_documento: APROBADO — decisión de Pablo del 2026-11-24 («Aprobado todo lo de G ya mismo»); quedan abiertos los números de plazo de D-3 y la decisión de dinero D-11
 actores: [Soporte, Analista de fraude, Responsable de seguridad, Segunda instancia, Participante, Sistema]
 normas: [Debido proceso, protección de datos personales, ASFI Seguridad de la Información, ASFI Consumidor Financiero]
 ---
@@ -18,12 +18,15 @@ normas: [Debido proceso, protección de datos personales, ASFI Seguridad de la I
 > con evidencia, notificación probada, descargo, decisión motivada, apelación resuelta por
 > otra persona— sin tocar el dinero propio de la persona ni perjudicar a sus grupos.
 
-> [!warning] Borrador para aprobación
-> Este caso **no está aprobado**. Nace de la decisión P-11 del inventario de gobierno de
-> usuarios: «primero un CU nuevo en la bóveda (causales, plazos, apelación) que Pablo aprueba;
-> recién después se implementa». Todo lo marcado **PROPUESTA — requiere aprobación de Pablo**
-> no tiene respaldo en un documento existente y no se implementa hasta que se decida. Las
-> preguntas abiertas están al final, en *Decisiones requeridas*.
+> [!success] Aprobado
+> Nació de la decisión P-11 del inventario de gobierno de usuarios («primero un CU nuevo en la
+> bóveda que Pablo aprueba; recién después se implementa»). **Pablo lo aprobó el 2026-11-24**
+> («Aprobado todo lo de G ya mismo», comunicado por la sesión principal del trabajo): las
+> decisiones D-1 a D-15 quedan con la opción recomendada en el borrador, listadas en
+> *Decisiones aprobadas*. Lo marcado **APROBADO** era propuesta en el borrador. Dos puntos
+> **no** se cierran con esa aprobación porque el borrador no proponía un valor: los **números**
+> de los plazos (D-3) y **qué pasa con la entrega** si el turno cae durante la medida (D-11).
+> Siguen `DECISION_REQUIRED` y no se inventan (reglas 91 y 97.5.4).
 
 ## Qué ya existe y no se duplica
 
@@ -49,7 +52,7 @@ Este caso **no** reemplaza a ninguno de estos; los invoca o se aparta de ellos.
   expediente que exige ver a la persona.
 - **Suspensión o bloqueo:** propone el **analista de fraude** o el **responsable de
   seguridad**; decide una persona **distinta** de quien propuso; la apelación la resuelve
-  una **tercera** instancia (*PROPUESTA — requiere aprobación de Pablo*, ver D-5).
+  una **tercera** instancia (*APROBADO*, ver D-5).
 - **Disparadores de la medida:** hallazgo de seguridad sobre la cuenta (toma de cuenta,
   dispositivo anómalo), fraude con evidencia, abuso contra otros participantes, incidente
   de seguridad ([[CU-55 Gestionar un incidente de seguridad]]).
@@ -68,7 +71,7 @@ Este caso **no** reemplaza a ninguno de estos; los invoca o se aparta de ellos.
 4. Para proponer una medida existe **causal del catálogo cerrado** (paso 6) y al menos
    una evidencia.
 5. Existe una política vigente **anterior al hecho** que fija plazos de descargo,
-   apelación y prescripción para estas medidas (*PROPUESTA*, ver D-3: hoy
+   apelación y prescripción para estas medidas (*APROBADO*, ver D-3: hoy
    [[politica_sancion]] con `grupo_id` nulo podría servir de política de plataforma).
 
 ## Flujo principal
@@ -104,7 +107,7 @@ Este caso **no** reemplaza a ninguno de estos; los invoca o se aparta de ellos.
 4. **Ver datos financieros** (saldo, movimientos, cuentas bancarias) no es parte de la
    ficha: lo hace quien tenga `BILLETERA_VER_TERCEROS` en sus pantallas propias, con su
    propio rastro.
-5. **Base legal del tratamiento** (*PROPUESTA*, ver D-9): Bolivia no tiene todavía ley
+5. **Base legal del tratamiento** (*APROBADO*, ver D-9): Bolivia no tiene todavía ley
    integral de protección de datos ([[Cumplimiento]] §5); la base es la ejecución del
    contrato de adhesión aceptado ([[CU-05 Aceptar contrato de adhesión y tarifario]]), la
    obligación regulatoria de seguridad de la información y la prevención del fraude. La
@@ -112,7 +115,7 @@ Este caso **no** reemplaza a ninguno de estos; los invoca o se aparta de ellos.
 
 ### B · Suspensión o bloqueo de la cuenta por seguridad
 
-6. **Causal cerrada** (*PROPUESTA — requiere aprobación de Pablo*, ver D-1). El catálogo es
+6. **Causal cerrada** (*APROBADO*, ver D-1). El catálogo es
    un concepto codificado, no texto libre:
 
    | Causal | Qué la prueba | ¿Admite medida cautelar inmediata? |
@@ -125,17 +128,17 @@ Este caso **no** reemplaza a ninguno de estos; los invoca o se aparta de ellos.
    Quedan **fuera** de este catálogo: mora (CU-27), orden de autoridad (CU-17), sospecha
    LGI/FT (CU-44, deber de reserva). Intentar usarlas responde `CAUSAL_FUERA_DE_CATALOGO`.
 
-7. **Medidas** (*PROPUESTA*, ver D-2), sobre los estados que **ya existen** en
+7. **Medidas** (*APROBADO*, ver D-2), sobre los estados que **ya existen** en
    `ck_usuario_estado`:
    - **Bloqueo cautelar** → `usuario.estado = 'BLOQUEADO_SEGURIDAD'` y fila en
      [[bloqueo_cuenta]] con `motivo='FRAUDE'` (o el motivo que se apruebe para cuenta
      comprometida). Solo para causales que lo admiten, y siempre **seguido** del
      procedimiento: el descargo corre igual y puede revertirlo.
    - **Suspensión temporal** → `usuario.estado = 'SUSPENDIDO'` con fin de vigencia guardado.
-   - **Inhabilitación definitiva** → solo si Pablo la aprueba (D-2); terminaría en el cierre
-     ordenado de [[CU-16 Cerrar billetera y devolver saldo]], nunca en retener el saldo.
+   - **No existe inhabilitación definitiva** (D-2 aprobada): una cuenta que no debe seguir
+     operando se cierra por [[CU-16 Cerrar billetera y devolver saldo]], nunca reteniendo el saldo.
 
-8. **Abrir el expediente.** Se crea el expediente de la medida (*PROPUESTA de modelo*, ver
+8. **Abrir el expediente.** Se crea el expediente de la medida (*APROBADO*, ver
    D-4: tabla nueva `expediente_medida_cuenta` en el esquema `identidad`) con `usuario_id`,
    `causal`, `medida`, `cautelar`, `motivo`, `propuesta_por`, `clave_idempotencia` y estado
    `PROPUESTA`. Las evidencias se guardan **inmutables**, distinguiendo las que aporta el
@@ -155,13 +158,13 @@ Este caso **no** reemplaza a ninguno de estos; los invoca o se aparta de ellos.
     `SUSPENDIDO` la app **no** se le cierra del todo (ver paso 15 y D-6): puede entrar en
     modo restringido para ver la medida y defenderse. Con `BLOQUEADO_SEGURIDAD` por cuenta
     comprometida, el descargo entra por un canal verificado alternativo
-    (*PROPUESTA*, ver D-6), porque la sesión podría ser del atacante.
+    (*APROBADO*, ver D-6), porque la sesión podría ser del atacante.
 12. **Decisión motivada.** Vencido el plazo o presentado el descargo, decide una persona
     **distinta** de quien propuso (`R-SEG-04`). Escribe el fundamento, que responde al
     descargo. Resultado:
     - `CONFIRMADA` → el expediente pasa a `FIRME` recién al vencer el plazo de apelación sin
       apelación, o al rechazarse la apelación; mientras tanto la medida rige si era cautelar,
-      y si no lo era **se aplica recién al quedar firme** (*PROPUESTA*, ver D-7);
+      y si no lo era **se aplica recién al quedar firme** (*APROBADO*, ver D-7);
     - `DESESTIMADA` → si había cautelar, se revierte (paso 16).
     No existe decisión por silencio en contra del afectado: si nadie decide antes de
     `prescribe_en_dias`, el expediente se cierra `PRESCRITO` y no se reabre por el mismo hecho.
@@ -170,7 +173,7 @@ Este caso **no** reemplaza a ninguno de estos; los invoca o se aparta de ellos.
     Si la instancia no resuelve en su plazo, **se resuelve a favor del apelante**.
 14. **Efectos firmes.** Con el expediente `FIRME`: el estado queda con su fin de vigencia,
     se registra un [[evento_reputacion]] **solo** para `FRAUDE_CON_EVIDENCIA` y
-    `ABUSO_CONTRA_PARTICIPANTES` (*PROPUESTA*, ver D-8; nunca para cuenta comprometida, que
+    `ABUSO_CONTRA_PARTICIPANTES` (*APROBADO*, ver D-8; nunca para cuenta comprometida, que
     es víctima, no autor), uno por hecho (`R-REP-01`), por [[CU-70 Registrar un evento de reputación]].
 15. **Lo que la medida nunca alcanza** (principio ya escrito en CU-27 §3, extendido aquí):
     la persona **siempre** puede ver su saldo, pagar lo que debe, recibir lo que le
@@ -188,11 +191,12 @@ Este caso **no** reemplaza a ninguno de estos; los invoca o se aparta de ellos.
 
 17. **Los grupos no pagan la medida.** Ningún aporte de los demás se retiene, ningún
     sorteo se repite y ningún turno ajeno se mueve por la medida.
-18. **Lo que no está decidido y no se inventa** (ver D-10 a D-13): qué pasa con las
-    obligaciones de aporte pendientes del suspendido, con su entrega si su turno cae durante
-    la medida, si se lo reemplaza en el grupo ([[CU-66 Reemplazar a un participante moroso]]
-    hoy es solo para mora) y qué pasa con la entrega bajo fraude cautelar. Hasta que Pablo
-    decida, la implementación **no** toca obligaciones, entregas ni cupos: solo cambia el
+18. **Obligaciones y lugar en el grupo** (D-10 y D-12 aprobadas): las obligaciones de aporte
+    pendientes **siguen exigibles** y la persona puede pagarlas durante la medida (coherente
+    con CU-27 §3); **no se la reemplaza** en el grupo por esta medida
+    ([[CU-66 Reemplazar a un participante moroso]] sigue siendo solo para mora).
+    **Sigue abierto (D-11):** qué pasa con su entrega si su turno cae durante la medida. Hasta
+    que Pablo lo decida, la implementación **no** toca entregas ni cupos: solo cambia el
     estado de la cuenta y lo informa.
 
 ## Flujos alternativos
@@ -228,8 +232,7 @@ Este caso **no** reemplaza a ninguno de estos; los invoca o se aparta de ellos.
 
 ## Contrato · `openapi/identidad.yaml`
 
-> *PROPUESTA de contrato.* Nada de esto está en `identidad.yaml` todavía; se escribe al
-> aprobarse. Los importes no aparecen: la ficha no devuelve dinero.
+> *Contrato aprobado.* Todavía no está en `identidad.yaml`; se escribe al implementarse. Los importes no aparecen: la ficha no devuelve dinero.
 
 ```ts
 export const BusquedaCU134 = z.object({
@@ -325,7 +328,7 @@ export const ErroresCU134 = {
 | Átomo | `causalAdmiteCautelar(causal)` | Lee el catálogo cerrado; puro |
 | Átomo | `plazosDeMedida(politica, notificadoEn, calendario)` | Descargo, apelación y prescripción en días hábiles; puro |
 | Molécula | `RegistroDeLectura` | Escribe [[registro_acceso_datos]] en la transacción de la lectura |
-| Molécula | `ExpedienteMedidaCuentaRepositorio` | Persistencia del expediente, evidencias, decisión y apelación (*PROPUESTA*, D-4) |
+| Molécula | `ExpedienteMedidaCuentaRepositorio` | Persistencia del expediente, evidencias, decisión y apelación (*APROBADO*, D-4) |
 | Molécula | `RevocadorDeSesiones` | Compartido con [[CU-04 Autenticar con MFA y registrar dispositivo]] |
 | Organismo | `CU134ConsultarParticipante` | Transacción: lectura + registro de lectura |
 | Organismo | `CU134ProponerMedida` · `CU134DecidirMedida` · `CU134ResolverApelacion` | Transacción: expediente, estado de cuenta, bloqueo, sesiones y evento |
@@ -335,16 +338,16 @@ export const ErroresCU134 = {
 
 | Emite | Dispara | Exige |
 | --- | --- | --- |
-| — (las lecturas van a [[registro_acceso_datos]], no al outbox) | — | `PARTICIPANTES_LEER` (*PROPUESTA*, permiso nuevo) |
+| — (las lecturas van a [[registro_acceso_datos]], no al outbox) | — | `PARTICIPANTES_LEER` (*APROBADO*, permiso nuevo) |
 | — | Revelación de un campo | `DATOS_SENSIBLES_LEER` (existe) + segundo factor |
-| `cuenta_participante.medida_propuesta` | Notificación con causal, evidencia visible y cómo defenderse | `PARTICIPANTES_MEDIDA_PROPONER` (*PROPUESTA*) |
+| `cuenta_participante.medida_propuesta` | Notificación con causal, evidencia visible y cómo defenderse | `PARTICIPANTES_MEDIDA_PROPONER` (*APROBADO*) |
 | `cuenta_participante.bloqueo_cautelar` | Revocación de sesiones y aviso al titular | `PARTICIPANTES_MEDIDA_PROPONER` |
-| `cuenta_participante.medida_decidida` | Aviso con el fundamento y el plazo de apelación | `PARTICIPANTES_MEDIDA_DECIDIR` (*PROPUESTA*) |
+| `cuenta_participante.medida_decidida` | Aviso con el fundamento y el plazo de apelación | `PARTICIPANTES_MEDIDA_DECIDIR` (*APROBADO*) |
 | `cuenta_participante.medida_firme` | Evento de reputación cuando la causal lo prevé | — |
-| `cuenta_participante.medida_revocada` | Restitución, reputación compensatoria y riesgo operativo si hubo perjuicio | `PARTICIPANTES_APELACION_RESOLVER` (*PROPUESTA*) |
+| `cuenta_participante.medida_revocada` | Restitución, reputación compensatoria y riesgo operativo si hubo perjuicio | `PARTICIPANTES_APELACION_RESOLVER` (*APROBADO*) |
 | — | Trabajo diario: vence descargos, apelaciones y vigencias; prescribe; resuelve a favor del apelante si la instancia no respondió | — |
 
-Segregación (*PROPUESTA*, ver D-5): proponer, decidir y resolver la apelación son tres
+Segregación (*APROBADO*, ver D-5): proponer, decidir y resolver la apelación son tres
 permisos que **una misma persona no ejerce sobre el mismo expediente**, verificado en la
 base, no solo en la aplicación. Asignación sugerida de roles existentes: `SOPORTE` →
 leer; `FRAUD_ANALYST` → proponer; `RESPONSABLE_SEGURIDAD` → decidir; comité de gobierno
@@ -366,7 +369,7 @@ leer; `FRAUD_ANALYST` → proponer; `RESPONSABLE_SEGURIDAD` → decidir; comité
 `R-SEG-02` · `R-SEG-03` · `R-SEG-04` · `R-SEG-09` · `R-SEG-10` · `R-SEG-12` · `R-AUD-01` ·
 `R-AUD-04` · `R-REP-01`
 
-*PROPUESTA de restricciones nuevas* (se dan de alta en [[Restricciones]] solo al aprobarse):
+*Restricciones nuevas aprobadas* (se dan de alta en [[Restricciones]] al implementarse):
 una medida de cuenta por causal abierta y usuario (`UNIQUE` parcial); una apelación por
 expediente; proponente, decisor y resolutor distintos (trigger); el estado `FIRME` exige
 plazo de descargo vencido o descargo presentado; la evidencia del expediente es inmutable.
@@ -375,7 +378,7 @@ plazo de descargo vencido o descargo presentado; la evidencia del expediente es 
 
 [[registro_acceso_datos]] · [[bloqueo_cuenta]] · [[sesion]] · [[evento_entrega_mensaje]] ·
 [[evento_reputacion]] · [[evento_riesgo_operativo]] · [[bitacora_evento]] · `evento_dominio` ·
-y el expediente propuesto `expediente_medida_cuenta` (D-4)
+y el expediente `expediente_medida_cuenta` (D-4, aprobado)
 
 ## Datos sensibles
 
@@ -443,28 +446,30 @@ Cuando se aplica la suspensión
 Entonces ninguna obligación, entrega ni cupo del grupo cambia por la medida
 ```
 
-## Decisiones requeridas (preguntas para Pablo)
+## Decisiones aprobadas
 
-Nada de lo siguiente tiene fuente en la bóveda. Hasta que Pablo decida, se implementan solo
-las ramas definidas y estas quedan `DECISION_REQUIRED`.
+Aprobadas por Pablo el 2026-11-24 («Aprobado todo lo de G ya mismo»): en cada una rige la
+opción que el borrador recomendaba. Fuente: esta aprobación, comunicada por la sesión
+principal del trabajo de gobierno de usuarios.
 
-| ID | Pregunta | Opciones | Recomendación |
-| --- | --- | --- | --- |
-| D-1 | ¿Es este el catálogo cerrado de causales? | (a) las cuatro del paso 6; (b) agregar otras (¿cuáles?); (c) solo `CUENTA_COMPROMETIDA` y `FRAUDE_CON_EVIDENCIA` en la primera versión | (a) |
-| D-2 | ¿Qué medidas existen? | (a) bloqueo cautelar + suspensión temporal; (b) además inhabilitación definitiva con cierre por CU-16; (c) además una amonestación sin efecto en la cuenta | (a), y (b) solo con aprobación expresa |
-| D-3 | Plazos de descargo, apelación, prescripción y duración máxima de la suspensión | (a) reusar [[politica_sancion]] con `grupo_id` nulo como política de plataforma; (b) política propia de seguridad. **Los números los fija Pablo**: no hay fuente | (a) con valores a definir |
-| D-4 | ¿Dónde vive el expediente? | (a) tablas nuevas `expediente_medida_cuenta` y `apelacion_medida_cuenta` en `identidad`; (b) generalizar [[sancion]] (hoy de `garantia`, `registro_id` obligatorio) — cruza servicios (regla 98.1); (c) usar `incidente_seguridad` como expediente | (a) |
-| D-5 | ¿Quién propone, quién decide y quién resuelve la apelación? | (a) `FRAUD_ANALYST` / `RESPONSABLE_SEGURIDAD` / comité de gobierno; (b) … / `OFICIAL_CUMPLIMIENTO`; (c) permisos nuevos asignables a cualquier rol | (a) con permisos nuevos (c) |
-| D-6 | Con la cuenta `SUSPENDIDO`, CU-04 rechaza todo login (AP-CU04-02): ¿cómo se defiende, paga y reclama la persona? | (a) modo restringido: entra solo a estado de la medida, descargo, apelación, pagos y reclamo; (b) login cerrado y descargo por correo/punto de reclamo; (c) mantener CU-04 y defenderse solo por CU-52 | (a), y para cuenta comprometida un canal verificado alternativo |
-| D-7 | Sin cautelar, ¿la suspensión rige desde la decisión o solo al quedar firme? | (a) al quedar firme; (b) desde la decisión de primera instancia | (a) |
-| D-8 | ¿Una medida firme afecta la reputación? | (a) solo fraude y abuso; (b) todas menos cuenta comprometida; (c) ninguna | (a) |
-| D-9 | Base legal declarada del tratamiento en la ficha | Confirmar: contrato de adhesión + seguridad de la información + prevención del fraude ([[Cumplimiento]] §5) | Confirmar con cumplimiento |
-| D-10 | Obligaciones de aporte pendientes del suspendido | (a) siguen exigibles y puede pagarlas; (b) se suspenden mientras dure la medida; (c) depende de la causal | (a) (es coherente con CU-27 §3) |
-| D-11 | Su entrega, si su turno cae durante la medida | (a) se entrega normal a su cuenta verificada; (b) se retiene con vencimiento por [[CU-13 Retener y liberar saldo]] solo bajo fraude cautelar; (c) se posterga el turno | **Decisión de dinero**: requiere a Pablo; no se recomienda sin respaldo |
-| D-12 | ¿Se lo reemplaza en el grupo? | (a) nunca por esta medida; (b) por acuerdo del grupo (CU-63) si la suspensión supera N períodos | (a) |
-| D-13 | Inhabilitación definitiva con saldo o deuda | Solo si D-2(b): cómo se devuelve el saldo y qué pasa con la deuda | Pendiente de D-2 |
-| D-14 | `registro_acceso_datos.tipo_dato` no tiene valor para la ficha ni para el correo (`ck_registro_acceso_datos_tipo_dato`) | (a) agregar `FICHA_PARTICIPANTE` y `CORREO`; (b) registrar la ficha como `HISTORIAL_PAGOS` | (a) |
-| D-15 | Motivo de [[bloqueo_cuenta]] para cuenta comprometida | (a) agregar `CUENTA_COMPROMETIDA` al CHECK; (b) usar `ORDEN_ADMIN` | (a) |
+| ID | Tema | Decisión aprobada |
+| --- | --- | --- |
+| — | Número del caso | **CU-134** (CU-133 y CU-136 se usan como prefijo de pruebas en `servicios/entregas`) |
+| D-1 | Causales | Catálogo cerrado de cuatro: `CUENTA_COMPROMETIDA`, `FRAUDE_CON_EVIDENCIA`, `ABUSO_CONTRA_PARTICIPANTES`, `CUENTA_DUPLICADA_O_DE_TERCERO` |
+| D-2 | Medidas | Bloqueo cautelar y suspensión temporal. **No** hay inhabilitación definitiva ni amonestación |
+| D-3 | Plazos | Viven en [[politica_sancion]] con `grupo_id` nulo, como política de plataforma. **Los números (días de descargo, apelación, prescripción y duración máxima) siguen `DECISION_REQUIRED`**: el borrador no proponía valores |
+| D-4 | Expediente | Tablas nuevas `expediente_medida_cuenta` y `apelacion_medida_cuenta` en el esquema `identidad` |
+| D-5 | Quién actúa | Permisos nuevos `PARTICIPANTES_MEDIDA_PROPONER`, `PARTICIPANTES_MEDIDA_DECIDIR` y `PARTICIPANTES_APELACION_RESOLVER`, asignados de inicio a `FRAUD_ANALYST`, `RESPONSABLE_SEGURIDAD` y el comité de gobierno respectivamente; tres personas distintas por expediente |
+| D-6 | Defensa con cuenta suspendida | Modo restringido: con `SUSPENDIDO` entra solo a ver la medida, presentar descargo y apelación, pagar y reclamar. Con cuenta comprometida, canal verificado alternativo |
+| D-7 | Sin cautelar | La suspensión rige recién al quedar firme |
+| D-8 | Reputación | Solo una medida firme por `FRAUDE_CON_EVIDENCIA` o `ABUSO_CONTRA_PARTICIPANTES` produce evento de reputación |
+| D-9 | Base legal | Contrato de adhesión + seguridad de la información + prevención del fraude ([[Cumplimiento]] §5) |
+| D-10 | Aportes pendientes | Siguen exigibles y la persona puede pagarlos |
+| D-11 | Entrega durante la medida | **Sigue `DECISION_REQUIRED`**: el borrador no recomendaba ninguna opción por ser una decisión de dinero sin respaldo. Hasta que se decida, la medida no toca entregas |
+| D-12 | Reemplazo en el grupo | Nunca por esta medida |
+| D-13 | Inhabilitación con saldo o deuda | No aplica: D-2 no incluye inhabilitación definitiva |
+| D-14 | Registro de lectura | Se agregan `FICHA_PARTICIPANTE` y `CORREO` a `registro_acceso_datos.tipo_dato` |
+| D-15 | Motivo de bloqueo | Se agrega `CUENTA_COMPROMETIDA` al CHECK de [[bloqueo_cuenta]] |
 
 ## Ver también
 

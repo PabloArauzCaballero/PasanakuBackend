@@ -1,6 +1,6 @@
 # Reporte — Lote G · CU de gobierno de participantes (borrador para aprobación)
 
-> **AVANCE: 7 / 7 — 100 %.** PR #514 mergeado a `dev` con la CI completa en verde. El CU-134 sigue siendo BORRADOR pendiente de aprobación de Pablo.
+> **AVANCE: 9 / 10 — 90,0 %.** H1 cerrado (PR #514 y #518 en `dev`). H2: CU-134 pasa a APROBADO (decisión de Pablo del 2026-11-24); falta la CI del PR. Siguen abiertos los números de plazo (D-3) y la entrega durante la medida (D-11).
 
 - Fecha: 2026-11-24 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/gu-g-cu-participantes` → PR a `dev`
 - Peldaño de evidencia alcanzado: `RUNS` sobre la bóveda, en local y en la CI del PR #514 (los verificadores corren en exit 0 con el CU nuevo). Es un documento: no hay comportamiento que ejercitar; el CU queda **BORRADOR** hasta que Pablo lo apruebe (decisión P-11).
@@ -17,12 +17,18 @@
 | H1.S3.M3 | PR #514 a `dev` con la CI en verde; mergeado el 2026-11-24 | checks del head `af1db1d` (runs 45459193470 y 45459192974) | PASS — ver «CI del PR #514» |
 
 ## A medias
-ninguna
+### H2.S1.M3 — PR de aprobación a `dev`
+- Qué anda: CU-134 en APROBADO con «Decisiones aprobadas»; `verificar_boveda.py` → `TODO OK`; catálogo de datos sin diferencias.
+- Qué no anda: la CI del PR todavía no corrió.
+- Qué falta exactamente: abrir el PR y ver los checks en verde.
+- Dónde quedó: rama `claude/gu-g-cu-participantes`, actualizada con `dev`.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| Implementación de CU-134 (Ola 3) | `DECISION_REQUIRED` | Que Pablo apruebe el CU y responda D-1 a D-15 |
+| Implementación de CU-134 (Ola 3) | `TODO` | Aprobada por la sesión principal; arranca cuando #516 (lote B) esté en `dev` o contra un doble declarado de su contrato |
+| D-3 números de plazo | `DECISION_REQUIRED` | Pablo: días de descargo, apelación, prescripción y duración máxima de la suspensión |
+| D-11 entrega durante la medida | `DECISION_REQUIRED` | Pablo: decisión de dinero sin opción recomendada |
 
 ## Hallazgos (relevamiento)
 | Hecho | Ruta |
@@ -118,6 +124,7 @@ Archivos completos: [evidencia/](./evidencia/).
 - CU-44 menciona un estado `CONGELADA` de cuenta que no existe en `usuario.estado` (sí en `cuenta_billetera`): inconsistencia previa, anotada, no corregida (fuera de alcance).
 
 ## Decisiones y ambigüedades
+- 2026-11-24: Pablo aprobó todo el lote G («Aprobado todo lo de G ya mismo»), comunicado por la sesión principal. Se aplicó la opción recomendada en cada D-n. D-3 (números) y D-11 no tenían recomendación y siguen abiertas; D-13 no aplica porque D-2 no incluye inhabilitación definitiva.
 - Número **CU-134** (no CU-133) — supuesto; confirmar con Pablo.
 - Servicio dueño `identidad` — supuesto; confirmar con Pablo.
 - Título del CU: el pedido literal del lote G.

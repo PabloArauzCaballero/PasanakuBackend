@@ -50,6 +50,17 @@
 | H1.S3.M2 | REPORTE.md con preguntas para Pablo | Tres secciones + preguntas | `python3 .claude/hooks/report_gate.py --self-test` y lectura del archivo | HECHO |
 | H1.S3.M3 | Commit, push y PR a `dev` con CI en verde | PR abierto, checks verdes | estado de checks del PR | HECHO |
 
+## H2 — CU-134 pasa de borrador a aprobado
+**CA:** Dado que Pablo aprobó el lote G el 2026-11-24 («Aprobado todo lo de G ya mismo», comunicado por la sesión principal), cuando se lee CU-134, entonces figura APROBADO con fecha y fuente, cada D-n tiene su opción aprobada, y lo que el borrador no proponía (números de D-3, D-11) sigue `DECISION_REQUIRED`.
+**DoD:** `verificar_boveda.py` → `TODO OK`; catálogo de datos sin diferencias; PR a `dev`.
+**Estado:** EN CURSO
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H2.S1.M1 | CU-134: estado APROBADO, «Decisiones aprobadas», PROPUESTA→APROBADO, pasos 7 y 18 según D-2/D-10/D-12 | Ninguna «PROPUESTA — requiere aprobación» queda en el CU | `grep -c "requiere aprobación de Pablo" CU-134…md` → 0 y `verificar_boveda.py` → `TODO OK` | HECHO |
+| H2.S1.M2 | Fila del índice y nota del rango sin «borrador» | Índice dice «Aprobado por Pablo el 2026-11-24» | `grep -c "Aprobado por Pablo el 2026-11-24\|fue aprobado por Pablo" _CasosDeUso.md` → 2 | HECHO |
+| H2.S1.M3 | PR a `dev` con CI en verde | PR abierto y checks verdes | checks del PR | EN CURSO |
+
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
 |---|---|---|
