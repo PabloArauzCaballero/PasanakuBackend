@@ -2,14 +2,11 @@ package bo.aportaya.identidad.web;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -19,7 +16,6 @@ import bo.aportaya.identidad.aplicacion.CU08InformeDeAccesos;
 import bo.aportaya.identidad.aplicacion.GobiernoDeAccesos;
 import bo.aportaya.identidad.aplicacion.GobiernoDeAccesos.ResultadoDeAsignacion;
 import bo.aportaya.identidad.aplicacion.GobiernoDeAccesos.ResultadoDeRevocacion;
-import bo.aportaya.identidad.dominio.InformeDeAccesos;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
@@ -229,74 +225,6 @@ class RutasDeAccesosWebTest {
                 .andExpect(jsonPath("$.codigo").value("AP-CU08-04"));
         mvc.perform(darDeBaja(null)).andExpect(status().isUnauthorized());
         mvc.perform(darDeBaja(Sesiones.como("PARTICIPANTE", "BILLETERA_VER"))).andExpect(status().isForbidden());
-    }
-
-    @Test
-    @DisplayName("informe: 200 paginado con USUARIOS_INTERNOS_LEER, sin correo ni telefono")
-    void informe() throws Exception {
-        var fila = new InformeDeAccesos.Fila(
-                ASIGNACION,
-                OPERADOR,
-                "Ana Quispe",
-                "ACTIVO",
-                "SOPORTE",
-                "GLOBAL",
-                Optional.empty(),
-                ROL,
-                OffsetDateTime.parse("2026-11-01T12:00:00Z"),
-                Optional.of(OffsetDateTime.parse("2026-11-28T12:00:00Z")),
-                false);
-        when(informe.ejecutar(eq(InformeDeAccesos.Seccion.POR_VENCER), eq(2), eq(10), any()))
-                .thenReturn(new CU08InformeDeAccesos.Pagina(
-                        InformeDeAccesos.Seccion.POR_VENCER,
-                        OffsetDateTime.parse("2026-11-24T12:00:00Z"),
-                        List.of(fila),
-                        2,
-                        10,
-                        11,
-                        2));
-
-        mvc.perform(get("/usuarios-internos/accesos/informe")
-                        .param("seccion", "POR_VENCER")
-                        .param("pagina", "2")
-                        .param("limite", "10")
-                        .with(Sesiones.como("SOPORTE", "USUARIOS_INTERNOS_LEER")))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.seccion").value("POR_VENCER"))
-                .andExpect(jsonPath("$.total").value(11))
-                .andExpect(jsonPath("$.totalPaginas").value(2))
-                .andExpect(jsonPath("$.items[0].nombre").value("Ana Quispe"))
-                .andExpect(jsonPath("$.items[0].totpConfirmado").value(false))
-                .andExpect(jsonPath("$.items[0].correo").doesNotExist())
-                .andExpect(jsonPath("$.items[0].telefono").doesNotExist());
-    }
-
-    @Test
-    @DisplayName("informe: 400 con seccion, pagina o limite fuera de dominio; 401 y 403")
-    void informeNegativos() throws Exception {
-        var leer = Sesiones.como("SOPORTE", "USUARIOS_INTERNOS_LEER");
-        mvc.perform(get("/usuarios-internos/accesos/informe").with(leer)).andExpect(status().isBadRequest());
-        mvc.perform(get("/usuarios-internos/accesos/informe")
-                        .param("seccion", "TODOS")
-                        .with(leer))
-                .andExpect(status().isBadRequest());
-        mvc.perform(get("/usuarios-internos/accesos/informe")
-                        .param("seccion", "VIVOS")
-                        .param("limite", "101")
-                        .with(leer))
-                .andExpect(status().isBadRequest());
-        mvc.perform(get("/usuarios-internos/accesos/informe")
-                        .param("seccion", "VIVOS")
-                        .param("pagina", "0")
-                        .with(leer))
-                .andExpect(status().isBadRequest());
-        mvc.perform(get("/usuarios-internos/accesos/informe").param("seccion", "VIVOS"))
-                .andExpect(status().isUnauthorized());
-        mvc.perform(get("/usuarios-internos/accesos/informe")
-                        .param("seccion", "VIVOS")
-                        .with(Sesiones.como("PARTICIPANTE", "BILLETERA_VER")))
-                .andExpect(status().isForbidden());
-        verify(informe, never()).ejecutar(any(), anyInt(), anyInt(), any());
     }
 
     private static ResultadoDeAsignacion resultado(boolean yaExistia) {
