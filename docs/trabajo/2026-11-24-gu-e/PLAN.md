@@ -83,7 +83,7 @@
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
 | H4.S1.M1 | Verificadores de `scripts/` en 0 y generadores sin diff | todos rc=0 | comandos pegados en `evidencia/verificadores.txt` | HECHO |
-| H4.S1.M2 | Push, PR a `dev`, CI en verde | checks verdes | enlace al PR + estado de checks | EN CURSO |
+| H4.S1.M2 | Push, PR a `dev`, CI en verde | checks verdes | enlace al PR + estado de checks | A MEDIAS (PR #517 abierto contra `dev`; falta la CI en verde, que incluye `integrationTest` de H2.S1.M1 y H3.S1.M2. No hay contrato que simular: es la ejecución de la CI sobre el código ya publicado) |
 | H4.S1.M3 | REPORTE.md | tres secciones + evidencia | archivo en disco | HECHO |
 
 ## Simulación de los colaboradores (regla 65)

@@ -42,8 +42,10 @@
 - Dónde quedó: `servicios/auditoria/.../aplicacion/RegistroDeCambiosDeAcceso.java`, `.../infraestructura/BitacoraRepositorio.java`, `.../consumo/ConsumidorDeCambiosDeAccesoKafka.java`; compila.
 
 ### H4.S1.M2 — PR y CI
-- Qué anda: rama publicada.
-- Qué falta: PR contra `dev` y CI en verde (se actualiza este reporte con el resultado).
+- Qué anda: rama publicada y PR #517 abierto contra `dev`, con la sesión suscrita a su actividad.
+- Qué no anda / no está demostrado: la CI todavía no terminó.
+- Qué falta exactamente: CI en verde (incluye `integrationTest` de H2.S1.M1 y H3.S1.M2); si algo falla, diagnosticar y corregir en la misma rama.
+- Dónde quedó: `claude/gu-e-revocacion`, compila; PR https://github.com/PabloArauzCaballero/PasanakuBackend/pull/517.
 
 ## Pendiente
 
