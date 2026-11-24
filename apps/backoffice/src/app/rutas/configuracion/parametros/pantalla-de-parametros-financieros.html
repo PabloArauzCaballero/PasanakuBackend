@@ -3,44 +3,45 @@
       <ap-alerta tono="info">{{ t.parametros.cuatroOjos }}</ap-alerta>
       @if (aviso()) { <ap-alerta tono="ok" role="status">{{ aviso() }}</ap-alerta> }
       @if (error(); as e) {
-        <ap-alerta tono="error" role="alert">
-          {{ e.mensaje }}
-          @if (e.trazaId) { <p>{{ t.comun.traza }}: <code>{{ e.trazaId }}</code></p> }
-          <ap-boton variante="secundario" (pulsado)="recargar()">{{ t.comun.reintentar }}</ap-boton>
-        </ap-alerta>
+        <ap-estado-de-error [titulo]="t.parametros.errorCarga" [mensaje]="e.mensaje" [trazaId]="e.trazaId" [textoReintentar]="t.comun.reintentar" (reintentar)="recargar()" />
       }
-      @if (cargando()) { <p class="estado" role="status">{{ t.parametros.cargando }}</p> }
+      @if (cargando()) { <ap-esqueleto forma="filas" [lineas]="4" [etiqueta]="t.parametros.cargando" /> }
       @else if (!error() && parametros().length === 0) {
-        <section class="vacio" aria-labelledby="vacio-titulo">
-          <h2 id="vacio-titulo">{{ t.parametros.vacio }}</h2>
-          <p>{{ t.parametros.vacioAyuda }}</p>
-        </section>
+        <ap-estado-vacio [titulo]="t.parametros.vacio" [explicacion]="t.parametros.vacioAyuda" />
       }
+      @else if (parametros().length) { <p class="resumen" role="status">{{ t.parametros.resumen(parametros().length, pendientes()) }}</p> }
       @for (p of parametros(); track p.codigo) {
-        <article class="parametro">
+        <article class="parametro" [attr.aria-labelledby]="'param-' + p.codigo">
           <header class="encabezado">
-            <div>
-              <h2>{{ p.descripcion }}</h2>
-              <p class="codigo"><code>{{ p.codigo }}</code> · {{ p.unidad ?? t.parametros.unidadPendiente }}{{ p.porNivel ? ' · ' + t.parametros.porNivel : '' }}</p>
+            <div class="identidad">
+              <h2 [id]="'param-' + p.codigo">{{ p.descripcion }}</h2>
+              <p class="meta"><code>{{ p.codigo }}</code><span>{{ p.unidad ?? t.parametros.unidadPendiente }}</span>@if (p.porNivel) { <span>{{ t.parametros.porNivel }}</span> }</p>
             </div>
             @if (puedeAdministrar()) {
-              <ap-boton variante="secundario" [deshabilitado]="enviando() || p.unidad === null" (pulsado)="abrirPropuesta(p)">{{ t.parametros.proponer }}</ap-boton>
+              <ap-boton variante="secundario" icono="mas" [deshabilitado]="enviando() || p.unidad === null" (pulsado)="abrirPropuesta(p)">{{ t.parametros.proponer }}</ap-boton>
             }
           </header>
 
-          <div class="versiones" aria-label="Versiones actuales y pendientes">
-            <section>
-              <h3>{{ t.parametros.vigentes }}</h3>
-              @for (v of p.vigentes; track v.id) { <ng-container [ngTemplateOutlet]="version" [ngTemplateOutletContext]="{ $implicit: v }" /> }
+          <div class="tablero">
+            <section class="carril rige" [attr.aria-label]="t.parametros.vigentes">
+              <h3>{{ t.parametros.rigeHoy }}</h3>
+              @for (v of p.vigentes; track v.id) {
+                <div class="version-actual">
+                  <p class="cifra">{{ v.valor }}@if (v.moneda) { <span class="moneda">{{ v.moneda }}</span> }</p>
+                  <ng-container [ngTemplateOutlet]="detalle" [ngTemplateOutletContext]="{ $implicit: v }" />
+                </div>
+              }
               @empty { <p class="ayuda">{{ t.parametros.sinVigente }}</p> }
             </section>
-            <section>
-              <h3>{{ t.parametros.pendientes }}</h3>
+            <section class="carril espera" [class.con-pendientes]="p.propuestas.length > 0" [attr.aria-label]="t.parametros.pendientes">
+              <h3>{{ t.parametros.esperaAprobacion }}</h3>
               @for (v of p.propuestas; track v.id) {
                 <div class="version-pendiente">
-                  <ng-container [ngTemplateOutlet]="version" [ngTemplateOutletContext]="{ $implicit: v }" />
+                  <p class="cifra chica">{{ v.valor }}@if (v.moneda) { <span class="moneda">{{ v.moneda }}</span> }</p>
+                  <ng-container [ngTemplateOutlet]="detalle" [ngTemplateOutletContext]="{ $implicit: v }" />
+                  <p class="cuatro-ojos">{{ t.parametros.cuatroOjosCorto }}</p>
                   @if (puedeAdministrar()) {
-                    <ap-boton variante="secundario" tamano="sm" [deshabilitado]="enviando()" (pulsado)="pedirAprobacion(v)">{{ t.parametros.aprobar }}</ap-boton>
+                    <ap-boton variante="primario" tamano="sm" icono="aprobar" [deshabilitado]="enviando()" (pulsado)="pedirAprobacion(v)">{{ t.parametros.aprobar }}</ap-boton>
                   }
                 </div>
               }
@@ -77,19 +78,36 @@
             </section>
           }
 
-          <section class="historial" aria-label="Historial de versiones">
-            <ap-boton variante="fantasma" [deshabilitado]="cargandoHistorial()[p.codigo] ?? false" (pulsado)="alternarHistorial(p.codigo)">
-              {{ historialAbierto()[p.codigo] ? t.parametros.ocultarHistorial : t.parametros.verHistorial }}
-            </ap-boton>
-            @if (cargandoHistorial()[p.codigo]) { <p class="estado" role="status">{{ t.parametros.cargandoHistorial }}</p> }
+          <section class="historial" [attr.aria-label]="t.parametros.historial">
+            <div class="historial-cabecera">
+              <h3>{{ t.parametros.historial }}</h3>
+              <ap-boton variante="fantasma" tamano="sm" icono="historial" [deshabilitado]="cargandoHistorial()[p.codigo] ?? false" (pulsado)="alternarHistorial(p.codigo)">
+                {{ historialAbierto()[p.codigo] ? t.parametros.ocultarHistorial : t.parametros.verHistorial }}
+              </ap-boton>
+            </div>
+            @if (cargandoHistorial()[p.codigo]) { <p class="ayuda" role="status">{{ t.parametros.cargandoHistorial }}</p> }
             @if (erroresHistorial()[p.codigo]; as e) { <ap-alerta tono="error" role="alert">{{ e.mensaje }}</ap-alerta> }
             @if (historialAbierto()[p.codigo]) {
               @if ((historial()[p.codigo] ?? []).length === 0) { <p class="ayuda">{{ t.parametros.historialVacio }}</p> }
-              <ol class="lista-historial">
-                @for (v of historial()[p.codigo] ?? []; track v.id) {
-                  <li><ng-container [ngTemplateOutlet]="version" [ngTemplateOutletContext]="{ $implicit: v }" /></li>
-                }
-              </ol>
+              @else {
+                <table class="tabla-historial" role="table">
+                  <thead role="rowgroup"><tr role="row">
+                    <th role="columnheader" scope="col">{{ t.parametros.columnas.estado }}</th><th role="columnheader" scope="col" class="num">{{ t.parametros.columnas.valor }}</th>
+                    <th role="columnheader" scope="col">{{ t.parametros.columnas.nivel }}</th><th role="columnheader" scope="col">{{ t.parametros.columnas.vigenteDesde }}</th>
+                  </tr></thead>
+                  <tbody role="rowgroup">
+                    @for (v of historial()[p.codigo] ?? []; track v.id) {
+                      <tr role="row">
+                        <td role="cell" [attr.data-etiqueta]="t.parametros.columnas.estado"><ap-chip-estado [tono]="tono(v.estado)">{{ estado(v.estado) }}</ap-chip-estado></td>
+                        <td role="cell" class="num" [attr.data-etiqueta]="t.parametros.columnas.valor"><strong>{{ v.valor }}{{ v.moneda ? ' ' + v.moneda : '' }}</strong></td>
+                        <td role="cell" [attr.data-etiqueta]="t.parametros.columnas.nivel">{{ v.nivel ?? t.parametros.sinNivel }}</td>
+                        <td role="cell" [attr.data-etiqueta]="t.parametros.columnas.vigenteDesde"><ap-fecha [iso]="v.vigenteDesde" /></td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              }
+              <p class="nota">{{ t.parametros.historialNota }}</p>
             }
           </section>
         </article>
@@ -106,11 +124,10 @@
         (cancelar)="cancelarAprobacion()"
       />
     }
-    <ng-template #version let-v>
-      <div class="version">
-        <ap-chip-estado [tono]="tono(v.estado)">{{ estado(v.estado) }}</ap-chip-estado>
-        <span>{{ t.parametros.valor }}: <strong>{{ v.valor }}{{ v.moneda ? ' ' + v.moneda : '' }}</strong></span>
-        @if (v.nivel) { <span>{{ t.parametros.nivel }}: {{ v.nivel }}</span> }
-        <span>{{ t.parametros.vigenteDesde }}: <time [attr.datetime]="v.vigenteDesde">{{ v.vigenteDesde }}</time></span>
-      </div>
+    <ng-template #detalle let-v>
+      <dl class="detalle">
+        <div><dt>{{ t.parametros.vigenteDesde }}</dt><dd><ap-fecha [iso]="v.vigenteDesde" /></dd></div>
+        @if (v.nivel) { <div><dt>{{ t.parametros.nivel }}</dt><dd>{{ v.nivel }}</dd></div> }
+        <div><dt class="oculto">{{ t.parametros.columnas.estado }}</dt><dd><ap-chip-estado [tono]="tono(v.estado)">{{ estado(v.estado) }}</ap-chip-estado></dd></div>
+      </dl>
     </ng-template>

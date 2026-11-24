@@ -72,6 +72,15 @@ describe('PantallaDeParametrosFinancieros · CU-132 [UI con API simulada]', () =
     expect((fixture.nativeElement as HTMLElement).querySelector('input')?.getAttribute('value')).not.toBe('5')
   })
 
+  it('correcto: resume de un vistazo cuántos parámetros hay y cuántas propuestas esperan aprobación', async () => {
+    const fixture = montar()
+    await cargar(fixture, [PARAMETRO])
+    expect(texto(fixture)).toContain('1 parámetro en el catálogo · 1 propuesta espera aprobación')
+    expect(texto(fixture)).toContain('Rige hoy')
+    expect(texto(fixture)).toContain('Espera aprobación')
+    expect(texto(fixture)).toContain('distinta de quien la propuso')
+  })
+
   it('vacío: orienta sobre el catálogo cerrado, no deja una pantalla muda', async () => {
     const fixture = montar()
     await cargar(fixture, [])
