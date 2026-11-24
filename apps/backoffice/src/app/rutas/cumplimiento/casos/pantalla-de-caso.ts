@@ -2,16 +2,18 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, si
 import { RouterLink } from '@angular/router'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
 import { Icono } from '@aportaya/ui/icono/icono'
-import type { CasoEnBandeja, SalidaDecisionCasoLft } from 'clientes/angular/cumplimiento'
+import type { CasoEnBandeja, FichaDeCasoLft, SalidaDecisionCasoLft } from 'clientes/angular/cumplimiento'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { ServicioBorrador } from '../../../nucleo/borrador'
+import type { ErrorTraducido } from '../../../nucleo/errores'
+import { crearConsultarCaso } from '../dominio/cu44-bandejas'
 import { CATALOGO_DE_CAUSALES, etapasDelCaso, puedeConfirmar, type CasoDeCumplimiento } from '../dominio/cu44-caso'
 import { textosCumplimiento } from '../textos'
 import { textosLft } from '../textos-lft'
 import { DecidirCaso } from './decidir-caso'
 import { FormularioDeCaso } from './formulario-de-caso'
-import { ResumenDeCaso } from './resumen-de-caso'
+import { ResumenDeCaso, type EstadoDeFicha } from './resumen-de-caso'
 
 /**
  * CU-44 · De alerta de monitoreo a reporte de operación sospechosa, con el patrón de
@@ -32,12 +34,13 @@ import { ResumenDeCaso } from './resumen-de-caso'
       <ap-cabecera-de-pagina eyebrow="Cumplimiento" [titulo]="t.titulo" [descripcion]="t.proposito" />
       @if (recibo()) { <ap-alerta tono="ok">{{ recibo() }}</ap-alerta> }
       <ap-resumen-de-caso
-        [codigo]="casoId()"
+        [codigo]="ficha()?.codigo ?? casoId()"
         [etapas]="nombresDeEtapas()"
         [actual]="progreso().actual"
         [causal]="textoDeCausal()"
         [notificadoEn]="casoResuelto().notificadoEn"
         [plazoVenceEn]="casoResuelto().plazoVenceEn"
+        [ficha]="estadoDeFicha()"
       />
       <ap-formulario-de-caso
         [etapas]="progreso().etapas"
@@ -117,7 +120,20 @@ export class PantallaDeCaso implements OnInit {
     return `cumplimiento:caso:${this.casoId()}:narrativa`
   }
 
+  /** La ficha del servidor (`obtenerCasoLft`): alerta de origen y titular enmascarado. El resto del caso sigue local. */
+  private readonly consultarCaso = crearConsultarCaso()
+  protected readonly ficha = signal<FichaDeCasoLft | null>(null)
+  private readonly fichaError = signal<ErrorTraducido | null>(null)
+  protected readonly estadoDeFicha = computed<EstadoDeFicha>(() => {
+    const e = this.fichaError()
+    if (e) return { tipo: 'error', mensaje: e.estado === 403 ? this.t.resumen.fichaSinAcceso : this.t.resumen.fichaError }
+    const f = this.ficha()
+    if (!f) return { tipo: 'cargando' }
+    return { tipo: 'lista', alerta: f.alertaDeOrigen ?? null, alertasEnlazadas: f.alertasEnlazadas, titularEnmascarado: f.titularEnmascarado }
+  })
+
   async ngOnInit(): Promise<void> {
+    this.consultarCaso(this.casoId()).subscribe({ next: (f) => this.ficha.set(f), error: (e: ErrorTraducido) => this.fichaError.set(e) })
     const guardado = await this.servicioBorrador.leer<string>(this.claveBorrador())
     if (guardado) {
       this.narrativa.set(guardado)

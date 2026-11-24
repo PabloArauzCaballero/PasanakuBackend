@@ -199,6 +199,10 @@ Entonces recibe el mismo resultado y no hay un segundo evento
 Dado un caso recien abierto con dos alertas
 Cuando se reintenta abrirlo con las mismas alertas y el mismo analista
 Entonces devuelve el mismo caso y no abre otro vacio
+
+Dado un caso abierto con dos alertas
+Cuando el oficial abre su ficha
+Entonces ve la alerta mas antigua como origen, cuantas hay, y el titular solo enmascarado
 ```
 
 ## Ver también

@@ -29,6 +29,10 @@ function tokenConClaims(claims: Record<string, unknown>): string {
   return `${base64url(JSON.stringify({ alg: 'none' }))}.${base64url(JSON.stringify(claims))}.firma-e2e`
 }
 
+/** Un caso con forma de UUID: el simulado sirve la ficha de `obtenerCasoLft` (escenario `ok`, datos sintéticos). */
+const CASO = '66947425-f599-4f17-86cf-204ce5c2e033'
+const CONTRATO = '../../docs/trabajo/2026-11-23-continuar-traspaso/evidencia/contrato'
+
 const TOKEN_CUMPLIMIENTO = tokenConClaims({ sub: 'e2e-oficial', permisos: ['ver:cumplimiento'], rol: 'oficial' })
 
 async function entrarConPermiso(page: Page): Promise<void> {
@@ -49,8 +53,8 @@ async function entrarConPermiso(page: Page): Promise<void> {
   await page.evaluate((ruta: string) => {
     history.pushState(null, '', ruta)
     window.dispatchEvent(new PopStateEvent('popstate'))
-  }, '/cumplimiento/casos/e2e-demo')
-  await expect(page).toHaveURL(/\/cumplimiento\/casos\/e2e-demo/)
+  }, `/cumplimiento/casos/${CASO}`)
+  await expect(page).toHaveURL(new RegExp(`/cumplimiento/casos/${CASO}`))
   // La URL cambia con el `pushState` antes de que el Router pinte la ruta: sin esperar el título del caso, las
   // capturas «inicial» salían del tablero (TEST_BUG visto en las capturas del 2026-11-24).
   await expect(page.locator('h1')).toHaveText('Caso de cumplimiento')
@@ -76,6 +80,22 @@ test.describe('pantalla de caso — E2E dirigido', () => {
     await area.fill('La contraparte fraccionó cinco depósitos el mismo día.')
     await page.getByRole('radio').first().check()
     await expect(area).toHaveValue('La contraparte fraccionó cinco depósitos el mismo día.')
+  })
+
+  test('el resumen trae del contrato la alerta de origen y el titular enmascarado, sin el aviso de «no publicado»', async ({ page }) => {
+    await entrarConPermiso(page)
+    const resumen = page.getByRole('region', { name: /Caso/ }).first()
+    await expect(resumen).toContainText('RM-FRACCIONAMIENTO')
+    await expect(resumen).toContainText('Fraccionamiento de operaciones')
+    await expect(resumen).toContainText('****7c2e')
+    await expect(resumen).toContainText('LFT-2026-0042')
+    await expect(page.getByText('todavía no los publica')).toHaveCount(0)
+    for (const [vp, tema] of [[VIEWPORTS[0], 'claro'], [VIEWPORTS[2], 'claro'], [VIEWPORTS[0], 'oscuro'], [VIEWPORTS[2], 'oscuro']] as const) {
+      await page.setViewportSize({ width: vp.width, height: vp.height })
+      await page.emulateMedia({ colorScheme: tema === 'oscuro' ? 'dark' : 'light' })
+      await expect(resumen).toContainText('****7c2e')
+      await resumen.screenshot({ path: `${CONTRATO}/caso-resumen-alerta-titular.${vp.nombre}.${tema}.png`, animations: 'disabled' })
+    }
   })
 
   test('consola y red sin errores nuevos al cargar', async ({ page }) => {

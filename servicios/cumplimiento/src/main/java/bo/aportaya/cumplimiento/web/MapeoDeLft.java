@@ -1,8 +1,10 @@
 package bo.aportaya.cumplimiento.web;
 
 import bo.aportaya.cumplimiento.aplicacion.ConsultarBandejasLft;
+import bo.aportaya.cumplimiento.web.generado.modelo.AlertaDeOrigenLft;
 import bo.aportaya.cumplimiento.web.generado.modelo.AlertaEnBandeja;
 import bo.aportaya.cumplimiento.web.generado.modelo.CasoEnBandeja;
+import bo.aportaya.cumplimiento.web.generado.modelo.FichaDeCasoLft;
 import bo.aportaya.cumplimiento.web.generado.modelo.PaginaDeAlertas;
 import bo.aportaya.cumplimiento.web.generado.modelo.PaginaDeCasos;
 
@@ -58,5 +60,31 @@ final class MapeoDeLft {
         salida.setProximoPlazo(pagina.proximoPlazo().orElse(null));
         salida.setProximoId(pagina.proximoId().orElse(null));
         return salida;
+    }
+
+    static FichaDeCasoLft ficha(ConsultarBandejasLft.Ficha f) {
+        var r = new FichaDeCasoLft();
+        r.setCasoId(f.casoId());
+        r.setCodigo(f.codigo());
+        r.setOrigen(FichaDeCasoLft.OrigenEnum.fromValue(f.origen()));
+        r.setEstado(FichaDeCasoLft.EstadoEnum.fromValue(f.estado()));
+        r.setPrioridad(FichaDeCasoLft.PrioridadEnum.fromValue(f.prioridad()));
+        r.setAbiertoEn(f.abiertoEn());
+        r.setPlazoLimite(f.plazoLimite());
+        r.setVencido(f.vencido());
+        r.setAlertaDeOrigen(f.alertaDeOrigen()
+                .map(a -> {
+                    var o = new AlertaDeOrigenLft();
+                    o.setAlertaId(a.alertaId());
+                    o.setReglaCodigo(a.reglaCodigo());
+                    o.setTipologia(a.tipologia());
+                    o.setSeveridad(AlertaDeOrigenLft.SeveridadEnum.fromValue(a.severidad()));
+                    o.setDetectadaEn(a.detectadaEn());
+                    return o;
+                })
+                .orElse(null));
+        r.setAlertasEnlazadas(f.alertasEnlazadas());
+        r.setTitularEnmascarado(f.titularEnmascarado());
+        return r;
     }
 }

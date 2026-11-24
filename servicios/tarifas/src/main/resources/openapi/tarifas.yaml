@@ -926,6 +926,18 @@ components:
         moneda:       { type: [string, 'null'] }
         vigenteDesde: { type: string, format: date-time }
         estado:       { type: string, enum: [PROPUESTA, APROBADA, RECHAZADA] }
+        propuestoPor:
+          type: string
+          format: uuid
+          description: >-
+            Identificador del operador que propuso la version (sale de su token, CU-132). Aditivo
+            (2026-11-24): los clientes anteriores lo ignoran.
+        aprobadoPor:
+          type: [string, 'null']
+          format: uuid
+          description: >-
+            Identificador del operador que la aprobo (cuatro ojos, R-TAR-14). Nulo mientras esta
+            PROPUESTA o si se rechazo sin aprobacion.
     Dinero:
       type: object
       additionalProperties: false

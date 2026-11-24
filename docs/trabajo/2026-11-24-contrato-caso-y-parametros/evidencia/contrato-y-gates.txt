@@ -1,0 +1,23 @@
+$ openapi-generator validate -i servicios/tarifas/.../tarifas.yaml
+Validating spec (servicios/tarifas/src/main/resources/openapi/tarifas.yaml)
+No validation issues detected.
+$ openapi-generator validate -i servicios/cumplimiento/.../cumplimiento.yaml
+Validating spec (servicios/cumplimiento/src/main/resources/openapi/cumplimiento.yaml)
+No validation issues detected.
+
+$ python3 scripts/verificar_pruebas_web.py
+controladores: 42 · con matriz propia: 42 · en deuda: 0
+operaciones con el estado HTTP fuera de su contrato: 25
+servicios con sabana de seguridad: 15
+La capa web esta cubierta segun ADR-043.
+$ python3 scripts/verificar_contratos_limites.py
+Los contratos de request en el alcance de este gate declaran limites y additionalProperties: false.
+$ python3 scripts/inventario_endpoints.py --check
+endpoints relevados: 360 · hallazgos: 0
+El inventario esta alineado: todo lo implementado tiene contrato y viceversa.
+$ python3 scripts/generar_postman.py && git diff --exit-code -- postman/
+sin diff (ya commiteado)
+$ palantir-java-format 2.50.0 --palantir --dry-run <java tocados>
+(sin archivos listados = formato estable)
+$ ./gradlew --offline :servicios:tarifas:compileJava
+BUILD FAILED: Could not resolve org.jetbrains.kotlin:kotlin-stdlib:2.4.0 (sin caché); en línea: 429 Too Many Requests de repo.maven.apache.org

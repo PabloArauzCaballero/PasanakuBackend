@@ -681,6 +681,33 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
+  /cumplimiento/casos/{casoId}:
+    get:
+      operationId: obtenerCasoLft              # CU-44 (backoffice · ficha del caso, 2026-11-24)
+      summary: La ficha de un caso de investigacion LFT, con su alerta de origen y el titular enmascarado
+      description: >-
+        Aditivo (2026-11-24). Lo que la bandeja no lleva por deber de reserva se resuelve aca, en
+        la ficha, con el mismo permiso que la bandeja de casos (CUMPLIMIENTO_CASOS). La alerta de
+        origen es la mas antigua enlazada al caso (nula si el caso no nacio de una alerta). El
+        titular NUNCA viaja en claro: ni nombre, ni documento, ni contacto; solo
+        `titularEnmascarado`, cuatro caracteres del seudonimo interno precedidos de asteriscos,
+        para distinguir titulares entre casos sin identificarlos.
+      parameters:
+        - { name: casoId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Ficha del caso
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FichaDeCasoLft' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU44-06 CASO_INEXISTENTE
+        '403':
+          description: Sin CUMPLIMIENTO_CASOS
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
   /cumplimiento/casos/{casoId}/decision:
     post:
       operationId: decidirCasoLft              # CU-44 (backoffice carril A · H5)
@@ -1435,6 +1462,42 @@ components:
         vencido:     { type: boolean, description: Sin cerrar y con el plazo guardado ya pasado (CU-44, 4a). }
         decision:    { type: [string, 'null'], enum: [DESCARTAR, MONITOREO_REFORZADO, REPORTAR, TERMINAR_RELACION, null] }
         cerradoEn:   { type: [string, 'null'], format: date-time }
+    FichaDeCasoLft:
+      type: object
+      additionalProperties: false
+      required: [casoId, codigo, origen, estado, prioridad, abiertoEn, plazoLimite, vencido, alertasEnlazadas, titularEnmascarado]
+      properties:
+        casoId:      { type: string, format: uuid }
+        codigo:      { type: string }
+        origen:      { type: string, enum: [ALERTA, DENUNCIA, REQUERIMIENTO, REVISION_PERIODICA] }
+        estado:      { type: string, enum: [ABIERTO, EN_ANALISIS, EN_REVISION, CERRADO] }
+        prioridad:   { type: string, enum: [URGENTE, ALTA, MEDIA, BAJA] }
+        abiertoEn:   { type: string, format: date-time }
+        plazoLimite: { type: string, format: date-time }
+        vencido:     { type: boolean, description: Sin cerrar y con el plazo guardado ya pasado (CU-44, 4a). }
+        alertaDeOrigen:
+          description: La alerta mas antigua enlazada al caso. Nula si el caso no nacio de una alerta.
+          oneOf:
+            - $ref: '#/components/schemas/AlertaDeOrigenLft'
+            - type: 'null'
+        alertasEnlazadas: { type: integer, minimum: 0 }
+        titularEnmascarado:
+          type: string
+          pattern: '^\*{4}[0-9a-f]{4}$'
+          description: >-
+            Cuatro asteriscos y los cuatro ultimos caracteres del seudonimo interno del titular.
+            No es un nombre, un documento ni un contacto (regla 90.2): sirve para ver que dos casos
+            son del mismo titular, no para saber quien es.
+    AlertaDeOrigenLft:
+      type: object
+      additionalProperties: false
+      required: [alertaId, reglaCodigo, tipologia, severidad, detectadaEn]
+      properties:
+        alertaId:    { type: string, format: uuid }
+        reglaCodigo: { type: string }
+        tipologia:   { type: string }
+        severidad:   { type: string, enum: [CRITICA, ALTA, MEDIA, BAJA] }
+        detectadaEn: { type: string, format: date-time }
     PaginaDeReclamos:
       type: object
       additionalProperties: false

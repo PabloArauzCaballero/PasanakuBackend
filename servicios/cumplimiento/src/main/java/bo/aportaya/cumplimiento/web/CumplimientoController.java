@@ -9,6 +9,7 @@ import bo.aportaya.cumplimiento.web.generado.modelo.EntradaCasoLft;
 import bo.aportaya.cumplimiento.web.generado.modelo.EntradaDecisionCasoLft;
 import bo.aportaya.cumplimiento.web.generado.modelo.EntradaIncidente;
 import bo.aportaya.cumplimiento.web.generado.modelo.EntradaRiesgoOperativo;
+import bo.aportaya.cumplimiento.web.generado.modelo.FichaDeCasoLft;
 import bo.aportaya.cumplimiento.web.generado.modelo.PaginaDeAlertas;
 import bo.aportaya.cumplimiento.web.generado.modelo.PaginaDeCasos;
 import bo.aportaya.cumplimiento.web.generado.modelo.SalidaCasoLft;
@@ -142,6 +143,14 @@ public class CumplimientoController extends ColasDeCumplimientoWeb {
                 Optional.ofNullable(despuesDeId),
                 limite,
                 sesion.actual())));
+    }
+
+    // CU-44 · la ficha: la alerta de origen y el titular ENMASCARADO, con el mismo permiso que la cola de casos.
+    @Override
+    @Permiso("CUMPLIMIENTO_CASOS")
+    public ResponseEntity<FichaDeCasoLft> obtenerCasoLft(UUID casoId) {
+        Traza.marcarCasoDeUso("CU-44", casoId.toString());
+        return ResponseEntity.ok(MapeoDeLft.ficha(bandejasLft.ficha(casoId, sesion.actual())));
     }
 
     @Override
