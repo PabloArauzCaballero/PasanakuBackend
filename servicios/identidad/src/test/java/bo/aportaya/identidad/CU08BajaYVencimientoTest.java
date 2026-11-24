@@ -199,7 +199,9 @@ class CU08BajaYVencimientoTest extends BaseDeGobiernoCU08 {
                 id,
                 usuario,
                 rol,
-                fixtura.otorgante(),
+                // Un otorgante de ESTA transaccion: el de la fixtura queda en cache y, creado dentro de un
+                // escenario que se deshizo, ya no existe en el siguiente (fk_asignacion_rol_otorgada_por).
+                operador(),
                 hasta.minusDays(10).toString(),
                 hasta.toString());
         return id;

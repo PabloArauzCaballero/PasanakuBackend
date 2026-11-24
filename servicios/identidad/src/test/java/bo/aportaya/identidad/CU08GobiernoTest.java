@@ -26,7 +26,7 @@ class CU08GobiernoTest extends BaseDeGobiernoCU08 {
         enTransaccionQueSeDeshace(() -> {
             UUID administrador = operador();
             UUID oficial = operador();
-            fixtura.asignarRol(oficial, rolLlamado("OFICIAL_CUMPLIMIENTO"));
+            fixtura.asignarRol(oficial, rolLlamado("OFICIAL_CUMPLIMIENTO"), operador());
             UUID destinatario = operador();
 
             ResultadoDeAsignacion r = asignar(administrador, destinatario, rol("GU_B_SOPORTE_LEER"));
