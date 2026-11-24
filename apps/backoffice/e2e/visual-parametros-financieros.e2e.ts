@@ -39,6 +39,9 @@ for (const viewport of VIEWPORTS) {
       await expect(page.getByText('6.000000')).toBeVisible()
       await page.getByRole('button', { name: 'Ver historial completo' }).click()
       await expect(page.getByText('Rechazada')).toBeVisible()
+      // Abrir el historial desplaza la página; la captura de página completa dibujaría la barra fija a mitad de la imagen.
+      await page.evaluate(() => window.scrollTo(0, 0))
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
       await page.screenshot({ path: `../../.playwright/backoffice/visual/parametros/${viewport.nombre}.${tema}.png`, fullPage: true })
       const desborde = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
       expect(desborde, `${viewport.nombre} ${tema}: sin desborde horizontal`).toBeLessThanOrEqual(0)
