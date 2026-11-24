@@ -1021,7 +1021,46 @@ entity "rol" as rol {
   departamento : VARCHAR(60) <<NULL>>
   descripcion : VARCHAR(255) <<NULL>>
   es_sistema : BOOLEAN
+  # creado_por : UUID <<NULL, FK, rol personalizado: quien lo creo (GU-16)>>
+  creado_en : TIMESTAMPTZ <<NULL>>
+  retirado_en : TIMESTAMPTZ <<NULL, un rol retirado no se asigna mas; no se borra (GU-16)>>
 }
+
+entity "solicitud_cambio_rol" as solcamrol {
+  * id : UUID <<PK>>
+  --
+  tipo : VARCHAR(10) <<CK: CREAR|EDITAR|RETIRAR>>
+  # rol_id : UUID <<NULL, FK, IDX>>
+  propuesta : JSONB
+  motivo : VARCHAR(160)
+  estado : VARCHAR(10) <<CK: PENDIENTE|APROBADA|RECHAZADA>>
+  # propuesta_por : UUID <<FK, IDX>>
+  propuesta_en : TIMESTAMPTZ
+  # resuelta_por : UUID <<NULL, FK>>
+  resuelta_en : TIMESTAMPTZ <<NULL>>
+  motivo_resolucion : VARCHAR(160) <<NULL>>
+}
+
+entity "cuenta_servicio" as ctasvc {
+  * id : UUID <<PK>>
+  --
+  # usuario_id : UUID <<FK, UQ>>
+  # rol_id : UUID <<FK, IDX>>
+  nombre : VARCHAR(80)
+  estado : VARCHAR(10) <<CK: ACTIVA|REVOCADA>>
+  vence_en : TIMESTAMPTZ <<IDX>>
+  # creada_por : UUID <<FK>>
+  creada_en : TIMESTAMPTZ
+  credencial_rotada_en : TIMESTAMPTZ
+  # revocada_por : UUID <<NULL, FK>>
+  revocada_en : TIMESTAMPTZ <<NULL>>
+  motivo_revocacion : VARCHAR(160) <<NULL>>
+}
+
+usuario ||--o{ solcamrol : "propone"
+rol ||--o{ solcamrol : "es objeto de"
+usuario ||--o| ctasvc : "es la cuenta"
+rol ||--o{ ctasvc : "acota"
 
 entity "permiso" as perm {
   * id : UUID <<PK>>

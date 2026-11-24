@@ -49,6 +49,26 @@ ALTER TABLE identidad.credencial_acceso
   ADD CONSTRAINT fk_credencial_acceso_usuario_id
   FOREIGN KEY (usuario_id) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
 
+ALTER TABLE identidad.cuenta_servicio DROP CONSTRAINT IF EXISTS fk_cuenta_servicio_creada_por;
+ALTER TABLE identidad.cuenta_servicio
+  ADD CONSTRAINT fk_cuenta_servicio_creada_por
+  FOREIGN KEY (creada_por) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE identidad.cuenta_servicio DROP CONSTRAINT IF EXISTS fk_cuenta_servicio_revocada_por;
+ALTER TABLE identidad.cuenta_servicio
+  ADD CONSTRAINT fk_cuenta_servicio_revocada_por
+  FOREIGN KEY (revocada_por) REFERENCES identidad.usuario (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE identidad.cuenta_servicio DROP CONSTRAINT IF EXISTS fk_cuenta_servicio_rol_id;
+ALTER TABLE identidad.cuenta_servicio
+  ADD CONSTRAINT fk_cuenta_servicio_rol_id
+  FOREIGN KEY (rol_id) REFERENCES identidad.rol (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE identidad.cuenta_servicio DROP CONSTRAINT IF EXISTS fk_cuenta_servicio_usuario_id;
+ALTER TABLE identidad.cuenta_servicio
+  ADD CONSTRAINT fk_cuenta_servicio_usuario_id
+  FOREIGN KEY (usuario_id) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
 ALTER TABLE identidad.direccion_usuario DROP CONSTRAINT IF EXISTS fk_direccion_usuario_usuario_id;
 ALTER TABLE identidad.direccion_usuario
   ADD CONSTRAINT fk_direccion_usuario_usuario_id
@@ -114,6 +134,11 @@ ALTER TABLE identidad.restriccion_usuario
   ADD CONSTRAINT fk_restriccion_usuario_usuario_id
   FOREIGN KEY (usuario_id) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
 
+ALTER TABLE identidad.rol DROP CONSTRAINT IF EXISTS fk_rol_creado_por;
+ALTER TABLE identidad.rol
+  ADD CONSTRAINT fk_rol_creado_por
+  FOREIGN KEY (creado_por) REFERENCES identidad.usuario (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
 ALTER TABLE identidad.rol_permiso DROP CONSTRAINT IF EXISTS fk_rol_permiso_permiso_id;
 ALTER TABLE identidad.rol_permiso
   ADD CONSTRAINT fk_rol_permiso_permiso_id
@@ -138,6 +163,21 @@ ALTER TABLE identidad.solicitud_baja DROP CONSTRAINT IF EXISTS fk_solicitud_baja
 ALTER TABLE identidad.solicitud_baja
   ADD CONSTRAINT fk_solicitud_baja_usuario_id
   FOREIGN KEY (usuario_id) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE identidad.solicitud_cambio_rol DROP CONSTRAINT IF EXISTS fk_solicitud_cambio_rol_propuesta_por;
+ALTER TABLE identidad.solicitud_cambio_rol
+  ADD CONSTRAINT fk_solicitud_cambio_rol_propuesta_por
+  FOREIGN KEY (propuesta_por) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE identidad.solicitud_cambio_rol DROP CONSTRAINT IF EXISTS fk_solicitud_cambio_rol_resuelta_por;
+ALTER TABLE identidad.solicitud_cambio_rol
+  ADD CONSTRAINT fk_solicitud_cambio_rol_resuelta_por
+  FOREIGN KEY (resuelta_por) REFERENCES identidad.usuario (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE identidad.solicitud_cambio_rol DROP CONSTRAINT IF EXISTS fk_solicitud_cambio_rol_rol_id;
+ALTER TABLE identidad.solicitud_cambio_rol
+  ADD CONSTRAINT fk_solicitud_cambio_rol_rol_id
+  FOREIGN KEY (rol_id) REFERENCES identidad.rol (id) ON DELETE SET NULL ON UPDATE CASCADE;
 
 ALTER TABLE identidad.token_verificacion DROP CONSTRAINT IF EXISTS fk_token_verificacion_dispositivo_id;
 ALTER TABLE identidad.token_verificacion

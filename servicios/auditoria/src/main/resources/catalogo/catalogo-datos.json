@@ -119,10 +119,10 @@
   {
    "nombre": "identidad",
    "descripcion": "Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena.",
-   "tablas": 31,
-   "tablasDeNegocio": 27,
-   "columnas": 317,
-   "relaciones": 34,
+   "tablas": 33,
+   "tablasDeNegocio": 29,
+   "columnas": 343,
+   "relaciones": 42,
    "appendOnly": 0,
    "conDatosPersonales": 8,
    "servicio": "identidad"
@@ -49077,6 +49077,208 @@
    ]
   },
   {
+   "tabla": "cuenta_servicio",
+   "esquema": "identidad",
+   "tipo": "NEGOCIO",
+   "modulo": "01",
+   "nombreModulo": "Identidad, Usuarios y Seguridad",
+   "servicio": "identidad",
+   "appendOnly": false,
+   "negocio": {
+    "queEs": "El gobierno de una identidad de servicio: la cuenta de usuario que porta un rol SERVICIO_*, con su vencimiento, el momento en que se rotó su credencial por última vez y, si se revocó, quién y por qué.",
+    "negocio": "Que las credenciales con las que un servicio le habla a otro dejen de ser un secreto aprovisionado a mano y sin dueño: se dan de alta, se rotan y se revocan desde el backoffice, con su rastro.",
+    "porQue": "Hasta ahora la cuenta de servicio solo existía como un usuario más y un rol de catálogo; nadie podía decir quién la creó, cuándo vence ni cuándo cambió su clave (GU-18)."
+   },
+   "notaDeSistema": "Nunca guarda la credencial: la clave vive solo como hash en credencial_acceso y se entrega una vez al crearla o rotarla. vence_en es obligatorio. Una cuenta REVOCADA no vuelve a ACTIVA: se crea otra. Un usuario es a lo sumo una cuenta de servicio (uq_cuenta_servicio_usuario_id).\n\n*Fuente: GU-18 (decisión de Pablo, P-10), CU-136.*",
+   "reglas": [
+    "ck_cuenta_servicio_revocacion"
+   ],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "usuario_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "usuario",
+     "negocio": "Referencia al usuario titular de la cuenta o actor principal de la operación.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a usuario, restricción única.",
+     "sensibilidad": "NINGUNA",
+     "unica": true,
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "rol_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "rol",
+     "negocio": "Referencia por clave foránea a la entidad rol.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a rol, índice b-tree.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "nombre",
+     "tipo": "VARCHAR(80)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Nombre descriptivo de la entidad para visualización y referencia en el sistema.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(80), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "estado",
+     "tipo": "VARCHAR(10)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Estado operativo o fase del ciclo de vida en que se encuentra el registro.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(10), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "vence_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de vence en cuenta_servicio.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria, índice b-tree.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "creada_por",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "usuario",
+     "negocio": "Referencia por clave foránea a la entidad usuario.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a usuario.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "creada_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal UTC en que la entidad fue creada en la base de datos.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "credencial_rotada_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de credencial rotada en cuenta_servicio.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "revocada_por",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "referencia": "usuario",
+     "negocio": "Referencia por clave foránea a la entidad usuario.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, opcional, referencia a usuario.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "revocada_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de revocada en cuenta_servicio.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "motivo_revocacion",
+     "tipo": "VARCHAR(160)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Atributo que representa motivo revocacion en el modelo de cuenta_servicio.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(160), opcional.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "usuario_id",
+      "tabla": "usuario",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_cuenta_servicio_usuario_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "1:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "rol_id",
+      "tabla": "rol",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_cuenta_servicio_rol_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "creada_por",
+      "tabla": "usuario",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_cuenta_servicio_creada_por",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "revocada_por",
+      "tabla": "usuario",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_cuenta_servicio_revocada_por",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
+     }
+    ],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de rol, usuario. Reglas nombradas: ck_cuenta_servicio_revocacion.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": []
+  },
+  {
    "tabla": "direccion_usuario",
    "esquema": "identidad",
    "tipo": "NEGOCIO",
@@ -52086,11 +52288,74 @@
      "origenNegocio": "convencion",
      "sistema": "BOOLEAN, obligatoria.",
      "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "creado_por",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "referencia": "usuario",
+     "negocio": "Identificador del usuario u operador que dio de alta el registro.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, opcional, referencia a usuario.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "creado_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Marca temporal UTC en que el registro fue creado en la base de datos.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "retirado_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de retirado en rol.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
     }
    ],
    "relaciones": {
-    "salientes": [],
+    "salientes": [
+     {
+      "columna": "creado_por",
+      "tabla": "usuario",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_rol_creado_por",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
+     }
+    ],
     "entrantes": [
+     {
+      "columna": "rol_id",
+      "tabla": "solicitud_cambio_rol",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_solicitud_cambio_rol_rol_id",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
+     },
+     {
+      "columna": "rol_id",
+      "tabla": "cuenta_servicio",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_cuenta_servicio_rol_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
      {
       "columna": "rol_id",
       "tabla": "rol_permiso",
@@ -52113,7 +52378,7 @@
      }
     ]
    },
-   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian asignacion_rol, rol_permiso.",
+   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de usuario. La referencian asignacion_rol, cuenta_servicio, rol_permiso, solicitud_cambio_rol.",
    "clasificacion": {
     "personales": 0,
     "financieros": 0,
@@ -52707,6 +52972,187 @@
      "endpoints": []
     }
    ]
+  },
+  {
+   "tabla": "solicitud_cambio_rol",
+   "esquema": "identidad",
+   "tipo": "NEGOCIO",
+   "modulo": "01",
+   "nombreModulo": "Identidad, Usuarios y Seguridad",
+   "servicio": "identidad",
+   "appendOnly": false,
+   "negocio": {
+    "queEs": "La propuesta de crear, editar o retirar un rol personalizado cuando el rol toca permisos de riesgo ALTO o CRITICO del catálogo: queda pendiente hasta que otra persona la aprueba o la rechaza (cuatro ojos).",
+    "negocio": "Que un solo operador no pueda darse ni darle a otro un rol que mueve plata o decide sobre la identidad de terceros. Lo propone uno, lo confirma otro, y los dos quedan escritos con su motivo.",
+    "porQue": "Un rol personalizado con ENTREGA_AUTORIZAR aprobado por quien lo escribió es el mismo riesgo que autoasignarse el permiso. Sin la solicitud, el cuatro ojos viviría en la memoria del proceso y se perdería con un reinicio."
+   },
+   "notaDeSistema": "propuesta guarda el código, nombre, descripción y permisos propuestos; propuesta_por y resuelta_por son personas distintas (lo exige la base, ck_solicitud_cambio_rol_cuatro_ojos). El permiso de riesgo se evalúa contra permiso.nivel_riesgo en el momento de proponer. Un rol es_sistema nunca es objeto de una solicitud.\n\n*Fuente: GU-16 (decisión de Pablo, P-9), CU-135.*",
+   "reglas": [
+    "ck_solicitud_cambio_rol_cuatro_ojos",
+    "ck_solicitud_cambio_rol_resolucion",
+    "ck_solicitud_cambio_rol_rol_requerido"
+   ],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "tipo",
+     "tipo": "VARCHAR(10)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Subtipo o modalidad específica que determina las reglas operativas aplicables al registro.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(10), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "rol_id",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "referencia": "rol",
+     "negocio": "Referencia por clave foránea a la entidad rol.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, opcional, referencia a rol, índice b-tree.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "propuesta",
+     "tipo": "JSONB",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa propuesta en el modelo de solicitud_cambio_rol.",
+     "origenNegocio": "convencion",
+     "sistema": "JSONB, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "motivo",
+     "tipo": "VARCHAR(160)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Justificación declarada o causal que originó la creación, rechazo o transición del registro.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(160), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "estado",
+     "tipo": "VARCHAR(10)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Estado operativo o fase del ciclo de vida en que se encuentra el registro.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(10), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "propuesta_por",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "usuario",
+     "negocio": "Referencia por clave foránea a la entidad usuario.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a usuario, índice b-tree.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "propuesta_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de propuesta en solicitud_cambio_rol.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "resuelta_por",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "referencia": "usuario",
+     "negocio": "Referencia por clave foránea a la entidad usuario.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, opcional, referencia a usuario.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "resuelta_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de resuelta en solicitud_cambio_rol.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "motivo_resolucion",
+     "tipo": "VARCHAR(160)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Atributo que representa motivo resolucion en el modelo de solicitud_cambio_rol.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(160), opcional.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "rol_id",
+      "tabla": "rol",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_solicitud_cambio_rol_rol_id",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
+     },
+     {
+      "columna": "propuesta_por",
+      "tabla": "usuario",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_solicitud_cambio_rol_propuesta_por",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "resuelta_por",
+      "tabla": "usuario",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_solicitud_cambio_rol_resuelta_por",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
+     }
+    ],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de rol, usuario. Reglas nombradas: ck_solicitud_cambio_rol_cuatro_ojos, ck_solicitud_cambio_rol_resolucion, ck_solicitud_cambio_rol_rol_requerido.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": []
   },
   {
    "tabla": "token_verificacion",
@@ -53765,6 +54211,66 @@
       "alBorrar": "RESTRICT",
       "cardinalidad": "N:1",
       "obligatoria": true
+     },
+     {
+      "columna": "creado_por",
+      "tabla": "rol",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_rol_creado_por",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
+     },
+     {
+      "columna": "propuesta_por",
+      "tabla": "solicitud_cambio_rol",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_solicitud_cambio_rol_propuesta_por",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "resuelta_por",
+      "tabla": "solicitud_cambio_rol",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_solicitud_cambio_rol_resuelta_por",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
+     },
+     {
+      "columna": "usuario_id",
+      "tabla": "cuenta_servicio",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_cuenta_servicio_usuario_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "1:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "creada_por",
+      "tabla": "cuenta_servicio",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_cuenta_servicio_creada_por",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "revocada_por",
+      "tabla": "cuenta_servicio",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_cuenta_servicio_revocada_por",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
      },
      {
       "columna": "usuario_id",
@@ -55828,7 +56334,7 @@
      }
     ]
    },
-   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian aportes.comprobante_manual, aportes.conciliacion, aportes.excepcion_conciliacion, aportes.extracto_bancario, aportes.historial_estado_reembolso, aportes.pago, aportes.plan_regularizacion, aportes.reembolso, asignacion_rol, auditoria.alerta_cumplimiento, auditoria.coincidencia_lista, auditoria.ejecucion_reporte, auditoria.proceso_anonimizacion, auditoria.reporte_operacion_sospechosa, auditoria.solicitud_datos_personales, auditoria.ticket_soporte, bloqueo_cuenta, catalogo.licencia_regulatoria, catalogo.tarifario, comun.bitacora_evento, comun.registro_acceso_datos, consentimiento, credencial_acceso, cumplimiento.aceptacion_contrato, cumplimiento.acta_comite, cumplimiento.activo_informacion, cumplimiento.alerta_monitoreo_lft, cumplimiento.beneficiario_final, cumplimiento.calificacion_riesgo_cliente, cumplimiento.capacitacion_cumplimiento, cumplimiento.caso_investigacion_lft, cumplimiento.contrato_adhesion, cumplimiento.contrato_tercero, cumplimiento.control_interno, cumplimiento.debida_diligencia, cumplimiento.declaracion_origen_fondos, cumplimiento.declaracion_pep, cumplimiento.designacion_regulatoria, cumplimiento.desvio_perfil, cumplimiento.documento_publicado, cumplimiento.envio_regulatorio, cumplimiento.evaluacion_riesgo_producto, cumplimiento.evaluacion_tercero, cumplimiento.evento_riesgo_operativo, cumplimiento.expediente_cliente, cumplimiento.factor_riesgo_evaluado, cumplimiento.hallazgo_auditoria, cumplimiento.incidente_seguridad, cumplimiento.matriz_riesgo_lft, cumplimiento.observacion_regulatoria, cumplimiento.oficial_cumplimiento, cumplimiento.perfil_transaccional, cumplimiento.plan_accion_riesgo, cumplimiento.plan_continuidad, cumplimiento.politica_interna, cumplimiento.prueba_continuidad, cumplimiento.prueba_control, cumplimiento.punto_reclamo, cumplimiento.reclamo_cliente, cumplimiento.registro_operacion_relevante, cumplimiento.regla_monitoreo_lft, cumplimiento.reporte_regulatorio, cumplimiento.requerimiento_autoridad, cumplimiento.revision_periodica_kyc, direccion_usuario, dispositivo, documento_identidad, entregas.cuenta_bancaria_beneficiario, entregas.entrega_fondo, entregas.historial_estado_entrega, entregas.incidencia_entrega, entregas.validacion_pre_entrega, erp.asiento_plantilla, erp.cierre_periodo_contable, erp.ejercicio_fiscal, erp.estado_financiero_generado, erp.factura_proveedor, erp.orden_compra, erp.pago_a_proveedor, erp.presupuesto, factor_mfa, garantia.abono_recuperacion, garantia.accion_cobranza, garantia.acuerdo_quita, garantia.alerta_temprana, garantia.apelacion_sancion, garantia.aval_participante, garantia.candidato_reemplazo, garantia.capacidad_respaldo, garantia.castigo_deuda, garantia.cobertura_incumplimiento, garantia.cobertura_respaldo, garantia.descargo_participante, garantia.deuda_participante, garantia.evidencia_incumplimiento, garantia.gestion_cobranza, garantia.historial_estado_incumplimiento, garantia.historial_incumplimiento_usuario, garantia.lista_restriccion_interna, garantia.movimiento_fondo, garantia.movimiento_reserva, garantia.promesa_pago, garantia.registro_incumplimiento, garantia.reserva_respaldo, garantia.sancion, garantia.score_riesgo_incumplimiento, grupos.acuerdo, grupos.enlace_grupo, grupos.historial_estado_grupo, grupos.invitacion, grupos.participante, grupos.postulacion_emparejamiento, grupos.reglamento_grupo, grupos.solicitud_ingreso, grupos.sorteo_turnos, historial_credencial, intento_autenticacion, notificaciones.aviso_interno, notificaciones.bandeja_entrada, notificaciones.canal_vinculado, notificaciones.notificacion, nucleo_financiero.asiento_contable, nucleo_financiero.bloqueo_saldo, nucleo_financiero.certificado_saldo, nucleo_financiero.cierre_diario, nucleo_financiero.conciliacion_custodia, nucleo_financiero.cuenta_billetera, nucleo_financiero.descuadre_custodia, nucleo_financiero.evaluacion_antifraude, nucleo_financiero.evidencia_mfa_consumida, nucleo_financiero.instrumento_fondeo, nucleo_financiero.orden_retiro, nucleo_financiero.politica_billetera, nucleo_financiero.regla_antifraude, nucleo_financiero.respuesta_idempotente, nucleo_financiero.retencion_saldo, nucleo_financiero.reverso_transaccion, nucleo_financiero.solicitud_cierre_billetera, nucleo_financiero.solicitud_reverso, nucleo_financiero.transaccion_billetera, organizador.apelacion_sancion_org, organizador.organizador, organizador.sancion_organizador, organizador.solicitud_organizador, perfil_financiero, preferencia_notificacion, publicidad.campana_publicitaria, publicidad.clic_anuncio, publicidad.impresion_anuncio, publicidad.revision_creativa, publicidad.segmento_audiencia, publicidad.socio_comercial, referencia_personal, reputacion_usuario, restriccion_usuario, sesion, solicitud_baja, tarifas.asignacion_tarifario, tarifas.cambio_tarifario, tarifas.campana_promocional, tarifas.cuenta_por_cobrar_comision, tarifas.datos_facturacion, tarifas.devengo_comision, tarifas.devolucion_comision, tarifas.evento_significativo_sin, tarifas.exencion_comision, tarifas.factura_electronica, tarifas.liquidacion_ingresos, tarifas.simulacion_tarifa, token_verificacion, transparencia.certificado_reputacion, transparencia.evento_reputacion, transparencia.insignia_otorgada, transparencia.puntaje_reputacion, transparencia.resena_participante, transparencia.snapshot_reputacion, usuario_interno, verificacion_kyc.",
+   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian aportes.comprobante_manual, aportes.conciliacion, aportes.excepcion_conciliacion, aportes.extracto_bancario, aportes.historial_estado_reembolso, aportes.pago, aportes.plan_regularizacion, aportes.reembolso, asignacion_rol, auditoria.alerta_cumplimiento, auditoria.coincidencia_lista, auditoria.ejecucion_reporte, auditoria.proceso_anonimizacion, auditoria.reporte_operacion_sospechosa, auditoria.solicitud_datos_personales, auditoria.ticket_soporte, bloqueo_cuenta, catalogo.licencia_regulatoria, catalogo.tarifario, comun.bitacora_evento, comun.registro_acceso_datos, consentimiento, credencial_acceso, cuenta_servicio, cumplimiento.aceptacion_contrato, cumplimiento.acta_comite, cumplimiento.activo_informacion, cumplimiento.alerta_monitoreo_lft, cumplimiento.beneficiario_final, cumplimiento.calificacion_riesgo_cliente, cumplimiento.capacitacion_cumplimiento, cumplimiento.caso_investigacion_lft, cumplimiento.contrato_adhesion, cumplimiento.contrato_tercero, cumplimiento.control_interno, cumplimiento.debida_diligencia, cumplimiento.declaracion_origen_fondos, cumplimiento.declaracion_pep, cumplimiento.designacion_regulatoria, cumplimiento.desvio_perfil, cumplimiento.documento_publicado, cumplimiento.envio_regulatorio, cumplimiento.evaluacion_riesgo_producto, cumplimiento.evaluacion_tercero, cumplimiento.evento_riesgo_operativo, cumplimiento.expediente_cliente, cumplimiento.factor_riesgo_evaluado, cumplimiento.hallazgo_auditoria, cumplimiento.incidente_seguridad, cumplimiento.matriz_riesgo_lft, cumplimiento.observacion_regulatoria, cumplimiento.oficial_cumplimiento, cumplimiento.perfil_transaccional, cumplimiento.plan_accion_riesgo, cumplimiento.plan_continuidad, cumplimiento.politica_interna, cumplimiento.prueba_continuidad, cumplimiento.prueba_control, cumplimiento.punto_reclamo, cumplimiento.reclamo_cliente, cumplimiento.registro_operacion_relevante, cumplimiento.regla_monitoreo_lft, cumplimiento.reporte_regulatorio, cumplimiento.requerimiento_autoridad, cumplimiento.revision_periodica_kyc, direccion_usuario, dispositivo, documento_identidad, entregas.cuenta_bancaria_beneficiario, entregas.entrega_fondo, entregas.historial_estado_entrega, entregas.incidencia_entrega, entregas.validacion_pre_entrega, erp.asiento_plantilla, erp.cierre_periodo_contable, erp.ejercicio_fiscal, erp.estado_financiero_generado, erp.factura_proveedor, erp.orden_compra, erp.pago_a_proveedor, erp.presupuesto, factor_mfa, garantia.abono_recuperacion, garantia.accion_cobranza, garantia.acuerdo_quita, garantia.alerta_temprana, garantia.apelacion_sancion, garantia.aval_participante, garantia.candidato_reemplazo, garantia.capacidad_respaldo, garantia.castigo_deuda, garantia.cobertura_incumplimiento, garantia.cobertura_respaldo, garantia.descargo_participante, garantia.deuda_participante, garantia.evidencia_incumplimiento, garantia.gestion_cobranza, garantia.historial_estado_incumplimiento, garantia.historial_incumplimiento_usuario, garantia.lista_restriccion_interna, garantia.movimiento_fondo, garantia.movimiento_reserva, garantia.promesa_pago, garantia.registro_incumplimiento, garantia.reserva_respaldo, garantia.sancion, garantia.score_riesgo_incumplimiento, grupos.acuerdo, grupos.enlace_grupo, grupos.historial_estado_grupo, grupos.invitacion, grupos.participante, grupos.postulacion_emparejamiento, grupos.reglamento_grupo, grupos.solicitud_ingreso, grupos.sorteo_turnos, historial_credencial, intento_autenticacion, notificaciones.aviso_interno, notificaciones.bandeja_entrada, notificaciones.canal_vinculado, notificaciones.notificacion, nucleo_financiero.asiento_contable, nucleo_financiero.bloqueo_saldo, nucleo_financiero.certificado_saldo, nucleo_financiero.cierre_diario, nucleo_financiero.conciliacion_custodia, nucleo_financiero.cuenta_billetera, nucleo_financiero.descuadre_custodia, nucleo_financiero.evaluacion_antifraude, nucleo_financiero.evidencia_mfa_consumida, nucleo_financiero.instrumento_fondeo, nucleo_financiero.orden_retiro, nucleo_financiero.politica_billetera, nucleo_financiero.regla_antifraude, nucleo_financiero.respuesta_idempotente, nucleo_financiero.retencion_saldo, nucleo_financiero.reverso_transaccion, nucleo_financiero.solicitud_cierre_billetera, nucleo_financiero.solicitud_reverso, nucleo_financiero.transaccion_billetera, organizador.apelacion_sancion_org, organizador.organizador, organizador.sancion_organizador, organizador.solicitud_organizador, perfil_financiero, preferencia_notificacion, publicidad.campana_publicitaria, publicidad.clic_anuncio, publicidad.impresion_anuncio, publicidad.revision_creativa, publicidad.segmento_audiencia, publicidad.socio_comercial, referencia_personal, reputacion_usuario, restriccion_usuario, rol, sesion, solicitud_baja, solicitud_cambio_rol, tarifas.asignacion_tarifario, tarifas.cambio_tarifario, tarifas.campana_promocional, tarifas.cuenta_por_cobrar_comision, tarifas.datos_facturacion, tarifas.devengo_comision, tarifas.devolucion_comision, tarifas.evento_significativo_sin, tarifas.exencion_comision, tarifas.factura_electronica, tarifas.liquidacion_ingresos, tarifas.simulacion_tarifa, token_verificacion, transparencia.certificado_reputacion, transparencia.evento_reputacion, transparencia.insignia_otorgada, transparencia.puntaje_reputacion, transparencia.resena_participante, transparencia.snapshot_reputacion, usuario_interno, verificacion_kyc.",
    "clasificacion": {
     "personales": 6,
     "financieros": 0,

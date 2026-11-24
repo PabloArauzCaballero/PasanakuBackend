@@ -39,6 +39,8 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/01_identidad_usuarios/alcance_invitacion.sql
 \ir 10_tablas/01_identidad_usuarios/referencia_personal.sql
 \ir 10_tablas/01_identidad_usuarios/rol.sql
+\ir 10_tablas/01_identidad_usuarios/solicitud_cambio_rol.sql
+\ir 10_tablas/01_identidad_usuarios/cuenta_servicio.sql
 \ir 10_tablas/01_identidad_usuarios/permiso.sql
 \ir 10_tablas/01_identidad_usuarios/usuario_interno.sql
 \ir 10_tablas/01_identidad_usuarios/rol_permiso.sql
