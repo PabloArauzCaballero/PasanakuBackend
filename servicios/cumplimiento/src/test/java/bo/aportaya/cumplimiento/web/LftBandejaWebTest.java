@@ -184,6 +184,87 @@ class LftBandejaWebTest {
         mvc.perform(get("/cumplimiento/alertas")).andExpect(status().isUnauthorized());
     }
 
+    @Test
+    @DisplayName("200: la ficha trae la alerta de origen y el titular ENMASCARADO, nunca en claro")
+    void ficha() throws Exception {
+        when(bandejas.ficha(eq(CASO), any()))
+                .thenReturn(new ConsultarBandejasLft.Ficha(
+                        CASO,
+                        "LFT-2026-0001",
+                        "ALERTA",
+                        "EN_ANALISIS",
+                        "ALTA",
+                        CUANDO,
+                        CUANDO.plusDays(30),
+                        false,
+                        Optional.of(new ConsultarBandejasLft.AlertaDeOrigen(
+                                ALERTA, "RM-FRACCIONAMIENTO", "Fraccionamiento", "ALTA", CUANDO)),
+                        3,
+                        "****a3f9"));
+
+        String cuerpo = mvc.perform(get("/cumplimiento/casos/{casoId}", CASO)
+                        .with(Sesiones.como("OFICIAL_CUMPLIMIENTO", "CUMPLIMIENTO_CASOS")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.casoId").value(CASO.toString()))
+                .andExpect(jsonPath("$.alertaDeOrigen.alertaId").value(ALERTA.toString()))
+                .andExpect(jsonPath("$.alertaDeOrigen.reglaCodigo").value("RM-FRACCIONAMIENTO"))
+                .andExpect(jsonPath("$.alertaDeOrigen.severidad").value("ALTA"))
+                .andExpect(jsonPath("$.alertasEnlazadas").value(3))
+                .andExpect(jsonPath("$.titularEnmascarado").value("****a3f9"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        assertThat(cuerpo)
+                .doesNotContain("usuarioId")
+                .doesNotContain("resumen")
+                .doesNotContain("hallazgos")
+                .doesNotContain("documento")
+                .doesNotContain("nombre");
+    }
+
+    @Test
+    @DisplayName("200: un caso que no nacio de una alerta devuelve alertaDeOrigen nula, no un hueco inventado")
+    void fichaSinAlerta() throws Exception {
+        when(bandejas.ficha(eq(CASO), any()))
+                .thenReturn(new ConsultarBandejasLft.Ficha(
+                        CASO,
+                        "LFT-2026-0002",
+                        "DENUNCIA",
+                        "ABIERTO",
+                        "MEDIA",
+                        CUANDO,
+                        CUANDO.plusDays(30),
+                        false,
+                        Optional.empty(),
+                        0,
+                        "****0001"));
+
+        mvc.perform(get("/cumplimiento/casos/{casoId}", CASO)
+                        .with(Sesiones.como("OFICIAL_CUMPLIMIENTO", "CUMPLIMIENTO_CASOS")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.alertaDeOrigen").isEmpty())
+                .andExpect(jsonPath("$.alertasEnlazadas").value(0));
+    }
+
+    @Test
+    @DisplayName("Ficha: 403 con otro permiso, 401 sin sesion, 422 si el caso no existe")
+    void fichaNegativa() throws Exception {
+        mvc.perform(get("/cumplimiento/casos/{casoId}", CASO)
+                        .with(Sesiones.como("ANALISTA_CUMPLIMIENTO", "CUMPLIMIENTO_ALERTAS")))
+                .andExpect(status().isForbidden());
+        mvc.perform(get("/cumplimiento/casos/{casoId}", CASO).with(Sesiones.como("SOPORTE", "RECLAMO_VER")))
+                .andExpect(status().isForbidden());
+        mvc.perform(get("/cumplimiento/casos/{casoId}", CASO)).andExpect(status().isUnauthorized());
+        verifyNoInteractions(bandejas);
+
+        when(bandejas.ficha(eq(ALERTA), any()))
+                .thenThrow(new ErrorDeNegocio(CodigoError.de(44, 6), "Ese caso no existe."));
+        mvc.perform(get("/cumplimiento/casos/{casoId}", ALERTA)
+                        .with(Sesiones.como("OFICIAL_CUMPLIMIENTO", "CUMPLIMIENTO_CASOS")))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.codigo").value("AP-CU44-06"));
+    }
+
     // Las colas del backoffice (carril A · H9) cuelgan del controlador: sin este doble no carga.
     @org.springframework.test.context.bean.override.mockito.MockitoBean
     private TableroDeCumplimientoWeb tableroDeCumplimiento;
