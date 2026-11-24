@@ -186,4 +186,4 @@ Entonces la sanción queda REVOCADA a favor del apelante
 
 ## Ver también
 
-[[CU-91 Firmar y rescindir el contrato de organizador]] · [[CU-92 Evaluar el desempeño del organizador]] · [[CU-94 Elevar una decisión al comité de gobierno]] · [[CU-54 Registrar un evento de riesgo operativo]]
+[[CU-91 Firmar y rescindir el contrato de organizador]] · [[CU-92 Evaluar el desempeño del organizador]] · [[CU-94 Elevar una decisión al comité de gobierno]] · [[CU-54 Registrar un evento de riesgo operativo]] · [[CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso]]
