@@ -81,9 +81,12 @@ final class FixturaDeGrupos {
     /**
      * Cupos OCUPADO, cada uno con su participante ACTIVO, como los deja produccion: todo camino que ocupa un cupo
      * (CU69Enlace, CU69FirmarReglamento) fija {@code participante_id}. Un OCUPADO sin titular es un estado que
-     * produccion no produce, y {@code grupos.turnos_asignados} lo rechaza al revelar el sorteo. Devuelve los cupos.
+     * produccion no produce, y {@code grupos.turnos_asignados} lo rechaza al revelar el sorteo. Cada titular firmo
+     * el reglamento vigente (AP-CU60-05), como exige CU69FirmarReglamento antes de ocupar: sin titular, esa
+     * comprobacion no tenia a quien mirar y pasaba sin probar nada. Devuelve los cupos.
      */
     List<UUID> cuposOcupados(UUID grupoId, int cuantos) {
+        UUID reglamento = reglamentoVigente(grupoId);
         List<UUID> creados = new ArrayList<>();
         for (int numero = 1; numero <= cuantos; numero++) {
             UUID id = UUID.randomUUID();
@@ -107,9 +110,38 @@ final class FixturaDeGrupos {
                     grupoId,
                     (short) numero,
                     participante);
+            dsl.execute(
+                    """
+                    INSERT INTO grupos.aceptacion_reglamento
+                        (reglamento_id, participante_id, aceptado_en, hash_firmado, ip_origen)
+                    VALUES (?, ?, now(), repeat('b', 64), '127.0.0.1'::inet)
+                    """,
+                    reglamento,
+                    participante);
             creados.add(id);
         }
         return creados;
+    }
+
+    /** La version vigente del reglamento del grupo; la crea (version 1) si el grupo todavia no tiene ninguna. */
+    UUID reglamentoVigente(UUID grupoId) {
+        var vigente = dsl.fetchOptional(
+                "SELECT id FROM grupos.reglamento_grupo WHERE grupo_id = ? AND vigente_hasta IS NULL", grupoId);
+        if (vigente.isPresent()) {
+            return vigente.get().get(0, UUID.class);
+        }
+        UUID reglamento = UUID.randomUUID();
+        dsl.execute(
+                """
+                INSERT INTO grupos.reglamento_grupo
+                    (id, grupo_id, version, contenido, hash_contenido, clausulas_mora, clausulas_abandono,
+                     vigente_desde, redactado_por)
+                VALUES (?, ?, 1, 'reglas de prueba', repeat('a', 64), 'mora', 'abandono', now(), ?)
+                """,
+                reglamento,
+                grupoId,
+                usuario());
+        return reglamento;
     }
 
     /** Participantes activos, cada uno con su cupo ocupado: de ahi sale el peso del voto. */
