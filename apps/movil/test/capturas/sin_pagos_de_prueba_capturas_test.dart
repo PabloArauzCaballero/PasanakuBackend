@@ -9,7 +9,7 @@ import 'ayudas_de_captura.dart';
 /// build SIN `--dart-define=PAGOS_DE_PRUEBA=true`. No aparece «Simular pago».
 /// Se generan con `--update-goldens`; no son goldens de comparación.
 const _salida =
-    '../../../../docs/trabajo/2026-11-23-continuar-traspaso/evidencia/movil';
+    '../../../../docs/trabajo/2026-11-23-continuar-traspaso/evidencia/movil-rediseno';
 const _cuenta = '11111111-1111-4111-8111-111111111111';
 
 const _anchos = {
@@ -48,14 +48,14 @@ void main() {
 
         await montarParaCaptura(
           t,
-          const PantallaRecargar(cuentaId: _cuenta),
+          const ComoRutaApilada(pantalla: PantallaRecargar(cuentaId: _cuenta)),
           dio,
           brillo,
           tam,
           escalaDeTexto: 1.0,
           pagosDePrueba: false,
         );
-        await t.pump();
+        await asentar(t);
         await t.enterText(find.byType(TextField).first, '150,00');
         await t.pump();
         await t.tap(find.widgetWithText(FilledButton, 'Recargar'));

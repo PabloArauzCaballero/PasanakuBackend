@@ -1,14 +1,7 @@
 import 'dart:async';
 
 import 'package:aportaya_cliente_nucleofinanciero/aportaya_cliente_nucleofinanciero.dart';
-import 'package:aportaya_diseno/atomos/boton.dart';
-import 'package:aportaya_diseno/atomos/boton_variante.dart';
-import 'package:aportaya_diseno/atomos/codigo_q_r.dart';
-import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
-import 'package:aportaya_diseno/atomos/monto.dart';
-import 'package:aportaya_diseno/atomos/tono.dart';
-import 'package:aportaya_diseno/moleculas/alerta.dart';
-import 'package:aportaya_diseno/organismos/estado_de_tramite.dart';
+import 'package:aportaya_diseno/moleculas/tarjeta.dart';
 import 'package:aportaya_diseno/organismos/estado_error.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
@@ -17,15 +10,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../dominio/cu10_pago_de_prueba.dart';
 import '../../proveedores/haptica.dart';
 import '../../proveedores/pagos_de_prueba.dart';
+import 'acciones_del_cobro.dart';
+import 'pasos_para_pagar.dart';
+import 'recarga_acreditada.dart';
 import 'saldo_de_la_recarga.dart';
+import 'tarjeta_del_qr.dart';
 import 'textos.dart';
 
-/// La orden de recarga con su QR dinámico: lo que la persona escanea desde su banco, cuánto
-/// se acredita y su saldo. Con un QR de PRUEBA (solo TEST) ofrece «Simular pago»; al
-/// acreditarse, el saldo cuenta del valor anterior al nuevo.
+/// La orden de recarga con su QR dinámico. Arriba, la tarjeta protagonista (el estado del pago,
+/// cuánto se acredita y el QR); al lado o debajo, cómo pagar, el saldo como dato secundario y la
+/// única acción del momento. Con un QR de PRUEBA (solo TEST) ofrece «Simular pago»; al
+/// acreditarse, la tarjeta confirma y el saldo cuenta del valor anterior al nuevo.
 ///
-/// El saldo va siempre en la misma posición y con la misma clave: así es el MISMO
-/// `MontoQueSube` antes y después del pago, y sube desde donde estaba en vez de rearmarse.
+/// El saldo va siempre en la misma columna y con la misma clave: así es el MISMO `MontoQueSube`
+/// antes y después del pago, y sube desde donde estaba en vez de rearmarse.
 class CobroDeRecarga extends ConsumerWidget {
   const CobroDeRecarga({
     super.key,
@@ -34,6 +32,13 @@ class CobroDeRecarga extends ConsumerWidget {
   });
   final SalidaRecarga orden;
   final String cuentaId;
+
+  /// Desde este ancho, la tarjeta y el resto van en dos columnas: en una tableta, una sola
+  /// columna estirada deja el QR flotando en el medio y los textos en renglones larguísimos.
+  static const anchoDeDosColumnas = Espacio.s7 * 14;
+
+  /// El ancho máximo de todo el contenido, para que en pantallas grandes no se desparrame.
+  static const anchoMaximo = Espacio.s7 * 20;
 
   void _pagar(WidgetRef ref) => ref
       .read(pagarRecargaDePruebaProvider.notifier)
@@ -53,107 +58,115 @@ class CobroDeRecarga extends ConsumerWidget {
     });
     final pago = ref.watch(pagarRecargaDePruebaProvider);
     final acreditada = pago.value;
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(vertical: Espacio.s4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (acreditada != null)
-            const EstadoDeTramite(
-              icono: IconosDeMarca.tramiteListo,
-              tono: Tono.ok,
-              titulo: TextosBilletera.recargaAcreditada,
-              detalle: TextosBilletera.recargaAcreditadaDetalle,
-              pasos: _pasos,
-              pasoActual: 3,
-            )
-          else
-            _Qr(orden: orden, dePrueba: dePrueba),
-          const SizedBox(height: Espacio.s5),
-          SaldoDeLaRecarga(
-            key: const ValueKey('saldo-de-la-recarga'),
-            cuentaId: cuentaId,
-            saldoDespues: acreditada?.saldoDespues,
-          ),
-          const SizedBox(height: Espacio.s5),
-          // Con error, el reintento ES simular el pago otra vez: una sola acción, no dos botones.
-          if (pago.hasError)
-            EstadoError(error: pago.error!, reintentar: () => _pagar(ref))
-          else if (dePrueba && acreditada == null)
-            Boton(
-              texto: TextosBilletera.simularPago,
-              variante: BotonVariante.primario,
-              expandido: true,
-              cargando: pago.isLoading,
-              onPressed: () => _pagar(ref),
-            ),
-        ],
-      ),
+    final principal = acreditada != null
+        ? RecargaAcreditada(orden: orden)
+        : TarjetaDelQr(orden: orden, dePrueba: dePrueba, fallo: pago.hasError);
+    final simulable = dePrueba && acreditada == null && !pago.hasError;
+    final hayAccion = AccionesDelCobro.hayAccion(
+      acreditada: acreditada != null,
+      simulable: simulable,
     );
-  }
-}
-
-const _pasos = [
-  TextosBilletera.pasoPedida,
-  TextosBilletera.pasoConfirmaElBanco,
-  TextosBilletera.pasoAcreditada,
-];
-
-/// El QR, lo que se acredita y, si es de prueba, el sello que lo dice.
-class _Qr extends StatelessWidget {
-  const _Qr({required this.orden, required this.dePrueba});
-  final SalidaRecarga orden;
-  final bool dePrueba;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = Tokens.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          TextosBilletera.pagaConElQr,
-          style: Tipo.titulo2.copyWith(color: t.text),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: Espacio.s2),
-        Text(
-          TextosBilletera.pagaConElQrDetalle,
-          style: Tipo.cuerpo.copyWith(color: t.text2),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: Espacio.s4),
-        Center(
-          child: CodigoQR(
-            contenido: orden.cobroQr!.contenido,
-            etiqueta: TextosBilletera.qrDeLaRecarga,
+    final accion = AccionesDelCobro(
+      acreditada: acreditada != null,
+      simulable: simulable,
+      pagando: pago.isLoading,
+      pagar: () => _pagar(ref),
+    );
+    return LayoutBuilder(
+      builder: (context, limites) {
+        final dosColumnas = limites.maxWidth >= anchoDeDosColumnas;
+        // Con error, el aviso es lo primero que se lee (arriba de todo en una columna, arriba de
+        // la columna de al lado en dos), y su botón es el reintento.
+        final aviso = pago.hasError
+            ? Tarjeta(
+                relleno: false,
+                child: EstadoError(
+                  error: pago.error!,
+                  reintentar: () => _pagar(ref),
+                ),
+              )
+            : null;
+        final secundario = Column(
+          key: const ValueKey('columna-secundaria'),
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (dosColumnas && aviso != null) ...[
+              aviso,
+              const SizedBox(height: Espacio.s5),
+            ],
+            if (acreditada == null) ...[
+              const PasosParaPagar(),
+              const SizedBox(height: Espacio.s5),
+            ],
+            SaldoDeLaRecarga(
+              key: const ValueKey('saldo-de-la-recarga'),
+              cuentaId: cuentaId,
+              saldoDespues: acreditada?.saldoDespues,
+            ),
+            if (acreditada == null && !dePrueba && !pago.hasError) ...[
+              const SizedBox(height: Espacio.s3),
+              Text(
+                TextosBilletera.recargaPendienteDetalle,
+                style: Tipo.cuerpoChico.copyWith(
+                  color: Tokens.of(context).text2,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+            // En dos columnas la acción cierra la columna; en una, va anclada abajo.
+            if (dosColumnas && hayAccion) ...[
+              const SizedBox(height: Espacio.s5),
+              accion,
+            ],
+          ],
+        );
+        final contenido = SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: Espacio.s4),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: anchoMaximo),
+              child: dosColumnas
+                  ? Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: principal),
+                        const SizedBox(width: Espacio.s5),
+                        Expanded(child: secundario),
+                      ],
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (aviso != null) ...[
+                          aviso,
+                          const SizedBox(height: Espacio.s5),
+                        ],
+                        principal,
+                        const SizedBox(height: Espacio.s5),
+                        secundario,
+                      ],
+                    ),
+            ),
           ),
-        ),
-        const SizedBox(height: Espacio.s4),
-        Text(
-          TextosBilletera.montoAAcreditar,
-          style: Tipo.etiqueta.copyWith(color: t.text2),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: Espacio.s1),
-        Center(
-          // Lo calcula el servidor (puede descontar el costo del proveedor): no se recalcula.
-          child: Monto(
-            monto: orden.acreditara.monto,
-            moneda: orden.acreditara.moneda.value,
-            etiqueta: TextosBilletera.montoAAcreditar,
-            estilo: Tipo.cifra.copyWith(color: t.text),
-          ),
-        ),
-        if (dePrueba) ...[
-          const SizedBox(height: Espacio.s4),
-          const Alerta(
-            tono: Tono.aviso,
-            titulo: TextosBilletera.qrDePrueba,
-            detalle: TextosBilletera.qrDePruebaDetalle,
-          ),
-        ],
-      ],
+        );
+        // La misma forma que el botón «Recargar» del paso anterior: fuera del scroll, abajo. El
+        // contenido queda siempre en el mismo lugar del árbol, haya pie o no, para que el saldo
+        // no se rearme al pasar de un estado a otro.
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(child: contenido),
+            if (!dosColumnas && hayAccion)
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: Espacio.s3,
+                  bottom: Espacio.s4,
+                ),
+                child: accion,
+              ),
+          ],
+        );
+      },
     );
   }
 }

@@ -5,11 +5,12 @@ import 'package:flutter_test/flutter_test.dart';
 import '../comun.dart';
 import 'ayudas_de_captura.dart';
 
-/// Evidencia visual del QR dinámico de la recarga (2026-10-30): pantalla completa, por ancho y tema, en los tres
-/// estados — QR de prueba esperando el pago, recarga acreditada (saldo subido) y error al simular el pago.
+/// Evidencia visual del QR dinámico de la recarga (2026-10-30, rediseñada el 2026-11-24): pantalla completa, por
+/// ancho y tema, en los tres estados — QR de prueba esperando el pago, recarga acreditada (saldo subido) y error al
+/// simular el pago. La pantalla se apila sobre otra, como llega desde la billetera, para que se vea su botón de volver.
 /// Se generan con `--update-goldens`; no son goldens de comparación.
 const _salida =
-    '../../../../docs/trabajo/2026-10-30-qr-recarga-dinamico/evidencia/capturas';
+    '../../../../docs/trabajo/2026-11-23-continuar-traspaso/evidencia/movil-rediseno';
 const _cuenta = '11111111-1111-4111-8111-111111111111';
 const _orden = '9b3e8dff-d7e2-4c41-8cdc-b1be7320ca40';
 
@@ -64,13 +65,15 @@ void main() {
 
           await montarParaCaptura(
             t,
-            const PantallaRecargar(cuentaId: _cuenta),
+            const ComoRutaApilada(
+              pantalla: PantallaRecargar(cuentaId: _cuenta),
+            ),
             dio,
             brillo,
             tam,
             escalaDeTexto: 1.0,
           );
-          await t.pump();
+          await asentar(t);
           await t.enterText(find.byType(TextField).first, '150,00');
           await t.pump();
           await t.tap(find.widgetWithText(FilledButton, 'Recargar'));
@@ -80,8 +83,8 @@ void main() {
             await t.tap(find.text('Simular pago'));
             await asentar(t);
             if (estado == 'error') {
-              await t.ensureVisible(find.text('Volver a intentar'));
-              await t.pumpAndSettle();
+              // Sin desplazar: el aviso queda arriba de todo, donde lo ve quien tocó el botón.
+              expect(find.text('Volver a intentar'), findsOneWidget);
             } else {
               await t.scrollUntilVisible(
                 find.text('Tu recarga se acreditó.'),
