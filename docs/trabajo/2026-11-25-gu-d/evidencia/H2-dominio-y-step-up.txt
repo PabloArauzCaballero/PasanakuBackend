@@ -1,0 +1,4 @@
+$ yarn ng test --include='src/app/rutas/sistemas/dominio/gobierno-de-accesos.spec.ts' --include='src/app/rutas/sistemas/usuarios-internos/dialogo-de-acto.spec.ts'
+ gobierno-de-accesos.spec.ts  11 passed  (correcto/límite/inválido del doble del contrato de B #516: asignar, revocar, baja, cursor, step-up, errores AP-CU08-xx por campo)
+ dialogo-de-acto.spec.ts       5 passed  (efecto, motivo+código, doble clic, código malo en su campo, AP-CU08-06/11, evidencia conservada si no hay respuesta)
+Verificado SOLO contra el doble del contrato (HttpTestingController); #516 sin mergear.

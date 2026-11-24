@@ -9,7 +9,7 @@
 - La sección está hoy dentro de «Sistemas» (`menu.ts`, grupo «Personal y accesos» con 4 pantallas) y la guardia `soloRolesDeSistemas` (`guardia-rol-sistemas.ts`) solo admite roles `PLATAFORMA/SEGURIDAD` o códigos `ADMIN_PLATAFORMA/RESPONSABLE_SEGURIDAD` ⇒ `INTERNAL_IDENTITY_ADMIN` rebota, y `RESPONSABLE_SEGURIDAD` entra (por `SEGURIDAD_*`) pero el servidor responde 403 (pide `USUARIOS_INTERNOS_LEER`/`ACCESOS_ADMINISTRAR`).
 - Permisos reales por endpoint (`UsuariosController`, `RolesController`, `PermisosController`, y `RutasDeAccesos` de B): leer = `USUARIOS_INTERNOS_LEER`|`ACCESOS_ADMINISTRAR` (roles/permisos: `ROLES_INTERNOS_LEER`/`PERMISOS_INTERNOS_LEER`|`ACCESOS_ADMINISTRAR`); mutar = `USUARIOS_INTERNOS_GESTIONAR`|`ACCESOS_ADMINISTRAR`; informe = `ACCESOS_ADMINISTRAR`|`USUARIOS_INTERNOS_LEER`.
 - Step-up ya existe en identidad (`POST /sesiones/desafios` → `POST /sesiones/desafios/{id}/verificacion` con `factor{tipo:TOTP,valor}` → `{evidencia}`); el backoffice no lo usa todavía.
-- El cliente generado `clientes/angular/identidad` sale de `identidad.yaml` de `dev`, que **no** tiene las operaciones nuevas de B. Para no depender de B: tipos y llamadas HTTP de las operaciones nuevas viven en `rutas/sistemas/dominio/accesos.ts` (doble declarado del contrato de #516); al entrar #516 se migra a los tipos generados.
+- El cliente generado `clientes/angular/identidad` sale de `identidad.yaml` de `dev`, que **no** tiene las operaciones nuevas de B. Para no depender de B: tipos y llamadas HTTP de las operaciones nuevas viven en `rutas/sistemas/dominio/gobierno-de-accesos.ts` (doble declarado del contrato de #516); al entrar #516 se migra a los tipos generados.
 - `UsuarioInternoDetalle` (B) trae `roles: string[]`, **sin `asignacionId`**; la revocación individual solo es posible desde el informe (`FilaDeAcceso.asignacionId`).
 
 ## Alcance
@@ -34,10 +34,10 @@
 **Estado:** TODO
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H2.S1.M1 | `dominio/accesos.ts`: tipos y llamadas (asignar, revocar, baja, informe, roles asignables) + `evidenciaMfa`/`motivo` en alta/actualizar/desbloqueo | el cuerpo HTTP cumple el contrato de B | spec con `HttpTestingController` | TODO |
-| H2.S1.M2 | `dominio/paso-de-seguridad.ts`: abrir desafío + verificar TOTP → evidencia | 200 → evidencia; 422 AP-CU04-04 → error de campo | spec 3 niveles | TODO |
-| H2.S1.M3 | Mapa de errores AP-CU08-01…12 y AP-CU04-04/06 a mensajes accionables | nunca el crudo | spec | TODO |
-| H2.S1.M4 | Componente `ap-campo-segundo-factor` (código 6 dígitos, etiqueta, error) reutilizable | a11y: etiqueta, `aria-describedby`, `inputmode` | spec + a11y | TODO |
+| H2.S1.M1 | `dominio/accesos.ts`: tipos y llamadas (asignar, revocar, baja, informe, roles asignables) + `evidenciaMfa`/`motivo` en alta/actualizar/desbloqueo | el cuerpo HTTP cumple el contrato de B | spec con `HttpTestingController` | HECHO (evidencia/H2-dominio-y-step-up.txt) |
+| H2.S1.M2 | `dominio/paso-de-seguridad.ts`: abrir desafío + verificar TOTP → evidencia | 200 → evidencia; 422 AP-CU04-04 → error de campo | spec 3 niveles | HECHO (evidencia/H2-dominio-y-step-up.txt) |
+| H2.S1.M3 | Mapa de errores AP-CU08-01…12 y AP-CU04-04/06 a mensajes accionables | nunca el crudo | spec | HECHO (evidencia/H2-dominio-y-step-up.txt) |
+| H2.S1.M4 | Se reusa `ap-campo-otp` del kit (no se crea componente nuevo, regla 95.1) dentro de `ap-dialogo-de-acto` (motivo + código + error por campo + sin doble envío) | a11y: etiqueta, error asociado | `dialogo-de-acto.spec` | HECHO (a11y axe en H3) |
 
 ## H3 — Usuarios internos: listado por cursor y actos de gobierno
 **CA:** Dado el listado, cuando hay >50 usuarios, entonces «Cargar más» pide la página siguiente por cursor; suspender/reactivar/desbloquear/alta/baja piden motivo + código, y el diálogo dice qué pasa (suspender revoca todos los roles; reactivar vuelve sin roles; baja = `BAJA_LABORAL` irreversible); bloqueo indefinido se ve como «Bloqueado sin fecha de fin» con su motivo.
