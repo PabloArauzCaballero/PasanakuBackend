@@ -17,7 +17,7 @@
 ## H1 — CU borrador de gobierno de participantes listo para aprobación
 **CA:** Dado el CU-134 en la bóveda, cuando Pablo lo lee, entonces encuentra causales cerradas, expediente, notificación, plazo de descargo, decisión motivada, FIRME, apelación por otra persona, efectos sobre grupos/dinero, permisos y segregación, datos mínimos con rastro de lectura, y cada regla sin fuente marcada PROPUESTA con opciones.
 **DoD:** `verificar_boveda.py` → `TODO OK`; `verificar_criterios.py` → exit 0 (CU-134 pendiente); `verificar_seguridad.py` y `verificar_carriles.py` exit 0; PR a `dev` con CI en verde.
-**Estado:** EN CURSO — falta H1.S3.M3
+**Estado:** HECHO
 
 ### H1.S1 — Relevamiento de lo existente
 **CA:** Dado el pedido, cuando se escribe el CU, entonces cada pieza existente se referencia y no se duplica.
@@ -42,13 +42,13 @@
 ### H1.S3 — Gates y entrega
 **CA:** Dado el PR, cuando corre la CI, entonces queda en verde.
 **DoD:** salidas pegadas en `evidencia/` y checks del PR en verde.
-**Estado:** EN CURSO — falta H1.S3.M3 (CI del PR)
+**Estado:** HECHO
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
 | H1.S3.M1 | Correr los verificadores de bóveda locales del workflow `boveda-y-esquema.yml` | Todos exit 0 | `verificar_seguridad.py; verificar_boveda.py; verificar_carriles.py; verificar_criterios.py` → exit 0 | HECHO |
 | H1.S3.M2 | REPORTE.md con preguntas para Pablo | Tres secciones + preguntas | `python3 .claude/hooks/report_gate.py --self-test` y lectura del archivo | HECHO |
-| H1.S3.M3 | Commit, push y PR a `dev` con CI en verde | PR abierto, checks verdes | estado de checks del PR | A MEDIAS — PR #514: falló «Los cinco corredores» por 429 de Maven Central (EXTERNAL); re-run lanzado |
+| H1.S3.M3 | Commit, push y PR a `dev` con CI en verde | PR abierto, checks verdes | estado de checks del PR | HECHO |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |

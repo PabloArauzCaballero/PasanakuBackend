@@ -1,9 +1,9 @@
 # Reporte — Lote G · CU de gobierno de participantes (borrador para aprobación)
 
-> **AVANCE: 6 / 7 — 85,7 %.** Falta H1.S3.M3: CI del PR en verde (se actualiza al cerrar).
+> **AVANCE: 7 / 7 — 100 %.** PR #514 mergeado a `dev` con la CI completa en verde. El CU-134 sigue siendo BORRADOR pendiente de aprobación de Pablo.
 
 - Fecha: 2026-11-24 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/gu-g-cu-participantes` → PR a `dev`
-- Peldaño de evidencia alcanzado: `RUNS` sobre la bóveda (los verificadores corren en exit 0 con el CU nuevo). Es un documento: no hay comportamiento que ejercitar; el CU queda **BORRADOR** hasta que Pablo lo apruebe (decisión P-11).
+- Peldaño de evidencia alcanzado: `RUNS` sobre la bóveda, en local y en la CI del PR #514 (los verificadores corren en exit 0 con el CU nuevo). Es un documento: no hay comportamiento que ejercitar; el CU queda **BORRADOR** hasta que Pablo lo apruebe (decisión P-11).
 
 ## Completado
 | ID | Qué se logró | Comando | Resultado |
@@ -14,13 +14,10 @@
 | H1.S2.M3 | Cifras «112 casos de uso» → 113 en 6 archivos de `planes/` | `python3 scripts/verificar_boveda.py` | PASS (`ninguna cifra desfasada`) |
 | H1.S3.M1 | Verificadores de los workflows en local | ver «Evidencia» | PASS: seguridad, bóveda, carriles, criterios, inventario de endpoints, contratos y límites, maqueta, flujos, pruebas web, catálogo de datos → exit 0 |
 | H1.S3.M2 | Este reporte con las preguntas para Pablo | `python3 .claude/hooks/report_gate.py --self-test` | `14 PASS, 0 FAIL` |
+| H1.S3.M3 | PR #514 a `dev` con la CI en verde; mergeado el 2026-11-24 | checks del head `af1db1d` (runs 45459193470 y 45459192974) | PASS — ver «CI del PR #514» |
 
 ## A medias
-### H1.S3.M3 — PR a `dev` con CI en verde
-- Qué anda: todos los verificadores que corre la CI sobre la bóveda pasan en local (ver Evidencia).
-- Qué no anda: en el PR #514 pasaron «Bóveda, seguridad, carriles y despliegue coherentes», «La boveda y el esquema no divergen», «Esquema, semillas y prueba de humo sobre PostgreSQL real» y «Base efimera, semillas y permisos»; falló «Los cinco corredores» (job 138542891268) en `jacocoTestReport`: `Could not GET 'https://repo.maven.apache.org/maven2/org/jacoco/org.jacoco.ant/0.8.14/org.jacoco.ant-0.8.14.pom'. Received status code 429 from server: Too Many Requests`. Clasificación: `EXTERNAL` (límite de Maven Central); el diff no toca Java ni Gradle.
-- Qué falta exactamente: que termine el único re-run de los jobs fallidos (run 45419868730, lanzado 2026-11-24 18:23 UTC) y quede en verde. Si vuelve a fallar con 429, se deja un comentario en el PR y queda `BLOQUEADO` por `EXTERNAL`, sin más re-runs.
-- Dónde quedó: rama `claude/gu-g-cu-participantes`, PR https://github.com/PabloArauzCaballero/PasanakuBackend/pull/514 contra `dev`; solo documentos y el catálogo de datos regenerado.
+ninguna
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
@@ -89,14 +86,29 @@ $ python3 scripts/verificar_pruebas_web.py              → exit=0
 $ python3 -I scripts/test_catalogo_de_datos.py          → OK
 $ python3 -I scripts/catalogo_de_datos.py --escribir    → 404 tablas; regenera docs/catalogo-de-datos.md y catalogo-datos.json (cambio commiteado: CU-134 nombra tablas)
 ```
+### CI del PR #514 (head `af1db1d`)
+```text
+success  Bóveda, seguridad, carriles y despliegue coherentes   (run 45459192974)
+success  Esquema, semillas y prueba de humo sobre PostgreSQL real (run 45459192974)
+success  Detectar impacto del cambio · La boveda y el esquema no divergen · Base efimera, semillas y permisos
+success  Formato, reglas propias y compilacion · Dependencias, secretos e imagen
+success  bootJar y docker build, multietapa y sin root · Los cinco corredores · Trivy
+skipped  Flutter/Angular, goldens, iOS, OSV, contratos generados, punta a punta (no aplican a un cambio de docs)
+```
+Historia: en el primer head (`9aef3a2`) «Los cinco corredores» falló porque Maven Central devolvió
+`429 Too Many Requests` al bajar `org.jacoco.ant:0.8.14` (clase `EXTERNAL`). La corrida del head
+`af1db1d` fue cancelada por la concurrencia `ci-<ref>` con `cancel-in-progress` (un relanzamiento
+sobre la misma rama la pisó); se relanzó una vez y terminó en verde.
+
 Archivos completos: [evidencia/](./evidencia/).
 
 ## No cubierto
 - El CU no se implementó ni se ejecutó contra nada: es especificación. Ninguna regla de él está verificada en runtime.
 - No se dieron de alta en `docs/Restricciones.md` las restricciones nuevas ni en el modelo las entidades `expediente_medida_cuenta` / `apelacion_medida_cuenta`, los permisos `PARTICIPANTES_*` ni los valores de CHECK nuevos: quedan propuestos dentro del CU.
-- No se corrió la CI completa (Gradle, Flutter, Postgres): el cambio no toca código; se espera la CI del PR.
+- Los jobs de Flutter, iOS y punta a punta se saltaron en la CI por no aplicar a un cambio de documentación.
 
 ## Desvíos del plan
+- El PR #514 se mergeó antes de que este reporte registrara la CI verde; este estado final entra por un PR aparte, desde la misma rama.
 - Se agregaron al alcance (anotado en el PLAN): la línea «Ver también» recíproca en 7 CU vecinos y el catálogo de datos regenerado, porque los verificadores de la CI los exigen.
 - `planes/17 …` tenía además «los 112 CU» en la línea 577; también se actualizó.
 
