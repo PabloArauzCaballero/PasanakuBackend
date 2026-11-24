@@ -14,6 +14,7 @@ import 'package:aportaya_movil/dominio/cliente.dart';
 import 'package:aportaya_movil/dominio/puertos/almacen_seguro.dart';
 import 'package:aportaya_movil/dominio/puertos/haptica.dart';
 import 'package:aportaya_movil/proveedores/haptica.dart';
+import 'package:aportaya_movil/proveedores/pagos_de_prueba.dart';
 import 'package:aportaya_movil/proveedores/sesion.dart';
 
 /// El título de una pantalla con `PantallaConCabecera` se dibuja dos veces (el grande
@@ -144,6 +145,8 @@ Widget conApp(
   Brightness brillo = Brightness.light,
   bool movimientoReducido = false,
   Haptica? haptica,
+  // Las pruebas representan la build de TEST, que enciende PAGOS_DE_PRUEBA.
+  bool pagosDePrueba = true,
   List<Override> extra = const [],
 }) => ProviderScope(
   // Igual que en main.dart: sin reintentos automáticos.
@@ -152,6 +155,7 @@ Widget conApp(
     almacenSeguroProvider.overrideWithValue(AlmacenEnMemoria()),
     dioProvider.overrideWithValue(dio),
     if (haptica != null) hapticaProvider.overrideWithValue(haptica),
+    pagosDePruebaProvider.overrideWithValue(pagosDePrueba),
     ...extra,
   ],
   child: MaterialApp(

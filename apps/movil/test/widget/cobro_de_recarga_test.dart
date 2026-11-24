@@ -64,6 +64,7 @@ Future<({Dio dio, _Haptica haptica, List<String?> claves})> _montar(
   SalidaRecarga? conOrden,
   bool movimientoReducido = false,
   int estadoDelPago = 200,
+  bool pagosDePrueba = true,
 }) async {
   final (:dio, :adaptador) = dioSimulado();
   final claves = <String?>[];
@@ -97,6 +98,7 @@ Future<({Dio dio, _Haptica haptica, List<String?> claves})> _montar(
       dio: dio,
       haptica: haptica,
       movimientoReducido: movimientoReducido,
+      pagosDePrueba: pagosDePrueba,
     ),
   );
   await asentar(tester);
@@ -183,6 +185,20 @@ void main() {
         hasLength(1),
         reason: 'misma clave de idempotencia',
       );
+    },
+  );
+
+  testWidgets(
+    'FLUJO-QR-001: una build sin PAGOS_DE_PRUEBA no ofrece simular aunque el QR sea de PRUEBA',
+    (tester) async {
+      await _montar(tester, pagosDePrueba: false);
+
+      expect(
+        find.bySemanticsLabel('Código QR para pagar tu recarga'),
+        findsOneWidget,
+      );
+      expect(find.text('Simular pago'), findsNothing);
+      expect(find.text('QR de prueba'), findsNothing);
     },
   );
 

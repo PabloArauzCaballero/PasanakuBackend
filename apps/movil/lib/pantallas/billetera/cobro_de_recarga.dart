@@ -16,6 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../dominio/cu10_pago_de_prueba.dart';
 import '../../proveedores/haptica.dart';
+import '../../proveedores/pagos_de_prueba.dart';
 import 'saldo_de_la_recarga.dart';
 import 'textos.dart';
 
@@ -38,11 +39,13 @@ class CobroDeRecarga extends ConsumerWidget {
       .read(pagarRecargaDePruebaProvider.notifier)
       .pagar(cuentaId: cuentaId, ordenId: orden.ordenRecargaId);
 
-  bool get _dePrueba =>
+  bool _dePrueba(WidgetRef ref) =>
+      ref.watch(pagosDePruebaProvider) &&
       orden.cobroQr?.origen == CobroQrRecargaOrigenEnum.PRUEBA;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final dePrueba = _dePrueba(ref);
     ref.listen(pagarRecargaDePruebaProvider, (anterior, siguiente) {
       if (anterior?.value == null && siguiente.value != null) {
         unawaited(ref.read(hapticaProvider).exito().catchError((Object _) {}));
@@ -65,7 +68,7 @@ class CobroDeRecarga extends ConsumerWidget {
               pasoActual: 3,
             )
           else
-            _Qr(orden: orden, dePrueba: _dePrueba),
+            _Qr(orden: orden, dePrueba: dePrueba),
           const SizedBox(height: Espacio.s5),
           SaldoDeLaRecarga(
             key: const ValueKey('saldo-de-la-recarga'),
@@ -76,7 +79,7 @@ class CobroDeRecarga extends ConsumerWidget {
           // Con error, el reintento ES simular el pago otra vez: una sola acción, no dos botones.
           if (pago.hasError)
             EstadoError(error: pago.error!, reintentar: () => _pagar(ref))
-          else if (_dePrueba && acreditada == null)
+          else if (dePrueba && acreditada == null)
             Boton(
               texto: TextosBilletera.simularPago,
               variante: BotonVariante.primario,
