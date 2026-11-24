@@ -50,7 +50,7 @@
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
 | H2.S1.M1 | Revisar diff `test..dev` y CI de `dev` | sin cambios inesperados, CI verde | `git diff --stat origin/test origin/dev` + check-runs | HECHO — 78 archivos, +1851/−402, sólo #499–#505; sin M08/M6 |
-| H2.S1.M2 | Promover `dev → test` | `origin/test` contiene `dev` | `git branch -r --contains` | EN CURSO — #511 `dev → test` (punta cb651d9f, sin M08/M6), CI en curso |
+| H2.S1.M2 | Promover `dev → test` | `origin/test` contiene `dev` | `git branch -r --contains` | HECHO — #511 `dev → test` mergeada (d75ac069): 28 success / 7 skipped / 1 failure preexistente (Release iOS, deep_link_test 02, igual que en dev antes de este trabajo); sin M08/M6 |
 | H2.S1.M3 | Health en TEST | `estado` responde OK | salida provista por Pablo | TODO |
 
 ## H3 — App móvil (apps/movil): corregir los defectos abiertos
@@ -121,7 +121,7 @@ protegidas, entonces ningún defecto abierto del inventario se reproduce y la su
 ## H5 — Contrato: datos que las pantallas rediseñadas declaran faltantes (pedido de Pablo, 2026-11-24)
 **CA:** Dado un caso de cumplimiento o un parámetro con versiones, cuando un operador abre su pantalla en el backoffice, entonces ve la alerta de origen y el titular (enmascarado) del caso, y quién propuso y quién aprobó cada versión del parámetro, servidos por el contrato real (cambio aditivo y compatible) y no inventados en el cliente.
 **DoD:** OpenAPI + implementación + tests del servicio en CI verde · clientes regenerados · pantallas y E2E actualizados · autorización negativa del endpoint intacta · sin PII en claro · PR a `dev` con CI verde y merge.
-**Estado:** EN CURSO
+**Estado:** HECHO
 - Rama: `claude/contrato-caso-parametros-20261124`, encima de `claude/visuales-backoffice-20261124` (#507).
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
@@ -130,4 +130,4 @@ protegidas, entonces ningún defecto abierto del inventario se reproduce y la su
 | H5.S1.M2 | CU-44: el contrato del caso publica alerta de origen y titular enmascarado | respuesta incluye ambos, titular nunca en claro | test web de cumplimiento en CI + validate | HECHO — 424db313 + e6d1ab11 (criterio en la bóveda); CI: `servicios:cumplimiento:test` y verificar_criterios en verde |
 | H5.S2.M1 | Backoffice muestra esos datos en lugar del aviso de faltante | specs + E2E caso y parámetros verdes con el simulado regenerado | `yarn playwright test e2e/caso-de-cumplimiento.e2e.ts e2e/visual-parametros-financieros.e2e.ts` | HECHO — b2d6f20c; typecheck/lint OK, test:front 1361, a11y 98, E2E caso 19/19 y parámetros 12/12; capturas revisadas por la sesión principal |
 | H5.S3.M1 | PR de H5 a `dev` con CI verde y merge | `origin/dev` contiene la rama | check-runs + merge | HECHO — #510 → dev (cb651d9f); CI 12 success / 6 skipped |
-| H6.S1.M1 | Ninguna PR abierta en PasanakuBackend ni PasanakuFrontend | `pulls?state=open` vacío en ambos | `gh api repos/.../pulls?state=open` → [] | TODO |
+| H6.S1.M1 | Ninguna PR abierta en PasanakuBackend ni PasanakuFrontend | `pulls?state=open` vacío en ambos | `gh api repos/.../pulls?state=open` → [] | HECHO — `pulls?state=open` → 0 en PasanakuBackend y 0 en PasanakuFrontend (2026-11-24) |
