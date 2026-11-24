@@ -61,6 +61,57 @@
 | H2.S1.M2 | Fila del índice y nota del rango sin «borrador» | Índice dice «Aprobado por Pablo el 2026-11-24» | `grep -c "Aprobado por Pablo el 2026-11-24\|fue aprobado por Pablo" _CasosDeUso.md` → 2 | HECHO |
 | H2.S1.M3 | PR a `dev` con CI en verde | PR abierto y checks verdes | checks del PR | EN CURSO |
 
+## H3 — Implementación de CU-134 (Ola 3)
+**CA:** Dado un operador con permiso, cuando busca un participante, abre su ficha, propone una medida, el afectado se descarga, otra persona decide y una tercera resuelve la apelación, entonces cada paso queda en la base con rastro, plazos guardados en días hábiles, segregación verificada en la base, y la entrega de quien tiene medida vigente queda retenida (contra un doble de `entregas` si no expone el contrato).
+**DoD:** DDL regenerado sin deriva; `./gradlew :servicios:identidad:test` en verde con pruebas contra Postgres real; `verificar_boveda.py`, `verificar_criterios.py` (CU-134 implementado: escenarios → pruebas), `inventario_endpoints.py --check`, `verificar_contratos_limites.py` en 0; backoffice compila y sus specs pasan; capturas de las pantallas; PR a `dev` con CI verde.
+**Estado:** EN CURSO
+**Desvío registrado:** D-3 aprobó guardar los plazos en `politica_sancion` (esquema `garantia`); la regla 98.1 prohíbe que `identidad` lea esa base. Se guardan en una política propia de `identidad` (`politica_medida_cuenta`), con los mismos valores, versionada y editable sin código. Así se resuelve también A-2: la prescripción queda en meses y la duración máxima en días, cada una en su columna.
+
+### H3.S1 — Modelo y esquema
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H3.S1.M1 | Tablas nuevas en `.puml` + fichas: `politica_medida_cuenta`, `expediente_medida_cuenta`, `evidencia_medida_cuenta` (append-only), `historial_estado_medida_cuenta` (append-only), `apelacion_medida_cuenta` | DDL generado con las 5 tablas | `python3 scripts/generar_ddl.py` exit 0 y `ls sql/10_tablas/01_identidad_usuarios/` las lista | TODO |
+| H3.S1.M2 | CHECK ampliados: `bloqueo_cuenta.motivo` + `CUENTA_COMPROMETIDA`; `registro_acceso_datos.tipo_dato` + `FICHA_PARTICIPANTE`, `CORREO` | ALTER emitido para bases existentes | `grep CUENTA_COMPROMETIDA sql -r` y `grep FICHA_PARTICIPANTE sql -r` | TODO |
+| H3.S1.M3 | Restricciones R-SEG nuevas (segregación por trigger, un expediente abierto por causal, una apelación, evidencia inmutable) en `Restricciones.md` | Verificador en verde | `verificar_boveda.py` → `TODO OK` | TODO |
+| H3.S1.M4 | Semillas: permisos `PARTICIPANTES_*` + roles; política de plataforma D-3, idempotente | 2ª corrida sin cambios | `psql -f sql/aplicar.sql && psql -f sql/60_semillas/sembrar.sql` dos veces, conteos iguales | TODO |
+| H3.S1.M5 | Regeneración de derivados (bóveda, metadata, catálogo) y deriva en cero | Sin diferencias tras regenerar | `generar_ddl`, `generar_semillas`, `catalogo_de_datos --escribir`, `git diff --exit-code sql/` tras segunda corrida | TODO |
+
+### H3.S2 — Contrato `identidad.yaml` (tag Participantes, solo operaciones nuevas)
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H3.S2.M1 | Operaciones y esquemas de búsqueda, ficha, revelación, medida, descargo, decisión, apelación y resolución, con `AP-CU134-01..11` | Contrato válido y con límites | `verificar_contratos_limites.py` exit 0 | TODO |
+
+### H3.S3 — Backend `identidad`
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H3.S3.M1 | Directorio, ficha enmascarada y revelación con `registro_acceso_datos` | Escenarios gherkin de lectura en verde | `./gradlew :servicios:identidad:test --tests 'CU134*'` | TODO |
+| H3.S3.M2 | Proponer medida (cautelar, idempotencia, sesiones revocadas, notificación por outbox) | Escenarios de propuesta en verde | ídem | TODO |
+| H3.S3.M3 | Descargo, decisión por otra persona y firmeza | Escenarios de decisión en verde | ídem | TODO |
+| H3.S3.M4 | Apelación por una tercera, resolución a favor por vencimiento, prescripción y reversión (trabajo diario) | Escenarios de apelación en verde | ídem | TODO |
+| H3.S3.M5 | Consulta interna «¿tiene medida vigente?» para `entregas` | Contrato de servicio a servicio probado | ídem | TODO |
+
+### H3.S4 — Entrega retenida (D-11) en `entregas`
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H3.S4.M1 | Contrato mínimo y doble en tres niveles (correcto, límite, inválido/caída) de la consulta a `identidad` | Pruebas del doble en verde | `./gradlew :servicios:entregas:test --tests '*MedidaVigente*'` | TODO |
+| H3.S4.M2 | Retener la entrega con medida vigente y liberarla al levantarse, con idempotencia y evidencia de la regla 91.6 | Duplicado sin doble efecto | ídem + evidencia 91.6 | TODO |
+
+### H3.S5 — Modo restringido del suspendido (D-6)
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H3.S5.M1 | `SUSPENDIDO` entra con alcance restringido (ver medida, descargo, apelación, pagar, reclamar) | Escenario de CU-04 ajustado en verde | `./gradlew :servicios:identidad:test --tests 'CU04*'` | TODO |
+
+### H3.S6 — Backoffice
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H3.S6.M1 | Entrada «Participantes» (coordinada con lote D) + directorio con cuatro estados | Specs en verde | specs del backoffice | TODO |
+| H3.S6.M2 | Ficha enmascarada con «Revelar» y expediente con línea de tiempo y acciones por permiso | Specs en verde + capturas en 3 viewports y 2 temas | specs + `evidencia/` | TODO |
+
+### H3.S7 — Regresión y gates
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H3.S7.M1 | Regresión de `identidad` y `entregas`, verificadores, PR con CI verde | Todo en 0 | salidas pegadas | TODO |
+
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
 |---|---|---|
