@@ -39,6 +39,13 @@ class CU08GobiernoTest extends BaseDeGobiernoCU08 {
                             "SELECT payload->>'motivo' FROM identidad.evento_dominio WHERE agregado_id = ?",
                             r.asignacionId()))
                     .isEqualTo("Cobertura de funciones aprobada");
+            assertThat(columna(
+                            """
+                            SELECT payload->>'actorId' || '|' || (payload->>'actorRol') || '|' || (payload->>'origen')
+                              FROM identidad.evento_dominio WHERE agregado_id = ?
+                            """,
+                            r.asignacionId()))
+                    .isEqualTo(administrador + "|BACKOFFICE|PANEL_ADMIN");
             String destinatarios = (String) columna(
                     """
                     SELECT payload->>'destinatarios' FROM identidad.evento_dominio

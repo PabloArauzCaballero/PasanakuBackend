@@ -7612,6 +7612,24 @@
                   "value": "busqueda-de-prueba",
                   "description": "",
                   "disabled": false
+                },
+                {
+                  "key": "limite",
+                  "value": "1",
+                  "description": "",
+                  "disabled": false
+                },
+                {
+                  "key": "antesDe",
+                  "value": "{{momento_ahora}}",
+                  "description": "",
+                  "disabled": false
+                },
+                {
+                  "key": "antesDeId",
+                  "value": "{{antesDeId}}",
+                  "description": "",
+                  "disabled": false
                 }
               ]
             }
@@ -7710,6 +7728,24 @@
                   "value": "busqueda-de-prueba",
                   "description": "",
                   "disabled": false
+                },
+                {
+                  "key": "limite",
+                  "value": "1",
+                  "description": "",
+                  "disabled": false
+                },
+                {
+                  "key": "antesDe",
+                  "value": "{{momento_ahora}}",
+                  "description": "",
+                  "disabled": false
+                },
+                {
+                  "key": "antesDeId",
+                  "value": "{{antesDeId}}",
+                  "description": "",
+                  "disabled": false
                 }
               ]
             }
@@ -7771,6 +7807,24 @@
                 {
                   "key": "busqueda",
                   "value": "busqueda-de-prueba",
+                  "description": "",
+                  "disabled": false
+                },
+                {
+                  "key": "limite",
+                  "value": "1",
+                  "description": "",
+                  "disabled": false
+                },
+                {
+                  "key": "antesDe",
+                  "value": "{{momento_ahora}}",
+                  "description": "",
+                  "disabled": false
+                },
+                {
+                  "key": "antesDeId",
+                  "value": "{{antesDeId}}",
                   "description": "",
                   "disabled": false
                 }
@@ -10741,7 +10795,15 @@
               "path": [
                 "roles"
               ],
-              "variable": []
+              "variable": [],
+              "query": [
+                {
+                  "key": "asignablesAPersonalInterno",
+                  "value": "True",
+                  "description": "",
+                  "disabled": false
+                }
+              ]
             }
           },
           "response": [],
@@ -10819,7 +10881,15 @@
               "path": [
                 "roles"
               ],
-              "variable": []
+              "variable": [],
+              "query": [
+                {
+                  "key": "asignablesAPersonalInterno",
+                  "value": "True",
+                  "description": "",
+                  "disabled": false
+                }
+              ]
             }
           },
           "response": [],
@@ -10862,7 +10932,15 @@
               "path": [
                 "roles"
               ],
-              "variable": []
+              "variable": [],
+              "query": [
+                {
+                  "key": "asignablesAPersonalInterno",
+                  "value": "True",
+                  "description": "",
+                  "disabled": false
+                }
+              ]
             }
           },
           "response": [],
@@ -11101,6 +11179,10 @@
     },
     {
       "key": "ambitoId",
+      "value": ""
+    },
+    {
+      "key": "antesDeId",
       "value": ""
     },
     {

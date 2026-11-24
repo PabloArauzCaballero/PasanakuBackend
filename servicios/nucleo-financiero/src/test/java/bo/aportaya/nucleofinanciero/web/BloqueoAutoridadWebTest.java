@@ -59,7 +59,10 @@ class BloqueoAutoridadWebTest extends BaseDeOperacionesWeb {
         when(cu17.levantar(eq(BLOQUEO), any()))
                 .thenReturn(new CU17BloquearPorAutoridad.SalidaLevantamiento(BLOQUEO, "LEVANTADO"));
         levantar(Sesiones.enSesion(
-                        Sesiones.OTRO_USUARIO, UUID.randomUUID(), "OFICIAL_CUMPLIMIENTO", "BLOQUEO_AUTORIDAD_LEVANTAR"))
+                        Sesiones.OTRO_USUARIO,
+                        UUID.randomUUID(),
+                        "SUPERVISOR_CUMPLIMIENTO",
+                        "BLOQUEO_AUTORIDAD_LEVANTAR"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.bloqueoId").value(BLOQUEO.toString()))
                 .andExpect(jsonPath("$.estado").value("LEVANTADO"));
@@ -74,7 +77,7 @@ class BloqueoAutoridadWebTest extends BaseDeOperacionesWeb {
                         CodigoError.de(17, 4),
                         "Quien registro el bloqueo no puede levantarlo: lo levanta otra persona."));
         levantar(Sesiones.enSesion(
-                        Sesiones.USUARIO, UUID.randomUUID(), "OFICIAL_CUMPLIMIENTO", "BLOQUEO_AUTORIDAD_LEVANTAR"))
+                        Sesiones.USUARIO, UUID.randomUUID(), "SUPERVISOR_CUMPLIMIENTO", "BLOQUEO_AUTORIDAD_LEVANTAR"))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.codigo").value("AP-CU17-04"));
     }
@@ -103,7 +106,7 @@ class BloqueoAutoridadWebTest extends BaseDeOperacionesWeb {
     @Test
     @DisplayName("invalido: un token sin sesion (servicio) no levanta (401)")
     void tokenSinSesion() throws Exception {
-        levantar(Sesiones.de(Sesiones.OTRO_USUARIO, "OFICIAL_CUMPLIMIENTO", "BLOQUEO_AUTORIDAD_LEVANTAR"))
+        levantar(Sesiones.de(Sesiones.OTRO_USUARIO, "SUPERVISOR_CUMPLIMIENTO", "BLOQUEO_AUTORIDAD_LEVANTAR"))
                 .andExpect(status().isUnauthorized());
         verify(cu17, never()).levantar(any(), any());
     }
@@ -114,7 +117,10 @@ class BloqueoAutoridadWebTest extends BaseDeOperacionesWeb {
         when(cu17.levantar(eq(BLOQUEO), any()))
                 .thenThrow(new ErrorDeNegocio(CodigoError.de(17, 5), "Ese bloqueo no esta vigente."));
         levantar(Sesiones.enSesion(
-                        Sesiones.OTRO_USUARIO, UUID.randomUUID(), "OFICIAL_CUMPLIMIENTO", "BLOQUEO_AUTORIDAD_LEVANTAR"))
+                        Sesiones.OTRO_USUARIO,
+                        UUID.randomUUID(),
+                        "SUPERVISOR_CUMPLIMIENTO",
+                        "BLOQUEO_AUTORIDAD_LEVANTAR"))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.codigo").value("AP-CU17-05"));
     }

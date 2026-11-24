@@ -5,6 +5,7 @@ import bo.aportaya.identidad.aplicacion.CU08AsignarRol.SalidaAsignacion;
 import bo.aportaya.identidad.dominio.AmbitoDeRol;
 import bo.aportaya.identidad.dominio.HechoDeAcceso;
 import bo.aportaya.identidad.dominio.PermisosEfectivos;
+import bo.aportaya.identidad.dominio.RolesParaPersonalInterno;
 import bo.aportaya.identidad.infraestructura.AccesoRepositorio;
 import bo.aportaya.identidad.infraestructura.AccesosRepositorio;
 import bo.aportaya.identidad.infraestructura.GobiernoDeAccesosRepositorio;
@@ -109,6 +110,15 @@ public class GobiernoDeAccesos {
                         "El ambito de la asignacion tiene que ser el del rol.",
                         Map.of("ambitoDelRol", ambitoDelRol));
             }
+            // GU-13 (lote A): PARTICIPANTE, ORGANIZADOR, ambito GRUPO, ANUNCIANTE y SERVICIO_* no se otorgan a
+            // personal interno, por ningun camino: ni el reemplazo deprecado ni esta asignacion.
+            String codigoDelRol = gobierno.codigoDelRol(dsl, pedido.rolId()).orElse("");
+            if (!RolesParaPersonalInterno.admite(codigoDelRol, ambitoDelRol)) {
+                throw new ErrorDeNegocio(
+                        RolesParaPersonalInterno.ROL_NO_ASIGNABLE,
+                        "Ese rol no se otorga a personal interno.",
+                        Map.of("rol", codigoDelRol));
+            }
 
             Optional<Asignacion> igual =
                     gobierno.sinRevocarIgual(dsl, usuario, pedido.rolId(), pedido.ambito(), pedido.ambitoId());
@@ -211,7 +221,7 @@ public class GobiernoDeAccesos {
                 dsl,
                 new HechoDeAcceso(
                         HechoDeAcceso.Accion.ROL_VENCIDO,
-                        Optional.empty(),
+                        Optional.of(ctx.usuarioId()),
                         vencida.usuarioId(),
                         motivo,
                         ahora,

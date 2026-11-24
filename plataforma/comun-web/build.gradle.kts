@@ -30,6 +30,8 @@ dependencies {
     implementation(libs.micrometer.tracing)
     implementation(libs.otel.exportador)
     implementation(libs.micrometer.otlp)
+    // GU-15 (ADR-030): cada servicio lee el tema compactado de revocaciones con un consumidor sin grupo.
+    implementation(libs.kafka)
 
     // El arnes de la capa web: se publica para los catorce servicios, asi que sus
     // dependencias son `api` — un servicio no vuelve a declarar como se arma un corte

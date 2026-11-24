@@ -5,6 +5,7 @@ import bo.aportaya.identidad.infraestructura.GobiernoDeAccesosRepositorio;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.mensajeria.EventoDominio;
 import bo.aportaya.plataforma.mensajeria.Outbox;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,7 @@ public final class BitacoraDeAccesos {
                         accion.tipoDeEvento(),
                         accion.esDeAsignacion() ? "asignacion_rol" : "usuario",
                         agregadoId,
-                        hecho.carga(),
+                        cargaConActor(hecho, ctx),
                         correlacion));
 
         Set<String> destinatarios = new LinkedHashSet<>();
@@ -79,6 +80,20 @@ public final class BitacoraDeAccesos {
                                 "canal", CANAL_DEL_AVISO,
                                 "destinatarios", List.copyOf(destinatarios)),
                         correlacion));
+    }
+
+    /**
+     * Lo que el consumidor de la bitacora de {@code auditoria} (lote E) lee ademas del motivo: el rol de quien actuo y
+     * el origen del catalogo de {@code bitacora_evento} — {@code TAREA_PROGRAMADA} para el trabajo de vencimiento,
+     * {@code PANEL_ADMIN} para todo acto que llega por el backoffice.
+     */
+    static Map<String, Object> cargaConActor(HechoDeAcceso hecho, ContextoSesion ctx) {
+        Map<String, Object> carga = new LinkedHashMap<>(hecho.carga());
+        if (ctx.rol() != null) {
+            carga.put("actorRol", ctx.rol());
+        }
+        carga.put("origen", ctx.esSistema() ? "TAREA_PROGRAMADA" : "PANEL_ADMIN");
+        return carga;
     }
 
     static UUID correlacionDe(ContextoSesion ctx) {

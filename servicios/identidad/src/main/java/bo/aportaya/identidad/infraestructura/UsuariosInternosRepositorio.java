@@ -1,12 +1,11 @@
 package bo.aportaya.identidad.infraestructura;
 
 import static bo.aportaya.identidad.generado.Tables.CREDENCIAL_ACCESO;
-import static bo.aportaya.identidad.generado.Tables.FACTOR_MFA;
 import static bo.aportaya.identidad.generado.Tables.ROL;
 import static bo.aportaya.identidad.generado.Tables.USUARIO;
 import static bo.aportaya.identidad.generado.Tables.USUARIO_INTERNO;
 
-import bo.aportaya.identidad.dominio.PermisosEfectivos;
+import bo.aportaya.identidad.dominio.RolesParaPersonalInterno;
 import bo.aportaya.identidad.dominio.puertos.HasheadorDeCredencial;
 import bo.aportaya.identidad.web.generado.modelo.EntradaActualizarUsuarioInterno;
 import bo.aportaya.identidad.web.generado.modelo.EntradaAltaUsuarioInterno;
@@ -18,15 +17,11 @@ import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
-import org.jooq.Condition;
 import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.impl.DSL;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -35,6 +30,7 @@ public class UsuariosInternosRepositorio {
     private final AccesosRepositorio accesos;
     private final HasheadorDeCredencial hasheador;
     private final RolesYPermisosRepositorio rolesYPermisos;
+    private final LecturaDeUsuariosInternos lectura;
     private static final String ALFABETO = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%";
     private static final SecureRandom RANDOM = new SecureRandom();
 
@@ -43,96 +39,15 @@ public class UsuariosInternosRepositorio {
         this.accesos = accesos;
         this.hasheador = hasheador;
         this.rolesYPermisos = rolesYPermisos;
+        this.lectura = new LecturaDeUsuariosInternos(accesos);
     }
 
-    public List<UsuarioInternoResumen> listar(
-            DSLContext dsl, String estado, String rol, String busqueda, OffsetDateTime ahora) {
-        Condition condicion = DSL.noCondition();
-        if (estado != null && !estado.isBlank()) {
-            condicion = condicion.and(USUARIO.ESTADO.eq(estado));
-        }
-        if (busqueda != null && !busqueda.isBlank()) {
-            String patron = "%" + busqueda.trim().toLowerCase() + "%";
-            condicion = condicion.and(DSL.lower(USUARIO.NOMBRES)
-                    .like(patron)
-                    .or(DSL.lower(USUARIO.APELLIDOS).like(patron))
-                    .or(DSL.lower(USUARIO.CORREO).like(patron)));
-        }
-
-        var filas = dsl.select(
-                        USUARIO_INTERNO.ID,
-                        USUARIO_INTERNO.USUARIO_ID,
-                        USUARIO.CODIGO_PUBLICO,
-                        USUARIO.NOMBRES,
-                        USUARIO.APELLIDOS,
-                        USUARIO.CORREO,
-                        USUARIO.TELEFONO_E164,
-                        USUARIO_INTERNO.DEPARTAMENTO,
-                        USUARIO_INTERNO.CARGO,
-                        USUARIO.ESTADO,
-                        USUARIO_INTERNO.DEBE_CAMBIAR_CONTRASENA,
-                        USUARIO_INTERNO.BLOQUEADO_HASTA,
-                        USUARIO_INTERNO.MOTIVO_BLOQUEO)
-                .from(USUARIO_INTERNO)
-                .join(USUARIO)
-                .on(USUARIO.ID.eq(USUARIO_INTERNO.USUARIO_ID))
-                .where(condicion)
-                .orderBy(USUARIO.APELLIDOS.asc(), USUARIO.NOMBRES.asc())
-                .fetch();
-
-        List<UsuarioInternoResumen> resultado = new ArrayList<>();
-        for (Record r : filas) {
-            UUID usuarioId = r.get(USUARIO_INTERNO.USUARIO_ID);
-            Set<String> rolesVigentes = accesos.codigosDeRolesVigentes(dsl, usuarioId, ahora);
-            if (rol != null && !rol.isBlank() && !rolesVigentes.contains(rol)) {
-                continue;
-            }
-
-            boolean tieneSegundoFactor =
-                    dsl.fetchExists(dsl.selectOne().from(FACTOR_MFA).where(FACTOR_MFA.USUARIO_ID.eq(usuarioId)));
-
-            resultado.add(UsuarioInternoMapeador.aResumen(r, usuarioId, rolesVigentes, tieneSegundoFactor));
-        }
-        return resultado;
+    public List<UsuarioInternoResumen> listar(DSLContext dsl, FiltroDeUsuariosInternos filtro, OffsetDateTime ahora) {
+        return lectura.listar(dsl, filtro, ahora);
     }
 
     public Optional<UsuarioInternoDetalle> consultar(DSLContext dsl, UUID usuarioId, OffsetDateTime ahora) {
-        Record r = dsl.select(
-                        USUARIO_INTERNO.ID,
-                        USUARIO_INTERNO.USUARIO_ID,
-                        USUARIO.CODIGO_PUBLICO,
-                        USUARIO.NOMBRES,
-                        USUARIO.APELLIDOS,
-                        USUARIO.CORREO,
-                        USUARIO.TELEFONO_E164,
-                        USUARIO_INTERNO.DEPARTAMENTO,
-                        USUARIO_INTERNO.CARGO,
-                        USUARIO.ESTADO,
-                        USUARIO_INTERNO.DEBE_CAMBIAR_CONTRASENA,
-                        USUARIO_INTERNO.BLOQUEADO_HASTA,
-                        USUARIO_INTERNO.MOTIVO_BLOQUEO,
-                        USUARIO.FECHA_REGISTRO)
-                .from(USUARIO_INTERNO)
-                .join(USUARIO)
-                .on(USUARIO.ID.eq(USUARIO_INTERNO.USUARIO_ID))
-                .where(USUARIO.ID.eq(usuarioId).or(USUARIO_INTERNO.ID.eq(usuarioId)))
-                .fetchOne();
-
-        if (r == null) {
-            return Optional.empty();
-        }
-
-        UUID uId = r.get(USUARIO_INTERNO.USUARIO_ID);
-        Set<String> rolesVigentes = accesos.codigosDeRolesVigentes(dsl, uId, ahora);
-        Set<String> permisosEfectivos = PermisosEfectivos.de(accesos.asignacionesDe(dsl, uId), ahora);
-        boolean tieneSegundoFactor =
-                dsl.fetchExists(dsl.selectOne().from(FACTOR_MFA).where(FACTOR_MFA.USUARIO_ID.eq(uId)));
-
-        UsuarioInternoDetalle detalle =
-                UsuarioInternoMapeador.aDetalle(r, uId, rolesVigentes, permisosEfectivos, tieneSegundoFactor);
-        detalle.setActualizadoEn(ahora);
-
-        return Optional.of(detalle);
+        return lectura.consultar(dsl, usuarioId, ahora);
     }
 
     public UsuarioInternoDetalle crear(
@@ -247,6 +162,13 @@ public class UsuariosInternosRepositorio {
 
         if (uId.equals(operadorId)) {
             throw new ErrorDeNegocio(CodigoError.de(8, 4), "Nadie se amplia sus propios permisos.");
+        }
+        List<String> ajenos = rolesYPermisos.noAsignablesAPersonalInterno(dsl, entrada.getRoles());
+        if (!ajenos.isEmpty()) {
+            throw new ErrorDeNegocio(
+                    RolesParaPersonalInterno.ROL_NO_ASIGNABLE,
+                    "Esos roles no se otorgan a personal interno.",
+                    Map.of("roles", ajenos));
         }
 
         RotacionDeRolesInternos.rotar(accesos, dsl, uId, entrada.getRoles(), entrada.getMotivo(), operadorId, ahora);

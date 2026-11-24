@@ -65,6 +65,10 @@ public class GobiernoDeAccesosRepositorio {
                 .fetch(this::aAsignacion);
     }
 
+    public Optional<String> codigoDelRol(DSLContext dsl, UUID rolId) {
+        return dsl.select(ROL.CODIGO).from(ROL).where(ROL.ID.eq(rolId)).fetchOptional(ROL.CODIGO);
+    }
+
     /** {@code ESTADO} de la cuenta si el usuario tiene perfil interno; vacio si no es un operador. */
     public Optional<String> estadoDelOperador(DSLContext dsl, UUID usuarioId) {
         return dsl.select(USUARIO.ESTADO)

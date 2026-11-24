@@ -49,6 +49,60 @@ class RolesControllerWebTest {
     }
 
     @Test
+    @DisplayName("GU-13 · con asignablesAPersonalInterno=true no vienen los de participante, grupo, anunciante ni"
+            + " servicio")
+    void soloLosAsignablesAPersonalInterno() throws Exception {
+        when(casoDeUso.listarRoles(any())).thenReturn(catalogoMezclado());
+
+        mvc.perform(get("/roles")
+                        .param("asignablesAPersonalInterno", "true")
+                        .with(Sesiones.como("INTERNAL_IDENTITY_ADMIN", "ACCESOS_ADMINISTRAR")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].codigo").value("TESORERIA"))
+                .andExpect(jsonPath("$[1].codigo").value("SUPERVISOR_CUMPLIMIENTO"));
+    }
+
+    @Test
+    @DisplayName("GU-13 · sin el parametro el catalogo viene completo, como antes (otros consumidores intactos)")
+    void sinParametroVieneCompleto() throws Exception {
+        when(casoDeUso.listarRoles(any())).thenReturn(catalogoMezclado());
+
+        mvc.perform(get("/roles").with(Sesiones.como("INTERNAL_IDENTITY_ADMIN", "ROLES_INTERNOS_LEER")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(7));
+    }
+
+    @Test
+    @DisplayName("seguridad: 403 si la sesion no tiene ROLES_INTERNOS_LEER ni ACCESOS_ADMINISTRAR")
+    void sinPermisoRechaza403() throws Exception {
+        mvc.perform(get("/roles").param("asignablesAPersonalInterno", "true").with(Sesiones.como("PARTICIPANTE")))
+                .andExpect(status().isForbidden());
+        verifyNoInteractions(casoDeUso);
+    }
+
+    private static List<RolCatalogo> catalogoMezclado() {
+        return List.of(
+                rol("TESORERIA", "GLOBAL"),
+                rol("PARTICIPANTE", "GRUPO"),
+                rol("ORGANIZADOR", "GRUPO"),
+                rol("ANUNCIANTE", "GLOBAL"),
+                rol("SERVICIO_ENTREGAS", "GLOBAL"),
+                rol("SUPERVISOR_CUMPLIMIENTO", "GLOBAL"),
+                rol("COMITE_DE_GRUPO", "GRUPO"));
+    }
+
+    private static RolCatalogo rol(String codigo, String ambito) {
+        RolCatalogo rc = new RolCatalogo();
+        rc.setId(UUID.randomUUID());
+        rc.setCodigo(codigo);
+        rc.setNombre(codigo);
+        rc.setAmbito(ambito);
+        rc.setPermisos(List.of());
+        return rc;
+    }
+
+    @Test
     @DisplayName("seguridad: 401 si no hay sesion")
     void sinSesionRechaza401() throws Exception {
         mvc.perform(get("/roles")).andExpect(status().isUnauthorized());

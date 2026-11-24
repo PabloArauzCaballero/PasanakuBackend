@@ -1,5 +1,7 @@
 package bo.aportaya.identidad.aplicacion;
 
+import static bo.aportaya.identidad.generado.Tables.SESION;
+
 import bo.aportaya.identidad.dominio.PuedeAutenticarse;
 import bo.aportaya.identidad.infraestructura.UsuarioRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
@@ -17,6 +19,8 @@ import java.util.HexFormat;
 import java.util.Optional;
 import java.util.UUID;
 import org.jooq.DSLContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,13 +58,26 @@ public class RenovarSesion {
     private final UsuarioRepositorio usuarios;
     private final Reloj reloj;
     private final Ids ids;
+    private final Duration inactividadDelOperador;
     private final SecureRandom azar = new SecureRandom();
 
     public RenovarSesion(Datos datos, UsuarioRepositorio usuarios, Reloj reloj, Ids ids) {
+        this(datos, usuarios, reloj, ids, Duration.ofMinutes(15));
+    }
+
+    /** ADR-038 §1 y P-8: el cliente refresca como «latido»; un operador sin refrescar en el plazo se revoca. */
+    @Autowired
+    public RenovarSesion(
+            Datos datos,
+            UsuarioRepositorio usuarios,
+            Reloj reloj,
+            Ids ids,
+            @Value("${aportaya.sesion.inactividad-operador:PT15M}") Duration inactividadDelOperador) {
         this.datos = datos;
         this.usuarios = usuarios;
         this.reloj = reloj;
         this.ids = ids;
+        this.inactividadDelOperador = inactividadDelOperador;
     }
 
     /** Primer refresh de la familia, al abrir la sesion web. */
@@ -95,7 +112,8 @@ public class RenovarSesion {
             var fila = dsl.fetchOne(
                     """
                     SELECT t.id, t.usuario_id, t.familia_id, t.estado, t.consumido_en, t.expira_en,
-                           s.id AS sesion_id, s.revocada_en, s.expira_en AS sesion_expira_en
+                           s.id AS sesion_id, s.revocada_en, s.expira_en AS sesion_expira_en,
+                           s.ultima_actividad_en
                       FROM identidad.token_verificacion t
                       JOIN identidad.sesion s ON s.refresco_familia_id = t.familia_id
                      WHERE t.tipo_token = 'REFRESCO'
@@ -140,6 +158,18 @@ public class RenovarSesion {
                         """,
                         ahora,
                         fila.get("sesion_id", UUID.class));
+                return Renovacion.rechazada();
+            }
+
+            UUID titular = fila.get("usuario_id", UUID.class);
+            OffsetDateTime ultimaActividad = fila.get("ultima_actividad_en", OffsetDateTime.class);
+            if (ultimaActividad.plus(inactividadDelOperador).isBefore(ahora)
+                    && usuarios.perfilDe(dsl, titular).esOperador()) {
+                dsl.update(SESION)
+                        .set(SESION.REVOCADA_EN, ahora)
+                        .set(SESION.MOTIVO_REVOCACION, "INACTIVIDAD")
+                        .where(SESION.ID.eq(fila.get("sesion_id", UUID.class)).and(SESION.REVOCADA_EN.isNull()))
+                        .execute();
                 return Renovacion.rechazada();
             }
 

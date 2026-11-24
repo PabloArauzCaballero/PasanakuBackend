@@ -1,0 +1,8 @@
+$ ./gradlew spotlessCheck :plataforma:comun-web:{test,webTest,testBarrido} :servicios:identidad:{test,webTest,testBarrido,compileTestJava} :servicios:auditoria:{test,webTest,testBarrido,compileTestJava} --continue
+BUILD SUCCESSFUL in 35s
+  plataforma/comun-web:test: 45 pruebas, 0 fallas, 0 errores, 0 saltadas
+  plataforma/comun-web:webTest: 54 pruebas, 0 fallas, 0 errores, 0 saltadas
+  servicios/identidad:test: 104 pruebas, 0 fallas, 0 errores, 0 saltadas
+  servicios/identidad:webTest: 167 pruebas, 0 fallas, 0 errores, 0 saltadas
+  servicios/auditoria:test: 64 pruebas, 0 fallas, 0 errores, 0 saltadas
+  servicios/auditoria:webTest: 82 pruebas, 0 fallas, 0 errores, 0 saltadas

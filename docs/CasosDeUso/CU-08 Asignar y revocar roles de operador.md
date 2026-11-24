@@ -76,7 +76,7 @@ normas: [ASFI Seguridad de la Información, ASFI control interno, segregación d
 | # | Situación | Resultado |
 | :-: | --- | --- |
 | 1a | El rol es de ámbito `GRUPO` y no se indica `ambito_id` | Rechazo `AMBITO_INCOMPLETO`: un rol de grupo sin grupo sería un rol de plataforma disfrazado |
-| 3a | La combinación de roles rompe la segregación de funciones | Rechazo `INCOMPATIBILIDAD_DE_FUNCIONES`: nadie autoriza y ejecuta el mismo tipo de operación (`R-SEG-04`) |
+| 3a | La combinación de roles rompe la segregación de funciones | Rechazo `INCOMPATIBILIDAD_DE_FUNCIONES`: nadie autoriza y ejecuta el mismo tipo de operación (`R-SEG-04`). Pares cerrados (P-3, decisión de Pablo 2026-11-24): `ENTREGA_AUTORIZAR`↔`ENTREGA_EJECUTAR`; `CONTABILIDAD_ERP_CUENTAS_POR_PAGAR`↔`CONTABILIDAD_ERP_PAGAR`; `BLOQUEO_AUTORIDAD_REGISTRAR`↔`BLOQUEO_AUTORIDAD_LEVANTAR`; `PUBLICIDAD_ANUNCIANTES`↔`PUBLICIDAD_APROBAR_CAMPANA`↔`PUBLICIDAD_MODERAR` (tres personas) |
 | 3b | El rol es `GLOBAL` y el usuario no tiene TOTP | La asignación **se crea y es válida** —[[asignacion_rol]] no tiene columna de estado y no se inventa una—, pero el usuario no abre sesión hasta enrolar el factor (`R-SEG-10`). La respuesta lo dice con `SIN_MFA_CONFIGURADO` y deriva al enrolamiento |
 | 5a | Se revoca el último rol con permiso de administración | Rechazo `ULTIMO_ADMINISTRADOR`: la plataforma nunca queda sin quien administre accesos. Se cuentan **personas** con la cuenta `ACTIVO` y una asignación **vigente** (sin revocar, ya otorgada, sin vencer) de `ACCESOS_ADMINISTRAR`, no filas: un segundo administrador suspendido o vencido no cuenta. Vale para revocar, suspender, dar de baja y el reemplazo deprecado |
 | — | Sin step-up válido de quien actúa | Rechazo `STEP_UP_REQUERIDO`. Vale para asignar, revocar, alta, suspensión, reactivación, baja y desbloqueo (GU-11). Editar departamento o cargo no es un acto de gobierno y no lo pide |
@@ -145,10 +145,11 @@ export const ErroresCU08 = {
   SIN_MFA_CONFIGURADO:          'AP-CU08-05',
   ULTIMO_ADMINISTRADOR:         'AP-CU08-06',
   LOTE_CON_REPETIDOS:           'AP-CU08-07',
-  ROL_NO_ASIGNABLE:             'AP-CU08-08',  // lote A (GU-13): rol que no se asigna a personal interno
+  ROL_NO_ASIGNABLE:             'AP-CU08-08',
   STEP_UP_REQUERIDO:            'AP-CU08-09',
   DESTINATARIO_NO_HABILITADO:   'AP-CU08-10',
   MOTIVO_REQUERIDO:             'AP-CU08-11',
+  FILTRO_DE_LISTADO_INVALIDO:   'AP-CU08-12',
 } as const
 ```
 
@@ -161,10 +162,11 @@ export const ErroresCU08 = {
 | `SIN_MFA_CONFIGURADO` | El rol es de ámbito `GLOBAL` y el usuario no tiene TOTP confirmado: la asignación queda escrita, pero no podrá entrar hasta enrolarlo (`R-SEG-10`) |
 | `ULTIMO_ADMINISTRADOR` | La revocación dejaría la plataforma sin administrador de accesos |
 | `LOTE_CON_REPETIDOS` | Al resolver los nombres de operadores que firmaron (`POST /usuarios-internos/nombres`), la lista repite un identificador |
-| `ROL_NO_ASIGNABLE` | El rol no se asigna a personal interno (`PARTICIPANTE`, `ORGANIZADOR`, ámbito `GRUPO`, `ANUNCIANTE`, `SERVICIO_*`); lo implementa el lote A (GU-13) |
+| `ROL_NO_ASIGNABLE` | El rol existe pero no se otorga a personal interno: de participante (`PARTICIPANTE`, `ORGANIZADOR`, todo rol de ámbito `GRUPO`), `ANUNCIANTE` o una identidad de servicio `SERVICIO_*` (GU-13) |
 | `STEP_UP_REQUERIDO` | El acto de gobierno no trae una evidencia step-up válida de quien actúa: ajena, vencida, de otro propósito o ya usada |
 | `DESTINATARIO_NO_HABILITADO` | El destinatario no tiene perfil interno o su cuenta no está `ACTIVO` |
 | `MOTIVO_REQUERIDO` | El alta de un operador llega sin motivo (el contrato lo deja opcional solo por compatibilidad) |
+| `FILTRO_DE_LISTADO_INVALIDO` | `AP-CU08-12` · cursor a medias en `GET /usuarios-internos` (GU-17): llega `antesDe` sin `antesDeId` o al revés |
 
 ### Contrato de eventos (bitácora y aviso) · forma v1
 
@@ -182,9 +184,12 @@ bitácora es `auditoria` (lote E); el del aviso es `notificaciones`.
 | `OPERADOR_DADO_DE_BAJA` | `identidad.usuario_interno_dado_de_baja` | `usuario` |
 | `OPERADOR_DESBLOQUEADO` | `identidad.usuario_interno_desbloqueado` | `usuario` |
 
-Carga del evento de bitácora: `version` (`"1"`), `accion`, `actorId` (ausente solo en
-`ROL_VENCIDO`, que no tiene persona), `afectadoId`, `motivo` (la justificación o el motivo
-completo), `ocurridoEn` (ISO-8601) y el detalle de la acción: `asignacionId`, `rolId`,
+Carga del evento de bitácora: `version` (`"1"`), `accion`, `actorId` (quien actuó; en
+`ROL_VENCIDO` del trabajo diario es el id fijo del proceso), `actorRol` (el rol de la sesión
+que actuó), `origen` (`PANEL_ADMIN` para los actos del backoffice, `TAREA_PROGRAMADA` para
+el vencimiento: los valores del catálogo de `bitacora_evento` que lee el consumidor de
+`auditoria`), `afectadoId`, `motivo` (la justificación o el motivo completo), `ocurridoEn`
+(ISO-8601) y el detalle de la acción: `asignacionId`, `rolId`,
 `rolCodigo`, `ambito`, `ambitoId`, `vigenteHasta`, `requiereMfa`, `sesionesCerradas`,
 `asignacionesRevocadas`, `asignacionIds`, `estadoAnterior`, `vencioEn`, según corresponda.
 Pedido de aviso `identidad.aviso_de_acceso_solicitado` (agregado `usuario`, id del

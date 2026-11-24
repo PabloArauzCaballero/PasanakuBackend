@@ -30,6 +30,18 @@ echo "crear-topicos: $TOTAL topicos en $KAFKA ($BOOTSTRAP), $PARALELO a la vez"
 printf '%s\n' "$LISTA" | docker exec -i -e KAFKA_HEAP_OPTS="-Xmx64m -Xms32m" "$KAFKA" sh -c \
   "xargs -P $PARALELO -I{} kafka-topics --bootstrap-server $BOOTSTRAP --create --if-not-exists --topic {} --partitions 1 --replication-factor 1 >/dev/null 2>/tmp/topicos-err.txt"
 RC=$?
+
+# GU-15 (ADR-030 §1): la revocacion de sesiones es la unica publicacion que NO pasa por el outbox, y por eso no aparece en
+# listar_topicos.py. Tema compactado (clave = sesion: la ultima palabra sobre cada una es la que queda) y ademas con
+# retencion corta: una revocacion solo importa mientras pueda haber un token vivo de esa sesion (15 min). Cada servicio
+# lo relee entero al arrancar, asi que tiene que quedar chico. `--alter` deja la configuracion aunque el tema ya existiera.
+REVOCACION="aportaya.identidad.revocacion"
+CONFIG_REVOCACION="cleanup.policy=[compact,delete],retention.ms=3600000,segment.ms=600000,min.compaction.lag.ms=0"
+docker exec -e KAFKA_HEAP_OPTS="-Xmx64m -Xms32m" "$KAFKA" sh -c \
+  "kafka-topics --bootstrap-server $BOOTSTRAP --create --if-not-exists --topic $REVOCACION --partitions 1 --replication-factor 1 >/dev/null \
+   && kafka-configs --bootstrap-server $BOOTSTRAP --alter --entity-type topics --entity-name $REVOCACION --add-config '$CONFIG_REVOCACION' >/dev/null" \
+  || { echo "crear-topicos: no se pudo crear o configurar $REVOCACION"; exit 5; }
+TOTAL=$((TOTAL + 1))
 CREADOS="$(docker exec -e KAFKA_HEAP_OPTS="-Xmx64m" "$KAFKA" kafka-topics --bootstrap-server "$BOOTSTRAP" --list 2>/dev/null | grep -c '^aportaya\.')"
 echo "crear-topicos: rc=$RC, topicos aportaya.* existentes: $CREADOS de $TOTAL"
 [ "$CREADOS" -ge "$TOTAL" ] || { docker exec "$KAFKA" sh -c 'tail -5 /tmp/topicos-err.txt' 2>/dev/null; exit 4; }

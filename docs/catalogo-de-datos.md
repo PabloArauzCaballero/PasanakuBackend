@@ -6575,7 +6575,7 @@ El rol `AUDITOR` merece mención aparte: existe para que alguien pueda **leer to
 | `expira_en` | TIMESTAMPTZ | Marca temporal o fecha de expira en `sesion`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
 | `ip_origen` | INET | Dirección IP desde la cual se ejecutó la solicitud, registrada para auditoría de seguridad. | INET, obligatoria. | NINGUNA |
 | `geolocalizacion_aprox` | VARCHAR(80) | Atributo que representa geolocalizacion aprox en el modelo de `sesion`. | VARCHAR(80), opcional. | NINGUNA |
-| `revocada_en` | TIMESTAMPTZ | Marca temporal o fecha de revocada en `sesion`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `revocada_en` | TIMESTAMPTZ | Marca temporal o fecha de revocada en `sesion`. | TIMESTAMPTZ, opcional, índice b-tree. | NINGUNA |
 | `motivo_revocacion` | VARCHAR(80) | Atributo que representa motivo revocacion en el modelo de `sesion`. | VARCHAR(80), opcional. | NINGUNA |
 
 ### `shedlock`

@@ -44,6 +44,7 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 @MockitoBean(
         types = {
             bo.aportaya.identidad.aplicacion.GestionarUsuariosInternos.class,
+            bo.aportaya.identidad.aplicacion.ListarUsuariosInternos.class,
             bo.aportaya.identidad.aplicacion.ResolverNombresDeUsuariosInternos.class
         })
 class RutasDeAccesosWebTest {

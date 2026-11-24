@@ -1,14 +1,16 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core'
 import { Title } from '@angular/platform-browser'
 import { Router, RouterLink, RouterOutlet } from '@angular/router'
 import { finalize } from 'rxjs'
 import { CajonLateral } from '@aportaya/ui/cajon-lateral/cajon-lateral'
+import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
 import { Icono } from '@aportaya/ui/icono/icono'
 import { Migas } from '@aportaya/ui/migas/migas'
 import { EncendidoDeTutorial } from '@aportaya/tutoriales/encendido'
 import { AnfitrionDeTutorial } from '@aportaya/tutoriales/anfitrion-de-tutorial'
 import { LanzadorDeTutorial } from '@aportaya/tutoriales/lanzador-de-tutorial'
 import { ExplicadorDeVista } from '../nucleo/explicador-de-vista'
+import { VigilanteDeInactividad } from '../nucleo/inactividad'
 import { migasDe } from '../nucleo/navegacion'
 import { Sesion } from '../nucleo/sesion'
 import { BuscadorGlobal } from './buscador-global'
@@ -37,7 +39,7 @@ const ANGOSTO = '(max-width: 64rem)'
 @Component({
   selector: 'ap-shell-financiero',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink, CajonLateral, Icono, Migas, LanzadorDeTutorial, AnfitrionDeTutorial, BuscadorGlobal, CampanaDeNotificaciones, IconoDeSeccion, MenuDeUsuario, MenuLateral, NotaDeLaVista, SimboloDeMarca],
+  imports: [RouterOutlet, RouterLink, CajonLateral, Dialogo, Icono, Migas, LanzadorDeTutorial, AnfitrionDeTutorial, BuscadorGlobal, CampanaDeNotificaciones, IconoDeSeccion, MenuDeUsuario, MenuLateral, NotaDeLaVista, SimboloDeMarca],
   template: `
     <div class="shell" [class.angosto]="angosto()">
       @if (!angosto()) {
@@ -74,6 +76,12 @@ const ANGOSTO = '(max-width: 64rem)'
         <router-outlet />
       </main>
       @defer (when tutorial.activo()) { <ap-anfitrion-de-tutorial /> }
+      @if (inactividad.estado() === 'AVISO') {
+        <!-- Cerrar el aviso (botón, Escape o fondo) también es actividad: quien lo cierra está frente a la pantalla. -->
+        <ap-dialogo titulo="Tu sesión está por cerrarse" textoDeConfirmar="Seguir trabajando" textoDeCancelar="Cerrar aviso" [abierto]="true" (confirmar)="inactividad.registrarActividad()" (cancelar)="inactividad.registrarActividad()">
+          <p>Por seguridad cerramos la sesión después de 15 minutos sin actividad. Si no hacés nada, se cierra a las {{ horaDeCierre() }} y vas a tener que volver a ingresar.</p>
+        </ap-dialogo>
+      }
     </div>
   `,
   styleUrl: './shell-financiero.css',
@@ -85,6 +93,8 @@ export class ShellFinanciero {
   private readonly router = inject(Router)
   private readonly titulo = inject(Title)
   private readonly cerrarSesion = crearCerrarSesion()
+  protected readonly inactividad = inject(VigilanteDeInactividad)
+  protected readonly horaDeCierre = computed(() => new Date(this.inactividad.cierraEn()).toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' }))
   protected readonly saliendo = signal(false)
   protected readonly menuAbierto = signal(false)
   protected readonly angosto = signal(typeof matchMedia === 'function' && matchMedia(ANGOSTO).matches)
@@ -101,6 +111,17 @@ export class ShellFinanciero {
   protected readonly tituloDeVista = computed(() => this.migas().at(-1)?.texto ?? this.titulo.getTitle().replace(/\s*·\s*AportaYa\s*$/, ''))
 
   constructor() {
+    // ADR-038 §1 (P-8): quince minutos sin actividad cierran la sesión, en el servidor y en todos los servicios.
+    this.inactividad.iniciar()
+    const alVolver = (): void => this.inactividad.revisar()
+    document.addEventListener('visibilitychange', alVolver)
+    inject(DestroyRef).onDestroy(() => {
+      document.removeEventListener('visibilitychange', alVolver)
+      this.inactividad.detener()
+    })
+    effect(() => {
+      if (this.inactividad.estado() === 'CERRADA') untracked(() => this.salir('inactividad'))
+    })
     if (typeof matchMedia !== 'function') return
     const consulta = matchMedia(ANGOSTO)
     const alCambiar = (e: MediaQueryListEvent) => {
@@ -115,15 +136,20 @@ export class ShellFinanciero {
     void this.router.navigateByUrl(ruta)
   }
 
-  /** La sesión se cierra en el navegador aunque el servidor no conteste: quien pide salir, sale. */
-  protected salir(): void {
+  /**
+   * La sesión se cierra en el navegador aunque el servidor no conteste: quien pide salir, sale. Por inactividad, el
+   * ingreso explica el motivo y vuelve a la misma pantalla al entrar de nuevo (`volverA`).
+   */
+  protected salir(motivo?: 'inactividad'): void {
     if (this.saliendo()) return
     this.saliendo.set(true)
+    const volverA = this.router.url
     this.cerrarSesion()
       .pipe(
         finalize(() => {
           this.sesion.cerrar()
-          void this.router.navigateByUrl('/ingreso')
+          this.inactividad.reiniciar()
+          void (motivo ? this.router.navigate(['/ingreso'], { queryParams: { motivo, volverA } }) : this.router.navigateByUrl('/ingreso'))
         }),
       )
       .subscribe({ error: () => undefined })

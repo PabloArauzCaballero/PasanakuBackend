@@ -4,6 +4,7 @@ import bo.aportaya.identidad.aplicacion.CU08DarDeBaja;
 import bo.aportaya.identidad.aplicacion.CU08InformeDeAccesos;
 import bo.aportaya.identidad.aplicacion.GestionarUsuariosInternos;
 import bo.aportaya.identidad.aplicacion.GobiernoDeAccesos;
+import bo.aportaya.identidad.aplicacion.ListarUsuariosInternos;
 import bo.aportaya.identidad.aplicacion.ResolverNombresDeUsuariosInternos;
 import bo.aportaya.identidad.web.generado.modelo.EntradaActualizarUsuarioInterno;
 import bo.aportaya.identidad.web.generado.modelo.EntradaAltaUsuarioInterno;
@@ -17,6 +18,7 @@ import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
@@ -27,11 +29,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class UsuariosInternosController extends RutasDeAccesos {
 
     private final GestionarUsuariosInternos casoDeUso;
+    private final ListarUsuariosInternos listado;
     private final ResolverNombresDeUsuariosInternos nombres;
     private final SesionDeLaPeticion sesion;
 
     public UsuariosInternosController(
             GestionarUsuariosInternos casoDeUso,
+            ListarUsuariosInternos listado,
             ResolverNombresDeUsuariosInternos nombres,
             SesionDeLaPeticion sesion,
             GobiernoDeAccesos gobierno,
@@ -39,6 +43,7 @@ public class UsuariosInternosController extends RutasDeAccesos {
             CU08InformeDeAccesos informe) {
         super(gobierno, baja, informe, sesion);
         this.casoDeUso = casoDeUso;
+        this.listado = listado;
         this.nombres = nombres;
         this.sesion = sesion;
     }
@@ -47,9 +52,9 @@ public class UsuariosInternosController extends RutasDeAccesos {
     @Permiso("USUARIOS_INTERNOS_LEER")
     @PermisoAlternativo("ACCESOS_ADMINISTRAR")
     public ResponseEntity<List<UsuarioInternoResumen>> listarUsuariosInternos(
-            String estado, String rol, String busqueda) {
+            String estado, String rol, String busqueda, Integer limite, OffsetDateTime antesDe, UUID antesDeId) {
         ContextoSesion ctx = sesion.actual();
-        return ResponseEntity.ok(casoDeUso.listar(estado, rol, busqueda, ctx));
+        return ResponseEntity.ok(listado.listar(estado, rol, busqueda, limite, antesDe, antesDeId, ctx));
     }
 
     @Override

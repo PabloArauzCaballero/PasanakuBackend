@@ -70,7 +70,7 @@ public class CU08VencerAccesos {
                         dsl,
                         new HechoDeAcceso(
                                 HechoDeAcceso.Accion.ROL_VENCIDO,
-                                Optional.empty(),
+                                Optional.of(ctx.usuarioId()),
                                 vencida.usuarioId(),
                                 MOTIVO,
                                 ahora,

@@ -29,6 +29,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @MockitoBean(
         types = {
             bo.aportaya.identidad.aplicacion.GestionarUsuariosInternos.class,
+            bo.aportaya.identidad.aplicacion.ListarUsuariosInternos.class,
             bo.aportaya.identidad.aplicacion.ResolverNombresDeUsuariosInternos.class,
             bo.aportaya.identidad.aplicacion.GobiernoDeAccesos.class,
             bo.aportaya.identidad.aplicacion.CU08DarDeBaja.class

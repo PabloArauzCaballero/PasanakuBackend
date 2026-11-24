@@ -8,7 +8,7 @@ const URL = `${GW}/billetera/bloqueos/${BLOQUEO_ID}/levantamiento`
 
 function abrir() {
   const bloqueo = { bloqueoId: BLOQUEO_ID, autoridad: 'FISCALIA', tipoOrden: 'RETENCION', alcance: 'TOTAL', estado: 'VIGENTE', puedeLevantar: true, recibidoEn: '2026-11-20T14:00:00Z' }
-  const montaje = montar(LevantarBloqueo, ['BLOQUEO_AUTORIDAD_LEVANTAR'], 'OFICIAL_CUMPLIMIENTO', { bloqueo })
+  const montaje = montar(LevantarBloqueo, ['BLOQUEO_AUTORIDAD_LEVANTAR'], 'SUPERVISOR_CUMPLIMIENTO', { bloqueo })
   const c = montaje.fixture.componentInstance
   c.abierto.set(true)
   montaje.fixture.detectChanges()

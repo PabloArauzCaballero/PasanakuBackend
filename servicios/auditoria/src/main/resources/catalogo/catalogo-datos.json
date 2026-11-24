@@ -52317,7 +52317,7 @@
      "pk": false,
      "negocio": "Marca temporal o fecha de revocada en sesion.",
      "origenNegocio": "convencion",
-     "sistema": "TIMESTAMPTZ, opcional.",
+     "sistema": "TIMESTAMPTZ, opcional, índice b-tree.",
      "sensibilidad": "NINGUNA"
     },
     {

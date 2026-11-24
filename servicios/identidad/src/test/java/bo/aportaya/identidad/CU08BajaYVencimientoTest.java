@@ -114,6 +114,13 @@ class CU08BajaYVencimientoTest extends BaseDeGobiernoCU08 {
             assertThat((String) columna("SELECT motivo_revocacion FROM identidad.asignacion_rol WHERE id = ?", vencida))
                     .startsWith("VENCIMIENTO");
             assertThat(eventos("identidad.rol_vencido", vencida)).isEqualTo(1);
+            assertThat(columna(
+                            """
+                            SELECT payload->>'origen' FROM identidad.evento_dominio
+                             WHERE tipo = 'identidad.rol_vencido' AND agregado_id = ?
+                            """,
+                            vencida))
+                    .isEqualTo("TAREA_PROGRAMADA");
         });
     }
 

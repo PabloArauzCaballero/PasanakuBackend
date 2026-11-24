@@ -1,0 +1,32 @@
+--- rol svc_auditoria, contexto de sistema, dentro de una transaccion (como RegistroDeCambiosDeAcceso)
+BEGIN
+SET
+SET
+              set_config              | set_config 
+--------------------------------------+------------
+ 00000000-0000-4000-8000-000000000007 | sistema
+(1 row)
+
+INSERT 0 1
+INSERT 0 1
+COMMIT
+--- 2a entrega del mismo event_id: ON CONFLICT DO NOTHING devuelve 0 filas => el consumidor no escribe
+BEGIN
+SET
+INSERT 0 0
+COMMIT
+     entidad     |     accion      |   origen    |    motivo    | largo_hash 
+-----------------+-----------------+-------------+--------------+------------
+ usuario_interno | CAMBIO_PERMISOS | PANEL_ADMIN | prueba GU-07 |         64
+(1 row)
+
+ consumidos 
+------------
+          1
+(1 row)
+
+--- append-only: el rol del servicio no puede editar ni borrar la bitacora
+BEGIN
+SET
+psql:/var/tmp/gue-bit.sql:20: ERROR:  permission denied for table bitacora_evento
+(rc=3 esperado: lo produce el DELETE final, rechazado por permisos — append-only)

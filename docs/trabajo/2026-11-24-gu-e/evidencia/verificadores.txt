@@ -1,0 +1,12 @@
+$ python3 scripts/verificar_criterios.py → rc=0 · Sin divergencias entre la boveda y el codigo.
+$ python3 scripts/verificar_boveda.py → rc=0 · TODO OK
+$ python3 scripts/verificar_seguridad.py → rc=0 · TODO OK · 5 aviso(s)
+$ python3 scripts/verificar_carriles.py → rc=0 · TODO OK (con avisos)
+$ python3 scripts/verificar_maqueta.py → rc=0 · TODO OK
+$ python3 scripts/verificar_contratos_limites.py → rc=0 · Los contratos de request en el alcance de este gate declaran limites y additionalProperties: false.
+$ python3 scripts/verificar_pruebas_web.py → rc=0 · La capa web esta cubierta segun ADR-043.
+$ python3 scripts/verificar_narrativas.py → rc=0 · Sin fallas.
+$ python3 scripts/validar_flujos.py → rc=0 · Sin fallas.
+$ python3 scripts/inventario_endpoints.py --check → rc=0
+$ python3 -I scripts/test_catalogo_de_datos.py → rc=0
+$ generar_ddl.py + catalogo_de_datos.py --escribir + generar_postman.py → git diff --exit-code -- sql postman docs/catalogo-de-datos.md docs/entidades servicios: sin diff (rc=0)

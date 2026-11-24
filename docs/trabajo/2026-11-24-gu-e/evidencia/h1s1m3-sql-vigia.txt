@@ -1,0 +1,40 @@
+--- 3 sesiones revocadas en el MISMO instante + 1 viva (sinteticas); el vigia pagina de a 2 por (revocada_en, id)
+ALTER TABLE
+INSERT 0 4
+ALTER TABLE
+BEGIN
+SET
+              set_config              | set_config 
+--------------------------------------+------------
+ 00000000-0000-4000-8000-000000000015 | sistema
+(1 row)
+
+pagina 1 (cursor = 00000000-0000-0000-0000-000000000000)
+                  id                  |      revocada_en       
+--------------------------------------+------------------------
+ a0000000-0000-4000-8000-000000000001 | 2026-11-24 15:00:00+00
+ b0000000-0000-4000-8000-000000000003 | 2026-11-24 15:00:00+00
+(2 rows)
+
+pagina 2 (cursor = ultima fila de la pagina 1)
+                  id                  |      revocada_en       
+--------------------------------------+------------------------
+ f0000000-0000-4000-8000-000000000002 | 2026-11-24 15:00:00+00
+(1 row)
+
+COMMIT
+--- sin contexto de sistema (rol de un participante) el vigia no veria nada: RLS
+BEGIN
+SET
+              set_config              |  set_config  
+--------------------------------------+--------------
+ 00000000-0000-4000-8000-0000000000ff | PARTICIPANTE
+(1 row)
+
+ count 
+-------
+     0
+(1 row)
+
+COMMIT
+DELETE 4
