@@ -1263,6 +1263,226 @@ paths:
                 type: array
                 items: { $ref: '#/components/schemas/RolCatalogo' }
 
+    post:
+      operationId: crearRol
+      tags: [Roles]
+      summary: Crear un rol personalizado
+      description: >-
+        GU-16 (decision P-9). El rol nace GLOBAL, nunca `es_sistema`, con al menos un permiso del catalogo y sin
+        un par incompatible (R-SEG-04, AP-CU135-05). El codigo no puede ser SERVICIO_* ni de participante
+        (AP-CU135-01). Exige step-up y motivo. Si incluye algun permiso de riesgo ALTO o CRITICO no se crea:
+        responde 202 con la solicitud que otra persona debe aprobar. Deja `identidad.rol_creado` o
+        `identidad.rol_solicitado` en la bitacora.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDeCreacionDeRol' }
+      responses:
+        '201':
+          description: Rol creado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDeRol' }
+        '202':
+          description: Pendiente de aprobacion de otra persona
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDeRol' }
+        '400':
+          description: El cuerpo no cumple el contrato
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ROLES_INTERNOS_GESTIONAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /roles/solicitudes:
+    get:
+      operationId: listarSolicitudesDeRol
+      tags: [Roles]
+      summary: Solicitudes de cambio de rol pendientes de la segunda persona (cuatro ojos)
+      description: >-
+        GU-16. Las propuestas de crear o editar un rol que agrega permisos de riesgo ALTO o CRITICO esperan aca
+        a que otra persona las apruebe o las rechace. Lectura: alcanza ROLES_INTERNOS_LEER.
+      responses:
+        '200':
+          description: Solicitudes pendientes, la mas antigua primero (hasta 100)
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/SolicitudDeRol' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ROLES_INTERNOS_LEER ni ROLES_INTERNOS_GESTIONAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /roles/solicitudes/{solicitudId}/aprobacion:
+    post:
+      operationId: aprobarSolicitudDeRol
+      tags: [Roles]
+      summary: Aprobar la solicitud de otra persona y aplicar el cambio
+      description: >-
+        Exige step-up y motivo. La persona que propuso no puede resolver su propia solicitud (AP-CU135-12, y la
+        base lo impide). Al aprobar se vuelven a comprobar todas las reglas del rol.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - name: solicitudId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDeResolucionDeRol' }
+      responses:
+        '200':
+          description: Cambio aplicado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDeRol' }
+        '400':
+          description: El cuerpo no cumple el contrato
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ROLES_INTERNOS_GESTIONAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /roles/solicitudes/{solicitudId}/rechazo:
+    post:
+      operationId: rechazarSolicitudDeRol
+      tags: [Roles]
+      summary: Rechazar la solicitud de otra persona, con motivo
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - name: solicitudId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDeResolucionDeRol' }
+      responses:
+        '200':
+          description: Solicitud rechazada; no se cambio ningun rol
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDeRol' }
+        '400':
+          description: El cuerpo no cumple el contrato
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ROLES_INTERNOS_GESTIONAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /roles/{rolId}:
+    patch:
+      operationId: editarRol
+      tags: [Roles]
+      summary: Editar un rol personalizado (nombre, descripcion y permisos)
+      description: >-
+        GU-16. Solo roles personalizados: uno `es_sistema` responde AP-CU135-06. Exige step-up y motivo; el
+        conjunto de permisos no puede reunir un par incompatible (AP-CU135-05) ni dejar a un titular vigente en
+        conflicto (AP-CU135-13). Si agrega permisos de riesgo ALTO o CRITICO no se aplica: responde 202 con la
+        solicitud a cuatro ojos. El codigo no se cambia.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - name: rolId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDeEdicionDeRol' }
+      responses:
+        '200':
+          description: Cambio aplicado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDeRol' }
+        '202':
+          description: Pendiente de aprobacion de otra persona
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDeRol' }
+        '400':
+          description: El cuerpo no cumple el contrato
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ROLES_INTERNOS_GESTIONAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /roles/{rolId}/retiro:
+    post:
+      operationId: retirarRol
+      tags: [Roles]
+      summary: Retirar un rol personalizado sin asignaciones vigentes
+      description: >-
+        El rol queda con retirado_en y no se asigna mas; la fila no se borra. Exige step-up y motivo. Un rol
+        con titulares vigentes responde AP-CU135-10. Es POST y no DELETE porque lleva cuerpo (motivo).
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - name: rolId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDeRetiroDeRol' }
+      responses:
+        '200':
+          description: Rol retirado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDeRol' }
+        '400':
+          description: El cuerpo no cumple el contrato
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ROLES_INTERNOS_GESTIONAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
   /permisos:
     get:
       operationId: listarPermisos
@@ -2108,6 +2328,70 @@ components:
         permisos:
           type: array
           items: { type: string }
+
+    EntradaDeCreacionDeRol:
+      type: object
+      additionalProperties: false
+      required: [codigo, nombre, permisos, motivo, evidenciaMfa]
+      properties:
+        codigo: { type: string, minLength: 3, maxLength: 30, pattern: '^[A-Z][A-Z0-9_]{2,29}$' }
+        nombre: { type: string, minLength: 1, maxLength: 60 }
+        descripcion: { type: string, maxLength: 255, nullable: true }
+        permisos: { type: array, minItems: 1, maxItems: 100, uniqueItems: true, items: { type: string, maxLength: 60 } }
+        motivo: { type: string, minLength: 1, maxLength: 160 }
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096 }
+
+    EntradaDeEdicionDeRol:
+      type: object
+      additionalProperties: false
+      required: [nombre, permisos, motivo, evidenciaMfa]
+      properties:
+        nombre: { type: string, minLength: 1, maxLength: 60 }
+        descripcion: { type: string, maxLength: 255, nullable: true }
+        permisos: { type: array, minItems: 1, maxItems: 100, uniqueItems: true, items: { type: string, maxLength: 60 } }
+        motivo: { type: string, minLength: 1, maxLength: 160 }
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096 }
+
+    EntradaDeRetiroDeRol:
+      type: object
+      additionalProperties: false
+      required: [motivo, evidenciaMfa]
+      properties:
+        motivo: { type: string, minLength: 1, maxLength: 160 }
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096 }
+
+    EntradaDeResolucionDeRol:
+      type: object
+      additionalProperties: false
+      required: [motivo, evidenciaMfa]
+      properties:
+        motivo: { type: string, minLength: 1, maxLength: 160 }
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096 }
+
+    SalidaDeRol:
+      type: object
+      additionalProperties: false
+      required: [estado]
+      properties:
+        estado: { type: string, enum: [APLICADO, PENDIENTE_DE_APROBACION, RECHAZADA] }
+        rolId: { type: string, format: uuid, nullable: true }
+        solicitudId: { type: string, format: uuid, nullable: true }
+
+    SolicitudDeRol:
+      type: object
+      additionalProperties: false
+      required: [id, tipo, codigo, nombre, permisos, motivo, propuestaPor, propuestaEn]
+      properties:
+        id: { type: string, format: uuid }
+        tipo: { type: string, enum: [CREAR, EDITAR, RETIRAR] }
+        rolId: { type: string, format: uuid, nullable: true }
+        codigo: { type: string }
+        nombre: { type: string }
+        descripcion: { type: string, nullable: true }
+        permisos: { type: array, items: { type: string } }
+        motivo: { type: string }
+        propuestaPor: { type: string, format: uuid }
+        propuestaEn: { type: string, format: date-time }
 
     PermisoCatalogo:
       type: object

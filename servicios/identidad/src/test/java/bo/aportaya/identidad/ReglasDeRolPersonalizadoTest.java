@@ -33,7 +33,8 @@ class ReglasDeRolPersonalizadoTest {
 
     @DisplayName("invalido · minusculas, espacios, nulo, servicio y participante se rechazan")
     @ParameterizedTest
-    @ValueSource(strings = {"analista", "A B C", "1ABC", "SERVICIO_NUEVO", "PARTICIPANTE", "ORGANIZADOR", "ANUNCIANTE", ""})
+    @ValueSource(
+            strings = {"analista", "A B C", "1ABC", "SERVICIO_NUEVO", "PARTICIPANTE", "ORGANIZADOR", "ANUNCIANTE", ""})
     void codigoInvalido(String codigo) {
         assertThat(ReglasDeRolPersonalizado.codigoValido(codigo)).isFalse();
     }
@@ -47,7 +48,8 @@ class ReglasDeRolPersonalizadoTest {
     @Test
     @DisplayName("correcto/limite · cuatro ojos solo si hay un permiso ALTO o CRITICO")
     void cuatroOjos() {
-        assertThat(ReglasDeRolPersonalizado.exigeCuatroOjos(Set.of("TABLERO_VER"), RIESGO)).isFalse();
+        assertThat(ReglasDeRolPersonalizado.exigeCuatroOjos(Set.of("TABLERO_VER"), RIESGO))
+                .isFalse();
         assertThat(ReglasDeRolPersonalizado.exigeCuatroOjos(Set.of("TABLERO_VER", "ENTREGA_AUTORIZAR"), RIESGO))
                 .isTrue();
         assertThat(ReglasDeRolPersonalizado.exigeCuatroOjos(Set.of("SEGURIDAD_ACCESO_RESTABLECER"), RIESGO))
@@ -58,7 +60,8 @@ class ReglasDeRolPersonalizadoTest {
     @Test
     @DisplayName("invalido · un permiso fuera del catalogo no cuenta como de bajo riesgo en silencio: no se presume")
     void permisoDesconocidoNoSumaRiesgo() {
-        assertThat(ReglasDeRolPersonalizado.exigeCuatroOjos(Set.of("NO_EXISTE"), RIESGO)).isFalse();
+        assertThat(ReglasDeRolPersonalizado.exigeCuatroOjos(Set.of("NO_EXISTE"), RIESGO))
+                .isFalse();
     }
 
     @Test
@@ -66,7 +69,8 @@ class ReglasDeRolPersonalizadoTest {
     void segregacion() {
         assertThat(ReglasDeRolPersonalizado.conflicto(Set.of("ENTREGA_AUTORIZAR", "ENTREGA_EJECUTAR")))
                 .isPresent();
-        assertThat(ReglasDeRolPersonalizado.conflicto(Set.of("ENTREGA_AUTORIZAR"))).isEmpty();
+        assertThat(ReglasDeRolPersonalizado.conflicto(Set.of("ENTREGA_AUTORIZAR")))
+                .isEmpty();
     }
 
     @Test
