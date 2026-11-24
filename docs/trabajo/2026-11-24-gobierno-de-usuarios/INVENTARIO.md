@@ -85,3 +85,44 @@
 
 Fuera hasta tener decisión: GU-16 (P-9), GU-18 (P-10), P-11.
 Máximo 4 sesiones a la vez (CLAUDE.md, regla 70); cada una con su PLAN.md, REPORTE.md, PR a `dev` y CI verde.
+
+## Decisiones de Pablo (2026-11-24)
+
+| Pregunta | Decisión |
+|---|---|
+| P-1 primer acceso | **Invitación por correo** de un solo uso y con vencimiento al correo institucional → elegir clave + enrolar TOTP. Desaparece la clave provisional. |
+| P-2a contrato CU-08 | **Por asignación**: `ámbito`, vigencia opcional, justificación; revocación individual con motivo; se conserva quién y cuándo otorgó. |
+| P-2b ubicación | **Sección propia visible** «Personal y accesos», abierta por permisos (incluye `INTERNAL_IDENTITY_ADMIN`); nunca se muestra a quien recibiría 403. |
+| P-3 segregación | Pares: `ENTREGA_AUTORIZAR`↔`ENTREGA_EJECUTAR`; `CONTABILIDAD_ERP_PAGAR`↔`TESORERIA`/`ENTREGA_EJECUTAR`; `PUBLICIDAD_ANUNCIANTES`↔`PUBLICIDAD_APROBAR_CAMPANA`↔`PUBLICIDAD_MODERAR` (tres personas); `BLOQUEO_AUTORIDAD_REGISTRAR`↔`BLOQUEO_AUTORIDAD_LEVANTAR`. |
+| P-3 bloqueo | `OFICIAL_CUMPLIMIENTO` registra; **rol nuevo `SUPERVISOR_CUMPLIMIENTO`** levanta (con lectura de cumplimiento). |
+| P-4 recuperación | **Asistida a cuatro ojos** (ADR-038): pedido → aprobación de otra persona de seguridad → enfriamiento → invitación de un solo uso. Se modela aprobador y plazo. |
+| P-5 avisos | **Bitácora + correo** a la persona afectada y al oficial de cumplimiento. |
+| P-6 revisión | **Informe semanal + vencimientos** (accesos vivos, por vencer, sin TOTP) y caducidad automática de accesos temporales. |
+| P-7 control | **Step-up + motivo**; nadie actúa sobre sí mismo; nunca sin administrador. |
+| P-8 revocación | **Corte inmediato** (lista de revocación ADR-030, < 1 s) + cierre por **15 min de inactividad** en el backoffice. |
+| P-9 roles | **Roles personalizados editables** desde la interfaz (los `es_sistema` siguen fijos). |
+| P-10 servicio | **Cuentas de servicio gobernadas** desde el backoffice: inventario, alta y rotación. |
+| P-11 participantes | **Sí, con debido proceso**: primero un CU nuevo en la bóveda (causales, plazos, apelación) que Pablo aprueba; recién después se implementa. |
+
+## Plan de sesiones hijas (definitivo)
+
+Reglas comunes: cada sesión parte de `dev` (con #512 integrada), trabaja en su rama, escribe PLAN.md/REPORTE.md en `docs/trabajo/2026-11-24-gu-<lote>/`, abre PR a `dev`, deja la CI en verde y avisa. Lotes disjuntos en archivos; máximo 4 a la vez (CLAUDE.md). La sesión principal revisa, mergea y promueve a `test`.
+
+**Ola 1 (en paralelo):**
+
+| Lote | Rama | Brechas | Archivos que posee |
+|---|---|---|---|
+| A — Segregación y correcciones de lectura | `claude/gu-a-segregacion` | GU-01 (pares de P-3), rol `SUPERVISOR_CUMPLIMIENTO`, GU-10, GU-13 (backend), `tieneSegundoFactor` y paginación de GU-17 | `dominio/SegregacionDeFunciones`, semilla de roles y permisos, `UsuarioInternoMapeador`, `RolesYPermisosRepositorio`, consultas `listar`/`consultar`, tests CU08 |
+| B — CU-08 por asignación | `claude/gu-b-cu08` | GU-05, GU-06, GU-07 (bitácora + evento de aviso), GU-08, GU-11, GU-14 | `identidad.yaml` (accesos / usuarios internos), `AccesosController` nuevo, `CU08*`, `RotacionDeRolesInternos`, `GestionarUsuariosInternos`, `UsuariosInternosRepositorio.actualizar`, `trabajos/` |
+| E — Revocación inmediata y auditoría | `claude/gu-e-revocacion` | GU-15, consumidor de GU-07 en auditoría, inactividad 15 min | `plataforma/comun-web/seguridad`, `EmisorDeAcceso`, `servicios/auditoria/consumo`, config de sesión del backoffice |
+| G — CU de participantes (solo documento) | `claude/gu-g-cu-participantes` | P-11: CU nuevo con causales, plazos, apelación; pantallas propuestas | `docs/CasosDeUso/` (archivo nuevo) |
+
+**Ola 2 (cuando B esté en `dev`):**
+
+| Lote | Rama | Brechas | Depende de |
+|---|---|---|---|
+| C — Invitación, credencial y recuperación | `claude/gu-c-credencial` | GU-02, GU-03, GU-04, fecha de nacimiento inventada de GU-17 | B (comparten `identidad.yaml`) |
+| D — Backoffice «Personal y accesos» | `claude/gu-d-backoffice` | GU-09, GU-12, UI de GU-05/08/11/13/14, sección propia, ejemplos curados del simulado | contrato de B |
+| F — Roles personalizados y cuentas de servicio | `claude/gu-f-roles-servicio` | GU-16, GU-18 | B y D |
+
+**Ola 3:** implementación de participantes, una vez aprobado el CU de G.
