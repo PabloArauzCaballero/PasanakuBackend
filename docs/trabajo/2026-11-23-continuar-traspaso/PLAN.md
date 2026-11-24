@@ -126,8 +126,8 @@ protegidas, entonces ningún defecto abierto del inventario se reproduce y la su
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H5.S1.M1 | CU-132: el contrato de versión de parámetro publica quién propuso y quién aprobó | respuesta incluye ambos campos (aprobado nulo si pendiente) | test web de tarifas en CI + `openapi-generator validate` | TODO |
-| H5.S1.M2 | CU-44: el contrato del caso publica alerta de origen y titular enmascarado | respuesta incluye ambos, titular nunca en claro | test web de cumplimiento en CI + validate | TODO |
-| H5.S2.M1 | Backoffice muestra esos datos en lugar del aviso de faltante | specs + E2E caso y parámetros verdes con el simulado regenerado | `yarn playwright test e2e/caso-de-cumplimiento.e2e.ts e2e/visual-parametros-financieros.e2e.ts` | TODO |
-| H5.S3.M1 | PR de H5 a `dev` con CI verde y merge | `origin/dev` contiene la rama | check-runs + merge | TODO |
+| H5.S1.M1 | CU-132: el contrato de versión de parámetro publica quién propuso y quién aprobó | respuesta incluye ambos campos (aprobado nulo si pendiente) | test web de tarifas en CI + `openapi-generator validate` | EN CURSO — 576770ad; validate OK; espera CI de #510 (Java no compilable local) |
+| H5.S1.M2 | CU-44: el contrato del caso publica alerta de origen y titular enmascarado | respuesta incluye ambos, titular nunca en claro | test web de cumplimiento en CI + validate | EN CURSO — 424db313; validate + inventario OK; espera CI de #510 |
+| H5.S2.M1 | Backoffice muestra esos datos en lugar del aviso de faltante | specs + E2E caso y parámetros verdes con el simulado regenerado | `yarn playwright test e2e/caso-de-cumplimiento.e2e.ts e2e/visual-parametros-financieros.e2e.ts` | HECHO — b2d6f20c; typecheck/lint OK, test:front 1361, a11y 98, E2E caso 19/19 y parámetros 12/12; capturas revisadas por la sesión principal |
+| H5.S3.M1 | PR de H5 a `dev` con CI verde y merge | `origin/dev` contiene la rama | check-runs + merge | EN CURSO — #510 abierta contra dev, CI en curso |
 | H6.S1.M1 | Ninguna PR abierta en PasanakuBackend ni PasanakuFrontend | `pulls?state=open` vacío en ambos | `gh api repos/.../pulls?state=open` → [] | TODO |
