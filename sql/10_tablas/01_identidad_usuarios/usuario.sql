@@ -22,9 +22,13 @@ CREATE TABLE IF NOT EXISTS identidad.usuario (
   eliminado_en                       TIMESTAMPTZ,
   version                            INTEGER DEFAULT 0 NOT NULL,
   CONSTRAINT pk_usuario PRIMARY KEY (id),
-  CONSTRAINT ck_usuario_estado CHECK (estado IN ('ACTIVO', 'BAJA_VOLUNTARIA', 'BLOQUEADO_SEGURIDAD', 'ELIMINADO', 'INCOMPLETO_KYC', 'PENDIENTE_VERIFICACION', 'PRE_REGISTRO', 'SUSPENDIDO')),
+  CONSTRAINT ck_usuario_estado CHECK (estado IN ('ACTIVO', 'BAJA_LABORAL', 'BAJA_VOLUNTARIA', 'BLOQUEADO_SEGURIDAD', 'ELIMINADO', 'INCOMPLETO_KYC', 'PENDIENTE_VERIFICACION', 'PRE_REGISTRO', 'SUSPENDIDO')),
   CONSTRAINT ck_usuario_nivel_kyc CHECK (nivel_kyc IN ('BASICO', 'COMPLETO', 'INTERMEDIO', 'NINGUNO'))
 );
+
+-- Evolucion: CHECK ampliado (ver CK_AMPLIADOS en modelo.py).
+ALTER TABLE identidad.usuario DROP CONSTRAINT IF EXISTS ck_usuario_estado;
+ALTER TABLE identidad.usuario ADD CONSTRAINT ck_usuario_estado CHECK (estado IN ('ACTIVO', 'BAJA_LABORAL', 'BAJA_VOLUNTARIA', 'BLOQUEADO_SEGURIDAD', 'ELIMINADO', 'INCOMPLETO_KYC', 'PENDIENTE_VERIFICACION', 'PRE_REGISTRO', 'SUSPENDIDO'));
 
 COMMENT ON TABLE identidad.usuario IS 'Módulo 01 — Identidad, Usuarios y Seguridad. La persona real detrás de la cuenta. Una sola por número de teléfono.';
 COMMENT ON COLUMN identidad.usuario.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';

@@ -300,6 +300,17 @@ vale para siempre.
 **A nivel de sistema.** Nunca guarda la credencial: la clave vive solo como hash en `credencial_acceso` y se entrega una vez al crearla o rotarla. `vence_en` es obligatorio. Una cuenta `REVOCADA` no vuelve a `ACTIVA`: se crea otra. Un usuario es a lo sumo una cuenta de servicio (`uq_cuenta_servicio_usuario_id`).
 
 *Fuente: GU-18 (decisión de Pablo, P-10), CU-136.*
+### `EvidenciaStepUpConsumida` / `evidencia_step_up_consumida`
+
+**Qué es.** La marca de que una evidencia de segundo factor (el `jti` del JWT de step-up con propósito `ADMIN`) ya se usó para un acto de gobierno de accesos: asignar o revocar un rol, dar de alta, suspender, reactivar, dar de baja o desbloquear a un operador.
+
+**Para qué sirve (negocio).** Que cada cambio de quién puede tocar la plata y los datos de terceros lo confirme quien lo hace con su segundo factor, una vez por acto: quien robe esa evidencia no puede reusarla para otro cambio de acceso.
+
+**Por qué debe existir.** El JWT de evidencia vale hasta que vence (minutos). Guardar su consumo en memoria dejaba usarlo una vez por réplica o de nuevo tras un reinicio; Pablo decidió (2026-11-24, GU-11) que el consumo viva en la base, compartido por todas las instancias.
+
+**A nivel de sistema.** `jti` único: el `INSERT ... ON CONFLICT (jti) DO NOTHING` es la barrera, y de dos actos simultáneos con el mismo `jti` solo uno gana. `vence_en` es el `exp` de la evidencia. Append-only (`tg_evidencia_step_up_consumida_append_only`); `svc_identidad` solo inserta y lee. El consumo va en la transacción del acto: si el acto revierte, la evidencia no se gastó.
+
+*Fuente: CU-08, GU-11; `servicios/identidad/.../EvidenciaStepUpConsumidaRepositorio.java`.*
 
 ### `PoliticaToken` / `politica_token` — Política configurable
 

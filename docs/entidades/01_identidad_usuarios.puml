@@ -52,6 +52,7 @@ package "Nucleo de Identidad" {
     SUSPENDIDO
     BLOQUEADO_SEGURIDAD
     BAJA_VOLUNTARIA
+    BAJA_LABORAL
     ELIMINADO
   }
 
@@ -193,6 +194,19 @@ package "Tokens de Verificacion y Credenciales" {
     BLOQUEADO_POR_INTENTOS
     CANAL_NO_COINCIDE
     DISPOSITIVO_NO_COINCIDE
+  }
+
+  enum PropositoDeStepUpDeGobierno {
+    ADMIN
+  }
+
+  class EvidenciaStepUpConsumida {
+    - id: UUID
+    - jti: UUID <<UQ, la evidencia step-up de un acto de gobierno se usa una sola vez (GU-11)>>
+    - usuarioId: UUID
+    - proposito: PropositoDeStepUpDeGobierno
+    - consumidaEn: DateTime
+    - venceEn: DateTime <<exp de la evidencia>>
   }
 
   abstract class TokenVerificacion <<AR>> {
@@ -1159,11 +1173,22 @@ entity "solicitud_baja" as baja {
   bloqueada_por_obligaciones : BOOLEAN
 }
 
+entity "evidencia_step_up_consumida" as evidsu {
+  * id : UUID <<PK>>
+  --
+  jti : UUID <<UQ, consumo de un solo uso>>
+  # usuario_id : UUID <<FK, IDX>>
+  proposito : VARCHAR(20) <<CK>>
+  consumida_en : TIMESTAMPTZ
+  vence_en : TIMESTAMPTZ <<IDX>>
+}
+
 usuario ||--o| dir : "reside en"
 usuario ||--o| perfin : "declara"
 usuario ||--|| cred : "autentica con"
 usuario ||--o{ histcred : "historico de"
 usuario ||--o{ token : "recibe"
+usuario ||--o{ evidsu : "consume step-up"
 usuario ||--o{ mfa : "protege con"
 usuario ||--o{ disp : "usa"
 usuario ||--o{ sesion : "abre"
