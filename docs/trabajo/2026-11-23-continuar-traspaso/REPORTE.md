@@ -1,10 +1,10 @@
 # Reporte — Continuar traspaso Pasanaku (PR #503–#505 → dev → test) y correcciones de la app móvil
 
-> **AVANCE: 22 / 35 — 62,9 %.** (provisional: CI de #503 y #506 en curso; H2 sin empezar)
+> **AVANCE: 20 / 28 — 71,4 %.** (`plan_status.py`; el 22/35 anterior tenía mal el denominador). #506 con CI en curso; H2 (promoción a TEST) espera a #506.
 
 - Fecha: 2026-11-23 / 24 · Plan: [PLAN.md](./PLAN.md)
 - Ramas: `codex/f3s8-m4-parametros-backoffice` (#503), `codex/f3-l2-turnos-asignados` (#504, integrada), `codex/l4l6-resume` (#505, integrada), `claude/movil-correcciones-20261124` (#506), `claude/modest-newton-4ckcid` (este reporte)
-- Peldaño de evidencia: #504 y #505 `TESTED` en CI e integradas a `dev`; móvil `TESTED` local (957 pruebas) a la espera de CI; #503 `TESTED` parcial (CI en curso).
+- Peldaño de evidencia: #504 y #505 `TESTED` en CI e integradas a `dev`; móvil `TESTED` local (957 pruebas) a la espera de CI; #503 `TESTED` en CI e integrada a `dev` (d62225d9). Backoffice: capturas CU-132 (6) y caso de cumplimiento (12, E2E 16/16) sobre `dev`.
 
 ## Completado
 | ID | Qué se logró | Comando | Resultado |
@@ -13,6 +13,9 @@
 | H1.S1.M3 | Cuatro ojos en CU-132 | lectura `CU132RegistroDeParametros.java:168`, `@Permiso("TARIFARIO_ADMINISTRAR")` en `TarifasController.java:245-265`, test `CU132Test.mismaPersona` | control presente |
 | H1.S2.M1 | Causa del rojo de #504 | log job 138026360778 | fixture `cuposOcupados` sin titular ni firma del reglamento |
 | H1.S2.M2 | #504 en verde | check-runs de 29dc2b22 | 12 success / 0 fallos |
+| H1.S1.M2 | #503 en verde | check-runs de bcfc6274 | 12 success / 0 fallos → merge d62225d9 |
+| H1.S4.M1 | #503, #504 y #505 en `dev` | `git log origin/dev` | d62225d9, 98b03005, 64da8b97 |
+| H2.S1.M1 | Diff `test..dev` revisado | `git diff --stat origin/test origin/dev` | 78 archivos, +1851/−402, sólo #499–#505; sin M08/M6 |
 | H1.S3.M1 | #505 en verde | check-runs de ed9bb51 | 12 success / 0 fallos |
 | H3.S1.M1 | `aportaya://aporte` va a una ruta existente | `flutter test destinos_de_enlaces_test ruta_del_aviso_test enlaces_profundos_test` | rojo 3 → verde 37/37 |
 | H3.S1.M2 | Un solo refresco de sesión por sesión | `flutter test refrescador_compartido_test cliente_refresco_test` | rojo (2 refrescos) → verde 6/6 |
@@ -28,26 +31,17 @@
 | H3.S2.M3 | `cobrarAporte` deprecated (sin retirarlo) | `openapi-generator validate`, `verificar_contratos_limites.py`, postman y catálogo | sin problemas / sin deriva |
 
 ## A medias
-### H1.S1.M2 — CI de #503
-- Qué anda: bundle del backoffice compila; la matriz de roles pasa local (43/43).
-- Qué no anda: falta la corrida completa de CI sobre `bcfc6274`.
-- Qué falta exactamente: CI en verde y merge a `dev`.
-- Dónde quedó: `codex/f3s8-m4-parametros-backoffice`, empujada.
-
 ### H3.S2.M1 — FLUJO-QR-001
 - Qué anda: app — el botón «Simular pago» exige `--dart-define=PAGOS_DE_PRUEBA=true` (rojo → verde 8/8); `apk-de-prueba.yml` y `dev:simulado` lo encienden.
-- Qué no anda: la guardia backend `GuardiaDeRecargaDePrueba` no se compiló local (Maven Central 429).
-- Qué falta exactamente: CI de #506 ("Formato" y "Los cinco corredores") en verde.
+- Qué no anda: la CI de #506 cayó en compilación: `cobrarAporte` marcado `deprecated` en el OpenAPI hacía que el override Java avisara `[deprecation]` y `-Werror` lo convierte en error. Corregido en 2915db44 (`@Deprecated` en el override; reproducido con `javac` y las mismas banderas: sin la marca exit=1, con la marca exit=0). Con eso «Formato» pasó; «Contratos» cayó por 429 de Maven Central en el runner (ENVIRONMENT) y se relanza.
+- Qué falta exactamente: «Contratos», «Los cinco corredores» y «bootJar» en verde → merge de #506 a `dev`.
 - Dónde quedó: f66cdb94 en `claude/movil-correcciones-20261124`.
 
-### H1.S4.M1 / H3 — integración
-- Qué anda: #505 → `dev` (64da8b97); #504 → `dev` (98b03005).
-- Qué falta: #503 y #506 con CI verde → merge a `dev`.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| H2.S1.M1–M2 | TODO | #503 y #506 integradas; revisar diff `test..dev` y promover por PR `dev → test` (como #498) |
+| H2.S1.M2 | TODO | #506 integrada; PR `dev → test` (como #498) con CI verde |
 | H2.S1.M3 | TODO | Pablo ejecuta `estado` en su host (SSH bloqueado desde aquí) |
 | H3.S1.M11 CONFIG-001 | BLOQUEADO | Clave de release que solo Pablo puede crear; verificar exige correr `apk-de-prueba.yml`, que publica un prerelease |
 | H3.S3.M1 RESPALDO-003 | BLOQUEADO — DECISION_REQUIRED | Pablo aprueba el texto del tour sobre el fondo de garantía |
@@ -83,12 +77,14 @@ nginx (SEG-005), log de acceso: "GET /g HTTP/1.1" (nuevo) · "GET /g/<uuid>.<SEC
 - H3 (app móvil) se agregó por pedido de Pablo del 2026-11-24, dentro del mismo plan.
 
 ## Riesgos residuales
-- **COMERCIAL ve y opera «Parámetros financieros»**: ya tenía `TARIFARIO_ADMINISTRAR` (CU-36) y, con la decisión de que ese permiso propone y aprueba, el backend ya lo autorizaba. Confirmar si COMERCIAL debe conservarlo.
 - `RecargasProveedorSimulado` se activa por omisión (`matchIfMissing=true`) también en producción; no se tocó.
 - Deriva de generados versionados: barriles de clientes Dart y ejemplos de `packages/simulado` no coinciden con los contratos actuales (CI los regenera). No se commitearon.
 - SEG-005: hasta que se actualice la app instalada, quien tenga una versión vieja abre la web en vez de la app.
 
 ## Decisiones y ambigüedades
+- PRs a `main` #468, #495, #496 y #497: cerradas sin mergear (decisión de Pablo, 2026-11-24). PasanakuFrontend #53, #56, #57 y #59 (dependabot, CI en rojo): cerradas; el repo queda con 0 PRs abiertas.
+- COMERCIAL conserva `TARIFARIO_ADMINISTRAR` (confirmado por Pablo, 2026-11-24).
+- «Release iOS (macOS)» en rojo (deep_link_test 02) ya fallaba en `dev` antes de este trabajo (jobs 137891048575, 137889264412); no bloquea y requiere macOS para diagnosticar.
 - `aportaya://aporte` → `/pasanaku/mi-estado` (cuota pendiente y pago con saldo, P-06), porque el recordatorio todavía no emite un `obligacionId` (F3.L5.M43). Confirmar con Pablo.
 - Matriz de roles de #503: se alineó al permiso real en vez de ocultar el menú (ocultarlo no cambia la autorización).
 - M08 TTL (24 meses estricto vs ~25): DECISION_REQUIRED, sin tocar.
