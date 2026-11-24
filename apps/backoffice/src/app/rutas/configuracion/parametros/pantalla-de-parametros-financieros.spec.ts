@@ -14,7 +14,10 @@ import { PantallaDeParametrosFinancieros } from './pantalla-de-parametros-financ
 /** La pantalla usa un doble HTTP con la forma del OpenAPI; las pruebas de persistencia del historial corren en CU132Test. */
 const GW = 'http://gw/api/v1'
 const CATALOGO = `${GW}/tarifas/parametros`
+const NOMBRES = `${GW}/usuarios-internos/nombres`
 const [PROPONENTE, APROBADOR] = ['c1320000-0000-4000-8000-00000000a001', 'c1320000-0000-4000-8000-00000000b002'] // operadores sintéticos
+// Doble del contrato de identidad (POST /usuarios-internos/nombres): nombres sintéticos, no de personas reales.
+const OPERADORES = [{ usuarioId: PROPONENTE, nombre: 'Carla Gutiérrez Rojas' }, { usuarioId: APROBADOR, nombre: 'Luis Fernando Mamani Choque' }]
 const PARAMETRO = {
   codigo: 'DIAS_DE_GRACIA',
   descripcion: 'Días de gracia',
@@ -50,6 +53,7 @@ describe('PantallaDeParametrosFinancieros · CU-132 [UI con API simulada]', () =
 
   async function cargar(fixture: ComponentFixture<PantallaDeParametrosFinancieros>, lista: ParametroFinanciero[]): Promise<void> {
     http.expectOne(CATALOGO).flush(lista)
+    if (lista.length) http.expectOne(NOMBRES).flush(OPERADORES) // los nombres: ver el .operadores.spec
     await fixture.whenStable()
     fixture.detectChanges()
   }
@@ -166,20 +170,6 @@ describe('PantallaDeParametrosFinancieros · CU-132 [UI con API simulada]', () =
     fixture.detectChanges()
     expect(texto(fixture)).toContain('Rechazada')
     expect(texto(fixture)).toContain('7')
-  })
-
-  it('correcto: cada versión dice quién la propuso y quién la aprobó; sin aprobador, dice por qué', async () => {
-    const fixture = montar()
-    await cargar(fixture, [PARAMETRO])
-    const en = (sel: string) => (fixture.nativeElement as HTMLElement).querySelector(sel)?.textContent ?? ''
-    expect([en('.carril.rige'), en('.carril.espera')].join('|')).toMatch(new RegExp(`${APROBADOR}.*\\|.*${PROPONENTE}.*Falta la segunda firma`, 's'))
-    api(fixture).alternarHistorial(PARAMETRO.codigo)
-    fixture.detectChanges()
-    http.expectOne(`${CATALOGO}/DIAS_DE_GRACIA/versiones`).flush([VERSION_RECHAZADA, ...PARAMETRO.vigentes])
-    await fixture.whenStable()
-    fixture.detectChanges()
-    const [rechazada = '', aprobada = ''] = [...(fixture.nativeElement as HTMLElement).querySelectorAll('.tabla-historial tbody tr')].map((f) => f.textContent ?? '')
-    expect([rechazada.includes(PROPONENTE), rechazada.includes('Nadie: se rechazó'), aprobada.includes(APROBADOR)]).toEqual([true, true, true])
   })
 
   it('correcto: aprobación usa una clave idempotente y el permiso de quien inicia esta sesión', async () => {

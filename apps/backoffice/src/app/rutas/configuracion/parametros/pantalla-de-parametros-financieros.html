@@ -103,9 +103,9 @@
                         <td role="cell" class="num" [attr.data-etiqueta]="t.parametros.columnas.valor"><strong>{{ v.valor }}{{ v.moneda ? ' ' + v.moneda : '' }}</strong></td>
                         <td role="cell" [attr.data-etiqueta]="t.parametros.columnas.nivel">{{ v.nivel ?? t.parametros.sinNivel }}</td>
                         <td role="cell" [attr.data-etiqueta]="t.parametros.columnas.vigenteDesde"><ap-fecha [iso]="v.vigenteDesde" /></td>
-                        <td role="cell" class="actor" [attr.data-etiqueta]="t.parametros.columnas.propuso"><code>{{ v.propuestoPor ?? t.parametros.sinDato }}</code></td>
+                        <td role="cell" class="actor" [attr.data-etiqueta]="t.parametros.columnas.propuso">@if (v.propuestoPor) { <ng-container [ngTemplateOutlet]="operador" [ngTemplateOutletContext]="{ $implicit: v.propuestoPor }" /> } @else { {{ t.parametros.sinDato }} }</td>
                         <td role="cell" class="actor" [attr.data-etiqueta]="t.parametros.columnas.aprobo">
-                          @if (v.aprobadoPor) { <code>{{ v.aprobadoPor }}</code> } @else { <span class="sin-firma">{{ t.parametros.sinAprobador(v.estado) }}</span> }
+                          @if (v.aprobadoPor) { <ng-container [ngTemplateOutlet]="operador" [ngTemplateOutletContext]="{ $implicit: v.aprobadoPor }" /> } @else { <span class="sin-firma">{{ t.parametros.sinAprobador(v.estado) }}</span> }
                         </td>
                       </tr>
                     }
@@ -133,8 +133,11 @@
       <dl class="detalle">
         <div><dt>{{ t.parametros.vigenteDesde }}</dt><dd><ap-fecha [iso]="v.vigenteDesde" /></dd></div>
         @if (v.nivel) { <div><dt>{{ t.parametros.nivel }}</dt><dd>{{ v.nivel }}</dd></div> }
-        @if (v.propuestoPor) { <div class="actor"><dt>{{ t.parametros.propuso }}</dt><dd><code>{{ v.propuestoPor }}</code></dd></div> }
-        <div class="actor"><dt>{{ t.parametros.aprobo }}</dt><dd>@if (v.aprobadoPor) { <code>{{ v.aprobadoPor }}</code> } @else { {{ t.parametros.sinAprobador(v.estado) }} }</dd></div>
+        @if (v.propuestoPor) { <div class="actor"><dt>{{ t.parametros.propuso }}</dt><dd><ng-container [ngTemplateOutlet]="operador" [ngTemplateOutletContext]="{ $implicit: v.propuestoPor }" /></dd></div> }
+        <div class="actor"><dt>{{ t.parametros.aprobo }}</dt><dd>@if (v.aprobadoPor) { <ng-container [ngTemplateOutlet]="operador" [ngTemplateOutletContext]="{ $implicit: v.aprobadoPor }" /> } @else { {{ t.parametros.sinAprobador(v.estado) }} }</dd></div>
         <div><dt class="oculto">{{ t.parametros.columnas.estado }}</dt><dd><ap-chip-estado [tono]="tono(v.estado)">{{ estado(v.estado) }}</ap-chip-estado></dd></div>
       </dl>
+    </ng-template>
+    <ng-template #operador let-id>
+      <span class="operador" [class.no-disponible]="!operadores.disponible(id)" [attr.title]="t.parametros.identificadorDeOperador(id)">{{ operadores.nombreDe(id) }}<span class="oculto"> · {{ t.parametros.identificadorDeOperador(id) }}</span></span>
     </ng-template>

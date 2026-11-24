@@ -1,0 +1,37 @@
+$ python3 scripts/verificar_criterios.py  → exit 0
+pendientes de implementar (5): CU-05 (identidad), CU-23 (garantia), CU-26 (garantia), CU-51 (aportes), CU-57 (nucleo-financiero)
+Sin divergencias entre la boveda y el codigo.
+
+$ python3 scripts/verificar_boveda.py  → exit 0
+
+TODO OK
+
+$ python3 scripts/verificar_seguridad.py  → exit 0
+
+TODO OK · 5 aviso(s)
+
+$ python3 scripts/verificar_carriles.py  → exit 0
+AVISO · servicio sin ficha de carril: inversiones — M18 Inversion no tiene ficha en planes/18 ni en planes/21; dueno del codigo: @PabloArauzCaballero (.github/CODEOWNERS)
+TODO OK (con avisos)
+
+$ python3 scripts/verificar_maqueta.py  → exit 0
+
+TODO OK
+
+$ python3 scripts/verificar_contratos_limites.py  → exit 0
+  - transparencia · openapi/*.yaml#/components/schemas/MetricaDeRiesgo/umbral: sin limite (`maxLength`/`maximum`/`maxItems`)
+Los contratos de request en el alcance de este gate declaran limites y additionalProperties: false.
+
+$ python3 scripts/verificar_pruebas_web.py  → exit 0
+servicios con sabana de seguridad: 15
+La capa web esta cubierta segun ADR-043.
+
+$ python3 scripts/inventario_endpoints.py --check → exit 0
+endpoints relevados: 361 · hallazgos: 0
+El inventario esta alineado: todo lo implementado tiene contrato y viceversa.
+
+$ python3 scripts/generar_postman.py && git diff --stat -- postman/ → exit 0
+(vacío = sin diff)
+
+$ python3 scripts/generar_ddl.py && git diff --stat -- sql/
+(vacío = sin diff)

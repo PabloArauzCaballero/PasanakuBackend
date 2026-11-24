@@ -1011,6 +1011,48 @@ paths:
               schema: { $ref: '#/components/schemas/UsuarioInternoDetalle' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
+  /usuarios-internos/nombres:
+    post:
+      operationId: resolverNombresDeUsuariosInternos   # CU-132 (pantalla de parametros, 2026-11-24)
+      summary: Nombre de cada operador interno de un lote, para mostrar quien firmo
+      description: >-
+        El backoffice guarda quien propuso y quien aprobo como identificador (CU-132, CU-08) y necesita
+        mostrar un nombre. Devuelve SOLO usuarioId y nombre (nombres y apellidos) de usuarios internos
+        ACTIVOS: nada de correo, telefono, documento ni roles. Un id que no es un usuario interno activo
+        —un cliente, uno suspendido o uno inexistente— se omite sin decir por que, para no revelar si
+        existe. Es una lectura: no lleva Idempotency-Key. Va por POST para que los identificadores no
+        viajen en la URL (regla 90.2.2). Mas de 50 ids es 400 por contrato; ids repetidos, 422.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaNombresDeUsuariosInternos' }
+      responses:
+        '200':
+          description: Los nombres de los ids que son usuarios internos activos, en el orden pedido
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 50
+                items: { $ref: '#/components/schemas/NombreDeUsuarioInterno' }
+        '400':
+          description: El cuerpo no cumple el contrato (campo no declarado, mas de 50 ids, id no UUID)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Quien pregunta no tiene un permiso de backoffice que lo habilite
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422':
+          description: AP-CU08-07 — la lista repite un identificador
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
   /roles:
     get:
       operationId: listarRoles
@@ -1573,6 +1615,26 @@ components:
             No es una sesion: no sirve para nada mas.
         tokenDeAltaVenceEn: { type: string, format: date-time }
 
+    EntradaNombresDeUsuariosInternos:
+      type: object
+      additionalProperties: false
+      required: [usuarioIds]
+      properties:
+        usuarioIds:
+          type: array
+          minItems: 1
+          maxItems: 50
+          items: { type: string, format: uuid }
+    NombreDeUsuarioInterno:
+      type: object
+      additionalProperties: false
+      required: [usuarioId, nombre]
+      properties:
+        usuarioId: { type: string, format: uuid }
+        nombre:
+          type: string
+          maxLength: 161
+          description: Nombres y apellidos del operador, con los espacios normalizados.
     UsuarioInternoResumen:
       type: object
       additionalProperties: false

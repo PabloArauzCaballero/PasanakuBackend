@@ -1,11 +1,14 @@
 package bo.aportaya.identidad.web;
 
 import bo.aportaya.identidad.aplicacion.GestionarUsuariosInternos;
+import bo.aportaya.identidad.aplicacion.ResolverNombresDeUsuariosInternos;
 import bo.aportaya.identidad.web.generado.UsuariosInternosApi;
 import bo.aportaya.identidad.web.generado.modelo.EntradaActualizarUsuarioInterno;
 import bo.aportaya.identidad.web.generado.modelo.EntradaAltaUsuarioInterno;
 import bo.aportaya.identidad.web.generado.modelo.EntradaAsignarRolesUsuarioInterno;
 import bo.aportaya.identidad.web.generado.modelo.EntradaDesbloqueoUsuarioInterno;
+import bo.aportaya.identidad.web.generado.modelo.EntradaNombresDeUsuariosInternos;
+import bo.aportaya.identidad.web.generado.modelo.NombreDeUsuarioInterno;
 import bo.aportaya.identidad.web.generado.modelo.UsuarioInternoDetalle;
 import bo.aportaya.identidad.web.generado.modelo.UsuarioInternoResumen;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
@@ -22,10 +25,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class UsuariosInternosController implements UsuariosInternosApi {
 
     private final GestionarUsuariosInternos casoDeUso;
+    private final ResolverNombresDeUsuariosInternos nombres;
     private final SesionDeLaPeticion sesion;
 
-    public UsuariosInternosController(GestionarUsuariosInternos casoDeUso, SesionDeLaPeticion sesion) {
+    public UsuariosInternosController(
+            GestionarUsuariosInternos casoDeUso, ResolverNombresDeUsuariosInternos nombres, SesionDeLaPeticion sesion) {
         this.casoDeUso = casoDeUso;
+        this.nombres = nombres;
         this.sesion = sesion;
     }
 
@@ -82,5 +88,17 @@ public class UsuariosInternosController implements UsuariosInternosApi {
             UUID id, EntradaDesbloqueoUsuarioInterno entrada) {
         ContextoSesion ctx = sesion.actual();
         return ResponseEntity.ok(casoDeUso.desbloquear(id, entrada.getMotivo(), ctx));
+    }
+
+    // CU-132: la pantalla de parametros financieros muestra quien propuso y quien aprobo. La abre quien administra
+    // el tarifario; las alternativas son quienes ya leen la ficha completa del personal interno, asi que no abren
+    // nada que no vieran. Un participante (cliente) no tiene ninguno de los tres: 403.
+    @Override
+    @Permiso("TARIFARIO_ADMINISTRAR")
+    @PermisoAlternativo({"USUARIOS_INTERNOS_LEER", "ACCESOS_ADMINISTRAR"})
+    public ResponseEntity<List<NombreDeUsuarioInterno>> resolverNombresDeUsuariosInternos(
+            EntradaNombresDeUsuariosInternos entrada) {
+        ContextoSesion ctx = sesion.actual();
+        return ResponseEntity.ok(nombres.ejecutar(entrada.getUsuarioIds(), ctx));
     }
 }

@@ -1,0 +1,17 @@
+[1/16] [chromium] › e2e/visual-parametros-financieros.e2e.ts:38:9 › parámetros CU-132 — datos movil × light
+[2/16] [chromium] › e2e/visual-parametros-financieros.e2e.ts:38:9 › parámetros CU-132 — datos movil × dark
+[3/16] [chromium] › e2e/visual-parametros-financieros.e2e.ts:38:9 › parámetros CU-132 — datos tablet × light
+[4/16] [chromium] › e2e/visual-parametros-financieros.e2e.ts:38:9 › parámetros CU-132 — datos tablet × dark
+[5/16] [chromium] › e2e/visual-parametros-financieros.e2e.ts:38:9 › parámetros CU-132 — datos escritorio × light
+[6/16] [chromium] › e2e/visual-parametros-financieros.e2e.ts:38:9 › parámetros CU-132 — datos escritorio × dark
+[7/16] [chromium] › e2e/visual-parametros-financieros.e2e.ts:60:5 › parámetros CU-132 — el formulario asocia errores locales a sus campos
+[8/16] [chromium] › e2e/visual-parametros-financieros.e2e.ts:71:5 › parámetros CU-132 — vacío orienta (móvil claro)
+[9/16] [chromium] › e2e/visual-parametros-financieros.e2e.ts:78:5 › parámetros CU-132 — error accionable con reintento (escritorio oscuro)
+[10/16] [chromium] › e2e/visual-parametros-financieros.e2e.ts:87:5 › parámetros CU-132 — propuesta abierta con errores por campo (tablet claro)
+[11/16] [chromium] › e2e/visual-parametros-financieros.e2e.ts:99:7 › parámetros CU-132 — quién propuso y quién aprobó (movil × light)
+[12/16] [chromium] › e2e/visual-parametros-financieros.e2e.ts:99:7 › parámetros CU-132 — quién propuso y quién aprobó (escritorio × dark)
+[13/16] [chromium] › e2e/visual-parametros-financieros.e2e.ts:121:7 › parámetros CU-132 — nombre del operador en vez del identificador (escritorio × light)
+[14/16] [chromium] › e2e/visual-parametros-financieros.e2e.ts:121:7 › parámetros CU-132 — nombre del operador en vez del identificador (escritorio × dark)
+[15/16] [chromium] › e2e/visual-parametros-financieros.e2e.ts:121:7 › parámetros CU-132 — nombre del operador en vez del identificador (movil × light)
+[16/16] [chromium] › e2e/visual-parametros-financieros.e2e.ts:142:5 › parámetros CU-132 — si identidad no responde, «Operador no disponible» sin romper la pantalla (escritorio claro)
+  16 passed (57.1s)
