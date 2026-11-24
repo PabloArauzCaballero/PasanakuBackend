@@ -85,7 +85,7 @@
 ### H3.S3 — Backend `identidad`
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H3.S3.M1 | Directorio, ficha enmascarada y revelación con `registro_acceso_datos` | Escenarios gherkin de lectura en verde | `./gradlew :servicios:identidad:test --tests 'CU134*'` | TODO |
+| H3.S3.M1 | Directorio, ficha enmascarada y revelación con `registro_acceso_datos` | Escenarios gherkin de lectura en verde | `./gradlew :servicios:identidad:test --tests 'CU134*'` | BLOQUEADO — `./gradlew` no resuelve dependencias: Maven Central responde 429 desde este entorno (`evidencia/H3.S3-bloqueo-maven-429.txt`). Se intentó: reintento; init script local con el espejo de Maven Central de Google (responde 200), denegado por el control de permisos de la sesión. Lo destraba: que Pablo permita el espejo, o que el 429 ceda. Contrato del colaborador: el build de Gradle; no hay doble posible para un compilador |
 | H3.S3.M2 | Proponer medida (cautelar, idempotencia, sesiones revocadas, notificación por outbox) | Escenarios de propuesta en verde | ídem | TODO |
 | H3.S3.M3 | Descargo, decisión por otra persona y firmeza | Escenarios de decisión en verde | ídem | TODO |
 | H3.S3.M4 | Apelación por una tercera, resolución a favor por vencimiento, prescripción y reversión (trabajo diario) | Escenarios de apelación en verde | ídem | TODO |

@@ -1,6 +1,6 @@
 # Reporte — Lote G · CU de gobierno de participantes (borrador para aprobación)
 
-> **AVANCE: 9 / 10 — 90,0 %.** H1 cerrado (PR #514 y #518 en `dev`). H2: CU-134 pasa a APROBADO (decisión de Pablo del 2026-11-24); falta la CI del PR. D-3 (5/5 días hábiles, 12 meses, 90 días) y D-11 (retener la entrega) resueltas por Pablo el mismo día; abiertas A-1 y A-2.
+> **AVANCE: ver `plan_status.py`.** H3 (implementación) en curso: modelo, esquema, semillas y contrato escritos y verificados en local; backend BLOQUEADO por Maven Central 429. Antes: H1 cerrado (PR #514 y #518 en `dev`). H2: CU-134 pasa a APROBADO (decisión de Pablo del 2026-11-24); falta la CI del PR. D-3 (5/5 días hábiles, 12 meses, 90 días) y D-11 (retener la entrega) resueltas por Pablo el mismo día; abiertas A-1 y A-2.
 
 - Fecha: 2026-11-24 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/gu-g-cu-participantes` → PR a `dev`
 - Peldaño de evidencia alcanzado: `RUNS` sobre la bóveda, en local y en la CI del PR #514 (los verificadores corren en exit 0 con el CU nuevo). Es un documento: no hay comportamiento que ejercitar; el CU queda **BORRADOR** hasta que Pablo lo apruebe (decisión P-11).
@@ -22,6 +22,12 @@
 - Qué no anda: la CI del PR todavía no corrió.
 - Qué falta exactamente: abrir el PR y ver los checks en verde.
 - Dónde quedó: rama `claude/gu-g-cu-participantes`, actualizada con `dev`.
+
+### H3 — Implementación de CU-134 (en curso)
+- Qué anda: H3.S1 (5 tablas nuevas, CHECK ampliados, R-SEG-13..15, permisos y política sembrados) aplicado dos veces sobre PostgreSQL 16 local, con las restricciones probadas en tres niveles (`evidencia/H3.S1-*.txt`); H3.S2 contrato `[Participantes]` válido (`verificar_contratos_limites.py` exit 0).
+- Qué no anda: no hay controladores ni casos de uso; `inventario_endpoints.py --check` marca las 11 operaciones sin implementar.
+- Qué falta exactamente: H3.S3 a H3.S7. El build de Java está bloqueado (Maven Central 429).
+- Dónde quedó: commits locales en `claude/gu-g-cu-participantes` (modelo y contrato), sin pushear para no meter código en el PR #519 de documentación.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
