@@ -16,7 +16,8 @@
 | Lote E — revocación/inactividad/auditoría | **HECHO** | #517 en dev `5eb62e76`. Ambigüedades A1–A6 de su PLAN: confirmar con Pablo antes de promover a test; crear el tema Kafka `aportaya.identidad.revocacion` con `despliegue/host/crear-topicos.sh`. |
 | Lote B — CU-08 por asignación | **#516 abierto**, fix de test en `2c29b16b`, esperando CI verde | Sesión `session_01ATKb2QKXrRcFwGMW5Biabx`. Cuando la CI esté verde: mergear a `dev`. |
 | Lote G — CU-134 participantes | **#514 abierto, CI verde, NO mergear** | Espera aprobación de Pablo (preguntas D-1…D-15 en `docs/trabajo/2026-11-24-gu-g/REPORTE.md`). |
-| Ola 2: C (credencial/invitación/recuperación), D (backoffice «Personal y accesos» con step-up), F (roles propios + cuentas de servicio) | **SIN LANZAR** | Lanzar cuando #516 esté en dev. Plan y archivos disjuntos en `INVENTARIO.md` («Plan de sesiones hijas»). |
+| Lote D — backoffice «Personal y accesos» | **LANZADO 2026-11-24 23:24 UTC** | Sesión `session_01ATKb2NFv1aTGuXmnRXK9eP`, rama `claude/gu-d-backoffice`, contra el contrato de B (rama `claude/gu-b-cu08`) con doble declarado; rebasea cuando #516 entre a dev. |
+| Ola 2: C (credencial/invitación/recuperación), F (roles propios + cuentas de servicio) | **SIN LANZAR** | Lanzar cuando #516 esté en dev (comparten `identidad.yaml` con B). Plan y archivos disjuntos en `INVENTARIO.md`. |
 | Participantes (CU-134 implementación) | Bloqueado | Después de que Pablo apruebe el CU. |
 
 ## Decisiones de Pablo vigentes (no volver a preguntar)
@@ -48,3 +49,4 @@ Aprobar CU-134; confirmar A1–A6 del lote E; correr `estado` en TEST (SSH bloqu
 | 2026-11-24 19:30 | #515 (A) y #517 (E) en dev. |
 | 2026-11-24 23:22 | B corrigió el TEST_BUG de `FixturaDeIdentidad.otorgante()` (`2c29b16b`); espera CI de #516. |
 | 2026-11-24 23:30 | Se creó este traspaso y una tarea programada horaria que arranca una sesión nueva leyéndolo. |
+| 2026-11-24 23:24 | Lanzado el lote D (`session_01ATKb2NFv1aTGuXmnRXK9eP`). |
