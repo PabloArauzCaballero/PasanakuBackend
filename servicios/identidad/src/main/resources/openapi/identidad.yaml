@@ -1489,6 +1489,143 @@ paths:
               schema: { $ref: '#/components/schemas/Error' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
+  # CU-136 (GU-18): AP-CU136-01 NOMBRE_INVALIDO · AP-CU136-02 MOTIVO_REQUERIDO · AP-CU136-03 VENCIMIENTO_INVALIDO
+  # AP-CU136-04 STEP_UP_REQUERIDO · AP-CU136-05 SIN_ROL_DE_SERVICIO · AP-CU136-06 YA_REGISTRADA
+  # AP-CU136-07 CUENTA_INEXISTENTE · AP-CU136-08 CUENTA_REVOCADA · AP-CU136-09 NADIE_SE_GOBIERNA_A_SI_MISMO
+  # AP-CU136-10 SIN_CREDENCIAL
+  /cuentas-servicio:
+    get:
+      operationId: listarCuentasDeServicio
+      tags: [CuentasDeServicio]
+      summary: Cuentas de servicio registradas, con su vencimiento y la ultima rotacion de su clave
+      description: >-
+        GU-18. Nunca devuelve una credencial ni su hash: solo cuando vence y cuando se roto por ultima vez.
+      responses:
+        '200':
+          description: Cuentas registradas, la mas reciente primero (hasta 200)
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/CuentaDeServicio' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ACCESOS_ADMINISTRAR ni USUARIOS_INTERNOS_LEER
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+    post:
+      operationId: registrarCuentaDeServicio
+      tags: [CuentasDeServicio]
+      summary: Registrar una cuenta de servicio ya aprovisionada, con nombre y vencimiento
+      description: >-
+        GU-18 (decision P-10). El usuario ya existe y porta un rol SERVICIO_* vigente (se aprovisiona fuera del
+        repositorio); registrarla le pone nombre, vencimiento y dueño, y la deja bajo gobierno. Los permisos son los del
+        rol SERVICIO_*: no se agregan permisos sueltos. Exige step-up y motivo; nadie gobierna su propia cuenta.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDeAltaDeCuentaDeServicio' }
+      responses:
+        '201':
+          description: Cuenta registrada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDeAltaDeCuentaDeServicio' }
+        '400':
+          description: El cuerpo no cumple el contrato
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ACCESOS_ADMINISTRAR ni USUARIOS_INTERNOS_GESTIONAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /cuentas-servicio/{cuentaId}/rotacion:
+    post:
+      operationId: rotarCredencialDeCuentaDeServicio
+      tags: [CuentasDeServicio]
+      summary: Rotar la clave de la cuenta; la credencial nueva se entrega UNA sola vez
+      description: >-
+        Genera una credencial aleatoria, guarda solo su hash (la anterior pasa al historial), cierra las sesiones vigentes
+        de la cuenta y devuelve el valor en esta respuesta, que no se vuelve a poder pedir ni aparece en logs, eventos ni
+        lecturas. La respuesta lleva Cache-Control no-store. El servicio que la usa tiene que recibir la nueva clave antes
+        de su proxima autenticacion. Exige step-up y motivo.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - name: cuentaId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDeRotacionDeCuentaDeServicio' }
+      responses:
+        '200':
+          description: Credencial rotada; el valor viene solo en esta respuesta
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDeRotacionDeCuentaDeServicio' }
+        '400':
+          description: El cuerpo no cumple el contrato
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ACCESOS_ADMINISTRAR ni USUARIOS_INTERNOS_GESTIONAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /cuentas-servicio/{cuentaId}/revocacion:
+    post:
+      operationId: revocarCuentaDeServicio
+      tags: [CuentasDeServicio]
+      summary: Revocar la cuenta — pierde su rol, su clave vence y sus sesiones se cierran
+      description: >-
+        Deja la cuenta REVOCADA (no vuelve a ACTIVA: se registra otra), revoca sus asignaciones de rol, vence la
+        credencial, suspende al usuario y cierra sus sesiones, todo en una transaccion. Exige step-up y motivo.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - name: cuentaId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDeRevocacionDeCuentaDeServicio' }
+      responses:
+        '200':
+          description: Cuenta revocada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDeRevocacionDeCuentaDeServicio' }
+        '400':
+          description: El cuerpo no cumple el contrato
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ACCESOS_ADMINISTRAR ni USUARIOS_INTERNOS_GESTIONAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
   /permisos:
     get:
       operationId: listarPermisos
@@ -2398,6 +2535,80 @@ components:
         motivo: { type: string }
         propuestaPor: { type: string, format: uuid }
         propuestaEn: { type: string, format: date-time }
+
+    CuentaDeServicio:
+      type: object
+      additionalProperties: false
+      required: [id, usuarioId, rolCodigo, nombre, estado, venceEn, creadaEn, credencialRotadaEn]
+      properties:
+        id: { type: string, format: uuid }
+        usuarioId: { type: string, format: uuid }
+        rolCodigo: { type: string }
+        nombre: { type: string }
+        estado: { type: string, enum: [ACTIVA, REVOCADA] }
+        venceEn: { type: string, format: date-time }
+        creadaEn: { type: string, format: date-time }
+        credencialRotadaEn: { type: string, format: date-time }
+        revocadaEn: { type: string, format: date-time, nullable: true }
+
+    EntradaDeAltaDeCuentaDeServicio:
+      type: object
+      additionalProperties: false
+      required: [usuarioId, nombre, venceEn, motivo, evidenciaMfa]
+      properties:
+        usuarioId: { type: string, format: uuid }
+        nombre: { type: string, minLength: 1, maxLength: 80 }
+        venceEn: { type: string, format: date-time }
+        motivo: { type: string, minLength: 1, maxLength: 160 }
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096 }
+
+    SalidaDeAltaDeCuentaDeServicio:
+      type: object
+      additionalProperties: false
+      required: [cuentaId, usuarioId, rolCodigo, venceEn]
+      properties:
+        cuentaId: { type: string, format: uuid }
+        usuarioId: { type: string, format: uuid }
+        rolCodigo: { type: string }
+        venceEn: { type: string, format: date-time }
+
+    EntradaDeRotacionDeCuentaDeServicio:
+      type: object
+      additionalProperties: false
+      required: [motivo, evidenciaMfa]
+      properties:
+        venceEn: { type: string, format: date-time, nullable: true }
+        motivo: { type: string, minLength: 1, maxLength: 160 }
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096 }
+
+    SalidaDeRotacionDeCuentaDeServicio:
+      type: object
+      additionalProperties: false
+      required: [cuentaId, credencial, venceEn, sesionesCerradas]
+      properties:
+        cuentaId: { type: string, format: uuid }
+        credencial:
+          type: string
+          description: El valor de la credencial. Existe SOLO en esta respuesta y no se vuelve a poder pedir.
+        venceEn: { type: string, format: date-time }
+        sesionesCerradas: { type: integer, minimum: 0 }
+
+    EntradaDeRevocacionDeCuentaDeServicio:
+      type: object
+      additionalProperties: false
+      required: [motivo, evidenciaMfa]
+      properties:
+        motivo: { type: string, minLength: 1, maxLength: 160 }
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096 }
+
+    SalidaDeRevocacionDeCuentaDeServicio:
+      type: object
+      additionalProperties: false
+      required: [cuentaId, asignacionesRevocadas, sesionesCerradas]
+      properties:
+        cuentaId: { type: string, format: uuid }
+        asignacionesRevocadas: { type: integer, minimum: 0 }
+        sesionesCerradas: { type: integer, minimum: 0 }
 
     PermisoCatalogo:
       type: object

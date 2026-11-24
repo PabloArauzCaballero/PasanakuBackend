@@ -1,0 +1,95 @@
+{
+  "servicio": "tarifas",
+  "operacion": "listarParametrosFinancieros",
+  "metodo": "get",
+  "ruta": "/tarifas/parametros",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "codigo": "codigo",
+          "descripcion": "descripcion",
+          "unidad": "PORCENTAJE",
+          "porNivel": true,
+          "vigentes": [
+            {
+              "id": "c605d2cf-d8f0-4acf-8ef5-08009ef6ad9e",
+              "codigo": "codigo",
+              "nivel": "nivel",
+              "valor": "valor",
+              "moneda": "moneda",
+              "vigenteDesde": "2026-01-15T10:30:00Z",
+              "estado": "PROPUESTA",
+              "propuestoPor": "1b145b2c-5ecb-4ef6-85df-15da79dfaa22",
+              "aprobadoPor": "d55a187d-c3df-4db5-8685-a5c89939d632"
+            }
+          ],
+          "propuestas": [
+            {
+              "id": "7576e3a0-c4c5-40f2-84e4-c9cae3a3c649",
+              "codigo": "codigo",
+              "nivel": "nivel",
+              "valor": "valor",
+              "moneda": "moneda",
+              "vigenteDesde": "2026-01-15T10:30:00Z",
+              "estado": "PROPUESTA",
+              "propuestoPor": "4b14ff23-06c4-4e61-8dd0-214251d9dd84",
+              "aprobadoPor": "3bcb1a1c-bed4-4cb6-87ae-0a956fa9f66d"
+            }
+          ]
+        }
+      ]
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": []
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "codigo": "codigo",
+          "descripcion": "descripcion",
+          "unidad": "PORCENTAJE",
+          "porNivel": true,
+          "vigentes": [
+            {
+              "id": "c605d2cf-d8f0-4acf-8ef5-08009ef6ad9e",
+              "codigo": "codigo",
+              "nivel": "nivel",
+              "valor": "valor",
+              "moneda": "moneda",
+              "vigenteDesde": "2026-01-15T10:30:00Z",
+              "estado": "PROPUESTA",
+              "propuestoPor": "1b145b2c-5ecb-4ef6-85df-15da79dfaa22",
+              "aprobadoPor": "d55a187d-c3df-4db5-8685-a5c89939d632"
+            }
+          ],
+          "propuestas": [
+            {
+              "id": "7576e3a0-c4c5-40f2-84e4-c9cae3a3c649",
+              "codigo": "codigo",
+              "nivel": "nivel",
+              "valor": "valor",
+              "moneda": "moneda",
+              "vigenteDesde": "2026-01-15T10:30:00Z",
+              "estado": "PROPUESTA",
+              "propuestoPor": "4b14ff23-06c4-4e61-8dd0-214251d9dd84",
+              "aprobadoPor": "3bcb1a1c-bed4-4cb6-87ae-0a956fa9f66d"
+            }
+          ]
+        }
+      ]
+    },
+    "rechazo": {
+      "estado": 401,
+      "cuerpo": {
+        "codigo": "AP-CU132-01",
+        "mensaje": "Parametro inexistente",
+        "detalle": {},
+        "trazaId": "traza-listarParametrosFinancieros-rechazo"
+      }
+    }
+  }
+}

@@ -60,8 +60,10 @@ class CU135GobernarRolesTest extends BaseDeGobiernoCU08 {
     private static UUID rolDeSistema() {
         UUID id = UUID.randomUUID();
         dsl.execute(
-                "INSERT INTO identidad.rol (id, codigo, nombre, ambito, es_sistema) VALUES (?, ?, 'sistema', 'GLOBAL',"
-                        + " true)",
+                """
+                INSERT INTO identidad.rol (id, codigo, nombre, ambito, es_sistema)
+                VALUES (?, ?, 'sistema', 'GLOBAL', true)
+                """,
                 id,
                 codigoNuevo());
         return id;
@@ -255,8 +257,11 @@ class CU135GobernarRolesTest extends BaseDeGobiernoCU08 {
                             e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU135-10"));
 
             dsl.execute(
-                    "UPDATE identidad.asignacion_rol SET revocada_en = now(), motivo_revocacion = 'prueba' WHERE"
-                            + " rol_id = ?",
+                    """
+                    UPDATE identidad.asignacion_rol
+                       SET revocada_en = now(), motivo_revocacion = 'prueba'
+                     WHERE rol_id = ?
+                    """,
                     creado.rolId());
             casoDeUso.retirar(creado.rolId(), "Ya no se usa", EVIDENCIA, como(actor));
 

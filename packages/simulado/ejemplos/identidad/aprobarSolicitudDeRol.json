@@ -1,0 +1,58 @@
+{
+  "servicio": "identidad",
+  "operacion": "aprobarSolicitudDeRol",
+  "metodo": "post",
+  "ruta": "/roles/solicitudes/{solicitudId}/aprobacion",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "estado": "APLICADO",
+        "rolId": "57153868-ff00-47cc-857e-ac05c5615403",
+        "solicitudId": "2a7bba27-c3e7-4a07-8166-32fe0ee63242"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "estado": "APLICADO",
+        "rolId": "57153868-ff00-47cc-857e-ac05c5615403",
+        "solicitudId": "2a7bba27-c3e7-4a07-8166-32fe0ee63242"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "estado": "APLICADO",
+        "rolId": "57153868-ff00-47cc-857e-ac05c5615403",
+        "solicitudId": "2a7bba27-c3e7-4a07-8166-32fe0ee63242"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "estado": "APLICADO",
+        "rolId": "57153868-ff00-47cc-857e-ac05c5615403",
+        "solicitudId": "2a7bba27-c3e7-4a07-8166-32fe0ee63242"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 400,
+      "cuerpo": {
+        "codigo": "AP-CU135-12",
+        "mensaje": "Aprobador es el proponente",
+        "detalle": {},
+        "trazaId": "traza-aprobarSolicitudDeRol-rechazo"
+      }
+    }
+  }
+}

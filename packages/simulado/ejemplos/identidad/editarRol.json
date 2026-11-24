@@ -1,0 +1,58 @@
+{
+  "servicio": "identidad",
+  "operacion": "editarRol",
+  "metodo": "patch",
+  "ruta": "/roles/{rolId}",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "estado": "APLICADO",
+        "rolId": "68575b51-c594-4049-8523-cb4e82deb6b9",
+        "solicitudId": "380d54ba-2f1a-47cc-8717-d3766727dc86"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "estado": "APLICADO",
+        "rolId": "68575b51-c594-4049-8523-cb4e82deb6b9",
+        "solicitudId": "380d54ba-2f1a-47cc-8717-d3766727dc86"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "estado": "APLICADO",
+        "rolId": "68575b51-c594-4049-8523-cb4e82deb6b9",
+        "solicitudId": "380d54ba-2f1a-47cc-8717-d3766727dc86"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "estado": "APLICADO",
+        "rolId": "68575b51-c594-4049-8523-cb4e82deb6b9",
+        "solicitudId": "380d54ba-2f1a-47cc-8717-d3766727dc86"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 400,
+      "cuerpo": {
+        "codigo": "AP-CU135-06",
+        "mensaje": "Rol de sistema",
+        "detalle": {},
+        "trazaId": "traza-editarRol-rechazo"
+      }
+    }
+  }
+}
