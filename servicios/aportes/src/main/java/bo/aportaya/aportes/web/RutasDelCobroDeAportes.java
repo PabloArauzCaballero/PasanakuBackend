@@ -56,7 +56,10 @@ abstract class RutasDelCobroDeAportes implements AportesApi {
                 conSaldo.pagarConSaldo(idempotencyKey.toString(), obligacionId, Optional.empty(), periodoAbierto, ctx));
     }
 
+    // Contrato legado que la app movil publicada sigue usando: el OpenAPI lo marca obsoleto y la
+    // implementacion lo declara igual, para que el retiro se vea en el codigo y no solo en el YAML.
     @Override
+    @Deprecated
     @Permiso("BILLETERA_OPERAR")
     public ResponseEntity<SalidaCobro> cobrarAporte(UUID idempotencyKey, UUID obligacionId, EntradaCobro cuerpo) {
         Traza.marcarCasoDeUso("CU-21", obligacionId.toString());

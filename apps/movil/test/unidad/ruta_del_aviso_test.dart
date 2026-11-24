@@ -9,7 +9,7 @@ void main() {
     for (final (entrada, esperada) in <(String, String)>[
       ('aportaya://billetera', '/billetera/inicio'),
       ('aportaya://notificaciones', '/notificaciones/bandeja'),
-      ('aportaya://aporte', '/billetera/aportes'),
+      ('aportaya://aporte', '/pasanaku/mi-estado'),
       ('/billetera/inicio', '/billetera/inicio'),
       ('/notificaciones/bandeja', '/notificaciones/bandeja'),
       ('aportaya://unirse/$_uuid.$_hash', '/pasanaku/unirse/$_uuid.$_hash'),

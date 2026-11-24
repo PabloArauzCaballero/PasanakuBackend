@@ -4,6 +4,7 @@ import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:aportaya_movil/dominio/cliente.dart';
 import 'package:aportaya_movil/localizacion.dart';
+import 'package:aportaya_movil/proveedores/pagos_de_prueba.dart';
 import 'package:aportaya_movil/proveedores/sesion.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,8 @@ Future<void> montarParaCaptura(
   Size tam, {
   bool conIdioma = false,
   double escalaDeTexto = 1.3,
+  // Las capturas representan la build de TEST, que enciende PAGOS_DE_PRUEBA (FLUJO-QR-001).
+  bool pagosDePrueba = true,
 }) async {
   t.view.physicalSize = tam;
   t.view.devicePixelRatio = 1;
@@ -41,6 +44,7 @@ Future<void> montarParaCaptura(
       overrides: [
         almacenSeguroProvider.overrideWithValue(AlmacenEnMemoria()),
         dioProvider.overrideWithValue(dio),
+        pagosDePruebaProvider.overrideWithValue(pagosDePrueba),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

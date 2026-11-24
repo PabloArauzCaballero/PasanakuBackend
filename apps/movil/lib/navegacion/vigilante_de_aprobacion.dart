@@ -81,8 +81,18 @@ class _VigilanteDeAprobacionState extends ConsumerState<VigilanteDeAprobacion> {
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
         const SnackBar(content: Text(TextosDeVerificacion.cuentaActivada)),
       );
-    } on Object {
+    } on Exception {
       // Sin red o con el servidor caído: se vuelve a intentar en la próxima vuelta.
+    } on Error catch (error, pila) {
+      // PARCHE-001: un defecto de programación no es «sin red»; se informa en vez de
+      // desaparecer, y la próxima vuelta lo vuelve a intentar igual.
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: error,
+          stack: pila,
+          library: 'vigilante de aprobación',
+        ),
+      );
     } finally {
       _consultando = false;
     }

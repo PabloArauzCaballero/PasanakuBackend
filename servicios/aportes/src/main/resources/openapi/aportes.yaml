@@ -69,6 +69,9 @@ paths:
     post:
       operationId: cobrarAporte                # CU-21
       summary: Acreditar el pago de una obligacion de aporte (se retira; usar pagarCuotaConSaldo)
+      # Sigue disponible para la app movil ya desplegada (decision de Pablo, 2026-11-23); la
+      # app nueva usa pagarCuotaConSaldo. Retirarla exige antes que ninguna version activa la llame.
+      deprecated: true
       description: >-
         El dinero lo mueve nucleo-financiero (invariante 12): esta operacion aplica el
         pago a la obligacion y pide el movimiento por evento. La clave de idempotencia
