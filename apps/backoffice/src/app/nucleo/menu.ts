@@ -191,6 +191,7 @@ export const MENU: readonly Grupo[] = [
           { ruta: '/configuracion/mensajeria', texto: 'Mensajería', icono: 'correo', requiere: [CONFIGURACION, p('AUDITORIA_LEER')] },
           { ruta: '/configuracion/reportes', texto: 'Reportes', icono: 'documento', requiere: [CONFIGURACION, p('AUDITORIA_LEER')] },
           sis('catalogos-operativos', 'Catálogos operativos', 'engranaje'),
+          { ruta: '/acceso/recuperaciones', texto: 'Recuperaciones de acceso', icono: 'llave', requiere: [p('SEGURIDAD_ACCESO_RESTABLECER')] },
           { ruta: '/tablero/catalogo-de-datos', texto: 'Catálogo de datos', icono: 'baseDeDatos', requiere: [p('TABLERO_SISTEMAS_VER')] },
         ],
       },
