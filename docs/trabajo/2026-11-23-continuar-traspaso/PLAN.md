@@ -117,3 +117,17 @@ protegidas, entonces ningún defecto abierto del inventario se reproduce y la su
 | H4.S2.M1 | Backoffice: caso de cumplimiento con cabecera de resumen y escalera compacta en móvil / lateral en escritorio | E2E `caso-de-cumplimiento` 16/16 + capturas nuevas | `yarn playwright test e2e/caso-de-cumplimiento.e2e.ts` | HECHO — ae441d9f; verificado: E2E caso 18/18, specs del caso + grupo-radio verdes, typecheck 0 |
 | H4.S2.M2 | Backoffice: parámetros financieros con vigente / propuesta pendiente / historial jerarquizados | spec + E2E visual verdes | `ng test` del componente + `yarn playwright test e2e/visual-parametros-financieros.e2e.ts` | HECHO — ae441d9f + d74707f7 (captura sin barra fija a mitad); E2E parámetros 10/10 |
 | H4.S3.M1 | PR de H4 a `dev` con CI verde y merge | `origin/dev` contiene la rama | check-runs + `git branch -r --contains` | EN CURSO — #507 (backoffice) abierta contra dev; la de móvil espera el merge de #506 (está construida encima) |
+
+## H5 — Contrato: datos que las pantallas rediseñadas declaran faltantes (pedido de Pablo, 2026-11-24)
+**CA:** Dado un caso de cumplimiento o un parámetro con versiones, cuando un operador abre su pantalla en el backoffice, entonces ve la alerta de origen y el titular (enmascarado) del caso, y quién propuso y quién aprobó cada versión del parámetro, servidos por el contrato real (cambio aditivo y compatible) y no inventados en el cliente.
+**DoD:** OpenAPI + implementación + tests del servicio en CI verde · clientes regenerados · pantallas y E2E actualizados · autorización negativa del endpoint intacta · sin PII en claro · PR a `dev` con CI verde y merge.
+**Estado:** EN CURSO
+- Rama: `claude/contrato-caso-parametros-20261124`, encima de `claude/visuales-backoffice-20261124` (#507).
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H5.S1.M1 | CU-132: el contrato de versión de parámetro publica quién propuso y quién aprobó | respuesta incluye ambos campos (aprobado nulo si pendiente) | test web de tarifas en CI + `openapi-generator validate` | TODO |
+| H5.S1.M2 | CU-44: el contrato del caso publica alerta de origen y titular enmascarado | respuesta incluye ambos, titular nunca en claro | test web de cumplimiento en CI + validate | TODO |
+| H5.S2.M1 | Backoffice muestra esos datos en lugar del aviso de faltante | specs + E2E caso y parámetros verdes con el simulado regenerado | `yarn playwright test e2e/caso-de-cumplimiento.e2e.ts e2e/visual-parametros-financieros.e2e.ts` | TODO |
+| H5.S3.M1 | PR de H5 a `dev` con CI verde y merge | `origin/dev` contiene la rama | check-runs + merge | TODO |
+| H6.S1.M1 | Ninguna PR abierta en PasanakuBackend ni PasanakuFrontend | `pulls?state=open` vacío en ambos | `gh api repos/.../pulls?state=open` → [] | TODO |
