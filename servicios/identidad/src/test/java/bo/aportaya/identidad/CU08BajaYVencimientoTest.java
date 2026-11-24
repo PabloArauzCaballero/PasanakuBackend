@@ -187,14 +187,14 @@ class CU08BajaYVencimientoTest extends BaseDeGobiernoCU08 {
         dsl.execute(
                 """
                 INSERT INTO identidad.asignacion_rol (id, usuario_id, rol_id, ambito, otorgada_por, otorgada_en, vigente_hasta)
-                VALUES (?, ?, ?, 'GLOBAL', ?, ?, ?)
+                VALUES (?, ?, ?, 'GLOBAL', ?, ?::timestamptz, ?::timestamptz)
                 """,
                 id,
                 usuario,
                 rol,
                 fixtura.otorgante(),
-                hasta.minusDays(10),
-                hasta);
+                hasta.minusDays(10).toString(),
+                hasta.toString());
         return id;
     }
 
