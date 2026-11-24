@@ -71,8 +71,8 @@ Este caso **no** reemplaza a ninguno de estos; los invoca o se aparta de ellos.
 4. Para proponer una medida existe **causal del catálogo cerrado** (paso 6) y al menos
    una evidencia.
 5. Existe una política vigente **anterior al hecho** que fija plazos de descargo,
-   apelación y prescripción para estas medidas (*APROBADO*, D-3): [[politica_sancion]] con
-   `grupo_id` nulo es la política de plataforma, sembrada con los valores de D-3.
+   apelación y prescripción para estas medidas (*APROBADO*, D-3): [[politica_medida_cuenta]],
+   la política de plataforma de `identidad`, sembrada con los valores de D-3.
 
 ## Flujo principal
 
@@ -138,8 +138,7 @@ Este caso **no** reemplaza a ninguno de estos; los invoca o se aparta de ellos.
    - **No existe inhabilitación definitiva** (D-2 aprobada): una cuenta que no debe seguir
      operando se cierra por [[CU-16 Cerrar billetera y devolver saldo]], nunca reteniendo el saldo.
 
-8. **Abrir el expediente.** Se crea el expediente de la medida (*APROBADO*, ver
-   D-4: tabla nueva `expediente_medida_cuenta` en el esquema `identidad`) con `usuario_id`,
+8. **Abrir el expediente.** Se crea [[expediente_medida_cuenta]] (*APROBADO*, D-4) con `usuario_id`,
    `causal`, `medida`, `cautelar`, `motivo`, `propuesta_por`, `clave_idempotencia` y estado
    `PROPUESTA`. Las evidencias se guardan **inmutables**, distinguiendo las que aporta el
    sistema de las que aporta el afectado (mismo criterio que `R-GAR-02`). Todo **en la misma
@@ -371,19 +370,21 @@ leer; `FRAUD_ANALYST` → proponer; `RESPONSABLE_SEGURIDAD` → decidir; comité
 
 ## Restricciones aplicables
 
-`R-SEG-02` · `R-SEG-03` · `R-SEG-04` · `R-SEG-09` · `R-SEG-10` · `R-SEG-12` · `R-AUD-01` ·
-`R-AUD-04` · `R-REP-01`
+`R-SEG-02` · `R-SEG-03` · `R-SEG-04` · `R-SEG-09` · `R-SEG-10` · `R-SEG-12` · `R-SEG-13` ·
+`R-SEG-14` · `R-SEG-15` · `R-AUD-01` · `R-AUD-04` · `R-REP-01`
 
-*Restricciones nuevas aprobadas* (se dan de alta en [[Restricciones]] al implementarse):
-una medida de cuenta por causal abierta y usuario (`UNIQUE` parcial); una apelación por
-expediente; proponente, decisor y resolutor distintos (trigger); el estado `FIRME` exige
-plazo de descargo vencido o descargo presentado; la evidencia del expediente es inmutable.
+`R-SEG-13`: proponente, decisor y resolutor de la apelación son tres personas distintas y
+ninguna es el afectado (CHECK y trigger). `R-SEG-14`: un expediente abierto por cuenta y causal
+(UNIQUE parcial). `R-SEG-15`: no hay decisión sin fundamento ni firmeza sin decisión confirmada.
+Una apelación por expediente la garantiza el UNIQUE de `apelacion_medida_cuenta`; la evidencia
+y el historial son append-only (`R-AUD-01`).
 
 ## Evidencia que deja
 
-[[registro_acceso_datos]] · [[bloqueo_cuenta]] · [[sesion]] · [[evento_entrega_mensaje]] ·
-[[evento_reputacion]] · [[evento_riesgo_operativo]] · [[bitacora_evento]] · `evento_dominio` ·
-y el expediente `expediente_medida_cuenta` (D-4, aprobado)
+[[expediente_medida_cuenta]] · [[evidencia_medida_cuenta]] · [[historial_estado_medida_cuenta]] ·
+[[apelacion_medida_cuenta]] · [[politica_medida_cuenta]] · [[registro_acceso_datos]] ·
+[[bloqueo_cuenta]] · [[sesion]] · [[evento_entrega_mensaje]] · [[evento_reputacion]] ·
+[[evento_riesgo_operativo]] · [[bitacora_evento]] · `evento_dominio`
 
 ## Datos sensibles
 
@@ -462,8 +463,8 @@ principal del trabajo de gobierno de usuarios.
 | — | Número del caso | **CU-134** (CU-133 y CU-136 se usan como prefijo de pruebas en `servicios/entregas`) |
 | D-1 | Causales | Catálogo cerrado de cuatro: `CUENTA_COMPROMETIDA`, `FRAUDE_CON_EVIDENCIA`, `ABUSO_CONTRA_PARTICIPANTES`, `CUENTA_DUPLICADA_O_DE_TERCERO` |
 | D-2 | Medidas | Bloqueo cautelar y suspensión temporal. **No** hay inhabilitación definitiva ni amonestación |
-| D-3 | Plazos | Viven en [[politica_sancion]] con `grupo_id` nulo, como política de plataforma: **descargo 5 días hábiles, apelación 5 días hábiles, prescripción del expediente 12 meses, duración máxima de la suspensión 90 días**. Valor de plataforma aprobado por Pablo el 2026-11-24, **sin fuente normativa**; editable sin tocar código |
-| D-4 | Expediente | Tablas nuevas `expediente_medida_cuenta` y `apelacion_medida_cuenta` en el esquema `identidad` |
+| D-3 | Plazos | Viven en [[politica_medida_cuenta]], política de plataforma propia de `identidad` (no en `politica_sancion`, que es de `garantia`: regla 98.1): **descargo 5 días hábiles, apelación 5 días hábiles, prescripción del expediente 12 meses, duración máxima de la suspensión 90 días**. Valor de plataforma aprobado por Pablo el 2026-11-24, **sin fuente normativa**; editable sin tocar código |
+| D-4 | Expediente | Tablas nuevas en `identidad`: [[expediente_medida_cuenta]], [[evidencia_medida_cuenta]] y [[historial_estado_medida_cuenta]] (append-only) y [[apelacion_medida_cuenta]] |
 | D-5 | Quién actúa | Permisos nuevos `PARTICIPANTES_MEDIDA_PROPONER`, `PARTICIPANTES_MEDIDA_DECIDIR` y `PARTICIPANTES_APELACION_RESOLVER`, asignados de inicio a `FRAUD_ANALYST`, `RESPONSABLE_SEGURIDAD` y el comité de gobierno respectivamente; tres personas distintas por expediente |
 | D-6 | Defensa con cuenta suspendida | Modo restringido: con `SUSPENDIDO` entra solo a ver la medida, presentar descargo y apelación, pagar y reclamar. Con cuenta comprometida, canal verificado alternativo |
 | D-7 | Sin cautelar | La suspensión rige recién al quedar firme |
@@ -481,7 +482,8 @@ principal del trabajo de gobierno de usuarios.
 | ID | Ambigüedad | Supuesto mientras tanto | A quién confirmar |
 | --- | --- | --- | --- |
 | A-1 | Destino de una entrega retenida cuando la medida queda firme (D-11) | Sigue retenida; nadie la mueve | Pablo |
-| A-2 | La prescripción es de 12 meses, pero `politica_sancion.prescribe_en_dias` guarda días, y la duración máxima de 90 días no tiene columna | Se resuelve en el modelo al implementar, sin convertir meses a un número de días por cuenta propia | Pablo, si el modelo exige elegir una equivalencia |
+| A-2 | ~~Unidad de la prescripción~~ — **resuelta**: [[politica_medida_cuenta]] guarda `prescribe_en_meses` y `duracion_maxima_suspension_dias` en columnas propias | — | — |
+| A-3 | Plazo de la segunda instancia para resolver la apelación (sin él no hay «resuelta a favor por vencimiento») | `plazo_resolucion_apelacion_dias_habiles` queda vacío: no se resuelve sola | Pablo |
 
 ## Ver también
 

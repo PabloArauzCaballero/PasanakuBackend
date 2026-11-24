@@ -126,3 +126,24 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_reputacion_usuario_usuario_id
 
 CREATE INDEX IF NOT EXISTS ix_solicitud_baja_usuario_id
   ON identidad.solicitud_baja (usuario_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_politica_medida_cuenta_version
+  ON identidad.politica_medida_cuenta (version);
+
+CREATE INDEX IF NOT EXISTS ix_expediente_medida_cuenta_usuario_id
+  ON identidad.expediente_medida_cuenta (usuario_id);
+
+CREATE INDEX IF NOT EXISTS ix_expediente_medida_cuenta_estado
+  ON identidad.expediente_medida_cuenta (estado);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_expediente_medida_cuenta_clave_idempotencia
+  ON identidad.expediente_medida_cuenta (clave_idempotencia);
+
+CREATE INDEX IF NOT EXISTS ix_evidencia_medida_cuenta_expediente_medida_cuenta_id
+  ON identidad.evidencia_medida_cuenta (expediente_medida_cuenta_id);
+
+CREATE INDEX IF NOT EXISTS ix_historial_estado_medida_cuenta_expediente_medida_cuenta_id
+  ON identidad.historial_estado_medida_cuenta (expediente_medida_cuenta_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_apelacion_medida_cuenta_expediente_medida_cuenta_id
+  ON identidad.apelacion_medida_cuenta (expediente_medida_cuenta_id);

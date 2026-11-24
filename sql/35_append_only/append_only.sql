@@ -128,6 +128,11 @@ CREATE TRIGGER tg_evento_riesgo_operativo_append_only
   BEFORE UPDATE OR DELETE ON cumplimiento.evento_riesgo_operativo
   FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
 
+DROP TRIGGER IF EXISTS tg_evidencia_medida_cuenta_append_only ON identidad.evidencia_medida_cuenta;
+CREATE TRIGGER tg_evidencia_medida_cuenta_append_only
+  BEFORE UPDATE OR DELETE ON identidad.evidencia_medida_cuenta
+  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
+
 DROP TRIGGER IF EXISTS tg_evidencia_mfa_consumida_append_only ON nucleo_financiero.evidencia_mfa_consumida;
 CREATE TRIGGER tg_evidencia_mfa_consumida_append_only
   BEFORE UPDATE OR DELETE ON nucleo_financiero.evidencia_mfa_consumida
@@ -146,6 +151,11 @@ CREATE TRIGGER tg_factura_publicidad_append_only
 DROP TRIGGER IF EXISTS tg_historial_estado_incumplimiento_append_only ON garantia.historial_estado_incumplimiento;
 CREATE TRIGGER tg_historial_estado_incumplimiento_append_only
   BEFORE UPDATE OR DELETE ON garantia.historial_estado_incumplimiento
+  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
+
+DROP TRIGGER IF EXISTS tg_historial_estado_medida_cuenta_append_only ON identidad.historial_estado_medida_cuenta;
+CREATE TRIGGER tg_historial_estado_medida_cuenta_append_only
+  BEFORE UPDATE OR DELETE ON identidad.historial_estado_medida_cuenta
   FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
 
 DROP TRIGGER IF EXISTS tg_historial_estado_pago_append_only ON aportes.historial_estado_pago;

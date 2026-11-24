@@ -68,13 +68,14 @@
 **Desvío registrado:** D-3 aprobó guardar los plazos en `politica_sancion` (esquema `garantia`); la regla 98.1 prohíbe que `identidad` lea esa base. Se guardan en una política propia de `identidad` (`politica_medida_cuenta`), con los mismos valores, versionada y editable sin código. Así se resuelve también A-2: la prescripción queda en meses y la duración máxima en días, cada una en su columna.
 
 ### H3.S1 — Modelo y esquema
+**Estado:** HECHO — evidencia `evidencia/H3.S1-*.txt` (aplicar dos veces, restricciones en tres niveles contra Postgres 16, semillas idempotentes, deriva en cero)
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H3.S1.M1 | Tablas nuevas en `.puml` + fichas: `politica_medida_cuenta`, `expediente_medida_cuenta`, `evidencia_medida_cuenta` (append-only), `historial_estado_medida_cuenta` (append-only), `apelacion_medida_cuenta` | DDL generado con las 5 tablas | `python3 scripts/generar_ddl.py` exit 0 y `ls sql/10_tablas/01_identidad_usuarios/` las lista | TODO |
-| H3.S1.M2 | CHECK ampliados: `bloqueo_cuenta.motivo` + `CUENTA_COMPROMETIDA`; `registro_acceso_datos.tipo_dato` + `FICHA_PARTICIPANTE`, `CORREO` | ALTER emitido para bases existentes | `grep CUENTA_COMPROMETIDA sql -r` y `grep FICHA_PARTICIPANTE sql -r` | TODO |
-| H3.S1.M3 | Restricciones R-SEG nuevas (segregación por trigger, un expediente abierto por causal, una apelación, evidencia inmutable) en `Restricciones.md` | Verificador en verde | `verificar_boveda.py` → `TODO OK` | TODO |
-| H3.S1.M4 | Semillas: permisos `PARTICIPANTES_*` + roles; política de plataforma D-3, idempotente | 2ª corrida sin cambios | `psql -f sql/aplicar.sql && psql -f sql/60_semillas/sembrar.sql` dos veces, conteos iguales | TODO |
-| H3.S1.M5 | Regeneración de derivados (bóveda, metadata, catálogo) y deriva en cero | Sin diferencias tras regenerar | `generar_ddl`, `generar_semillas`, `catalogo_de_datos --escribir`, `git diff --exit-code sql/` tras segunda corrida | TODO |
+| H3.S1.M1 | Tablas nuevas en `.puml` + fichas: `politica_medida_cuenta`, `expediente_medida_cuenta`, `evidencia_medida_cuenta` (append-only), `historial_estado_medida_cuenta` (append-only), `apelacion_medida_cuenta` | DDL generado con las 5 tablas | `python3 scripts/generar_ddl.py` exit 0 y `ls sql/10_tablas/01_identidad_usuarios/` las lista | HECHO |
+| H3.S1.M2 | CHECK ampliados: `bloqueo_cuenta.motivo` + `CUENTA_COMPROMETIDA`; `registro_acceso_datos.tipo_dato` + `FICHA_PARTICIPANTE`, `CORREO` | ALTER emitido para bases existentes | `grep CUENTA_COMPROMETIDA sql -r` y `grep FICHA_PARTICIPANTE sql -r` | HECHO |
+| H3.S1.M3 | Restricciones R-SEG nuevas (segregación por trigger, un expediente abierto por causal, una apelación, evidencia inmutable) en `Restricciones.md` | Verificador en verde | `verificar_boveda.py` → `TODO OK` | HECHO |
+| H3.S1.M4 | Semillas: permisos `PARTICIPANTES_*` + roles; política de plataforma D-3, idempotente | 2ª corrida sin cambios | `psql -f sql/aplicar.sql && psql -f sql/60_semillas/sembrar.sql` dos veces, conteos iguales | HECHO |
+| H3.S1.M5 | Regeneración de derivados (bóveda, metadata, catálogo) y deriva en cero | Sin diferencias tras regenerar | `generar_ddl`, `generar_semillas`, `catalogo_de_datos --escribir`, `git diff --exit-code sql/` tras segunda corrida | HECHO |
 
 ### H3.S2 — Contrato `identidad.yaml` (tag Participantes, solo operaciones nuevas)
 | ID | Microtarea | CA (binario) | DoD | Estado |
