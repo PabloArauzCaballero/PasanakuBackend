@@ -13,10 +13,13 @@ const VIEWPORTS = [
 ] as const
 const TEMAS = ['light', 'dark'] as const
 const BASE = '**/tarifas/parametros'
-const VERSION = { id: 'v-1', codigo: 'DIAS_DE_GRACIA', valor: '5.000000', moneda: null, nivel: null, vigenteDesde: '2026-10-01T00:00:00Z', estado: 'APROBADA' }
-const PROPUESTA = { id: 'v-2', codigo: 'DIAS_DE_GRACIA', valor: '6.000000', moneda: null, nivel: null, vigenteDesde: '2026-12-01T00:00:00Z', estado: 'PROPUESTA' }
+// Operadores internos sintéticos: quién propuso y quién aprobó (contrato aditivo del 2026-11-24).
+const PROPUSO = 'c1320000-0000-4000-8000-00000000a001'
+const APROBO = 'c1320000-0000-4000-8000-00000000b002'
+const VERSION = { id: 'v-1', codigo: 'DIAS_DE_GRACIA', valor: '5.000000', moneda: null, nivel: null, vigenteDesde: '2026-10-01T00:00:00Z', estado: 'APROBADA', propuestoPor: PROPUSO, aprobadoPor: APROBO }
+const PROPUESTA = { id: 'v-2', codigo: 'DIAS_DE_GRACIA', valor: '6.000000', moneda: null, nivel: null, vigenteDesde: '2026-12-01T00:00:00Z', estado: 'PROPUESTA', propuestoPor: PROPUSO, aprobadoPor: null }
 const PARAMETROS = [{ codigo: 'DIAS_DE_GRACIA', descripcion: 'Días de gracia', unidad: 'DIAS', porNivel: false, vigentes: [VERSION], propuestas: [PROPUESTA] }]
-const HISTORIAL = [PROPUESTA, VERSION, { ...VERSION, id: 'v-0', valor: '4.000000', estado: 'RECHAZADA' }]
+const HISTORIAL = [PROPUESTA, VERSION, { ...VERSION, id: 'v-0', valor: '4.000000', estado: 'RECHAZADA', aprobadoPor: null }]
 
 async function abrir(page: Page, catalogo: { status: number; json: unknown } = { status: 200, json: PARAMETROS }): Promise<void> {
   await page.route(BASE, (route) => route.fulfill(catalogo))
@@ -85,3 +88,25 @@ test('parámetros CU-132 — propuesta abierta con errores por campo (tablet cla
   await expect(page.getByLabel('Valor (decimal)')).toHaveAttribute('aria-invalid', 'true')
   await page.screenshot({ path: `${CAPTURAS}/propuesta-con-errores.tablet.light.png`, fullPage: true })
 })
+
+const CONTRATO = '../../docs/trabajo/2026-11-23-continuar-traspaso/evidencia/contrato'
+
+for (const [viewport, tema] of [[VIEWPORTS[0], 'light'], [VIEWPORTS[2], 'dark']] as const) {
+  test(`parámetros CU-132 — quién propuso y quién aprobó (${viewport.nombre} × ${tema})`, async ({ page }) => {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height })
+    await page.emulateMedia({ colorScheme: tema })
+    await abrir(page)
+    const rige = page.getByRole('region', { name: 'Versiones vigentes' })
+    await expect(page.getByText('Falta la segunda firma').first()).toBeVisible()
+    await page.getByRole('button', { name: 'Ver historial completo' }).click()
+    const historial = page.getByRole('table')
+    await expect(historial.getByRole('row').filter({ hasText: '4.000000' })).toContainText('Nadie: se rechazó')
+    await expect(historial.getByRole('row').filter({ hasText: '5.000000' })).toContainText(APROBO)
+    await expect(page.getByText('todavía no publica quién la propuso')).toHaveCount(0)
+    await expect(rige).toContainText(PROPUSO)
+    await expect(rige).toContainText(APROBO)
+    await page.evaluate(() => window.scrollTo(0, 0))
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
+    await page.screenshot({ path: `${CONTRATO}/parametros-propuso-aprobo.${viewport.nombre}.${tema}.png`, fullPage: true, animations: 'disabled' })
+  })
+}

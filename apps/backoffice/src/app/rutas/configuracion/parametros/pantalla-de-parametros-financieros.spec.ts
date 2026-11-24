@@ -14,15 +14,16 @@ import { PantallaDeParametrosFinancieros } from './pantalla-de-parametros-financ
 /** La pantalla usa un doble HTTP con la forma del OpenAPI; las pruebas de persistencia del historial corren en CU132Test. */
 const GW = 'http://gw/api/v1'
 const CATALOGO = `${GW}/tarifas/parametros`
+const [PROPONENTE, APROBADOR] = ['c1320000-0000-4000-8000-00000000a001', 'c1320000-0000-4000-8000-00000000b002'] // operadores sintéticos
 const PARAMETRO = {
   codigo: 'DIAS_DE_GRACIA',
   descripcion: 'Días de gracia',
   unidad: 'DIAS',
   porNivel: false,
-  vigentes: [{ id: 'v-aprobada', codigo: 'DIAS_DE_GRACIA', valor: '5.000000', moneda: null, nivel: null, vigenteDesde: '2026-10-01T00:00:00Z', estado: 'APROBADA' }],
-  propuestas: [{ id: 'v-propuesta', codigo: 'DIAS_DE_GRACIA', valor: '6', moneda: null, nivel: null, vigenteDesde: '2026-12-01T00:00:00Z', estado: 'PROPUESTA' }],
+  vigentes: [{ id: 'v-aprobada', codigo: 'DIAS_DE_GRACIA', valor: '5.000000', moneda: null, nivel: null, vigenteDesde: '2026-10-01T00:00:00Z', estado: 'APROBADA', propuestoPor: PROPONENTE, aprobadoPor: APROBADOR }],
+  propuestas: [{ id: 'v-propuesta', codigo: 'DIAS_DE_GRACIA', valor: '6', moneda: null, nivel: null, vigenteDesde: '2026-12-01T00:00:00Z', estado: 'PROPUESTA', propuestoPor: PROPONENTE, aprobadoPor: null }],
 } as unknown as ParametroFinanciero
-const VERSION_RECHAZADA = { id: 'v-rechazada', codigo: 'DIAS_DE_GRACIA', valor: '7', moneda: null, nivel: null, vigenteDesde: '2026-09-01T00:00:00Z', estado: 'RECHAZADA' } as unknown as VersionDeParametro
+const VERSION_RECHAZADA = { id: 'v-rechazada', codigo: 'DIAS_DE_GRACIA', valor: '7', moneda: null, nivel: null, vigenteDesde: '2026-09-01T00:00:00Z', estado: 'RECHAZADA', propuestoPor: PROPONENTE, aprobadoPor: null } as unknown as VersionDeParametro
 
 describe('PantallaDeParametrosFinancieros · CU-132 [UI con API simulada]', () => {
   let http: HttpTestingController
@@ -165,6 +166,20 @@ describe('PantallaDeParametrosFinancieros · CU-132 [UI con API simulada]', () =
     fixture.detectChanges()
     expect(texto(fixture)).toContain('Rechazada')
     expect(texto(fixture)).toContain('7')
+  })
+
+  it('correcto: cada versión dice quién la propuso y quién la aprobó; sin aprobador, dice por qué', async () => {
+    const fixture = montar()
+    await cargar(fixture, [PARAMETRO])
+    const en = (sel: string) => (fixture.nativeElement as HTMLElement).querySelector(sel)?.textContent ?? ''
+    expect([en('.carril.rige'), en('.carril.espera')].join('|')).toMatch(new RegExp(`${APROBADOR}.*\\|.*${PROPONENTE}.*Falta la segunda firma`, 's'))
+    api(fixture).alternarHistorial(PARAMETRO.codigo)
+    fixture.detectChanges()
+    http.expectOne(`${CATALOGO}/DIAS_DE_GRACIA/versiones`).flush([VERSION_RECHAZADA, ...PARAMETRO.vigentes])
+    await fixture.whenStable()
+    fixture.detectChanges()
+    const [rechazada = '', aprobada = ''] = [...(fixture.nativeElement as HTMLElement).querySelectorAll('.tabla-historial tbody tr')].map((f) => f.textContent ?? '')
+    expect([rechazada.includes(PROPONENTE), rechazada.includes('Nadie: se rechazó'), aprobada.includes(APROBADOR)]).toEqual([true, true, true])
   })
 
   it('correcto: aprobación usa una clave idempotente y el permiso de quien inicia esta sesión', async () => {
