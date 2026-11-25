@@ -160,10 +160,11 @@ $q$);
 -- las 47 coinciden una a una con scripts/modelo.py, no falta ningún sello; 47 → 51
 -- al sellar pago, reembolso y sus dos historiales de estado, R-BIL-30, F1.L1.M08;
 -- 51 → 52 al sellar parametro_congelado_grupo, la copia de los parámetros
--- financieros de cada grupo, R-TAR-17, F3.S8.M2a).
-SELECT CASE WHEN count(*) = 52
-            THEN 'OK    · R-AUD-01 las 52 tablas append-only están selladas'
-            ELSE 'FALLA · R-AUD-01 ' || count(*) || ' de 52 tablas selladas' END
+-- financieros de cada grupo, R-TAR-17, F3.S8.M2a; 52 → 53 al sellar
+-- evidencia_step_up_consumida, el jti del step-up de gobierno de accesos, GU-11).
+SELECT CASE WHEN count(*) = 53
+            THEN 'OK    · R-AUD-01 las 53 tablas append-only están selladas'
+            ELSE 'FALLA · R-AUD-01 ' || count(*) || ' de 53 tablas selladas' END
   FROM pg_trigger tg
   JOIN pg_class c ON c.oid = tg.tgrelid
  WHERE NOT tg.tgisinternal AND tg.tgname LIKE '%append\_only'

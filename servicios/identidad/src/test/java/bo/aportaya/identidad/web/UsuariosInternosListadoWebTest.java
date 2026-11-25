@@ -27,6 +27,13 @@ import org.springframework.test.web.servlet.MockMvc;
 
 /** GU-17 · el listado de personal interno paginado: lo que la ruta entrega al caso de uso y lo que rechaza. */
 @PruebaWeb(UsuariosInternosController.class)
+// CU-08 por asignacion (GU-B): las rutas de accesos viven en el mismo controlador.
+@MockitoBean(
+        types = {
+            bo.aportaya.identidad.aplicacion.GobiernoDeAccesos.class,
+            bo.aportaya.identidad.aplicacion.CU08DarDeBaja.class,
+            bo.aportaya.identidad.aplicacion.CU08InformeDeAccesos.class
+        })
 class UsuariosInternosListadoWebTest {
 
     private static final UUID PERFIL_ID = UUID.fromString("22222222-3333-4444-5555-666666666666");

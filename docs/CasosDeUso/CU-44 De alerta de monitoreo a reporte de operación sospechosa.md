@@ -207,4 +207,4 @@ Entonces ve la alerta mas antigua como origen, cuantas hay, y el titular solo en
 
 ## Ver también
 
-[[CU-03 Declaración PEP y beneficiario final]] · [[CU-06 Revisión periódica de conocimiento del cliente]] · [[CU-12 Transferir saldo entre billeteras]] · [[CU-45 Atender un requerimiento de autoridad]] · [[CU-48 Calibrar reglas de cumplimiento y triar sus alertas]]
+[[CU-03 Declaración PEP y beneficiario final]] · [[CU-06 Revisión periódica de conocimiento del cliente]] · [[CU-12 Transferir saldo entre billeteras]] · [[CU-45 Atender un requerimiento de autoridad]] · [[CU-48 Calibrar reglas de cumplimiento y triar sus alertas]] · [[CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso]]
