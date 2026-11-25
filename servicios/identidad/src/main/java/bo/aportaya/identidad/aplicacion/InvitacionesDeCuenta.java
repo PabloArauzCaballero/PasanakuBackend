@@ -2,7 +2,6 @@ package bo.aportaya.identidad.aplicacion;
 
 import bo.aportaya.identidad.dominio.AlcanceDeCuenta;
 import bo.aportaya.identidad.dominio.PoliticaDeClave;
-import bo.aportaya.identidad.dominio.puertos.CorreoDeCuenta;
 import bo.aportaya.identidad.dominio.puertos.HasheadorDeCredencial;
 import bo.aportaya.identidad.infraestructura.CredencialRepositorio;
 import bo.aportaya.identidad.infraestructura.FactorTotpRepositorio;
@@ -20,7 +19,6 @@ import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.dominio.Traza;
 import java.security.SecureRandom;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -46,7 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>Vencido, usado, falso o de otro proposito responden lo mismo (AP-CU09-04): no se distingue.
  */
 @Service
-public class InvitacionesDeCuenta implements InvitadorDeOperador {
+public class InvitacionesDeCuenta {
 
     /** El «usuario» del proceso en {@code app.usuario_id}: un endpoint sin sesion no es una persona. */
     static final UUID PROCESO = UUID.fromString("00000000-0000-4000-8000-0000000000c1");
@@ -60,11 +58,9 @@ public class InvitacionesDeCuenta implements InvitadorDeOperador {
     private final LlavesDeFactor llaves;
     private final VerificadorTotp verificador;
     private final HasheadorDeCredencial hasheador;
-    private final CorreoDeCuenta correo;
     private final BitacoraDeCuenta bitacora;
     private final Reloj reloj;
     private final PoliticaDeClave politica;
-    private final String urlDelBackoffice;
     private final SecureRandom azar = new SecureRandom();
 
     public InvitacionesDeCuenta(
@@ -77,12 +73,10 @@ public class InvitacionesDeCuenta implements InvitadorDeOperador {
             LlavesDeFactor llaves,
             VerificadorTotp verificador,
             HasheadorDeCredencial hasheador,
-            CorreoDeCuenta correo,
             BitacoraDeCuenta bitacora,
             Reloj reloj,
             @Value("${identidad.clave.largo-minimo:8}") int largoMinimoDeClave,
-            @Value("${identidad.clave.no-se-repiten:5}") int clavesQueNoSeRepiten,
-            @Value("${aportaya.acceso.url-backoffice:http://localhost:4200}") String urlDelBackoffice) {
+            @Value("${identidad.clave.no-se-repiten:5}") int clavesQueNoSeRepiten) {
         this.datos = datos;
         this.tokens = tokens;
         this.usuarios = usuarios;
@@ -92,13 +86,9 @@ public class InvitacionesDeCuenta implements InvitadorDeOperador {
         this.llaves = llaves;
         this.verificador = verificador;
         this.hasheador = hasheador;
-        this.correo = correo;
         this.bitacora = bitacora;
         this.reloj = reloj;
         this.politica = new PoliticaDeClave(largoMinimoDeClave, clavesQueNoSeRepiten);
-        this.urlDelBackoffice = urlDelBackoffice.endsWith("/")
-                ? urlDelBackoffice.substring(0, urlDelBackoffice.length() - 1)
-                : urlDelBackoffice;
     }
 
     public record Consulta(AlcanceDeCuenta alcance, String nombres, OffsetDateTime venceEn) {}
@@ -255,61 +245,6 @@ public class InvitacionesDeCuenta implements InvitadorDeOperador {
                     ahora);
             return new Resultado(alcance, cerradas, null);
         });
-    }
-
-    /**
-     * Emite el token y manda el correo al correo institucional DESPUES del commit. Lo llama el alta (P-1)
-     * y el trabajo de recuperacion (P-4) dentro de su propia transaccion.
-     *
-     * @return el id del token emitido (para enlazarlo al expediente); nunca su valor
-     */
-    public UUID emitirYEnviar(
-            DSLContext dsl,
-            UUID usuarioId,
-            AlcanceDeCuenta alcance,
-            BitacoraDeCuenta.Accion accion,
-            BitacoraDeCuenta.Actor actor,
-            String motivo,
-            UUID correlacion,
-            String ip,
-            String agente) {
-        OffsetDateTime ahora = ahora();
-        String destino = dsl.fetchOptional("SELECT correo FROM identidad.usuario WHERE id = ?", usuarioId)
-                .map(fila -> fila.get(0, String.class))
-                .filter(c -> c != null && !c.isBlank())
-                .orElseThrow(() -> new IllegalStateException(
-                        "El operador " + usuarioId + " no tiene un correo institucional registrado"));
-        var emitido = tokens.emitir(
-                dsl, usuarioId, alcance, TokensDeCuentaRepositorio.enmascarar(destino), ahora, ip, agente, correlacion);
-        bitacora.registrar(
-                dsl,
-                accion,
-                usuarioId,
-                actor,
-                motivo,
-                Map.of("alcance", alcance.name(), "venceEn", emitido.expiraEn().toString()),
-                correlacion,
-                ahora);
-        String enlace = urlDelBackoffice + "/acceso/invitacion#token=" + emitido.token();
-        Duration vigencia = Duration.between(ahora, emitido.expiraEn());
-        DespuesDelCommit.ejecutar(
-                "invitacion " + alcance, () -> correo.enviarInvitacion(destino, enlace, alcance, vigencia));
-        return emitido.tokenId();
-    }
-
-    @Override
-    public void invitar(DSLContext dsl, UUID operadorId, ContextoSesion quienLoDioDeAlta, String motivo) {
-        emitirYEnviar(
-                dsl,
-                operadorId,
-                AlcanceDeCuenta.ALTA,
-                BitacoraDeCuenta.Accion.INVITACION_EMITIDA,
-                new BitacoraDeCuenta.Actor(
-                        quienLoDioDeAlta.usuarioId(), quienLoDioDeAlta.rol(), BitacoraDeCuenta.ORIGEN_PANEL),
-                motivo,
-                UUID.fromString(quienLoDioDeAlta.traza().id()),
-                "0.0.0.0",
-                "panel-de-administracion");
     }
 
     private ErrorDeNegocio evaluarClave(DSLContext dsl, UUID usuario, String claveNueva) {

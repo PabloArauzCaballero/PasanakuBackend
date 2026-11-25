@@ -35,28 +35,31 @@ public class RecuperacionesDeAcceso {
 
     private static final Logger BITACORA = LoggerFactory.getLogger(RecuperacionesDeAcceso.class);
 
-    private static final int LIMITE_POR_OMISION = 25;
-    private static final int LIMITE_MAXIMO = 100;
-    private static final int TANDA = 50;
 
     private final Datos datos;
     private final RecuperacionesRepositorio solicitudes;
-    private final InvitacionesDeCuenta invitaciones;
+    private final EmisorDeInvitaciones invitaciones;
     private final BitacoraDeCuenta bitacora;
     private final ReglasDeGobierno reglas;
     private final Reloj reloj;
     private final Duration enfriamiento;
     private final Duration vigenciaDelPedido;
+    private final int limitePorOmision;
+    private final int limiteMaximo;
+    private final int tanda;
 
     public RecuperacionesDeAcceso(
             Datos datos,
             RecuperacionesRepositorio solicitudes,
-            InvitacionesDeCuenta invitaciones,
+            EmisorDeInvitaciones invitaciones,
             BitacoraDeCuenta bitacora,
             ReglasDeGobierno reglas,
             Reloj reloj,
             @Value("${aportaya.acceso.recuperacion.enfriamiento:PT24H}") Duration enfriamiento,
-            @Value("${aportaya.acceso.recuperacion.vigencia-del-pedido:P7D}") Duration vigenciaDelPedido) {
+            @Value("${aportaya.acceso.recuperacion.vigencia-del-pedido:P7D}") Duration vigenciaDelPedido,
+            @Value("${aportaya.acceso.recuperacion.limite-por-omision:25}") int limitePorOmision,
+            @Value("${aportaya.acceso.recuperacion.limite-maximo:100}") int limiteMaximo,
+            @Value("${aportaya.acceso.recuperacion.tanda:50}") int tanda) {
         this.datos = datos;
         this.solicitudes = solicitudes;
         this.invitaciones = invitaciones;
@@ -65,6 +68,9 @@ public class RecuperacionesDeAcceso {
         this.reloj = reloj;
         this.enfriamiento = enfriamiento;
         this.vigenciaDelPedido = vigenciaDelPedido;
+        this.limitePorOmision = limitePorOmision;
+        this.limiteMaximo = limiteMaximo;
+        this.tanda = tanda;
     }
 
     /** Siempre termina bien: lo que ocurrio (o no) es asunto del expediente, no de la respuesta. */
@@ -101,7 +107,7 @@ public class RecuperacionesDeAcceso {
     @Transactional(readOnly = true)
     public SalidaRecuperaciones listar(
             String estado, Integer limite, OffsetDateTime antesDe, UUID antesDeId, ContextoSesion ctx) {
-        int tope = limite == null ? LIMITE_POR_OMISION : Math.max(1, Math.min(limite, LIMITE_MAXIMO));
+        int tope = limite == null ? limitePorOmision : Math.max(1, Math.min(limite, limiteMaximo));
         List<SolicitudDeRecuperacion> filas =
                 datos.conContexto(ctx, dsl -> solicitudes.listar(dsl, estado, tope + 1, antesDe, antesDeId));
         SalidaRecuperaciones salida = new SalidaRecuperaciones();
@@ -186,7 +192,7 @@ public class RecuperacionesDeAcceso {
         return datos.conContexto(ctx, dsl -> {
             solicitudes.vencerLoAbandonado(dsl, ahora, ahora.minus(vigenciaDelPedido));
             int emitidas = 0;
-            for (var aprobada : solicitudes.listasParaEmitir(dsl, ahora, TANDA)) {
+            for (var aprobada : solicitudes.listasParaEmitir(dsl, ahora, tanda)) {
                 boolean activo = dsl.fetchExists(dsl.selectOne()
                         .from("identidad.usuario")
                         .where("id = ? AND estado = 'ACTIVO'", aprobada.usuarioId()));
