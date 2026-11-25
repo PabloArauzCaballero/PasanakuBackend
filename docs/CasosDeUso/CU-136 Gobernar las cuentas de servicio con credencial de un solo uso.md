@@ -136,7 +136,7 @@ credencial, su hash ni datos personales.
 
 ## Evidencia que deja
 
-[[cuenta_servicio]] · [[credencial_acceso]] · [[historial_credencial]] · [[asignacion_rol]] · [[sesion]] · [[evidencia_step_up_consumida]] · [[bitacora_evento]] · `evento_dominio`
+[[cuenta_servicio]] · [[credencial_acceso]] · [[historial_credencial]] · [[asignacion_rol]] · [[sesion]] · [[bitacora_evento]] · `evento_dominio`
 
 ## Decisiones requeridas
 

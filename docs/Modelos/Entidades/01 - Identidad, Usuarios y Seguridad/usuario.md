@@ -9,7 +9,7 @@ estereotipo: Raíz de agregado
 clave_primaria: [id]
 columnas: 18
 fk_salientes: 0
-fk_entrantes: 238
+fk_entrantes: 221
 append_only: false
 ---
 
@@ -57,8 +57,6 @@ append_only: false
 | [[alerta_monitoreo_lft]] | `asignada_a` | ↗ 12 | [[alerta_monitoreo_lft.asignada_a → usuario]] |
 | [[alerta_monitoreo_lft]] | `usuario_id` | ↗ 12 | [[alerta_monitoreo_lft.usuario_id → usuario]] |
 | [[alerta_temprana]] | `usuario_id` | ↗ 08 | [[alerta_temprana.usuario_id → usuario]] |
-| [[apelacion_medida_cuenta]] | `apelante_id` | 01 | [[apelacion_medida_cuenta.apelante_id → usuario]] |
-| [[apelacion_medida_cuenta]] | `resuelta_por` | 01 | [[apelacion_medida_cuenta.resuelta_por → usuario]] |
 | [[apelacion_sancion]] | `apelante_id` | ↗ 08 | [[apelacion_sancion.apelante_id → usuario]] |
 | [[apelacion_sancion]] | `resuelta_por` | ↗ 08 | [[apelacion_sancion.resuelta_por → usuario]] |
 | [[apelacion_sancion_org]] | `resuelta_por` | ↗ 07 | [[apelacion_sancion_org.resuelta_por → usuario]] |
@@ -77,7 +75,6 @@ append_only: false
 | [[bloqueo_cuenta]] | `liberada_por` | 01 | [[bloqueo_cuenta.liberada_por → usuario]] |
 | [[bloqueo_cuenta]] | `usuario_id` | 01 | [[bloqueo_cuenta.usuario_id → usuario]] |
 | [[bloqueo_saldo]] | `levantada_por` | ↗ 10 | [[bloqueo_saldo.levantada_por → usuario]] |
-| [[bloqueo_saldo]] | `registrado_por` | ↗ 10 | [[bloqueo_saldo.registrado_por → usuario]] |
 | [[calificacion_riesgo_cliente]] | `calificado_por` | ↗ 12 | [[calificacion_riesgo_cliente.calificado_por → usuario]] |
 | [[calificacion_riesgo_cliente]] | `usuario_id` | ↗ 12 | [[calificacion_riesgo_cliente.usuario_id → usuario]] |
 | [[cambio_tarifario]] | `aprobado_por` | ↗ 11 | [[cambio_tarifario.aprobado_por → usuario]] |
@@ -113,9 +110,6 @@ append_only: false
 | [[cuenta_bancaria_beneficiario]] | `usuario_id` | ↗ 04 | [[cuenta_bancaria_beneficiario.usuario_id → usuario]] |
 | [[cuenta_billetera]] | `usuario_id` | ↗ 10 | [[cuenta_billetera.usuario_id → usuario]] |
 | [[cuenta_por_cobrar_comision]] | `usuario_id` | ↗ 11 | [[cuenta_por_cobrar_comision.usuario_id → usuario]] |
-| [[cuenta_servicio]] | `creada_por` | 01 | [[cuenta_servicio.creada_por → usuario]] |
-| [[cuenta_servicio]] | `revocada_por` | 01 | [[cuenta_servicio.revocada_por → usuario]] |
-| [[cuenta_servicio]] | `usuario_id` | 01 | [[cuenta_servicio.usuario_id → usuario]] |
 | [[datos_facturacion]] | `usuario_id` | ↗ 11 | [[datos_facturacion.usuario_id → usuario]] |
 | [[debida_diligencia]] | `aprobada_por` | ↗ 12 | [[debida_diligencia.aprobada_por → usuario]] |
 | [[debida_diligencia]] | `segunda_revision_por` | ↗ 12 | [[debida_diligencia.segunda_revision_por → usuario]] |
@@ -149,17 +143,12 @@ append_only: false
 | [[evento_riesgo_operativo]] | `registrado_por` | ↗ 12 | [[evento_riesgo_operativo.registrado_por → usuario]] |
 | [[evento_significativo_sin]] | `registrado_por` | ↗ 11 | [[evento_significativo_sin.registrado_por → usuario]] |
 | [[evidencia_incumplimiento]] | `aportada_por` | ↗ 08 | [[evidencia_incumplimiento.aportada_por → usuario]] |
-| [[evidencia_medida_cuenta]] | `aportada_por` | 01 | [[evidencia_medida_cuenta.aportada_por → usuario]] |
 | [[evidencia_mfa_consumida]] | `usuario_id` | ↗ 10 | [[evidencia_mfa_consumida.usuario_id → usuario]] |
-| [[evidencia_step_up_consumida]] | `usuario_id` | 01 | [[evidencia_step_up_consumida.usuario_id → usuario]] |
 | [[excepcion_conciliacion]] | `asignada_a` | ↗ 03 | [[excepcion_conciliacion.asignada_a → usuario]] |
 | [[exencion_comision]] | `autorizada_por` | ↗ 11 | [[exencion_comision.autorizada_por → usuario]] |
 | [[exencion_comision]] | `usuario_id` | ↗ 11 | [[exencion_comision.usuario_id → usuario]] |
 | [[expediente_cliente]] | `responsable_id` | ↗ 12 | [[expediente_cliente.responsable_id → usuario]] |
 | [[expediente_cliente]] | `usuario_id` | ↗ 12 | [[expediente_cliente.usuario_id → usuario]] |
-| [[expediente_medida_cuenta]] | `decidida_por` | 01 | [[expediente_medida_cuenta.decidida_por → usuario]] |
-| [[expediente_medida_cuenta]] | `propuesta_por` | 01 | [[expediente_medida_cuenta.propuesta_por → usuario]] |
-| [[expediente_medida_cuenta]] | `usuario_id` | 01 | [[expediente_medida_cuenta.usuario_id → usuario]] |
 | [[extracto_bancario]] | `importado_por` | ↗ 03 | [[extracto_bancario.importado_por → usuario]] |
 | [[factor_mfa]] | `usuario_id` | 01 | [[factor_mfa.usuario_id → usuario]] |
 | [[factor_riesgo_evaluado]] | `usuario_id` | ↗ 12 | [[factor_riesgo_evaluado.usuario_id → usuario]] |
@@ -171,8 +160,6 @@ append_only: false
 | [[historial_estado_entrega]] | `ejecutado_por` | ↗ 04 | [[historial_estado_entrega.ejecutado_por → usuario]] |
 | [[historial_estado_grupo]] | `ejecutado_por` | ↗ 02 | [[historial_estado_grupo.ejecutado_por → usuario]] |
 | [[historial_estado_incumplimiento]] | `ejecutado_por` | ↗ 08 | [[historial_estado_incumplimiento.ejecutado_por → usuario]] |
-| [[historial_estado_medida_cuenta]] | `ejecutado_por` | 01 | [[historial_estado_medida_cuenta.ejecutado_por → usuario]] |
-| [[historial_estado_reembolso]] | `ejecutado_por` | ↗ 03 | [[historial_estado_reembolso.ejecutado_por → usuario]] |
 | [[historial_incumplimiento_usuario]] | `usuario_id` | ↗ 08 | [[historial_incumplimiento_usuario.usuario_id → usuario]] |
 | [[impresion_anuncio]] | `usuario_id` | ↗ 14 | [[impresion_anuncio.usuario_id → usuario]] |
 | [[incidencia_entrega]] | `asignada_a` | ↗ 04 | [[incidencia_entrega.asignada_a → usuario]] |
@@ -207,7 +194,6 @@ append_only: false
 | [[plan_regularizacion]] | `aprobado_por` | ↗ 03 | [[plan_regularizacion.aprobado_por → usuario]] |
 | [[politica_billetera]] | `aprobada_por` | ↗ 10 | [[politica_billetera.aprobada_por → usuario]] |
 | [[politica_interna]] | `responsable_id` | ↗ 12 | [[politica_interna.responsable_id → usuario]] |
-| [[politica_medida_cuenta]] | `aprobada_por` | 01 | [[politica_medida_cuenta.aprobada_por → usuario]] |
 | [[postulacion_emparejamiento]] | `usuario_id` | ↗ 02 | [[postulacion_emparejamiento.usuario_id → usuario]] |
 | [[preferencia_notificacion]] | `usuario_id` | 01 | [[preferencia_notificacion.usuario_id → usuario]] |
 | [[presupuesto]] | `aprobado_por` | ↗ 13 | [[presupuesto.aprobado_por → usuario]] |
@@ -250,7 +236,6 @@ append_only: false
 | [[revision_creativa]] | `revisada_por` | ↗ 14 | [[revision_creativa.revisada_por → usuario]] |
 | [[revision_periodica_kyc]] | `ejecutada_por` | ↗ 12 | [[revision_periodica_kyc.ejecutada_por → usuario]] |
 | [[revision_periodica_kyc]] | `usuario_id` | ↗ 12 | [[revision_periodica_kyc.usuario_id → usuario]] |
-| [[rol]] | `creado_por` | 01 | [[rol.creado_por → usuario]] |
 | [[sancion]] | `aplicada_por` | ↗ 08 | [[sancion.aplicada_por → usuario]] |
 | [[sancion]] | `usuario_id` | ↗ 08 | [[sancion.usuario_id → usuario]] |
 | [[sancion_organizador]] | `aplicada_por` | ↗ 07 | [[sancion_organizador.aplicada_por → usuario]] |
@@ -261,8 +246,6 @@ append_only: false
 | [[snapshot_reputacion]] | `usuario_id` | ↗ 06 | [[snapshot_reputacion.usuario_id → usuario]] |
 | [[socio_comercial]] | `verificado_por` | ↗ 14 | [[socio_comercial.verificado_por → usuario]] |
 | [[solicitud_baja]] | `usuario_id` | 01 | [[solicitud_baja.usuario_id → usuario]] |
-| [[solicitud_cambio_rol]] | `propuesta_por` | 01 | [[solicitud_cambio_rol.propuesta_por → usuario]] |
-| [[solicitud_cambio_rol]] | `resuelta_por` | 01 | [[solicitud_cambio_rol.resuelta_por → usuario]] |
 | [[solicitud_cierre_billetera]] | `aprobada_por` | ↗ 10 | [[solicitud_cierre_billetera.aprobada_por → usuario]] |
 | [[solicitud_datos_personales]] | `atendida_por` | ↗ 09 | [[solicitud_datos_personales.atendida_por → usuario]] |
 | [[solicitud_datos_personales]] | `usuario_id` | ↗ 09 | [[solicitud_datos_personales.usuario_id → usuario]] |
@@ -285,7 +268,7 @@ append_only: false
 
 ## Entidades vecinas
 
-[[abono_recuperacion]] · [[accion_cobranza]] · [[aceptacion_contrato]] · [[acta_comite]] · [[activo_informacion]] · [[acuerdo]] · [[acuerdo_quita]] · [[alerta_cumplimiento]] · [[alerta_monitoreo_lft]] · [[alerta_temprana]] · [[apelacion_medida_cuenta]] · [[apelacion_sancion]] · [[apelacion_sancion_org]] · [[asiento_contable]] · [[asiento_plantilla]] · [[asignacion_rol]] · [[asignacion_tarifario]] · [[aval_participante]] · [[aviso_interno]] · [[bandeja_entrada]] · [[beneficiario_final]] · [[bitacora_evento]] · [[bloqueo_cuenta]] · [[bloqueo_saldo]] · [[calificacion_riesgo_cliente]] · [[cambio_tarifario]] · [[campana_promocional]] · [[campana_publicitaria]] · [[canal_vinculado]] · [[candidato_reemplazo]] · [[capacidad_respaldo]] · [[capacitacion_cumplimiento]] · [[caso_investigacion_lft]] · [[castigo_deuda]] · [[certificado_reputacion]] · [[certificado_saldo]] · [[cierre_diario]] · [[cierre_periodo_contable]] · [[clic_anuncio]] · [[cobertura_incumplimiento]] · [[cobertura_respaldo]] · [[coincidencia_lista]] · [[comprobante_manual]] · [[conciliacion]] · [[conciliacion_custodia]] · [[consentimiento]] · [[contrato_adhesion]] · [[contrato_tercero]] · [[control_interno]] · [[credencial_acceso]] · [[cuenta_bancaria_beneficiario]] · [[cuenta_billetera]] · [[cuenta_por_cobrar_comision]] · [[cuenta_servicio]] · [[datos_facturacion]] · [[debida_diligencia]] · [[declaracion_origen_fondos]] · [[declaracion_pep]] · [[descargo_participante]] · [[descuadre_custodia]] · [[designacion_regulatoria]] · [[desvio_perfil]] · [[deuda_participante]] · [[devengo_comision]] · [[devolucion_comision]] · [[direccion_usuario]] · [[dispositivo]] · [[documento_identidad]] · [[documento_publicado]] · [[ejecucion_reporte]] · [[ejercicio_fiscal]] · [[enlace_grupo]] · [[entrega_fondo]] · [[envio_regulatorio]] · [[estado_financiero_generado]] · [[evaluacion_antifraude]] · [[evaluacion_riesgo_producto]] · [[evaluacion_tercero]] · [[evento_reputacion]] · [[evento_riesgo_operativo]] · [[evento_significativo_sin]] · [[evidencia_incumplimiento]] · [[evidencia_medida_cuenta]] · [[evidencia_mfa_consumida]] · [[evidencia_step_up_consumida]] · [[excepcion_conciliacion]] · [[exencion_comision]] · [[expediente_cliente]] · [[expediente_medida_cuenta]] · [[extracto_bancario]] · [[factor_mfa]] · [[factor_riesgo_evaluado]] · [[factura_electronica]] · [[factura_proveedor]] · [[gestion_cobranza]] · [[hallazgo_auditoria]] · [[historial_credencial]] · [[historial_estado_entrega]] · [[historial_estado_grupo]] · [[historial_estado_incumplimiento]] · [[historial_estado_medida_cuenta]] · [[historial_estado_reembolso]] · [[historial_incumplimiento_usuario]] · [[impresion_anuncio]] · [[incidencia_entrega]] · [[incidente_seguridad]] · [[insignia_otorgada]] · [[instrumento_fondeo]] · [[intento_autenticacion]] · [[invitacion]] · [[licencia_regulatoria]] · [[liquidacion_ingresos]] · [[lista_restriccion_interna]] · [[matriz_riesgo_lft]] · [[movimiento_fondo]] · [[movimiento_reserva]] · [[notificacion]] · [[observacion_regulatoria]] · [[oficial_cumplimiento]] · [[orden_compra]] · [[orden_retiro]] · [[organizador]] · [[pago]] · [[pago_a_proveedor]] · [[participante]] · [[perfil_financiero]] · [[perfil_transaccional]] · [[plan_accion_riesgo]] · [[plan_continuidad]] · [[plan_regularizacion]] · [[politica_billetera]] · [[politica_interna]] · [[politica_medida_cuenta]] · [[postulacion_emparejamiento]] · [[preferencia_notificacion]] · [[presupuesto]] · [[proceso_anonimizacion]] · [[promesa_pago]] · [[prueba_continuidad]] · [[prueba_control]] · [[puntaje_reputacion]] · [[punto_reclamo]] · [[reclamo_cliente]] · [[reembolso]] · [[referencia_personal]] · [[registro_acceso_datos]] · [[registro_incumplimiento]] · [[registro_operacion_relevante]] · [[regla_antifraude]] · [[regla_monitoreo_lft]] · [[reglamento_grupo]] · [[reporte_operacion_sospechosa]] · [[reporte_regulatorio]] · [[reputacion_usuario]] · [[requerimiento_autoridad]] · [[resena_participante]] · [[reserva_respaldo]] · [[respuesta_idempotente]] · [[restriccion_usuario]] · [[retencion_saldo]] · [[reverso_transaccion]] · [[revision_creativa]] · [[revision_periodica_kyc]] · [[rol]] · [[sancion]] · [[sancion_organizador]] · [[score_riesgo_incumplimiento]] · [[segmento_audiencia]] · [[sesion]] · [[simulacion_tarifa]] · [[snapshot_reputacion]] · [[socio_comercial]] · [[solicitud_baja]] · [[solicitud_cambio_rol]] · [[solicitud_cierre_billetera]] · [[solicitud_datos_personales]] · [[solicitud_ingreso]] · [[solicitud_organizador]] · [[solicitud_reverso]] · [[sorteo_turnos]] · [[tarifario]] · [[ticket_soporte]] · [[token_verificacion]] · [[transaccion_billetera]] · [[usuario_interno]] · [[validacion_pre_entrega]] · [[verificacion_kyc]]
+[[abono_recuperacion]] · [[accion_cobranza]] · [[aceptacion_contrato]] · [[acta_comite]] · [[activo_informacion]] · [[acuerdo]] · [[acuerdo_quita]] · [[alerta_cumplimiento]] · [[alerta_monitoreo_lft]] · [[alerta_temprana]] · [[apelacion_sancion]] · [[apelacion_sancion_org]] · [[asiento_contable]] · [[asiento_plantilla]] · [[asignacion_rol]] · [[asignacion_tarifario]] · [[aval_participante]] · [[aviso_interno]] · [[bandeja_entrada]] · [[beneficiario_final]] · [[bitacora_evento]] · [[bloqueo_cuenta]] · [[bloqueo_saldo]] · [[calificacion_riesgo_cliente]] · [[cambio_tarifario]] · [[campana_promocional]] · [[campana_publicitaria]] · [[canal_vinculado]] · [[candidato_reemplazo]] · [[capacidad_respaldo]] · [[capacitacion_cumplimiento]] · [[caso_investigacion_lft]] · [[castigo_deuda]] · [[certificado_reputacion]] · [[certificado_saldo]] · [[cierre_diario]] · [[cierre_periodo_contable]] · [[clic_anuncio]] · [[cobertura_incumplimiento]] · [[cobertura_respaldo]] · [[coincidencia_lista]] · [[comprobante_manual]] · [[conciliacion]] · [[conciliacion_custodia]] · [[consentimiento]] · [[contrato_adhesion]] · [[contrato_tercero]] · [[control_interno]] · [[credencial_acceso]] · [[cuenta_bancaria_beneficiario]] · [[cuenta_billetera]] · [[cuenta_por_cobrar_comision]] · [[datos_facturacion]] · [[debida_diligencia]] · [[declaracion_origen_fondos]] · [[declaracion_pep]] · [[descargo_participante]] · [[descuadre_custodia]] · [[designacion_regulatoria]] · [[desvio_perfil]] · [[deuda_participante]] · [[devengo_comision]] · [[devolucion_comision]] · [[direccion_usuario]] · [[dispositivo]] · [[documento_identidad]] · [[documento_publicado]] · [[ejecucion_reporte]] · [[ejercicio_fiscal]] · [[enlace_grupo]] · [[entrega_fondo]] · [[envio_regulatorio]] · [[estado_financiero_generado]] · [[evaluacion_antifraude]] · [[evaluacion_riesgo_producto]] · [[evaluacion_tercero]] · [[evento_reputacion]] · [[evento_riesgo_operativo]] · [[evento_significativo_sin]] · [[evidencia_incumplimiento]] · [[evidencia_mfa_consumida]] · [[excepcion_conciliacion]] · [[exencion_comision]] · [[expediente_cliente]] · [[extracto_bancario]] · [[factor_mfa]] · [[factor_riesgo_evaluado]] · [[factura_electronica]] · [[factura_proveedor]] · [[gestion_cobranza]] · [[hallazgo_auditoria]] · [[historial_credencial]] · [[historial_estado_entrega]] · [[historial_estado_grupo]] · [[historial_estado_incumplimiento]] · [[historial_incumplimiento_usuario]] · [[impresion_anuncio]] · [[incidencia_entrega]] · [[incidente_seguridad]] · [[insignia_otorgada]] · [[instrumento_fondeo]] · [[intento_autenticacion]] · [[invitacion]] · [[licencia_regulatoria]] · [[liquidacion_ingresos]] · [[lista_restriccion_interna]] · [[matriz_riesgo_lft]] · [[movimiento_fondo]] · [[movimiento_reserva]] · [[notificacion]] · [[observacion_regulatoria]] · [[oficial_cumplimiento]] · [[orden_compra]] · [[orden_retiro]] · [[organizador]] · [[pago]] · [[pago_a_proveedor]] · [[participante]] · [[perfil_financiero]] · [[perfil_transaccional]] · [[plan_accion_riesgo]] · [[plan_continuidad]] · [[plan_regularizacion]] · [[politica_billetera]] · [[politica_interna]] · [[postulacion_emparejamiento]] · [[preferencia_notificacion]] · [[presupuesto]] · [[proceso_anonimizacion]] · [[promesa_pago]] · [[prueba_continuidad]] · [[prueba_control]] · [[puntaje_reputacion]] · [[punto_reclamo]] · [[reclamo_cliente]] · [[reembolso]] · [[referencia_personal]] · [[registro_acceso_datos]] · [[registro_incumplimiento]] · [[registro_operacion_relevante]] · [[regla_antifraude]] · [[regla_monitoreo_lft]] · [[reglamento_grupo]] · [[reporte_operacion_sospechosa]] · [[reporte_regulatorio]] · [[reputacion_usuario]] · [[requerimiento_autoridad]] · [[resena_participante]] · [[reserva_respaldo]] · [[respuesta_idempotente]] · [[restriccion_usuario]] · [[retencion_saldo]] · [[reverso_transaccion]] · [[revision_creativa]] · [[revision_periodica_kyc]] · [[sancion]] · [[sancion_organizador]] · [[score_riesgo_incumplimiento]] · [[segmento_audiencia]] · [[sesion]] · [[simulacion_tarifa]] · [[snapshot_reputacion]] · [[socio_comercial]] · [[solicitud_baja]] · [[solicitud_cierre_billetera]] · [[solicitud_datos_personales]] · [[solicitud_ingreso]] · [[solicitud_organizador]] · [[solicitud_reverso]] · [[sorteo_turnos]] · [[tarifario]] · [[ticket_soporte]] · [[token_verificacion]] · [[transaccion_billetera]] · [[usuario_interno]] · [[validacion_pre_entrega]] · [[verificacion_kyc]]
 
 ## Ver también
 

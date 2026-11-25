@@ -2,13 +2,13 @@
 tags:
   - moc
   - indice
-relaciones_fk: 706
-cross_modulo: 356
+relaciones_fk: 668
+cross_modulo: 349
 ---
 
 # Índice de relaciones (claves foráneas)
 
-Las **706 claves foráneas** del modelo. **356** cruzan módulos.
+Las **668 claves foráneas** del modelo. **349** cruzan módulos.
 
 [[Index|← Índice general]] · [[_Entidades|Entidades →]]
 
@@ -47,7 +47,6 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 | [[enlace_pago_rapido]] | `token_id` | [[token_verificacion]] | 03 → 01 | no | [[enlace_pago_rapido.token_id → token_verificacion\|ver]] |
 | [[excepcion_conciliacion]] | `asignada_a` | [[usuario]] | 03 → 01 | sí | [[excepcion_conciliacion.asignada_a → usuario\|ver]] |
 | [[extracto_bancario]] | `importado_por` | [[usuario]] | 03 → 01 | no | [[extracto_bancario.importado_por → usuario\|ver]] |
-| [[historial_estado_reembolso]] | `ejecutado_por` | [[usuario]] | 03 → 01 | no | [[historial_estado_reembolso.ejecutado_por → usuario\|ver]] |
 | [[obligacion_aporte]] | `cupo_id` | [[cupo]] | 03 → 02 | no | [[obligacion_aporte.cupo_id → cupo\|ver]] |
 | [[obligacion_aporte]] | `grupo_id` | [[grupo]] | 03 → 02 | no | [[obligacion_aporte.grupo_id → grupo\|ver]] |
 | [[obligacion_aporte]] | `participante_id` | [[participante]] | 03 → 02 | no | [[obligacion_aporte.participante_id → participante\|ver]] |
@@ -73,15 +72,12 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 | [[fondeo_entrega]] | `turno_id` | [[turno]] | 04 → 02 | no | [[fondeo_entrega.turno_id → turno\|ver]] |
 | [[historial_estado_entrega]] | `ejecutado_por` | [[usuario]] | 04 → 01 | sí | [[historial_estado_entrega.ejecutado_por → usuario\|ver]] |
 | [[incidencia_entrega]] | `asignada_a` | [[usuario]] | 04 → 01 | sí | [[incidencia_entrega.asignada_a → usuario\|ver]] |
-| [[incidencia_entrega]] | `reportada_por` | [[usuario]] | 04 → 01 | sí | [[incidencia_entrega.reportada_por → usuario\|ver]] |
+| [[incidencia_entrega]] | `reportada_por` | [[usuario]] | 04 → 01 | no | [[incidencia_entrega.reportada_por → usuario\|ver]] |
 | [[oferta_turno]] | `cupo_id` | [[cupo]] | 04 → 02 | no | [[oferta_turno.cupo_id → cupo\|ver]] |
 | [[oferta_turno]] | `grupo_id` | [[grupo]] | 04 → 02 | no | [[oferta_turno.grupo_id → grupo\|ver]] |
 | [[oferta_turno]] | `participante_origen_id` | [[participante]] | 04 → 02 | no | [[oferta_turno.participante_origen_id → participante\|ver]] |
 | [[oferta_turno]] | `turno_id` | [[turno]] | 04 → 02 | no | [[oferta_turno.turno_id → turno\|ver]] |
 | [[orden_desembolso]] | `proveedor_id` | [[proveedor_pago]] | 04 → 03 | no | [[orden_desembolso.proveedor_id → proveedor_pago\|ver]] |
-| [[subasta_cupo]] | `cupo_id` | [[cupo]] | 04 → 02 | no | [[subasta_cupo.cupo_id → cupo\|ver]] |
-| [[subasta_cupo]] | `grupo_id` | [[grupo]] | 04 → 02 | no | [[subasta_cupo.grupo_id → grupo\|ver]] |
-| [[subasta_cupo]] | `participante_origen_id` | [[participante]] | 04 → 02 | no | [[subasta_cupo.participante_origen_id → participante\|ver]] |
 | [[validacion_pre_entrega]] | `omitida_por` | [[usuario]] | 04 → 01 | sí | [[validacion_pre_entrega.omitida_por → usuario\|ver]] |
 | [[aviso_interno]] | `usuario_id` | [[usuario]] | 05 → 01 | sí | [[aviso_interno.usuario_id → usuario\|ver]] |
 | [[bandeja_entrada]] | `usuario_id` | [[usuario]] | 05 → 01 | no | [[bandeja_entrada.usuario_id → usuario\|ver]] |
@@ -211,7 +207,6 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 | [[ticket_soporte]] | `asignado_a` | [[usuario]] | 09 → 01 | sí | [[ticket_soporte.asignado_a → usuario\|ver]] |
 | [[ticket_soporte]] | `usuario_id` | [[usuario]] | 09 → 01 | no | [[ticket_soporte.usuario_id → usuario\|ver]] |
 | [[bloqueo_saldo]] | `levantada_por` | [[usuario]] | 10 → 01 | sí | [[bloqueo_saldo.levantada_por → usuario\|ver]] |
-| [[bloqueo_saldo]] | `registrado_por` | [[usuario]] | 10 → 01 | sí | [[bloqueo_saldo.registrado_por → usuario\|ver]] |
 | [[certificado_saldo]] | `solicitado_por` | [[usuario]] | 10 → 01 | no | [[certificado_saldo.solicitado_por → usuario\|ver]] |
 | [[conciliacion_custodia]] | `cierre_diario_id` | [[cierre_diario]] | 10 → 03 | sí | [[conciliacion_custodia.cierre_diario_id → cierre_diario\|ver]] |
 | [[conciliacion_custodia]] | `ejecutada_por` | [[usuario]] | 10 → 01 | sí | [[conciliacion_custodia.ejecutada_por → usuario\|ver]] |
@@ -235,8 +230,6 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 | [[retencion_saldo]] | `liberada_por` | [[usuario]] | 10 → 01 | sí | [[retencion_saldo.liberada_por → usuario\|ver]] |
 | [[reverso_transaccion]] | `autorizada_por` | [[usuario]] | 10 → 01 | no | [[reverso_transaccion.autorizada_por → usuario\|ver]] |
 | [[solicitud_cierre_billetera]] | `aprobada_por` | [[usuario]] | 10 → 01 | sí | [[solicitud_cierre_billetera.aprobada_por → usuario\|ver]] |
-| [[solicitud_reverso]] | `autorizada_por` | [[usuario]] | 10 → 01 | sí | [[solicitud_reverso.autorizada_por → usuario\|ver]] |
-| [[solicitud_reverso]] | `solicitada_por` | [[usuario]] | 10 → 01 | no | [[solicitud_reverso.solicitada_por → usuario\|ver]] |
 | [[transaccion_billetera]] | `asiento_contable_id` | [[asiento_contable]] | 10 → 03 | sí | [[transaccion_billetera.asiento_contable_id → asiento_contable\|ver]] |
 | [[transaccion_billetera]] | `dispositivo_id` | [[dispositivo]] | 10 → 01 | sí | [[transaccion_billetera.dispositivo_id → dispositivo\|ver]] |
 | [[transaccion_billetera]] | `grupo_id` | [[grupo]] | 10 → 02 | sí | [[transaccion_billetera.grupo_id → grupo\|ver]] |
@@ -382,9 +375,6 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 | Relación | Destino | Cruza | Opcional |
 | --- | --- | :-: | :-: |
 | [[alcance_invitacion.token_id → token_verificacion]] | [[token_verificacion]] | — | no |
-| [[apelacion_medida_cuenta.apelante_id → usuario]] | [[usuario]] | — | no |
-| [[apelacion_medida_cuenta.expediente_medida_cuenta_id → expediente_medida_cuenta]] | [[expediente_medida_cuenta]] | — | no |
-| [[apelacion_medida_cuenta.resuelta_por → usuario]] | [[usuario]] | — | sí |
 | [[asignacion_rol.otorgada_por → usuario]] | [[usuario]] | — | no |
 | [[asignacion_rol.rol_id → rol]] | [[rol]] | — | no |
 | [[asignacion_rol.usuario_id → usuario]] | [[usuario]] | — | no |
@@ -392,42 +382,24 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 | [[bloqueo_cuenta.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[consentimiento.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[credencial_acceso.usuario_id → usuario]] | [[usuario]] | — | no |
-| [[cuenta_servicio.creada_por → usuario]] | [[usuario]] | — | no |
-| [[cuenta_servicio.revocada_por → usuario]] | [[usuario]] | — | sí |
-| [[cuenta_servicio.rol_id → rol]] | [[rol]] | — | no |
-| [[cuenta_servicio.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[direccion_usuario.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[dispositivo.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[documento_identidad.usuario_id → usuario]] | [[usuario]] | — | no |
-| [[evidencia_medida_cuenta.aportada_por → usuario]] | [[usuario]] | — | no |
-| [[evidencia_medida_cuenta.expediente_medida_cuenta_id → expediente_medida_cuenta]] | [[expediente_medida_cuenta]] | — | no |
-| [[evidencia_step_up_consumida.usuario_id → usuario]] | [[usuario]] | — | no |
-| [[expediente_medida_cuenta.decidida_por → usuario]] | [[usuario]] | — | sí |
-| [[expediente_medida_cuenta.politica_medida_cuenta_id → politica_medida_cuenta]] | [[politica_medida_cuenta]] | — | no |
-| [[expediente_medida_cuenta.propuesta_por → usuario]] | [[usuario]] | — | no |
-| [[expediente_medida_cuenta.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[factor_mfa.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[historial_credencial.usuario_id → usuario]] | [[usuario]] | — | no |
-| [[historial_estado_medida_cuenta.ejecutado_por → usuario]] | [[usuario]] | — | sí |
-| [[historial_estado_medida_cuenta.expediente_medida_cuenta_id → expediente_medida_cuenta]] | [[expediente_medida_cuenta]] | — | no |
 | [[intento_autenticacion.usuario_id → usuario]] | [[usuario]] | — | sí |
 | [[intento_validacion_token.token_id → token_verificacion]] | [[token_verificacion]] | — | no |
 | [[perfil_financiero.usuario_id → usuario]] | [[usuario]] | — | no |
-| [[politica_medida_cuenta.aprobada_por → usuario]] | [[usuario]] | — | sí |
 | [[preferencia_notificacion.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[referencia_personal.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[reputacion_usuario.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[restriccion_usuario.levantada_por → usuario]] | [[usuario]] | — | sí |
 | [[restriccion_usuario.usuario_id → usuario]] | [[usuario]] | — | no |
-| [[rol.creado_por → usuario]] | [[usuario]] | — | sí |
 | [[rol_permiso.permiso_id → permiso]] | [[permiso]] | — | no |
 | [[rol_permiso.rol_id → rol]] | [[rol]] | — | no |
 | [[sesion.dispositivo_id → dispositivo]] | [[dispositivo]] | — | no |
 | [[sesion.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[solicitud_baja.usuario_id → usuario]] | [[usuario]] | — | no |
-| [[solicitud_cambio_rol.propuesta_por → usuario]] | [[usuario]] | — | no |
-| [[solicitud_cambio_rol.resuelta_por → usuario]] | [[usuario]] | — | sí |
-| [[solicitud_cambio_rol.rol_id → rol]] | [[rol]] | — | sí |
 | [[token_verificacion.dispositivo_id → dispositivo]] | [[dispositivo]] | — | sí |
 | [[token_verificacion.politica_id → politica_sancion]] | [[politica_sancion]] | ↗ | no |
 | [[token_verificacion.rotado_de_id → token_verificacion]] | [[token_verificacion]] | — | sí |
@@ -524,9 +496,6 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 | [[excepcion_conciliacion.conciliacion_id → conciliacion]] | [[conciliacion]] | — | no |
 | [[extracto_bancario.importado_por → usuario]] | [[usuario]] | ↗ | no |
 | [[extracto_bancario.proveedor_id → proveedor_pago]] | [[proveedor_pago]] | — | no |
-| [[historial_estado_pago.pago_id → pago]] | [[pago]] | — | no |
-| [[historial_estado_reembolso.ejecutado_por → usuario]] | [[usuario]] | ↗ | no |
-| [[historial_estado_reembolso.reembolso_id → reembolso]] | [[reembolso]] | — | no |
 | [[intento_pago.orden_cobro_id → orden_cobro]] | [[orden_cobro]] | — | no |
 | [[movimiento_bancario.extracto_id → extracto_bancario]] | [[extracto_bancario]] | — | no |
 | [[movimiento_contable.asiento_id → asiento_contable]] | [[asiento_contable]] | — | no |
@@ -582,7 +551,7 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 | [[historial_estado_entrega.entrega_id → entrega_fondo]] | [[entrega_fondo]] | — | no |
 | [[incidencia_entrega.asignada_a → usuario]] | [[usuario]] | ↗ | sí |
 | [[incidencia_entrega.entrega_id → entrega_fondo]] | [[entrega_fondo]] | — | no |
-| [[incidencia_entrega.reportada_por → usuario]] | [[usuario]] | ↗ | sí |
+| [[incidencia_entrega.reportada_por → usuario]] | [[usuario]] | ↗ | no |
 | [[intento_desembolso.orden_desembolso_id → orden_desembolso]] | [[orden_desembolso]] | — | no |
 | [[oferta_turno.cupo_id → cupo]] | [[cupo]] | ↗ | no |
 | [[oferta_turno.grupo_id → grupo]] | [[grupo]] | ↗ | no |
@@ -591,10 +560,6 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 | [[orden_desembolso.cuenta_destino_id → cuenta_bancaria_beneficiario]] | [[cuenta_bancaria_beneficiario]] | — | no |
 | [[orden_desembolso.entrega_id → entrega_fondo]] | [[entrega_fondo]] | — | no |
 | [[orden_desembolso.proveedor_id → proveedor_pago]] | [[proveedor_pago]] | ↗ | no |
-| [[puja_subasta.subasta_cupo_id → subasta_cupo]] | [[subasta_cupo]] | — | no |
-| [[subasta_cupo.cupo_id → cupo]] | [[cupo]] | ↗ | no |
-| [[subasta_cupo.grupo_id → grupo]] | [[grupo]] | ↗ | no |
-| [[subasta_cupo.participante_origen_id → participante]] | [[participante]] | ↗ | no |
 | [[validacion_pre_entrega.entrega_id → entrega_fondo]] | [[entrega_fondo]] | — | no |
 | [[validacion_pre_entrega.omitida_por → usuario]] | [[usuario]] | ↗ | sí |
 | [[validacion_pre_entrega.regla_id → regla_entrega]] | [[regla_entrega]] | — | no |
@@ -638,8 +603,6 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 | [[certificado_reputacion.snapshot_id → snapshot_reputacion]] | [[snapshot_reputacion]] | — | no |
 | [[certificado_reputacion.usuario_id → usuario]] | [[usuario]] | ↗ | no |
 | [[componente_score.puntaje_id → puntaje_reputacion]] | [[puntaje_reputacion]] | — | no |
-| [[desbloqueo_etapa.etapa_id → etapa]] | [[etapa]] | — | no |
-| [[etapa.modelo_id → modelo_scoring]] | [[modelo_scoring]] | — | no |
 | [[evento_reputacion.grupo_id → grupo]] | [[grupo]] | ↗ | sí |
 | [[evento_reputacion.participante_id → participante]] | [[participante]] | ↗ | sí |
 | [[evento_reputacion.revertido_por_id → evento_reputacion]] | [[evento_reputacion]] | — | sí |
@@ -850,7 +813,6 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 | --- | --- | :-: | :-: |
 | [[bloqueo_saldo.cuenta_billetera_id → cuenta_billetera]] | [[cuenta_billetera]] | — | no |
 | [[bloqueo_saldo.levantada_por → usuario]] | [[usuario]] | ↗ | sí |
-| [[bloqueo_saldo.registrado_por → usuario]] | [[usuario]] | ↗ | sí |
 | [[bloqueo_saldo.retencion_id → retencion_saldo]] | [[retencion_saldo]] | — | sí |
 | [[certificado_saldo.cuenta_billetera_id → cuenta_billetera]] | [[cuenta_billetera]] | — | no |
 | [[certificado_saldo.solicitado_por → usuario]] | [[usuario]] | ↗ | no |
@@ -903,10 +865,6 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 | [[solicitud_cierre_billetera.aprobada_por → usuario]] | [[usuario]] | ↗ | sí |
 | [[solicitud_cierre_billetera.cuenta_billetera_id → cuenta_billetera]] | [[cuenta_billetera]] | — | no |
 | [[solicitud_cierre_billetera.orden_retiro_id → orden_retiro]] | [[orden_retiro]] | — | sí |
-| [[solicitud_reverso.autorizada_por → usuario]] | [[usuario]] | ↗ | sí |
-| [[solicitud_reverso.reverso_transaccion_id → reverso_transaccion]] | [[reverso_transaccion]] | — | sí |
-| [[solicitud_reverso.solicitada_por → usuario]] | [[usuario]] | ↗ | no |
-| [[solicitud_reverso.transaccion_original_id → transaccion_billetera]] | [[transaccion_billetera]] | — | no |
 | [[transaccion_billetera.asiento_contable_id → asiento_contable]] | [[asiento_contable]] | ↗ | sí |
 | [[transaccion_billetera.dispositivo_id → dispositivo]] | [[dispositivo]] | ↗ | sí |
 | [[transaccion_billetera.grupo_id → grupo]] | [[grupo]] | ↗ | sí |
@@ -981,8 +939,6 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 | [[liquidacion_ingresos.cerrada_por → usuario]] | [[usuario]] | ↗ | sí |
 | [[nota_credito_debito.devolucion_comision_id → devolucion_comision]] | [[devolucion_comision]] | — | sí |
 | [[nota_credito_debito.factura_id → factura_electronica]] | [[factura_electronica]] | — | no |
-| [[parametro_congelado_grupo.parametro_id → parametro_financiero]] | [[parametro_financiero]] | — | no |
-| [[parametro_congelado_grupo.version_parametro_id → version_parametro]] | [[version_parametro]] | — | no |
 | [[regla_tarifa.concepto_tarifa_id → concepto_tarifa]] | [[concepto_tarifa]] | — | no |
 | [[simulacion_tarifa.ejecutada_por → usuario]] | [[usuario]] | ↗ | no |
 | [[simulacion_tarifa.tarifario_id → tarifario]] | [[tarifario]] | — | no |
@@ -991,7 +947,6 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 | [[tarifa_congelada_grupo.tarifario_id → tarifario]] | [[tarifario]] | — | no |
 | [[tarifario.aprobado_por → usuario]] | [[usuario]] | ↗ | sí |
 | [[tarifario.tarifario_anterior_id → tarifario]] | [[tarifario]] | — | sí |
-| [[version_parametro.parametro_id → parametro_financiero]] | [[parametro_financiero]] | — | no |
 
 ## 12 — Cumplimiento Regulatorio y Consumidor Financiero
 

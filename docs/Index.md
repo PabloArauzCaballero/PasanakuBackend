@@ -3,8 +3,8 @@ tags:
   - moc
   - indice
 titulo: "AportaYa — modelo de datos"
-entidades: 348
-relaciones_fk: 706
+entidades: 345
+relaciones_fk: 697
 modulos: 14
 ---
 
@@ -21,14 +21,14 @@ modulos: 14
 docs/
 ├── Index.md                 ← estás acá
 ├── Modelos/
-│   ├── Entidades/           ← una nota por tabla (348), en 14 carpetas
+│   ├── Entidades/           ← una nota por tabla (345), en 14 carpetas
 │   │   ├── 01 - Identidad, Usuarios y Seguridad/
 │   │   ├── 02 - Grupos, Cupos, Turnos y Gobernanza/
 │   │   └── ...
-│   └── Relaciones/          ← una nota por clave foránea (706), en 14 carpetas
+│   └── Relaciones/          ← una nota por clave foránea (697), en 14 carpetas
 │       ├── 01 - Identidad, Usuarios y Seguridad/
 │       └── ...
-├── CasosDeUso/              ← un caso de uso por flujo (115), con criterios de aceptación
+├── CasosDeUso/              ← un caso de uso por flujo (113), con criterios de aceptación
 ├── Cumplimiento.md          ← matriz normativa ASFI · UIF · BCB · SIN · ISO
 ├── Restricciones.md         ← catálogo de restricciones con DDL
 └── entidades/               ← justificación de negocio + diagramas .puml
@@ -57,7 +57,7 @@ Casi todo el modelo se explica con cinco ideas. Si vas a leer solo cinco notas, 
 
 | # | Módulo | Foco de negocio | Tablas | FK | Fichas |
 | :-: | --- | --- | --: | --: | --- |
-| 01 | Identidad, Usuarios y Seguridad | Saber con certeza a quién le estás confiando plata ajena | 35 | 55 | [[01_identidad_usuarios\|negocio]] |
+| 01 | Identidad, Usuarios y Seguridad | Saber con certeza a quién le estás confiando plata ajena | 32 | 46 | [[01_identidad_usuarios\|negocio]] |
 | 02 | Grupos, Cupos, Turnos y Gobernanza | Reglas del juego, orden de cobro y decisiones colectivas | 27 | 52 | [[02_grupos_turnos\|negocio]] |
 | 03 | Aportes, Pagos QR y Conciliación | Que "pagué" signifique "el banco lo confirmó" | 25 | 51 | [[03_aportes_pagos_qr\|negocio]] |
 | 04 | Entregas de Fondo | Que la bolsa llegue completa, a la persona correcta, una sola vez | 16 | 38 | [[04_entregas_fondo\|negocio]] |
@@ -78,7 +78,7 @@ El grado (FK entrantes + salientes) es un buen proxy de importancia estructural:
 
 | Entidad | Módulo | FK salientes | FK entrantes | Grado |
 | --- | :-: | --: | --: | --: |
-| [[usuario]] | 01 | 0 | 238 | **238** |
+| [[usuario]] | 01 | 0 | 231 | **231** |
 | [[grupo]] | 02 | 1 | 50 | **51** |
 | [[participante]] | 02 | 3 | 29 | **32** |
 | [[transaccion_billetera]] | 10 | 5 | 16 | **21** |
@@ -93,7 +93,7 @@ El grado (FK entrantes + salientes) es un buen proxy de importancia estructural:
 
 ## Acoplamiento entre módulos
 
-De las 706 claves foráneas, **356 cruzan módulos**. La matriz muestra
+De las 697 claves foráneas, **356 cruzan módulos**. La matriz muestra
 cuántas FK van de un módulo (fila) a otro (columna):
 
 | desde \ hacia | 01 | 02 | 03 | 04 | 05 | 06 | 07 | 08 | 09 | 10 | 11 | 12 | 13 | 14 |

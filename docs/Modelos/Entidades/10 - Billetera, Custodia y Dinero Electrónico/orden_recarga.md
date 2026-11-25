@@ -7,7 +7,7 @@ clase: OrdenRecarga
 modulo: "10 — Billetera, Custodia y Dinero Electrónico"
 estereotipo: Raíz de agregado
 clave_primaria: [id]
-columnas: 20
+columnas: 18
 fk_salientes: 5
 fk_entrantes: 0
 append_only: false
@@ -39,8 +39,6 @@ append_only: false
 | `solicitada_en` | TIMESTAMPTZ | — | no | — |
 | `acreditada_en` | TIMESTAMPTZ | — | sí | NULL |
 | `expira_en` | TIMESTAMPTZ | — | sí | NULL |
-| `qr_contenido` | VARCHAR(512) | — | sí | NULL |
-| `qr_origen` | VARCHAR(10) | — | sí | CK, NULL |
 
 ## Reglas del catálogo
 

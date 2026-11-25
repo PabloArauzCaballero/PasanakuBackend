@@ -3,12 +3,12 @@ tags:
   - moc
   - modulo/04-entregas-de-fondo
 modulo: "04 — Entregas de Fondo"
-relaciones_fk: 38
+relaciones_fk: 34
 ---
 
 # 04 — Entregas de Fondo · relaciones
 
-Las **38 claves foráneas** que salen de las tablas de este módulo.
+Las **34 claves foráneas** que salen de las tablas de este módulo.
 
 [[_Relaciones|← Todas las relaciones]] · [[Index]]
 
@@ -36,7 +36,7 @@ Las **38 claves foráneas** que salen de las tablas de este módulo.
 | [[historial_estado_entrega.entrega_id → entrega_fondo]] | [[entrega_fondo]] | — | no |
 | [[incidencia_entrega.asignada_a → usuario]] | [[usuario]] | ↗ 01 | sí |
 | [[incidencia_entrega.entrega_id → entrega_fondo]] | [[entrega_fondo]] | — | no |
-| [[incidencia_entrega.reportada_por → usuario]] | [[usuario]] | ↗ 01 | sí |
+| [[incidencia_entrega.reportada_por → usuario]] | [[usuario]] | ↗ 01 | no |
 | [[intento_desembolso.orden_desembolso_id → orden_desembolso]] | [[orden_desembolso]] | — | no |
 | [[oferta_turno.cupo_id → cupo]] | [[cupo]] | ↗ 02 | no |
 | [[oferta_turno.grupo_id → grupo]] | [[grupo]] | ↗ 02 | no |
@@ -45,10 +45,6 @@ Las **38 claves foráneas** que salen de las tablas de este módulo.
 | [[orden_desembolso.cuenta_destino_id → cuenta_bancaria_beneficiario]] | [[cuenta_bancaria_beneficiario]] | — | no |
 | [[orden_desembolso.entrega_id → entrega_fondo]] | [[entrega_fondo]] | — | no |
 | [[orden_desembolso.proveedor_id → proveedor_pago]] | [[proveedor_pago]] | ↗ 03 | no |
-| [[puja_subasta.subasta_cupo_id → subasta_cupo]] | [[subasta_cupo]] | — | no |
-| [[subasta_cupo.cupo_id → cupo]] | [[cupo]] | ↗ 02 | no |
-| [[subasta_cupo.grupo_id → grupo]] | [[grupo]] | ↗ 02 | no |
-| [[subasta_cupo.participante_origen_id → participante]] | [[participante]] | ↗ 02 | no |
 | [[validacion_pre_entrega.entrega_id → entrega_fondo]] | [[entrega_fondo]] | — | no |
 | [[validacion_pre_entrega.omitida_por → usuario]] | [[usuario]] | ↗ 01 | sí |
 | [[validacion_pre_entrega.regla_id → regla_entrega]] | [[regla_entrega]] | — | no |

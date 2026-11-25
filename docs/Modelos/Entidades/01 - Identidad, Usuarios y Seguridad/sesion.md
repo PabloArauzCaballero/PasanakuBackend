@@ -29,7 +29,7 @@ append_only: false
 | `expira_en` | TIMESTAMPTZ | IDX | no | IDX |
 | `ip_origen` | INET | — | no | — |
 | `geolocalizacion_aprox` | VARCHAR(80) | — | sí | NULL |
-| `revocada_en` | TIMESTAMPTZ | IDX | sí | NULL, IDX |
+| `revocada_en` | TIMESTAMPTZ | — | sí | NULL |
 | `motivo_revocacion` | VARCHAR(80) | — | sí | NULL |
 
 ## Claves foráneas salientes

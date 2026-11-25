@@ -9,7 +9,7 @@ estereotipo: Raíz de agregado
 clave_primaria: [id]
 columnas: 13
 fk_salientes: 3
-fk_entrantes: 29
+fk_entrantes: 28
 append_only: false
 ---
 
@@ -80,14 +80,13 @@ append_only: false
 | [[solicitud_permuta]] | `contraparte_id` | 02 | [[solicitud_permuta.contraparte_id → participante]] |
 | [[solicitud_permuta]] | `solicitante_id` | 02 | [[solicitud_permuta.solicitante_id → participante]] |
 | [[solicitud_retiro]] | `participante_id` | 02 | [[solicitud_retiro.participante_id → participante]] |
-| [[subasta_cupo]] | `participante_origen_id` | ↗ 04 | [[subasta_cupo.participante_origen_id → participante]] |
 | [[traspaso_cupo]] | `participante_destino_id` | 02 | [[traspaso_cupo.participante_destino_id → participante]] |
 | [[traspaso_cupo]] | `participante_origen_id` | 02 | [[traspaso_cupo.participante_origen_id → participante]] |
 | [[voto_participante]] | `participante_id` | 02 | [[voto_participante.participante_id → participante]] |
 
 ## Entidades vecinas
 
-[[aceptacion_reglamento]] · [[aval_participante]] · [[cesion_derecho]] · [[cuenta_contable]] · [[cupo]] · [[descargo_participante]] · [[deuda_participante]] · [[devengo_comision]] · [[devolucion_fondo]] · [[entrega_fondo]] · [[evento_reputacion]] · [[grupo]] · [[liquidacion_participante]] · [[obligacion_aporte]] · [[oferta_turno]] · [[participante]] · [[plan_regularizacion]] · [[reemplazo_participante]] · [[registro_incumplimiento]] · [[resena_participante]] · [[sancion]] · [[solicitud_permuta]] · [[solicitud_retiro]] · [[subasta_cupo]] · [[traspaso_cupo]] · [[usuario]] · [[voto_participante]]
+[[aceptacion_reglamento]] · [[aval_participante]] · [[cesion_derecho]] · [[cuenta_contable]] · [[cupo]] · [[descargo_participante]] · [[deuda_participante]] · [[devengo_comision]] · [[devolucion_fondo]] · [[entrega_fondo]] · [[evento_reputacion]] · [[grupo]] · [[liquidacion_participante]] · [[obligacion_aporte]] · [[oferta_turno]] · [[participante]] · [[plan_regularizacion]] · [[reemplazo_participante]] · [[registro_incumplimiento]] · [[resena_participante]] · [[sancion]] · [[solicitud_permuta]] · [[solicitud_retiro]] · [[traspaso_cupo]] · [[usuario]] · [[voto_participante]]
 
 ## Notas del modelo
 

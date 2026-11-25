@@ -3,12 +3,12 @@ tags:
   - moc
   - modulo/06-transparencia-y-reputacion
 modulo: "06 — Transparencia y Reputación"
-relaciones_fk: 24
+relaciones_fk: 22
 ---
 
 # 06 — Transparencia y Reputación · relaciones
 
-Las **24 claves foráneas** que salen de las tablas de este módulo.
+Las **22 claves foráneas** que salen de las tablas de este módulo.
 
 [[_Relaciones|← Todas las relaciones]] · [[Index]]
 
@@ -18,8 +18,6 @@ Las **24 claves foráneas** que salen de las tablas de este módulo.
 | [[certificado_reputacion.snapshot_id → snapshot_reputacion]] | [[snapshot_reputacion]] | — | no |
 | [[certificado_reputacion.usuario_id → usuario]] | [[usuario]] | ↗ 01 | no |
 | [[componente_score.puntaje_id → puntaje_reputacion]] | [[puntaje_reputacion]] | — | no |
-| [[desbloqueo_etapa.etapa_id → etapa]] | [[etapa]] | — | no |
-| [[etapa.modelo_id → modelo_scoring]] | [[modelo_scoring]] | — | no |
 | [[evento_reputacion.grupo_id → grupo]] | [[grupo]] | ↗ 02 | sí |
 | [[evento_reputacion.participante_id → participante]] | [[participante]] | ↗ 02 | sí |
 | [[evento_reputacion.revertido_por_id → evento_reputacion]] | [[evento_reputacion]] | — | sí |

@@ -9,7 +9,7 @@ estereotipo: Política configurable
 clave_primaria: [id]
 columnas: 12
 fk_salientes: 0
-fk_entrantes: 4
+fk_entrantes: 3
 append_only: false
 ---
 
@@ -38,14 +38,13 @@ append_only: false
 
 | Entidad | Columna | Módulo | Relación |
 | --- | --- | :-: | --- |
-| [[etapa]] | `modelo_id` | 06 | [[etapa.modelo_id → modelo_scoring]] |
 | [[peso_factor]] | `modelo_id` | 06 | [[peso_factor.modelo_id → modelo_scoring]] |
 | [[puntaje_reputacion]] | `modelo_id` | 06 | [[puntaje_reputacion.modelo_id → modelo_scoring]] |
 | [[regla_impacto_evento]] | `modelo_id` | 06 | [[regla_impacto_evento.modelo_id → modelo_scoring]] |
 
 ## Entidades vecinas
 
-[[etapa]] · [[peso_factor]] · [[puntaje_reputacion]] · [[regla_impacto_evento]]
+[[peso_factor]] · [[puntaje_reputacion]] · [[regla_impacto_evento]]
 
 ## Ver también
 
