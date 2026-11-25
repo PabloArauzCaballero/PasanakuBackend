@@ -1545,7 +1545,8 @@ paths:
       summary: Si el participante tiene una medida vigente que retiene su entrega (servicio a servicio) (CU-134)
       description: >-
         La consulta `entregas` antes de acreditar una entrega (D-11). Devuelve identificadores y
-        un booleano, nunca la causal ni la evidencia.
+        un booleano, nunca la causal ni la evidencia. Permiso propio `PARTICIPANTES_MEDIDA_VIGENTE_LEER`, que solo
+        tiene la credencial de `entregas`: no abre el directorio ni la ficha.
       parameters:
         - { name: usuarioId, in: path, required: true, schema: { type: string, format: uuid } }
       responses:

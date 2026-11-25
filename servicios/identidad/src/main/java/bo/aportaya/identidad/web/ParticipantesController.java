@@ -185,7 +185,7 @@ public class ParticipantesController implements ParticipantesApi {
     }
 
     @Override
-    @Permiso("PARTICIPANTES_LEER")
+    @Permiso("PARTICIPANTES_MEDIDA_VIGENTE_LEER")
     public ResponseEntity<MedidaVigente> consultarMedidaVigente(UUID usuarioId) {
         Optional<UUID> expediente = consulta.medidaQueRetiene(usuarioId, sesion.actual());
         return ResponseEntity.ok(new MedidaVigente()

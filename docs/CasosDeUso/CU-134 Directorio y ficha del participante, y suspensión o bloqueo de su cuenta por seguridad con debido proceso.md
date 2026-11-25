@@ -346,6 +346,7 @@ export const ErroresCU134 = {
 | Emite | Dispara | Exige |
 | --- | --- | --- |
 | — (las lecturas van a [[registro_acceso_datos]], no al outbox) | — | `PARTICIPANTES_LEER` (*APROBADO*, permiso nuevo) |
+| — (consulta servicio a servicio de `entregas`, D-11) | — | `PARTICIPANTES_MEDIDA_VIGENTE_LEER` (*APROBADO*, permiso nuevo de mínimo privilegio: solo la credencial `SERVICIO_ENTREGAS`; no abre directorio ni ficha) |
 | — | Revelación de un campo | `DATOS_SENSIBLES_LEER` (existe) + segundo factor |
 | `cuenta_participante.medida_propuesta` | Notificación con causal, evidencia visible y cómo defenderse | `PARTICIPANTES_MEDIDA_PROPONER` (*APROBADO*) |
 | `cuenta_participante.bloqueo_cautelar` | Revocación de sesiones y aviso al titular | `PARTICIPANTES_MEDIDA_PROPONER` |

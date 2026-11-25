@@ -114,6 +114,7 @@ INSERT INTO permiso (codigo, descripcion, recurso, accion, requiere_mfa, nivel_r
   ('TARIFARIO_ADMINISTRAR', 'Configuración y segmentación del tarifario de comisiones (CU-36)', 'tarifario', 'ADMINISTRAR', TRUE, 'CRITICO', TRUE),
   ('TESORERIA_OPERAR', 'Generación de órdenes de desembolso y conciliación de custodia bancaria (CU-28)', 'tesoreria', 'OPERAR', TRUE, 'CRITICO', TRUE),
   ('INVERSION_OPERAR', 'Operación de inversión voluntaria y rescates de fondos (CU-121, CU-125)', 'inversion', 'OPERAR', TRUE, 'CRITICO', TRUE),
+  ('PARTICIPANTES_MEDIDA_VIGENTE_LEER', 'Saber si un participante tiene una medida que retiene su entrega, sin datos de la persona (servicio a servicio, CU-134 D-11)', 'usuario', 'LEER', FALSE, 'BAJO', FALSE),
   ('PARTICIPANTES_LEER', 'Buscar participantes y abrir su ficha enmascarada con justificación (CU-134)', 'usuario', 'LEER', FALSE, 'MEDIO', TRUE),
   ('PARTICIPANTES_MEDIDA_PROPONER', 'Proponer una suspensión o un bloqueo cautelar de la cuenta de un participante (CU-134)', 'expediente_medida_cuenta', 'PROPONER', TRUE, 'ALTO', TRUE),
   ('PARTICIPANTES_MEDIDA_DECIDIR', 'Decidir con fundamento una medida sobre la cuenta propuesta por otra persona (CU-134)', 'expediente_medida_cuenta', 'DECIDIR', TRUE, 'CRITICO', TRUE),
@@ -297,7 +298,7 @@ INSERT INTO rol_permiso (rol_id, permiso_id) VALUES
   ((SELECT id FROM rol WHERE codigo = 'RESPONSABLE_SEGURIDAD'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_MEDIDA_DECIDIR')),
   ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_APELACION_RESOLVER')),
   ((SELECT id FROM rol WHERE codigo = 'RESPONSABLE_RIESGOS'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_APELACION_RESOLVER')),
-  ((SELECT id FROM rol WHERE codigo = 'SERVICIO_ENTREGAS'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_LEER'))
+  ((SELECT id FROM rol WHERE codigo = 'SERVICIO_ENTREGAS'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_MEDIDA_VIGENTE_LEER'))
 ON CONFLICT (rol_id, permiso_id) DO NOTHING;
 
 -- P-3 (decisión de Pablo, 2026-11-24): nadie reúne funciones incompatibles. El oficial de cumplimiento registra los bloqueos por autoridad y el supervisor los levanta; el operador de publicidad da de alta anunciantes y liquida, y el aprobador de publicidad aprueba campañas. La siembra es DO NOTHING, así que una base ya sembrada conservaría las concesiones viejas: estos DELETE las retiran y son re-ejecutables (la segunda corrida no borra nada).

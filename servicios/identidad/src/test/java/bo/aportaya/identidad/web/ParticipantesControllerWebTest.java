@@ -176,10 +176,20 @@ class ParticipantesControllerWebTest {
         when(consulta.medidaQueRetiene(eq(PARTICIPANTE), any())).thenReturn(Optional.of(EXPEDIENTE));
 
         mvc.perform(get("/identidad/participantes/{id}/medida-vigente", PARTICIPANTE)
-                        .with(Sesiones.como("SERVICIO_ENTREGAS", "PARTICIPANTES_LEER")))
+                        .with(Sesiones.como("SERVICIO_ENTREGAS", "PARTICIPANTES_MEDIDA_VIGENTE_LEER")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.retenerEntrega").value(true))
                 .andExpect(jsonPath("$.causal").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("medida vigente: la credencial de entregas no abre la ficha ni el directorio (403)")
+    void credencialDeEntregasNoLeeFichas() throws Exception {
+        mvc.perform(post("/identidad/participantes/{id}/ficha", PARTICIPANTE)
+                        .with(Sesiones.como("SERVICIO_ENTREGAS", "PARTICIPANTES_MEDIDA_VIGENTE_LEER"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"justificacion\":\"Ticket SOP-0001 de prueba\"}"))
+                .andExpect(status().isForbidden());
     }
 
     private static ParticipantesRepositorio.Fila fila() {
