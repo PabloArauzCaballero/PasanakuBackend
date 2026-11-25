@@ -46,7 +46,6 @@ const PUBLICIDAD = p('ver:publicidad')
 const CONFIGURACION = p('ver:configuracion')
 /** `ver:sistemas` y rol PLATAFORMA o SEGURIDAD, o el de catálogo que identidad agrega a `permisos` (`guardia-rol-sistemas.ts`: el `rol` del token real es siempre `OPERADOR`). */
 const SISTEMAS = [p('ver:sistemas'), { roles: ['PLATAFORMA', 'SEGURIDAD'], permisos: ['ADMIN_PLATAFORMA', 'RESPONSABLE_SEGURIDAD'] }] as const
-
 const sis = (ruta: string, texto: string, icono: NombreDeIcono): Pantalla => ({ ruta: `/sistemas/${ruta}`, texto, icono, requiere: SISTEMAS })
 /** Una pantalla de «Personal y accesos»: la rama `/sistemas` la abre `ver:sistemas` y cada pantalla, el permiso que el servidor le exige. */
 const per = (ruta: keyof typeof PERMISOS_DE_PERSONAL, texto: string, icono: NombreDeIcono): Pantalla => ({ ruta: `/sistemas/${ruta}`, texto, icono, requiere: [p('ver:sistemas'), p(...PERMISOS_DE_PERSONAL[ruta]!)] })
