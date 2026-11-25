@@ -66,7 +66,7 @@ public class CU09CambiarCredencial {
                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(9, 1), "No encontramos tu credencial."));
 
             if (!entrada.esRestablecimientoAsistido() && !hasheador.coincide(entrada.claveActual(), hashActual)) {
-                throw new ErrorDeNegocio(CodigoError.de(9, 2), "La clave actual no coincide.");
+                throw new ErrorDeNegocio(CodigoError.de(9, 1), "La clave actual no coincide.");
             }
 
             politica.evaluar(
@@ -76,7 +76,9 @@ public class CU09CambiarCredencial {
                             credenciales.telefonoDe(dsl, usuario).orElse(null),
                             entrada.documento().orElse(null))
                     .ifPresent(motivo -> {
-                        throw new ErrorDeNegocio(CodigoError.de(9, 3), mensajeDe(motivo));
+                        throw new ErrorDeNegocio(
+                                CodigoError.de(9, motivo == PoliticaDeClave.MotivoDeRechazo.REUTILIZADA ? 3 : 2),
+                                mensajeDe(motivo));
                     });
 
             PerfilDeAcceso perfil = usuarios.perfilDe(dsl, usuario);
@@ -88,7 +90,7 @@ public class CU09CambiarCredencial {
                     && entrada.esRestablecimientoAsistido()
                     && entrada.aprobadoPor().isEmpty()) {
                 throw new ErrorDeNegocio(
-                        CodigoError.de(9, 5), "Este restablecimiento necesita la aprobacion de otra persona.");
+                        CodigoError.de(9, 9), "Este restablecimiento necesita la aprobacion de otra persona.");
             }
 
             credenciales.archivar(dsl, usuario, hashActual, ahora);
