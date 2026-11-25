@@ -119,11 +119,11 @@
   {
    "nombre": "identidad",
    "descripcion": "Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena.",
-   "tablas": 32,
-   "tablasDeNegocio": 28,
-   "columnas": 323,
-   "relaciones": 35,
-   "appendOnly": 1,
+   "tablas": 37,
+   "tablasDeNegocio": 33,
+   "columnas": 381,
+   "relaciones": 47,
+   "appendOnly": 3,
    "conDatosPersonales": 8,
    "servicio": "identidad"
   },
@@ -38086,11 +38086,6 @@
        "operationId": "sancionarOrganizador"
       }
      ]
-    },
-    {
-     "casoDeUso": "CU-134",
-     "titulo": "Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso",
-     "endpoints": []
     }
    ]
   },
@@ -48101,6 +48096,179 @@
    ]
   },
   {
+   "tabla": "apelacion_medida_cuenta",
+   "esquema": "identidad",
+   "tipo": "NEGOCIO",
+   "modulo": "01",
+   "nombreModulo": "Identidad, Usuarios y Seguridad",
+   "servicio": "identidad",
+   "appendOnly": false,
+   "negocio": {
+    "queEs": "La apelación única de un expediente, presentada por el afectado y resuelta por una persona que no propuso ni decidió la medida.",
+    "negocio": "Que toda medida tenga segunda instancia y que, si la instancia no resuelve a tiempo, la demora no la pague la persona.",
+    "porQue": "La unicidad sobre expediente_medida_cuenta_id garantiza en la base una sola apelación por expediente.\n\n- estado: presentada, aceptada, rechazada, o aceptada por vencimiento del plazo de la instancia.\n- resuelta_por: tercera persona; la base impide que sea quien propuso o decidió."
+   },
+   "reglas": [],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "expediente_medida_cuenta_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "expediente_medida_cuenta",
+     "negocio": "Referencia por clave foránea a la entidad expediente_medida_cuenta.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a expediente_medida_cuenta, restricción única.",
+     "sensibilidad": "NINGUNA",
+     "unica": true,
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "apelante_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "usuario",
+     "negocio": "Referencia por clave foránea a la entidad usuario.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a usuario.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "argumento",
+     "tipo": "TEXT",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa argumento en el modelo de apelacion_medida_cuenta.",
+     "origenNegocio": "convencion",
+     "sistema": "TEXT, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "estado",
+     "tipo": "VARCHAR(25)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "presentada, aceptada, rechazada, o aceptada por vencimiento del plazo de la instancia.",
+     "origenNegocio": "ficha",
+     "sistema": "VARCHAR(25), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "presentada_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de presentada en apelacion_medida_cuenta.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "fecha_limite_resolucion",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de limite resolucion en apelacion_medida_cuenta.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "resuelta_por",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "referencia": "usuario",
+     "negocio": "tercera persona; la base impide que sea quien propuso o decidió.",
+     "origenNegocio": "ficha",
+     "sistema": "UUID, opcional, referencia a usuario.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "resuelta_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de resuelta en apelacion_medida_cuenta.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "resolucion",
+     "tipo": "TEXT",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Atributo que representa resolucion en el modelo de apelacion_medida_cuenta.",
+     "origenNegocio": "convencion",
+     "sistema": "TEXT, opcional.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "expediente_medida_cuenta_id",
+      "tabla": "expediente_medida_cuenta",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_apelacion_medida_cuenta_expediente_medida_cuenta_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "1:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "apelante_id",
+      "tabla": "usuario",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_apelacion_medida_cuenta_apelante_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "resuelta_por",
+      "tabla": "usuario",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_apelacion_medida_cuenta_resuelta_por",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
+     }
+    ],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de expediente_medida_cuenta, usuario.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": [
+    {
+     "casoDeUso": "CU-134",
+     "titulo": "Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso",
+     "endpoints": []
+    }
+   ]
+  },
+  {
    "tabla": "asignacion_rol",
    "esquema": "identidad",
    "tipo": "NEGOCIO",
@@ -49958,6 +50126,136 @@
    "operaciones": []
   },
   {
+   "tabla": "evidencia_medida_cuenta",
+   "esquema": "identidad",
+   "tipo": "NEGOCIO",
+   "modulo": "01",
+   "nombreModulo": "Identidad, Usuarios y Seguridad",
+   "servicio": "identidad",
+   "appendOnly": true,
+   "negocio": {
+    "queEs": "Cada evidencia del expediente y cada descargo del afectado, una fila por aporte.",
+    "negocio": "Que lo que aporta el sistema, el operador y el propio afectado quede en el mismo lugar y distinguido por quién lo aportó.",
+    "porQue": "La evidencia de un expediente no se edita ni se borra: es append-only, así nadie puede cambiar después lo que sustentó una decisión.\n\n- tipo: evidencia del sistema, del operador, del afectado, o el descargo.\n- aportada_por: quién la incorporó."
+   },
+   "reglas": [],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "expediente_medida_cuenta_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "expediente_medida_cuenta",
+     "negocio": "Referencia por clave foránea a la entidad expediente_medida_cuenta.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a expediente_medida_cuenta, índice b-tree.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "tipo",
+     "tipo": "VARCHAR(25)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "evidencia del sistema, del operador, del afectado, o el descargo.",
+     "origenNegocio": "ficha",
+     "sistema": "VARCHAR(25), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "contenido",
+     "tipo": "TEXT",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa contenido en el modelo de evidencia_medida_cuenta.",
+     "origenNegocio": "convencion",
+     "sistema": "TEXT, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "referencia_id",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Identificador de referencia para el concepto de referencia en evidencia_medida_cuenta.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "aportada_por",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "usuario",
+     "negocio": "quién la incorporó.",
+     "origenNegocio": "ficha",
+     "sistema": "UUID, obligatoria, referencia a usuario.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "registrada_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de registrada en evidencia_medida_cuenta.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "expediente_medida_cuenta_id",
+      "tabla": "expediente_medida_cuenta",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_evidencia_medida_cuenta_expediente_medida_cuenta_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "aportada_por",
+      "tabla": "usuario",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_evidencia_medida_cuenta_aportada_por",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     }
+    ],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de expediente_medida_cuenta, usuario.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": [
+    {
+     "casoDeUso": "CU-134",
+     "titulo": "Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso",
+     "endpoints": []
+    }
+   ]
+  },
+  {
    "tabla": "evidencia_step_up_consumida",
    "esquema": "identidad",
    "tipo": "NEGOCIO",
@@ -50060,6 +50358,368 @@
     "derivados": 0
    },
    "operaciones": []
+  },
+  {
+   "tabla": "expediente_medida_cuenta",
+   "esquema": "identidad",
+   "tipo": "NEGOCIO",
+   "modulo": "01",
+   "nombreModulo": "Identidad, Usuarios y Seguridad",
+   "servicio": "identidad",
+   "appendOnly": false,
+   "negocio": {
+    "queEs": "El expediente de una medida de seguridad sobre la cuenta de un participante (bloqueo cautelar o suspensión temporal), con su causal cerrada, sus plazos guardados y su decisión motivada.",
+    "negocio": "Que ninguna cuenta quede suspendida o bloqueada sin causal, evidencia, notificación, descargo y decisión de otra persona, y que siempre se pueda mostrar por qué y hasta cuándo.",
+    "porQue": "usuario.estado dice *que* la cuenta está suspendida; el expediente dice *por qué*, *quién* lo propuso, *quién* lo decidió y *con qué plazos*. Sin él no hay debido proceso que demostrar (regla 91.4).\n\n- causal: motivo del catálogo cerrado; mora, orden de autoridad y sospecha de lavado van por otros casos de uso.\n- medida: bloqueo cautelar inmediato o suspensión temporal.\n- cautelar: si la medida se aplicó antes del descargo, cosa que solo admiten la cuenta comprometida y el fraude con evidencia.\n- estado_cuenta_previo: estado de la cuenta antes de la medida, al que vuelve cuando la medida termina.\n- fecha_limite_descargo: plazo de descargo calculado en días hábiles al notificar y guardado; no se recalcula.\n- fecha_limite_apelacion: plazo de apelación calculado al decidir.\n- prescribe_en: fecha en la que el expediente prescribe si nadie decidió.\n- vigente_hasta: fin de la suspensión temporal.\n- clave_idempotencia: el mismo pedido reenviado devuelve el mismo expediente."
+   },
+   "reglas": [
+    "ck_expediente_medida_no_autopropuesta",
+    "ck_expediente_medida_decide_otro",
+    "uq_expediente_medida_abierto",
+    "ck_expediente_medida_decision_fundada",
+    "ck_expediente_medida_firme_confirmada"
+   ],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "usuario_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "usuario",
+     "negocio": "Referencia al usuario titular de la cuenta o actor principal de la operación.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a usuario, índice b-tree.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "politica_medida_cuenta_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "politica_medida_cuenta",
+     "negocio": "Referencia por clave foránea a la entidad politica_medida_cuenta.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a politica_medida_cuenta.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "causal",
+     "tipo": "VARCHAR(40)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "motivo del catálogo cerrado; mora, orden de autoridad y sospecha de lavado van por otros casos de uso.",
+     "origenNegocio": "ficha",
+     "sistema": "VARCHAR(40), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "medida",
+     "tipo": "VARCHAR(25)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "bloqueo cautelar inmediato o suspensión temporal.",
+     "origenNegocio": "ficha",
+     "sistema": "VARCHAR(25), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "cautelar",
+     "tipo": "BOOLEAN",
+     "nulable": false,
+     "pk": false,
+     "negocio": "si la medida se aplicó antes del descargo, cosa que solo admiten la cuenta comprometida y el fraude con evidencia.",
+     "origenNegocio": "ficha",
+     "sistema": "BOOLEAN, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "motivo",
+     "tipo": "VARCHAR(500)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Justificación declarada o causal que originó la creación, rechazo o transición del registro.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(500), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "estado",
+     "tipo": "VARCHAR(25)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Estado operativo o fase del ciclo de vida en que se encuentra el registro.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(25), obligatoria, índice b-tree.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "estado_cuenta_previo",
+     "tipo": "VARCHAR(25)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "estado de la cuenta antes de la medida, al que vuelve cuando la medida termina.",
+     "origenNegocio": "ficha",
+     "sistema": "VARCHAR(25), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "propuesta_por",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "usuario",
+     "negocio": "Referencia por clave foránea a la entidad usuario.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a usuario.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "propuesta_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de propuesta en expediente_medida_cuenta.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "notificada_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de notificada en expediente_medida_cuenta.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "fecha_limite_descargo",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": true,
+     "pk": false,
+     "negocio": "plazo de descargo calculado en días hábiles al notificar y guardado; no se recalcula.",
+     "origenNegocio": "ficha",
+     "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "decidida_por",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "referencia": "usuario",
+     "negocio": "Referencia por clave foránea a la entidad usuario.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, opcional, referencia a usuario.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "decidida_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de decidida en expediente_medida_cuenta.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "resultado_decision",
+     "tipo": "VARCHAR(15)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Atributo que representa resultado decision en el modelo de expediente_medida_cuenta.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(15), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "fundamento_decision",
+     "tipo": "TEXT",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Atributo que representa fundamento decision en el modelo de expediente_medida_cuenta.",
+     "origenNegocio": "convencion",
+     "sistema": "TEXT, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "fecha_limite_apelacion",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": true,
+     "pk": false,
+     "negocio": "plazo de apelación calculado al decidir.",
+     "origenNegocio": "ficha",
+     "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "vigente_hasta",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": true,
+     "pk": false,
+     "negocio": "fin de la suspensión temporal.",
+     "origenNegocio": "ficha",
+     "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "prescribe_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "fecha en la que el expediente prescribe si nadie decidió.",
+     "origenNegocio": "ficha",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "firme_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de firme en expediente_medida_cuenta.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "cerrada_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de cerrada en expediente_medida_cuenta.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "clave_idempotencia",
+     "tipo": "VARCHAR(80)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "el mismo pedido reenviado devuelve el mismo expediente.",
+     "origenNegocio": "ficha",
+     "sistema": "VARCHAR(80), obligatoria, restricción única.",
+     "sensibilidad": "NINGUNA",
+     "unica": true
+    },
+    {
+     "nombre": "version",
+     "tipo": "INTEGER",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Número de versión para control de concurrencia optimista y auditoría de modificaciones.",
+     "origenNegocio": "convencion",
+     "sistema": "INTEGER, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "usuario_id",
+      "tabla": "usuario",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_expediente_medida_cuenta_usuario_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "politica_medida_cuenta_id",
+      "tabla": "politica_medida_cuenta",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_expediente_medida_cuenta_politica_medida_cuenta_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "propuesta_por",
+      "tabla": "usuario",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_expediente_medida_cuenta_propuesta_por",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "decidida_por",
+      "tabla": "usuario",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_expediente_medida_cuenta_decidida_por",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
+     }
+    ],
+    "entrantes": [
+     {
+      "columna": "expediente_medida_cuenta_id",
+      "tabla": "evidencia_medida_cuenta",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_evidencia_medida_cuenta_expediente_medida_cuenta_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "expediente_medida_cuenta_id",
+      "tabla": "historial_estado_medida_cuenta",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_historial_estado_medida_cuenta_expediente_medida_cuenta_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "expediente_medida_cuenta_id",
+      "tabla": "apelacion_medida_cuenta",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_apelacion_medida_cuenta_expediente_medida_cuenta_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "1:1",
+      "obligatoria": true
+     }
+    ]
+   },
+   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de politica_medida_cuenta, usuario. La referencian apelacion_medida_cuenta, evidencia_medida_cuenta, historial_estado_medida_cuenta. Reglas nombradas: ck_expediente_medida_no_autopropuesta, ck_expediente_medida_decide_otro, uq_expediente_medida_abierto, ck_expediente_medida_decision_fundada, ck_expediente_medida_firme_confirmada.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": [
+    {
+     "casoDeUso": "CU-134",
+     "titulo": "Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso",
+     "endpoints": []
+    }
+   ]
   },
   {
    "tabla": "factor_mfa",
@@ -50321,6 +50981,136 @@
     {
      "casoDeUso": "CU-09",
      "titulo": "Cambiar credenciales y solicitar la baja",
+     "endpoints": []
+    }
+   ]
+  },
+  {
+   "tabla": "historial_estado_medida_cuenta",
+   "esquema": "identidad",
+   "tipo": "NEGOCIO",
+   "modulo": "01",
+   "nombreModulo": "Identidad, Usuarios y Seguridad",
+   "servicio": "identidad",
+   "appendOnly": true,
+   "negocio": {
+    "queEs": "Cada cambio de estado del expediente, con quién lo hizo y por qué.",
+    "negocio": "Es la línea de tiempo que ve el operador y la que se muestra en una auditoría o un reclamo.",
+    "porQue": "El estado vigente se puede pisar; el historial no: es append-only y es la prueba de que cada paso del debido proceso ocurrió en orden."
+   },
+   "reglas": [],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "expediente_medida_cuenta_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "expediente_medida_cuenta",
+     "negocio": "Referencia por clave foránea a la entidad expediente_medida_cuenta.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a expediente_medida_cuenta, índice b-tree.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "estado_anterior",
+     "tipo": "VARCHAR(25)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Atributo que representa estado anterior en el modelo de historial_estado_medida_cuenta.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(25), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "estado_nuevo",
+     "tipo": "VARCHAR(25)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa estado nuevo en el modelo de historial_estado_medida_cuenta.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(25), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "ejecutado_por",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "referencia": "usuario",
+     "negocio": "Referencia por clave foránea a la entidad usuario.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, opcional, referencia a usuario.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "motivo",
+     "tipo": "VARCHAR(500)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Justificación declarada o causal que originó la creación, rechazo o transición del registro.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(500), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "ocurrido_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de ocurrido en historial_estado_medida_cuenta.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "expediente_medida_cuenta_id",
+      "tabla": "expediente_medida_cuenta",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_historial_estado_medida_cuenta_expediente_medida_cuenta_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "ejecutado_por",
+      "tabla": "usuario",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_historial_estado_medida_cuenta_ejecutado_por",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
+     }
+    ],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de expediente_medida_cuenta, usuario.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": [
+    {
+     "casoDeUso": "CU-134",
+     "titulo": "Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso",
      "endpoints": []
     }
    ]
@@ -51017,6 +51807,166 @@
        "operationId": "asignarRolesUsuarioInterno"
       }
      ]
+    }
+   ]
+  },
+  {
+   "tabla": "politica_medida_cuenta",
+   "esquema": "identidad",
+   "tipo": "NEGOCIO",
+   "modulo": "01",
+   "nombreModulo": "Identidad, Usuarios y Seguridad",
+   "servicio": "identidad",
+   "appendOnly": false,
+   "negocio": {
+    "queEs": "La política versionada que fija los plazos de una medida sobre la cuenta de un participante: descargo, apelación, resolución de la apelación, prescripción y duración máxima de la suspensión.",
+    "negocio": "Que los plazos del debido proceso sean un dato con vigencia y no un número escondido en el código: se cambian publicando una versión nueva, y cada expediente sabe con qué versión se abrió. Los valores iniciales los aprobó Pablo el 2026-11-24 sin fuente normativa (CU-134, D-3).",
+    "porQue": "Sancionar con una regla publicada después del hecho es retroactivo. El expediente apunta a la versión vigente al abrirse, así que cambiar la política no mueve los plazos de los expedientes en curso.\n\n- plazo_descargo_dias_habiles: días hábiles que tiene la persona para presentar su descargo, contados desde la notificación entregada.\n- plazo_apelacion_dias_habiles: días hábiles para apelar desde que se le comunica la decisión.\n- plazo_resolucion_apelacion_dias_habiles: días hábiles que tiene la segunda instancia para resolver; vacío mientras no se decida, y entonces no hay resolución automática por vencimiento.\n- prescribe_en_meses: meses desde la apertura tras los cuales un expediente sin decisión prescribe y no se reabre por el mismo hecho.\n- duracion_maxima_suspension_dias: tope en días corridos de una suspensión temporal.\n- fuente: de dónde salen los valores (decisión de negocio, norma o contrato), para que nadie los confunda con una cifra regulatoria.\n- aprobada_por: quién aprobó la versión."
+   },
+   "reglas": [],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "version",
+     "tipo": "VARCHAR(20)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Número de versión para control de concurrencia optimista y auditoría de modificaciones.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(20), obligatoria, restricción única.",
+     "sensibilidad": "NINGUNA",
+     "unica": true
+    },
+    {
+     "nombre": "plazo_descargo_dias_habiles",
+     "tipo": "SMALLINT",
+     "nulable": false,
+     "pk": false,
+     "negocio": "días hábiles que tiene la persona para presentar su descargo, contados desde la notificación entregada.",
+     "origenNegocio": "ficha",
+     "sistema": "SMALLINT, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "plazo_apelacion_dias_habiles",
+     "tipo": "SMALLINT",
+     "nulable": false,
+     "pk": false,
+     "negocio": "días hábiles para apelar desde que se le comunica la decisión.",
+     "origenNegocio": "ficha",
+     "sistema": "SMALLINT, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "plazo_resolucion_apelacion_dias_habiles",
+     "tipo": "SMALLINT",
+     "nulable": true,
+     "pk": false,
+     "negocio": "días hábiles que tiene la segunda instancia para resolver; vacío mientras no se decida, y entonces no hay resolución automática por vencimiento.",
+     "origenNegocio": "ficha",
+     "sistema": "SMALLINT, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "prescribe_en_meses",
+     "tipo": "SMALLINT",
+     "nulable": false,
+     "pk": false,
+     "negocio": "meses desde la apertura tras los cuales un expediente sin decisión prescribe y no se reabre por el mismo hecho.",
+     "origenNegocio": "ficha",
+     "sistema": "SMALLINT, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "duracion_maxima_suspension_dias",
+     "tipo": "SMALLINT",
+     "nulable": false,
+     "pk": false,
+     "negocio": "tope en días corridos de una suspensión temporal.",
+     "origenNegocio": "ficha",
+     "sistema": "SMALLINT, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "fuente",
+     "tipo": "VARCHAR(200)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "de dónde salen los valores (decisión de negocio, norma o contrato), para que nadie los confunda con una cifra regulatoria.",
+     "origenNegocio": "ficha",
+     "sistema": "VARCHAR(200), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "aprobada_por",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "referencia": "usuario",
+     "negocio": "quién aprobó la versión.",
+     "origenNegocio": "ficha",
+     "sistema": "UUID, opcional, referencia a usuario.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "vigente_desde",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "aprobada_por",
+      "tabla": "usuario",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_politica_medida_cuenta_aprobada_por",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
+     }
+    ],
+    "entrantes": [
+     {
+      "columna": "politica_medida_cuenta_id",
+      "tabla": "expediente_medida_cuenta",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_expediente_medida_cuenta_politica_medida_cuenta_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     }
+    ]
+   },
+   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de usuario. La referencian expediente_medida_cuenta.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": [
+    {
+     "casoDeUso": "CU-134",
+     "titulo": "Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso",
+     "endpoints": []
     }
    ]
   },
@@ -53941,6 +54891,86 @@
       "obligatoria": true
      },
      {
+      "columna": "aprobada_por",
+      "tabla": "politica_medida_cuenta",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_politica_medida_cuenta_aprobada_por",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
+     },
+     {
+      "columna": "usuario_id",
+      "tabla": "expediente_medida_cuenta",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_expediente_medida_cuenta_usuario_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "propuesta_por",
+      "tabla": "expediente_medida_cuenta",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_expediente_medida_cuenta_propuesta_por",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "decidida_por",
+      "tabla": "expediente_medida_cuenta",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_expediente_medida_cuenta_decidida_por",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
+     },
+     {
+      "columna": "aportada_por",
+      "tabla": "evidencia_medida_cuenta",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_evidencia_medida_cuenta_aportada_por",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "ejecutado_por",
+      "tabla": "historial_estado_medida_cuenta",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_historial_estado_medida_cuenta_ejecutado_por",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
+     },
+     {
+      "columna": "apelante_id",
+      "tabla": "apelacion_medida_cuenta",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_apelacion_medida_cuenta_apelante_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "resuelta_por",
+      "tabla": "apelacion_medida_cuenta",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_apelacion_medida_cuenta_resuelta_por",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
+     },
+     {
       "columna": "usuario_id",
       "tabla": "evidencia_step_up_consumida",
       "esquema": "identidad",
@@ -55942,7 +56972,7 @@
      }
     ]
    },
-   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian aportes.comprobante_manual, aportes.conciliacion, aportes.excepcion_conciliacion, aportes.extracto_bancario, aportes.historial_estado_reembolso, aportes.pago, aportes.plan_regularizacion, aportes.reembolso, asignacion_rol, auditoria.alerta_cumplimiento, auditoria.coincidencia_lista, auditoria.ejecucion_reporte, auditoria.proceso_anonimizacion, auditoria.reporte_operacion_sospechosa, auditoria.solicitud_datos_personales, auditoria.ticket_soporte, bloqueo_cuenta, catalogo.licencia_regulatoria, catalogo.tarifario, comun.bitacora_evento, comun.registro_acceso_datos, consentimiento, credencial_acceso, cumplimiento.aceptacion_contrato, cumplimiento.acta_comite, cumplimiento.activo_informacion, cumplimiento.alerta_monitoreo_lft, cumplimiento.beneficiario_final, cumplimiento.calificacion_riesgo_cliente, cumplimiento.capacitacion_cumplimiento, cumplimiento.caso_investigacion_lft, cumplimiento.contrato_adhesion, cumplimiento.contrato_tercero, cumplimiento.control_interno, cumplimiento.debida_diligencia, cumplimiento.declaracion_origen_fondos, cumplimiento.declaracion_pep, cumplimiento.designacion_regulatoria, cumplimiento.desvio_perfil, cumplimiento.documento_publicado, cumplimiento.envio_regulatorio, cumplimiento.evaluacion_riesgo_producto, cumplimiento.evaluacion_tercero, cumplimiento.evento_riesgo_operativo, cumplimiento.expediente_cliente, cumplimiento.factor_riesgo_evaluado, cumplimiento.hallazgo_auditoria, cumplimiento.incidente_seguridad, cumplimiento.matriz_riesgo_lft, cumplimiento.observacion_regulatoria, cumplimiento.oficial_cumplimiento, cumplimiento.perfil_transaccional, cumplimiento.plan_accion_riesgo, cumplimiento.plan_continuidad, cumplimiento.politica_interna, cumplimiento.prueba_continuidad, cumplimiento.prueba_control, cumplimiento.punto_reclamo, cumplimiento.reclamo_cliente, cumplimiento.registro_operacion_relevante, cumplimiento.regla_monitoreo_lft, cumplimiento.reporte_regulatorio, cumplimiento.requerimiento_autoridad, cumplimiento.revision_periodica_kyc, direccion_usuario, dispositivo, documento_identidad, entregas.cuenta_bancaria_beneficiario, entregas.entrega_fondo, entregas.historial_estado_entrega, entregas.incidencia_entrega, entregas.validacion_pre_entrega, erp.asiento_plantilla, erp.cierre_periodo_contable, erp.ejercicio_fiscal, erp.estado_financiero_generado, erp.factura_proveedor, erp.orden_compra, erp.pago_a_proveedor, erp.presupuesto, evidencia_step_up_consumida, factor_mfa, garantia.abono_recuperacion, garantia.accion_cobranza, garantia.acuerdo_quita, garantia.alerta_temprana, garantia.apelacion_sancion, garantia.aval_participante, garantia.candidato_reemplazo, garantia.capacidad_respaldo, garantia.castigo_deuda, garantia.cobertura_incumplimiento, garantia.cobertura_respaldo, garantia.descargo_participante, garantia.deuda_participante, garantia.evidencia_incumplimiento, garantia.gestion_cobranza, garantia.historial_estado_incumplimiento, garantia.historial_incumplimiento_usuario, garantia.lista_restriccion_interna, garantia.movimiento_fondo, garantia.movimiento_reserva, garantia.promesa_pago, garantia.registro_incumplimiento, garantia.reserva_respaldo, garantia.sancion, garantia.score_riesgo_incumplimiento, grupos.acuerdo, grupos.enlace_grupo, grupos.historial_estado_grupo, grupos.invitacion, grupos.participante, grupos.postulacion_emparejamiento, grupos.reglamento_grupo, grupos.solicitud_ingreso, grupos.sorteo_turnos, historial_credencial, intento_autenticacion, notificaciones.aviso_interno, notificaciones.bandeja_entrada, notificaciones.canal_vinculado, notificaciones.notificacion, nucleo_financiero.asiento_contable, nucleo_financiero.bloqueo_saldo, nucleo_financiero.certificado_saldo, nucleo_financiero.cierre_diario, nucleo_financiero.conciliacion_custodia, nucleo_financiero.cuenta_billetera, nucleo_financiero.descuadre_custodia, nucleo_financiero.evaluacion_antifraude, nucleo_financiero.evidencia_mfa_consumida, nucleo_financiero.instrumento_fondeo, nucleo_financiero.orden_retiro, nucleo_financiero.politica_billetera, nucleo_financiero.regla_antifraude, nucleo_financiero.respuesta_idempotente, nucleo_financiero.retencion_saldo, nucleo_financiero.reverso_transaccion, nucleo_financiero.solicitud_cierre_billetera, nucleo_financiero.solicitud_reverso, nucleo_financiero.transaccion_billetera, organizador.apelacion_sancion_org, organizador.organizador, organizador.sancion_organizador, organizador.solicitud_organizador, perfil_financiero, preferencia_notificacion, publicidad.campana_publicitaria, publicidad.clic_anuncio, publicidad.impresion_anuncio, publicidad.revision_creativa, publicidad.segmento_audiencia, publicidad.socio_comercial, referencia_personal, reputacion_usuario, restriccion_usuario, sesion, solicitud_baja, tarifas.asignacion_tarifario, tarifas.cambio_tarifario, tarifas.campana_promocional, tarifas.cuenta_por_cobrar_comision, tarifas.datos_facturacion, tarifas.devengo_comision, tarifas.devolucion_comision, tarifas.evento_significativo_sin, tarifas.exencion_comision, tarifas.factura_electronica, tarifas.liquidacion_ingresos, tarifas.simulacion_tarifa, token_verificacion, transparencia.certificado_reputacion, transparencia.evento_reputacion, transparencia.insignia_otorgada, transparencia.puntaje_reputacion, transparencia.resena_participante, transparencia.snapshot_reputacion, usuario_interno, verificacion_kyc.",
+   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian apelacion_medida_cuenta, aportes.comprobante_manual, aportes.conciliacion, aportes.excepcion_conciliacion, aportes.extracto_bancario, aportes.historial_estado_reembolso, aportes.pago, aportes.plan_regularizacion, aportes.reembolso, asignacion_rol, auditoria.alerta_cumplimiento, auditoria.coincidencia_lista, auditoria.ejecucion_reporte, auditoria.proceso_anonimizacion, auditoria.reporte_operacion_sospechosa, auditoria.solicitud_datos_personales, auditoria.ticket_soporte, bloqueo_cuenta, catalogo.licencia_regulatoria, catalogo.tarifario, comun.bitacora_evento, comun.registro_acceso_datos, consentimiento, credencial_acceso, cumplimiento.aceptacion_contrato, cumplimiento.acta_comite, cumplimiento.activo_informacion, cumplimiento.alerta_monitoreo_lft, cumplimiento.beneficiario_final, cumplimiento.calificacion_riesgo_cliente, cumplimiento.capacitacion_cumplimiento, cumplimiento.caso_investigacion_lft, cumplimiento.contrato_adhesion, cumplimiento.contrato_tercero, cumplimiento.control_interno, cumplimiento.debida_diligencia, cumplimiento.declaracion_origen_fondos, cumplimiento.declaracion_pep, cumplimiento.designacion_regulatoria, cumplimiento.desvio_perfil, cumplimiento.documento_publicado, cumplimiento.envio_regulatorio, cumplimiento.evaluacion_riesgo_producto, cumplimiento.evaluacion_tercero, cumplimiento.evento_riesgo_operativo, cumplimiento.expediente_cliente, cumplimiento.factor_riesgo_evaluado, cumplimiento.hallazgo_auditoria, cumplimiento.incidente_seguridad, cumplimiento.matriz_riesgo_lft, cumplimiento.observacion_regulatoria, cumplimiento.oficial_cumplimiento, cumplimiento.perfil_transaccional, cumplimiento.plan_accion_riesgo, cumplimiento.plan_continuidad, cumplimiento.politica_interna, cumplimiento.prueba_continuidad, cumplimiento.prueba_control, cumplimiento.punto_reclamo, cumplimiento.reclamo_cliente, cumplimiento.registro_operacion_relevante, cumplimiento.regla_monitoreo_lft, cumplimiento.reporte_regulatorio, cumplimiento.requerimiento_autoridad, cumplimiento.revision_periodica_kyc, direccion_usuario, dispositivo, documento_identidad, entregas.cuenta_bancaria_beneficiario, entregas.entrega_fondo, entregas.historial_estado_entrega, entregas.incidencia_entrega, entregas.validacion_pre_entrega, erp.asiento_plantilla, erp.cierre_periodo_contable, erp.ejercicio_fiscal, erp.estado_financiero_generado, erp.factura_proveedor, erp.orden_compra, erp.pago_a_proveedor, erp.presupuesto, evidencia_medida_cuenta, evidencia_step_up_consumida, expediente_medida_cuenta, factor_mfa, garantia.abono_recuperacion, garantia.accion_cobranza, garantia.acuerdo_quita, garantia.alerta_temprana, garantia.apelacion_sancion, garantia.aval_participante, garantia.candidato_reemplazo, garantia.capacidad_respaldo, garantia.castigo_deuda, garantia.cobertura_incumplimiento, garantia.cobertura_respaldo, garantia.descargo_participante, garantia.deuda_participante, garantia.evidencia_incumplimiento, garantia.gestion_cobranza, garantia.historial_estado_incumplimiento, garantia.historial_incumplimiento_usuario, garantia.lista_restriccion_interna, garantia.movimiento_fondo, garantia.movimiento_reserva, garantia.promesa_pago, garantia.registro_incumplimiento, garantia.reserva_respaldo, garantia.sancion, garantia.score_riesgo_incumplimiento, grupos.acuerdo, grupos.enlace_grupo, grupos.historial_estado_grupo, grupos.invitacion, grupos.participante, grupos.postulacion_emparejamiento, grupos.reglamento_grupo, grupos.solicitud_ingreso, grupos.sorteo_turnos, historial_credencial, historial_estado_medida_cuenta, intento_autenticacion, notificaciones.aviso_interno, notificaciones.bandeja_entrada, notificaciones.canal_vinculado, notificaciones.notificacion, nucleo_financiero.asiento_contable, nucleo_financiero.bloqueo_saldo, nucleo_financiero.certificado_saldo, nucleo_financiero.cierre_diario, nucleo_financiero.conciliacion_custodia, nucleo_financiero.cuenta_billetera, nucleo_financiero.descuadre_custodia, nucleo_financiero.evaluacion_antifraude, nucleo_financiero.evidencia_mfa_consumida, nucleo_financiero.instrumento_fondeo, nucleo_financiero.orden_retiro, nucleo_financiero.politica_billetera, nucleo_financiero.regla_antifraude, nucleo_financiero.respuesta_idempotente, nucleo_financiero.retencion_saldo, nucleo_financiero.reverso_transaccion, nucleo_financiero.solicitud_cierre_billetera, nucleo_financiero.solicitud_reverso, nucleo_financiero.transaccion_billetera, organizador.apelacion_sancion_org, organizador.organizador, organizador.sancion_organizador, organizador.solicitud_organizador, perfil_financiero, politica_medida_cuenta, preferencia_notificacion, publicidad.campana_publicitaria, publicidad.clic_anuncio, publicidad.impresion_anuncio, publicidad.revision_creativa, publicidad.segmento_audiencia, publicidad.socio_comercial, referencia_personal, reputacion_usuario, restriccion_usuario, sesion, solicitud_baja, tarifas.asignacion_tarifario, tarifas.cambio_tarifario, tarifas.campana_promocional, tarifas.cuenta_por_cobrar_comision, tarifas.datos_facturacion, tarifas.devengo_comision, tarifas.devolucion_comision, tarifas.evento_significativo_sin, tarifas.exencion_comision, tarifas.factura_electronica, tarifas.liquidacion_ingresos, tarifas.simulacion_tarifa, token_verificacion, transparencia.certificado_reputacion, transparencia.evento_reputacion, transparencia.insignia_otorgada, transparencia.puntaje_reputacion, transparencia.resena_participante, transparencia.snapshot_reputacion, usuario_interno, verificacion_kyc.",
    "clasificacion": {
     "personales": 6,
     "financieros": 0,

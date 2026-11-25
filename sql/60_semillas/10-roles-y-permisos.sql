@@ -113,7 +113,11 @@ INSERT INTO permiso (codigo, descripcion, recurso, accion, requiere_mfa, nivel_r
   ('TABLERO_VER', 'Visualización ejecutiva del tablero de indicadores y control (CU-98)', 'tablero_indicadores', 'LEER', FALSE, 'BAJO', FALSE),
   ('TARIFARIO_ADMINISTRAR', 'Configuración y segmentación del tarifario de comisiones (CU-36)', 'tarifario', 'ADMINISTRAR', TRUE, 'CRITICO', TRUE),
   ('TESORERIA_OPERAR', 'Generación de órdenes de desembolso y conciliación de custodia bancaria (CU-28)', 'tesoreria', 'OPERAR', TRUE, 'CRITICO', TRUE),
-  ('INVERSION_OPERAR', 'Operación de inversión voluntaria y rescates de fondos (CU-121, CU-125)', 'inversion', 'OPERAR', TRUE, 'CRITICO', TRUE)
+  ('INVERSION_OPERAR', 'Operación de inversión voluntaria y rescates de fondos (CU-121, CU-125)', 'inversion', 'OPERAR', TRUE, 'CRITICO', TRUE),
+  ('PARTICIPANTES_LEER', 'Buscar participantes y abrir su ficha enmascarada con justificación (CU-134)', 'usuario', 'LEER', FALSE, 'MEDIO', TRUE),
+  ('PARTICIPANTES_MEDIDA_PROPONER', 'Proponer una suspensión o un bloqueo cautelar de la cuenta de un participante (CU-134)', 'expediente_medida_cuenta', 'PROPONER', TRUE, 'ALTO', TRUE),
+  ('PARTICIPANTES_MEDIDA_DECIDIR', 'Decidir con fundamento una medida sobre la cuenta propuesta por otra persona (CU-134)', 'expediente_medida_cuenta', 'DECIDIR', TRUE, 'CRITICO', TRUE),
+  ('PARTICIPANTES_APELACION_RESOLVER', 'Resolver en segunda instancia la apelación de una medida sobre la cuenta (CU-134)', 'apelacion_medida_cuenta', 'RESOLVER', TRUE, 'CRITICO', TRUE)
 ON CONFLICT (codigo) DO NOTHING;
 
 -- Sin esta matriz los roles no otorgan nada y el guard de denegar por omisión rechaza todo. Dos separaciones de funciones están cableadas acá y no se negocian: quien AUTORIZA una entrega o un reverso no puede EJECUTARLO, y quien edita catálogos no toca dinero ni datos sensibles (control CI-04).
@@ -283,7 +287,16 @@ INSERT INTO rol_permiso (rol_id, permiso_id) VALUES
   ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'CUMPLIMIENTO_CASOS_DECIDIR')),
   ((SELECT id FROM rol WHERE codigo = 'SUPERVISOR_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'BLOQUEO_AUTORIDAD_LEVANTAR')),
   ((SELECT id FROM rol WHERE codigo = 'SUPERVISOR_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'AUDITORIA_LEER')),
-  ((SELECT id FROM rol WHERE codigo = 'APROBADOR_PUBLICIDAD'), (SELECT id FROM permiso WHERE codigo = 'PUBLICIDAD_APROBAR_CAMPANA'))
+  ((SELECT id FROM rol WHERE codigo = 'APROBADOR_PUBLICIDAD'), (SELECT id FROM permiso WHERE codigo = 'PUBLICIDAD_APROBAR_CAMPANA')),
+  ((SELECT id FROM rol WHERE codigo = 'SOPORTE'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_LEER')),
+  ((SELECT id FROM rol WHERE codigo = 'FRAUD_ANALYST'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_LEER')),
+  ((SELECT id FROM rol WHERE codigo = 'RESPONSABLE_SEGURIDAD'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_LEER')),
+  ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_LEER')),
+  ((SELECT id FROM rol WHERE codigo = 'RESPONSABLE_RIESGOS'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_LEER')),
+  ((SELECT id FROM rol WHERE codigo = 'FRAUD_ANALYST'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_MEDIDA_PROPONER')),
+  ((SELECT id FROM rol WHERE codigo = 'RESPONSABLE_SEGURIDAD'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_MEDIDA_DECIDIR')),
+  ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_APELACION_RESOLVER')),
+  ((SELECT id FROM rol WHERE codigo = 'RESPONSABLE_RIESGOS'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_APELACION_RESOLVER'))
 ON CONFLICT (rol_id, permiso_id) DO NOTHING;
 
 -- P-3 (decisión de Pablo, 2026-11-24): nadie reúne funciones incompatibles. El oficial de cumplimiento registra los bloqueos por autoridad y el supervisor los levanta; el operador de publicidad da de alta anunciantes y liquida, y el aprobador de publicidad aprueba campañas. La siembra es DO NOTHING, así que una base ya sembrada conservaría las concesiones viejas: estos DELETE las retiran y son re-ejecutables (la segunda corrida no borra nada).

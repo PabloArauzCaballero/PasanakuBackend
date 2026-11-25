@@ -36,5 +36,6 @@ BEGIN;
 \ir 23-indicadores-tableros.sql
 \ir 24-metadata-comentarios.sql
 \ir 25-parametros-financieros.sql
+\ir 26-politica-medida-cuenta.sql
 
 COMMIT;

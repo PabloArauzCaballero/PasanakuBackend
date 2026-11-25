@@ -70,7 +70,7 @@ Norma (docs/Cumplimiento.md)  →  Caso de uso (esta carpeta)  →  Restricción
 | [[CU-07 Ejercer derechos sobre datos personales]] | Acceso, rectificación y supresión | Titular | Protección de datos |
 | [[CU-08 Asignar y revocar roles de operador]] | Permiso mínimo, temporal y auditable; el alta cierra con el enrolamiento del TOTP | Administrador | ASFI Seguridad · segregación |
 | [[CU-09 Cambiar credenciales y solicitar la baja]] | Clave, recuperación y baja sin dejar deudas; la del operador la aprueba otra identidad | Usuario · Soporte · Seguridad | ASFI Seguridad · Consumidor Financiero |
-| [[CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso]] | **Borrador para aprobación (P-11).** Ver solo lo necesario con rastro de lectura; suspender o bloquear con causal cerrada, descargo y apelación por otra persona | Soporte · Seguridad · Participante | Debido proceso · protección de datos · ASFI Seguridad |
+| [[CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso]] | **Aprobado por Pablo el 2026-11-24 (P-11).** Ver solo lo necesario con rastro de lectura; suspender o bloquear con causal cerrada, descargo y apelación por otra persona | Soporte · Seguridad · Participante | Debido proceso · protección de datos · ASFI Seguridad |
 
 ### Billetera, custodia y saldo
 
@@ -254,7 +254,7 @@ CU-110..119 (publicidad y campañas, módulo 14) se abrieron por la misma razón
 módulos nuevos del modelo sin especificación de flujo todavía. CU-120..129 es el rango
 del módulo 15 (inversiones voluntarias): CU-120 a CU-129 están escritos. CU-126 reparte y concilia
 el interés, CU-127 estima y cobra la comisión por resultado, CU-128 informa comprobantes y el reporte
-fiscal separables, y CU-129 simula la caja sin tocar saldos. CU-130 y CU-131 abren el rango siguiente: la ficha de gobierno de cada tabla y la revisión de cada columna del catálogo de datos (módulo 09). CU-134 (directorio, ficha y suspensión de la cuenta del participante con debido proceso) es un **borrador** que espera la aprobación de Pablo; se lista con la identidad porque el rango CU-01..09 está lleno, y salta CU-133, que ya se usa como prefijo de pruebas en `servicios/entregas`. Los códigos de tres
+fiscal separables, y CU-129 simula la caja sin tocar saldos. CU-130 y CU-131 abren el rango siguiente: la ficha de gobierno de cada tabla y la revisión de cada columna del catálogo de datos (módulo 09). CU-134 (directorio, ficha y suspensión de la cuenta del participante con debido proceso) fue aprobado por Pablo el 2026-11-24 (quedan abiertos los números de plazo y la entrega durante la medida); se lista con la identidad porque el rango CU-01..09 está lleno, y salta CU-133, que ya se usa como prefijo de pruebas en `servicios/entregas`. Los códigos de tres
 dígitos rompían un supuesto de ancho fijo en `scripts/verificar_boveda.py`
 (`stem[3:5]`); se corrigió para extraer el número con una expresión regular en vez
 de asumir dos dígitos.
