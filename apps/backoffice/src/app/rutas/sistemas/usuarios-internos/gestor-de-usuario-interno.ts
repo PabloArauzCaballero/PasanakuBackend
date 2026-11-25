@@ -10,7 +10,7 @@ import { mensajeDeError } from '../compartido/carga'
 import { accionesDeAccesos } from '../dominio/gobierno-de-accesos'
 import { DEPARTAMENTOS_INTERNOS, actualizadorUsuarioInterno, desbloqueadorUsuarioInterno } from '../dominio/usuarios-internos'
 import { textosSistemas } from '../textos'
-import { DialogoDeActo } from './dialogo-de-acto'
+import { DialogoDeActo } from '../compartido/dialogo-de-acto'
 
 type Modo = 'editar' | 'estado' | 'desbloqueo' | 'baja'
 const MOTIVO_MINIMO = 5
