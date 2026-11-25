@@ -34,7 +34,7 @@
 
 **CA:** Dado un administrador de accesos con step-up, cuando asigna, revoca, da de alta, suspende, reactiva, da de baja o desbloquea a otro operador, entonces la operación ocurre sin reescribir las asignaciones que no cambian, queda un evento de bitácora con quién/qué/a quién/motivo y un pedido de aviso al afectado y al oficial de cumplimiento; sin step-up, sobre sí mismo o dejando el sistema sin administrador vigente y activo, se rechaza.
 **DoD:** CI de la PR en verde (spotless, check, testBarrido, compileJava, tests de identidad incl. Testcontainers) · verificadores Python en 0 · `generar_postman.py`/`generar_ddl.py` sin diff · REPORTE.md.
-**Estado:** EN CURSO
+**Estado:** HECHO
 
 ### H1.S1 — Contrato aditivo
 **CA:** Dado `identidad.yaml`, cuando se valida, entonces es OpenAPI válido, sin romper operaciones existentes, con las 4 operaciones nuevas.
@@ -52,43 +52,43 @@
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H1.S2.M1 | Puerto `EvidenciaDeStepUp` + adaptador JWT (`!local & !test`) + doble local/test + `ExigirStepUp` (proposito ADMIN, sub, acr, un solo uso) | evidencia ajena/vencida/reusada/otro propósito → rechazo | `StepUpDeGobiernoTest` (unitario, 3 niveles) en CI | A MEDIAS |
-| H1.S2.M2 | `AccesosRepositorio.titularesDeAdministracion` (personas distintas, asignación viva no vencida, usuario ACTIVO, excluyendo asignaciones/usuario) | cuenta personas, no filas | `CU08GobiernoTest` (Testcontainers) en CI | A MEDIAS |
-| H1.S2.M3 | Guardas en revocar, baja, suspender (nunca sin administrador) y en toda acción (nadie sobre sí mismo) | rechazos con código | `CU08GobiernoTest` + `AccesosControllerWebTest` | A MEDIAS |
+| H1.S2.M1 | Puerto `EvidenciaDeStepUp` + adaptador JWT (`!local & !test`) + doble local/test + `ExigirStepUp` (proposito ADMIN, sub, acr, un solo uso) | evidencia ajena/vencida/reusada/otro propósito → rechazo | `StepUpDeGobiernoTest` (unitario, 3 niveles) en CI | HECHO |
+| H1.S2.M2 | `AccesosRepositorio.titularesDeAdministracion` (personas distintas, asignación viva no vencida, usuario ACTIVO, excluyendo asignaciones/usuario) | cuenta personas, no filas | `CU08GobiernoTest` (Testcontainers) en CI | HECHO |
+| H1.S2.M3 | Guardas en revocar, baja, suspender (nunca sin administrador) y en toda acción (nadie sobre sí mismo) | rechazos con código | `CU08GobiernoTest` + `AccesosControllerWebTest` | HECHO |
 
 ### H1.S3 — Asignar / revocar por asignación (GU-05, GU-06)
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H1.S3.M1 | `AccesosController` (asignar, revocar) con matriz negativa 401/403/rol insuficiente | 201/200 y negativos | `AccesosControllerWebTest` en CI | A MEDIAS |
-| H1.S3.M2 | Asignar idempotente (misma asignación viva → mismo id, sin evento nuevo) y `requiereMfa` | segunda llamada mismo id | `CU08AsignacionIdempotenteTest` en CI | A MEDIAS |
-| H1.S3.M3 | Revocar idempotente (ya revocada → mismo resultado, sin evento) | sin segundo evento | ídem | A MEDIAS |
-| H1.S3.M4 | `PUT .../roles` (deprecado) por diferencia: conserva `otorgada_por/en` de los roles que siguen y cierra sesiones solo si quita alguno | asignaciones intactas | `RotacionPorDiferenciaTest` (Testcontainers) en CI | A MEDIAS |
+| H1.S3.M1 | `AccesosController` (asignar, revocar) con matriz negativa 401/403/rol insuficiente | 201/200 y negativos | `AccesosControllerWebTest` en CI | HECHO |
+| H1.S3.M2 | Asignar idempotente (misma asignación viva → mismo id, sin evento nuevo) y `requiereMfa` | segunda llamada mismo id | `CU08AsignacionIdempotenteTest` en CI | HECHO |
+| H1.S3.M3 | Revocar idempotente (ya revocada → mismo resultado, sin evento) | sin segundo evento | ídem | HECHO |
+| H1.S3.M4 | `PUT .../roles` (deprecado) por diferencia: conserva `otorgada_por/en` de los roles que siguen y cierra sesiones solo si quita alguno | asignaciones intactas | `RotacionPorDiferenciaTest` (Testcontainers) en CI | HECHO |
 
 ### H1.S4 — Bitácora y aviso (GU-07 emisión)
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H1.S4.M1 | `BitacoraDeAccesos`: evento `identidad.acceso_gobernado` (forma v1) + `identidad.aviso_de_acceso_solicitado` con destinatarios (afectado + titulares de `OFICIAL_CUMPLIMIENTO`) en la misma transacción | dos filas en `evento_dominio` por acto | `CU08BitacoraTest` (Testcontainers) en CI | A MEDIAS |
-| H1.S4.M2 | Emisión desde alta, suspensión, reactivación, baja, desbloqueo, asignar, revocar, vencer | cada acto emite | ídem | A MEDIAS |
+| H1.S4.M1 | `BitacoraDeAccesos`: evento `identidad.acceso_gobernado` (forma v1) + `identidad.aviso_de_acceso_solicitado` con destinatarios (afectado + titulares de `OFICIAL_CUMPLIMIENTO`) en la misma transacción | dos filas en `evento_dominio` por acto | `CU08BitacoraTest` (Testcontainers) en CI | HECHO |
+| H1.S4.M2 | Emisión desde alta, suspensión, reactivación, baja, desbloqueo, asignar, revocar, vencer | cada acto emite | ídem | HECHO |
 | H1.S4.M3 | Forma del evento documentada en CU-08 (§ Contrato de eventos) | sección presente | `verificar_boveda.py` → 0 | HECHO |
 
 ### H1.S5 — Baja y suspensión (GU-14)
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H1.S5.M1 | `CU08DarDeBaja`: revoca todas, cierra sesiones, estado `BAJA_VOLUNTARIA` (ambigüedad 7), conserva histórico | 0 vivas, filas intactas | `CU08BajaTest` en CI | A MEDIAS |
-| H1.S5.M2 | Suspender revoca asignaciones vivas; reactivar no devuelve roles | roles vacíos tras reactivar | `CU08BajaTest` en CI | A MEDIAS |
+| H1.S5.M1 | `CU08DarDeBaja`: revoca todas, cierra sesiones, estado `BAJA_VOLUNTARIA` (ambigüedad 7), conserva histórico | 0 vivas, filas intactas | `CU08BajaTest` en CI | HECHO |
+| H1.S5.M2 | Suspender revoca asignaciones vivas; reactivar no devuelve roles | roles vacíos tras reactivar | `CU08BajaTest` en CI | HECHO |
 
 ### H1.S6 — Vencimientos e informe (GU-08)
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H1.S6.M1 | `CU08VencerAccesos` + `trabajos/VencimientoDeAccesos` (`@Scheduled`, SKIP LOCKED, idempotente) | segunda corrida no hace nada | `CU08VencimientoTest` en CI | A MEDIAS |
-| H1.S6.M2 | `CU08InformeDeAccesos` + endpoint paginado (vivos, por vencer 7 días, sin TOTP confirmado) | página determinista | `CU08InformeTest` + web | A MEDIAS |
+| H1.S6.M1 | `CU08VencerAccesos` + `trabajos/VencimientoDeAccesos` (`@Scheduled`, SKIP LOCKED, idempotente) | segunda corrida no hace nada | `CU08VencimientoTest` en CI | HECHO |
+| H1.S6.M2 | `CU08InformeDeAccesos` + endpoint paginado (vivos, por vencer 7 días, sin TOTP confirmado) | página determinista | `CU08InformeTest` + web | HECHO |
 
 ### H1.S7 — Cierre
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
 | H1.S7.M1 | CU-08 actualizado (rutas, errores AP-CU08-08/09, baja/suspensión, eventos, gherkin de los tests nuevos) | criterios trazados | `verificar_criterios.py` → 0 | HECHO |
 | H1.S7.M2 | Verificadores locales en 0 | salida 0 | scripts listados en el encargo | HECHO |
-| H1.S7.M3 | Push + PR a `dev` + CI verde | checks verdes | `pull_request_read` checks | A MEDIAS |
+| H1.S7.M3 | Push + PR a `dev` + CI verde | checks verdes | `pull_request_read` checks | HECHO |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
@@ -105,3 +105,6 @@ Ambigüedad 7: la baja usa estado `BAJA_VOLUNTARIA`? El enum de `usuario.estado`
 - El generador Spring ignora `tags`: las rutas nuevas caen en `UsuariosInternosApi`. Se sirven desde `RutasDeAccesos` (abstracta) que `UsuariosInternosController` extiende, patrón `RutasDeContactoEnGrupo`/`InvitacionesController`.
 - `RolesParaPersonalInterno.admite` (lote A) no está en `dev`: se engancha cuando entre (acordado con A).
 - Estado de microtareas: `A MEDIAS` = código escrito y pruebas escritas, pendiente de la CI (Gradle local bloqueado por 429).
+
+## Cierre (2026-11-25)
+- 20/20 microtareas HECHO. Evidencia: CI run 45513084333 (53710c43): «Los cinco corredores» y «Formato, reglas propias y compilacion» success; PR #516 mergeado en dev (90774d90).
