@@ -5,6 +5,8 @@ import { TestBed } from '@angular/core/testing'
 import { ActivatedRoute, provideRouter } from '@angular/router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { UsuarioInternoDetalle } from 'clientes/angular/identidad'
+import { Sesion } from '../../../nucleo/sesion'
+import { EVIDENCIA_DE_PRUEBA, escribirCodigoDePrueba, verificarPasoDeSeguridad } from './paso-de-seguridad.pruebas'
 import { GATEWAY } from '../../../nucleo/gateway'
 import { estabilizar, pulsar } from '../compartido/pruebas.apoyo'
 import { PantallaUsuarioInternoDetalle } from './pantalla-usuario-interno-detalle'
@@ -71,6 +73,7 @@ describe('PantallaUsuarioInternoDetalle · acciones sin prompt()', () => {
       providers: [provideZonelessChangeDetection(), provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: GATEWAY, useValue: 'http://gw/api/v1' }, { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'u-1' } } } }],
     })
     const http = TestBed.inject(HttpTestingController)
+    TestBed.inject(Sesion).abrir('token', ['USUARIOS_INTERNOS_GESTIONAR'], 'OPERADOR')
     const prompt = vi.spyOn(window, 'prompt')
     const f = TestBed.createComponent(PantallaUsuarioInternoDetalle)
     f.detectChanges()
@@ -82,16 +85,19 @@ describe('PantallaUsuarioInternoDetalle · acciones sin prompt()', () => {
     const area = d.querySelector('textarea') as HTMLTextAreaElement
     area.value = 'Licencia prolongada'
     area.dispatchEvent(new Event('input'))
+    escribirCodigoDePrueba(d)
     await estabilizar(f)
     pulsar(d, 'Suspender')
+    verificarPasoDeSeguridad(http, 'http://gw/api/v1')
     const req = http.expectOne('http://gw/api/v1/usuarios-internos/u-1')
     expect(req.request.method).toBe('PATCH')
-    expect(req.request.body).toEqual({ estado: 'SUSPENDIDO', motivo: 'Licencia prolongada' })
+    expect(req.request.body).toEqual({ estado: 'SUSPENDIDO', motivo: 'Licencia prolongada', evidenciaMfa: EVIDENCIA_DE_PRUEBA })
     req.flush(USUARIO_DETALLE)
     f.detectChanges()
     http.expectOne('http://gw/api/v1/usuarios-internos/u-1').flush(USUARIO_DETALLE)
     await estabilizar(f)
     expect(prompt).not.toHaveBeenCalled()
+    prompt.mockRestore()
     http.verify()
   })
 })

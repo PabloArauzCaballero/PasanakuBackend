@@ -1,0 +1,20 @@
+:host { display: block; min-width: 0; }
+/* «Más»: menú propio de la fila. Se ubica fijo junto a su botón (y hacia arriba si abajo no entra): dentro de la
+   tabla lo recortaría su marco desplazable. Va en la capa superior del navegador (`popover`): las celdas fijas de las
+   filas de abajo, con su propio apilamiento, lo tapaban. */
+.mas { position: relative; }
+.mas summary { display: inline-flex; align-items: center; gap: var(--s1); min-height: var(--area-tactil); padding: 0 var(--s2); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); background: var(--surface); color: var(--text); font: var(--t-cuerpo-chico); font-weight: 600; list-style: none; cursor: pointer; }
+.mas summary::-webkit-details-marker { display: none; }
+.mas summary:hover, .mas[open] summary { background: var(--surface-2); }
+.mas summary:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
+.menu { position: fixed; inset: auto; margin: 0; z-index: 20; display: grid; gap: var(--s1); min-width: calc(var(--s7) * 4); padding: var(--s2); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); background: var(--surface); box-shadow: var(--sombra-3); }
+.menu [apAccionDeFila] { justify-content: flex-start; width: 100%; border-color: transparent; }
+.pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
+/* ap-listado deja sus pistas en «auto»: sin esto la tabla ensancha la página en vez de desplazarse en su marco. */ ap-listado { grid-template-columns: minmax(0, 1fr); }
+.sub { display: block; font: var(--t-ayuda); color: var(--text-3); overflow-wrap: break-word; }
+.chips { display: inline-flex; flex-wrap: wrap; gap: var(--s1); }
+.mas-filas { display: grid; justify-items: start; gap: var(--s2); }
+.mas-filas .error { margin: 0; font: var(--t-cuerpo-chico); color: var(--err-texto); }
+.mas-filas .sub { margin: 0; }
+.roles { display: flex; flex-wrap: wrap; gap: var(--s1); }
+code { padding: 0 var(--s1); border-radius: var(--r-sm); background: var(--surface-2); font: var(--t-ayuda); font-family: var(--f-mono); color: var(--text-2); }

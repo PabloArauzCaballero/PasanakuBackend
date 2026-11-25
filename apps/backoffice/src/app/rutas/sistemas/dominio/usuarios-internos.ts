@@ -4,7 +4,6 @@ import type { Observable } from 'rxjs'
 import type {
   EntradaActualizarUsuarioInterno,
   EntradaAltaUsuarioInterno,
-  EntradaAsignarRolesUsuarioInterno,
   EntradaDesbloqueoUsuarioInterno,
   PermisoCatalogo,
   RolCatalogo,
@@ -13,6 +12,7 @@ import type {
 } from 'clientes/angular/identidad'
 import { GATEWAY } from '../../../nucleo/gateway'
 import { contextoIdempotente } from '../../../nucleo/idempotencia.interceptor'
+import type { ConEvidencia } from './gobierno-de-accesos'
 
 export function usuariosInternos(filtros: {
   estado: Signal<string>
@@ -49,10 +49,14 @@ export function catalogoPermisos() {
   return httpResource<PermisoCatalogo[]>(() => `${gateway}/permisos`)
 }
 
+/** El alta de B (GU-11) suma el motivo y la evidencia del segundo factor al cuerpo que ya existía. */
+export type EntradaDeAlta = EntradaAltaUsuarioInterno & { motivo?: string } & ConEvidencia
+export type EntradaDeActualizacion = EntradaActualizarUsuarioInterno & ConEvidencia
+
 export function crearUsuarioInterno(
   http: HttpClient,
   gateway: string,
-  entrada: EntradaAltaUsuarioInterno,
+  entrada: EntradaDeAlta,
 ): Observable<UsuarioInternoDetalle> {
   return http.post<UsuarioInternoDetalle>(`${gateway}/usuarios-internos`, entrada, {
     context: contextoIdempotente(),
@@ -63,18 +67,9 @@ export function actualizarUsuarioInterno(
   http: HttpClient,
   gateway: string,
   id: string,
-  entrada: EntradaActualizarUsuarioInterno,
+  entrada: EntradaDeActualizacion,
 ): Observable<UsuarioInternoDetalle> {
   return http.patch<UsuarioInternoDetalle>(`${gateway}/usuarios-internos/${id}`, entrada)
-}
-
-export function asignarRolesUsuarioInterno(
-  http: HttpClient,
-  gateway: string,
-  id: string,
-  entrada: EntradaAsignarRolesUsuarioInterno,
-): Observable<UsuarioInternoDetalle> {
-  return http.put<UsuarioInternoDetalle>(`${gateway}/usuarios-internos/${id}/roles`, entrada)
 }
 
 export function desbloquearUsuarioInterno(
@@ -82,36 +77,30 @@ export function desbloquearUsuarioInterno(
   gateway: string,
   id: string,
   motivo: string,
+  evidenciaMfa?: string,
 ): Observable<UsuarioInternoDetalle> {
-  const payload: EntradaDesbloqueoUsuarioInterno = { motivo }
+  const payload: EntradaDesbloqueoUsuarioInterno & ConEvidencia = evidenciaMfa ? { motivo, evidenciaMfa } : { motivo }
   return http.post<UsuarioInternoDetalle>(`${gateway}/usuarios-internos/${id}/desbloquear`, payload)
 }
 
 export function creadorUsuarioInterno() {
   const http = inject(HttpClient)
   const gateway = inject(GATEWAY)
-  return (entrada: EntradaAltaUsuarioInterno) => crearUsuarioInterno(http, gateway, entrada)
+  return (entrada: EntradaDeAlta) => crearUsuarioInterno(http, gateway, entrada)
 }
 
 export function actualizadorUsuarioInterno() {
   const http = inject(HttpClient)
   const gateway = inject(GATEWAY)
-  return (id: string, entrada: EntradaActualizarUsuarioInterno) =>
+  return (id: string, entrada: EntradaDeActualizacion) =>
     actualizarUsuarioInterno(http, gateway, id, entrada)
-}
-
-export function asignadorRolesUsuarioInterno() {
-  const http = inject(HttpClient)
-  const gateway = inject(GATEWAY)
-  return (id: string, entrada: EntradaAsignarRolesUsuarioInterno) =>
-    asignarRolesUsuarioInterno(http, gateway, id, entrada)
 }
 
 export function desbloqueadorUsuarioInterno() {
   const http = inject(HttpClient)
   const gateway = inject(GATEWAY)
-  return (id: string, motivo: string) =>
-    desbloquearUsuarioInterno(http, gateway, id, motivo)
+  return (id: string, motivo: string, evidenciaMfa?: string) =>
+    desbloquearUsuarioInterno(http, gateway, id, motivo, evidenciaMfa)
 }
 
 /**

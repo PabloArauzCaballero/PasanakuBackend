@@ -42,7 +42,7 @@ describe('PantallaUsuariosInternos · accesibilidad', () => {
     const fixture = TestBed.createComponent(PantallaUsuariosInternos)
     fixture.detectChanges()
 
-    http.expectOne(`${GW}/usuarios-internos`).flush(USUARIOS_FIXTURE)
+    http.expectOne(`${GW}/usuarios-internos?limite=50`).flush(USUARIOS_FIXTURE)
     await fixture.whenStable()
     fixture.detectChanges()
 

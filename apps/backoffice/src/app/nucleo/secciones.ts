@@ -1,3 +1,5 @@
+import { PERMISOS_QUE_ABREN_PERSONAL } from '../rutas/sistemas/personal-y-accesos'
+
 /**
  * **Qué permiso real abre cada sección del backoffice.**
  *
@@ -60,7 +62,9 @@ export const PERMISOS_POR_SECCION: Readonly<Record<string, readonly string[]>> =
   'ver:grupos': ['ADMIN_PLATAFORMA', 'AUDITORIA_LEER'],
   // Catálogo de datos con su ficha de gobierno (CU-130): el mismo permiso que exige su ruta.
   'ver:catalogo': ['TABLERO_SISTEMAS_VER'],
-  'ver:sistemas': ['ACCESOS_ADMINISTRAR', 'SEGURIDAD_ACCESO_RESTABLECER', 'SEGURIDAD_FACTOR_REINSCRIBIR', 'CATALOGO_EDITAR'],
+  // Las pantallas de «Personal y accesos» cuelgan de `/sistemas/...`: sus permisos propios abren la rama, y cada pantalla
+  // vuelve a exigir el suyo (`guardia-rol-sistemas.ts`). Las demás pantallas de Sistemas siguen cerradas a esos permisos.
+  'ver:sistemas': ['ACCESOS_ADMINISTRAR', 'SEGURIDAD_ACCESO_RESTABLECER', 'SEGURIDAD_FACTOR_REINSCRIBIR', 'CATALOGO_EDITAR', ...PERMISOS_QUE_ABREN_PERSONAL],
   'ver:contabilidad': [
     'CONTABILIDAD_ERP_CERRAR',
     'CONTABILIDAD_ERP_PRESUPUESTO',
