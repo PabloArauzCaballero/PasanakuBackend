@@ -46,7 +46,7 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>Vencido, usado, falso o de otro proposito responden lo mismo (AP-CU09-04): no se distingue.
  */
 @Service
-public class InvitacionesDeCuenta {
+public class InvitacionesDeCuenta implements InvitadorDeOperador {
 
     /** El «usuario» del proceso en {@code app.usuario_id}: un endpoint sin sesion no es una persona. */
     static final UUID PROCESO = UUID.fromString("00000000-0000-4000-8000-0000000000c1");
@@ -295,6 +295,21 @@ public class InvitacionesDeCuenta {
         DespuesDelCommit.ejecutar(
                 "invitacion " + alcance, () -> correo.enviarInvitacion(destino, enlace, alcance, vigencia));
         return emitido.tokenId();
+    }
+
+    @Override
+    public void invitar(DSLContext dsl, UUID operadorId, ContextoSesion quienLoDioDeAlta, String motivo) {
+        emitirYEnviar(
+                dsl,
+                operadorId,
+                AlcanceDeCuenta.ALTA,
+                BitacoraDeCuenta.Accion.INVITACION_EMITIDA,
+                new BitacoraDeCuenta.Actor(
+                        quienLoDioDeAlta.usuarioId(), quienLoDioDeAlta.rol(), BitacoraDeCuenta.ORIGEN_PANEL),
+                motivo,
+                UUID.fromString(quienLoDioDeAlta.traza().id()),
+                "0.0.0.0",
+                "panel-de-administracion");
     }
 
     private ErrorDeNegocio evaluarClave(DSLContext dsl, UUID usuario, String claveNueva) {

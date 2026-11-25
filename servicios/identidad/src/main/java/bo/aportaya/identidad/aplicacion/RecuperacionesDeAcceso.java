@@ -43,6 +43,7 @@ public class RecuperacionesDeAcceso {
     private final RecuperacionesRepositorio solicitudes;
     private final InvitacionesDeCuenta invitaciones;
     private final BitacoraDeCuenta bitacora;
+    private final ReglasDeGobierno reglas;
     private final Reloj reloj;
     private final Duration enfriamiento;
     private final Duration vigenciaDelPedido;
@@ -52,6 +53,7 @@ public class RecuperacionesDeAcceso {
             RecuperacionesRepositorio solicitudes,
             InvitacionesDeCuenta invitaciones,
             BitacoraDeCuenta bitacora,
+            ReglasDeGobierno reglas,
             Reloj reloj,
             @Value("${aportaya.acceso.recuperacion.enfriamiento:PT24H}") Duration enfriamiento,
             @Value("${aportaya.acceso.recuperacion.vigencia-del-pedido:P7D}") Duration vigenciaDelPedido) {
@@ -59,6 +61,7 @@ public class RecuperacionesDeAcceso {
         this.solicitudes = solicitudes;
         this.invitaciones = invitaciones;
         this.bitacora = bitacora;
+        this.reglas = reglas;
         this.reloj = reloj;
         this.enfriamiento = enfriamiento;
         this.vigenciaDelPedido = vigenciaDelPedido;
@@ -113,7 +116,9 @@ public class RecuperacionesDeAcceso {
     }
 
     @Transactional
-    public SolicitudDeRecuperacion aprobar(UUID id, String motivo, ContextoSesion ctx) {
+    public SolicitudDeRecuperacion aprobar(UUID id, String motivo, String evidenciaMfa, ContextoSesion ctx) {
+        // ADR-038 §3: aprobar es una accion que mueve el acceso de otra persona; exige step-up del aprobador.
+        reglas.exigirStepUp(ctx, evidenciaMfa);
         return decidir(id, motivo, ctx, true);
     }
 

@@ -159,7 +159,8 @@ public class CuentaController implements CuentaApi {
     @Permiso("SEGURIDAD_ACCESO_RESTABLECER")
     public ResponseEntity<SolicitudDeRecuperacion> aprobarRecuperacion(UUID id, EntradaDecisionDeRecuperacion cuerpo) {
         bo.aportaya.plataforma.web.traza.Traza.marcarCasoDeUso("CU-09", id.toString());
-        return ResponseEntity.ok(recuperaciones.aprobar(id, cuerpo.getMotivo(), sesion.actual()));
+        return ResponseEntity.ok(
+                recuperaciones.aprobar(id, cuerpo.getMotivo(), cuerpo.getEvidenciaMfa(), sesion.actual()));
     }
 
     @Override

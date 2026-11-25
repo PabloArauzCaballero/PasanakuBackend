@@ -1212,7 +1212,7 @@
         "description": "## Aprobar una recuperacion (a cuatro ojos)\n\nExige `SEGURIDAD_ACCESO_RESTABLECER`. El aprobador no puede ser el titular (`AP-CU09-09`; ademas lo rechaza la base, R-SEG-13). Fija `enfriamiento_hasta`; la invitacion se emite recien al cumplirse. Idempotente por contenido: aprobar de nuevo una ya aprobada por la misma persona devuelve la misma solicitud.\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `aprobarRecuperacion` |\n| **Ruta** | `POST /api/v1/cuenta/recuperaciones/{id}/aprobacion` |\n| **Permiso** | `SEGURIDAD_ACCESO_RESTABLECER` |\n| **Respuestas** | `200`, `401`, `403`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU09-09` | Aprobacion requerida |\n| `AP-CU09-11` | Solicitud no encontrada |\n| `AP-CU09-12` | Solicitud no decidible |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"motivo\": \"motivo-de-prueba\"\n}",
+          "raw": "{\n  \"motivo\": \"motivo-de-prueba\",\n  \"evidenciaMfa\": \"evidenciaMfa-de-prueba\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -1299,7 +1299,7 @@
         "description": "## Rechazar una recuperacion\n\nExige `SEGURIDAD_ACCESO_RESTABLECER` y motivo. El titular no puede decidir la suya.\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `rechazarRecuperacion` |\n| **Ruta** | `POST /api/v1/cuenta/recuperaciones/{id}/rechazo` |\n| **Permiso** | `SEGURIDAD_ACCESO_RESTABLECER` |\n| **Respuestas** | `200`, `401`, `403`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU09-09` | Aprobacion requerida |\n| `AP-CU09-11` | Solicitud no encontrada |\n| `AP-CU09-12` | Solicitud no decidible |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"motivo\": \"motivo-de-prueba\"\n}",
+          "raw": "{\n  \"motivo\": \"motivo-de-prueba\",\n  \"evidenciaMfa\": \"evidenciaMfa-de-prueba\"\n}",
           "options": {
             "raw": {
               "language": "json"

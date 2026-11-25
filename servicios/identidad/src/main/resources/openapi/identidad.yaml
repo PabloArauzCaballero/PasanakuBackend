@@ -1604,6 +1604,14 @@ components:
       required: [motivo]
       properties:
         motivo: { type: string, minLength: 10, maxLength: 200 }
+        evidenciaMfa:
+          type: string
+          minLength: 20
+          maxLength: 2000
+          writeOnly: true
+          description: >-
+            Evidencia step-up (propósito ADMIN, un solo uso) de quien decide. Obligatoria al aprobar
+            (AP-CU08-09); opcional al rechazar.
     EntradaRolOrganizador:
       type: object
       additionalProperties: false

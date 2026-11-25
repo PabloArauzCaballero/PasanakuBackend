@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import bo.aportaya.identidad.aplicacion.BitacoraDeCuenta;
 import bo.aportaya.identidad.aplicacion.CambiarClaveDeCuenta;
 import bo.aportaya.identidad.aplicacion.InvitacionesDeCuenta;
+import bo.aportaya.identidad.aplicacion.ReglasDeGobierno;
 import bo.aportaya.identidad.aplicacion.RecuperacionesDeAcceso;
 import bo.aportaya.identidad.dominio.AlcanceDeCuenta;
 import bo.aportaya.identidad.dominio.puertos.CorreoDeCuenta;
@@ -98,6 +99,7 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
                 solicitudes,
                 invitaciones,
                 bitacora,
+                new ReglasDeGobierno((actor, evidencia) -> true),
                 Reloj.delSistema(),
                 Duration.ofHours(24),
                 Duration.ofDays(7));
@@ -227,7 +229,7 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
         });
         UUID solicitud = solicitudDe(operador);
         transaccion.execute(
-                e -> recuperaciones.aprobar(solicitud, "Verificado en persona con documento", comoOperador(aprobador)));
+                e -> recuperaciones.aprobar(solicitud, "Verificado en persona con documento", "evidencia-sintetica", comoOperador(aprobador)));
 
         assertThat(correrElTrabajo()).isZero();
         assertThat(correo.enlaces).isEmpty();
@@ -487,7 +489,7 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
 
     private void assertThatThrownByAprobar(UUID solicitud, ContextoSesion ctx) {
         try {
-            transaccion.execute(e -> recuperaciones.aprobar(solicitud, "Me apruebo a mi mismo", ctx));
+            transaccion.execute(e -> recuperaciones.aprobar(solicitud, "Me apruebo a mi mismo", "evidencia-sintetica", ctx));
             throw new AssertionError("la autoaprobacion no debio pasar");
         } catch (ErrorDeNegocio rechazo) {
             assertThat(rechazo.codigo().valor()).isEqualTo("AP-CU09-09");
