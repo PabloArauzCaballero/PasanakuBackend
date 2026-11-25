@@ -324,10 +324,11 @@ public class InvitacionesDeCuenta implements InvitadorDeOperador {
                         null)
                 .map(motivo -> switch (motivo) {
                     case DEMASIADO_CORTA -> new ErrorDeNegocio(CodigoError.de(9, 2), "Esa clave es demasiado corta.");
-                    case DERIVADA_DE_DATOS_PERSONALES -> new ErrorDeNegocio(
-                            CodigoError.de(9, 2), "No uses tu telefono ni tu documento dentro de la clave.");
-                    case REUTILIZADA -> new ErrorDeNegocio(
-                            CodigoError.de(9, 3), "Ya usaste esa clave antes. Elegi una nueva.");
+                    case DERIVADA_DE_DATOS_PERSONALES ->
+                        new ErrorDeNegocio(
+                                CodigoError.de(9, 2), "No uses tu telefono ni tu documento dentro de la clave.");
+                    case REUTILIZADA ->
+                        new ErrorDeNegocio(CodigoError.de(9, 3), "Ya usaste esa clave antes. Elegi una nueva.");
                 })
                 .orElse(null);
     }

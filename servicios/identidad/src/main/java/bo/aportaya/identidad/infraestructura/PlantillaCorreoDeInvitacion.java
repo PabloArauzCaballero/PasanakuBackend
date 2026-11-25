@@ -26,8 +26,9 @@ public final class PlantillaCorreoDeInvitacion {
                 switch (alcance) {
                     case ALTA -> "Elige tu clave y enrola tu aplicacion autenticadora para entrar por primera vez.";
                     case CLAVE -> "Una persona de seguridad aprobo tu pedido. Elige tu clave nueva.";
-                    case FACTOR -> "Una persona de seguridad aprobo tu pedido. Vas a necesitar tu clave actual para"
-                            + " enrolar tu aplicacion autenticadora nueva.";
+                    case FACTOR ->
+                        "Una persona de seguridad aprobo tu pedido. Vas a necesitar tu clave actual para"
+                                + " enrolar tu aplicacion autenticadora nueva.";
                 };
         long horas = Math.max(1, vigencia.toHours());
         String destino = escapar(enlace);
