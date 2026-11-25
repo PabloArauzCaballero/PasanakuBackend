@@ -135,12 +135,28 @@ class LectorDeRevocacionesTest {
     }
 
     @Test
-    @DisplayName("limite: si el tema no existe no hay nada que rehidratar y la lista queda al dia")
+    @DisplayName("un tema ausente no permite declarar la lista al dia")
     void temaInexistente() {
         var tema = new MockConsumer<String, String>(OffsetResetStrategy.EARLIEST);
         var lista = new ListaDeRevocaciones();
 
         assertThat(lector(tema, lista).asignar(tema)).isFalse();
+        assertThat(lista.estaAlDia()).isFalse();
+    }
+
+    @Test
+    @DisplayName("si se pierde el tema, solo un nuevo descubrimiento y carga recuperan la disponibilidad")
+    void vuelveAEstarDisponibleCuandoRedescubreElTema() {
+        var lista = new ListaDeRevocaciones();
+        var temaVacio = temaConDosParticiones(0, 0);
+        var lector = lector(temaVacio, lista);
+        var sinTema = new MockConsumer<String, String>(OffsetResetStrategy.EARLIEST);
+
+        assertThat(lector.asignar(temaVacio)).isTrue();
+        assertThat(lista.estaAlDia()).isTrue();
+        assertThat(lector.asignar(sinTema)).isFalse();
+        assertThat(lista.estaAlDia()).isFalse();
+        assertThat(lector.asignar(temaVacio)).isTrue();
         assertThat(lista.estaAlDia()).isTrue();
     }
 
@@ -166,14 +182,13 @@ class LectorDeRevocacionesTest {
     @Test
     @DisplayName("ciclo de vida: arranca un hilo, y al detenerse despierta al consumidor y deja de correr")
     void cicloDeVida() throws InterruptedException {
-        var tema = new MockConsumer<String, String>(OffsetResetStrategy.EARLIEST);
+        var tema = temaConDosParticiones(0, 0);
         var lista = new ListaDeRevocaciones();
         var lector = lector(tema, lista);
 
         lector.start();
         assertThat(lector.isRunning()).isTrue();
-        // Sin tema, el lector lo declara al dia y espera a redescubrir: es la condicion observable de que el hilo
-        // corrio.
+        // La asignacion de un tema vacio completa la carga y muestra que el hilo corrio.
         long limite = System.nanoTime() + Duration.ofSeconds(3).toNanos();
         while (!lista.estaAlDia() && System.nanoTime() < limite) {
             Thread.onSpinWait();

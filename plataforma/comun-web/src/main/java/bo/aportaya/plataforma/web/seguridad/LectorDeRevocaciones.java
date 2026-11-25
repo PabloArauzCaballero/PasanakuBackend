@@ -28,8 +28,8 @@ import org.springframework.context.SmartLifecycle;
  *
  * <p><b>Cuando esta al dia.</b> Al asignar se anotan los offsets finales; la lista se declara al dia cuando la posicion
  * de cada particion los alcanza. Antes de eso el validador rechaza (fallo del lado seguro, ADR-030 §3). Si el tema no
- * existe —el broker no los crea solo y nadie publico nunca una revocacion— no hay nada que rehidratar: la lista se
- * declara al dia y se vuelve a buscar el tema cada {@code redescubrir}.
+ * existe, no se puede verificar si hubo revocaciones: la lista queda no disponible y se vuelve a buscar el tema cada
+ * {@code redescubrir}. Un tema existente y vacio si permite completar la carga inicial.
  *
  * <p><b>Latencia.</b> {@code poll} devuelve en cuanto el broker tiene un registro (fetch.min.bytes = 1), asi que entre
  * que identidad publica y que esta lista lo sabe pasa lo que tarda la red: milisegundos. La metrica
@@ -133,15 +133,13 @@ public class LectorDeRevocaciones implements SmartLifecycle {
     /**
      * Asigna todas las particiones del tema, desde el principio, y anota hasta donde hay que leer para estar al dia.
      *
-     * @return {@code false} si el tema no existe todavia (la lista queda al dia: no hay nada que rehidratar)
+     * @return {@code false} si el tema no existe todavia y hay que volver a buscarlo
      */
     boolean asignar(Consumer<String, String> c) {
         List<PartitionInfo> particiones = c.partitionsFor(RevocacionDeSesion.TEMA, ESPERA_DE_METADATOS);
         if (particiones == null || particiones.isEmpty()) {
-            if (!lista.estaAlDia()) {
-                BITACORA.warn("el tema {} no existe: no hay revocaciones que rehidratar", RevocacionDeSesion.TEMA);
-            }
-            lista.marcarAlDia();
+            lista.marcarNoDisponible();
+            BITACORA.warn("el tema {} no tiene particiones disponibles; se reintentara", RevocacionDeSesion.TEMA);
             return false;
         }
         List<TopicPartition> asignadas = particiones.stream()
@@ -177,11 +175,7 @@ public class LectorDeRevocaciones implements SmartLifecycle {
         } catch (IllegalArgumentException ilegible) {
             // Un mensaje roto no puede frenar a los que vienen detras: se registra (sin el valor) y se sigue.
             BITACORA.error(
-                    "revocacion ilegible en {}-{}@{}: {}",
-                    registro.topic(),
-                    registro.partition(),
-                    registro.offset(),
-                    ilegible.getMessage());
+                    "revocacion ilegible en {}-{}@{}", registro.topic(), registro.partition(), registro.offset());
             return;
         }
         boolean enVivo = lista.estaAlDia();
