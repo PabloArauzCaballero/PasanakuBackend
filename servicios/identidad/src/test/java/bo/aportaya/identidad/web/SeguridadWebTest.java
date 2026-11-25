@@ -45,7 +45,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
         types = {
             bo.aportaya.identidad.aplicacion.GobiernoDeAccesos.class,
             bo.aportaya.identidad.aplicacion.CU08DarDeBaja.class,
-            bo.aportaya.identidad.aplicacion.CU08InformeDeAccesos.class
+            bo.aportaya.identidad.aplicacion.CU08InformeDeAccesos.class,
+            bo.aportaya.identidad.aplicacion.InvitacionesDeCuenta.class,
+            bo.aportaya.identidad.aplicacion.RecuperacionesDeAcceso.class,
+            bo.aportaya.identidad.aplicacion.CambiarClaveDeCuenta.class
         })
 class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
