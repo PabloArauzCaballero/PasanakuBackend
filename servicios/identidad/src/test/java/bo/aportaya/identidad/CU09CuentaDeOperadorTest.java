@@ -42,7 +42,7 @@ import org.junit.jupiter.api.Test;
 class CU09CuentaDeOperadorTest extends BaseDeCU09 {
 
     private static final String LLAVE = "llave-sintetica-de-integracion-32-caracteres";
-    private static final String SECRETO = "secreto-sintetico-de-invitaciones-de-32-chars";
+    private static final String SECRETO = "s".repeat(40);
 
     /** El doble del correo: guarda lo que se habria enviado, nunca sale a ningun lado. */
     private static final class CorreoDeCuentaEnMemoria implements CorreoDeCuenta {

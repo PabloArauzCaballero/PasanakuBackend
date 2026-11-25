@@ -125,7 +125,9 @@ public class InvitacionesDeCuenta {
         return datos.conContexto(deSistema(origen), dsl -> {
             var vigente = tokens.vigente(dsl, token, ahora, false).orElseThrow(InvitacionesDeCuenta::tokenInvalido);
             return new Consulta(
-                    vigente.alcance(), tokens.nombresDe(dsl, vigente.usuarioId()).orElse(""), vigente.expiraEn());
+                    vigente.alcance(),
+                    tokens.nombresDe(dsl, vigente.usuarioId()).orElse(""),
+                    vigente.expiraEn());
         });
     }
 
@@ -208,7 +210,8 @@ public class InvitacionesDeCuenta {
             if (alcance.pideClaveNueva()) {
                 String anterior = usuarios.hashDeCredencial(dsl, usuario).orElseThrow();
                 credenciales.archivar(dsl, usuario, anterior, ahora);
-                credenciales.reemplazar(dsl, usuario, hasheador.hashear(entrada.claveNueva().toCharArray()), ahora);
+                credenciales.reemplazar(
+                        dsl, usuario, hasheador.hashear(entrada.claveNueva().toCharArray()), ahora);
                 dsl.execute(
                         "UPDATE identidad.usuario_interno SET debe_cambiar_contrasena = false WHERE usuario_id = ?",
                         usuario);
@@ -306,10 +309,11 @@ public class InvitacionesDeCuenta {
                         null)
                 .map(motivo -> switch (motivo) {
                     case DEMASIADO_CORTA -> new ErrorDeNegocio(CodigoError.de(9, 2), "Esa clave es demasiado corta.");
-                    case DERIVADA_DE_DATOS_PERSONALES -> new ErrorDeNegocio(
-                            CodigoError.de(9, 2), "No uses tu telefono ni tu documento dentro de la clave.");
-                    case REUTILIZADA -> new ErrorDeNegocio(
-                            CodigoError.de(9, 3), "Ya usaste esa clave antes. Elegi una nueva.");
+                    case DERIVADA_DE_DATOS_PERSONALES ->
+                        new ErrorDeNegocio(
+                                CodigoError.de(9, 2), "No uses tu telefono ni tu documento dentro de la clave.");
+                    case REUTILIZADA ->
+                        new ErrorDeNegocio(CodigoError.de(9, 3), "Ya usaste esa clave antes. Elegi una nueva.");
                 })
                 .orElse(null);
     }

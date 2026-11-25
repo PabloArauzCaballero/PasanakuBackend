@@ -33,7 +33,10 @@ final class DespuesDelCommit {
             tarea.run();
         } catch (RuntimeException fallo) {
             // Solo el tipo del fallo: el mensaje de un cliente de correo puede traer la direccion.
-            BITACORA.warn("no se pudo completar el envio ({}): {}", descripcion, fallo.getClass().getSimpleName());
+            BITACORA.warn(
+                    "no se pudo completar el envio ({}): {}",
+                    descripcion,
+                    fallo.getClass().getSimpleName());
         }
     }
 }
