@@ -1,9 +1,9 @@
 # Reporte — GU lote B: CU-08 por asignación en `identidad`
 
-> **AVANCE: 6 / 20 — 30,0 %.** Las 14 restantes están `A MEDIAS`: código y pruebas escritos, **pendientes de la CI** (Gradle local bloqueado por 429 de Maven Central). Ninguna prueba Java se ejecutó todavía.
+> **AVANCE: 20 / 20 — 100,0 %.** PR #516 mergeado en `dev` (90774d90) con la CI en verde.
 
 - Fecha: 2026-11-24 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/gu-b-cu08` · PR: #516 contra `dev`
-- Peldaño de evidencia alcanzado: contrato y verificadores Python `RUNS`/`TESTED` (salida abajo); Java **`WRITTEN`** (solo el paquete `dominio` nuevo compiló con `javac -Xlint:all -Werror`). Nada `VERIFIED`.
+- Peldaño de evidencia alcanzado: `TESTED` en CI (unitarias, web y de integración contra PostgreSQL real en verde) + esquema aplicado en PostgreSQL 16. No `VERIFIED`: no se ejercitó contra un despliegue con backoffice y auditoría reales.
 
 ## Completado
 | ID | Qué se logró | Comando | Resultado |
@@ -14,41 +14,19 @@
 | H1.S4.M3 | Forma v1 del evento de bitácora y del pedido de aviso documentada en CU-08 § «Contrato de eventos» | `verificar_boveda.py` | PASS — EXIT=0 |
 | H1.S7.M1 | CU-08 actualizado: rutas reales, errores `AP-CU08-09..11` (+`08` reservado a A), baja/suspensión, 15 escenarios gherkin nuevos trazados a pruebas | `verificar_criterios.py` | PASS — «Sin divergencias» |
 | H1.S7.M2 | Verificadores locales del encargo en 0 | ver `evidencia/verificadores.txt` | PASS — 10/10 EXIT=0 |
+| H1.S2.M1–M3, H1.S3.M1–M4, H1.S4.M1–M2, H1.S5.M1–M2, H1.S6.M1–M2, H1.S7.M3 | Step-up con `jti` en tabla, nadie sobre sí mismo, nunca sin administrador; asignar/revocar idempotentes; PUT por diferencia; bitácora y aviso con actor/origen; baja en `BAJA_LABORAL` y suspensión que revoca; vencimiento diario e informe; PR mergeado | CI de 53710c43: `./gradlew integrationTest` (identidad: CU08GobiernoTest, CU08BajaYVencimientoTest, EvidenciaStepUpConsumidaRepositorioTest, RutasDeAccesos*WebTest) | PASS — run 45513084333, job «Los cinco corredores» success |
 
 ## A medias
-### H1.S2.M1–M3 — Reglas de gobierno (step-up, sobre sí mismo, nunca sin administrador)
-- Qué anda: `ReglasDeGobierno`, `EvidenciaDeStepUpJwt` (JWT real en todos los perfiles, `jti` de un solo uso), `ContinuidadDeAdministracion` y `AccesosRepositorio.titularesVigentesDelPermiso` (personas ACTIVAS con asignación vigente) escritos; átomos de dominio compilan.
-- Qué no anda / no se sabe: nada ejecutado.
-- Qué falta exactamente: que la CI corra `EvidenciaDeStepUpJwtTest`, `GobiernoDeAccesosAtomosTest`, `CU08GobiernoTest`, `RutasDeAccesosWebTest`.
-- Dónde quedó: `servicios/identidad/.../aplicacion/ReglasDeGobierno.java`, `infraestructura/EvidenciaDeStepUpJwt.java`, `infraestructura/AccesosRepositorio.java`; rama `claude/gu-b-cu08`.
-
-### H1.S3.M1–M4 — Asignar/revocar por asignación, idempotencia, PUT por diferencia
-- Qué anda: `RutasDeAccesos` (extendida por `UsuariosInternosController`), `GobiernoDeAccesos` (idempotencia por contenido, ámbito = ámbito del rol, destinatario operador ACTIVO), `RotacionDeRolesInternos` por diferencia. Firmas confirmadas contra la interfaz generada localmente con `openapi-generator 7.14.0` y las plantillas propias.
-- Qué falta: CI de `RutasDeAccesosWebTest`, `RutasDeAccesosInformeWebTest`, `CU08GobiernoTest`, `CU08BajaYVencimientoTest.reemplazoPorDiferencia`.
-- Dónde quedó: `web/RutasDeAccesos.java`, `aplicacion/GobiernoDeAccesos.java`, `infraestructura/RotacionDeRolesInternos.java`.
-
-### H1.S4.M1–M2 — Bitácora y aviso
-- Qué anda: `BitacoraDeAccesos` emite en la transacción del acto el hecho (`identidad.rol_*`, `identidad.usuario_interno_*`) y `identidad.aviso_de_acceso_solicitado` (afectado + oficiales de cumplimiento vigentes, solo ids). Usado por asignar, revocar, vencer, alta, suspender, reactivar, baja, desbloquear y el PUT deprecado.
-- Qué falta: CI de `CU08GobiernoTest.asignaYDejaRastro` y de los conteos de eventos en las demás. El consumidor en `auditoria` es del lote E; el de `notificaciones` no tiene dueño.
-- Dónde quedó: `aplicacion/BitacoraDeAccesos.java`, `dominio/HechoDeAcceso.java`.
-
-### H1.S5.M1–M2 — Baja y suspensión
-- Qué anda: `CU08DarDeBaja` y `RetiroDeAccesos` escritos; suspender revoca todo, reactivar vuelve sin roles.
-- Qué falta: CI de `CU08BajaYVencimientoTest` (baja, baja idempotente, suspensión).
-- Dónde quedó: `aplicacion/CU08DarDeBaja.java`, `aplicacion/RetiroDeAccesos.java`, `aplicacion/GestionarUsuariosInternos.java`.
-
-### H1.S6.M1–M2 — Vencimiento e informe
-- Qué anda: `CU08VencerAccesos` + `trabajos/VencimientoDeAccesos` (`@EnableScheduling` agregado), `CU08InformeDeAccesos` + `InformeDeAccesosRepositorio`.
-- Qué falta: CI de `vencimientoDiario` e `informeDeAccesos`.
-
-### H1.S7.M3 — Push, PR y CI verde
-- Qué anda: push hecho, PR #516 abierto contra `dev`.
-- Qué falta: CI en verde (diagnosticar y corregir lo que falle).
+Ninguna. Las 14 microtareas que esperaban la CI pasaron a HECHO con esta evidencia: CI run 45513084333 (53710c43): «Los cinco corredores» y «Formato, reglas propias y compilacion» success; PR #516 mergeado en dev (90774d90). Fallas de CI encontradas y corregidas en el camino (todas TEST_BUG o de gate, ninguna de producto): literal `"CORREO"` en el barrido de salidas sensibles; fechas como texto en SQL plana; otorgante cacheado de un escenario deshecho; asignación sintética otorgada en el futuro; prueba de humo esperando 52 tablas selladas (ahora 53).
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| Consumidor de `identidad.aviso_de_acceso_solicitado` en `notificaciones` + `evento_notificable` `ACCESO_DE_OPERADOR_CAMBIADO` | TODO | Asignar dueño (sesión principal) |
+| Consumidor de `identidad.aviso_de_acceso_solicitado` en `notificaciones` (+ `evento_notificable` `ACCESO_DE_OPERADOR_CAMBIADO` y plantilla) | TODO | Asignar dueño (sesión principal / Pablo) |
+| Migrar el backoffice a las rutas nuevas y enviar `evidenciaMfa` en alta, suspensión/reactivación y desbloqueo | TODO | Lote D. Hasta entonces esos botones responden 422 `AP-CU08-09`: no promover a `test` antes que D |
+| Retirar `PUT /usuarios-internos/{id}/roles` (deprecado, sin step-up) | TODO | Que ningún cliente lo llame (lote D) |
+| Regla de `AP-CU08-12` (FILTRO_DE_LISTADO_INVALIDO) en CU-08: hoy es solo una fila de la tabla de errores, sin flujo alternativo ni criterio gherkin | TODO | Lote A o la sesión principal: redactar el flujo alternativo y su escenario |
+| Ambigüedades sin confirmar (ver «Decisiones») | DECISION_REQUIRED | Pablo |
 
 ## Evidencia
 ```text
@@ -77,9 +55,11 @@ Salida completa de los diez verificadores: `evidencia/verificadores.txt`.
 - Las pruebas de integración corren en transacciones que se deshacen (la regla del último administrador cuenta toda la base compartida; además el lote A inserta `ACCESOS_ADMINISTRAR` sin `ON CONFLICT`).
 
 ## Riesgos residuales
-- **Orden de despliegue**: alta, suspensión/reactivación y desbloqueo exigen step-up desde este PR; el backoffice actual no lo envía hasta el lote D → esos botones fallarán con 422 `AP-CU08-09` en `test` si B se promueve antes que D.
-- `PUT …/roles` (deprecado) sigue sin step-up por compatibilidad: es una vía de cambio de roles sin segundo factor hasta que se retire.
-- `motivo_revocacion` se recorta a 120 y el de sesión a 80; el texto completo queda en el evento.
+- Orden de despliegue: B ya está en `dev`; el backoffice sin step-up falla en alta/suspensión/desbloqueo hasta el lote D.
+- `PUT …/roles` deprecado sigue sin step-up mientras exista.
+- `motivo_revocacion` se recorta a 120 y el de sesión a 80; el texto completo queda en el evento de bitácora.
+- `FixturaDeIdentidad.otorgante()` cachea un id entre pruebas: cualquier prueba nueva que lo use dentro de una transacción que se deshace repite el fallo que se corrigió acá (deuda de la fixtura, no tocada por estar fuera de alcance).
+- El simulado tiene deriva previa ajena (ejemplos sin generar de garantía, tarifas, aportes y TOTP) que no se incluyó.
 
 ## Decisiones y ambigüedades
 

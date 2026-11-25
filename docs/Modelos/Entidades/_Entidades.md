@@ -2,12 +2,12 @@
 tags:
   - moc
   - indice
-entidades: 343
+entidades: 348
 ---
 
 # Índice de entidades
 
-Las **343 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son claves foráneas salientes y entrantes.
+Las **348 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son claves foráneas salientes y entrantes.
 
 [[Index|← Índice general]] · [[_Relaciones|Relaciones →]]
 
@@ -17,7 +17,7 @@ Las **343 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 
 | Tabla | Columnas | Sal. | Ent. | Notas |
 | --- | --: | --: | --: | --- |
-| [[usuario]] | 18 | 0 | 230 | muy conectada |
+| [[usuario]] | 18 | 0 | 238 | muy conectada |
 | [[direccion_usuario]] | 8 | 1 | 0 | — |
 | [[perfil_financiero]] | 8 | 1 | 0 | — |
 | [[credencial_acceso]] | 8 | 1 | 0 | — |
@@ -46,6 +46,11 @@ Las **343 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[preferencia_notificacion]] | 12 | 1 | 0 | — |
 | [[reputacion_usuario]] | 11 | 1 | 0 | — |
 | [[solicitud_baja]] | 6 | 1 | 0 | — |
+| [[politica_medida_cuenta]] | 10 | 1 | 1 | — |
+| [[expediente_medida_cuenta]] | 24 | 4 | 3 | — |
+| [[evidencia_medida_cuenta]] | 7 | 2 | 0 | — |
+| [[historial_estado_medida_cuenta]] | 7 | 2 | 0 | — |
+| [[apelacion_medida_cuenta]] | 10 | 3 | 0 | — |
 | [[evidencia_step_up_consumida]] | 6 | 1 | 0 | — |
 
 ## 02 — Grupos, Cupos, Turnos y Gobernanza

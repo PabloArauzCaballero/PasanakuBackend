@@ -1,0 +1,17 @@
+psql:/tmp/claude-0/rseg.sql:9: ERROR:  new row for relation "expediente_medida_cuenta" violates check constraint "ck_expediente_medida_no_autopropuesta"
+DETAIL:  Failing row contains (2f3b8d6f-d3c1-4730-959f-5dc15f33d60a, 00000000-0000-0000-0000-000000000001, 10000000-0000-0000-0000-000000000001, FRAUDE_CON_EVIDENCIA, SUSPENSION_TEMPORAL, f, m, PROPUESTA, ACTIVO, 00000000-0000-0000-0000-000000000001, 2026-11-24 23:41:13.667065+00, null, null, null, null, null, null, null, null, 2027-11-24 23:41:13.667065+00, null, null, k0, 0).
+psql:/tmp/claude-0/rseg.sql:14: ERROR:  duplicate key value violates unique constraint "uq_expediente_medida_abierto"
+DETAIL:  Key (usuario_id, causal)=(00000000-0000-0000-0000-000000000001, FRAUDE_CON_EVIDENCIA) already exists.
+psql:/tmp/claude-0/rseg.sql:16: ERROR:  new row for relation "expediente_medida_cuenta" violates check constraint "ck_expediente_medida_decide_otro"
+DETAIL:  Failing row contains (20000000-0000-0000-0000-000000000001, 00000000-0000-0000-0000-000000000001, 10000000-0000-0000-0000-000000000001, FRAUDE_CON_EVIDENCIA, SUSPENSION_TEMPORAL, f, m, PROPUESTA, ACTIVO, 00000000-0000-0000-0000-000000000002, 2026-11-24 23:41:13.667065+00, null, null, 00000000-0000-0000-0000-000000000002, 2026-11-24 23:41:13.667065+00, CONFIRMADA, ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, null, null, 2027-11-24 23:41:13.667065+00, null, null, k1, 0).
+psql:/tmp/claude-0/rseg.sql:18: ERROR:  new row for relation "expediente_medida_cuenta" violates check constraint "ck_expediente_medida_decision_fundada"
+DETAIL:  Failing row contains (20000000-0000-0000-0000-000000000001, 00000000-0000-0000-0000-000000000001, 10000000-0000-0000-0000-000000000001, FRAUDE_CON_EVIDENCIA, SUSPENSION_TEMPORAL, f, m, PROPUESTA, ACTIVO, 00000000-0000-0000-0000-000000000002, 2026-11-24 23:41:13.667065+00, null, null, 00000000-0000-0000-0000-000000000003, 2026-11-24 23:41:13.667065+00, CONFIRMADA, null, null, null, 2027-11-24 23:41:13.667065+00, null, null, k1, 0).
+VALIDO_DECISION_OK
+psql:/tmp/claude-0/rseg.sql:24: ERROR:  R-SEG-13: la apelacion la resuelve quien no propuso ni decidio la medida
+CONTEXT:  PL/pgSQL function fn_seg_apelacion_medida_resuelve_tercero() line 8 at RAISE
+psql:/tmp/claude-0/rseg.sql:26: ERROR:  duplicate key value violates unique constraint "uq_apelacion_medida_cuenta_expediente_medida_cuenta_id"
+DETAIL:  Key (expediente_medida_cuenta_id)=(20000000-0000-0000-0000-000000000001) already exists.
+VALIDO_APELACION_OK
+psql:/tmp/claude-0/rseg.sql:32: ERROR:  R-AUD-01: historial_estado_medida_cuenta es append-only; corrija con el movimiento inverso
+CONTEXT:  PL/pgSQL function fn_aud_bloquear_mutacion() line 3 at RAISE
+BLOQUEO_CUENTA_COMPROMETIDA_OK

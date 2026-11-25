@@ -3,18 +3,21 @@ tags:
   - moc
   - modulo/01-identidad-usuarios-y-seguridad
 modulo: "01 — Identidad, Usuarios y Seguridad"
-relaciones_fk: 43
+relaciones_fk: 55
 ---
 
 # 01 — Identidad, Usuarios y Seguridad · relaciones
 
-Las **43 claves foráneas** que salen de las tablas de este módulo.
+Las **55 claves foráneas** que salen de las tablas de este módulo.
 
 [[_Relaciones|← Todas las relaciones]] · [[Index]]
 
 | Relación | Destino | Cruza | Opcional |
 | --- | --- | :-: | :-: |
 | [[alcance_invitacion.token_id → token_verificacion]] | [[token_verificacion]] | — | no |
+| [[apelacion_medida_cuenta.apelante_id → usuario]] | [[usuario]] | — | no |
+| [[apelacion_medida_cuenta.expediente_medida_cuenta_id → expediente_medida_cuenta]] | [[expediente_medida_cuenta]] | — | no |
+| [[apelacion_medida_cuenta.resuelta_por → usuario]] | [[usuario]] | — | sí |
 | [[asignacion_rol.otorgada_por → usuario]] | [[usuario]] | — | no |
 | [[asignacion_rol.rol_id → rol]] | [[rol]] | — | no |
 | [[asignacion_rol.usuario_id → usuario]] | [[usuario]] | — | no |
@@ -29,12 +32,21 @@ Las **43 claves foráneas** que salen de las tablas de este módulo.
 | [[direccion_usuario.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[dispositivo.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[documento_identidad.usuario_id → usuario]] | [[usuario]] | — | no |
+| [[evidencia_medida_cuenta.aportada_por → usuario]] | [[usuario]] | — | no |
+| [[evidencia_medida_cuenta.expediente_medida_cuenta_id → expediente_medida_cuenta]] | [[expediente_medida_cuenta]] | — | no |
 | [[evidencia_step_up_consumida.usuario_id → usuario]] | [[usuario]] | — | no |
+| [[expediente_medida_cuenta.decidida_por → usuario]] | [[usuario]] | — | sí |
+| [[expediente_medida_cuenta.politica_medida_cuenta_id → politica_medida_cuenta]] | [[politica_medida_cuenta]] | — | no |
+| [[expediente_medida_cuenta.propuesta_por → usuario]] | [[usuario]] | — | no |
+| [[expediente_medida_cuenta.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[factor_mfa.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[historial_credencial.usuario_id → usuario]] | [[usuario]] | — | no |
+| [[historial_estado_medida_cuenta.ejecutado_por → usuario]] | [[usuario]] | — | sí |
+| [[historial_estado_medida_cuenta.expediente_medida_cuenta_id → expediente_medida_cuenta]] | [[expediente_medida_cuenta]] | — | no |
 | [[intento_autenticacion.usuario_id → usuario]] | [[usuario]] | — | sí |
 | [[intento_validacion_token.token_id → token_verificacion]] | [[token_verificacion]] | — | no |
 | [[perfil_financiero.usuario_id → usuario]] | [[usuario]] | — | no |
+| [[politica_medida_cuenta.aprobada_por → usuario]] | [[usuario]] | — | sí |
 | [[preferencia_notificacion.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[referencia_personal.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[reputacion_usuario.usuario_id → usuario]] | [[usuario]] | — | no |

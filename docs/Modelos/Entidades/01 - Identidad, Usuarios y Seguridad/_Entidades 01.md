@@ -3,18 +3,18 @@ tags:
   - moc
   - modulo/01-identidad-usuarios-y-seguridad
 modulo: "01 — Identidad, Usuarios y Seguridad"
-entidades: 30
+entidades: 35
 ---
 
 # 01 — Identidad, Usuarios y Seguridad · entidades
 
-Las **30 tablas** de este módulo. Justificación de negocio en [[01_identidad_usuarios]].
+Las **35 tablas** de este módulo. Justificación de negocio en [[01_identidad_usuarios]].
 
 [[_Entidades|← Todas las entidades]] · [[Index]]
 
 | Tabla | Columnas | FK sal. | FK ent. |
 | --- | --: | --: | --: |
-| [[usuario]] | 18 | 0 | 230 |
+| [[usuario]] | 18 | 0 | 238 |
 | [[direccion_usuario]] | 8 | 1 | 0 |
 | [[perfil_financiero]] | 8 | 1 | 0 |
 | [[credencial_acceso]] | 8 | 1 | 0 |
@@ -43,4 +43,9 @@ Las **30 tablas** de este módulo. Justificación de negocio en [[01_identidad_u
 | [[preferencia_notificacion]] | 12 | 1 | 0 |
 | [[reputacion_usuario]] | 11 | 1 | 0 |
 | [[solicitud_baja]] | 6 | 1 | 0 |
+| [[politica_medida_cuenta]] | 10 | 1 | 1 |
+| [[expediente_medida_cuenta]] | 24 | 4 | 3 |
+| [[evidencia_medida_cuenta]] | 7 | 2 | 0 |
+| [[historial_estado_medida_cuenta]] | 7 | 2 | 0 |
+| [[apelacion_medida_cuenta]] | 10 | 3 | 0 |
 | [[evidencia_step_up_consumida]] | 6 | 1 | 0 |

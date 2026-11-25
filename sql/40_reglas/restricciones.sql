@@ -2013,6 +2013,53 @@ ALTER TABLE permiso
                      'PUBLICAR', 'ENVIAR', 'CERRAR', 'LEER_TERCEROS')
   );
 
+-- R-SEG-13 · tres personas distintas, y ninguna es el afectado
+--
+-- Quien propone una suspensión no la decide, y quien la decide no resuelve la
+-- apelación (CU-134, D-5). Que lo verifique la base y no solo la aplicación es lo que
+-- hace creíble el expediente: un operador con los tres permisos no puede saltarse a
+-- los otros dos, ni actuar sobre su propia cuenta de participante.
+ALTER TABLE expediente_medida_cuenta DROP CONSTRAINT IF EXISTS ck_expediente_medida_no_autopropuesta;
+ALTER TABLE expediente_medida_cuenta DROP CONSTRAINT IF EXISTS ck_expediente_medida_decide_otro;
+ALTER TABLE expediente_medida_cuenta
+  ADD CONSTRAINT ck_expediente_medida_no_autopropuesta CHECK (propuesta_por <> usuario_id),
+  ADD CONSTRAINT ck_expediente_medida_decide_otro CHECK (
+        decidida_por IS NULL
+     OR (decidida_por <> propuesta_por AND decidida_por <> usuario_id));
+
+CREATE OR REPLACE FUNCTION fn_seg_apelacion_medida_resuelve_tercero() RETURNS trigger AS $$
+DECLARE v_exp expediente_medida_cuenta%ROWTYPE;
+BEGIN
+  IF NEW.resuelta_por IS NULL THEN RETURN NEW; END IF;
+  SELECT * INTO v_exp FROM expediente_medida_cuenta WHERE id = NEW.expediente_medida_cuenta_id;
+  IF NEW.resuelta_por IN (v_exp.usuario_id, v_exp.propuesta_por)
+     OR NEW.resuelta_por IS NOT DISTINCT FROM v_exp.decidida_por THEN
+    RAISE EXCEPTION 'R-SEG-13: la apelacion la resuelve quien no propuso ni decidio la medida';
+  END IF;
+  RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS tg_apelacion_medida_resuelve_tercero ON apelacion_medida_cuenta;
+CREATE TRIGGER tg_apelacion_medida_resuelve_tercero
+  BEFORE INSERT OR UPDATE OF resuelta_por ON apelacion_medida_cuenta
+  FOR EACH ROW EXECUTE FUNCTION fn_seg_apelacion_medida_resuelve_tercero();
+
+-- R-SEG-14 · un expediente abierto por cuenta y causal
+CREATE UNIQUE INDEX IF NOT EXISTS uq_expediente_medida_abierto
+  ON expediente_medida_cuenta (usuario_id, causal)
+  WHERE (cerrada_en IS NULL);
+
+-- R-SEG-15 · firme solo con decisión confirmada, y ninguna decisión sin fundamento
+ALTER TABLE expediente_medida_cuenta DROP CONSTRAINT IF EXISTS ck_expediente_medida_decision_fundada;
+ALTER TABLE expediente_medida_cuenta DROP CONSTRAINT IF EXISTS ck_expediente_medida_firme_confirmada;
+ALTER TABLE expediente_medida_cuenta
+  ADD CONSTRAINT ck_expediente_medida_decision_fundada CHECK (
+        decidida_en IS NULL
+     OR (decidida_por IS NOT NULL AND resultado_decision IS NOT NULL
+         AND fundamento_decision IS NOT NULL AND length(btrim(fundamento_decision)) >= 50)),
+  ADD CONSTRAINT ck_expediente_medida_firme_confirmada CHECK (
+        firme_en IS NULL OR resultado_decision = 'CONFIRMADA');
+
 
 -- ---------------------------------------------------------------------
 -- R-LIC — Licencia y gobierno

@@ -162,9 +162,9 @@ $q$);
 -- 51 → 52 al sellar parametro_congelado_grupo, la copia de los parámetros
 -- financieros de cada grupo, R-TAR-17, F3.S8.M2a; 52 → 53 al sellar
 -- evidencia_step_up_consumida, el jti del step-up de gobierno de accesos, GU-11).
-SELECT CASE WHEN count(*) = 53
-            THEN 'OK    · R-AUD-01 las 53 tablas append-only están selladas'
-            ELSE 'FALLA · R-AUD-01 ' || count(*) || ' de 53 tablas selladas' END
+SELECT CASE WHEN count(*) = 55
+            THEN 'OK    · R-AUD-01 las 55 tablas append-only están selladas'
+            ELSE 'FALLA · R-AUD-01 ' || count(*) || ' de 55 tablas selladas' END
   FROM pg_trigger tg
   JOIN pg_class c ON c.oid = tg.tgrelid
  WHERE NOT tg.tgisinternal AND tg.tgname LIKE '%append\_only'

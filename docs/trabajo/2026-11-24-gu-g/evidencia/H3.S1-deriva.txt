@@ -1,0 +1,5 @@
+deriva exit=0
+verificar_boveda exit=0
+verificar_seguridad exit=1
+verificar_carriles exit=0
+verificar_criterios exit=0
