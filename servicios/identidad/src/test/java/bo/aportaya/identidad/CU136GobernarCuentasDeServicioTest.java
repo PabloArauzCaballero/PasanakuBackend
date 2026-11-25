@@ -66,6 +66,8 @@ class CU136GobernarCuentasDeServicioTest extends BaseDeGobiernoCU08 {
                 "SERVICIO_GU_F_" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
         fixtura.asignarRol(usuario, rol, operador());
         fixtura.credencial(usuario, HASHEADOR.hashear("clave-sintetica-anterior".toCharArray()));
+        // R-SEG-10: un rol operativo no abre sesion sin TOTP confirmado; la cuenta de servicio lo tiene.
+        fixtura.factor(usuario, "TOTP", true, true);
         return usuario;
     }
 
