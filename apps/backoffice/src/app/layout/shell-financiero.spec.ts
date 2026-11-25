@@ -90,7 +90,7 @@ describe('ShellFinanciero · salir y rol legible', () => {
     const opciones = Array.from(el.querySelectorAll('ap-menu-de-usuario [role="menuitem"]')).map((o) => o.textContent?.trim())
     expect(opciones).toEqual(['Centro de ayuda', 'Cambiar mi clave', 'Salir'])
     expect(el.querySelector('ap-menu-de-usuario a[role="menuitem"]')?.getAttribute('href')).toBe('/ayuda')
-    expect(el.querySelectorAll('ap-menu-de-usuario [role="menuitem"] ap-icono, ap-menu-de-usuario [role="menuitem"] ap-icono-de-seccion')).toHaveLength(2)
+    expect(el.querySelectorAll('ap-menu-de-usuario [role="menuitem"] ap-icono, ap-menu-de-usuario [role="menuitem"] ap-icono-de-seccion')).toHaveLength(3)
   })
 
   it('rolLegible convierte el código en texto para personas', () => {
