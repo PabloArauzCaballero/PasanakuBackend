@@ -30,8 +30,14 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 /** Matriz del contrato HTTP de CU-134 (ADR-043): camino feliz, validacion, 404 y permiso. */
-@PruebaWeb(ParticipantesController.class)
-class ParticipantesControllerWebTest {
+// Las rutas de CU-134 son parte de IdentidadApi: las sirve VerificacionesController (ver RutasDeParticipantes).
+@PruebaWeb(VerificacionesController.class)
+@MockitoBean(
+        types = {
+            bo.aportaya.identidad.aplicacion.CU02RevisarExpediente.class,
+            bo.aportaya.identidad.aplicacion.ConsultarContactoEnGrupo.class
+        })
+class ParticipantesWebTest {
 
     private static final UUID PARTICIPANTE = UUID.fromString("33333333-4444-4555-8666-777777777777");
     private static final UUID EXPEDIENTE = UUID.fromString("44444444-5555-4666-8777-888888888888");

@@ -3,7 +3,7 @@ package bo.aportaya.identidad.web;
 import bo.aportaya.identidad.aplicacion.CU134ConsultarParticipante;
 import bo.aportaya.identidad.aplicacion.CU134GestionarMedida;
 import bo.aportaya.identidad.infraestructura.MedidasDeCuentaRepositorio;
-import bo.aportaya.identidad.web.generado.ParticipantesApi;
+import bo.aportaya.identidad.web.generado.IdentidadApi;
 import bo.aportaya.identidad.web.generado.modelo.DatoRevelado;
 import bo.aportaya.identidad.web.generado.modelo.EntradaBusquedaParticipantes;
 import bo.aportaya.identidad.web.generado.modelo.EntradaDecisionDeMedida;
@@ -29,22 +29,24 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestController;
 
 /**
  * CU-134 · traduce y delega, sin logica. El permiso de cada operacion lo fija el contrato aprobado
  * (D-5); descargo y apelacion los presenta el titular, que no necesita permiso de operador, y lo
  * verifica el organismo. La IP viaja solo al rastro de lectura (R-SEG-02), nunca a un log.
+ *
+ * <p>Vive bajo {@code /identidad}, asi que es parte de {@link IdentidadApi}: la atiende
+ * {@link VerificacionesController}, el unico controlador concreto de esa interfaz (dos beans que la
+ * implementaran registrarian las mismas rutas dos veces).
  */
-@RestController
-public class ParticipantesController implements ParticipantesApi {
+abstract class RutasDeParticipantes implements IdentidadApi {
 
     private final CU134ConsultarParticipante consulta;
     private final CU134GestionarMedida medidas;
     private final SesionDeLaPeticion sesion;
     private final HttpServletRequest peticion;
 
-    public ParticipantesController(
+    protected RutasDeParticipantes(
             CU134ConsultarParticipante consulta,
             CU134GestionarMedida medidas,
             SesionDeLaPeticion sesion,

@@ -21,6 +21,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 /** Perfil del integrante (2026-10-21): el telefono de alguien, solo para quien comparte su grupo. */
 @PruebaWeb(VerificacionesController.class)
+@MockitoBean(
+        types = {
+            bo.aportaya.identidad.aplicacion.CU134ConsultarParticipante.class,
+            bo.aportaya.identidad.aplicacion.CU134GestionarMedida.class
+        })
 class ContactoEnGrupoWebTest {
 
     private static final UUID GRUPO = UUID.fromString("e0000000-0000-4000-8000-000000000001");

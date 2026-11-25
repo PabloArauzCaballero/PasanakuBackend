@@ -111,8 +111,8 @@ public class ParticipantesRepositorio {
                 .set(DSL.field(DSL.name("ticket_soporte_id"), String.class), ticketSoporteId)
                 .set(DSL.field(DSL.name("cantidad_registros"), Integer.class), cantidad)
                 .set(
-                        DSL.field(DSL.name("ip_origen"), Object.class),
-                        DSL.field("cast({0} as inet)", Object.class, DSL.val(ip)))
+                        DSL.field(DSL.name("ip_origen"), String.class),
+                        DSL.field("cast({0} as inet)", String.class, DSL.val(ip)))
                 .set(DSL.field(DSL.name("fecha_hora"), OffsetDateTime.class), ahora)
                 .execute();
     }
