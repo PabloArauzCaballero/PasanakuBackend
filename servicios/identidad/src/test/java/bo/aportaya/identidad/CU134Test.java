@@ -79,7 +79,9 @@ class CU134Test {
 
     @Test
     @DisplayName(
-            "Dado un operador con permiso de lectura de participantes · Cuando abre la ficha de un participante con una justificación válida · Entonces ve el teléfono y el correo enmascarados · Y existe una fila en registro_acceso_datos con operacion LECTURA y su justificación")
+            "Dado un operador con permiso de lectura de participantes · Cuando abre la ficha de un participante con"
+                + " una justificación válida · Entonces ve el teléfono y el correo enmascarados · Y existe una fila en"
+                + " registro_acceso_datos con operacion LECTURA y su justificación")
     void criterio1() {
         UUID operador = persona();
         UUID participante = persona();
@@ -104,8 +106,8 @@ class CU134Test {
     }
 
     @Test
-    @DisplayName(
-            "Dado un operador que busca participantes sin justificación · Cuando envía la búsqueda · Entonces se rechaza con JUSTIFICACION_INSUFICIENTE y no se devuelve ninguna fila")
+    @DisplayName("Dado un operador que busca participantes sin justificación · Cuando envía la búsqueda · Entonces se"
+            + " rechaza con JUSTIFICACION_INSUFICIENTE y no se devuelve ninguna fila")
     void criterio2() {
         UUID operador = persona();
         assertThatThrownBy(() -> consulta.buscar(
@@ -126,8 +128,8 @@ class CU134Test {
     }
 
     @Test
-    @DisplayName(
-            "Dado un operador sin segundo factor reciente · Cuando pide revelar el teléfono de un participante · Entonces se rechaza con SEGUNDO_FACTOR_REQUERIDO")
+    @DisplayName("Dado un operador sin segundo factor reciente · Cuando pide revelar el teléfono de un participante ·"
+            + " Entonces se rechaza con SEGUNDO_FACTOR_REQUERIDO")
     void criterio3() {
         UUID operador = persona();
         UUID participante = persona();
@@ -146,7 +148,8 @@ class CU134Test {
 
     @Test
     @DisplayName(
-            "Dado un operador que también es participante · Cuando intenta abrir su propia ficha o proponer una medida sobre su cuenta · Entonces se rechaza con ACTUA_SOBRE_SI_MISMO")
+            "Dado un operador que también es participante · Cuando intenta abrir su propia ficha o proponer una medida"
+                    + " sobre su cuenta · Entonces se rechaza con ACTUA_SOBRE_SI_MISMO")
     void criterio4() {
         UUID operador = persona();
         // R-SEG-04: nadie actua sobre si mismo.
@@ -162,8 +165,8 @@ class CU134Test {
     }
 
     @Test
-    @DisplayName(
-            "Dado un participante con deuda vencida · Cuando un analista intenta suspender su cuenta por mora · Entonces se rechaza con CAUSAL_FUERA_DE_CATALOGO y se indica el caso de restricción por mora")
+    @DisplayName("Dado un participante con deuda vencida · Cuando un analista intenta suspender su cuenta por mora ·"
+            + " Entonces se rechaza con CAUSAL_FUERA_DE_CATALOGO y se indica el caso de restricción por mora")
     void criterio5() {
         UUID analista = persona();
         UUID participante = persona();
@@ -175,8 +178,8 @@ class CU134Test {
     }
 
     @Test
-    @DisplayName(
-            "Dada una propuesta de suspensión por abuso contra participantes · Cuando se la marca como cautelar · Entonces se rechaza con CAUTELAR_NO_ADMITIDA")
+    @DisplayName("Dada una propuesta de suspensión por abuso contra participantes · Cuando se la marca como cautelar ·"
+            + " Entonces se rechaza con CAUTELAR_NO_ADMITIDA")
     void criterio6() {
         UUID analista = persona();
         UUID participante = persona();
@@ -189,7 +192,10 @@ class CU134Test {
 
     @Test
     @DisplayName(
-            "Dada una cuenta comprometida con evidencia de sesiones anómalas · Cuando el analista propone un bloqueo cautelar · Entonces la cuenta queda BLOQUEADO_SEGURIDAD, sus sesiones quedan revocadas y el expediente queda CAUTELAR · Y al acreditarse la notificación se guarda la fecha límite de descargo y el expediente pasa a EN_DESCARGO")
+            "Dada una cuenta comprometida con evidencia de sesiones anómalas · Cuando el analista propone un bloqueo"
+                + " cautelar · Entonces la cuenta queda BLOQUEADO_SEGURIDAD, sus sesiones quedan revocadas y el"
+                + " expediente queda CAUTELAR · Y al acreditarse la notificación se guarda la fecha límite de descargo"
+                + " y el expediente pasa a EN_DESCARGO")
     void criterio7() {
         UUID analista = persona();
         UUID participante = persona();
@@ -216,7 +222,8 @@ class CU134Test {
 
     @Test
     @DisplayName(
-            "Dado un expediente con el plazo de descargo abierto y sin descargo · Cuando se intenta decidir · Entonces se rechaza con PLAZO_DESCARGO_ABIERTO")
+            "Dado un expediente con el plazo de descargo abierto y sin descargo · Cuando se intenta decidir · Entonces"
+                    + " se rechaza con PLAZO_DESCARGO_ABIERTO")
     void criterio8() {
         UUID analista = persona();
         UUID responsable = persona();
@@ -232,7 +239,8 @@ class CU134Test {
 
     @Test
     @DisplayName(
-            "Dado un expediente propuesto por un analista · Cuando el mismo analista intenta decidirlo · Entonces se rechaza con MISMA_PERSONA")
+            "Dado un expediente propuesto por un analista · Cuando el mismo analista intenta decidirlo · Entonces se"
+                    + " rechaza con MISMA_PERSONA")
     void criterio9() {
         UUID analista = persona();
         UUID participante = persona();
@@ -246,7 +254,8 @@ class CU134Test {
 
     @Test
     @DisplayName(
-            "Dada una propuesta de medida reenviada con la misma clave de idempotencia · Cuando llega por segunda vez · Entonces devuelve el mismo expedienteId y no se crea otro expediente")
+            "Dada una propuesta de medida reenviada con la misma clave de idempotencia · Cuando llega por segunda vez"
+                    + " · Entonces devuelve el mismo expedienteId y no se crea otro expediente")
     void criterio10() {
         UUID analista = persona();
         UUID participante = persona();
@@ -264,8 +273,9 @@ class CU134Test {
     }
 
     @Test
-    @DisplayName(
-            "Dada una apelación que una tercera persona acepta · Cuando la resuelve · Entonces la medida queda REVOCADA, la cuenta vuelve a su estado previo · Y se emite identidad.medida_cuenta_revocada sin borrar el historial del expediente")
+    @DisplayName("Dada una apelación que una tercera persona acepta · Cuando la resuelve · Entonces la medida queda"
+            + " REVOCADA, la cuenta vuelve a su estado previo · Y se emite identidad.medida_cuenta_revocada sin"
+            + " borrar el historial del expediente")
     void criterio11() {
         UUID analista = persona();
         UUID responsable = persona();
@@ -298,7 +308,9 @@ class CU134Test {
 
     @Test
     @DisplayName(
-            "Dada una apelación recibida y pendiente de resolución · Cuando vencen los diez días hábiles sin decisión · Entonces la apelación queda ACEPTADA_POR_VENCIMIENTO y la medida se revierte · Y se emite una sola vez identidad.medida_cuenta_revocada")
+            "Dada una apelación recibida y pendiente de resolución · Cuando vencen los diez días hábiles sin decisión"
+                    + " · Entonces la apelación queda ACEPTADA_POR_VENCIMIENTO y la medida se revierte · Y se emite una"
+                    + " sola vez identidad.medida_cuenta_revocada")
     void resuelvePorVencimiento() {
         UUID participante = persona();
         UUID id = expedienteDecidido(persona(), persona(), participante);
@@ -334,7 +346,8 @@ class CU134Test {
 
     @Test
     @DisplayName(
-            "Dada una cuenta suspendida con aportes pendientes en un grupo · Cuando se aplica la suspensión · Entonces ninguna obligación, entrega ni cupo del grupo cambia por la medida")
+            "Dada una cuenta suspendida con aportes pendientes en un grupo · Cuando se aplica la suspensión · Entonces"
+                    + " ninguna obligación, entrega ni cupo del grupo cambia por la medida")
     void criterio12() {
         UUID analista = persona();
         UUID participante = persona();
@@ -396,7 +409,10 @@ class CU134Test {
                 .id();
         // Mismo criterio que R-GAR-02 (evidencia inmutable) y R-ORG-05 (una apelacion, por otro) en sus casos.
         assertThat(rechazaLaBase(
-                        "UPDATE identidad.evidencia_medida_cuenta SET contenido = 'otra' WHERE expediente_medida_cuenta_id = ?",
+                        """
+                        UPDATE identidad.evidencia_medida_cuenta SET contenido = 'otra'
+                         WHERE expediente_medida_cuenta_id = ?
+                        """,
                         id))
                 .contains("R-AUD-01");
         assertThat(rechazaLaBase(

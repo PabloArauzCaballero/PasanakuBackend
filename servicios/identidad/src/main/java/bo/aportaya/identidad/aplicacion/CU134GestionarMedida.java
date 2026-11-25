@@ -89,10 +89,10 @@ public class CU134GestionarMedida {
     public Vista proponer(UUID usuarioId, Propuesta p, String clave, ContextoSesion ctx) {
         CU134ConsultarParticipante.noSobreSiMismo(ctx, usuarioId);
         CausalDeMedida causal = CausalDeMedida.del(p.causal())
-                .orElseThrow(
-                        () -> new ErrorDeNegocio(
-                                CodigoError.de(134, 4),
-                                "Esa causal no esta en el catalogo: la mora, una orden de autoridad o una sospecha de lavado van por su propio caso."));
+                .orElseThrow(() -> new ErrorDeNegocio(
+                        CodigoError.de(134, 4),
+                        "Esa causal no esta en el catalogo: la mora, una orden de autoridad o una sospecha de"
+                                + " lavado van por su propio caso."));
         boolean bloqueo = "BLOQUEO_CAUTELAR".equals(p.medida());
         if ((p.cautelar() || bloqueo) && !causal.admiteCautelar()) {
             throw new ErrorDeNegocio(
