@@ -1,0 +1,57 @@
+<section class="pantalla">
+  <ap-cabecera-de-pagina eyebrow="Sistemas · Identidad" [titulo]="t.titulo" [descripcion]="t.proposito">
+    @if (carga().tipo !== 'sin-fuente') { <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="cargando() || cargandoMas()" (pulsado)="recargar()">Actualizar</ap-boton> }
+    @if (gestiona()) { <ap-boton acciones variante="primario" icono="personaMas" (pulsado)="mostrarAlta.set(true)">{{ t.nuevoUsuario }}</ap-boton> }
+  </ap-cabecera-de-pagina>
+  @if (aviso(); as texto) { <ap-alerta tono="ok" titulo="Listo">{{ texto }}</ap-alerta> }
+  <ap-cifras-de-sistemas etiqueta="Resumen de usuarios internos" [cifras]="cifras()" [carga]="carga()" />
+  <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" [identidad]="identidad" ayudaDeBusqueda="Busca por nombre, correo, código, departamento, cargo o rol entre los usuarios ya cargados." [exportables]="exportables" [exportable]="exportador.puedeExportar('usuarios-internos')" nombreDeRegistros="usuarios" [textoVacio]="t.vacio" explicacionVacio="Dá de alta al primer operador interno con su rol inicial." [accionVacio]="gestiona() ? 'Dar de alta' : undefined" (primeraAccion)="mostrarAlta.set(true)" (reintentar)="recargar()">
+    <ng-template #celda let-u let-c="columna">
+      @switch (c.clave) {
+        @case ('nombres') { <strong>{{ u.nombres }} {{ u.apellidos }}</strong><span class="sub">{{ u.correo }}</span> }
+        @case ('roles') { <span class="roles">@for (r of u.roles; track r) { <code>{{ r }}</code> }</span> }
+        @case ('estado') {
+          <span class="chips"><ap-chip-estado [tono]="tono(u)">{{ estado(u) }}</ap-chip-estado>@if (bloqueado(u)) { <ap-chip-estado tono="error">{{ u.bloqueadoHasta ? 'Bloqueado' : 'Bloqueado sin fecha de fin' }}</ap-chip-estado> }</span>
+        }
+        @case ('tieneSegundoFactor') { <ap-chip-estado [tono]="u.tieneSegundoFactor ? 'ok' : 'neutro'">{{ factor(u) }}</ap-chip-estado> }
+        @default { {{ u[c.clave] }} }
+      }
+    </ng-template>
+    <ng-template #acciones let-u>
+      <ap-acciones-de-fila [fila]="u.nombres + ' ' + u.apellidos" [ver]="true" (verPulsado)="ver(u)">
+        <!-- Cinco acciones en la fila la estiraban a cuatro líneas: Ver queda a la vista y el resto va en «Más». -->
+        @if (gestiona() && !deBaja(u)) {
+        <details class="mas" (toggle)="ubicarMenu($event)">
+          <summary [attr.aria-label]="'Más acciones para ' + u.nombres + ' ' + u.apellidos"><ap-icono nombre="puntos" tamano="s4" />Más</summary>
+          <div class="menu" popover="manual">
+            @if (u.estado === 'ACTIVO') {
+              <button type="button" apAccionDeFila [attr.aria-label]="'Asignar un rol a ' + u.nombres + ' ' + u.apellidos" (click)="rolDe.set(u)"><ap-icono nombre="escudo" tamano="s4" />Asignar rol</button>
+            }
+            <button type="button" apAccionDeFila [attr.aria-label]="(u.estado === 'ACTIVO' ? 'Suspender a ' : 'Reactivar a ') + u.nombres + ' ' + u.apellidos" (click)="gestor().cambiarEstado(u)"><ap-icono [nombre]="u.estado === 'ACTIVO' ? 'pausa' : 'reproducir'" tamano="s4" />{{ u.estado === 'ACTIVO' ? 'Suspender' : 'Reactivar' }}</button>
+            @if (bloqueado(u)) {
+              <button type="button" apAccionDeFila [attr.aria-label]="'Desbloquear a ' + u.nombres + ' ' + u.apellidos" (click)="gestor().desbloquear(u)"><ap-icono nombre="llave" tamano="s4" />Desbloquear</button>
+            }
+            <button type="button" apAccionDeFila [attr.aria-label]="'Editar ' + u.nombres + ' ' + u.apellidos" (click)="gestor().editar(u)"><ap-icono nombre="editar" tamano="s4" />Editar</button>
+            <button type="button" apAccionDeFila [attr.aria-label]="'Dar de baja a ' + u.nombres + ' ' + u.apellidos" (click)="gestor().darDeBaja(u)"><ap-icono nombre="candado" tamano="s4" />Dar de baja</button>
+          </div>
+        </details>
+        }
+      </ap-acciones-de-fila>
+    </ng-template>
+  </ap-listado>
+
+  @if (hayMas() && carga().tipo === 'lista') {
+    <div class="mas-filas">
+      <ap-boton variante="secundario" icono="recarga" [deshabilitado]="cargandoMas()" (pulsado)="cargarMas()">{{ cargandoMas() ? 'Cargando…' : 'Cargar más usuarios' }}</ap-boton>
+      @if (errorAlCargarMas(); as e) { <p class="error" role="alert">{{ e }}</p> }
+      <p class="sub" role="status">Se muestran los primeros {{ cargadas().length }}; hay más. La búsqueda y los filtros trabajan sobre los ya cargados.</p>
+    </div>
+  }
+  <ap-gestor-de-usuario-interno (actualizado)="recargar()" (resumen)="aviso.set($event)" />
+  @if (mostrarAlta()) {
+    <ap-modal-alta-usuario-interno (cerrar)="mostrarAlta.set(false)" (guardado)="onUsuarioCreado()" />
+  }
+  @if (rolDe(); as u) {
+    <ap-modal-asignar-rol [usuarioId]="u.id" (cerrar)="rolDe.set(null)" (guardado)="onRolAsignado($event)" />
+  }
+</section>

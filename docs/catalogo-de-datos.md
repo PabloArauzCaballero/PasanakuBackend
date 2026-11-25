@@ -1512,7 +1512,7 @@ Dos campos merecen atención especial:
 
 **Por qué existe.** Sin bitácora, cualquier disputa se resuelve por la palabra de quien tiene acceso al sistema. Con bitácora encadenada, se resuelve con evidencia verificable.
 
-**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-03 Declaración PEP y beneficiario final · CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`) · CU-05 Aceptar contrato de adhesión y tarifario · CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `cambiarMiFotoDePerfil`, `consultarMiPerfil`, `revocarCertificado`) · CU-08 Asignar y revocar roles de operador (`asignarRolesUsuarioInterno`) · CU-09 Cambiar credenciales y solicitar la baja · CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`) · CU-17 Bloquear saldo por orden de autoridad (`bloquearPorAutoridad`) · CU-18 Registrar y verificar una cuenta bancaria de destino (`registrarCuentaDestino`, `consultarDisponibilidad`, `designarCuentaPrincipal`, `verificarCuentaDestino`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-27 Restringir al deudor e incluirlo en la lista interna (`levantarRestriccion`, `restringirDeudor`) · CU-40 Evaluar límites antes de una operación · CU-44 De alerta de monitoreo a reporte de operación sospechosa (`listarBandejaDeAlertas`, `listarBandejaDeCasos`, `abrirCasoLft`, `decidirCasoLft`) · CU-45 Atender un requerimiento de autoridad · CU-46 Verificar el alcance de la licencia (`verificarAlcance`) · CU-47 Evaluar el riesgo del producto antes de lanzarlo · CU-48 Calibrar reglas de cumplimiento y triar sus alertas · CU-53 Elevar un reclamo a segunda instancia · CU-55 Gestionar un incidente de seguridad (`registrarIncidente`, `notificarTitulares`, `reportarIncidente`) · CU-57 Operar un punto de atención y arquear el efectivo · CU-58 Definir, programar y exportar un reporte (`listarDefinicionesDeReporte`, `listarEjecucionesDeReporte`, `descargarExportacion`, `ejecutarReporte`) · CU-59 Mantener el calendario de días no hábiles (`calcularPlazoHabil`, `calcularVencimientoLocal`) · CU-60 Sortear los turnos (`consultarPrimeraCuota`, `comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-63 Proponer y votar un acuerdo (`proponerAcuerdo`, `votarAcuerdo`) · CU-76 Reseñar a un participante y moderar la reseña (`publicarResena`, `moderarResena`) · CU-91 Firmar y rescindir el contrato de organizador (`firmarContrato`, `rescindirContrato`, `firmarHabilitacionBasica`, `emitirContrato`) · CU-95 Definir una regla de automatización (`definirRegla`, `activarRegla`) · CU-96 Programar y ejecutar una tarea automatizada (`programarTarea`, `aprobarTarea`, `anotarEjecucion`) · CU-130 Gobernar la ficha de cada tabla del catálogo de datos (`obtenerResumenDelCatalogo`, `guardarFichaDeGobierno`) · CU-131 Revisar cada columna del catálogo de datos (`obtenerTablaDelCatalogo`, `revisarColumna`)
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-03 Declaración PEP y beneficiario final · CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`) · CU-05 Aceptar contrato de adhesión y tarifario · CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `cambiarMiFotoDePerfil`, `consultarMiPerfil`, `revocarCertificado`) · CU-08 Asignar y revocar roles de operador (`asignarRolesUsuarioInterno`) · CU-09 Cambiar credenciales y solicitar la baja · CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`) · CU-17 Bloquear saldo por orden de autoridad (`bloquearPorAutoridad`) · CU-18 Registrar y verificar una cuenta bancaria de destino (`registrarCuentaDestino`, `consultarDisponibilidad`, `designarCuentaPrincipal`, `verificarCuentaDestino`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-27 Restringir al deudor e incluirlo en la lista interna (`levantarRestriccion`, `restringirDeudor`) · CU-40 Evaluar límites antes de una operación · CU-44 De alerta de monitoreo a reporte de operación sospechosa (`listarBandejaDeAlertas`, `listarBandejaDeCasos`, `abrirCasoLft`, `decidirCasoLft`) · CU-45 Atender un requerimiento de autoridad · CU-46 Verificar el alcance de la licencia (`verificarAlcance`) · CU-47 Evaluar el riesgo del producto antes de lanzarlo · CU-48 Calibrar reglas de cumplimiento y triar sus alertas · CU-53 Elevar un reclamo a segunda instancia · CU-55 Gestionar un incidente de seguridad (`registrarIncidente`, `notificarTitulares`, `reportarIncidente`) · CU-57 Operar un punto de atención y arquear el efectivo · CU-58 Definir, programar y exportar un reporte (`listarDefinicionesDeReporte`, `listarEjecucionesDeReporte`, `descargarExportacion`, `ejecutarReporte`) · CU-59 Mantener el calendario de días no hábiles (`calcularPlazoHabil`, `calcularVencimientoLocal`) · CU-60 Sortear los turnos (`consultarPrimeraCuota`, `comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-63 Proponer y votar un acuerdo (`proponerAcuerdo`, `votarAcuerdo`) · CU-76 Reseñar a un participante y moderar la reseña (`publicarResena`, `moderarResena`) · CU-91 Firmar y rescindir el contrato de organizador (`firmarContrato`, `rescindirContrato`, `firmarHabilitacionBasica`, `emitirContrato`) · CU-95 Definir una regla de automatización (`definirRegla`, `activarRegla`) · CU-96 Programar y ejecutar una tarea automatizada (`programarTarea`, `aprobarTarea`, `anotarEjecucion`) · CU-130 Gobernar la ficha de cada tabla del catálogo de datos (`obtenerResumenDelCatalogo`, `guardarFichaDeGobierno`) · CU-131 Revisar cada columna del catálogo de datos (`obtenerTablaDelCatalogo`, `revisarColumna`) · CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso
 
 **Sistema.** Vive en el esquema `comun`: todo servicio INSERTA su rastro y ninguno lee ni edita el de otro; el SELECT es de `rol_auditor` (excepción enumerada en `COMPARTIDAS_ESCRITURA`) y del servicio `auditoria`, que es quien la consulta (excepción enumerada en `COMPARTIDAS_LECTURA`). Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `grupos.grupo`, `identidad.usuario`.
 
@@ -1554,7 +1554,7 @@ El escenario: se filtran los documentos de identidad de 200 usuarios. La bitáco
 
 **Por qué existe.** Es requisito de cualquier normativa seria de protección de datos, y es la única defensa —y la única prueba— ante un incidente de privacidad.
 
-**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `cambiarMiFotoDePerfil`, `consultarMiPerfil`, `revocarCertificado`) · CU-15 Emitir extracto y certificado de saldo (`emitirExtracto`, `listarMovimientosBilletera`) · CU-17 Bloquear saldo por orden de autoridad (`bloquearPorAutoridad`) · CU-18 Registrar y verificar una cuenta bancaria de destino (`registrarCuentaDestino`, `consultarDisponibilidad`, `designarCuentaPrincipal`, `verificarCuentaDestino`) · CU-44 De alerta de monitoreo a reporte de operación sospechosa (`listarBandejaDeAlertas`, `listarBandejaDeCasos`, `abrirCasoLft`, `decidirCasoLft`) · CU-45 Atender un requerimiento de autoridad · CU-58 Definir, programar y exportar un reporte (`listarDefinicionesDeReporte`, `listarEjecucionesDeReporte`, `descargarExportacion`, `ejecutarReporte`)
+**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `cambiarMiFotoDePerfil`, `consultarMiPerfil`, `revocarCertificado`) · CU-15 Emitir extracto y certificado de saldo (`emitirExtracto`, `listarMovimientosBilletera`) · CU-17 Bloquear saldo por orden de autoridad (`bloquearPorAutoridad`) · CU-18 Registrar y verificar una cuenta bancaria de destino (`registrarCuentaDestino`, `consultarDisponibilidad`, `designarCuentaPrincipal`, `verificarCuentaDestino`) · CU-44 De alerta de monitoreo a reporte de operación sospechosa (`listarBandejaDeAlertas`, `listarBandejaDeCasos`, `abrirCasoLft`, `decidirCasoLft`) · CU-45 Atender un requerimiento de autoridad · CU-58 Definir, programar y exportar un reporte (`listarDefinicionesDeReporte`, `listarEjecucionesDeReporte`, `descargarExportacion`, `ejecutarReporte`) · CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso
 
 **Sistema.** Vive en el esquema `comun`: todo servicio INSERTA su rastro y ninguno lee ni edita el de otro; el SELECT es de `rol_auditor` (excepción enumerada en `COMPARTIDAS_ESCRITURA`). Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `identidad.usuario`. Reglas nombradas: `ck_acceso_justificacion`.
 
@@ -2239,7 +2239,7 @@ El envío guarda `numero_constancia`: la prueba de que se envió. La observació
 
 **Por qué existe.** Porque sin base de pérdidas, la discusión sobre invertir en controles es una discusión de opiniones. Con base de pérdidas, es una discusión de números: *"la conciliación manual nos costó Bs 40.000 el año pasado"*.
 
-**Casos de uso que la nombran.** CU-14 Reversar una transacción (`reversarTransaccion`, `listarReversos`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`) · CU-33 Devolver comisión y emitir nota de crédito (`devolverComision`) · CU-50 Conciliar la custodia y verificar el encaje (`ejecutarCierreDiario`, `listarConciliaciones`, `conciliarCustodia`) · CU-52 Atender un reclamo en plazo (`listarBandejaDeReclamos`, `consultarEfectoDeReclamos`, `consultarReclamo`, `responderReclamo`) · CU-54 Registrar un evento de riesgo operativo (`registrarRiesgoOperativo`) · CU-55 Gestionar un incidente de seguridad (`registrarIncidente`, `notificarTitulares`, `reportarIncidente`) · CU-56 Ejecutar una prueba de continuidad · CU-57 Operar un punto de atención y arquear el efectivo · CU-73 Verificar la cadena de transparencia (`verificarCadena`) · CU-93 Sancionar al organizador y resolver su apelación (`apelarSancion`, `resolverApelacion`, `sancionarOrganizador`) · CU-95 Definir una regla de automatización (`definirRegla`, `activarRegla`)
+**Casos de uso que la nombran.** CU-14 Reversar una transacción (`reversarTransaccion`, `listarReversos`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`) · CU-33 Devolver comisión y emitir nota de crédito (`devolverComision`) · CU-50 Conciliar la custodia y verificar el encaje (`ejecutarCierreDiario`, `listarConciliaciones`, `conciliarCustodia`) · CU-52 Atender un reclamo en plazo (`listarBandejaDeReclamos`, `consultarEfectoDeReclamos`, `consultarReclamo`, `responderReclamo`) · CU-54 Registrar un evento de riesgo operativo (`registrarRiesgoOperativo`) · CU-55 Gestionar un incidente de seguridad (`registrarIncidente`, `notificarTitulares`, `reportarIncidente`) · CU-56 Ejecutar una prueba de continuidad · CU-57 Operar un punto de atención y arquear el efectivo · CU-73 Verificar la cadena de transparencia (`verificarCadena`) · CU-93 Sancionar al organizador y resolver su apelación (`apelarSancion`, `resolverApelacion`, `sancionarOrganizador`) · CU-95 Definir una regla de automatización (`definirRegla`, `activarRegla`) · CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `auditoria.incidente_operativo`, `identidad.usuario`. La referencian `incidente_seguridad`, `plan_accion_riesgo`. Reglas nombradas: `ck_evento_categoria`, `ck_evento_factor`, `ck_evento_fechas`, `ck_evento_recuperacion`.
 
@@ -4026,7 +4026,7 @@ Guardar cada evaluación con `valorEsperado` y `valorObtenido` responde la pregu
 
 **Por qué existe.** Sin apelación, un error del sistema o del organizador es definitivo. Y los errores ocurren: expedientes abiertos por pagos mal conciliados son frecuentes al principio de la operación.
 
-**Casos de uso que la nombran.** CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`)
+**Casos de uso que la nombran.** CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`) · CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `sancion`.
 
@@ -5084,7 +5084,7 @@ La máquina de estados **es el debido proceso hecho dato**:
 
 **Por qué existe.** Sin sanción como entidad con estados, la consecuencia sería inmediata y sin recurso — arbitraria por construcción.
 
-**Casos de uso que la nombran.** CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`)
+**Casos de uso que la nombran.** CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`) · CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.acuerdo`, `grupos.participante`, `identidad.usuario`, `matriz_sancion`, `registro_incumplimiento`. La referencian `apelacion_sancion`.
 
@@ -5991,6 +5991,34 @@ Los tres motivos (`VENTA`, `REEMPLAZO_POR_MORA`, `RETIRO`) tienen consecuencias 
 | `clave_consumo` | UUID | Atributo que representa clave consumo en el modelo de `alcance_invitacion`. | UUID, opcional, sensibilidad secreto. | SECRETO |
 | `consumidor_id` | UUID | Identificador de referencia para el concepto de consumidor en `alcance_invitacion`. | UUID, opcional. | NINGUNA |
 
+### `apelacion_medida_cuenta`
+
+**Qué es.** La apelación única de un expediente, presentada por el afectado y resuelta por una persona que no propuso ni decidió la medida.
+
+**Para qué sirve.** Que toda medida tenga segunda instancia y que, si la instancia no resuelve a tiempo, la demora no la pague la persona.
+
+**Por qué existe.** La unicidad sobre `expediente_medida_cuenta_id` garantiza en la base una sola apelación por expediente.
+
+- `estado`: presentada, aceptada, rechazada, o aceptada por vencimiento del plazo de la instancia.
+- `resuelta_por`: tercera persona; la base impide que sea quien propuso o decidió.
+
+**Casos de uso que la nombran.** CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso
+
+**Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `expediente_medida_cuenta`, `usuario`.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `expediente_medida_cuenta_id` | UUID | Referencia por clave foránea a la entidad `expediente_medida_cuenta`. | UUID, obligatoria, referencia a `expediente_medida_cuenta`, restricción única. | NINGUNA |
+| `apelante_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `argumento` | TEXT | Atributo que representa argumento en el modelo de `apelacion_medida_cuenta`. | TEXT, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(25) | presentada, aceptada, rechazada, o aceptada por vencimiento del plazo de la instancia. | VARCHAR(25), obligatoria. | NINGUNA |
+| `presentada_en` | TIMESTAMPTZ | Marca temporal o fecha de presentada en `apelacion_medida_cuenta`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `fecha_limite_resolucion` | TIMESTAMPTZ | Marca temporal o fecha de limite resolucion en `apelacion_medida_cuenta`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `resuelta_por` | UUID | tercera persona; la base impide que sea quien propuso o decidió. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `resuelta_en` | TIMESTAMPTZ | Marca temporal o fecha de resuelta en `apelacion_medida_cuenta`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `resolucion` | TEXT | Atributo que representa resolucion en el modelo de `apelacion_medida_cuenta`. | TEXT, opcional. | NINGUNA |
+
 ### `asignacion_rol`
 
 **Qué es.** El vínculo usuario–rol, acotado a un ámbito, con vigencia y rastro de quién lo otorgó.
@@ -6026,7 +6054,7 @@ Los tres motivos (`VENTA`, `REEMPLAZO_POR_MORA`, `RETIRO`) tienen consecuencias 
 
 **Por qué existe.** `liberadaPor` y `liberadaEn` responden la pregunta que siempre aparece en la auditoría: *¿quién desbloqueó esta cuenta y con qué autoridad?*
 
-**Casos de uso que la nombran.** CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`)
+**Casos de uso que la nombran.** CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`) · CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`.
 
@@ -6149,7 +6177,7 @@ Los tres motivos (`VENTA`, `REEMPLAZO_POR_MORA`, `RETIRO`) tienen consecuencias 
 
 **Por qué existe.** Sin identidad de dispositivo, no se puede distinguir "el usuario de siempre desde su teléfono de siempre" de "alguien con la contraseña correcta desde un equipo desconocido".
 
-**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`) · CU-09 Cambiar credenciales y solicitar la baja
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`) · CU-09 Cambiar credenciales y solicitar la baja · CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`. La referencian `cumplimiento.aceptacion_contrato`, `nucleo_financiero.transaccion_billetera`, `sesion`, `token_verificacion`.
 
@@ -6239,6 +6267,99 @@ Los tres motivos (`VENTA`, `REEMPLAZO_POR_MORA`, `RETIRO`) tienen consecuencias 
 | `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
 | `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
+### `evidencia_medida_cuenta`
+
+**Qué es.** Cada evidencia del expediente y cada descargo del afectado, una fila por aporte.
+
+**Para qué sirve.** Que lo que aporta el sistema, el operador y el propio afectado quede en el mismo lugar y distinguido por quién lo aportó.
+
+**Por qué existe.** La evidencia de un expediente no se edita ni se borra: es append-only, así nadie puede cambiar después lo que sustentó una decisión.
+
+- `tipo`: evidencia del sistema, del operador, del afectado, o el descargo.
+- `aportada_por`: quién la incorporó.
+
+**Casos de uso que la nombran.** CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso
+
+**Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `expediente_medida_cuenta`, `usuario`.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `expediente_medida_cuenta_id` | UUID | Referencia por clave foránea a la entidad `expediente_medida_cuenta`. | UUID, obligatoria, referencia a `expediente_medida_cuenta`, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(25) | evidencia del sistema, del operador, del afectado, o el descargo. | VARCHAR(25), obligatoria. | NINGUNA |
+| `contenido` | TEXT | Atributo que representa contenido en el modelo de `evidencia_medida_cuenta`. | TEXT, obligatoria. | NINGUNA |
+| `referencia_id` | UUID | Identificador de referencia para el concepto de referencia en `evidencia_medida_cuenta`. | UUID, opcional. | NINGUNA |
+| `aportada_por` | UUID | quién la incorporó. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `registrada_en` | TIMESTAMPTZ | Marca temporal o fecha de registrada en `evidencia_medida_cuenta`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evidencia_step_up_consumida`
+
+**Qué es.** La marca de que una evidencia de segundo factor (el `jti` del JWT de step-up con propósito `ADMIN`) ya se usó para un acto de gobierno de accesos: asignar o revocar un rol, dar de alta, suspender, reactivar, dar de baja o desbloquear a un operador.
+
+**Para qué sirve.** Que cada cambio de quién puede tocar la plata y los datos de terceros lo confirme quien lo hace con su segundo factor, una vez por acto: quien robe esa evidencia no puede reusarla para otro cambio de acceso.
+
+**Por qué existe.** El JWT de evidencia vale hasta que vence (minutos). Guardar su consumo en memoria dejaba usarlo una vez por réplica o de nuevo tras un reinicio; Pablo decidió (2026-11-24, GU-11) que el consumo viva en la base, compartido por todas las instancias.
+
+**Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `usuario`.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `jti` | UUID | Atributo que representa jti en el modelo de `evidencia_step_up_consumida`. | UUID, obligatoria, restricción única. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `proposito` | VARCHAR(20) | Atributo que representa proposito en el modelo de `evidencia_step_up_consumida`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `consumida_en` | TIMESTAMPTZ | Marca temporal o fecha de consumida en `evidencia_step_up_consumida`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `vence_en` | TIMESTAMPTZ | Marca temporal o fecha de vence en `evidencia_step_up_consumida`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+
+### `expediente_medida_cuenta`
+
+**Qué es.** El expediente de una medida de seguridad sobre la cuenta de un participante (bloqueo cautelar o suspensión temporal), con su causal cerrada, sus plazos guardados y su decisión motivada.
+
+**Para qué sirve.** Que ninguna cuenta quede suspendida o bloqueada sin causal, evidencia, notificación, descargo y decisión de otra persona, y que siempre se pueda mostrar por qué y hasta cuándo.
+
+**Por qué existe.** `usuario.estado` dice *que* la cuenta está suspendida; el expediente dice *por qué*, *quién* lo propuso, *quién* lo decidió y *con qué plazos*. Sin él no hay debido proceso que demostrar (regla 91.4).
+
+- `causal`: motivo del catálogo cerrado; mora, orden de autoridad y sospecha de lavado van por otros casos de uso.
+- `medida`: bloqueo cautelar inmediato o suspensión temporal.
+- `cautelar`: si la medida se aplicó antes del descargo, cosa que solo admiten la cuenta comprometida y el fraude con evidencia.
+- `estado_cuenta_previo`: estado de la cuenta antes de la medida, al que vuelve cuando la medida termina.
+- `fecha_limite_descargo`: plazo de descargo calculado en días hábiles al notificar y guardado; no se recalcula.
+- `fecha_limite_apelacion`: plazo de apelación calculado al decidir.
+- `prescribe_en`: fecha en la que el expediente prescribe si nadie decidió.
+- `vigente_hasta`: fin de la suspensión temporal.
+- `clave_idempotencia`: el mismo pedido reenviado devuelve el mismo expediente.
+
+**Casos de uso que la nombran.** CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso
+
+**Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `politica_medida_cuenta`, `usuario`. La referencian `apelacion_medida_cuenta`, `evidencia_medida_cuenta`, `historial_estado_medida_cuenta`. Reglas nombradas: `ck_expediente_medida_no_autopropuesta`, `ck_expediente_medida_decide_otro`, `uq_expediente_medida_abierto`, `ck_expediente_medida_decision_fundada`, `ck_expediente_medida_firme_confirmada`.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `politica_medida_cuenta_id` | UUID | Referencia por clave foránea a la entidad `politica_medida_cuenta`. | UUID, obligatoria, referencia a `politica_medida_cuenta`. | NINGUNA |
+| `causal` | VARCHAR(40) | motivo del catálogo cerrado; mora, orden de autoridad y sospecha de lavado van por otros casos de uso. | VARCHAR(40), obligatoria. | NINGUNA |
+| `medida` | VARCHAR(25) | bloqueo cautelar inmediato o suspensión temporal. | VARCHAR(25), obligatoria. | NINGUNA |
+| `cautelar` | BOOLEAN | si la medida se aplicó antes del descargo, cosa que solo admiten la cuenta comprometida y el fraude con evidencia. | BOOLEAN, obligatoria. | NINGUNA |
+| `motivo` | VARCHAR(500) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(500), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(25) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(25), obligatoria, índice b-tree. | NINGUNA |
+| `estado_cuenta_previo` | VARCHAR(25) | estado de la cuenta antes de la medida, al que vuelve cuando la medida termina. | VARCHAR(25), obligatoria. | NINGUNA |
+| `propuesta_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `propuesta_en` | TIMESTAMPTZ | Marca temporal o fecha de propuesta en `expediente_medida_cuenta`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `notificada_en` | TIMESTAMPTZ | Marca temporal o fecha de notificada en `expediente_medida_cuenta`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `fecha_limite_descargo` | TIMESTAMPTZ | plazo de descargo calculado en días hábiles al notificar y guardado; no se recalcula. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `decidida_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `decidida_en` | TIMESTAMPTZ | Marca temporal o fecha de decidida en `expediente_medida_cuenta`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `resultado_decision` | VARCHAR(15) | Atributo que representa resultado decision en el modelo de `expediente_medida_cuenta`. | VARCHAR(15), opcional. | NINGUNA |
+| `fundamento_decision` | TEXT | Atributo que representa fundamento decision en el modelo de `expediente_medida_cuenta`. | TEXT, opcional. | NINGUNA |
+| `fecha_limite_apelacion` | TIMESTAMPTZ | plazo de apelación calculado al decidir. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `vigente_hasta` | TIMESTAMPTZ | fin de la suspensión temporal. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `prescribe_en` | TIMESTAMPTZ | fecha en la que el expediente prescribe si nadie decidió. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `firme_en` | TIMESTAMPTZ | Marca temporal o fecha de firme en `expediente_medida_cuenta`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `cerrada_en` | TIMESTAMPTZ | Marca temporal o fecha de cerrada en `expediente_medida_cuenta`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | el mismo pedido reenviado devuelve el mismo expediente. | VARCHAR(80), obligatoria, restricción única. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
+
 ### `factor_mfa`
 
 **Qué es.** El segundo factor: TOTP, SMS, WhatsApp o códigos de respaldo.
@@ -6282,6 +6403,28 @@ Los tres motivos (`VENTA`, `REEMPLAZO_POR_MORA`, `RETIRO`) tienen consecuencias 
 | `hash_contrasena` | VARCHAR(255) | Resumen criptográfico SHA-256 para verificación inmutable de contrasena. | VARCHAR(255), obligatoria, sensibilidad derivado. | DERIVADO |
 | `reemplazada_en` | TIMESTAMPTZ | Marca temporal o fecha de reemplazada en `historial_credencial`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
+### `historial_estado_medida_cuenta`
+
+**Qué es.** Cada cambio de estado del expediente, con quién lo hizo y por qué.
+
+**Para qué sirve.** Es la línea de tiempo que ve el operador y la que se muestra en una auditoría o un reclamo.
+
+**Por qué existe.** El estado vigente se puede pisar; el historial no: es append-only y es la prueba de que cada paso del debido proceso ocurrió en orden.
+
+**Casos de uso que la nombran.** CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso
+
+**Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `expediente_medida_cuenta`, `usuario`.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `expediente_medida_cuenta_id` | UUID | Referencia por clave foránea a la entidad `expediente_medida_cuenta`. | UUID, obligatoria, referencia a `expediente_medida_cuenta`, índice b-tree. | NINGUNA |
+| `estado_anterior` | VARCHAR(25) | Atributo que representa estado anterior en el modelo de `historial_estado_medida_cuenta`. | VARCHAR(25), opcional. | NINGUNA |
+| `estado_nuevo` | VARCHAR(25) | Atributo que representa estado nuevo en el modelo de `historial_estado_medida_cuenta`. | VARCHAR(25), obligatoria. | NINGUNA |
+| `ejecutado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `motivo` | VARCHAR(500) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(500), opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | Marca temporal o fecha de ocurrido en `historial_estado_medida_cuenta`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
 ### `intento_autenticacion`
 
 **Qué es.** El log de cada intento de inicio de sesión, exitoso o no, con un puntaje de riesgo.
@@ -6290,7 +6433,7 @@ Los tres motivos (`VENTA`, `REEMPLAZO_POR_MORA`, `RETIRO`) tienen consecuencias 
 
 **Por qué existe.** El `puntajeRiesgo` permite decidir de forma graduada: no bloquear al usuario que se equivocó dos veces desde su casa, pero sí exigir MFA al que acierta la contraseña desde una IP nueva en otro país.
 
-**Casos de uso que la nombran.** CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`) · CU-09 Cambiar credenciales y solicitar la baja
+**Casos de uso que la nombran.** CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`) · CU-09 Cambiar credenciales y solicitar la baja · CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`.
 
@@ -6376,6 +6519,39 @@ Los tres motivos (`VENTA`, `REEMPLAZO_POR_MORA`, `RETIRO`) tienen consecuencias 
 | `nivel_riesgo` | VARCHAR(10) | Atributo que representa nivel riesgo en el modelo de `permiso`. | VARCHAR(10), obligatoria. | NINGUNA |
 | `exige_motivo` | BOOLEAN | Atributo que representa exige motivo en el modelo de `permiso`. | BOOLEAN, obligatoria. | NINGUNA |
 | `requiere_mfa` | BOOLEAN | Atributo que representa requiere mfa en el modelo de `permiso`. | BOOLEAN, obligatoria. | NINGUNA |
+
+### `politica_medida_cuenta`
+
+**Qué es.** La política versionada que fija los plazos de una medida sobre la cuenta de un participante: descargo, apelación, resolución de la apelación, prescripción y duración máxima de la suspensión.
+
+**Para qué sirve.** Que los plazos del debido proceso sean un dato con vigencia y no un número escondido en el código: se cambian publicando una versión nueva, y cada expediente sabe con qué versión se abrió. Los valores iniciales los aprobó Pablo el 2026-11-24 sin fuente normativa (CU-134, D-3).
+
+**Por qué existe.** Sancionar con una regla publicada después del hecho es retroactivo. El expediente apunta a la versión vigente al abrirse, así que cambiar la política no mueve los plazos de los expedientes en curso.
+
+- `plazo_descargo_dias_habiles`: días hábiles que tiene la persona para presentar su descargo, contados desde la notificación entregada.
+- `plazo_apelacion_dias_habiles`: días hábiles para apelar desde que se le comunica la decisión.
+- `plazo_resolucion_apelacion_dias_habiles`: días hábiles que tiene la segunda instancia para resolver; vacío mientras no se decida, y entonces no hay resolución automática por vencimiento.
+- `prescribe_en_meses`: meses desde la apertura tras los cuales un expediente sin decisión prescribe y no se reabre por el mismo hecho.
+- `duracion_maxima_suspension_dias`: tope en días corridos de una suspensión temporal.
+- `fuente`: de dónde salen los valores (decisión de negocio, norma o contrato), para que nadie los confunda con una cifra regulatoria.
+- `aprobada_por`: quién aprobó la versión.
+
+**Casos de uso que la nombran.** CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso
+
+**Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`. La referencian `expediente_medida_cuenta`.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `version` | VARCHAR(20) | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | VARCHAR(20), obligatoria, restricción única. | NINGUNA |
+| `plazo_descargo_dias_habiles` | SMALLINT | días hábiles que tiene la persona para presentar su descargo, contados desde la notificación entregada. | SMALLINT, obligatoria. | NINGUNA |
+| `plazo_apelacion_dias_habiles` | SMALLINT | días hábiles para apelar desde que se le comunica la decisión. | SMALLINT, obligatoria. | NINGUNA |
+| `plazo_resolucion_apelacion_dias_habiles` | SMALLINT | días hábiles que tiene la segunda instancia para resolver; vacío mientras no se decida, y entonces no hay resolución automática por vencimiento. | SMALLINT, opcional. | NINGUNA |
+| `prescribe_en_meses` | SMALLINT | meses desde la apertura tras los cuales un expediente sin decisión prescribe y no se reabre por el mismo hecho. | SMALLINT, obligatoria. | NINGUNA |
+| `duracion_maxima_suspension_dias` | SMALLINT | tope en días corridos de una suspensión temporal. | SMALLINT, obligatoria. | NINGUNA |
+| `fuente` | VARCHAR(200) | de dónde salen los valores (decisión de negocio, norma o contrato), para que nadie los confunda con una cifra regulatoria. | VARCHAR(200), obligatoria. | NINGUNA |
+| `aprobada_por` | UUID | quién aprobó la versión. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `politica_token`
 
@@ -6496,7 +6672,7 @@ Y a diferencia del bloqueo, la persona sí puede seguir entrando: puede ver su d
 
 **Por qué existe.** Sin ella, la consecuencia del incumplimiento se queda encerrada en el módulo 8 y no afecta el comportamiento del sistema. La reputación informa; la restricción impide.
 
-**Casos de uso que la nombran.** CU-27 Restringir al deudor e incluirlo en la lista interna (`levantarRestriccion`, `restringirDeudor`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`, `consultarEtapasDePersonas`) · CU-90 Postular a organizador y habilitarse (`activarRolOrganizador`, `postularOrganizador`, `aprobarPostulacion`, `consultarHabilitacionBasica`, `aceptarHabilitacionBasica`, `habilitarOrganizador`)
+**Casos de uso que la nombran.** CU-27 Restringir al deudor e incluirlo en la lista interna (`levantarRestriccion`, `restringirDeudor`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`, `consultarEtapasDePersonas`) · CU-90 Postular a organizador y habilitarse (`activarRolOrganizador`, `postularOrganizador`, `aprobarPostulacion`, `consultarHabilitacionBasica`, `aceptarHabilitacionBasica`, `habilitarOrganizador`) · CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`. Reglas nombradas: `ck_restriccion_levantamiento`, `ck_restriccion_vigencia`, `uq_restriccion_usuario_vigente`.
 
@@ -6560,7 +6736,7 @@ El rol `AUDITOR` merece mención aparte: existe para que alguien pueda **leer to
 
 **Por qué existe.** Sin sesiones materializadas solo hay tokens: se pueden revocar, pero no mostrar ni explicar al usuario. La revocación deja de ser una acción que el usuario puede tomar por sí mismo.
 
-**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`) · CU-08 Asignar y revocar roles de operador (`asignarRolesUsuarioInterno`) · CU-09 Cambiar credenciales y solicitar la baja · CU-55 Gestionar un incidente de seguridad (`registrarIncidente`, `notificarTitulares`, `reportarIncidente`)
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`) · CU-08 Asignar y revocar roles de operador (`asignarRolesUsuarioInterno`) · CU-09 Cambiar credenciales y solicitar la baja · CU-55 Gestionar un incidente de seguridad (`registrarIncidente`, `notificarTitulares`, `reportarIncidente`) · CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `dispositivo`, `usuario`. La referencian `nucleo_financiero.transaccion_billetera`.
 
@@ -6575,7 +6751,7 @@ El rol `AUDITOR` merece mención aparte: existe para que alguien pueda **leer to
 | `expira_en` | TIMESTAMPTZ | Marca temporal o fecha de expira en `sesion`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
 | `ip_origen` | INET | Dirección IP desde la cual se ejecutó la solicitud, registrada para auditoría de seguridad. | INET, obligatoria. | NINGUNA |
 | `geolocalizacion_aprox` | VARCHAR(80) | Atributo que representa geolocalizacion aprox en el modelo de `sesion`. | VARCHAR(80), opcional. | NINGUNA |
-| `revocada_en` | TIMESTAMPTZ | Marca temporal o fecha de revocada en `sesion`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `revocada_en` | TIMESTAMPTZ | Marca temporal o fecha de revocada en `sesion`. | TIMESTAMPTZ, opcional, índice b-tree. | NINGUNA |
 | `motivo_revocacion` | VARCHAR(80) | Atributo que representa motivo revocacion en el modelo de `sesion`. | VARCHAR(80), opcional. | NINGUNA |
 
 ### `shedlock`
@@ -6687,7 +6863,7 @@ El campo `codigoPublico` existe porque nadie debería mostrar un UUID en pantall
 
 **Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-08 Asignar y revocar roles de operador (`asignarRolesUsuarioInterno`)
 
-**Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `aportes.comprobante_manual`, `aportes.conciliacion`, `aportes.excepcion_conciliacion`, `aportes.extracto_bancario`, `aportes.historial_estado_reembolso`, `aportes.pago`, `aportes.plan_regularizacion`, `aportes.reembolso`, `asignacion_rol`, `auditoria.alerta_cumplimiento`, `auditoria.coincidencia_lista`, `auditoria.ejecucion_reporte`, `auditoria.proceso_anonimizacion`, `auditoria.reporte_operacion_sospechosa`, `auditoria.solicitud_datos_personales`, `auditoria.ticket_soporte`, `bloqueo_cuenta`, `catalogo.licencia_regulatoria`, `catalogo.tarifario`, `comun.bitacora_evento`, `comun.registro_acceso_datos`, `consentimiento`, `credencial_acceso`, `cumplimiento.aceptacion_contrato`, `cumplimiento.acta_comite`, `cumplimiento.activo_informacion`, `cumplimiento.alerta_monitoreo_lft`, `cumplimiento.beneficiario_final`, `cumplimiento.calificacion_riesgo_cliente`, `cumplimiento.capacitacion_cumplimiento`, `cumplimiento.caso_investigacion_lft`, `cumplimiento.contrato_adhesion`, `cumplimiento.contrato_tercero`, `cumplimiento.control_interno`, `cumplimiento.debida_diligencia`, `cumplimiento.declaracion_origen_fondos`, `cumplimiento.declaracion_pep`, `cumplimiento.designacion_regulatoria`, `cumplimiento.desvio_perfil`, `cumplimiento.documento_publicado`, `cumplimiento.envio_regulatorio`, `cumplimiento.evaluacion_riesgo_producto`, `cumplimiento.evaluacion_tercero`, `cumplimiento.evento_riesgo_operativo`, `cumplimiento.expediente_cliente`, `cumplimiento.factor_riesgo_evaluado`, `cumplimiento.hallazgo_auditoria`, `cumplimiento.incidente_seguridad`, `cumplimiento.matriz_riesgo_lft`, `cumplimiento.observacion_regulatoria`, `cumplimiento.oficial_cumplimiento`, `cumplimiento.perfil_transaccional`, `cumplimiento.plan_accion_riesgo`, `cumplimiento.plan_continuidad`, `cumplimiento.politica_interna`, `cumplimiento.prueba_continuidad`, `cumplimiento.prueba_control`, `cumplimiento.punto_reclamo`, `cumplimiento.reclamo_cliente`, `cumplimiento.registro_operacion_relevante`, `cumplimiento.regla_monitoreo_lft`, `cumplimiento.reporte_regulatorio`, `cumplimiento.requerimiento_autoridad`, `cumplimiento.revision_periodica_kyc`, `direccion_usuario`, `dispositivo`, `documento_identidad`, `entregas.cuenta_bancaria_beneficiario`, `entregas.entrega_fondo`, `entregas.historial_estado_entrega`, `entregas.incidencia_entrega`, `entregas.validacion_pre_entrega`, `erp.asiento_plantilla`, `erp.cierre_periodo_contable`, `erp.ejercicio_fiscal`, `erp.estado_financiero_generado`, `erp.factura_proveedor`, `erp.orden_compra`, `erp.pago_a_proveedor`, `erp.presupuesto`, `factor_mfa`, `garantia.abono_recuperacion`, `garantia.accion_cobranza`, `garantia.acuerdo_quita`, `garantia.alerta_temprana`, `garantia.apelacion_sancion`, `garantia.aval_participante`, `garantia.candidato_reemplazo`, `garantia.capacidad_respaldo`, `garantia.castigo_deuda`, `garantia.cobertura_incumplimiento`, `garantia.cobertura_respaldo`, `garantia.descargo_participante`, `garantia.deuda_participante`, `garantia.evidencia_incumplimiento`, `garantia.gestion_cobranza`, `garantia.historial_estado_incumplimiento`, `garantia.historial_incumplimiento_usuario`, `garantia.lista_restriccion_interna`, `garantia.movimiento_fondo`, `garantia.movimiento_reserva`, `garantia.promesa_pago`, `garantia.registro_incumplimiento`, `garantia.reserva_respaldo`, `garantia.sancion`, `garantia.score_riesgo_incumplimiento`, `grupos.acuerdo`, `grupos.enlace_grupo`, `grupos.historial_estado_grupo`, `grupos.invitacion`, `grupos.participante`, `grupos.postulacion_emparejamiento`, `grupos.reglamento_grupo`, `grupos.solicitud_ingreso`, `grupos.sorteo_turnos`, `historial_credencial`, `intento_autenticacion`, `notificaciones.aviso_interno`, `notificaciones.bandeja_entrada`, `notificaciones.canal_vinculado`, `notificaciones.notificacion`, `nucleo_financiero.asiento_contable`, `nucleo_financiero.bloqueo_saldo`, `nucleo_financiero.certificado_saldo`, `nucleo_financiero.cierre_diario`, `nucleo_financiero.conciliacion_custodia`, `nucleo_financiero.cuenta_billetera`, `nucleo_financiero.descuadre_custodia`, `nucleo_financiero.evaluacion_antifraude`, `nucleo_financiero.evidencia_mfa_consumida`, `nucleo_financiero.instrumento_fondeo`, `nucleo_financiero.orden_retiro`, `nucleo_financiero.politica_billetera`, `nucleo_financiero.regla_antifraude`, `nucleo_financiero.respuesta_idempotente`, `nucleo_financiero.retencion_saldo`, `nucleo_financiero.reverso_transaccion`, `nucleo_financiero.solicitud_cierre_billetera`, `nucleo_financiero.solicitud_reverso`, `nucleo_financiero.transaccion_billetera`, `organizador.apelacion_sancion_org`, `organizador.organizador`, `organizador.sancion_organizador`, `organizador.solicitud_organizador`, `perfil_financiero`, `preferencia_notificacion`, `publicidad.campana_publicitaria`, `publicidad.clic_anuncio`, `publicidad.impresion_anuncio`, `publicidad.revision_creativa`, `publicidad.segmento_audiencia`, `publicidad.socio_comercial`, `referencia_personal`, `reputacion_usuario`, `restriccion_usuario`, `sesion`, `solicitud_baja`, `tarifas.asignacion_tarifario`, `tarifas.cambio_tarifario`, `tarifas.campana_promocional`, `tarifas.cuenta_por_cobrar_comision`, `tarifas.datos_facturacion`, `tarifas.devengo_comision`, `tarifas.devolucion_comision`, `tarifas.evento_significativo_sin`, `tarifas.exencion_comision`, `tarifas.factura_electronica`, `tarifas.liquidacion_ingresos`, `tarifas.simulacion_tarifa`, `token_verificacion`, `transparencia.certificado_reputacion`, `transparencia.evento_reputacion`, `transparencia.insignia_otorgada`, `transparencia.puntaje_reputacion`, `transparencia.resena_participante`, `transparencia.snapshot_reputacion`, `usuario_interno`, `verificacion_kyc`.
+**Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `apelacion_medida_cuenta`, `aportes.comprobante_manual`, `aportes.conciliacion`, `aportes.excepcion_conciliacion`, `aportes.extracto_bancario`, `aportes.historial_estado_reembolso`, `aportes.pago`, `aportes.plan_regularizacion`, `aportes.reembolso`, `asignacion_rol`, `auditoria.alerta_cumplimiento`, `auditoria.coincidencia_lista`, `auditoria.ejecucion_reporte`, `auditoria.proceso_anonimizacion`, `auditoria.reporte_operacion_sospechosa`, `auditoria.solicitud_datos_personales`, `auditoria.ticket_soporte`, `bloqueo_cuenta`, `catalogo.licencia_regulatoria`, `catalogo.tarifario`, `comun.bitacora_evento`, `comun.registro_acceso_datos`, `consentimiento`, `credencial_acceso`, `cumplimiento.aceptacion_contrato`, `cumplimiento.acta_comite`, `cumplimiento.activo_informacion`, `cumplimiento.alerta_monitoreo_lft`, `cumplimiento.beneficiario_final`, `cumplimiento.calificacion_riesgo_cliente`, `cumplimiento.capacitacion_cumplimiento`, `cumplimiento.caso_investigacion_lft`, `cumplimiento.contrato_adhesion`, `cumplimiento.contrato_tercero`, `cumplimiento.control_interno`, `cumplimiento.debida_diligencia`, `cumplimiento.declaracion_origen_fondos`, `cumplimiento.declaracion_pep`, `cumplimiento.designacion_regulatoria`, `cumplimiento.desvio_perfil`, `cumplimiento.documento_publicado`, `cumplimiento.envio_regulatorio`, `cumplimiento.evaluacion_riesgo_producto`, `cumplimiento.evaluacion_tercero`, `cumplimiento.evento_riesgo_operativo`, `cumplimiento.expediente_cliente`, `cumplimiento.factor_riesgo_evaluado`, `cumplimiento.hallazgo_auditoria`, `cumplimiento.incidente_seguridad`, `cumplimiento.matriz_riesgo_lft`, `cumplimiento.observacion_regulatoria`, `cumplimiento.oficial_cumplimiento`, `cumplimiento.perfil_transaccional`, `cumplimiento.plan_accion_riesgo`, `cumplimiento.plan_continuidad`, `cumplimiento.politica_interna`, `cumplimiento.prueba_continuidad`, `cumplimiento.prueba_control`, `cumplimiento.punto_reclamo`, `cumplimiento.reclamo_cliente`, `cumplimiento.registro_operacion_relevante`, `cumplimiento.regla_monitoreo_lft`, `cumplimiento.reporte_regulatorio`, `cumplimiento.requerimiento_autoridad`, `cumplimiento.revision_periodica_kyc`, `direccion_usuario`, `dispositivo`, `documento_identidad`, `entregas.cuenta_bancaria_beneficiario`, `entregas.entrega_fondo`, `entregas.historial_estado_entrega`, `entregas.incidencia_entrega`, `entregas.validacion_pre_entrega`, `erp.asiento_plantilla`, `erp.cierre_periodo_contable`, `erp.ejercicio_fiscal`, `erp.estado_financiero_generado`, `erp.factura_proveedor`, `erp.orden_compra`, `erp.pago_a_proveedor`, `erp.presupuesto`, `evidencia_medida_cuenta`, `evidencia_step_up_consumida`, `expediente_medida_cuenta`, `factor_mfa`, `garantia.abono_recuperacion`, `garantia.accion_cobranza`, `garantia.acuerdo_quita`, `garantia.alerta_temprana`, `garantia.apelacion_sancion`, `garantia.aval_participante`, `garantia.candidato_reemplazo`, `garantia.capacidad_respaldo`, `garantia.castigo_deuda`, `garantia.cobertura_incumplimiento`, `garantia.cobertura_respaldo`, `garantia.descargo_participante`, `garantia.deuda_participante`, `garantia.evidencia_incumplimiento`, `garantia.gestion_cobranza`, `garantia.historial_estado_incumplimiento`, `garantia.historial_incumplimiento_usuario`, `garantia.lista_restriccion_interna`, `garantia.movimiento_fondo`, `garantia.movimiento_reserva`, `garantia.promesa_pago`, `garantia.registro_incumplimiento`, `garantia.reserva_respaldo`, `garantia.sancion`, `garantia.score_riesgo_incumplimiento`, `grupos.acuerdo`, `grupos.enlace_grupo`, `grupos.historial_estado_grupo`, `grupos.invitacion`, `grupos.participante`, `grupos.postulacion_emparejamiento`, `grupos.reglamento_grupo`, `grupos.solicitud_ingreso`, `grupos.sorteo_turnos`, `historial_credencial`, `historial_estado_medida_cuenta`, `intento_autenticacion`, `notificaciones.aviso_interno`, `notificaciones.bandeja_entrada`, `notificaciones.canal_vinculado`, `notificaciones.notificacion`, `nucleo_financiero.asiento_contable`, `nucleo_financiero.bloqueo_saldo`, `nucleo_financiero.certificado_saldo`, `nucleo_financiero.cierre_diario`, `nucleo_financiero.conciliacion_custodia`, `nucleo_financiero.cuenta_billetera`, `nucleo_financiero.descuadre_custodia`, `nucleo_financiero.evaluacion_antifraude`, `nucleo_financiero.evidencia_mfa_consumida`, `nucleo_financiero.instrumento_fondeo`, `nucleo_financiero.orden_retiro`, `nucleo_financiero.politica_billetera`, `nucleo_financiero.regla_antifraude`, `nucleo_financiero.respuesta_idempotente`, `nucleo_financiero.retencion_saldo`, `nucleo_financiero.reverso_transaccion`, `nucleo_financiero.solicitud_cierre_billetera`, `nucleo_financiero.solicitud_reverso`, `nucleo_financiero.transaccion_billetera`, `organizador.apelacion_sancion_org`, `organizador.organizador`, `organizador.sancion_organizador`, `organizador.solicitud_organizador`, `perfil_financiero`, `politica_medida_cuenta`, `preferencia_notificacion`, `publicidad.campana_publicitaria`, `publicidad.clic_anuncio`, `publicidad.impresion_anuncio`, `publicidad.revision_creativa`, `publicidad.segmento_audiencia`, `publicidad.socio_comercial`, `referencia_personal`, `reputacion_usuario`, `restriccion_usuario`, `sesion`, `solicitud_baja`, `tarifas.asignacion_tarifario`, `tarifas.cambio_tarifario`, `tarifas.campana_promocional`, `tarifas.cuenta_por_cobrar_comision`, `tarifas.datos_facturacion`, `tarifas.devengo_comision`, `tarifas.devolucion_comision`, `tarifas.evento_significativo_sin`, `tarifas.exencion_comision`, `tarifas.factura_electronica`, `tarifas.liquidacion_ingresos`, `tarifas.simulacion_tarifa`, `token_verificacion`, `transparencia.certificado_reputacion`, `transparencia.evento_reputacion`, `transparencia.insignia_otorgada`, `transparencia.puntaje_reputacion`, `transparencia.resena_participante`, `transparencia.snapshot_reputacion`, `usuario_interno`, `verificacion_kyc`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
@@ -6740,7 +6916,7 @@ El campo `codigoPublico` existe porque nadie debería mostrar un UUID en pantall
 
 **Por qué existe.** Sin historial de verificaciones no se puede reintentar sin perder el rastro del rechazo anterior, ni auditar la tasa de aprobación del proveedor, ni detectar a un revisor que aprueba todo sin mirar.
 
-**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`)
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `documento_identidad`, `usuario`. La referencian `cumplimiento.debida_diligencia`, `organizador.solicitud_organizador`.
 
@@ -7435,7 +7611,7 @@ El estado `leído` tiene un uso adicional en cobranza: **alguien que lee los rec
 
 **Por qué existe.** Los proveedores reintentan sus callbacks. `claveIdempotencia` `UNIQUE` evita aplicar dos veces el mismo evento y contar dos entregas donde hubo una.
 
-**Casos de uso que la nombran.** CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-80 Despachar una notificación (`emitirNotificacion`, `consultarAvisosInternos`, `emitirAvisoInterno`, `marcarTodosAvisosLeidos`, `marcarAvisoLeido`, `listarPlantillas`, `verificarSupresion`) · CU-83 Enrutar el envío por proveedor de mensajería (`listarEnvios`)
+**Casos de uso que la nombran.** CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-80 Despachar una notificación (`emitirNotificacion`, `consultarAvisosInternos`, `emitirAvisoInterno`, `marcarTodosAvisosLeidos`, `marcarAvisoLeido`, `listarPlantillas`, `verificarSupresion`) · CU-83 Enrutar el envío por proveedor de mensajería (`listarEnvios`) · CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso
 
 **Sistema.** Vive en el esquema `notificaciones`; la escribe y la lee solo el servicio `notificaciones` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `envio_notificacion`. Reglas nombradas: `uq_evento_entrega_idempotencia`.
 
@@ -10478,7 +10654,7 @@ Los 19 tipos cubren todo el ciclo: desde `APORTE_ANTICIPADO` (que **suma**, porq
 
 **Por qué existe.** Sin eventos, el puntaje es un número que alguien escribió y que no se puede explicar, auditar ni recalcular con un modelo nuevo.
 
-**Casos de uso que la nombran.** CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-62 Permutar turnos entre participantes (`solicitarPermuta`) · CU-64 Traspasar un cupo (`listarAcuerdos`, `traspasarCupo`) · CU-65 Retirarse de un grupo (`solicitarRetiro`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`) · CU-70 Registrar un evento de reputación (`registrarEventoReputacion`, `compensarEventoReputacion`) · CU-71 Recalcular el puntaje de reputación (`recalcularPuntaje`, `tomarSnapshotReputacion`) · CU-74 Otorgar y revocar una insignia (`evaluarInsignias`, `revocarInsignia`) · CU-76 Reseñar a un participante y moderar la reseña (`publicarResena`, `moderarResena`)
+**Casos de uso que la nombran.** CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-62 Permutar turnos entre participantes (`solicitarPermuta`) · CU-64 Traspasar un cupo (`listarAcuerdos`, `traspasarCupo`) · CU-65 Retirarse de un grupo (`solicitarRetiro`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`) · CU-70 Registrar un evento de reputación (`registrarEventoReputacion`, `compensarEventoReputacion`) · CU-71 Recalcular el puntaje de reputación (`recalcularPuntaje`, `tomarSnapshotReputacion`) · CU-74 Otorgar y revocar una insignia (`evaluarInsignias`, `revocarInsignia`) · CU-76 Reseñar a un participante y moderar la reseña (`publicarResena`, `moderarResena`) · CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso
 
 **Sistema.** Vive en el esquema `transparencia`; la escribe y la lee solo el servicio `transparencia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `evento_reputacion`, `grupos.grupo`, `grupos.participante`, `identidad.usuario`. La referencian `evento_reputacion`. Reglas nombradas: `uq_evento_reputacion_hecho`.
 

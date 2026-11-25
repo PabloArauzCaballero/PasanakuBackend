@@ -47,6 +47,16 @@ aportaya:
   # maquina de desarrollo o de pruebas la pone en true (APORTAYA_ENTORNO_DESCARTABLE=true),
   # y es lo unico que permite arrancar sin JWT_CLAVE_FIRMA (clave en memoria).
   zona-horaria: America/La_Paz      # plazos habiles
+  sesion:
+    # ADR-038 §1 y P-8 (GU-15): la sesion del backoffice se cierra tras este tiempo sin actividad. El cliente refresca
+    # como latido mientras la persona trabaja; un refresco de operador mas viejo que esto se niega y revoca la sesion.
+    inactividad-operador: PT15M
+  revocacion:
+    publicacion:
+      # ADR-030 §1: cada cuanto mira identidad las sesiones recien cerradas para publicarlas directo a Kafka, y cuanto
+      # repasa hacia atras (transacciones que se hacen visibles con una marca ya pasada).
+      intervalo: PT0.25S
+      margen: PT2M
   invitaciones:
     clave: ${INVITACIONES_CLAVE:}
   seguridad:

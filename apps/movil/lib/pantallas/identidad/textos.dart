@@ -39,11 +39,14 @@ class TextosIdentidad {
       'El orden no lo decide nadie. Sale de una semilla pública que se toma después '
       'de cerrar la lista, y cualquiera puede repetir el sorteo y llegar al mismo '
       'resultado.';
+  // Fuente (RESPALDO-003, 97.5.4): CU-23 y CU-22. Sin cifras ni coberturas sin fuente; si el
+  // fondo no alcanza, la entrega espera; la empresa no pone plata.
   static const tour4Titulo = 'Si alguien no aporta,';
-  static const tour4Destacado = 'el grupo no se frena';
+  static const tour4Destacado = 'la deuda no se pierde';
   static const tour4Texto =
-      'Hay un fondo de garantía que cubre la cuota para que el turno se entregue '
-      'igual. La deuda no se perdona: queda viva y el fondo pasa a ser el acreedor.';
+      'La deuda no se perdona. Si el fondo del grupo alcanza, cubre la cuota y la '
+      'deuda pasa a deberse al fondo; si no, la entrega espera. La empresa no '
+      'pone plata.';
   static const portadaCrearCuenta = 'Crear mi cuenta';
   static const portadaYaTengoCuenta = 'Ya tengo cuenta';
 

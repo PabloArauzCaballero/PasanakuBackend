@@ -11,8 +11,12 @@ CREATE TABLE IF NOT EXISTS identidad.bloqueo_cuenta (
   liberada_en                        TIMESTAMPTZ,
   liberada_por                       UUID,
   CONSTRAINT pk_bloqueo_cuenta PRIMARY KEY (id),
-  CONSTRAINT ck_bloqueo_cuenta_motivo CHECK (motivo IN ('FRAUDE', 'INTENTOS_FALLIDOS', 'ORDEN_ADMIN', 'SOLICITUD_USUARIO'))
+  CONSTRAINT ck_bloqueo_cuenta_motivo CHECK (motivo IN ('CUENTA_COMPROMETIDA', 'FRAUDE', 'INTENTOS_FALLIDOS', 'ORDEN_ADMIN', 'SOLICITUD_USUARIO'))
 );
+
+-- Evolucion: CHECK ampliado (ver CK_AMPLIADOS en modelo.py).
+ALTER TABLE identidad.bloqueo_cuenta DROP CONSTRAINT IF EXISTS ck_bloqueo_cuenta_motivo;
+ALTER TABLE identidad.bloqueo_cuenta ADD CONSTRAINT ck_bloqueo_cuenta_motivo CHECK (motivo IN ('CUENTA_COMPROMETIDA', 'FRAUDE', 'INTENTOS_FALLIDOS', 'ORDEN_ADMIN', 'SOLICITUD_USUARIO'));
 
 COMMENT ON TABLE identidad.bloqueo_cuenta IS 'Módulo 01 — Identidad, Usuarios y Seguridad. El bloqueo de acceso, temporal o indefinido, con su motivo.';
 COMMENT ON COLUMN identidad.bloqueo_cuenta.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';

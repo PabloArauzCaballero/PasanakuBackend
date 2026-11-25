@@ -186,7 +186,7 @@ def bloque_2():
     roles = RAIZ / "seeders" / "minimos" / "10-roles-y-permisos.json"
     if roles.exists():
         d = json.loads(roles.read_text(encoding="utf-8"))
-        permisos = [f for b in d["bloques"] if b["tabla"] == "permiso" for f in b["filas"]]
+        permisos = [f for b in d["bloques"] if b.get("tabla") == "permiso" for f in b["filas"]]
         irreversibles = {"AUTORIZAR", "APROBAR", "EJECUTAR", "REVERSAR",
                          "PUBLICAR", "ENVIAR", "CERRAR", "LEER_TERCEROS"}
         malos = [p["codigo"] for p in permisos
@@ -203,7 +203,7 @@ def bloque_2():
     dev = RAIZ / "seeders" / "dev"
     if dev.exists() and roles.exists():
         globales = {r["codigo"] for b in json.loads(roles.read_text(encoding="utf-8"))["bloques"]
-                    if b["tabla"] == "rol" for r in b["filas"] if r["ambito"] == "GLOBAL"}
+                    if b.get("tabla") == "rol" for r in b["filas"] if r["ambito"] == "GLOBAL"}
         operadores, con_totp = set(), set()
         for archivo in sorted(dev.glob("*.json")):
             datos = json.loads(archivo.read_text(encoding="utf-8"))
@@ -417,8 +417,8 @@ def bloque_6():
         return
 
     d = json.loads(roles_json.read_text(encoding="utf-8"))
-    permisos = {f["codigo"] for b in d["bloques"] if b["tabla"] == "permiso" for f in b["filas"]}
-    roles = {f["codigo"] for b in d["bloques"] if b["tabla"] == "rol" for f in b["filas"]}
+    permisos = {f["codigo"] for b in d["bloques"] if b.get("tabla") == "permiso" for f in b["filas"]}
+    roles = {f["codigo"] for b in d["bloques"] if b.get("tabla") == "rol" for f in b["filas"]}
 
     citados = set()
     for cu in sorted(cu_dir.glob("CU-*.md")):

@@ -1,35 +1,12 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { leerCatalogoDeRoles } from './catalogo-de-roles.pruebas'
 import { alcanza, PERMISOS_POR_SECCION } from './secciones'
 
-/**
- * H12.S1.M1 · recorrido por roles sin acciones ajenas.
- *
- * La fuente es el catálogo REAL de roles y permisos (`sql/60_semillas/10-roles-y-permisos.sql`, generado desde
- * `seeders/minimos`): el token de `identidad` lleva los permisos efectivos del rol MÁS el código de cada rol vigente
- * (`AccesosRepositorio.codigosDeRolesVigentes`). Esta prueba arma ese token para cada rol y comprueba qué secciones
- * abre y qué acciones habilita. Es una prueba de la LÓGICA DEL CLIENTE sobre el catálogo versionado; no consulta un
- * `identidad` real ni prueba que el servidor niegue lo que el cliente oculta (eso es de cada servicio).
- */
-const RAIZ = join(__dirname, '../../../../..')
-const SEMILLA = readFileSync(join(RAIZ, 'sql/60_semillas/10-roles-y-permisos.sql'), 'utf8')
+const CATALOGO = leerCatalogoDeRoles(readFileSync(join(process.cwd(), '../../sql/60_semillas/10-roles-y-permisos.sql'), 'utf8'))
+const { tokenDe } = CATALOGO
 
-function leerCatalogo() {
-  const roles = new Set([...SEMILLA.slice(0, SEMILLA.indexOf('INSERT INTO permiso')).matchAll(/^\s*\('([A-Z_]+)',/gm)].map((m) => m[1]!))
-  const permisos = new Set(
-    [...SEMILLA.slice(SEMILLA.indexOf('INSERT INTO permiso'), SEMILLA.indexOf('INSERT INTO rol_permiso')).matchAll(/^\s*\('([A-Z_]+)',/gm)].map((m) => m[1]!),
-  )
-  const concedidos = new Map<string, string[]>()
-  for (const m of SEMILLA.matchAll(/FROM rol WHERE codigo = '([A-Z_]+)'\)\s*,\s*\(SELECT id FROM permiso WHERE codigo = '([A-Z_]+)'\)/g)) {
-    concedidos.set(m[1]!, [...(concedidos.get(m[1]!) ?? []), m[2]!])
-  }
-  return { roles, permisos, concedidos }
-}
-const CATALOGO = leerCatalogo()
-
-/** El token de un rol: su código más los permisos del catálogo que ese rol concede. */
-const tokenDe = (rol: string): string[] => [rol, ...(CATALOGO.concedidos.get(rol) ?? [])]
 const SECCIONES = ['ver:operacion', 'ver:cumplimiento', 'ver:admisiones', 'ver:sistemas', 'ver:contabilidad', 'ver:publicidad', 'ver:configuracion'] as const
 const seccionesDe = (rol: string) => SECCIONES.filter((s) => alcanza(s, tokenDe(rol), true)).map((s) => s.slice(4))
 
@@ -37,6 +14,9 @@ const seccionesDe = (rol: string) => SECCIONES.filter((s) => alcanza(s, tokenDe(
 const ESPERADO: Record<string, string[]> = {
   ADMIN_PLATAFORMA: ['operacion', 'cumplimiento', 'admisiones', 'sistemas', 'configuracion'],
   OFICIAL_CUMPLIMIENTO: ['operacion', 'cumplimiento', 'configuracion'],
+  // P-3 (2026-11-24): el oficial registra los bloqueos por autoridad y el supervisor los levanta. Con
+  // BLOQUEO_AUTORIDAD_LEVANTAR entra a Cumplimiento (la bandeja de bloqueos); AUDITORIA_LEER no abre otra sección.
+  SUPERVISOR_CUMPLIMIENTO: ['cumplimiento'],
   ANALISTA_CUMPLIMIENTO: ['operacion', 'cumplimiento'],
   AUDITOR_INTERNO: ['operacion', 'cumplimiento', 'contabilidad', 'configuracion'],
   RESPONSABLE_RIESGOS: ['operacion', 'cumplimiento', 'configuracion'],
@@ -46,6 +26,9 @@ const ESPERADO: Record<string, string[]> = {
   SOPORTE: ['operacion'],
   PUNTO_RECLAMO: ['operacion'],
   OPERADOR_PUBLICIDAD: ['publicidad'],
+  // P-3 (2026-11-24): publicidad son tres personas. El operador da de alta anunciantes y liquida; el aprobador aprueba
+  // campañas (PUBLICIDAD_APROBAR_CAMPANA, que abre la cola de campañas); el moderador modera piezas.
+  APROBADOR_PUBLICIDAD: ['publicidad'],
   MODERADOR_CONTENIDO: ['publicidad'],
   // Tableros por rol (2026-10-16): COMERCIAL ve su tablero (`/tablero/comercial`, TABLERO_COMERCIAL_VER). Desde CU-132
   // (2026-11-23) TARIFARIO_ADMINISTRAR —que COMERCIAL ya tenía por CU-36— propone y aprueba parámetros financieros
@@ -76,8 +59,8 @@ const ESPERADO: Record<string, string[]> = {
 }
 
 describe('matriz de roles · qué secciones abre cada rol del catálogo', () => {
-  it('el catálogo parseado tiene los treinta y dos roles y la prueba cubre cada uno (si se agrega un rol, hay que decidir qué ve)', () => {
-    expect(CATALOGO.roles.size).toBe(32)
+  it('el catálogo parseado tiene los treinta y cuatro roles y la prueba cubre cada uno (si se agrega un rol, hay que decidir qué ve)', () => {
+    expect(CATALOGO.roles.size).toBe(34)
     expect([...CATALOGO.roles].sort()).toEqual(Object.keys(ESPERADO).sort())
   })
 
@@ -138,7 +121,7 @@ const SIN_CATALOGO_DECLARADOS: string[] = []
 
 describe('contrato de permisos · lo que el backoffice pide existe en el catálogo', () => {
   const literales = new Set(
-    fuentes(join(__dirname, '..'))
+    fuentes(join(process.cwd(), 'src/app'))
       .flatMap((f) => [...readFileSync(f, 'utf8').matchAll(/\b(?:puede|requierePermiso|alcanza)\('([A-Za-z_:]+)'/g)].map((m) => m[1]!))
       .filter((p) => !p.startsWith('ver:')),
   )

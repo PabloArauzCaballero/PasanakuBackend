@@ -3,9 +3,11 @@ package bo.aportaya.identidad.infraestructura;
 import static bo.aportaya.identidad.generado.Tables.PERMISO;
 import static bo.aportaya.identidad.generado.Tables.ROL;
 
+import bo.aportaya.identidad.dominio.RolesParaPersonalInterno;
 import bo.aportaya.identidad.web.generado.modelo.PermisoCatalogo;
 import bo.aportaya.identidad.web.generado.modelo.RolCatalogo;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -49,6 +51,23 @@ public class RolesYPermisosRepositorio {
             lista.add(rc);
         }
         return lista;
+    }
+
+    /**
+     * De los codigos pedidos, los que existen y no se otorgan a personal interno (GU-13). Los que no existen no se
+     * informan aca: ese rechazo es {@code ROL_INEXISTENTE} y lo da quien asigna.
+     */
+    public List<String> noAsignablesAPersonalInterno(DSLContext dsl, Collection<String> codigos) {
+        return dsl
+                .select(ROL.CODIGO, ROL.AMBITO)
+                .from(ROL)
+                .where(ROL.CODIGO.in(codigos))
+                .orderBy(ROL.CODIGO.asc())
+                .fetch()
+                .stream()
+                .filter(r -> !RolesParaPersonalInterno.admite(r.value1(), r.value2()))
+                .map(r -> r.value1())
+                .toList();
     }
 
     public List<PermisoCatalogo> listarPermisos(DSLContext dsl) {

@@ -1,10 +1,12 @@
-import { provideHttpClient } from '@angular/common/http'
+import { provideHttpClient, withInterceptors } from '@angular/common/http'
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing'
 import { provideZonelessChangeDetection } from '@angular/core'
 import { TestBed } from '@angular/core/testing'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { erroresInterceptor } from '../../../nucleo/errores.interceptor'
 import { GATEWAY } from '../../../nucleo/gateway'
 import { estabilizar, pulsar, texto } from '../compartido/pruebas.apoyo'
+import { EVIDENCIA_DE_PRUEBA, escribirCodigoDePrueba, verificarPasoDeSeguridad } from './paso-de-seguridad.pruebas'
 import { ModalAltaUsuarioInterno } from './modal-alta-usuario-interno'
 
 const GW = 'http://gw/api/v1'
@@ -14,7 +16,7 @@ const ROLES = [
 ]
 function escribir(raiz: Element, etiqueta: string, valor: string): void {
   const label = Array.from(raiz.querySelectorAll('label')).find((l) => texto(l).startsWith(etiqueta))!
-  const control = (raiz.ownerDocument.getElementById(label.htmlFor) ?? label.querySelector('input')) as HTMLInputElement
+  const control = (raiz.ownerDocument.getElementById(label.htmlFor) ?? label.querySelector('input, textarea')) as HTMLInputElement | HTMLTextAreaElement
   control.value = valor
   control.dispatchEvent(new Event('input'))
 }
@@ -22,7 +24,7 @@ function escribir(raiz: Element, etiqueta: string, valor: string): void {
 describe('ModalAltaUsuarioInterno · POST /usuarios-internos', () => {
   let http: HttpTestingController
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection(), provideHttpClient(), provideHttpClientTesting(), { provide: GATEWAY, useValue: GW }] })
+    TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection(), provideHttpClient(withInterceptors([erroresInterceptor])), provideHttpClientTesting(), { provide: GATEWAY, useValue: GW }] })
     http = TestBed.inject(HttpTestingController)
   })
   afterEach(() => http.verify())
@@ -30,7 +32,7 @@ describe('ModalAltaUsuarioInterno · POST /usuarios-internos', () => {
   async function montar() {
     const f = TestBed.createComponent(ModalAltaUsuarioInterno)
     f.detectChanges()
-    http.expectOne(`${GW}/roles`).flush(ROLES)
+    http.expectOne(`${GW}/roles?asignablesAPersonalInterno=true`).flush(ROLES)
     const el = await estabilizar(f)
     return { f, el }
   }
@@ -40,6 +42,8 @@ describe('ModalAltaUsuarioInterno · POST /usuarios-internos', () => {
     escribir(el, 'Correo institucional', correo)
     escribir(el, 'Teléfono móvil', '+59170000001')
     escribir(el, 'Cargo', 'Analista')
+    escribir(el, 'Por qué se da de alta', 'Ingreso aprobado por RRHH')
+    escribirCodigoDePrueba(el)
     await estabilizar(f)
   }
 
@@ -48,9 +52,10 @@ describe('ModalAltaUsuarioInterno · POST /usuarios-internos', () => {
     expect((Array.from(el.querySelectorAll('select')).at(-1) as HTMLSelectElement).value).toBe('SECURITY_ADMIN')
     await completar(f, el)
     pulsar(el, 'Crear usuario')
+    verificarPasoDeSeguridad(http, GW)
     const req = http.expectOne(`${GW}/usuarios-internos`)
     expect(req.request.method).toBe('POST')
-    expect(req.request.body).toEqual({ nombres: 'Ana', apellidos: 'Prueba', correo: 'nueva.persona@aportaya.test', telefono: '+59170000001', departamento: 'OPERACIONES', cargo: 'Analista', rolCodigo: 'SECURITY_ADMIN' })
+    expect(req.request.body).toEqual({ nombres: 'Ana', apellidos: 'Prueba', correo: 'nueva.persona@aportaya.test', telefono: '+59170000001', departamento: 'OPERACIONES', cargo: 'Analista', rolCodigo: 'SECURITY_ADMIN', motivo: 'Ingreso aprobado por RRHH', evidenciaMfa: EVIDENCIA_DE_PRUEBA })
     let guardado = false
     f.componentInstance.guardado.subscribe(() => (guardado = true))
     req.flush({})
@@ -64,15 +69,16 @@ describe('ModalAltaUsuarioInterno · POST /usuarios-internos', () => {
     expect((Array.from(el.querySelectorAll('button')).find((b) => texto(b) === 'Crear usuario') as HTMLButtonElement).disabled).toBe(true)
   })
 
-  it('error: un 422 deja lo escrito, muestra el mensaje traducido (no el crudo) y libera el botón', async () => {
+  it('error: un 422 deja lo escrito, muestra el mensaje traducido en el motivo y solicita un código nuevo', async () => {
     const { f, el } = await montar()
     await completar(f, el)
     pulsar(el, 'Crear usuario')
-    http.expectOne(`${GW}/usuarios-internos`).flush({ codigo: 'AP-X', mensaje: 'ConstraintViolation correo_uk' }, { status: 422, statusText: 'Unprocessable' })
+    verificarPasoDeSeguridad(http, GW)
+    http.expectOne(`${GW}/usuarios-internos`).flush({ codigo: 'AP-CU08-11', mensaje: 'ConstraintViolation correo_uk' }, { status: 422, statusText: 'Unprocessable' })
     await estabilizar(f)
-    expect(texto(el.querySelector('ap-error-de-envio'))).toContain('No se pudo dar de alta')
+    expect(texto(el.querySelector('ap-area-de-texto [role=alert]'))).toContain('Escribí el motivo')
     expect(texto(el)).not.toContain('ConstraintViolation')
     expect((el.querySelector('input[type=email]') as HTMLInputElement).value).toBe('nueva.persona@aportaya.test')
-    expect((Array.from(el.querySelectorAll('button')).find((b) => texto(b) === 'Crear usuario') as HTMLButtonElement).disabled).toBe(false)
+    expect((Array.from(el.querySelectorAll('button')).find((b) => texto(b) === 'Crear usuario') as HTMLButtonElement).disabled).toBe(true)
   })
 })

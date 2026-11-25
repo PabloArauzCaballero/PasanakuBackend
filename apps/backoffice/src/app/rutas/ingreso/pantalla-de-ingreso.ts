@@ -51,6 +51,8 @@ const MENSAJE_CREDENCIAL = 'El correo, el teléfono o la contraseña no coincide
 
           @if (error(); as e) {
             <ap-alerta tono="error">{{ e }}</ap-alerta>
+          } @else if (cerradaPorInactividad && paso() === 'credencial') {
+            <ap-alerta tono="info">Cerramos tu sesión porque pasaron 15 minutos sin actividad. Ingresá de nuevo y volvés a la pantalla en la que estabas.</ap-alerta>
           }
 
           <form (submit)="$event.preventDefault(); enviar()" novalidate>
@@ -126,6 +128,8 @@ export class PantallaDeIngreso {
   protected readonly codigo = signal('')
   protected readonly enviando = signal(false)
   protected readonly error = signal<string | null>(null)
+  /** ADR-038 §1: el shell cerró la sesión por inactividad y lo dice acá, no con un silencio. */
+  protected readonly cerradaPorInactividad = this.route.snapshot.queryParamMap.get('motivo') === 'inactividad'
   protected readonly errorIdentificador = signal<string | undefined>(undefined)
   // Cada error de forma va con su campo (95.3.1); el del servidor, que no dice qué dato falló, va en la alerta.
   protected readonly errorCredencial = signal<string | undefined>(undefined)

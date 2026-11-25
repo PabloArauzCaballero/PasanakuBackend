@@ -1,0 +1,15 @@
+$ python3 scripts/generar_ddl.py (segunda corrida)
+sql/ generado: 354 tablas · 703 claves foráneas · 814 índices · 560 CHECK
+Sin pendientes a nivel de datos.
+rc=0
+$ git diff --stat sql/ docs/entidades/
+ docs/entidades/01_identidad_usuarios.puml      | 2 +-
+ sql/10_tablas/01_identidad_usuarios/sesion.sql | 2 +-
+ sql/30_indices/01_identidad_usuarios.sql       | 3 +++
+ sql/60_semillas/24-metadata-comentarios.sql    | 2 +-
+ 4 files changed, 6 insertions(+), 3 deletions(-)
+$ python3 -I scripts/catalogo_de_datos.py --escribir && git diff --stat docs/catalogo-de-datos.md servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json
+404 tablas → docs/catalogo-de-datos.md y servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json
+ docs/catalogo-de-datos.md                                           | 2 +-
+ servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)

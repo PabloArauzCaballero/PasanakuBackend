@@ -1,0 +1,22 @@
+$ (cd sql && psql -v ON_ERROR_STOP=1 -f aplicar.sql)  → rc=0 (PostgreSQL 16 local efímero, puerto 55432)
+$ psql -f sql/50_verificacion/verificaciones.sql → rc=0, 0 filas de descuadre
+$ SELECT indexname, indexdef FROM pg_indexes WHERE tablename='sesion'
+       indexname       |                                     indexdef                                     
+-----------------------+----------------------------------------------------------------------------------
+ ix_sesion_expira_en   | CREATE INDEX ix_sesion_expira_en ON identidad.sesion USING btree (expira_en)
+ ix_sesion_revocada_en | CREATE INDEX ix_sesion_revocada_en ON identidad.sesion USING btree (revocada_en)
+ ix_sesion_usuario_id  | CREATE INDEX ix_sesion_usuario_id ON identidad.sesion USING btree (usuario_id)
+ pk_sesion             | CREATE UNIQUE INDEX pk_sesion ON identidad.sesion USING btree (id)
+(4 rows)
+
+$ EXPLAIN de la consulta del vigía (tabla con 20 000 sesiones sintéticas, 200 revocadas)
+                                           QUERY PLAN                                            
+-------------------------------------------------------------------------------------------------
+ Limit  (cost=8.32..8.37 rows=2 width=40)
+   ->  Incremental Sort  (cost=8.32..8.37 rows=2 width=40)
+         Sort Key: revocada_en, id
+         Presorted Key: revocada_en
+         ->  Index Scan using ix_sesion_revocada_en on sesion  (cost=0.29..8.31 rows=1 width=40)
+               Index Cond: (revocada_en >= (now() - '00:02:00'::interval))
+(6 rows)
+

@@ -93,6 +93,35 @@ public class BitacoraRepositorio {
                 .execute();
     }
 
+    /** GU-07 · un cambio de acceso publicado por identidad. El hash de la cadena lo calcula la base. */
+    public record CambioDeAcceso(
+            String entidad,
+            UUID entidadId,
+            String accion,
+            UUID actorUsuarioId,
+            String actorRol,
+            String origen,
+            UUID correlationId,
+            String valorNuevoJson,
+            String motivo,
+            OffsetDateTime ocurridoEn) {}
+
+    public void registrarCambioDeAcceso(DSLContext dsl, CambioDeAcceso cambio) {
+        dsl.insertInto(DSL.table(DSL.name("comun", "bitacora_evento")))
+                .set(DSL.field("id", UUID.class), UUID.randomUUID())
+                .set(DSL.field("entidad", String.class), cambio.entidad())
+                .set(DSL.field("entidad_id", UUID.class), cambio.entidadId())
+                .set(DSL.field("accion", String.class), cambio.accion())
+                .set(DSL.field("actor_usuario_id", UUID.class), cambio.actorUsuarioId())
+                .set(DSL.field("actor_rol", String.class), cambio.actorRol())
+                .set(DSL.field("origen", String.class), cambio.origen())
+                .set(DSL.field("correlation_id", UUID.class), cambio.correlationId())
+                .set(DSL.field("valor_nuevo", JSONB.class), JSONB.valueOf(cambio.valorNuevoJson()))
+                .set(DSL.field("motivo", String.class), cambio.motivo())
+                .set(DSL.field("fecha_hora", OffsetDateTime.class), cambio.ocurridoEn())
+                .execute();
+    }
+
     public List<RegistroEvento> listar(
             DSLContext dsl,
             String entidad,

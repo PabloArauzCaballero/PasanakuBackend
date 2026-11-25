@@ -120,8 +120,8 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU01-03",
-        "mensaje": "Cuenta ya existe",
+        "codigo": "AP-CU08-08",
+        "mensaje": "Rol no asignable",
         "detalle": {},
         "trazaId": "traza-asignarRolesUsuarioInterno-rechazo"
       }

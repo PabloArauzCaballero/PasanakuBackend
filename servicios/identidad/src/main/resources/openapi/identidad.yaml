@@ -168,7 +168,7 @@ paths:
           # AP-CU04-03 FACTOR_REQUERIDO   · AP-CU04-04 TOKEN_VENCIDO
           # AP-CU04-05 DEMASIADOS_INTENTOS · AP-CU04-06 FACTOR_NO_ENROLADO
           # AP-CU04-07 FACTOR_NO_ADMISIBLE (R-SEG-10)
-          # AP-CU04-02 tambien para cuenta no habilitada (SUSPENDIDO, BLOQUEADO_SEGURIDAD, BAJA_VOLUNTARIA, ELIMINADO)
+          # AP-CU04-02 tambien para cuenta no habilitada (SUSPENDIDO, BLOQUEADO_SEGURIDAD, BAJA_VOLUNTARIA, BAJA_LABORAL, ELIMINADO)
           # AP-CU04-10 FACTOR_ENVIADO_POR_CORREO: el codigo ya salio al correo verificado (vence en 10 minutos)
       # Con `plataforma: WEB` la respuesta 200 trae ademas `Set-Cookie: aportaya_refresco`
       # (HttpOnly; Secure; SameSite=Strict; Path=/api/v1/sesion), el refresh de ADR-010.
@@ -888,7 +888,11 @@ paths:
       operationId: listarUsuariosInternos
       summary: Lista de usuarios internos con sus roles y estado
       description: >-
-        Permite filtrar por estado, codigo de rol y busqueda libre.
+        Permite filtrar por estado, codigo de rol vigente y busqueda libre. Paginada por cursor (GU-17):
+        orden creadoEn descendente y, a igual fecha, id descendente; como mucho `limite` filas (50 si no
+        se pide). La pagina siguiente se pide con `antesDe` = creadoEn y `antesDeId` = id de la ultima fila
+        recibida; una pagina con menos filas que `limite` es la ultima. El cursor va en los dos parametros
+        o en ninguno: a medias, 422 AP-CU08-12. El cursor no lleva datos de la persona (fecha e id).
       parameters:
         - name: estado
           in: query
@@ -902,9 +906,12 @@ paths:
           in: query
           required: false
           schema: { type: string }
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
       responses:
         '200':
-          description: Lista de usuarios internos
+          description: Pagina de usuarios internos (vacia si no hay mas)
           content:
             application/json:
               schema:
@@ -912,6 +919,9 @@ paths:
                 items: { $ref: '#/components/schemas/UsuarioInternoResumen' }
         '401': { $ref: '#/components/responses/NoAutenticado' }
         '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU08-12 FILTRO_DE_LISTADO_INVALIDO
     post:
       operationId: crearUsuarioInterno
       summary: Alta de usuario interno con contrasena provisional
@@ -970,7 +980,15 @@ paths:
   /usuarios-internos/{id}/roles:
     put:
       operationId: asignarRolesUsuarioInterno
-      summary: Actualizar roles de un usuario interno con motivo (CU-08)
+      summary: Actualizar roles de un usuario interno con motivo (CU-08) — DEPRECADO
+      deprecated: true
+      description: >-
+        DEPRECADO desde 2026-11-24 (GU-05): reemplazado por asignarRolDeOperador y revocarAsignacionDeRol,
+        que llevan ambito, vigencia, justificacion y step-up. Se mantiene compatible mientras el backoffice
+        migra (lote D); se retira cuando ningun cliente lo llame. Desde GU-06 aplica la DIFERENCIA: los roles
+        que siguen conservan quien y cuando los otorgo, solo se revocan los que salen (con el motivo) y solo
+        se asignan como GLOBAL los que entran; las sesiones se cierran solo si se quito algun rol. Nadie
+        cambia sus propios roles y nunca deja la plataforma sin administrador de accesos.
       parameters:
         - name: id
           in: path
@@ -987,7 +1005,9 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/UsuarioInternoDetalle' }
-        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU08-08 ROL_NO_ASIGNABLE: rol de participante, de grupo, de anunciante o de servicio (GU-13)
 
   /usuarios-internos/{id}/desbloquear:
     post:
@@ -1010,6 +1030,177 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/UsuarioInternoDetalle' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /usuarios-internos/{id}/asignaciones:
+    post:
+      operationId: asignarRolDeOperador          # CU-08 por asignacion (GU-05, 2026-11-24)
+      tags: [Accesos]
+      summary: Asignar UN rol a un operador, con ambito, vigencia opcional y justificacion
+      description: >-
+        CU-08 por asignacion (decision P-2a). Agrega una asignacion sin tocar las demas: quien y cuando
+        otorgo los roles que no cambian se conservan (GU-06) y agregar un rol NO cierra sesiones. Exige
+        step-up (evidenciaMfa con proposito ADMIN de quien actua, un solo uso) y nadie se asigna nada a si
+        mismo. Idempotente por contenido: si ya hay una asignacion viva igual (usuario, rol, ambito,
+        ambitoId) responde 200 con la misma asignacionId y yaExistia=true, sin escribir ni emitir nada.
+        requiereMfa=true avisa que el destinatario no tiene TOTP confirmado y no podra entrar (R-SEG-10).
+        Cada asignacion deja un evento de bitacora y un pedido de aviso (CU-08 § Eventos).
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - name: id
+          in: path
+          required: true
+          description: usuarioId del destinatario (o el id de su perfil interno)
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaAsignacionDeRol' }
+      responses:
+        '201':
+          description: Asignacion creada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaAsignacionDeRol' }
+        '200':
+          description: Ya existia una asignacion viva igual; se devuelve sin cambios
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaAsignacionDeRol' }
+        '400':
+          description: El cuerpo no cumple el contrato (campo no declarado, justificacion corta)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ACCESOS_ADMINISTRAR ni USUARIOS_INTERNOS_GESTIONAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+          # AP-CU08-01 ROL_INEXISTENTE · AP-CU08-02 AMBITO_INCOMPLETO · AP-CU08-03 INCOMPATIBILIDAD_DE_FUNCIONES
+          # AP-CU08-04 AUTOASIGNACION · AP-CU08-09 STEP_UP_REQUERIDO · AP-CU08-10 DESTINATARIO_NO_HABILITADO
+
+  /usuarios-internos/asignaciones/{asignacionId}/revocacion:
+    post:
+      operationId: revocarAsignacionDeRol         # CU-08 por asignacion (GU-05, 2026-11-24)
+      tags: [Accesos]
+      summary: Revocar UNA asignacion con motivo, cerrando o no las sesiones del titular
+      description: >-
+        Escribe revocada_en y motivo_revocacion; la fila no se borra (R-AUD-01). cerrarSesiones (true por
+        omision) invalida las sesiones del titular en la misma transaccion. Exige step-up; nadie revoca
+        sus propias asignaciones; nunca deja la plataforma sin un titular vigente y ACTIVO de
+        ACCESOS_ADMINISTRAR (AP-CU08-06). Idempotente: revocar una asignacion ya revocada responde 200 con
+        yaEstabaRevocada=true y no escribe ni emite nada. Es POST y no DELETE porque lleva cuerpo (motivo).
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - name: asignacionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaRevocacionDeRol' }
+      responses:
+        '200':
+          description: Asignacion revocada (o ya lo estaba)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaRevocacionDeRol' }
+        '400':
+          description: El cuerpo no cumple el contrato
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ACCESOS_ADMINISTRAR ni USUARIOS_INTERNOS_GESTIONAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+          # AP-CU08-01 (asignacion inexistente) · AP-CU08-04 · AP-CU08-06 ULTIMO_ADMINISTRADOR · AP-CU08-09
+
+  /usuarios-internos/{id}/baja:
+    post:
+      operationId: darDeBajaUsuarioInterno       # CU-08 flujo alternativo «Baja del empleado» (GU-14)
+      tags: [Accesos]
+      summary: Baja del empleado — revoca todas sus asignaciones, cierra sus sesiones y conserva el historico
+      description: >-
+        En un acto: revoca todas las asignaciones vivas con el motivo, cierra todas las sesiones y deja la
+        cuenta en BAJA_LABORAL (estado propio de la baja del personal interno; no se borra ni se anonimiza: el historico de quien otorgo que queda).
+        Exige step-up, nadie se da de baja a si mismo por aca y nunca deja la plataforma sin
+        administrador de accesos. Idempotente: una cuenta ya dada de baja responde 200 con
+        yaEstabaDeBaja=true.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaBajaUsuarioInterno' }
+      responses:
+        '200':
+          description: Baja registrada (o ya lo estaba)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaBajaUsuarioInterno' }
+        '400':
+          description: El cuerpo no cumple el contrato
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ACCESOS_ADMINISTRAR ni USUARIOS_INTERNOS_GESTIONAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+          # AP-CU08-04 · AP-CU08-06 · AP-CU08-09 · AP-CU08-10
+
+  /usuarios-internos/accesos/informe:
+    get:
+      operationId: informeDeAccesos               # CU-08 informe de accesos (GU-08, decision P-6)
+      tags: [Accesos]
+      summary: Informe de accesos — vivos, por vencer en 7 dias y operadores sin TOTP confirmado
+      description: >-
+        Una fila por asignacion viva (ni revocada ni vencida). seccion=VIVOS las lista todas,
+        POR_VENCER solo las que vencen dentro del horizonte (7 dias por omision) y SIN_TOTP las de rol
+        GLOBAL cuyo titular no tiene un TOTP activo y confirmado. Orden determinista: VIVOS y SIN_TOTP por
+        apellidos, nombres, rol y asignacionId; POR_VENCER por vigenteHasta y asignacionId. Paginado por
+        numero de pagina. Devuelve el nombre del operador, nunca su correo ni su telefono.
+      parameters:
+        - name: seccion
+          in: query
+          required: true
+          schema: { type: string, enum: [VIVOS, POR_VENCER, SIN_TOTP] }
+        - { name: pagina, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 1000, default: 1 } }
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+      responses:
+        '200':
+          description: La pagina pedida (vacia si no hay nada o si la pagina pasa del final)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeAccesos' }
+        '400':
+          description: seccion ausente o fuera de su dominio, pagina o limite fuera de rango
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ACCESOS_ADMINISTRAR ni USUARIOS_INTERNOS_LEER
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
 
   /usuarios-internos/nombres:
     post:
@@ -1057,6 +1248,12 @@ paths:
     get:
       operationId: listarRoles
       summary: Catalogo de roles con departamento, descripcion y permisos
+      description: >-
+        Sin parametros devuelve el catalogo completo. Con `asignablesAPersonalInterno=true` (GU-13) deja
+        afuera los roles que no se otorgan a un humano interno: los de participante (`PARTICIPANTE`,
+        `ORGANIZADOR` y todo rol de ambito GRUPO), `ANUNCIANTE` y las identidades de servicio (`SERVICIO_*`).
+      parameters:
+        - { name: asignablesAPersonalInterno, in: query, required: false, schema: { type: boolean, default: false } }
       responses:
         '200':
           description: Catalogo de roles
@@ -1193,7 +1390,7 @@ components:
             INCOMPLETO_KYC: todavia no envio su documento. PENDIENTE_VERIFICACION: lo
             envio y esta en revision. ACTIVO: verificada. La app decide con esto que le
             ofrece a la persona antes de una operacion con dinero.
-          enum: [ACTIVO, BAJA_VOLUNTARIA, BLOQUEADO_SEGURIDAD, ELIMINADO, INCOMPLETO_KYC, PENDIENTE_VERIFICACION, PRE_REGISTRO, SUSPENDIDO]
+          enum: [ACTIVO, BAJA_LABORAL, BAJA_VOLUNTARIA, BLOQUEADO_SEGURIDAD, ELIMINADO, INCOMPLETO_KYC, PENDIENTE_VERIFICACION, PRE_REGISTRO, SUSPENDIDO]
     NivelKyc:
       type: object
       additionalProperties: false
@@ -1651,12 +1848,27 @@ components:
         cargo: { type: string }
         estado: { type: string }
         debeCambiarContrasena: { type: boolean }
-        tieneSegundoFactor: { type: boolean }
-        bloqueadoHasta: { type: string, format: date-time, nullable: true }
-        motivoBloqueo: { type: string, nullable: true }
+        tieneSegundoFactor:
+          type: boolean
+          description: Tiene un factor activo y confirmado. Uno a medio enrolar no cuenta (GU-17).
+        bloqueadoHasta:
+          type: string
+          format: date-time
+          nullable: true
+          description: >-
+            Fin del bloqueo de acceso vigente (`bloqueo_cuenta`, el que lee el ingreso). Nulo sin bloqueo o
+            con un bloqueo indefinido: en ese caso `motivoBloqueo` viene informado (GU-10).
+        motivoBloqueo:
+          type: string
+          nullable: true
+          description: Motivo del bloqueo vigente (INTENTOS_FALLIDOS, FRAUDE, ORDEN_ADMIN, SOLICITUD_USUARIO); nulo si no hay.
         roles:
           type: array
           items: { type: string }
+        creadoEn:
+          type: string
+          format: date-time
+          description: Alta del usuario; primera mitad del cursor del listado.
 
     UsuarioInternoDetalle:
       type: object
@@ -1674,9 +1886,20 @@ components:
         cargo: { type: string }
         estado: { type: string }
         debeCambiarContrasena: { type: boolean }
-        tieneSegundoFactor: { type: boolean }
-        bloqueadoHasta: { type: string, format: date-time, nullable: true }
-        motivoBloqueo: { type: string, nullable: true }
+        tieneSegundoFactor:
+          type: boolean
+          description: Tiene un factor activo y confirmado. Uno a medio enrolar no cuenta (GU-17).
+        bloqueadoHasta:
+          type: string
+          format: date-time
+          nullable: true
+          description: >-
+            Fin del bloqueo de acceso vigente (`bloqueo_cuenta`, el que lee el ingreso). Nulo sin bloqueo o
+            con un bloqueo indefinido: en ese caso `motivoBloqueo` viene informado (GU-10).
+        motivoBloqueo:
+          type: string
+          nullable: true
+          description: Motivo del bloqueo vigente (INTENTOS_FALLIDOS, FRAUDE, ORDEN_ADMIN, SOLICITUD_USUARIO); nulo si no hay.
         roles:
           type: array
           items: { type: string }
@@ -1698,6 +1921,21 @@ components:
         departamento: { type: string, minLength: 2, maxLength: 60 }
         cargo: { type: string, minLength: 2, maxLength: 80 }
         rolCodigo: { type: string, minLength: 2, maxLength: 30 }
+        motivo:
+          type: string
+          minLength: 10
+          maxLength: 200
+          description: >-
+            Por que se da de alta (GU-11, decision P-7). Opcional en el contrato por compatibilidad; el
+            servidor lo exige (AP-CU08-11) junto con evidenciaMfa.
+        evidenciaMfa:
+          type: string
+          minLength: 20
+          maxLength: 4096
+          description: >-
+            JWT de evidencia step-up (proposito ADMIN) de quien actua. Obligatoria cuando el acto es de
+            gobierno (GU-11): alta, cambio de estado (suspender/reactivar) y desbloqueo. Opcional en el
+            contrato para no romper a los clientes que solo editan departamento o cargo.
 
     EntradaActualizarUsuarioInterno:
       type: object
@@ -1708,6 +1946,14 @@ components:
         cargo: { type: string, maxLength: 80, nullable: true }
         estado: { type: string, enum: [ACTIVO, SUSPENDIDO], nullable: true }
         motivo: { type: string, minLength: 5, maxLength: 200 }
+        evidenciaMfa:
+          type: string
+          minLength: 20
+          maxLength: 4096
+          description: >-
+            JWT de evidencia step-up (proposito ADMIN) de quien actua. Obligatoria cuando el acto es de
+            gobierno (GU-11): alta, cambio de estado (suspender/reactivar) y desbloqueo. Opcional en el
+            contrato para no romper a los clientes que solo editan departamento o cargo.
 
     EntradaAsignarRolesUsuarioInterno:
       type: object
@@ -1726,6 +1972,126 @@ components:
       required: [motivo]
       properties:
         motivo: { type: string, minLength: 5, maxLength: 200 }
+        evidenciaMfa:
+          type: string
+          minLength: 20
+          maxLength: 4096
+          description: >-
+            JWT de evidencia step-up (proposito ADMIN) de quien actua. Obligatoria cuando el acto es de
+            gobierno (GU-11): alta, cambio de estado (suspender/reactivar) y desbloqueo. Opcional en el
+            contrato para no romper a los clientes que solo editan departamento o cargo.
+
+    EntradaAsignacionDeRol:
+      type: object
+      additionalProperties: false
+      required: [rolId, ambito, justificacion, evidenciaMfa]
+      properties:
+        rolId: { type: string, format: uuid }
+        ambito: { type: string, enum: [GLOBAL, GRUPO, ORGANIZACION] }
+        ambitoId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Obligatorio si ambito=GRUPO (el grupoId); prohibido en los demas (AP-CU08-02)
+        vigenteHasta:
+          type: string
+          format: date-time
+          nullable: true
+          description: Fin del acceso temporal; sin valor el acceso no vence (es una decision, no un descuido)
+        justificacion: { type: string, minLength: 10, maxLength: 200 }
+        evidenciaMfa:
+          type: string
+          minLength: 20
+          maxLength: 4096
+          description: JWT de evidencia step-up (proposito ADMIN) de quien actua; se consume una sola vez
+
+    SalidaAsignacionDeRol:
+      type: object
+      additionalProperties: false
+      required: [asignacionId, usuarioId, rolCodigo, ambito, permisosEfectivos, requiereMfa, yaExistia]
+      properties:
+        asignacionId: { type: string, format: uuid }
+        usuarioId: { type: string, format: uuid }
+        rolCodigo: { type: string }
+        ambito: { type: string, enum: [GLOBAL, GRUPO, ORGANIZACION] }
+        ambitoId: { type: string, format: uuid, nullable: true }
+        vigenteHasta: { type: string, format: date-time, nullable: true }
+        permisosEfectivos:
+          type: array
+          items: { type: string }
+        requiereMfa:
+          type: boolean
+          description: true = rol GLOBAL y el destinatario sin TOTP confirmado (SIN_MFA_CONFIGURADO, AP-CU08-05)
+        yaExistia: { type: boolean }
+
+    EntradaRevocacionDeRol:
+      type: object
+      additionalProperties: false
+      required: [motivoRevocacion, evidenciaMfa]
+      properties:
+        motivoRevocacion: { type: string, minLength: 10, maxLength: 120 }
+        cerrarSesiones: { type: boolean, default: true }
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096 }
+
+    SalidaRevocacionDeRol:
+      type: object
+      additionalProperties: false
+      required: [asignacionId, usuarioId, revocadaEn, sesionesCerradas, yaEstabaRevocada]
+      properties:
+        asignacionId: { type: string, format: uuid }
+        usuarioId: { type: string, format: uuid }
+        revocadaEn: { type: string, format: date-time }
+        sesionesCerradas: { type: integer, minimum: 0 }
+        yaEstabaRevocada: { type: boolean }
+
+    EntradaBajaUsuarioInterno:
+      type: object
+      additionalProperties: false
+      required: [motivo, evidenciaMfa]
+      properties:
+        motivo: { type: string, minLength: 10, maxLength: 120 }
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096 }
+
+    SalidaBajaUsuarioInterno:
+      type: object
+      additionalProperties: false
+      required: [usuarioId, estado, asignacionesRevocadas, sesionesCerradas, yaEstabaDeBaja]
+      properties:
+        usuarioId: { type: string, format: uuid }
+        estado: { type: string }
+        asignacionesRevocadas: { type: integer, minimum: 0 }
+        sesionesCerradas: { type: integer, minimum: 0 }
+        yaEstabaDeBaja: { type: boolean }
+
+    PaginaDeAccesos:
+      type: object
+      additionalProperties: false
+      required: [seccion, generadoEn, items, pagina, limite, total, totalPaginas]
+      properties:
+        seccion: { type: string, enum: [VIVOS, POR_VENCER, SIN_TOTP] }
+        generadoEn: { type: string, format: date-time }
+        items: { type: array, maxItems: 100, items: { $ref: '#/components/schemas/FilaDeAcceso' } }
+        pagina: { type: integer, minimum: 1 }
+        limite: { type: integer, minimum: 1 }
+        total: { type: integer, minimum: 0 }
+        totalPaginas: { type: integer, minimum: 0 }
+
+    FilaDeAcceso:
+      type: object
+      additionalProperties: false
+      required: [asignacionId, usuarioId, nombre, estadoCuenta, rolCodigo, ambito, otorgadaPor, otorgadaEn, totpConfirmado]
+      properties:
+        asignacionId: { type: string, format: uuid }
+        usuarioId: { type: string, format: uuid }
+        nombre: { type: string, description: Nombres y apellidos del operador; nunca correo ni telefono }
+        estadoCuenta: { type: string }
+        rolCodigo: { type: string }
+        ambito: { type: string, enum: [GLOBAL, GRUPO, ORGANIZACION] }
+        ambitoId: { type: string, format: uuid, nullable: true }
+        otorgadaPor: { type: string, format: uuid }
+        otorgadaEn: { type: string, format: date-time }
+        vigenteHasta: { type: string, format: date-time, nullable: true }
+        totpConfirmado: { type: boolean }
 
     RolCatalogo:
       type: object

@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import bo.aportaya.identidad.aplicacion.GestionarUsuariosInternos;
+import bo.aportaya.identidad.aplicacion.ListarUsuariosInternos;
 import bo.aportaya.identidad.aplicacion.ResolverNombresDeUsuariosInternos;
 import bo.aportaya.identidad.web.generado.modelo.NombreDeUsuarioInterno;
 import bo.aportaya.plataforma.dominio.CodigoError;
@@ -29,6 +30,13 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @PruebaWeb(UsuariosInternosController.class)
+// CU-08 por asignacion (GU-B): las rutas de accesos viven en el mismo controlador.
+@MockitoBean(
+        types = {
+            bo.aportaya.identidad.aplicacion.GobiernoDeAccesos.class,
+            bo.aportaya.identidad.aplicacion.CU08DarDeBaja.class,
+            bo.aportaya.identidad.aplicacion.CU08InformeDeAccesos.class
+        })
 class NombresDeUsuariosInternosWebTest {
 
     @Autowired
@@ -36,6 +44,9 @@ class NombresDeUsuariosInternosWebTest {
 
     @MockitoBean
     private GestionarUsuariosInternos casoDeUso;
+
+    @MockitoBean
+    private ListarUsuariosInternos listado;
 
     @MockitoBean
     private ResolverNombresDeUsuariosInternos nombres;

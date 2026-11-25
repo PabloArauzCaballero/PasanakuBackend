@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import bo.aportaya.identidad.aplicacion.GestionarUsuariosInternos;
+import bo.aportaya.identidad.aplicacion.ListarUsuariosInternos;
 import bo.aportaya.identidad.aplicacion.ResolverNombresDeUsuariosInternos;
 import bo.aportaya.identidad.web.generado.modelo.EntradaActualizarUsuarioInterno;
 import bo.aportaya.identidad.web.generado.modelo.EntradaAltaUsuarioInterno;
@@ -30,6 +31,13 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @PruebaWeb(UsuariosInternosController.class)
+// CU-08 por asignacion (GU-B): las rutas de accesos viven en el mismo controlador.
+@MockitoBean(
+        types = {
+            bo.aportaya.identidad.aplicacion.GobiernoDeAccesos.class,
+            bo.aportaya.identidad.aplicacion.CU08DarDeBaja.class,
+            bo.aportaya.identidad.aplicacion.CU08InformeDeAccesos.class
+        })
 class UsuariosInternosControllerWebTest {
 
     private static final UUID USUARIO_ID = UUID.fromString("11111111-2222-3333-4444-555555555555");
@@ -40,6 +48,9 @@ class UsuariosInternosControllerWebTest {
 
     @MockitoBean
     private GestionarUsuariosInternos casoDeUso;
+
+    @MockitoBean
+    private ListarUsuariosInternos listado;
 
     @MockitoBean
     private ResolverNombresDeUsuariosInternos nombres;
@@ -57,7 +68,7 @@ class UsuariosInternosControllerWebTest {
         u.setCargo("Analista de Riesgo");
         u.setEstado("ACTIVO");
 
-        when(casoDeUso.listar(any(), any(), any(), any())).thenReturn(List.of(u));
+        when(listado.listar(any(), any(), any(), any(), any(), any(), any())).thenReturn(List.of(u));
 
         mvc.perform(get("/usuarios-internos").with(Sesiones.como("SISTEMAS_ADMIN", "USUARIOS_INTERNOS_LEER")))
                 .andExpect(status().isOk())
@@ -194,7 +205,7 @@ class UsuariosInternosControllerWebTest {
         desbloqueado.setId(PERFIL_ID);
         desbloqueado.setBloqueadoHasta(null);
 
-        when(casoDeUso.desbloquear(any(), any(), any())).thenReturn(desbloqueado);
+        when(casoDeUso.desbloquear(any(), any(), any(), any())).thenReturn(desbloqueado);
 
         String json =
                 """

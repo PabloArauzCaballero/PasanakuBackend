@@ -185,4 +185,4 @@ Entonces recibe el mismo recibo y el evento se emitio una sola vez
 
 ## Ver también
 
-[[CU-15 Emitir extracto y certificado de saldo]] · [[CU-19 Reembolsar un pago y atender una disputa]] · [[CU-27 Restringir al deudor e incluirlo en la lista interna]] · [[CU-33 Devolver comisión y emitir nota de crédito]] · [[CU-53 Elevar un reclamo a segunda instancia]] · [[CU-59 Mantener el calendario de días no hábiles]] · [[CU-76 Reseñar a un participante y moderar la reseña]] · [[CU-82 Procesar una respuesta entrante]] · [[Cumplimiento]]
+[[CU-15 Emitir extracto y certificado de saldo]] · [[CU-19 Reembolsar un pago y atender una disputa]] · [[CU-27 Restringir al deudor e incluirlo en la lista interna]] · [[CU-33 Devolver comisión y emitir nota de crédito]] · [[CU-53 Elevar un reclamo a segunda instancia]] · [[CU-59 Mantener el calendario de días no hábiles]] · [[CU-76 Reseñar a un participante y moderar la reseña]] · [[CU-82 Procesar una respuesta entrante]] · [[Cumplimiento]] · [[CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso]]

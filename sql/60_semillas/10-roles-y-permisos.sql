@@ -33,7 +33,9 @@ INSERT INTO rol (codigo, nombre, ambito, es_sistema, departamento, descripcion) 
   ('DATA_GOVERNANCE_MANAGER', 'Jefatura de gobierno de datos', 'GLOBAL', TRUE, 'SISTEMAS', 'Jefatura de gobierno de datos'),
   ('DATA_QUALITY_ANALYST', 'Analista de calidad de datos', 'GLOBAL', TRUE, 'SISTEMAS', 'Analista de calidad de datos'),
   ('QA_ENGINEER', 'Ingeniería de aseguramiento QA', 'GLOBAL', TRUE, 'SISTEMAS', 'Ingeniería de aseguramiento QA'),
-  ('EXECUTIVE_READONLY', 'Acceso ejecutivo solo lectura', 'GLOBAL', TRUE, 'EJECUTIVO', 'Acceso ejecutivo solo lectura')
+  ('EXECUTIVE_READONLY', 'Acceso ejecutivo solo lectura', 'GLOBAL', TRUE, 'EJECUTIVO', 'Acceso ejecutivo solo lectura'),
+  ('SUPERVISOR_CUMPLIMIENTO', 'Supervisor de cumplimiento', 'GLOBAL', TRUE, 'CUMPLIMIENTO', 'Levanta los bloqueos de saldo por orden de autoridad que registró otra persona; no los registra (P-3, segregación de funciones)'),
+  ('APROBADOR_PUBLICIDAD', 'Aprobador de publicidad', 'GLOBAL', TRUE, 'COMERCIAL', 'Aprueba o rechaza campañas publicitarias; no da de alta anunciantes ni modera piezas (P-3, segregación de funciones)')
 ON CONFLICT (codigo) DO NOTHING;
 
 -- `requiere_mfa` marca los permisos que exigen segundo factor en el momento de usarlos, no solo al iniciar sesión: todo lo que mueve dinero, publica precios, edita catálogos o lee datos de terceros.
@@ -111,7 +113,11 @@ INSERT INTO permiso (codigo, descripcion, recurso, accion, requiere_mfa, nivel_r
   ('TABLERO_VER', 'Visualización ejecutiva del tablero de indicadores y control (CU-98)', 'tablero_indicadores', 'LEER', FALSE, 'BAJO', FALSE),
   ('TARIFARIO_ADMINISTRAR', 'Configuración y segmentación del tarifario de comisiones (CU-36)', 'tarifario', 'ADMINISTRAR', TRUE, 'CRITICO', TRUE),
   ('TESORERIA_OPERAR', 'Generación de órdenes de desembolso y conciliación de custodia bancaria (CU-28)', 'tesoreria', 'OPERAR', TRUE, 'CRITICO', TRUE),
-  ('INVERSION_OPERAR', 'Operación de inversión voluntaria y rescates de fondos (CU-121, CU-125)', 'inversion', 'OPERAR', TRUE, 'CRITICO', TRUE)
+  ('INVERSION_OPERAR', 'Operación de inversión voluntaria y rescates de fondos (CU-121, CU-125)', 'inversion', 'OPERAR', TRUE, 'CRITICO', TRUE),
+  ('PARTICIPANTES_LEER', 'Buscar participantes y abrir su ficha enmascarada con justificación (CU-134)', 'usuario', 'LEER', FALSE, 'MEDIO', TRUE),
+  ('PARTICIPANTES_MEDIDA_PROPONER', 'Proponer una suspensión o un bloqueo cautelar de la cuenta de un participante (CU-134)', 'expediente_medida_cuenta', 'PROPONER', TRUE, 'ALTO', TRUE),
+  ('PARTICIPANTES_MEDIDA_DECIDIR', 'Decidir con fundamento una medida sobre la cuenta propuesta por otra persona (CU-134)', 'expediente_medida_cuenta', 'DECIDIR', TRUE, 'CRITICO', TRUE),
+  ('PARTICIPANTES_APELACION_RESOLVER', 'Resolver en segunda instancia la apelación de una medida sobre la cuenta (CU-134)', 'apelacion_medida_cuenta', 'RESOLVER', TRUE, 'CRITICO', TRUE)
 ON CONFLICT (codigo) DO NOTHING;
 
 -- Sin esta matriz los roles no otorgan nada y el guard de denegar por omisión rechaza todo. Dos separaciones de funciones están cableadas acá y no se negocian: quien AUTORIZA una entrega o un reverso no puede EJECUTARLO, y quien edita catálogos no toca dinero ni datos sensibles (control CI-04).
@@ -126,7 +132,6 @@ INSERT INTO rol_permiso (rol_id, permiso_id) VALUES
   ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'CUMPLIMIENTO_REPORTAR')),
   ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'DATOS_SENSIBLES_LEER')),
   ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'BLOQUEO_AUTORIDAD_REGISTRAR')),
-  ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'BLOQUEO_AUTORIDAD_LEVANTAR')),
   ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'BILLETERA_VER_TERCEROS')),
   ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'AUDITORIA_LEER')),
   ((SELECT id FROM rol WHERE codigo = 'ANALISTA_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'CUMPLIMIENTO_ALERTAS')),
@@ -171,7 +176,6 @@ INSERT INTO rol_permiso (rol_id, permiso_id) VALUES
   ((SELECT id FROM rol WHERE codigo = 'TESORERIA'), (SELECT id FROM permiso WHERE codigo = 'CONTABILIDAD_ERP_COBRAR')),
   ((SELECT id FROM rol WHERE codigo = 'AUDITOR_INTERNO'), (SELECT id FROM permiso WHERE codigo = 'CONTABILIDAD_ERP_REPORTES')),
   ((SELECT id FROM rol WHERE codigo = 'OPERADOR_PUBLICIDAD'), (SELECT id FROM permiso WHERE codigo = 'PUBLICIDAD_ANUNCIANTES')),
-  ((SELECT id FROM rol WHERE codigo = 'OPERADOR_PUBLICIDAD'), (SELECT id FROM permiso WHERE codigo = 'PUBLICIDAD_APROBAR_CAMPANA')),
   ((SELECT id FROM rol WHERE codigo = 'OPERADOR_PUBLICIDAD'), (SELECT id FROM permiso WHERE codigo = 'PUBLICIDAD_LIQUIDAR')),
   ((SELECT id FROM rol WHERE codigo = 'MODERADOR_CONTENIDO'), (SELECT id FROM permiso WHERE codigo = 'PUBLICIDAD_MODERAR')),
   ((SELECT id FROM rol WHERE codigo = 'ANUNCIANTE'), (SELECT id FROM permiso WHERE codigo = 'PUBLICIDAD_CAMPANA_GESTIONAR')),
@@ -280,5 +284,25 @@ INSERT INTO rol_permiso (rol_id, permiso_id) VALUES
   ((SELECT id FROM rol WHERE codigo = 'PARTICIPANTE'), (SELECT id FROM permiso WHERE codigo = 'INVERSION_OPERAR')),
   ((SELECT id FROM rol WHERE codigo = 'ADMIN_PLATAFORMA'), (SELECT id FROM permiso WHERE codigo = 'INVERSION_OPERAR')),
   ((SELECT id FROM rol WHERE codigo = 'ANALISTA_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'CUMPLIMIENTO_CASOS')),
-  ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'CUMPLIMIENTO_CASOS_DECIDIR'))
+  ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'CUMPLIMIENTO_CASOS_DECIDIR')),
+  ((SELECT id FROM rol WHERE codigo = 'SUPERVISOR_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'BLOQUEO_AUTORIDAD_LEVANTAR')),
+  ((SELECT id FROM rol WHERE codigo = 'SUPERVISOR_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'AUDITORIA_LEER')),
+  ((SELECT id FROM rol WHERE codigo = 'APROBADOR_PUBLICIDAD'), (SELECT id FROM permiso WHERE codigo = 'PUBLICIDAD_APROBAR_CAMPANA')),
+  ((SELECT id FROM rol WHERE codigo = 'SOPORTE'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_LEER')),
+  ((SELECT id FROM rol WHERE codigo = 'FRAUD_ANALYST'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_LEER')),
+  ((SELECT id FROM rol WHERE codigo = 'RESPONSABLE_SEGURIDAD'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_LEER')),
+  ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_LEER')),
+  ((SELECT id FROM rol WHERE codigo = 'RESPONSABLE_RIESGOS'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_LEER')),
+  ((SELECT id FROM rol WHERE codigo = 'FRAUD_ANALYST'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_MEDIDA_PROPONER')),
+  ((SELECT id FROM rol WHERE codigo = 'RESPONSABLE_SEGURIDAD'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_MEDIDA_DECIDIR')),
+  ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_APELACION_RESOLVER')),
+  ((SELECT id FROM rol WHERE codigo = 'RESPONSABLE_RIESGOS'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_APELACION_RESOLVER'))
 ON CONFLICT (rol_id, permiso_id) DO NOTHING;
+
+-- P-3 (decisión de Pablo, 2026-11-24): nadie reúne funciones incompatibles. El oficial de cumplimiento registra los bloqueos por autoridad y el supervisor los levanta; el operador de publicidad da de alta anunciantes y liquida, y el aprobador de publicidad aprueba campañas. La siembra es DO NOTHING, así que una base ya sembrada conservaría las concesiones viejas: estos DELETE las retiran y son re-ejecutables (la segunda corrida no borra nada).
+DELETE FROM rol_permiso
+ WHERE rol_id = (SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO')
+   AND permiso_id = (SELECT id FROM permiso WHERE codigo = 'BLOQUEO_AUTORIDAD_LEVANTAR');
+DELETE FROM rol_permiso
+ WHERE rol_id = (SELECT id FROM rol WHERE codigo = 'OPERADOR_PUBLICIDAD')
+   AND permiso_id = (SELECT id FROM permiso WHERE codigo = 'PUBLICIDAD_APROBAR_CAMPANA');

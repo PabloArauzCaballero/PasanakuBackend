@@ -186,4 +186,4 @@ Entonces la restricción sigue vigente
 
 ## Ver también
 
-[[CU-17 Bloquear saldo por orden de autoridad]] · [[CU-25 Declarar el incumplimiento con descargo y evidencia]] · [[CU-26 Ejecutar el aval y subrogar la deuda]] · [[CU-52 Atender un reclamo en plazo]] · [[CU-68 Postular a un grupo y ser emparejado]] · [[CU-97 Anticipar el riesgo con alertas tempranas]]
+[[CU-17 Bloquear saldo por orden de autoridad]] · [[CU-25 Declarar el incumplimiento con descargo y evidencia]] · [[CU-26 Ejecutar el aval y subrogar la deuda]] · [[CU-52 Atender un reclamo en plazo]] · [[CU-68 Postular a un grupo y ser emparejado]] · [[CU-97 Anticipar el riesgo con alertas tempranas]] · [[CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso]]

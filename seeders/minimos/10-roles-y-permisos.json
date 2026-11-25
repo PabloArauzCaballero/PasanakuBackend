@@ -263,6 +263,22 @@
           "departamento": "EJECUTIVO",
           "descripcion": "Acceso ejecutivo solo lectura",
           "es_sistema": true
+        },
+        {
+          "codigo": "SUPERVISOR_CUMPLIMIENTO",
+          "nombre": "Supervisor de cumplimiento",
+          "ambito": "GLOBAL",
+          "es_sistema": true,
+          "departamento": "CUMPLIMIENTO",
+          "descripcion": "Levanta los bloqueos de saldo por orden de autoridad que registró otra persona; no los registra (P-3, segregación de funciones)"
+        },
+        {
+          "codigo": "APROBADOR_PUBLICIDAD",
+          "nombre": "Aprobador de publicidad",
+          "ambito": "GLOBAL",
+          "es_sistema": true,
+          "departamento": "COMERCIAL",
+          "descripcion": "Aprueba o rechaza campañas publicitarias; no da de alta anunciantes ni modera piezas (P-3, segregación de funciones)"
         }
       ]
     },
@@ -937,6 +953,42 @@
           "requiere_mfa": true,
           "nivel_riesgo": "CRITICO",
           "exige_motivo": true
+        },
+        {
+          "codigo": "PARTICIPANTES_LEER",
+          "descripcion": "Buscar participantes y abrir su ficha enmascarada con justificación (CU-134)",
+          "recurso": "usuario",
+          "accion": "LEER",
+          "requiere_mfa": false,
+          "nivel_riesgo": "MEDIO",
+          "exige_motivo": true
+        },
+        {
+          "codigo": "PARTICIPANTES_MEDIDA_PROPONER",
+          "descripcion": "Proponer una suspensión o un bloqueo cautelar de la cuenta de un participante (CU-134)",
+          "recurso": "expediente_medida_cuenta",
+          "accion": "PROPONER",
+          "requiere_mfa": true,
+          "nivel_riesgo": "ALTO",
+          "exige_motivo": true
+        },
+        {
+          "codigo": "PARTICIPANTES_MEDIDA_DECIDIR",
+          "descripcion": "Decidir con fundamento una medida sobre la cuenta propuesta por otra persona (CU-134)",
+          "recurso": "expediente_medida_cuenta",
+          "accion": "DECIDIR",
+          "requiere_mfa": true,
+          "nivel_riesgo": "CRITICO",
+          "exige_motivo": true
+        },
+        {
+          "codigo": "PARTICIPANTES_APELACION_RESOLVER",
+          "descripcion": "Resolver en segunda instancia la apelación de una medida sobre la cuenta (CU-134)",
+          "recurso": "apelacion_medida_cuenta",
+          "accion": "RESOLVER",
+          "requiere_mfa": true,
+          "nivel_riesgo": "CRITICO",
+          "exige_motivo": true
         }
       ],
       "comentario": "`requiere_mfa` marca los permisos que exigen segundo factor en el momento de usarlos, no solo al iniciar sesión: todo lo que mueve dinero, publica precios, edita catálogos o lee datos de terceros."
@@ -1047,16 +1099,6 @@
           "permiso_id": {
             "$ref": "permiso",
             "codigo": "BLOQUEO_AUTORIDAD_REGISTRAR"
-          }
-        },
-        {
-          "rol_id": {
-            "$ref": "rol",
-            "codigo": "OFICIAL_CUMPLIMIENTO"
-          },
-          "permiso_id": {
-            "$ref": "permiso",
-            "codigo": "BLOQUEO_AUTORIDAD_LEVANTAR"
           }
         },
         {
@@ -1497,16 +1539,6 @@
           "permiso_id": {
             "$ref": "permiso",
             "codigo": "PUBLICIDAD_ANUNCIANTES"
-          }
-        },
-        {
-          "rol_id": {
-            "$ref": "rol",
-            "codigo": "OPERADOR_PUBLICIDAD"
-          },
-          "permiso_id": {
-            "$ref": "permiso",
-            "codigo": "PUBLICIDAD_APROBAR_CAMPANA"
           }
         },
         {
@@ -2598,8 +2630,132 @@
             "$ref": "permiso",
             "codigo": "CUMPLIMIENTO_CASOS_DECIDIR"
           }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "SUPERVISOR_CUMPLIMIENTO"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "BLOQUEO_AUTORIDAD_LEVANTAR"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "SUPERVISOR_CUMPLIMIENTO"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "AUDITORIA_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "APROBADOR_PUBLICIDAD"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PUBLICIDAD_APROBAR_CAMPANA"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "SOPORTE"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PARTICIPANTES_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "FRAUD_ANALYST"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PARTICIPANTES_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "RESPONSABLE_SEGURIDAD"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PARTICIPANTES_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "OFICIAL_CUMPLIMIENTO"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PARTICIPANTES_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "RESPONSABLE_RIESGOS"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PARTICIPANTES_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "FRAUD_ANALYST"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PARTICIPANTES_MEDIDA_PROPONER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "RESPONSABLE_SEGURIDAD"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PARTICIPANTES_MEDIDA_DECIDIR"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "OFICIAL_CUMPLIMIENTO"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PARTICIPANTES_APELACION_RESOLVER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "RESPONSABLE_RIESGOS"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PARTICIPANTES_APELACION_RESOLVER"
+          }
         }
       ]
+    },
+    {
+      "comentario": "P-3 (decisión de Pablo, 2026-11-24): nadie reúne funciones incompatibles. El oficial de cumplimiento registra los bloqueos por autoridad y el supervisor los levanta; el operador de publicidad da de alta anunciantes y liquida, y el aprobador de publicidad aprueba campañas. La siembra es DO NOTHING, así que una base ya sembrada conservaría las concesiones viejas: estos DELETE las retiran y son re-ejecutables (la segunda corrida no borra nada).",
+      "sql": "DELETE FROM rol_permiso\n WHERE rol_id = (SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO')\n   AND permiso_id = (SELECT id FROM permiso WHERE codigo = 'BLOQUEO_AUTORIDAD_LEVANTAR');\nDELETE FROM rol_permiso\n WHERE rol_id = (SELECT id FROM rol WHERE codigo = 'OPERADOR_PUBLICIDAD')\n   AND permiso_id = (SELECT id FROM permiso WHERE codigo = 'PUBLICIDAD_APROBAR_CAMPANA');"
     }
   ]
 }
