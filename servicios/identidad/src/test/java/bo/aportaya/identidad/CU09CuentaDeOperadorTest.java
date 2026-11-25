@@ -125,8 +125,8 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
     @Test
     @DisplayName(
             "Dado un operador recién dado de alta con una invitación vigente · Cuando abre el enlace, elige una clave"
-                + " válida y confirma su TOTP · Entonces su credencial queda con la clave elegida y requiere_cambio en"
-                + " false · Y el token queda CONSUMIDO y no sirve una segunda vez")
+                    + " válida y confirma su TOTP · Entonces su credencial queda con la clave elegida y requiere_cambio en"
+                    + " false · Y el token queda CONSUMIDO y no sirve una segunda vez")
     void criterio8() {
         UUID operador = operadorConClaveInutilizable("+59176100001");
         emitir(operador, AlcanceDeCuenta.ALTA);
@@ -218,8 +218,8 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
     @Test
     @DisplayName(
             "Dado una solicitud aprobada con enfriamiento vigente · Cuando corre el trabajo de emisión · Entonces no"
-                + " se emite ninguna invitación · Y pasado el enfriamiento se emite una sola, aunque el trabajo corra"
-                + " dos veces")
+                    + " se emite ninguna invitación · Y pasado el enfriamiento se emite una sola, aunque el trabajo corra"
+                    + " dos veces")
     void criterio11() {
         UUID operador = operadorConClaveInutilizable("+59176100006");
         UUID aprobador = operadorConClaveInutilizable("+59176100007");
@@ -250,8 +250,8 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
     @Test
     @DisplayName(
             "Dado un operador con una invitación de reinscripción del factor · Cuando la completa con su clave actual"
-                + " y un código del TOTP nuevo · Entonces el factor anterior queda inactivo y el nuevo confirmado · Y"
-                + " todas sus sesiones quedan revocadas")
+                    + " y un código del TOTP nuevo · Entonces el factor anterior queda inactivo y el nuevo confirmado · Y"
+                    + " todas sus sesiones quedan revocadas")
     void criterio12() {
         UUID operador = operadorConClaveInutilizable("+59176100008");
         String claveActual = "la-clave-actual-del-operador-8";
