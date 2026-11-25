@@ -28,7 +28,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class MedidasDeCuentaRepositorio {
 
-    public record PoliticaVigente(UUID id, PlazosDeMedida.Politica plazos) {}
+    public record PoliticaVigente(
+            UUID id, PlazosDeMedida.Politica plazos, Optional<Integer> resolucionApelacionDiasHabiles) {}
 
     public record Expediente(
             UUID id,
@@ -55,7 +56,7 @@ public class MedidasDeCuentaRepositorio {
 
     public record Hito(String estadoAnterior, String estado, String motivo, OffsetDateTime ocurridoEn) {}
 
-    public record Apelacion(UUID id, UUID apelanteId, String estado, UUID resueltaPor) {}
+    public record Apelacion(UUID id, String estado, OffsetDateTime fechaLimiteResolucion) {}
 
     public Optional<PoliticaVigente> politicaVigente(DSLContext dsl, OffsetDateTime ahora) {
         return dsl.selectFrom(POLITICA_MEDIDA_CUENTA)
@@ -79,7 +80,9 @@ public class MedidasDeCuentaRepositorio {
                         r.get(POLITICA_MEDIDA_CUENTA.PLAZO_DESCARGO_DIAS_HABILES),
                         r.get(POLITICA_MEDIDA_CUENTA.PLAZO_APELACION_DIAS_HABILES),
                         r.get(POLITICA_MEDIDA_CUENTA.PRESCRIBE_EN_MESES),
-                        r.get(POLITICA_MEDIDA_CUENTA.DURACION_MAXIMA_SUSPENSION_DIAS)));
+                        r.get(POLITICA_MEDIDA_CUENTA.DURACION_MAXIMA_SUSPENSION_DIAS)),
+                Optional.ofNullable(r.get(POLITICA_MEDIDA_CUENTA.PLAZO_RESOLUCION_APELACION_DIAS_HABILES))
+                        .map(Short::intValue));
     }
 
     public Optional<UUID> porClave(DSLContext dsl, String clave) {
@@ -90,8 +93,11 @@ public class MedidasDeCuentaRepositorio {
     }
 
     public boolean hayAbierto(DSLContext dsl, UUID usuarioId, String causal) {
-        return dsl.fetchExists(EXPEDIENTE_MEDIDA_CUENTA,
-                EXPEDIENTE_MEDIDA_CUENTA.USUARIO_ID.eq(usuarioId)
+        return dsl.fetchExists(
+                EXPEDIENTE_MEDIDA_CUENTA,
+                EXPEDIENTE_MEDIDA_CUENTA
+                        .USUARIO_ID
+                        .eq(usuarioId)
                         .and(EXPEDIENTE_MEDIDA_CUENTA.CAUSAL.eq(causal))
                         .and(EXPEDIENTE_MEDIDA_CUENTA.CERRADA_EN.isNull()));
     }
@@ -131,7 +137,12 @@ public class MedidasDeCuentaRepositorio {
     }
 
     public void agregarEvidencia(
-            DSLContext dsl, UUID expedienteId, String tipo, String contenido, UUID referenciaId, UUID por,
+            DSLContext dsl,
+            UUID expedienteId,
+            String tipo,
+            String contenido,
+            UUID referenciaId,
+            UUID por,
             OffsetDateTime ahora) {
         dsl.insertInto(EVIDENCIA_MEDIDA_CUENTA)
                 .set(EVIDENCIA_MEDIDA_CUENTA.EXPEDIENTE_MEDIDA_CUENTA_ID, expedienteId)
@@ -144,14 +155,16 @@ public class MedidasDeCuentaRepositorio {
     }
 
     public boolean tieneDescargo(DSLContext dsl, UUID expedienteId) {
-        return dsl.fetchExists(EVIDENCIA_MEDIDA_CUENTA,
-                EVIDENCIA_MEDIDA_CUENTA.EXPEDIENTE_MEDIDA_CUENTA_ID.eq(expedienteId)
+        return dsl.fetchExists(
+                EVIDENCIA_MEDIDA_CUENTA,
+                EVIDENCIA_MEDIDA_CUENTA
+                        .EXPEDIENTE_MEDIDA_CUENTA_ID
+                        .eq(expedienteId)
                         .and(EVIDENCIA_MEDIDA_CUENTA.TIPO.eq("DESCARGO")));
     }
 
     /** Cambia el estado y deja la fila del historial en la misma transaccion. */
-    public void transicion(
-            DSLContext dsl, Expediente e, String nuevo, UUID por, String motivo, OffsetDateTime ahora) {
+    public void transicion(DSLContext dsl, Expediente e, String nuevo, UUID por, String motivo, OffsetDateTime ahora) {
         dsl.update(EXPEDIENTE_MEDIDA_CUENTA)
                 .set(EXPEDIENTE_MEDIDA_CUENTA.ESTADO, nuevo)
                 .set(EXPEDIENTE_MEDIDA_CUENTA.VERSION, EXPEDIENTE_MEDIDA_CUENTA.VERSION.plus(1))
@@ -186,7 +199,12 @@ public class MedidasDeCuentaRepositorio {
     }
 
     public void decidir(
-            DSLContext dsl, UUID id, UUID por, String resultado, String fundamento, OffsetDateTime ahora,
+            DSLContext dsl,
+            UUID id,
+            UUID por,
+            String resultado,
+            String fundamento,
+            OffsetDateTime ahora,
             OffsetDateTime limiteApelacion) {
         dsl.update(EXPEDIENTE_MEDIDA_CUENTA)
                 .set(EXPEDIENTE_MEDIDA_CUENTA.DECIDIDA_POR, por)
@@ -238,16 +256,37 @@ public class MedidasDeCuentaRepositorio {
                 .fetch(MedidasDeCuentaRepositorio::expediente);
     }
 
-    /** Expedientes abiertos que vencen algo antes de {@code ahora}: los toma el trabajo diario. */
-    public List<UUID> abiertosConPlazoVencido(DSLContext dsl, OffsetDateTime ahora) {
-        return dsl.select(EXPEDIENTE_MEDIDA_CUENTA.ID)
-                .from(EXPEDIENTE_MEDIDA_CUENTA)
+    /** Toma solo filas con una transición disponible, sin esperar el lote de otra réplica. */
+    public List<Expediente> abiertosConPlazoVencido(DSLContext dsl, OffsetDateTime ahora) {
+        var apelacion = DSL.selectOne()
+                .from(APELACION_MEDIDA_CUENTA)
+                .where(APELACION_MEDIDA_CUENTA.EXPEDIENTE_MEDIDA_CUENTA_ID.eq(EXPEDIENTE_MEDIDA_CUENTA.ID));
+        var apelacionVencida = DSL.exists(dsl.selectOne()
+                .from(APELACION_MEDIDA_CUENTA)
+                .where(APELACION_MEDIDA_CUENTA.EXPEDIENTE_MEDIDA_CUENTA_ID.eq(EXPEDIENTE_MEDIDA_CUENTA.ID))
+                .and(APELACION_MEDIDA_CUENTA.ESTADO.eq("PRESENTADA"))
+                .and(APELACION_MEDIDA_CUENTA.FECHA_LIMITE_RESOLUCION.lt(ahora)));
+        return dsl.selectFrom(EXPEDIENTE_MEDIDA_CUENTA)
                 .where(EXPEDIENTE_MEDIDA_CUENTA.CERRADA_EN.isNull())
-                .and(EXPEDIENTE_MEDIDA_CUENTA.PRESCRIBE_EN.le(ahora)
-                        .or(EXPEDIENTE_MEDIDA_CUENTA.FECHA_LIMITE_APELACION.le(ahora))
-                        .or(EXPEDIENTE_MEDIDA_CUENTA.VIGENTE_HASTA.le(ahora)))
+                .and(EXPEDIENTE_MEDIDA_CUENTA
+                        .RESULTADO_DECISION
+                        .isNull()
+                        .and(EXPEDIENTE_MEDIDA_CUENTA.PRESCRIBE_EN.le(ahora))
+                        .or(EXPEDIENTE_MEDIDA_CUENTA
+                                .ESTADO
+                                .eq("DECIDIDA")
+                                .and(EXPEDIENTE_MEDIDA_CUENTA.FECHA_LIMITE_APELACION.lt(ahora))
+                                .and(DSL.notExists(apelacion)))
+                        .or(EXPEDIENTE_MEDIDA_CUENTA
+                                .ESTADO
+                                .eq("FIRME")
+                                .and(EXPEDIENTE_MEDIDA_CUENTA.VIGENTE_HASTA.le(ahora)))
+                        .or(EXPEDIENTE_MEDIDA_CUENTA.ESTADO.eq("EN_APELACION").and(apelacionVencida)))
+                .orderBy(EXPEDIENTE_MEDIDA_CUENTA.PROPUESTA_EN, EXPEDIENTE_MEDIDA_CUENTA.ID)
                 .limit(500)
-                .fetch(EXPEDIENTE_MEDIDA_CUENTA.ID);
+                .forUpdate()
+                .skipLocked()
+                .fetch(MedidasDeCuentaRepositorio::expediente);
     }
 
     public List<Hito> lineaDeTiempo(DSLContext dsl, UUID expedienteId) {
@@ -255,18 +294,31 @@ public class MedidasDeCuentaRepositorio {
                 .where(HISTORIAL_ESTADO_MEDIDA_CUENTA.EXPEDIENTE_MEDIDA_CUENTA_ID.eq(expedienteId))
                 .orderBy(HISTORIAL_ESTADO_MEDIDA_CUENTA.OCURRIDO_EN, HISTORIAL_ESTADO_MEDIDA_CUENTA.ID)
                 .limit(100)
-                .fetch(r -> new Hito(
-                        r.getEstadoAnterior(), r.getEstadoNuevo(), r.getMotivo(), r.getOcurridoEn()));
+                .fetch(r -> new Hito(r.getEstadoAnterior(), r.getEstadoNuevo(), r.getMotivo(), r.getOcurridoEn()));
     }
 
     /** La medida vigente que retiene la entrega (D-11): abierta y con la cuenta afectada. */
-    public Optional<UUID> vigenteQueRetiene(DSLContext dsl, UUID usuarioId) {
+    public Optional<UUID> vigenteQueRetiene(DSLContext dsl, UUID usuarioId, OffsetDateTime ahora) {
         return dsl.select(EXPEDIENTE_MEDIDA_CUENTA.ID)
                 .from(EXPEDIENTE_MEDIDA_CUENTA)
                 .where(EXPEDIENTE_MEDIDA_CUENTA.USUARIO_ID.eq(usuarioId))
                 .and(EXPEDIENTE_MEDIDA_CUENTA.CERRADA_EN.isNull())
-                .and(EXPEDIENTE_MEDIDA_CUENTA.ESTADO.notIn("PROPUESTA", "NOTIFICACION_PENDIENTE", "EN_DESCARGO")
-                        .or(EXPEDIENTE_MEDIDA_CUENTA.CAUTELAR.isTrue()))
+                .and(EXPEDIENTE_MEDIDA_CUENTA
+                        .VIGENTE_HASTA
+                        .isNull()
+                        .or(EXPEDIENTE_MEDIDA_CUENTA.VIGENTE_HASTA.gt(ahora)))
+                .and(EXPEDIENTE_MEDIDA_CUENTA
+                        .ESTADO
+                        .eq("FIRME")
+                        .or(EXPEDIENTE_MEDIDA_CUENTA
+                                .CAUTELAR
+                                .isTrue()
+                                .and(EXPEDIENTE_MEDIDA_CUENTA.ESTADO.in(
+                                        "CAUTELAR",
+                                        "NOTIFICACION_PENDIENTE",
+                                        "EN_DESCARGO",
+                                        "DECIDIDA",
+                                        "EN_APELACION"))))
                 .orderBy(EXPEDIENTE_MEDIDA_CUENTA.PROPUESTA_EN)
                 .limit(1)
                 .fetchOptional(EXPEDIENTE_MEDIDA_CUENTA.ID);
@@ -276,19 +328,24 @@ public class MedidasDeCuentaRepositorio {
         return dsl.selectFrom(APELACION_MEDIDA_CUENTA)
                 .where(APELACION_MEDIDA_CUENTA.EXPEDIENTE_MEDIDA_CUENTA_ID.eq(expedienteId))
                 .fetchOptional()
-                .map(r -> new Apelacion(r.getId(), r.getApelanteId(), r.getEstado(), r.getResueltaPor()));
+                .map(r -> new Apelacion(r.getId(), r.getEstado(), r.getFechaLimiteResolucion()));
     }
 
-    public UUID apelar(DSLContext dsl, UUID expedienteId, UUID apelante, String argumento, OffsetDateTime ahora) {
-        return dsl.insertInto(APELACION_MEDIDA_CUENTA)
+    public void apelar(
+            DSLContext dsl,
+            UUID expedienteId,
+            UUID apelante,
+            String argumento,
+            OffsetDateTime ahora,
+            OffsetDateTime limiteResolucion) {
+        dsl.insertInto(APELACION_MEDIDA_CUENTA)
                 .set(APELACION_MEDIDA_CUENTA.EXPEDIENTE_MEDIDA_CUENTA_ID, expedienteId)
                 .set(APELACION_MEDIDA_CUENTA.APELANTE_ID, apelante)
                 .set(APELACION_MEDIDA_CUENTA.ARGUMENTO, argumento)
                 .set(APELACION_MEDIDA_CUENTA.ESTADO, "PRESENTADA")
                 .set(APELACION_MEDIDA_CUENTA.PRESENTADA_EN, ahora)
-                .returning(APELACION_MEDIDA_CUENTA.ID)
-                .fetchSingle()
-                .getId();
+                .set(APELACION_MEDIDA_CUENTA.FECHA_LIMITE_RESOLUCION, limiteResolucion)
+                .execute();
     }
 
     public void resolverApelacion(
@@ -304,7 +361,10 @@ public class MedidasDeCuentaRepositorio {
     }
 
     public Optional<String> estadoDeCuenta(DSLContext dsl, UUID usuarioId) {
-        return dsl.select(USUARIO.ESTADO).from(USUARIO).where(USUARIO.ID.eq(usuarioId)).fetchOptional(USUARIO.ESTADO);
+        return dsl.select(USUARIO.ESTADO)
+                .from(USUARIO)
+                .where(USUARIO.ID.eq(usuarioId))
+                .fetchOptional(USUARIO.ESTADO);
     }
 
     public void estadoDeCuenta(DSLContext dsl, UUID usuarioId, String estado) {
@@ -348,11 +408,27 @@ public class MedidasDeCuentaRepositorio {
     private static Expediente expediente(Record r) {
         var e = r.into(EXPEDIENTE_MEDIDA_CUENTA);
         return new Expediente(
-                e.getId(), e.getUsuarioId(), e.getPoliticaMedidaCuentaId(), e.getCausal(), e.getMedida(),
-                Boolean.TRUE.equals(e.getCautelar()), e.getMotivo(), e.getEstado(), e.getEstadoCuentaPrevio(),
-                e.getPropuestaPor(), e.getPropuestaEn(), e.getNotificadaEn(), e.getFechaLimiteDescargo(),
-                e.getDecididaPor(), e.getResultadoDecision(), e.getFundamentoDecision(), e.getFechaLimiteApelacion(),
-                e.getVigenteHasta(), e.getPrescribeEn(), e.getFirmeEn(), e.getCerradaEn());
+                e.getId(),
+                e.getUsuarioId(),
+                e.getPoliticaMedidaCuentaId(),
+                e.getCausal(),
+                e.getMedida(),
+                Boolean.TRUE.equals(e.getCautelar()),
+                e.getMotivo(),
+                e.getEstado(),
+                e.getEstadoCuentaPrevio(),
+                e.getPropuestaPor(),
+                e.getPropuestaEn(),
+                e.getNotificadaEn(),
+                e.getFechaLimiteDescargo(),
+                e.getDecididaPor(),
+                e.getResultadoDecision(),
+                e.getFundamentoDecision(),
+                e.getFechaLimiteApelacion(),
+                e.getVigenteHasta(),
+                e.getPrescribeEn(),
+                e.getFirmeEn(),
+                e.getCerradaEn());
     }
 
     private static String recortar(String s, int largo) {

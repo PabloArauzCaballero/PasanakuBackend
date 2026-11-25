@@ -71,23 +71,25 @@ public class ParticipantesController implements ParticipantesApi {
                         e.getLimite() == null ? 20 : e.getLimite()),
                 ip(),
                 ctx);
-        return ResponseEntity.ok(new PaginaDeParticipantes().filas(filas.stream()
-                .map(r -> new ParticipanteResumen()
-                        .usuarioId(r.fila().usuarioId())
-                        .codigoPublico(r.fila().codigoPublico())
-                        .nombreAbreviado(r.nombreAbreviado())
-                        .estado(r.fila().estado())
-                        .nivelKyc(r.fila().nivelKyc())
-                        .fechaRegistro(r.fila().fechaRegistro())
-                        .tieneRestriccion(r.fila().tieneRestriccion())
-                        .tieneBloqueo(r.fila().tieneBloqueo())
-                        .tieneMedidaEnCurso(r.fila().tieneMedidaEnCurso()))
-                .toList()));
+        return ResponseEntity.ok(new PaginaDeParticipantes()
+                .filas(filas.stream()
+                        .map(r -> new ParticipanteResumen()
+                                .usuarioId(r.fila().usuarioId())
+                                .codigoPublico(r.fila().codigoPublico())
+                                .nombreAbreviado(r.nombreAbreviado())
+                                .estado(r.fila().estado())
+                                .nivelKyc(r.fila().nivelKyc())
+                                .fechaRegistro(r.fila().fechaRegistro())
+                                .tieneRestriccion(r.fila().tieneRestriccion())
+                                .tieneBloqueo(r.fila().tieneBloqueo())
+                                .tieneMedidaEnCurso(r.fila().tieneMedidaEnCurso()))
+                        .toList()));
     }
 
     @Override
     @Permiso("PARTICIPANTES_LEER")
-    public ResponseEntity<FichaDeParticipante> abrirFichaDeParticipante(UUID usuarioId, EntradaJustificacionDeLectura e) {
+    public ResponseEntity<FichaDeParticipante> abrirFichaDeParticipante(
+            UUID usuarioId, EntradaJustificacionDeLectura e) {
         ContextoSesion ctx = sesion.actual();
         return consulta.ficha(usuarioId, e.getJustificacion(), e.getTicketSoporteId(), ip(), ctx)
                 .map(f -> ResponseEntity.ok(new FichaDeParticipante()
@@ -100,7 +102,9 @@ public class ParticipantesController implements ParticipantesApi {
                         .ultimoAcceso(f.ultimoAcceso())
                         .telefonoEnmascarado(f.telefonoEnmascarado())
                         .correoEnmascarado(f.correoEnmascarado())
-                        .medidas(f.medidas().stream().map(m -> resumen(m, f.resumen().estado())).toList())))
+                        .medidas(f.medidas().stream()
+                                .map(m -> resumen(m, f.resumen().estado()))
+                                .toList())))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -153,8 +157,8 @@ public class ParticipantesController implements ParticipantesApi {
     @Override
     public ResponseEntity<ExpedienteDeMedida> presentarDescargoDeMedida(
             UUID idempotencyKey, UUID expedienteId, EntradaDescargoDeMedida e) {
-        return ResponseEntity.ok(expediente(medidas.descargo(
-                expedienteId, e.getArgumento(), evidencias(e.getEvidencias()), sesion.actual())));
+        return ResponseEntity.ok(expediente(
+                medidas.descargo(expedienteId, e.getArgumento(), evidencias(e.getEvidencias()), sesion.actual())));
     }
 
     @Override
@@ -211,7 +215,10 @@ public class ParticipantesController implements ParticipantesApi {
                         .motivo(h.motivo())
                         .ocurridoEn(h.ocurridoEn()))
                 .toList());
-        v.apelacionEstado().ifPresent(a -> salida.apelacionEstado(ExpedienteDeMedida.ApelacionEstadoEnum.fromValue(a)));
+        v.apelacion().ifPresent(a -> {
+            salida.apelacionEstado(ExpedienteDeMedida.ApelacionEstadoEnum.fromValue(a.estado()));
+            salida.fechaLimiteResolucionApelacion(a.fechaLimiteResolucion());
+        });
         return salida;
     }
 

@@ -72,13 +72,28 @@ public class CU134ConsultarParticipante {
         OffsetDateTime ahora = ahora();
         return datos.conContexto(ctx, dsl -> {
             List<Fila> filas = participantes.buscar(
-                    dsl, b.codigoPublico(), b.telefonoE164(), b.estado(), b.antesDe(), b.antesDeId(),
-                    Math.max(1, Math.min(50, b.limite())), ahora);
+                    dsl,
+                    b.codigoPublico(),
+                    b.telefonoE164(),
+                    b.estado(),
+                    b.antesDe(),
+                    b.antesDeId(),
+                    Math.max(1, Math.min(50, b.limite())),
+                    ahora);
             // Una fila de rastro por persona devuelta: el rastro dice a quien se vio, no solo que se busco.
             // Sin resultados no se leyo el dato de nadie.
             for (Fila f : filas) {
-                participantes.registrarLectura(dsl, ctx.usuarioId(), f.usuarioId(), "FICHA_PARTICIPANTE",
-                        "BUSQUEDA", b.justificacion(), b.ticketSoporteId(), 1, ip, ahora);
+                participantes.registrarLectura(
+                        dsl,
+                        ctx.usuarioId(),
+                        f.usuarioId(),
+                        "FICHA_PARTICIPANTE",
+                        "BUSQUEDA",
+                        b.justificacion(),
+                        b.ticketSoporteId(),
+                        1,
+                        ip,
+                        ahora);
             }
             return filas.stream()
                     .map(f -> new Resumen(f, Enmascarado.nombreAbreviado(f.nombres(), f.apellidos())))
@@ -92,17 +107,27 @@ public class CU134ConsultarParticipante {
         exigirJustificacion(justificacion);
         noSobreSiMismo(ctx, usuarioId);
         OffsetDateTime ahora = ahora();
-        return datos.conContexto(ctx, dsl -> participantes.ficha(dsl, usuarioId, ahora).map(f -> {
-            participantes.registrarLectura(dsl, ctx.usuarioId(), usuarioId, "FICHA_PARTICIPANTE", "LECTURA",
-                    justificacion, ticketSoporteId, 1, ip, ahora);
-            return new FichaEnmascarada(
-                    f.resumen(),
-                    f.resumen().nombres() + " " + f.resumen().apellidos(),
-                    f.ultimoAcceso(),
-                    Enmascarado.telefono(f.telefonoE164()),
-                    Enmascarado.correo(f.correo()),
-                    medidas.deUsuario(dsl, usuarioId));
-        }));
+        return datos.conContexto(
+                ctx, dsl -> participantes.ficha(dsl, usuarioId, ahora).map(f -> {
+                    participantes.registrarLectura(
+                            dsl,
+                            ctx.usuarioId(),
+                            usuarioId,
+                            "FICHA_PARTICIPANTE",
+                            "LECTURA",
+                            justificacion,
+                            ticketSoporteId,
+                            1,
+                            ip,
+                            ahora);
+                    return new FichaEnmascarada(
+                            f.resumen(),
+                            f.resumen().nombres() + " " + f.resumen().apellidos(),
+                            f.ultimoAcceso(),
+                            Enmascarado.telefono(f.telefonoE164()),
+                            Enmascarado.correo(f.correo()),
+                            medidas.deUsuario(dsl, usuarioId));
+                }));
     }
 
     /** Un campo por vez, con segundo factor de quien lee y su propia fila de rastro. */
@@ -112,34 +137,38 @@ public class CU134ConsultarParticipante {
         exigirJustificacion(justificacion);
         noSobreSiMismo(ctx, usuarioId);
         if (!evidencias.consumir(ctx.usuarioId(), evidenciaMfa)) {
-            throw new ErrorDeNegocio(CodigoError.de(134, 3),
+            throw new ErrorDeNegocio(
+                    CodigoError.de(134, 3),
                     "Confirma con tu segundo factor antes de ver un dato completo de otra persona (R-SEG-12).");
         }
         OffsetDateTime ahora = ahora();
-        return datos.conContexto(ctx, dsl -> participantes.ficha(dsl, usuarioId, ahora).map(f -> {
-            String tipo = "CORREO".equals(campo) ? "CORREO" : "TELEFONO";
-            participantes.registrarLectura(dsl, ctx.usuarioId(), usuarioId, tipo, "LECTURA", justificacion,
-                    null, 1, ip, ahora);
-            return "CORREO".equals(campo) ? f.correo() : f.telefonoE164();
-        }));
+        return datos.conContexto(
+                ctx, dsl -> participantes.ficha(dsl, usuarioId, ahora).map(f -> {
+                    String tipo = "CORREO".equals(campo) ? "CORREO" : "TELEFONO";
+                    participantes.registrarLectura(
+                            dsl, ctx.usuarioId(), usuarioId, tipo, "LECTURA", justificacion, null, 1, ip, ahora);
+                    return "CORREO".equals(campo) ? f.correo() : f.telefonoE164();
+                }));
     }
 
     /** Para {@code entregas} (D-11): solo un booleano y el expediente, nunca la causal. */
     @Transactional(readOnly = true)
     public Optional<UUID> medidaQueRetiene(UUID usuarioId, ContextoSesion ctx) {
-        return datos.conContexto(ctx, dsl -> medidas.vigenteQueRetiene(dsl, usuarioId));
+        return datos.conContexto(ctx, dsl -> medidas.vigenteQueRetiene(dsl, usuarioId, ahora()));
     }
 
     static void exigirJustificacion(String justificacion) {
         if (justificacion == null || justificacion.strip().length() < 10) {
-            throw new ErrorDeNegocio(CodigoError.de(134, 1),
+            throw new ErrorDeNegocio(
+                    CodigoError.de(134, 1),
                     "Escribi por que necesitas ver estos datos (al menos 10 caracteres): queda en el rastro.");
         }
     }
 
     static void noSobreSiMismo(ContextoSesion ctx, UUID afectado) {
         if (afectado.equals(ctx.usuarioId())) {
-            throw new ErrorDeNegocio(CodigoError.de(134, 2),
+            throw new ErrorDeNegocio(
+                    CodigoError.de(134, 2),
                     "Tu propia cuenta de participante la ves en la app; desde el backoffice actua otra persona.");
         }
     }

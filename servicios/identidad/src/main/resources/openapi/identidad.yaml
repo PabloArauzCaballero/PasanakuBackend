@@ -2559,6 +2559,7 @@ components:
         vigenteHasta:         { type: string, format: date-time }
         prescribeEn:          { type: string, format: date-time }
         apelacionEstado:      { type: string, enum: [PRESENTADA, ACEPTADA, RECHAZADA, ACEPTADA_POR_VENCIMIENTO] }
+        fechaLimiteResolucionApelacion: { type: string, format: date-time, description: 'Plazo de la segunda instancia, fijado cuando se recibe la apelación (CU-134)' }
         lineaDeTiempo:        { type: array, maxItems: 100, items: { $ref: '#/components/schemas/HitoDeMedida' } }
     MedidaVigente:
       type: object

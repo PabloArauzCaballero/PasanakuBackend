@@ -189,9 +189,27 @@ class ParticipantesControllerWebTest {
 
     private static CU134GestionarMedida.Vista vista(String estado) {
         var e = new MedidasDeCuentaRepositorio.Expediente(
-                EXPEDIENTE, PARTICIPANTE, UUID.randomUUID(), "CUENTA_COMPROMETIDA", "BLOQUEO_CAUTELAR", true,
-                "Accesos anomalos", estado, "ACTIVO", UUID.randomUUID(), AHORA, null, null, null, null, null, null,
-                AHORA.plusDays(90), AHORA.plusMonths(12), null, null);
+                EXPEDIENTE,
+                PARTICIPANTE,
+                UUID.randomUUID(),
+                "CUENTA_COMPROMETIDA",
+                "BLOQUEO_CAUTELAR",
+                true,
+                "Accesos anomalos",
+                estado,
+                "ACTIVO",
+                UUID.randomUUID(),
+                AHORA,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                AHORA.plusDays(90),
+                AHORA.plusMonths(12),
+                null,
+                null);
         return new CU134GestionarMedida.Vista(
                 e,
                 List.of(new MedidasDeCuentaRepositorio.Hito(null, "CAUTELAR", null, AHORA)),

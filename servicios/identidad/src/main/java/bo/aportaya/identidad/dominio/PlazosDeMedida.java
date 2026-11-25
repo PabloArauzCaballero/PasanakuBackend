@@ -2,6 +2,7 @@ package bo.aportaya.identidad.dominio;
 
 import bo.aportaya.plataforma.dominio.CalendarioHabil;
 import bo.aportaya.plataforma.dominio.PlazoHabil;
+import bo.aportaya.plataforma.dominio.Reloj;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 
@@ -35,6 +36,13 @@ public final class PlazosDeMedida {
 
     public static OffsetDateTime limiteApelacion(OffsetDateTime decididaEn, Politica p, CalendarioHabil cal) {
         return finDelDia(decididaEn, PlazoHabil.sumar(decididaEn.toLocalDate(), p.apelacionDiasHabiles(), cal));
+    }
+
+    /** CU-59: cuenta días hábiles desde el día de recepción en Bolivia. */
+    public static OffsetDateTime limiteResolucionApelacion(
+            OffsetDateTime recibidaEn, int diasHabiles, CalendarioHabil calendario) {
+        OffsetDateTime local = recibidaEn.atZoneSameInstant(Reloj.ZONA).toOffsetDateTime();
+        return finDelDia(local, PlazoHabil.sumar(local.toLocalDate(), diasHabiles, calendario));
     }
 
     /** Desde la apertura: sin decision en este plazo el expediente prescribe y no se reabre. */

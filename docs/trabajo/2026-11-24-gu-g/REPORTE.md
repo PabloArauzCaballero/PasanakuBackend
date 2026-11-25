@@ -42,12 +42,19 @@
 - **Bloqueo:** `./gradlew` no resuelve dependencias en este entorno (Maven Central 429; espejo denegado por permisos, `evidencia/H3.S3-bloqueo-maven-429.txt`). La CI sí compila: verificar con la CI.
 - **Dónde quedó:** rama `claude/gu-g-cu-participantes`, todo pusheado, PR #519.
 
+## Continuación del 2026-11-25
+
+En `codex/cu134-medidas-participantes`, desde #525 (`6f42f97ce`), están las decisiones A-1 y A-3 de Pablo. La semilla conserva la versión anterior y agrega la versión con diez días hábiles para resolver una apelación. Identidad persiste el plazo de CU-59 en la recepción y devuelve la fecha al titular en la vista del expediente. El trabajo diario toma lotes con bloqueo de filas y acepta por vencimiento, revierte y emite el evento en la misma transacción. La consulta interna de retención distingue cautelar vigente y medida firme vigente de una suspensión todavía apelable que no se aplicó.
+
+Continúan pendientes H3.S4–S6: custodia de punta a punta en entregas, aplicación y conciliación de la liberación con otras restricciones y cuenta verificada, modo restringido y backoffice. La rama conserva #525 como base y se debe integrar revisando sus últimos cambios. La autorización de un desembolso requiere validación del servicio de entregas. La consulta de identidad por sí sola no acredita fondos.
+
 ## Pendiente
 | ID | Estado | Qué lo destraba |
 |---|---|---|
 | Implementación de CU-134 (Ola 3) | `TODO` | Aprobada por la sesión principal; arranca cuando #516 (lote B) esté en `dev` o contra un doble declarado de su contrato |
-| A-1 destino de la entrega retenida si la medida queda firme | `DECISION_REQUIRED` | Pablo |
-| A-2 prescripción en meses vs. columna en días; sin columna para duración máxima | `TODO` | Se resuelve en el modelo al implementar; Pablo si exige elegir equivalencia |
+| A-1 destino de la entrega retenida si la medida queda firme | Decidido | Custodia al titular durante la vigencia. Falta integrar en entregas. |
+| A-2 prescripción en meses y duración máxima en días | Decidido | Columnas propias en la política. |
+| A-3 plazo de resolución de la apelación interna | Decidido | Diez días hábiles, con aceptación por vencimiento. |
 
 ## Hallazgos (relevamiento)
 | Hecho | Ruta |
