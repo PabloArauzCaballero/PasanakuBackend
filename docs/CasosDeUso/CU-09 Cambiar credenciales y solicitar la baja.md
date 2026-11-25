@@ -133,7 +133,7 @@ Recuperar la clave o reinscribir el factor de un operador es un **expediente** e
 | Paso | Quién | Qué queda escrito |
 | :-: | --- | --- |
 | 1 · Pedido | El operador (sin sesión) o una persona de seguridad en su nombre | `estado=PENDIENTE`, `alcance` (`CLAVE` o `FACTOR`), motivo; respuesta idéntica exista o no el correo |
-| 2 · Aprobación o rechazo | **Otra** identidad con `SEGURIDAD_ACCESO_RESTABLECER` | `decidida_por`, `decidida_en`, motivo y `enfriamiento_hasta` (`R-SEG-13`: la base rechaza la autoaprobación) |
+| 2 · Aprobación o rechazo | **Otra** identidad con `SEGURIDAD_ACCESO_RESTABLECER` | `decidida_por`, `decidida_en`, motivo y `enfriamiento_hasta` (`R-SEG-16`: la base rechaza la autoaprobación) |
 | 3 · Enfriamiento | El sistema | Hasta `enfriamiento_hasta` no se emite nada; el plazo se guarda al aprobar, no se recalcula |
 | 4 · Invitación | Trabajo programado | Token de un solo uso (`RECUPERACION_OPERADOR_CLAVE` o `REINSCRIPCION_FACTOR`) al correo institucional; `estado=EMITIDA` |
 | 5 · Cumplimiento | El operador con el enlace | `CLAVE` cambia solo la clave; `FACTOR` exige la clave actual y reemplaza solo el TOTP; ambos cierran **todas** las sesiones y quitan la confianza de los dispositivos (`R-SEG-11`) |
@@ -287,7 +287,7 @@ export const ErroresCU09 = {
 
 ## Restricciones aplicables
 
-`R-SEG-02` · `R-SEG-03` · `R-SEG-07` · `R-SEG-10` · `R-SEG-11` · `R-SEG-13` · `R-BIL-13` · `R-AUD-01` · `R-AUD-04` · `R-CON-05`
+`R-SEG-02` · `R-SEG-03` · `R-SEG-07` · `R-SEG-10` · `R-SEG-11` · `R-SEG-16` · `R-BIL-13` · `R-AUD-01` · `R-AUD-04` · `R-CON-05`
 
 ## Evidencia que deja
 
@@ -348,7 +348,7 @@ Entonces se rechaza con TOKEN_INVALIDO, con el mismo mensaje en los tres casos
 Dado un operador que pidió recuperar su clave
 Cuando él mismo intenta aprobar la solicitud
 Entonces se rechaza con APROBACION_REQUERIDA
-Y la base lo rechaza aunque se evite la aplicación (R-SEG-13)
+Y la base lo rechaza aunque se evite la aplicación (R-SEG-16)
 
 Dado una solicitud aprobada con enfriamiento vigente
 Cuando corre el trabajo de emisión

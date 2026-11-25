@@ -1,0 +1,56 @@
+$ python3 scripts/verificar_criterios.py
+casos de uso implementados y verificados: 107
+pendientes de implementar (5): CU-05 (identidad), CU-23 (garantia), CU-26 (garantia), CU-51 (aportes), CU-57 (nucleo-financiero)
+Sin divergencias entre la boveda y el codigo.
+EXIT=0
+
+$ python3 scripts/verificar_boveda.py
+          cifras vigentes: 112 casos de uso · 354 tablas · 334 entidades · 188 restricciones · 56 ADR
+
+TODO OK
+EXIT=0
+
+$ python3 scripts/verificar_seguridad.py
+  (1071 archivos revisados; 0 bloquean, 4 son aviso)
+
+TODO OK · 5 aviso(s)
+EXIT=0
+
+$ python3 scripts/verificar_carriles.py
+AVISO · tramos con un puesto cargando 4x o más que otro: T5 4x, T7 4x. Se corrige moviendo una deuda declarada, no partiendo un carril (planes/19 §11)
+AVISO · servicio sin ficha de carril: inversiones — M18 Inversion no tiene ficha en planes/18 ni en planes/21; dueno del codigo: @PabloArauzCaballero (.github/CODEOWNERS)
+TODO OK (con avisos)
+EXIT=0
+
+$ python3 scripts/verificar_maqueta.py
+  OK    · ningún plan de frontend nombra el stack anterior fuera de la transición 
+
+TODO OK
+EXIT=0
+
+$ python3 scripts/verificar_contratos_limites.py
+  - transparencia · openapi/*.yaml#/components/schemas/MetricaDeRiesgo/valor: sin limite (`maxLength`/`maximum`/`maxItems`)
+  - transparencia · openapi/*.yaml#/components/schemas/MetricaDeRiesgo/umbral: sin limite (`maxLength`/`maximum`/`maxItems`)
+Los contratos de request en el alcance de este gate declaran limites y additionalProperties: false.
+EXIT=0
+
+$ python3 scripts/verificar_pruebas_web.py
+operaciones con el estado HTTP fuera de su contrato: 25
+servicios con sabana de seguridad: 15
+La capa web esta cubierta segun ADR-043.
+EXIT=0
+
+$ python3 scripts/inventario_endpoints.py --check
+endpoints relevados: 365 · hallazgos: 0
+El inventario esta alineado: todo lo implementado tiene contrato y viceversa.
+EXIT=0
+
+$ python3 scripts/generar_ddl.py && git diff --exit-code -- sql/
+EXIT=0
+
+$ python3 scripts/generar_postman.py && git diff --exit-code -- postman/
+EXIT=0
+
+$ java -jar openapi-generator-cli-7.14.0.jar validate -i servicios/identidad/src/main/resources/openapi/identidad.yaml
+Validating spec (servicios/identidad/src/main/resources/openapi/identidad.yaml)
+No validation issues detected.

@@ -292,6 +292,9 @@ def rol_de(esquema):
 # svc_* dueño para que el relevo del outbox pueda marcar publicado. El payload
 # es inmutable de facto (solo se otorga UPDATE sobre publicado_en/estado/intentos).
 APPEND_ONLY = {
+    # CU-134 · el expediente de una medida sobre la cuenta se prueba con filas que no se tocan.
+    "evidencia_medida_cuenta",
+    "historial_estado_medida_cuenta",
     # F3.S8.M6 · el congelamiento de parámetros de un grupo no se corrige: rige el ciclo entero.
     "parametro_congelado_grupo",
     "decision_ingreso",
@@ -314,6 +317,9 @@ APPEND_ONLY = {
     # H2.S2.M2 (carril PR2): el jti de la evidencia step-up se consume una sola vez
     # (INSERT ... ON CONFLICT DO NOTHING); un UPDATE la convertiria en reusable.
     "evidencia_mfa_consumida",
+    # GU-11 (lote B): el jti de la evidencia step-up de los actos de gobierno de accesos, una sola vez
+    # entre replicas y reinicios (decision de Pablo 2026-11-24); un UPDATE o DELETE lo volveria reusable.
+    "evidencia_step_up_consumida",
     "registro_operacion_relevante", "evento_riesgo_operativo",
     "acta_comite",
     # --- M13: contabilidad financiera y ERP ---
@@ -360,6 +366,9 @@ PARTICIONADAS = {
 # idempotente, igual que la evolucion del outbox (ADR-027). Solo se AMPLIA: ninguna
 # fila existente queda invalida.
 CK_AMPLIADOS = {
+    # 2026-11-24: GU-14 (lote B, decision de Pablo) — BAJA_LABORAL, la baja del personal interno,
+    # distinta de la baja voluntaria del participante. Sin esta entrada la base ya aplicada no la acepta.
+    "usuario": ["estado"],
     # 2026-10-16: segundo factor por correo para participantes.
     "factor_mfa": ["tipo"],
     # 2026-10-16: el recargo por mora cobrado va al fondo de garantia (tableros-por-rol, H1.S2.M0d).
@@ -374,6 +383,10 @@ CK_AMPLIADOS = {
     "pago": ["monto_comision_proveedor", "monto_neto_acreditado"],
     "reembolso": ["monto"],
     "disputa_pago": ["monto_disputado"],
+    # 2026-11-24: CU-134 (D-14, D-15) — cuenta comprometida como motivo de bloqueo, y la
+    # ficha del participante y el correo como datos cuya lectura deja rastro.
+    "bloqueo_cuenta": ["motivo"],
+    "registro_acceso_datos": ["tipo_dato"],
 }
 
 # CHECK de enumerado que se ESTRECHO despues de que existieran bases: un valor sale del

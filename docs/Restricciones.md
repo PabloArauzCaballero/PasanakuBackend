@@ -1535,7 +1535,10 @@ ALTER TABLE estado_cuenta_billetera
 | R-SEG-10 | Un operador no abre sesión sin segundo factor confirmado, y su factor nunca es SMS ni WhatsApp | ASFI Seguridad · ISO 27001 A.5.17, A.8.2, A.8.5 | [[CU-04 Autenticar con MFA y registrar dispositivo]] |
 | R-SEG-11 | Cambiar la credencial de un operador no deja sesión viva, dispositivo confiable ni refresco emitido | ASFI Seguridad · toma de cuenta privilegiada | [[CU-09 Cambiar credenciales y solicitar la baja]] |
 | R-SEG-12 | Toda acción de decisión irreversible o de lectura de terceros exige segundo factor | ISO 27001 A.8.2 · segregación de funciones | [[CU-08 Asignar y revocar roles de operador]] |
-| R-SEG-13 | Nadie aprueba su propia recuperación de acceso, y una recuperación aprobada tiene aprobador, fecha y enfriamiento | ISO 27001 A.5.17, A.8.2 · ADR-038 §4 | [[CU-09 Cambiar credenciales y solicitar la baja]] |
+| R-SEG-13 | Una medida sobre la cuenta la proponen, la deciden y resuelven su apelación tres personas distintas, y ninguna es el afectado | Debido proceso · segregación de funciones (regla 91.4) | [[CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso]] |
+| R-SEG-14 | Un solo expediente abierto por cuenta y causal | Debido proceso · no acumular medidas por el mismo hecho | [[CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso]] |
+| R-SEG-15 | Una medida no queda firme sin decisión confirmada, ni se decide sin fundamento | Debido proceso (regla 91.4) | [[CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso]] |
+| R-SEG-16 | Nadie aprueba su propia recuperación de acceso, y una recuperación aprobada tiene aprobador, fecha y enfriamiento | ISO 27001 A.5.17, A.8.2 · ADR-038 §4 | [[CU-09 Cambiar credenciales y solicitar la baja]] |
 
 ```sql
 -- R-SEG-01 · solo hash, token y enmascarado
@@ -2049,7 +2052,48 @@ ALTER TABLE permiso
                      'PUBLICAR', 'ENVIAR', 'CERRAR', 'LEER_TERCEROS')
   );
 
--- R-SEG-13 · nadie aprueba su propia recuperación de acceso
+-- R-SEG-13 · tres personas distintas, y ninguna es el afectado
+--
+-- Quien propone una suspensión no la decide, y quien la decide no resuelve la
+-- apelación (CU-134, D-5). Que lo verifique la base y no solo la aplicación es lo que
+-- hace creíble el expediente: un operador con los tres permisos no puede saltarse a
+-- los otros dos, ni actuar sobre su propia cuenta de participante.
+ALTER TABLE expediente_medida_cuenta
+  ADD CONSTRAINT ck_expediente_medida_no_autopropuesta CHECK (propuesta_por <> usuario_id),
+  ADD CONSTRAINT ck_expediente_medida_decide_otro CHECK (
+        decidida_por IS NULL
+     OR (decidida_por <> propuesta_por AND decidida_por <> usuario_id));
+
+CREATE OR REPLACE FUNCTION fn_seg_apelacion_medida_resuelve_tercero() RETURNS trigger AS $$
+DECLARE v_exp expediente_medida_cuenta%ROWTYPE;
+BEGIN
+  IF NEW.resuelta_por IS NULL THEN RETURN NEW; END IF;
+  SELECT * INTO v_exp FROM expediente_medida_cuenta WHERE id = NEW.expediente_medida_cuenta_id;
+  IF NEW.resuelta_por IN (v_exp.usuario_id, v_exp.propuesta_por)
+     OR NEW.resuelta_por IS NOT DISTINCT FROM v_exp.decidida_por THEN
+    RAISE EXCEPTION 'R-SEG-13: la apelacion la resuelve quien no propuso ni decidio la medida';
+  END IF;
+  RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tg_apelacion_medida_resuelve_tercero
+  BEFORE INSERT OR UPDATE OF resuelta_por ON apelacion_medida_cuenta
+  FOR EACH ROW EXECUTE FUNCTION fn_seg_apelacion_medida_resuelve_tercero();
+
+-- R-SEG-14 · un expediente abierto por cuenta y causal
+CREATE UNIQUE INDEX uq_expediente_medida_abierto
+  ON expediente_medida_cuenta (usuario_id, causal)
+  WHERE (cerrada_en IS NULL);
+
+-- R-SEG-15 · firme solo con decisión confirmada, y ninguna decisión sin fundamento
+ALTER TABLE expediente_medida_cuenta
+  ADD CONSTRAINT ck_expediente_medida_decision_fundada CHECK (
+        decidida_en IS NULL
+     OR (decidida_por IS NOT NULL AND resultado_decision IS NOT NULL
+         AND fundamento_decision IS NOT NULL AND length(btrim(fundamento_decision)) >= 50)),
+  ADD CONSTRAINT ck_expediente_medida_firme_confirmada CHECK (
+        firme_en IS NULL OR resultado_decision = 'CONFIRMADA');
+-- R-SEG-16 · nadie aprueba su propia recuperación de acceso
 --
 -- ADR-038 §4 dejaba la aprobación a cargo de la aplicación («hueco declarado»): ninguna tabla
 -- guardaba al aprobador. Ahora lo guarda `solicitud_recuperacion_acceso`, y la base rechaza la

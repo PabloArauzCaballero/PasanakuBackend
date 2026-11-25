@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS comun.registro_acceso_datos (
   ip_origen                          INET NOT NULL,
   fecha_hora                         TIMESTAMPTZ NOT NULL,
   CONSTRAINT pk_registro_acceso_datos PRIMARY KEY (id, fecha_hora),
-  CONSTRAINT ck_registro_acceso_datos_tipo_dato CHECK (tipo_dato IN ('CUENTA_BANCARIA', 'DOCUMENTO_IDENTIDAD', 'HISTORIAL_PAGOS', 'TELEFONO')),
+  CONSTRAINT ck_registro_acceso_datos_tipo_dato CHECK (tipo_dato IN ('CORREO', 'CUENTA_BANCARIA', 'DOCUMENTO_IDENTIDAD', 'FICHA_PARTICIPANTE', 'HISTORIAL_PAGOS', 'TELEFONO')),
   CONSTRAINT ck_registro_acceso_datos_operacion CHECK (operacion IN ('BUSQUEDA', 'EXPORTACION', 'LECTURA'))
 ) PARTITION BY RANGE (fecha_hora);
 
@@ -34,6 +34,10 @@ BEGIN
       d + ((i + 1) || ' month')::interval);
   END LOOP;
 END $$;
+
+-- Evolucion: CHECK ampliado (ver CK_AMPLIADOS en modelo.py).
+ALTER TABLE comun.registro_acceso_datos DROP CONSTRAINT IF EXISTS ck_registro_acceso_datos_tipo_dato;
+ALTER TABLE comun.registro_acceso_datos ADD CONSTRAINT ck_registro_acceso_datos_tipo_dato CHECK (tipo_dato IN ('CORREO', 'CUENTA_BANCARIA', 'DOCUMENTO_IDENTIDAD', 'FICHA_PARTICIPANTE', 'HISTORIAL_PAGOS', 'TELEFONO'));
 
 COMMENT ON TABLE comun.registro_acceso_datos IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. [append-only] El registro de quién consultó datos sensibles de quién, con qué justificación.';
 COMMENT ON COLUMN comun.registro_acceso_datos.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';

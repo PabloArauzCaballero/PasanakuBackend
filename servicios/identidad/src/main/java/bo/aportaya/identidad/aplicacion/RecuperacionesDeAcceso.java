@@ -129,7 +129,7 @@ public class RecuperacionesDeAcceso {
                     .paraDecidir(dsl, id)
                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(9, 11), "No encontramos esa solicitud."));
             UUID titular = fila.get("usuario_id", UUID.class);
-            // Nadie decide su propia recuperacion. La base tambien lo rechaza (R-SEG-13); esto da el error claro.
+            // Nadie decide su propia recuperacion. La base tambien lo rechaza (R-SEG-16); esto da el error claro.
             if (titular.equals(ctx.usuarioId())) {
                 throw new ErrorDeNegocio(
                         CodigoError.de(9, 9), "No podes decidir tu propia solicitud: lo hace otra persona.");

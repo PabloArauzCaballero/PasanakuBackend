@@ -1,0 +1,26 @@
+{
+  "descripcion": "Política de plataforma de las medidas sobre la cuenta del participante (CU-134). Valores aprobados por Pablo el 2026-11-24 SIN fuente normativa (D-3): son una decisión de negocio, editable publicando una versión nueva, nunca una cifra regulatoria.",
+  "entorno": "minimo",
+  "nota": "Cambiar un plazo es agregar una fila con `version` nueva y `vigente_desde` posterior: cada expediente conserva la versión con la que se abrió. La siembra es `ON CONFLICT (version) DO NOTHING`. `plazo_resolucion_apelacion_dias_habiles` queda vacío hasta que Pablo lo fije (ambigüedad A-3 de CU-134): sin él no hay resolución automática por vencimiento.",
+  "bloques": [
+    {
+      "tabla": "politica_medida_cuenta",
+      "conflicto": [
+        "version"
+      ],
+      "comentario": "Descargo 5 días hábiles, apelación 5 días hábiles, prescripción 12 meses, suspensión máxima 90 días.",
+      "filas": [
+        {
+          "version": "2026-11-24",
+          "plazo_descargo_dias_habiles": 5,
+          "plazo_apelacion_dias_habiles": 5,
+          "plazo_resolucion_apelacion_dias_habiles": null,
+          "prescribe_en_meses": 12,
+          "duracion_maxima_suspension_dias": 90,
+          "fuente": "Decisión de negocio de Pablo del 2026-11-24 (CU-134, D-3); sin fuente normativa",
+          "vigente_desde": "2026-11-24T00:00:00-04:00"
+        }
+      ]
+    }
+  ]
+}

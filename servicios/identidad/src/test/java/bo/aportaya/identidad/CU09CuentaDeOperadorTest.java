@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * CU-09 §10-§11 contra PostgreSQL real: invitacion de un solo uso, recuperacion a cuatro ojos y la
- * restriccion R-SEG-13. El correo es un DOBLE declarado (regla 65): prueba que el enlace sale y que NO
+ * restriccion R-SEG-16. El correo es un DOBLE declarado (regla 65): prueba que el enlace sale y que NO
  * lleva el token a ningun otro lado; que Gmail lo entregue lo prueba el ensayo en TEST.
  *
  * <p>Datos y llaves SINTETICOS (regla 97.6). Corre en {@code integrationTest}.
@@ -188,7 +188,7 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
     @DisplayName(
             "Dado un operador que pidió recuperar su clave · Cuando él mismo intenta aprobar la solicitud · Entonces"
                     + " se rechaza con APROBACION_REQUERIDA · Y la base lo rechaza aunque se evite la aplicación"
-                    + " (R-SEG-13)")
+                    + " (R-SEG-16)")
     void criterio10() {
         UUID operador = operadorConClaveInutilizable("+59176100005");
         String correoDelOperador = correoDe(operador);
@@ -200,7 +200,7 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
         UUID solicitud = solicitudDe(operador);
 
         assertThatThrownByAprobar(solicitud, comoOperador(operador));
-        // R-SEG-13: aunque alguien se saltee la aplicacion, la base lo rechaza.
+        // R-SEG-16: aunque alguien se saltee la aplicacion, la base lo rechaza.
         assertThat(rechazaLaBase(
                         """
                         UPDATE identidad.solicitud_recuperacion_acceso
@@ -321,7 +321,7 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
     // ------------------------------------------------------------------ rechazos
 
     @Test
-    @DisplayName("rechaza por R-SEG-13")
+    @DisplayName("rechaza por R-SEG-16")
     void rechazaRSEG13() {
         UUID operador = operadorConClaveInutilizable("+59176100009");
         UUID solicitud = abrirSolicitud(operador);

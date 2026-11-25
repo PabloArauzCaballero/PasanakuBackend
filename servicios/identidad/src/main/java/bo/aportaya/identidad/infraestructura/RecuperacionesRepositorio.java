@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 /**
  * El expediente de recuperacion de acceso del operador (P-4, ADR-038 §4 y §5).
  *
- * <p>La autoaprobacion la rechaza la base ({@code ck_recuperacion_no_autoaprobada}, R-SEG-13): estas
+ * <p>La autoaprobacion la rechaza la base ({@code ck_recuperacion_no_autoaprobada}, R-SEG-16): estas
  * consultas la vuelven a validar por claridad del error, no porque dependan de ello. Toda transicion
  * lleva su precondicion en el {@code UPDATE}.
  */

@@ -277,6 +277,18 @@ vale para siempre.
 
 ---
 
+### `EvidenciaStepUpConsumida` / `evidencia_step_up_consumida`
+
+**Qué es.** La marca de que una evidencia de segundo factor (el `jti` del JWT de step-up con propósito `ADMIN`) ya se usó para un acto de gobierno de accesos: asignar o revocar un rol, dar de alta, suspender, reactivar, dar de baja o desbloquear a un operador.
+
+**Para qué sirve (negocio).** Que cada cambio de quién puede tocar la plata y los datos de terceros lo confirme quien lo hace con su segundo factor, una vez por acto: quien robe esa evidencia no puede reusarla para otro cambio de acceso.
+
+**Por qué debe existir.** El JWT de evidencia vale hasta que vence (minutos). Guardar su consumo en memoria dejaba usarlo una vez por réplica o de nuevo tras un reinicio; Pablo decidió (2026-11-24, GU-11) que el consumo viva en la base, compartido por todas las instancias.
+
+**A nivel de sistema.** `jti` único: el `INSERT ... ON CONFLICT (jti) DO NOTHING` es la barrera, y de dos actos simultáneos con el mismo `jti` solo uno gana. `vence_en` es el `exp` de la evidencia. Append-only (`tg_evidencia_step_up_consumida_append_only`); `svc_identidad` solo inserta y lee. El consumo va en la transacción del acto: si el acto revierte, la evidencia no se gastó.
+
+*Fuente: CU-08, GU-11; `servicios/identidad/.../EvidenciaStepUpConsumidaRepositorio.java`.*
+
 ### `PoliticaToken` / `politica_token` — Política configurable
 
 **Qué es.** Los parámetros de seguridad de cada tipo de token: cuánto dura,
@@ -728,11 +740,11 @@ puede explicar un score calculado con una versión anterior del modelo de scorin
 
 **Para qué sirve (negocio).** Que perder la clave o el teléfono no sea una forma de tomar la cuenta de otra persona. Nadie recupera su propio acceso: otra persona con permiso de seguridad lo aprueba, pasa un plazo de enfriamiento y solo entonces llega una invitación de un solo uso al correo institucional.
 
-**Por qué debe existir.** ADR-038 §4 dejaba al aprobador solo en la bitácora, sin ninguna tabla que lo guardara, y por eso la base no podía rechazar una autoaprobación. Con esta tabla la restricción `R-SEG-13` la rechaza en el motor, aunque la aplicación se saltee la validación.
+**Por qué debe existir.** ADR-038 §4 dejaba al aprobador solo en la bitácora, sin ninguna tabla que lo guardara, y por eso la base no podía rechazar una autoaprobación. Con esta tabla la restricción `R-SEG-16` la rechaza en el motor, aunque la aplicación se saltee la validación.
 
 **A nivel de sistema.** Una fila por pedido; una sola viva por operador y alcance (`uq_recuperacion_viva`). `estado` recorre PENDIENTE → APROBADA → EMITIDA → COMPLETADA (o RECHAZADA / VENCIDA). `decidida_por` es siempre distinta de `usuario_id`; `enfriamiento_hasta` se guarda al aprobar y no se recalcula. `token_id` apunta al token de invitación; del token solo existe su hash con pepper (regla 90.2.9). `clave_idempotencia` evita duplicar un pedido reintentado.
 
-*Fuente: CU-09 §10-§11; ADR-038 §4-§5; `docs/Restricciones.md` R-SEG-13.*
+*Fuente: CU-09 §10-§11; ADR-038 §4-§5; `docs/Restricciones.md` R-SEG-16.*
 
 ---
 
@@ -748,3 +760,91 @@ puede explicar un score calculado con una versión anterior del modelo de scorin
 
 *Fuente: CU-08; `docs/trabajo/2026-10-18-backoffice-como-atlas/PLAN.md` (H6).*
 
+
+---
+
+## Gobierno del participante con debido proceso (CU-134)
+
+### `PoliticaMedidaCuenta` / `politica_medida_cuenta`
+
+**Qué es.** La política versionada que fija los plazos de una medida sobre la cuenta de un
+participante: descargo, apelación, resolución de la apelación, prescripción y duración máxima
+de la suspensión.
+
+**Para qué sirve (negocio).** Que los plazos del debido proceso sean un dato con vigencia y
+no un número escondido en el código: se cambian publicando una versión nueva, y cada expediente
+sabe con qué versión se abrió. Los valores iniciales los aprobó Pablo el 2026-11-24 sin fuente
+normativa (CU-134, D-3).
+
+**Por qué debe existir.** Sancionar con una regla publicada después del hecho es retroactivo.
+El expediente apunta a la versión vigente al abrirse, así que cambiar la política no mueve los
+plazos de los expedientes en curso.
+
+- `plazo_descargo_dias_habiles`: días hábiles que tiene la persona para presentar su descargo, contados desde la notificación entregada.
+- `plazo_apelacion_dias_habiles`: días hábiles para apelar desde que se le comunica la decisión.
+- `plazo_resolucion_apelacion_dias_habiles`: días hábiles que tiene la segunda instancia para resolver; vacío mientras no se decida, y entonces no hay resolución automática por vencimiento.
+- `prescribe_en_meses`: meses desde la apertura tras los cuales un expediente sin decisión prescribe y no se reabre por el mismo hecho.
+- `duracion_maxima_suspension_dias`: tope en días corridos de una suspensión temporal.
+- `fuente`: de dónde salen los valores (decisión de negocio, norma o contrato), para que nadie los confunda con una cifra regulatoria.
+- `aprobada_por`: quién aprobó la versión.
+
+### `ExpedienteMedidaCuenta` / `expediente_medida_cuenta`
+
+**Qué es.** El expediente de una medida de seguridad sobre la cuenta de un participante
+(bloqueo cautelar o suspensión temporal), con su causal cerrada, sus plazos guardados y su
+decisión motivada.
+
+**Para qué sirve (negocio).** Que ninguna cuenta quede suspendida o bloqueada sin causal,
+evidencia, notificación, descargo y decisión de otra persona, y que siempre se pueda mostrar
+por qué y hasta cuándo.
+
+**Por qué debe existir.** `usuario.estado` dice *que* la cuenta está suspendida; el expediente
+dice *por qué*, *quién* lo propuso, *quién* lo decidió y *con qué plazos*. Sin él no hay debido
+proceso que demostrar (regla 91.4).
+
+- `causal`: motivo del catálogo cerrado; mora, orden de autoridad y sospecha de lavado van por otros casos de uso.
+- `medida`: bloqueo cautelar inmediato o suspensión temporal.
+- `cautelar`: si la medida se aplicó antes del descargo, cosa que solo admiten la cuenta comprometida y el fraude con evidencia.
+- `estado_cuenta_previo`: estado de la cuenta antes de la medida, al que vuelve cuando la medida termina.
+- `fecha_limite_descargo`: plazo de descargo calculado en días hábiles al notificar y guardado; no se recalcula.
+- `fecha_limite_apelacion`: plazo de apelación calculado al decidir.
+- `prescribe_en`: fecha en la que el expediente prescribe si nadie decidió.
+- `vigente_hasta`: fin de la suspensión temporal.
+- `clave_idempotencia`: el mismo pedido reenviado devuelve el mismo expediente.
+
+### `EvidenciaMedidaCuenta` / `evidencia_medida_cuenta`
+
+**Qué es.** Cada evidencia del expediente y cada descargo del afectado, una fila por aporte.
+
+**Para qué sirve (negocio).** Que lo que aporta el sistema, el operador y el propio afectado
+quede en el mismo lugar y distinguido por quién lo aportó.
+
+**Por qué debe existir.** La evidencia de un expediente no se edita ni se borra: es
+append-only, así nadie puede cambiar después lo que sustentó una decisión.
+
+- `tipo`: evidencia del sistema, del operador, del afectado, o el descargo.
+- `aportada_por`: quién la incorporó.
+
+### `HistorialEstadoMedidaCuenta` / `historial_estado_medida_cuenta`
+
+**Qué es.** Cada cambio de estado del expediente, con quién lo hizo y por qué.
+
+**Para qué sirve (negocio).** Es la línea de tiempo que ve el operador y la que se muestra en
+una auditoría o un reclamo.
+
+**Por qué debe existir.** El estado vigente se puede pisar; el historial no: es append-only y
+es la prueba de que cada paso del debido proceso ocurrió en orden.
+
+### `ApelacionMedidaCuenta` / `apelacion_medida_cuenta`
+
+**Qué es.** La apelación única de un expediente, presentada por el afectado y resuelta por una
+persona que no propuso ni decidió la medida.
+
+**Para qué sirve (negocio).** Que toda medida tenga segunda instancia y que, si la instancia no
+resuelve a tiempo, la demora no la pague la persona.
+
+**Por qué debe existir.** La unicidad sobre `expediente_medida_cuenta_id` garantiza en la base
+una sola apelación por expediente.
+
+- `estado`: presentada, aceptada, rechazada, o aceptada por vencimiento del plazo de la instancia.
+- `resuelta_por`: tercera persona; la base impide que sea quien propuso o decidió.

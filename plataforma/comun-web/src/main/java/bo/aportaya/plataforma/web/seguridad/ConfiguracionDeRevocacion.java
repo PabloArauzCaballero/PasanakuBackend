@@ -66,6 +66,7 @@ public class ConfiguracionDeRevocacion {
         // Sin group.id: se asigna a mano y no se confirma ningun offset (ver LectorDeRevocaciones).
         propiedades.put(ConsumerConfig.CLIENT_ID_CONFIG, aplicacion + "-revocaciones-" + UUID.randomUUID());
         propiedades.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+        propiedades.put(ConsumerConfig.ALLOW_AUTO_CREATE_TOPICS_CONFIG, false);
         propiedades.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         propiedades.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         propiedades.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);

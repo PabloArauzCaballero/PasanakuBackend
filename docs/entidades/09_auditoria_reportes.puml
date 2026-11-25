@@ -129,7 +129,7 @@ package "Bitacora y Trazabilidad" {
     - id: UUID
     - usuarioConsultorId: UUID
     - usuarioAfectadoId: UUID
-    - tipoDato: String <<DOCUMENTO_IDENTIDAD | CUENTA_BANCARIA | HISTORIAL_PAGOS | TELEFONO>>
+    - tipoDato: String <<DOCUMENTO_IDENTIDAD | CUENTA_BANCARIA | HISTORIAL_PAGOS | TELEFONO | FICHA_PARTICIPANTE | CORREO>>
     - operacion: String <<LECTURA | BUSQUEDA | EXPORTACION>>
     - justificacion: String
     - ticketSoporteId: String

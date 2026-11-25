@@ -1,9 +1,9 @@
 # Reporte — Lote G · CU de gobierno de participantes (borrador para aprobación)
 
-> **AVANCE: 6 / 7 — 85,7 %.** Falta H1.S3.M3: CI del PR en verde (se actualiza al cerrar).
+> **AVANCE: ver `plan_status.py` (H1, H2 y H3.S1 hechos).** H3 (implementación) en curso: modelo, esquema, semillas y contrato escritos y verificados en local; backend BLOQUEADO por Maven Central 429. Antes: H1 cerrado (PR #514 y #518 en `dev`). H2: CU-134 pasa a APROBADO (decisión de Pablo del 2026-11-24); falta la CI del PR. D-3 (5/5 días hábiles, 12 meses, 90 días) y D-11 (retener la entrega) resueltas por Pablo el mismo día; abiertas A-1 y A-2.
 
 - Fecha: 2026-11-24 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/gu-g-cu-participantes` → PR a `dev`
-- Peldaño de evidencia alcanzado: `RUNS` sobre la bóveda (los verificadores corren en exit 0 con el CU nuevo). Es un documento: no hay comportamiento que ejercitar; el CU queda **BORRADOR** hasta que Pablo lo apruebe (decisión P-11).
+- Peldaño de evidencia alcanzado: `RUNS` sobre la bóveda, en local y en la CI del PR #514 (los verificadores corren en exit 0 con el CU nuevo). Es un documento: no hay comportamiento que ejercitar; el CU queda **BORRADOR** hasta que Pablo lo apruebe (decisión P-11).
 
 ## Completado
 | ID | Qué se logró | Comando | Resultado |
@@ -14,18 +14,38 @@
 | H1.S2.M3 | Cifras «112 casos de uso» → 113 en 6 archivos de `planes/` | `python3 scripts/verificar_boveda.py` | PASS (`ninguna cifra desfasada`) |
 | H1.S3.M1 | Verificadores de los workflows en local | ver «Evidencia» | PASS: seguridad, bóveda, carriles, criterios, inventario de endpoints, contratos y límites, maqueta, flujos, pruebas web, catálogo de datos → exit 0 |
 | H1.S3.M2 | Este reporte con las preguntas para Pablo | `python3 .claude/hooks/report_gate.py --self-test` | `14 PASS, 0 FAIL` |
+| H1.S3.M3 | PR #514 a `dev` con la CI en verde; mergeado el 2026-11-24 | checks del head `af1db1d` (runs 45459193470 y 45459192974) | PASS — ver «CI del PR #514» |
 
 ## A medias
-### H1.S3.M3 — PR a `dev` con CI en verde
-- Qué anda: todos los verificadores que corre la CI sobre la bóveda pasan en local (ver Evidencia).
-- Qué no anda: en el PR #514 pasaron «Bóveda, seguridad, carriles y despliegue coherentes», «La boveda y el esquema no divergen», «Esquema, semillas y prueba de humo sobre PostgreSQL real» y «Base efimera, semillas y permisos»; falló «Los cinco corredores» (job 138542891268) en `jacocoTestReport`: `Could not GET 'https://repo.maven.apache.org/maven2/org/jacoco/org.jacoco.ant/0.8.14/org.jacoco.ant-0.8.14.pom'. Received status code 429 from server: Too Many Requests`. Clasificación: `EXTERNAL` (límite de Maven Central); el diff no toca Java ni Gradle.
-- Qué falta exactamente: que termine el único re-run de los jobs fallidos (run 45419868730, lanzado 2026-11-24 18:23 UTC) y quede en verde. Si vuelve a fallar con 429, se deja un comentario en el PR y queda `BLOQUEADO` por `EXTERNAL`, sin más re-runs.
-- Dónde quedó: rama `claude/gu-g-cu-participantes`, PR https://github.com/PabloArauzCaballero/PasanakuBackend/pull/514 contra `dev`; solo documentos y el catálogo de datos regenerado.
+### H2.S1.M3 — PR de aprobación a `dev`
+- Qué anda: CU-134 en APROBADO con «Decisiones aprobadas»; `verificar_boveda.py` → `TODO OK`; catálogo de datos sin diferencias.
+- Qué no anda: la CI del PR todavía no corrió.
+- Qué falta exactamente: abrir el PR y ver los checks en verde.
+- Dónde quedó: rama `claude/gu-g-cu-participantes`, actualizada con `dev`.
+
+### H3 — Implementación de CU-134 (en curso) — ESTADO PARA RETOMAR
+- **Qué anda (verificado en local):**
+  - H3.S1, modelo y esquema: 5 tablas nuevas, CHECK ampliados, R-SEG-13..15, permisos `PARTICIPANTES_*` y la semilla de `politica_medida_cuenta` (5/5 días hábiles, 12 meses, 90 días). Aplicado dos veces sobre Postgres 16; restricciones probadas en tres niveles; semillas idempotentes (`evidencia/H3.S1-*.txt`).
+  - Prueba de humo: 166 OK, 0 FALLA (`evidencia/H3.S1-prueba-humo.txt`).
+  - Verificadores y deriva en 0 tras integrar `dev` con #516 (`evidencia/H3-verificadores-tras-merge.txt`).
+  - H3.S3, átomos puros: `CausalDeMedida`, `PlazosDeMedida` y `Enmascarado`. Compilan con `javac -Xlint:all -Werror` y su ejercicio en tres niveles pasa (`evidencia/H3.S3-atomos.txt`). Están formateados según Spotless.
+- **Qué no anda / no existe todavía:** repositorios, organismos `CU134*`, controlador `ParticipantesController`, trabajo diario de vencimientos, pruebas `CU134*Test`, retención de la entrega en `entregas` (H3.S4), modo restringido del suspendido (H3.S5) y backoffice (H3.S6).
+- **Qué falta exactamente (próximo paso concreto):**
+  1. Aplicar el contrato: `git apply docs/trabajo/2026-11-24-gu-g/evidencia/H3.S2-contrato-participantes.patch`. Las rutas son `/identidad/participantes/...` y `/identidad/medidas-cuenta/...`; los errores `AP-CU134-01..11` ya están en comentarios.
+  2. Escribir en `servicios/identidad` los repositorios `ParticipantesRepositorio` y `MedidasDeCuentaRepositorio`, con tablas jOOQ `Tables.EXPEDIENTE_MEDIDA_CUENTA` etc. y `catalogo.dia_no_habil` para el calendario (patrón `aportes/infraestructura/FeriadosRepositorio`). La escritura en `comun.registro_acceso_datos` sigue el patrón de `aportes/infraestructura/AuditoriaRepositorio`.
+  3. Escribir los organismos `CU134ConsultarParticipante`, `CU134ProponerMedida`, `CU134DecidirMedida` y `CU134ResolverApelacion`, más notificación, descargo y apelación, con el patrón de `CU08AsignarRol` (`datos.conContexto`, `ErrorDeNegocio(CodigoError.de(134, n))`, `outbox.emitir`).
+  4. `ParticipantesController implements ParticipantesApi` con `@Permiso("PARTICIPANTES_*")`.
+  5. Escribir `CU134Test`: un `@DisplayName` por escenario gherkin del CU y la cita de cada R-XXX del CU (lo exige `verificar_criterios.py`). Base con `BaseDePrueba.contenedor()`, como `BaseDeCU08`.
+  6. La segunda instancia y el segundo factor reciente: verificar la evidencia de step-up de `CU04StepUp` (hoy solo la verifica `nucleo-financiero`, con `SegundoFactorLocal`).
+- **Bloqueo:** `./gradlew` no resuelve dependencias en este entorno (Maven Central 429; espejo denegado por permisos, `evidencia/H3.S3-bloqueo-maven-429.txt`). La CI sí compila: verificar con la CI.
+- **Dónde quedó:** rama `claude/gu-g-cu-participantes`, todo pusheado, PR #519.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| Implementación de CU-134 (Ola 3) | `DECISION_REQUIRED` | Que Pablo apruebe el CU y responda D-1 a D-15 |
+| Implementación de CU-134 (Ola 3) | `TODO` | Aprobada por la sesión principal; arranca cuando #516 (lote B) esté en `dev` o contra un doble declarado de su contrato |
+| A-1 destino de la entrega retenida si la medida queda firme | `DECISION_REQUIRED` | Pablo |
+| A-2 prescripción en meses vs. columna en días; sin columna para duración máxima | `TODO` | Se resuelve en el modelo al implementar; Pablo si exige elegir equivalencia |
 
 ## Hallazgos (relevamiento)
 | Hecho | Ruta |
@@ -89,14 +109,29 @@ $ python3 scripts/verificar_pruebas_web.py              → exit=0
 $ python3 -I scripts/test_catalogo_de_datos.py          → OK
 $ python3 -I scripts/catalogo_de_datos.py --escribir    → 404 tablas; regenera docs/catalogo-de-datos.md y catalogo-datos.json (cambio commiteado: CU-134 nombra tablas)
 ```
+### CI del PR #514 (head `af1db1d`)
+```text
+success  Bóveda, seguridad, carriles y despliegue coherentes   (run 45459192974)
+success  Esquema, semillas y prueba de humo sobre PostgreSQL real (run 45459192974)
+success  Detectar impacto del cambio · La boveda y el esquema no divergen · Base efimera, semillas y permisos
+success  Formato, reglas propias y compilacion · Dependencias, secretos e imagen
+success  bootJar y docker build, multietapa y sin root · Los cinco corredores · Trivy
+skipped  Flutter/Angular, goldens, iOS, OSV, contratos generados, punta a punta (no aplican a un cambio de docs)
+```
+Historia: en el primer head (`9aef3a2`) «Los cinco corredores» falló porque Maven Central devolvió
+`429 Too Many Requests` al bajar `org.jacoco.ant:0.8.14` (clase `EXTERNAL`). La corrida del head
+`af1db1d` fue cancelada por la concurrencia `ci-<ref>` con `cancel-in-progress` (un relanzamiento
+sobre la misma rama la pisó); se relanzó una vez y terminó en verde.
+
 Archivos completos: [evidencia/](./evidencia/).
 
 ## No cubierto
 - El CU no se implementó ni se ejecutó contra nada: es especificación. Ninguna regla de él está verificada en runtime.
 - No se dieron de alta en `docs/Restricciones.md` las restricciones nuevas ni en el modelo las entidades `expediente_medida_cuenta` / `apelacion_medida_cuenta`, los permisos `PARTICIPANTES_*` ni los valores de CHECK nuevos: quedan propuestos dentro del CU.
-- No se corrió la CI completa (Gradle, Flutter, Postgres): el cambio no toca código; se espera la CI del PR.
+- Los jobs de Flutter, iOS y punta a punta se saltaron en la CI por no aplicar a un cambio de documentación.
 
 ## Desvíos del plan
+- El PR #514 se mergeó antes de que este reporte registrara la CI verde; este estado final entra por un PR aparte, desde la misma rama.
 - Se agregaron al alcance (anotado en el PLAN): la línea «Ver también» recíproca en 7 CU vecinos y el catálogo de datos regenerado, porque los verificadores de la CI los exigen.
 - `planes/17 …` tenía además «los 112 CU» en la línea 577; también se actualizó.
 
@@ -106,6 +141,8 @@ Archivos completos: [evidencia/](./evidencia/).
 - CU-44 menciona un estado `CONGELADA` de cuenta que no existe en `usuario.estado` (sí en `cuenta_billetera`): inconsistencia previa, anotada, no corregida (fuera de alcance).
 
 ## Decisiones y ambigüedades
+- 2026-11-24: Pablo aprobó todo el lote G («Aprobado todo lo de G ya mismo»), comunicado por la sesión principal. Se aplicó la opción recomendada en cada D-n. D-13 no aplica porque D-2 no incluye inhabilitación definitiva.
+- 2026-11-24: Pablo fijó D-3 (descargo 5 días hábiles, apelación 5 días hábiles, prescripción 12 meses, suspensión máxima 90 días; valor de plataforma sin fuente normativa) y D-11 (retener la entrega en custodia hasta resolver), comunicado por la sesión principal.
 - Número **CU-134** (no CU-133) — supuesto; confirmar con Pablo.
 - Servicio dueño `identidad` — supuesto; confirmar con Pablo.
 - Título del CU: el pedido literal del lote G.

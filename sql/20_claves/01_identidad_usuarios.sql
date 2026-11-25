@@ -14,6 +14,21 @@ ALTER TABLE identidad.alcance_invitacion
   ADD CONSTRAINT fk_alcance_invitacion_token_id
   FOREIGN KEY (token_id) REFERENCES identidad.token_verificacion (id) ON DELETE RESTRICT ON UPDATE CASCADE;
 
+ALTER TABLE identidad.apelacion_medida_cuenta DROP CONSTRAINT IF EXISTS fk_apelacion_medida_cuenta_apelante_id;
+ALTER TABLE identidad.apelacion_medida_cuenta
+  ADD CONSTRAINT fk_apelacion_medida_cuenta_apelante_id
+  FOREIGN KEY (apelante_id) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE identidad.apelacion_medida_cuenta DROP CONSTRAINT IF EXISTS fk_apelacion_medida_cuenta_expediente_medida_cuenta_id;
+ALTER TABLE identidad.apelacion_medida_cuenta
+  ADD CONSTRAINT fk_apelacion_medida_cuenta_expediente_medida_cuenta_id
+  FOREIGN KEY (expediente_medida_cuenta_id) REFERENCES identidad.expediente_medida_cuenta (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE identidad.apelacion_medida_cuenta DROP CONSTRAINT IF EXISTS fk_apelacion_medida_cuenta_resuelta_por;
+ALTER TABLE identidad.apelacion_medida_cuenta
+  ADD CONSTRAINT fk_apelacion_medida_cuenta_resuelta_por
+  FOREIGN KEY (resuelta_por) REFERENCES identidad.usuario (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
 ALTER TABLE identidad.asignacion_rol DROP CONSTRAINT IF EXISTS fk_asignacion_rol_otorgada_por;
 ALTER TABLE identidad.asignacion_rol
   ADD CONSTRAINT fk_asignacion_rol_otorgada_por
@@ -64,6 +79,41 @@ ALTER TABLE identidad.documento_identidad
   ADD CONSTRAINT fk_documento_identidad_usuario_id
   FOREIGN KEY (usuario_id) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
 
+ALTER TABLE identidad.evidencia_medida_cuenta DROP CONSTRAINT IF EXISTS fk_evidencia_medida_cuenta_aportada_por;
+ALTER TABLE identidad.evidencia_medida_cuenta
+  ADD CONSTRAINT fk_evidencia_medida_cuenta_aportada_por
+  FOREIGN KEY (aportada_por) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE identidad.evidencia_medida_cuenta DROP CONSTRAINT IF EXISTS fk_evidencia_medida_cuenta_expediente_medida_cuenta_id;
+ALTER TABLE identidad.evidencia_medida_cuenta
+  ADD CONSTRAINT fk_evidencia_medida_cuenta_expediente_medida_cuenta_id
+  FOREIGN KEY (expediente_medida_cuenta_id) REFERENCES identidad.expediente_medida_cuenta (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE identidad.evidencia_step_up_consumida DROP CONSTRAINT IF EXISTS fk_evidencia_step_up_consumida_usuario_id;
+ALTER TABLE identidad.evidencia_step_up_consumida
+  ADD CONSTRAINT fk_evidencia_step_up_consumida_usuario_id
+  FOREIGN KEY (usuario_id) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE identidad.expediente_medida_cuenta DROP CONSTRAINT IF EXISTS fk_expediente_medida_cuenta_decidida_por;
+ALTER TABLE identidad.expediente_medida_cuenta
+  ADD CONSTRAINT fk_expediente_medida_cuenta_decidida_por
+  FOREIGN KEY (decidida_por) REFERENCES identidad.usuario (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE identidad.expediente_medida_cuenta DROP CONSTRAINT IF EXISTS fk_expediente_medida_cuenta_politica_medida_cuenta_id;
+ALTER TABLE identidad.expediente_medida_cuenta
+  ADD CONSTRAINT fk_expediente_medida_cuenta_politica_medida_cuenta_id
+  FOREIGN KEY (politica_medida_cuenta_id) REFERENCES identidad.politica_medida_cuenta (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE identidad.expediente_medida_cuenta DROP CONSTRAINT IF EXISTS fk_expediente_medida_cuenta_propuesta_por;
+ALTER TABLE identidad.expediente_medida_cuenta
+  ADD CONSTRAINT fk_expediente_medida_cuenta_propuesta_por
+  FOREIGN KEY (propuesta_por) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE identidad.expediente_medida_cuenta DROP CONSTRAINT IF EXISTS fk_expediente_medida_cuenta_usuario_id;
+ALTER TABLE identidad.expediente_medida_cuenta
+  ADD CONSTRAINT fk_expediente_medida_cuenta_usuario_id
+  FOREIGN KEY (usuario_id) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
 ALTER TABLE identidad.factor_mfa DROP CONSTRAINT IF EXISTS fk_factor_mfa_usuario_id;
 ALTER TABLE identidad.factor_mfa
   ADD CONSTRAINT fk_factor_mfa_usuario_id
@@ -73,6 +123,16 @@ ALTER TABLE identidad.historial_credencial DROP CONSTRAINT IF EXISTS fk_historia
 ALTER TABLE identidad.historial_credencial
   ADD CONSTRAINT fk_historial_credencial_usuario_id
   FOREIGN KEY (usuario_id) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE identidad.historial_estado_medida_cuenta DROP CONSTRAINT IF EXISTS fk_historial_estado_medida_cuenta_ejecutado_por;
+ALTER TABLE identidad.historial_estado_medida_cuenta
+  ADD CONSTRAINT fk_historial_estado_medida_cuenta_ejecutado_por
+  FOREIGN KEY (ejecutado_por) REFERENCES identidad.usuario (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE identidad.historial_estado_medida_cuenta DROP CONSTRAINT IF EXISTS fk_historial_estado_medida_cuenta_expediente_medida_cuenta_id;
+ALTER TABLE identidad.historial_estado_medida_cuenta
+  ADD CONSTRAINT fk_historial_estado_medida_cuenta_expediente_medida_cuenta_id
+  FOREIGN KEY (expediente_medida_cuenta_id) REFERENCES identidad.expediente_medida_cuenta (id) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 ALTER TABLE identidad.intento_autenticacion DROP CONSTRAINT IF EXISTS fk_intento_autenticacion_usuario_id;
 ALTER TABLE identidad.intento_autenticacion
@@ -88,6 +148,11 @@ ALTER TABLE identidad.perfil_financiero DROP CONSTRAINT IF EXISTS fk_perfil_fina
 ALTER TABLE identidad.perfil_financiero
   ADD CONSTRAINT fk_perfil_financiero_usuario_id
   FOREIGN KEY (usuario_id) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE identidad.politica_medida_cuenta DROP CONSTRAINT IF EXISTS fk_politica_medida_cuenta_aprobada_por;
+ALTER TABLE identidad.politica_medida_cuenta
+  ADD CONSTRAINT fk_politica_medida_cuenta_aprobada_por
+  FOREIGN KEY (aprobada_por) REFERENCES identidad.usuario (id) ON DELETE SET NULL ON UPDATE CASCADE;
 
 ALTER TABLE identidad.preferencia_notificacion DROP CONSTRAINT IF EXISTS fk_preferencia_notificacion_usuario_id;
 ALTER TABLE identidad.preferencia_notificacion

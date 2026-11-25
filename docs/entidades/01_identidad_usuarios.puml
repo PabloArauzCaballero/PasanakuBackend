@@ -52,6 +52,7 @@ package "Nucleo de Identidad" {
     SUSPENDIDO
     BLOQUEADO_SEGURIDAD
     BAJA_VOLUNTARIA
+    BAJA_LABORAL
     ELIMINADO
   }
 
@@ -196,6 +197,19 @@ package "Tokens de Verificacion y Credenciales" {
     BLOQUEADO_POR_INTENTOS
     CANAL_NO_COINCIDE
     DISPOSITIVO_NO_COINCIDE
+  }
+
+  enum PropositoDeStepUpDeGobierno {
+    ADMIN
+  }
+
+  class EvidenciaStepUpConsumida {
+    - id: UUID
+    - jti: UUID <<UQ, la evidencia step-up de un acto de gobierno se usa una sola vez (GU-11)>>
+    - usuarioId: UUID
+    - proposito: PropositoDeStepUpDeGobierno
+    - consumidaEn: DateTime
+    - venceEn: DateTime <<exp de la evidencia>>
   }
 
   abstract class TokenVerificacion <<AR>> {
@@ -400,7 +414,7 @@ package "Sesiones, Dispositivos y Defensa" {
   class BloqueoCuenta {
     - id: UUID
     - usuarioId: UUID
-    - motivo: String <<INTENTOS_FALLIDOS | FRAUDE | SOLICITUD_USUARIO | ORDEN_ADMIN>>
+    - motivo: String <<INTENTOS_FALLIDOS | FRAUDE | SOLICITUD_USUARIO | ORDEN_ADMIN | CUENTA_COMPROMETIDA>>
     - bloqueadaEn: DateTime
     - desbloqueaEn: DateTime
     - liberadaEn: DateTime
@@ -603,6 +617,64 @@ package "Autorizacion (RBAC) y Cumplimiento" {
 }
 
 ' ============================================================
+package "Gobierno del participante (CU-134)" {
+  class PoliticaMedidaCuenta <<Pol>> {
+    - id: UUID
+    - version: String
+    - plazoDescargoDiasHabiles: Integer
+    - plazoApelacionDiasHabiles: Integer
+    - plazoResolucionApelacionDiasHabiles: Integer
+    - prescribeEnMeses: Integer
+    - duracionMaximaSuspensionDias: Integer
+    - fuente: String
+    - aprobadaPor: UUID
+    - vigenteDesde: DateTime
+  }
+
+  class ExpedienteMedidaCuenta <<AR>> {
+    - id: UUID
+    - usuarioId: UUID
+    - politicaMedidaCuentaId: UUID
+    - causal: String <<CUENTA_COMPROMETIDA | FRAUDE_CON_EVIDENCIA | ABUSO_CONTRA_PARTICIPANTES | CUENTA_DUPLICADA_O_DE_TERCERO>>
+    - medida: String <<BLOQUEO_CAUTELAR | SUSPENSION_TEMPORAL>>
+    - cautelar: Boolean
+    - motivo: String
+    - estado: String <<PROPUESTA | CAUTELAR | NOTIFICACION_PENDIENTE | EN_DESCARGO | DECIDIDA | EN_APELACION | FIRME | DESESTIMADA | REVOCADA | CUMPLIDA | PRESCRITO>>
+    - estadoCuentaPrevio: String <<ACTIVO | INCOMPLETO_KYC | PENDIENTE_VERIFICACION | PRE_REGISTRO>>
+    - resultadoDecision: String <<CONFIRMADA | DESESTIMADA>>
+    - claveIdempotencia: String
+    --
+    + puedeDecidirse(ahora): Boolean
+    + quedaFirme(ahora): Boolean
+  }
+
+  class EvidenciaMedidaCuenta {
+    - id: UUID
+    - expedienteMedidaCuentaId: UUID
+    - tipo: String <<EVIDENCIA_SISTEMA | EVIDENCIA_OPERADOR | EVIDENCIA_AFECTADO | DESCARGO>>
+    - contenido: String
+    - referenciaId: UUID
+    - aportadaPor: UUID
+  }
+
+  class HistorialEstadoMedidaCuenta {
+    - id: UUID
+    - expedienteMedidaCuentaId: UUID
+    - estadoAnterior: String <<PROPUESTA | CAUTELAR | NOTIFICACION_PENDIENTE | EN_DESCARGO | DECIDIDA | EN_APELACION | FIRME | DESESTIMADA | REVOCADA | CUMPLIDA | PRESCRITO>>
+    - estadoNuevo: String <<PROPUESTA | CAUTELAR | NOTIFICACION_PENDIENTE | EN_DESCARGO | DECIDIDA | EN_APELACION | FIRME | DESESTIMADA | REVOCADA | CUMPLIDA | PRESCRITO>>
+    - ejecutadoPor: UUID
+  }
+
+  class ApelacionMedidaCuenta {
+    - id: UUID
+    - expedienteMedidaCuentaId: UUID
+    - apelanteId: UUID
+    - argumento: String
+    - estado: String <<PRESENTADA | ACEPTADA | RECHAZADA | ACEPTADA_POR_VENCIMIENTO>>
+    - resueltaPor: UUID
+  }
+}
+
 package "Reputacion (enlace al Modulo 6)" {
 
   class ReputacionUsuario {
@@ -1123,6 +1195,99 @@ entity "solicitud_baja" as baja {
   bloqueada_por_obligaciones : BOOLEAN
 }
 
+' ----------------------------------------------------------------------------
+'  CU-134: gobierno del participante con debido proceso (regla 91.4).
+'  La politica guarda los plazos de plataforma aprobados por Pablo (2026-11-24);
+'  evidencia e historial son append-only: el expediente se corrige con filas nuevas.
+' ----------------------------------------------------------------------------
+entity "politica_medida_cuenta" as polmed {
+  * id : UUID <<PK>>
+  --
+  version : VARCHAR(20) <<UQ>>
+  plazo_descargo_dias_habiles : SMALLINT <<CK: > 0>>
+  plazo_apelacion_dias_habiles : SMALLINT <<CK: > 0>>
+  plazo_resolucion_apelacion_dias_habiles : SMALLINT <<NULL>>
+  prescribe_en_meses : SMALLINT <<CK: > 0>>
+  duracion_maxima_suspension_dias : SMALLINT <<CK: > 0>>
+  fuente : VARCHAR(200)
+  # aprobada_por : UUID <<FK, NULL>>
+  vigente_desde : TIMESTAMPTZ
+}
+
+entity "expediente_medida_cuenta" as expmed {
+  * id : UUID <<PK>>
+  --
+  # usuario_id : UUID <<FK, IDX>>
+  # politica_medida_cuenta_id : UUID <<FK>>
+  causal : VARCHAR(40) <<CK>>
+  medida : VARCHAR(25) <<CK>>
+  cautelar : BOOLEAN
+  motivo : VARCHAR(500)
+  estado : VARCHAR(25) <<CK, IDX>>
+  estado_cuenta_previo : VARCHAR(25) <<CK>>
+  # propuesta_por : UUID <<FK>>
+  propuesta_en : TIMESTAMPTZ
+  notificada_en : TIMESTAMPTZ <<NULL>>
+  fecha_limite_descargo : TIMESTAMPTZ <<NULL>>
+  # decidida_por : UUID <<FK, NULL>>
+  decidida_en : TIMESTAMPTZ <<NULL>>
+  resultado_decision : VARCHAR(15) <<CK, NULL>>
+  fundamento_decision : TEXT <<NULL>>
+  fecha_limite_apelacion : TIMESTAMPTZ <<NULL>>
+  vigente_hasta : TIMESTAMPTZ <<NULL>>
+  prescribe_en : TIMESTAMPTZ
+  firme_en : TIMESTAMPTZ <<NULL>>
+  cerrada_en : TIMESTAMPTZ <<NULL>>
+  clave_idempotencia : VARCHAR(80) <<UQ>>
+  version : INTEGER
+}
+
+entity "evidencia_medida_cuenta" as evimed {
+  * id : UUID <<PK>>
+  --
+  # expediente_medida_cuenta_id : UUID <<FK, IDX>>
+  tipo : VARCHAR(25) <<CK>>
+  contenido : TEXT
+  referencia_id : UUID <<NULL>>
+  # aportada_por : UUID <<FK>>
+  registrada_en : TIMESTAMPTZ
+}
+
+entity "historial_estado_medida_cuenta" as histmed {
+  * id : UUID <<PK>>
+  --
+  # expediente_medida_cuenta_id : UUID <<FK, IDX>>
+  estado_anterior : VARCHAR(25) <<CK, NULL>>
+  estado_nuevo : VARCHAR(25) <<CK>>
+  # ejecutado_por : UUID <<FK, NULL>>
+  motivo : VARCHAR(500) <<NULL>>
+  ocurrido_en : TIMESTAMPTZ
+}
+
+entity "apelacion_medida_cuenta" as apemed {
+  * id : UUID <<PK>>
+  --
+  # expediente_medida_cuenta_id : UUID <<FK, UQ>>
+  # apelante_id : UUID <<FK>>
+  argumento : TEXT
+  estado : VARCHAR(25) <<CK>>
+  presentada_en : TIMESTAMPTZ
+  fecha_limite_resolucion : TIMESTAMPTZ <<NULL>>
+  # resuelta_por : UUID <<FK, NULL>>
+  resuelta_en : TIMESTAMPTZ <<NULL>>
+  resolucion : TEXT <<NULL>>
+}
+
+entity "evidencia_step_up_consumida" as evidsu {
+  * id : UUID <<PK>>
+  --
+  jti : UUID <<UQ, consumo de un solo uso>>
+  # usuario_id : UUID <<FK, IDX>>
+  proposito : VARCHAR(20) <<CK>>
+  consumida_en : TIMESTAMPTZ
+  vence_en : TIMESTAMPTZ <<IDX>>
+}
+
 entity "solicitud_recuperacion_acceso" as solrec {
   * id : UUID <<PK>>
   --
@@ -1147,6 +1312,7 @@ usuario ||--o| perfin : "declara"
 usuario ||--|| cred : "autentica con"
 usuario ||--o{ histcred : "historico de"
 usuario ||--o{ token : "recibe"
+usuario ||--o{ evidsu : "consume step-up"
 usuario ||--o{ solrec : "pide recuperar su acceso"
 solrec }o--o| token : "emite"
 usuario ||--o{ mfa : "protege con"
@@ -1164,6 +1330,12 @@ usuario ||--|| pref : "configura"
 usuario ||--|| reput : "acumula"
 usuario ||--o| baja : "solicita"
 usuario ||--o| usuint : "perfil interno"
+
+usuario ||--o{ expmed : "es objeto de"
+polmed ||--o{ expmed : "fija los plazos de"
+expmed ||--o{ evimed : "se sustenta en"
+expmed ||--o{ histmed : "registra"
+expmed ||--o| apemed : "se apela en"
 
 poltok ||--o{ token : "parametriza"
 token ||--o{ intok : "registra"

@@ -1,0 +1,10 @@
+> Task :plataforma:comun-web:processTestResources NO-SOURCE
+> Task :plataforma:comun-web:testClasses UP-TO-DATE
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+> Task :plataforma:comun-web:test
+
+BUILD SUCCESSFUL in 38s
+33 actionable tasks: 5 executed, 28 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+
+JUnit: 46 pruebas, 0 fallos, 0 errores, 0 omitidas.

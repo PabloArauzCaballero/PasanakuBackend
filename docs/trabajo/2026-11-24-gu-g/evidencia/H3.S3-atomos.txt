@@ -1,0 +1,10 @@
+OK  telefono enmascarado
+OK  correo enmascarado
+OK  nombre abreviado
+OK  causal fuera de catalogo (limite invalido)
+OK  cautelar solo en causales que la admiten
+    limite descargo = 2026-12-04T23:59:59-04:00
+OK  5 habiles desde jueves 26/11 saltando sab, dom y feriado 1/12 = 4/12
+OK  prescripcion 12 meses
+OK  tope de 90 dias (borde)
+OK  politica con plazo 0 rechazada
