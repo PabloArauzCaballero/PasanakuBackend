@@ -26,7 +26,7 @@ describe('navegación del shell · accesibilidad', () => {
     ;(el.querySelector('ap-menu-de-usuario .disparador') as HTMLButtonElement).click()
     arnes.fixture.detectChanges()
     await arnes.fixture.whenStable()
-    expect(el.querySelectorAll('[role="menuitem"]')).toHaveLength(2)
+    expect(el.querySelectorAll('[role="menuitem"]')).toHaveLength(3)
     expect(await axe(el)).toHaveNoViolations()
   })
 })
