@@ -31,6 +31,7 @@ public class RolesYPermisosRepositorio {
         var filas = dsl.select(
                         ROL.ID, ROL.CODIGO, ROL.NOMBRE, ROL.AMBITO, ROL.DEPARTAMENTO, ROL.DESCRIPCION, ROL.ES_SISTEMA)
                 .from(ROL)
+                .where(ROL.RETIRADO_EN.isNull())
                 .orderBy(ROL.DEPARTAMENTO.asc().nullsLast(), ROL.NOMBRE.asc())
                 .fetch();
 

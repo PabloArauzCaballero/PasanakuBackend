@@ -39,6 +39,7 @@ export const rutasSistemas: Routes = [
       { path: 'accesos', loadComponent: () => import('./accesos/pantalla-accesos').then((m) => m.PantallaAccesos), title: 'Accesos · Sistemas · AportaYa' },
       { path: 'incidentes', loadComponent: () => import('./incidentes/pantalla-incidentes').then((m) => m.PantallaIncidentes), title: 'Incidentes · Sistemas · AportaYa' },
       { path: 'usuarios-internos', loadComponent: () => import('./usuarios-internos/pantalla-usuarios-internos').then((m) => m.PantallaUsuariosInternos), title: 'Usuarios internos · Sistemas · AportaYa' },
+      { path: 'cuentas-de-servicio', loadComponent: () => import('./cuentas-de-servicio/pantalla-cuentas-de-servicio').then((m) => m.PantallaCuentasDeServicio), title: 'Cuentas de servicio · Sistemas · AportaYa' },
       { path: 'usuarios-internos/:id', loadComponent: () => import('./usuarios-internos/pantalla-usuario-interno-detalle').then((m) => m.PantallaUsuarioInternoDetalle), title: 'Detalle de usuario interno · Sistemas · AportaYa' },
       { path: 'roles-internos', loadComponent: () => import('./roles-internos/pantalla-roles-internos').then((m) => m.PantallaRolesInternos), title: 'Roles internos · Sistemas · AportaYa' },
       { path: 'permisos-internos', loadComponent: () => import('./permisos-internos/pantalla-permisos-internos').then((m) => m.PantallaPermisosInternos), title: 'Permisos internos · Sistemas · AportaYa' },

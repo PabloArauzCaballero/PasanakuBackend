@@ -1,0 +1,53 @@
+{
+  "servicio": "identidad",
+  "operacion": "listarCuentasDeServicio",
+  "metodo": "get",
+  "ruta": "/cuentas-servicio",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "250d737d-d4d9-4555-8e2b-59d8f9e748d2",
+          "usuarioId": "b4e73ead-24fa-4c83-86fe-25dd2d9e1db3",
+          "rolCodigo": "rolCodigo",
+          "nombre": "nombre",
+          "estado": "ACTIVA",
+          "venceEn": "2026-01-15T10:30:00Z",
+          "creadaEn": "2026-01-15T10:30:00Z",
+          "credencialRotadaEn": "2026-01-15T10:30:00Z",
+          "revocadaEn": "2026-01-15T10:30:00Z"
+        }
+      ]
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": []
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "250d737d-d4d9-4555-8e2b-59d8f9e748d2",
+          "usuarioId": "b4e73ead-24fa-4c83-86fe-25dd2d9e1db3",
+          "rolCodigo": "rolCodigo",
+          "nombre": "nombre",
+          "estado": "ACTIVA",
+          "venceEn": "2026-01-15T10:30:00Z",
+          "creadaEn": "2026-01-15T10:30:00Z",
+          "credencialRotadaEn": "2026-01-15T10:30:00Z",
+          "revocadaEn": "2026-01-15T10:30:00Z"
+        }
+      ]
+    },
+    "rechazo": {
+      "estado": 401,
+      "cuerpo": {
+        "codigo": "AP-CU136-01",
+        "mensaje": "Nombre invalido",
+        "detalle": {},
+        "trazaId": "traza-listarCuentasDeServicio-rechazo"
+      }
+    }
+  }
+}

@@ -202,7 +202,7 @@ PREFIJOS = {
     # validez; CU-04 y el flujo del backoffice usan `POST /sesiones` para abrirla.
     # La reserva listaba solo el primero, y por eso el contrato de identidad no
     # pasaba su propia prueba de prefijos.
-    "identidad":         ["/identidad", "/usuarios", "/usuarios-internos", "/sesion", "/sesiones", "/roles", "/permisos"],
+    "identidad":         ["/identidad", "/usuarios", "/usuarios-internos", "/sesion", "/sesiones", "/roles", "/permisos", "/cuentas-servicio"],
     "grupos":            ["/grupos", "/turnos", "/acuerdos"],
     "nucleo_financiero": ["/billetera", "/custodia", "/puntos-atencion", "/contabilidad", "/recargas-de-prueba"],
     "aportes":           ["/aportes", "/pagos", "/qr", "/conciliacion"],

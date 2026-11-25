@@ -20,10 +20,10 @@ describe('matriz de roles · «Personal y accesos» (GU-09)', () => {
   const pestanasDe = (rol: string) => pantallasVisibles(entrada, credenciales(rol)).map((p) => p.ruta.replace('/sistemas/', ''))
   const veLaSeccion = (rol: string) => entradasVisibles(credenciales(rol)).some((g) => g.entradas.some((e) => e.ruta === 'personal'))
 
-  it('correcto: INTERNAL_IDENTITY_ADMIN y ADMIN_PLATAFORMA ven la sección con sus cuatro pantallas', () => {
+  it('correcto: INTERNAL_IDENTITY_ADMIN y ADMIN_PLATAFORMA ven la sección con sus cinco pantallas', () => {
     for (const rol of ['INTERNAL_IDENTITY_ADMIN', 'ADMIN_PLATAFORMA']) {
       expect(veLaSeccion(rol), rol).toBe(true)
-      expect(pestanasDe(rol), rol).toEqual(['usuarios-internos', 'roles-internos', 'permisos-internos', 'accesos'])
+      expect(pestanasDe(rol), rol).toEqual(['usuarios-internos', 'roles-internos', 'permisos-internos', 'accesos', 'cuentas-de-servicio'])
     }
   })
 

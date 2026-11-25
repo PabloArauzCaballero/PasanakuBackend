@@ -172,12 +172,12 @@ export const MENU: readonly Grupo[] = [
       {
         ruta: 'personal',
         texto: 'Personal y accesos',
-        prefijos: ['/sistemas/usuarios-internos', '/sistemas/roles-internos', '/sistemas/permisos-internos', '/sistemas/accesos'],
+        prefijos: ['/sistemas/usuarios-internos', '/sistemas/roles-internos', '/sistemas/permisos-internos', '/sistemas/accesos', '/sistemas/cuentas-de-servicio'],
         pantallas: [
           per('usuarios-internos', 'Usuarios internos', 'persona'),
           per('roles-internos', 'Roles internos', 'grupo'),
           per('permisos-internos', 'Permisos internos', 'llave'),
-          per('accesos', 'Revisión de accesos', 'candado'),
+          per('accesos', 'Revisión de accesos', 'candado'), per('cuentas-de-servicio', 'Cuentas de servicio', 'llave'),
         ],
       },
       {

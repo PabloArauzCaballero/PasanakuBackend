@@ -1,0 +1,58 @@
+{
+  "servicio": "identidad",
+  "operacion": "revocarCuentaDeServicio",
+  "metodo": "post",
+  "ruta": "/cuentas-servicio/{cuentaId}/revocacion",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "cuentaId": "676dae6f-381e-460d-8f73-58629f8ca47c",
+        "asignacionesRevocadas": 0,
+        "sesionesCerradas": 0
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "cuentaId": "676dae6f-381e-460d-8f73-58629f8ca47c",
+        "asignacionesRevocadas": 0,
+        "sesionesCerradas": 0
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "cuentaId": "676dae6f-381e-460d-8f73-58629f8ca47c",
+        "asignacionesRevocadas": 0,
+        "sesionesCerradas": 0
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "cuentaId": "676dae6f-381e-460d-8f73-58629f8ca47c",
+        "asignacionesRevocadas": 0,
+        "sesionesCerradas": 0
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 400,
+      "cuerpo": {
+        "codigo": "AP-CU01-03",
+        "mensaje": "Cuenta ya existe",
+        "detalle": {},
+        "trazaId": "traza-revocarCuentaDeServicio-rechazo"
+      }
+    }
+  }
+}

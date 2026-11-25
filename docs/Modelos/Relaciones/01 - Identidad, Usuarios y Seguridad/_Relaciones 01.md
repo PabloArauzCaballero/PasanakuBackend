@@ -3,12 +3,12 @@ tags:
   - moc
   - modulo/01-identidad-usuarios-y-seguridad
 modulo: "01 — Identidad, Usuarios y Seguridad"
-relaciones_fk: 34
+relaciones_fk: 41
 ---
 
 # 01 — Identidad, Usuarios y Seguridad · relaciones
 
-Las **34 claves foráneas** que salen de las tablas de este módulo.
+Las **41 claves foráneas** que salen de las tablas de este módulo.
 
 [[_Relaciones|← Todas las relaciones]] · [[Index]]
 
@@ -48,3 +48,10 @@ Las **34 claves foráneas** que salen de las tablas de este módulo.
 | [[verificacion_kyc.documento_id → documento_identidad]] | [[documento_identidad]] | — | sí |
 | [[verificacion_kyc.revisada_por → usuario]] | [[usuario]] | — | sí |
 | [[verificacion_kyc.usuario_id → usuario]] | [[usuario]] | — | no |
+| [[cuenta_servicio.creada_por → usuario]] | [[usuario]] | — | no |
+| [[cuenta_servicio.revocada_por → usuario]] | [[usuario]] | — | sí |
+| [[cuenta_servicio.rol_id → rol]] | [[rol]] | — | no |
+| [[cuenta_servicio.usuario_id → usuario]] | [[usuario]] | — | no |
+| [[solicitud_cambio_rol.propuesta_por → usuario]] | [[usuario]] | — | no |
+| [[solicitud_cambio_rol.resuelta_por → usuario]] | [[usuario]] | — | sí |
+| [[solicitud_cambio_rol.rol_id → rol]] | [[rol]] | — | sí |

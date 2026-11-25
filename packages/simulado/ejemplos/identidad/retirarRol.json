@@ -1,0 +1,58 @@
+{
+  "servicio": "identidad",
+  "operacion": "retirarRol",
+  "metodo": "post",
+  "ruta": "/roles/{rolId}/retiro",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "estado": "APLICADO",
+        "rolId": "49934ed3-263f-4623-8fac-98f06fd324f6",
+        "solicitudId": "270cb3d8-945d-4336-84ca-eaf12bb6a970"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "estado": "APLICADO",
+        "rolId": "49934ed3-263f-4623-8fac-98f06fd324f6",
+        "solicitudId": "270cb3d8-945d-4336-84ca-eaf12bb6a970"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "estado": "APLICADO",
+        "rolId": "49934ed3-263f-4623-8fac-98f06fd324f6",
+        "solicitudId": "270cb3d8-945d-4336-84ca-eaf12bb6a970"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "estado": "APLICADO",
+        "rolId": "49934ed3-263f-4623-8fac-98f06fd324f6",
+        "solicitudId": "270cb3d8-945d-4336-84ca-eaf12bb6a970"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 400,
+      "cuerpo": {
+        "codigo": "AP-CU135-10",
+        "mensaje": "Con asignaciones vigentes",
+        "detalle": {},
+        "trazaId": "traza-retirarRol-rechazo"
+      }
+    }
+  }
+}

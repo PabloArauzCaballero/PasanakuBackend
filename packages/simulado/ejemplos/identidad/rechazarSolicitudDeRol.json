@@ -1,0 +1,58 @@
+{
+  "servicio": "identidad",
+  "operacion": "rechazarSolicitudDeRol",
+  "metodo": "post",
+  "ruta": "/roles/solicitudes/{solicitudId}/rechazo",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "estado": "APLICADO",
+        "rolId": "ab4c1b1f-b2f2-47bb-89be-9ca45e3ea2da",
+        "solicitudId": "3aa0e9ac-2224-468e-8884-8f225cc5503a"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "estado": "APLICADO",
+        "rolId": "ab4c1b1f-b2f2-47bb-89be-9ca45e3ea2da",
+        "solicitudId": "3aa0e9ac-2224-468e-8884-8f225cc5503a"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "estado": "APLICADO",
+        "rolId": "ab4c1b1f-b2f2-47bb-89be-9ca45e3ea2da",
+        "solicitudId": "3aa0e9ac-2224-468e-8884-8f225cc5503a"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "estado": "APLICADO",
+        "rolId": "ab4c1b1f-b2f2-47bb-89be-9ca45e3ea2da",
+        "solicitudId": "3aa0e9ac-2224-468e-8884-8f225cc5503a"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 400,
+      "cuerpo": {
+        "codigo": "AP-CU01-03",
+        "mensaje": "Cuenta ya existe",
+        "detalle": {},
+        "trazaId": "traza-rechazarSolicitudDeRol-rechazo"
+      }
+    }
+  }
+}
