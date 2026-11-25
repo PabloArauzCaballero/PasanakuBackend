@@ -20,7 +20,9 @@ public final class PlazosDeMedida {
     public record Politica(
             int descargoDiasHabiles, int apelacionDiasHabiles, int prescribeEnMeses, int suspensionMaximaDias) {
         public Politica {
-            if (descargoDiasHabiles < 1 || apelacionDiasHabiles < 1 || prescribeEnMeses < 1
+            if (descargoDiasHabiles < 1
+                    || apelacionDiasHabiles < 1
+                    || prescribeEnMeses < 1
                     || suspensionMaximaDias < 1) {
                 throw new IllegalArgumentException("Los plazos de la politica de medidas son positivos");
             }

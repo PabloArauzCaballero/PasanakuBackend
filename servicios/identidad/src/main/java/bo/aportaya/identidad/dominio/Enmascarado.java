@@ -37,7 +37,9 @@ public final class Enmascarado {
     /** {@code Juana Perez Mamani} → {@code Juana P.}: el directorio no muestra el apellido completo. */
     public static String nombreAbreviado(String nombres, String apellidos) {
         String primero = nombres == null ? "" : nombres.trim().split("\\s+")[0];
-        String inicial = apellidos == null || apellidos.isBlank() ? "" : " " + apellidos.trim().charAt(0) + ".";
+        String inicial = apellidos == null || apellidos.isBlank()
+                ? ""
+                : " " + apellidos.trim().charAt(0) + ".";
         return primero + inicial;
     }
 }
