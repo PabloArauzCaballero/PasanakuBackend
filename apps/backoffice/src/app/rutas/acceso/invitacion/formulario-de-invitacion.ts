@@ -6,7 +6,7 @@ import { CampoOTP } from '@aportaya/ui/campo-otp/campo-otp'
 import { Fecha } from '@aportaya/ui/fecha/fecha'
 import { IndicadorDeClave } from '../compartido/indicador-de-clave'
 import { LARGO_MINIMO_DE_CLAVE, requisitosDeClave } from '../dominio/clave'
-import type { SalidaConsultaInvitacion, SalidaInicioEnrolamientoTotp } from '../dominio/cuenta'
+import type { AlcanceDeInvitacion, SalidaConsultaInvitacion, SalidaInicioEnrolamientoTotp } from '../dominio/cuenta'
 import type { ErrorDeCuenta } from '../dominio/errores-de-cuenta'
 import { EnrolamientoTotp } from './enrolamiento-totp'
 
@@ -69,7 +69,7 @@ export class FormularioDeInvitacion {
 
   protected readonly pideClaveNueva = computed(() => this.consulta().alcance !== 'FACTOR')
   protected readonly requisitos = computed(() => requisitosDeClave(this.claveNueva(), this.repeticion()))
-  protected readonly textoDeEnviar = computed(() => ({ ALTA: 'Activar mi cuenta', CLAVE: 'Cambiar mi clave', FACTOR: 'Registrar mi autenticador' })[this.consulta().alcance])
+  protected readonly textoDeEnviar = computed(() => ({ ALTA: 'Activar mi cuenta', CLAVE: 'Cambiar mi clave', FACTOR: 'Registrar mi autenticador' })[this.consulta().alcance as AlcanceDeInvitacion])
   private readonly delServidor = (campo: string) => (this.errorDelServidor()?.campo === campo ? this.errorDelServidor()!.mensaje : undefined)
   protected readonly errorClaveActual = computed(() => this.local()['claveActual'] ?? this.delServidor('claveActual'))
   protected readonly errorClaveNueva = computed(() => this.local()['claveNueva'] ?? this.delServidor('claveNueva'))
