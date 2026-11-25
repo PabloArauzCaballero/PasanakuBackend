@@ -117,6 +117,7 @@ class CU09CuentaDeOperadorTest extends BaseDeCuentaDeOperador {
                 "UPDATE identidad.credencial_acceso SET hash_contrasena = ? WHERE usuario_id = ?",
                 hasheador.hashear(actual.toCharArray()),
                 operador);
+        fixtura.factor(operador, "TOTP", true, true);
         UUID sesion = fixtura.sesionAbierta(operador);
         fixtura.sesionAbierta(operador);
 
@@ -138,6 +139,7 @@ class CU09CuentaDeOperadorTest extends BaseDeCuentaDeOperador {
     @DisplayName("rechaza cambiar la clave con la actual equivocada y no toca nada")
     void rechazaClaveActualEquivocada() {
         UUID operador = operadorConClaveInutilizable("+59176100014");
+        fixtura.factor(operador, "TOTP", true, true);
         UUID sesion = fixtura.sesionAbierta(operador);
 
         try {
