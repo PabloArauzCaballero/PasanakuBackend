@@ -27,3 +27,5 @@ ficha.movil.light.png
 ficha.tablet.dark.png
 ficha.tablet.light.png
 Inspeccionadas: ficha.movil.dark, ficha.tablet.light, directorio-datos.escritorio.light, directorio-error.movil.dark, directorio-vacio.escritorio.dark
+
+Commiteadas en evidencia/capturas/ (7 PNG, <110 KB c/u): directorio-datos.{movil.light,tablet.dark,escritorio.light}, ficha.{movil.light,tablet.dark,escritorio.dark}, directorio-error.escritorio.light. Datos sintéticos, backend simulado.
