@@ -38,4 +38,28 @@ class PuedeAutenticarseTest {
     void sinUsuario() {
         assertThat(PuedeAutenticarse.segun(Optional.empty())).isFalse();
     }
+
+    @Test
+    @DisplayName("CU-134 · correcto: un participante SUSPENDIDO entra con alcance restringido")
+    void participanteSuspendidoRestringido() {
+        assertThat(PuedeAutenticarse.conAlcanceRestringido(Optional.of("SUSPENDIDO"), false))
+                .isTrue();
+    }
+
+    @Test
+    @DisplayName("CU-134 · limite: un operador SUSPENDIDO no recibe alcance restringido")
+    void operadorSuspendidoNo() {
+        assertThat(PuedeAutenticarse.conAlcanceRestringido(Optional.of("SUSPENDIDO"), true))
+                .isFalse();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"ACTIVO", "BLOQUEADO_SEGURIDAD", "BAJA_VOLUNTARIA", "ELIMINADO", ""})
+    @DisplayName("CU-134 · invalido: ningun otro estado da alcance restringido")
+    void otrosEstadosNo(String estado) {
+        assertThat(PuedeAutenticarse.conAlcanceRestringido(Optional.of(estado), false))
+                .isFalse();
+        assertThat(PuedeAutenticarse.conAlcanceRestringido(Optional.empty(), false))
+                .isFalse();
+    }
 }

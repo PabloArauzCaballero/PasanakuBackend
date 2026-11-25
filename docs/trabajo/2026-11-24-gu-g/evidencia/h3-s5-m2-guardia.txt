@@ -1,0 +1,9 @@
+$ ./gradlew :plataforma:comun-web:spotlessCheck :plataforma:comun-web:test :plataforma:comun-web:webTest :plataforma:comun-web:testBarrido   (local, Postgres 16 en 5433)
+BUILD SUCCESSFUL in 14s
+comun-web: tests=104 failures=0 errors=0
+GuardiaDeRestriccionWebTest (4/4):
+testcase name="CU-134 · restringida sigue necesitando el permiso de la ruta de la lista"
+testcase name="CU-134 · sin el reclamo de alcance, la sesion es completa como siempre"
+testcase name="CU-134 · limite: fuera de la lista, 403 aunque el token traiga el permiso exacto"
+testcase name="CU-134 · correcto: una sesion restringida llega a una ruta de la lista cerrada"
+GuardiaDePermisoWebTest: 12/12

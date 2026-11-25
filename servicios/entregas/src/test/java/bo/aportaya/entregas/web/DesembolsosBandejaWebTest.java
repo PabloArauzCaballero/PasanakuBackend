@@ -48,6 +48,9 @@ class DesembolsosBandejaWebTest {
     private CU28EmitirDesembolso cu28;
 
     @MockitoBean
+    private bo.aportaya.entregas.dominio.puertos.MedidaDeCuenta medidaDeCuenta;
+
+    @MockitoBean
     private ConsultarDesembolsos consultas;
 
     private static ConsultarDesembolsos.Pagina unaRechazada(boolean llena) {

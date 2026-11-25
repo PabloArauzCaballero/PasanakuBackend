@@ -1,0 +1,22 @@
+$ npx playwright test e2e/catalogo-gobierno.e2e.ts e2e/f2-posiciones-y-roles.e2e.ts --workers=1 --retries=0 (local, backend simulado)
+  ✓   1 [chromium] › e2e/catalogo-gobierno.e2e.ts:54:5 › lista: cifras del inventario, chips de estado y revisión, y filtro por estado desde la URL 
+  ✓   2 [chromium] › e2e/catalogo-gobierno.e2e.ts:69:5 › ficha: pestañas en la URL, y «Configurar tabla» confirma antes de guardar con la versión leída 
+  ✓   3 [chromium] › e2e/catalogo-gobierno.e2e.ts:97:5 › ficha: la narrativa de negocio conserva sus viñetas 
+  ✓   4 [chromium] › e2e/catalogo-gobierno.e2e.ts:104:5 › ficha: «Operaciones» conserva las directas y lista los casos de uso que nombran la tabla con sus endpoints 
+  ✓   5 [chromium] › e2e/catalogo-gobierno.e2e.ts:117:5 › ficha: «Operaciones directas» con filas: la tabla se ve sin desborde (tabla SINTÉTICA declarada, nombrada como la nombra el inventario empaquetado) 
+  ✓   6 [chromium] › e2e/catalogo-gobierno.e2e.ts:131:5 › ficha de infraestructura: «Operaciones» muestra los dos vacíos y los dos dicen por qué y qué hacer 
+  ✓   7 [chromium] › e2e/catalogo-gobierno.e2e.ts:143:5 › columnas: revisar desde el cajón exige motivo al rechazar y guarda con la versión leída 
+  ✓   8 [chromium] › e2e/catalogo-gobierno.e2e.ts:166:5 › sin permiso de edición: se lee, no se edita, y la revisión de una columna solo se mira 
+  ✓   9 [chromium] › e2e/f2-posiciones-y-roles.e2e.ts:52:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › posiciones separadas: gastable, comprometido en pozos y retenido, con cifras que reconcilian 
+  ✓  10 [chromium] › e2e/f2-posiciones-y-roles.e2e.ts:69:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › sin separar: con el ejemplo real del contrato (sin comprometidoEnPozos) NO se afirma ninguna cifra gastable 
+  ✓  11 [chromium] › e2e/f2-posiciones-y-roles.e2e.ts:79:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › comprometido mayor que el disponible: se acota, lo gastable queda en cero y se avisa 
+  ✓  12 [chromium] › e2e/f2-posiciones-y-roles.e2e.ts:88:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › saldo incoherente (monedas distintas): no se muestra ninguna cifra 
+  ✓  13 [chromium] › e2e/f2-posiciones-y-roles.e2e.ts:97:7 › [doble del contrato pedido] saldos y posiciones en el backoffice › cuenta en cero, error del servidor y cargando 
+  ✓  14 [chromium] › e2e/f2-posiciones-y-roles.e2e.ts:143:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › PARTICIPANTE: el menú ofrece solo ninguna sección (y Ayuda en el menú de usuario); lo ajeno no monta ni escribiendo la dirección 
+  ✓  15 [chromium] › e2e/f2-posiciones-y-roles.e2e.ts:143:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › SOPORTE: el menú ofrece solo Operación, Cumplimiento (y Ayuda en el menú de usuario); lo ajeno no monta ni escribiendo la dirección 
+  ✓  16 [chromium] › e2e/f2-posiciones-y-roles.e2e.ts:143:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › ADMIN_PLATAFORMA: el menú ofrece solo Operación, Cumplimiento, Sistemas, Configuración (y Ayuda en el menú de usuario); lo ajeno no monta ni escribiendo la dirección 
+  ✓  17 [chromium] › e2e/f2-posiciones-y-roles.e2e.ts:143:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › CONTABILIDAD: el menú ofrece solo Operación, Contabilidad (y Ayuda en el menú de usuario); lo ajeno no monta ni escribiendo la dirección 
+  ✓  18 [chromium] › e2e/f2-posiciones-y-roles.e2e.ts:172:7 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › una ruta ajena no deja ninguna acción ni ningún código interno de permiso a la vista: vuelve al tablero 
+  18 passed (1.9m)
+
+En la CI de 065a9e24e catalogo-gobierno:143 falló dos veces con 'page.evaluate: AbortError' al esperar animaciones; aquí pasa: no se reproduce (clase ENVIRONMENT, sin reproducción local).

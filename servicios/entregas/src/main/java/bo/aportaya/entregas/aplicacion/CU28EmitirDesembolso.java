@@ -104,6 +104,14 @@ public class CU28EmitirDesembolso {
                         CodigoError.de(28, 2),
                         "Esa cuenta esta en su ventana de enfriamiento hasta " + cuenta.bloqueadaHasta() + ".");
             }
+            // AP-CU28-08 · CU-134 (D-11): con medida vigente la entrega sigue AUTORIZADA y retenida hasta que se
+            // levante. La consulta a identidad la hizo quien orquesta, fuera de esta transaccion.
+            if (entrada.retenidaPorMedida()) {
+                throw new ErrorDeNegocio(
+                        CodigoError.de(28, 8),
+                        "La entrega queda retenida: hay una medida vigente sobre la cuenta del beneficiario,"
+                                + " o no se pudo confirmar que no la haya.");
+            }
             // AP-CU28-04: sin el saldo retenido, desembolsar seria pagar con plata que
             // todavia puede gastarse en otra cosa.
             if (!entrada.saldoRetenido()) {
@@ -265,7 +273,15 @@ public class CU28EmitirDesembolso {
             UUID cuentaDestinoId,
             String glosa,
             String claveIdempotencia,
-            boolean saldoRetenido) {}
+            boolean saldoRetenido,
+            boolean retenidaPorMedida) {}
+
+    /** El titular de la cuenta de destino, para preguntar por su medida fuera de la transaccion de emitir. */
+    @Transactional(readOnly = true)
+    public java.util.Optional<UUID> titularDeLaCuenta(UUID cuentaDestinoId, ContextoSesion ctx) {
+        return datos.conContexto(
+                ctx, dsl -> cuentas.ver(dsl, cuentaDestinoId).map(CuentaDestinoRepositorio.Cuenta::usuarioId));
+    }
 
     public record SalidaOrden(UUID ordenId, String estado, String claveIdempotencia, int intentos, boolean esNueva) {}
 
