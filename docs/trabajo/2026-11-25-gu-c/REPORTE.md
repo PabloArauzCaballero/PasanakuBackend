@@ -47,3 +47,12 @@ Ver `evidencia/verificadores.txt`.
 
 ## Decisiones y ambigüedades
 Ver PLAN.md: A1 plazo de enfriamiento (24 h supuesto), A2 vigencia de la invitación (72 h), A3 quién pide la recuperación, A4 enfriamiento posterior al factor, A5 aviso por correo. A confirmar con Pablo.
+
+## Estado de CI y próximo paso (2026-11-25, para quien retome)
+CI de #522 en `46736691` tuvo 3 rojos; diagnóstico y fix en `9bfceddab`:
+1. **Gitleaks**: la constante `SECRETO` de `CU09CuentaDeOperadorTest` parecía una API key → ahora `"s".repeat(40)`.
+2. **Bóveda/esquema**: faltaba regenerar `docs/catalogo-de-datos.md` y `servicios/auditoria/.../catalogo-datos.json` (`python3 scripts/catalogo_de_datos.py --escribir`) → regenerados.
+3. **Spotless**: violaciones en `DespuesDelCommit`, `InvitacionesDeCuenta` (corregidas según el diff del log) y **sin corregir aún** en `RecuperacionesDeAcceso`, `PlantillaCorreoDeInvitacion`, `RecuperacionesRepositorio`, `TokensDeCuentaRepositorio`, `CU09CuentaDeOperadorTest` (el log solo mostró el diff de los dos primeros). Próximo paso: leer el diff de `spotlessJavaCheck` en la próxima corrida y aplicarlo (o correr `./gradlew :servicios:identidad:spotlessApply` donde Maven responda).
+Después: compilación y tests de CI nunca corrieron (el job de formato falló antes); pueden aparecer errores de compilación.
+UI: rama `claude/gu-c-credencial-ui` (`b1ee5e6ea`), WIP del subagente cortado por límite de uso; sin verificar, sin capturas. Reanudar con SendMessage al agente `aa0b87028c2e32bb5` o rehacer desde su PLAN-UI.
+Pendiente de B (#516): hook de alta, step-up en aprobación.
