@@ -3,6 +3,8 @@
 // Agregar un servicio es crear una carpeta con su build.gradle.kts.
 pluginManagement {
     repositories {
+        // Espejo de Maven Central en Google: los runners de CI reciben 429 de repo.maven.apache.org.
+        maven("https://maven-central.storage-download.googleapis.com/maven2/")
         gradlePluginPortal()
         mavenCentral()
     }
@@ -18,6 +20,8 @@ plugins {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
+        // Espejo primero (ver pluginManagement); mavenCentral queda de respaldo.
+        maven("https://maven-central.storage-download.googleapis.com/maven2/")
         mavenCentral()
     }
 }
