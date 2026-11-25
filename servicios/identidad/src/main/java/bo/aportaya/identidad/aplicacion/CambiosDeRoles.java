@@ -1,5 +1,7 @@
 package bo.aportaya.identidad.aplicacion;
 
+import static bo.aportaya.identidad.dominio.ReglasDeRolPersonalizado.ROL_DE_SISTEMA;
+
 import bo.aportaya.identidad.infraestructura.RolesPersonalizadosRepositorio;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
