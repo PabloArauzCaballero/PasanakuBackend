@@ -5,7 +5,7 @@ import { mensajeDeError } from '../compartido/carga'
 import type { ErrorDeGobierno } from '../dominio/errores-de-gobierno'
 import { rolesAsignables } from '../dominio/gobierno-de-accesos'
 import { DEPARTAMENTOS_INTERNOS, creadorUsuarioInterno, type EntradaDeAlta } from '../dominio/usuarios-internos'
-import { DialogoDeActo } from './dialogo-de-acto'
+import { DialogoDeActo } from '../compartido/dialogo-de-acto'
 
 const CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 

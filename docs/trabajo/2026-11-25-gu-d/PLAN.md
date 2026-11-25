@@ -45,11 +45,11 @@
 **Estado:** TODO
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H3.S1.M1 | Listado por cursor (`limite`,`antesDe`,`antesDeId`), estados BAJA_LABORAL, bloqueo indefinido, 4 estados | segunda página concatena; vacío orienta; error accionable | spec | TODO |
-| H3.S1.M2 | Alta con motivo + step-up | falla 422 AP-CU08-09/11 → error en su campo | spec | TODO |
-| H3.S1.M3 | Suspender/Reactivar/Desbloquear con motivo + step-up y texto del efecto | idem | spec mutaciones | TODO |
-| H3.S1.M4 | Baja del empleado (`POST /baja`) | último administrador / autobaja → error AP-CU08-04/06 accionable | spec | TODO |
-| H3.S1.M5 | Ficha: estado, bloqueo, acciones por permiso, enlace a accesos | a11y verde | specs ficha | TODO |
+| H3.S1.M1 | Listado por cursor (`limite`,`antesDe`,`antesDeId`), estados BAJA_LABORAL, bloqueo indefinido, 4 estados | segunda página concatena; vacío orienta; error accionable | spec | HECHO (evidencia/H6-*.txt, capturas/) |
+| H3.S1.M2 | Alta con motivo + step-up | falla 422 AP-CU08-09/11 → error en su campo | spec | HECHO (evidencia/H6-*.txt, capturas/) |
+| H3.S1.M3 | Suspender/Reactivar/Desbloquear con motivo + step-up y texto del efecto | idem | spec mutaciones | HECHO (evidencia/H6-*.txt, capturas/) |
+| H3.S1.M4 | Baja del empleado (`POST /baja`) | último administrador / autobaja → error AP-CU08-04/06 accionable | spec | HECHO (evidencia/H6-*.txt, capturas/) |
+| H3.S1.M5 | Ficha: estado, bloqueo, acciones por permiso, enlace a accesos | a11y verde | specs ficha | HECHO (evidencia/H6-*.txt, capturas/) |
 
 ## H4 — Asignación por asignación + selector de roles asignables
 **CA:** Dado un usuario, cuando se asigna un rol, entonces se elige rol (solo asignables), ámbito (GLOBAL/GRUPO+id/ORGANIZACION), vigencia opcional, justificación ≥10 y código; PARTICIPANTE/ORGANIZADOR/ANUNCIANTE/SERVICIO_* no se ofrecen; yaExistia y requiereMfa se comunican.
@@ -57,8 +57,8 @@
 **Estado:** TODO
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H4.S1.M1 | Reemplazar `modal-asignar-roles` (PUT deprecado) por `modal-asignar-rol` | cuerpo = `EntradaAsignacionDeRol` | spec | TODO |
-| H4.S1.M2 | `GET /roles?asignablesAPersonalInterno=true` en el selector y en la pantalla de roles | no hay roles de participante | spec | TODO |
+| H4.S1.M1 | Reemplazar `modal-asignar-roles` (PUT deprecado) por `modal-asignar-rol` | cuerpo = `EntradaAsignacionDeRol` | spec | HECHO (evidencia/H6-*.txt, capturas/) |
+| H4.S1.M2 | `GET /roles?asignablesAPersonalInterno=true` en el selector y en la pantalla de roles | no hay roles de participante | spec | HECHO (evidencia/H6-*.txt, capturas/) |
 
 ## H5 — Revisión de accesos (GU-08/GU-09)
 **CA:** Dado el informe, cuando elijo VIVOS / POR_VENCER / SIN_TOTP, entonces veo la página con totales; puedo revocar una asignación con motivo ≥10, código y «cerrar sesiones».
@@ -66,8 +66,8 @@
 **Estado:** TODO
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H5.S1.M1 | `pantalla-accesos` contra `GET /usuarios-internos/accesos/informe` (3 secciones, paginación por número) | 4 estados | spec | TODO |
-| H5.S1.M2 | Revocar asignación (diálogo con motivo, cerrar sesiones, step-up) | AP-CU08-06 mapeado | spec | TODO |
+| H5.S1.M1 | `pantalla-accesos` contra `GET /usuarios-internos/accesos/informe` (3 secciones, paginación por número) | 4 estados | spec | HECHO (evidencia/H6-*.txt, capturas/) |
+| H5.S1.M2 | Revocar asignación (diálogo con motivo, cerrar sesiones, step-up) | AP-CU08-06 mapeado | spec | HECHO (evidencia/H6-*.txt, capturas/) |
 
 ## H6 — Doble (simulado), E2E, prueba visual, gates, entrega
 **CA:** capturas 390/834/1440 × claro/oscuro inspeccionadas; consola y red sin errores nuevos; CI verde; PR a dev.
@@ -75,9 +75,9 @@
 **Estado:** TODO
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H6.S1.M1 | Ejemplos curados del simulado para operaciones nuevas (ok/límite/inválido) | cumplen el contrato de B | `simulado` tests | TODO |
-| H6.S1.M2 | E2E de personal y accesos | un worker, sin errores de consola | playwright | TODO |
-| H6.S1.M3 | Capturas y revisión | 6 viewports×tema inspeccionados | `evidencia/` | TODO |
+| H6.S1.M1 | Ejemplos curados del simulado para operaciones nuevas (ok/límite/inválido) | cumplen el contrato de B | `simulado` tests | HECHO (evidencia/H6-*.txt, capturas/) |
+| H6.S1.M2 | E2E de personal y accesos | un worker, sin errores de consola | playwright | HECHO (evidencia/H6-*.txt, capturas/) |
+| H6.S1.M3 | Capturas y revisión | 6 viewports×tema inspeccionados | `evidencia/` | HECHO (evidencia/H6-*.txt, capturas/) |
 | H6.S1.M4 | Gates + REPORTE + PR | CI verde | salidas pegadas | TODO |
 
 ## Simulación (regla 65)

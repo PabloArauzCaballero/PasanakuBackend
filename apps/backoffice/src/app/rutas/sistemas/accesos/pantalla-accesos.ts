@@ -13,7 +13,7 @@ import { Sesion } from '../../../nucleo/sesion'
 import { accionesDeAccesos, informeDeAccesos, type FilaDeAcceso, type PaginaDeAccesos, type SeccionDeAccesos, type SalidaRevocacionDeRol } from '../dominio/gobierno-de-accesos'
 import { PERMISOS_DE_GESTION_DE_PERSONAL } from '../personal-y-accesos'
 import { textosSistemas } from '../textos'
-import { DialogoDeActo } from '../usuarios-internos/dialogo-de-acto'
+import { DialogoDeActo } from '../compartido/dialogo-de-acto'
 
 const LIMITE_DE_PAGINA = 25
 const SECCIONES: { valor: SeccionDeAccesos; texto: string }[] = [

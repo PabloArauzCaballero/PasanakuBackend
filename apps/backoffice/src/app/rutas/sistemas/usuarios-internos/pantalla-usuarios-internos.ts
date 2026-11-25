@@ -22,6 +22,7 @@ import { ESTADO, TONO, estaBloqueado, estaDeBaja, estadoDe, segundoFactor } from
 import { GestorDeUsuarioInterno } from './gestor-de-usuario-interno'
 import { ModalAltaUsuarioInterno } from './modal-alta-usuario-interno'
 import { ModalAsignarRol } from './modal-asignar-rol'
+import { ubicarMenuDeFila } from './ubicar-menu'
 import { Exportador } from '../../../nucleo/exportador'
 
 type Usuario = UsuarioInternoDeLista
@@ -120,17 +121,9 @@ export class PantallaUsuariosInternos {
     }
   }
 
-  /** Al abrir, el menú se pone debajo de «Más», alineado a su borde derecho; si no entra abajo, arriba. */
+  /** Al abrir, el menú «Más» se ubica junto a su botón (`ubicar-menu.ts`). */
   protected ubicarMenu(evento: Event): void {
-    const d = evento.target as HTMLDetailsElement
-    const menu = d.querySelector<HTMLElement>('.menu')
-    if (!d.open || !menu) return
-    const boton = d.querySelector('summary')!.getBoundingClientRect()
-    const separacion = 4
-    const alto = menu.offsetHeight
-    const arriba = boton.bottom + separacion + alto > window.innerHeight
-    menu.style.top = `${arriba ? boton.top - separacion - alto : boton.bottom + separacion}px`
-    menu.style.left = `${Math.max(separacion, boton.right - menu.offsetWidth)}px`
+    ubicarMenuDeFila(evento.target as HTMLDetailsElement)
   }
 
   protected ver(u: Usuario): void {

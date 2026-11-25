@@ -23,7 +23,7 @@
         @if (gestiona() && !deBaja(u)) {
         <details class="mas" (toggle)="ubicarMenu($event)">
           <summary [attr.aria-label]="'Más acciones para ' + u.nombres + ' ' + u.apellidos"><ap-icono nombre="puntos" tamano="s4" />Más</summary>
-          <div class="menu">
+          <div class="menu" popover="manual">
             @if (u.estado === 'ACTIVO') {
               <button type="button" apAccionDeFila [attr.aria-label]="'Asignar un rol a ' + u.nombres + ' ' + u.apellidos" (click)="rolDe.set(u)"><ap-icono nombre="escudo" tamano="s4" />Asignar rol</button>
             }

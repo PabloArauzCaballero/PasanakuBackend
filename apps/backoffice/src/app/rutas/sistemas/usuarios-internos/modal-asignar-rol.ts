@@ -5,7 +5,7 @@ import { ListaDeOpciones, type Opcion } from '@aportaya/ui/lista-de-opciones/lis
 import { mensajeDeError } from '../compartido/carga'
 import { accionesDeAccesos, rolesAsignables, type AmbitoDeRol, type SalidaAsignacionDeRol } from '../dominio/gobierno-de-accesos'
 import type { ErrorDeGobierno } from '../dominio/errores-de-gobierno'
-import { DialogoDeActo } from './dialogo-de-acto'
+import { DialogoDeActo } from '../compartido/dialogo-de-acto'
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const AMBITOS: Opcion[] = [
