@@ -69,7 +69,7 @@ normas: [ASFI Seguridad de la Información, ISO/IEC 27001 A.5.15-A.5.18, ISO/IEC
 | 3a | Dispositivo nuevo + retiro inmediato | [[evaluacion_antifraude]] eleva el puntaje y puede exigir revisión manual (`R-BIL-09`) |
 | 5a | Sesión expirada o revocada | Toda operación en curso se rechaza; no hay continuidad silenciosa |
 | 3b | **Operador** en un dispositivo ya marcado confiable | Se le exige el factor igual; `es_confiable` no habilita ningún atajo (`R-SEG-10`) |
-| 4c | **Operador sin TOTP enrolado** | No entra: `FACTOR_NO_ENROLADO`. Se lo deriva al enrolamiento, que cierra [[CU-08 Asignar y revocar roles de operador]]. Una asignación de rol sin factor deja al operador afuera, y eso es lo correcto |
+| 4c | **Operador sin TOTP enrolado** | No entra: `FACTOR_NO_ENROLADO`. Se lo deriva a la **invitación de un solo uso** que recibió en su correo institucional al darse de alta, donde elige su clave y enrola su TOTP sin necesitar una sesión previa ([[CU-09 Cambiar credenciales y solicitar la baja]] §10); si perdió el teléfono, pide la reinscripción del factor, que otra persona de seguridad aprueba (§11). Una asignación de rol sin factor deja al operador afuera, y eso es lo correcto |
 | 4d | Alguien intenta enrolar `SMS` o `WHATSAPP` como factor de un operador | Rechazo `FACTOR_NO_ADMISIBLE`: canales apagados ([[ADR-035 Canales por defecto]]) y expuestos al intercambio de SIM (`R-SEG-10`) |
 | 6b | Acción con `permiso.requiere_mfa` sin desafío vigente | Se pide reautenticación por paso; la vigencia del desafío es corta y está atada a la operación, no a la sesión |
 
