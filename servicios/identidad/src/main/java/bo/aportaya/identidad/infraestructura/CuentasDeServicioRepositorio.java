@@ -163,7 +163,7 @@ public class CuentasDeServicioRepositorio {
         return DSL.field(DSL.name("c", columna), tipo);
     }
 
-    private static org.jooq.SelectJoinStep<Record> consulta(DSLContext dsl) {
+    private static org.jooq.SelectOnConditionStep<? extends Record> consulta(DSLContext dsl) {
         return dsl.select(
                         c("id", SQLDataType.UUID),
                         c("usuario_id", SQLDataType.UUID),
