@@ -6,7 +6,7 @@ import { Esqueleto } from '@aportaya/ui/esqueleto/esqueleto'
 import { EstadoDeError } from '@aportaya/ui/estado-de-error/estado-de-error'
 import type { ErrorTraducido } from '../../../nucleo/errores'
 import { MarcoDeAcceso } from '../compartido/marco-de-acceso'
-import { crearInvitacion, type SalidaCompletarInvitacion, type SalidaConsultaInvitacion, type SalidaInicioEnrolamientoTotp } from '../dominio/cuenta'
+import { crearInvitacion, type AlcanceDeInvitacion, type SalidaCompletarInvitacion, type SalidaConsultaInvitacion, type SalidaInicioEnrolamientoTotp } from '../dominio/cuenta'
 import { errorDeCuenta, MENSAJE_TOKEN_INVALIDO, type ErrorDeCuenta } from '../dominio/errores-de-cuenta'
 import { FormularioDeInvitacion, type DatosDeInvitacion } from './formulario-de-invitacion'
 
@@ -85,7 +85,7 @@ export class PantallaDeInvitacion {
   protected readonly trazaId = signal<string | undefined>(undefined)
   private readonly hecho = signal<SalidaCompletarInvitacion | null>(null)
   protected readonly titulo = computed(() => TITULOS[this.estado()])
-  protected readonly ceja = computed(() => CEJAS[this.consulta()?.alcance ?? 'ALTA'])
+  protected readonly ceja = computed(() => CEJAS[(this.consulta()?.alcance ?? 'ALTA') as AlcanceDeInvitacion])
   protected readonly bajada = computed(() => {
     const nombres = this.consulta()?.nombres
     return this.estado() === 'formulario' && nombres ? `Hola, ${nombres}. Completá estos pasos para entrar al backoffice.` : undefined
@@ -94,7 +94,7 @@ export class PantallaDeInvitacion {
     const h = this.hecho()
     if (!h) return ''
     const sesiones = h.sesionesCerradas > 0 ? ` Cerramos ${h.sesionesCerradas} ${h.sesionesCerradas === 1 ? 'sesión abierta' : 'sesiones abiertas'} de tu cuenta por seguridad.` : ''
-    return CIERRE[h.alcance] + sesiones
+    return CIERRE[h.alcance as AlcanceDeInvitacion] + sesiones
   })
 
   constructor() {

@@ -11,7 +11,7 @@ import type { Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
 import { Sesion } from '../../../nucleo/sesion'
 import { crearListadoPorCursor } from '../../operacion/comun/listado-por-cursor'
 import { ListadoPorCursorVista } from '../../operacion/comun/listado-por-cursor-vista'
-import { pedidorDeRecuperaciones, type Decision, type EstadoDeRecuperacion, type SolicitudDeRecuperacion } from '../dominio/cuenta'
+import { pedidorDeRecuperaciones, type AlcanceDeRecuperacion, type Decision, type EstadoDeRecuperacion, type SolicitudDeRecuperacion } from '../dominio/cuenta'
 import { DecisionDeRecuperacion } from './decision-de-recuperacion'
 
 export const PERMISO_DE_DECIDIR = 'SEGURIDAD_ACCESO_RESTABLECER'
@@ -26,8 +26,8 @@ const COLUMNAS: Columna<SolicitudDeRecuperacion>[] = [
 ]
 const nombreDe = (s: SolicitudDeRecuperacion) => `${s.nombres} ${s.apellidos}`
 const EXPORTABLES: ColumnaExportable<SolicitudDeRecuperacion>[] = [
-  { clave: 'nombres', titulo: 'Persona', valor: nombreDe }, { clave: 'alcance', titulo: 'Qué pidió', valor: (s) => ALCANCES[s.alcance] },
-  { clave: 'estado', titulo: 'Estado', valor: (s) => ESTADOS[s.estado] }, { clave: 'solicitadaEn', titulo: 'Pedido' },
+  { clave: 'nombres', titulo: 'Persona', valor: nombreDe }, { clave: 'alcance', titulo: 'Qué pidió', valor: (s) => ALCANCES[s.alcance as AlcanceDeRecuperacion] },
+  { clave: 'estado', titulo: 'Estado', valor: (s) => ESTADOS[s.estado as EstadoDeRecuperacion] }, { clave: 'solicitadaEn', titulo: 'Pedido' },
   { clave: 'motivo', titulo: 'Motivo' }, { clave: 'enfriamientoHasta', titulo: 'Espera hasta', valor: (s) => s.enfriamientoHasta ?? '' },
 ]
 
@@ -55,8 +55,8 @@ const EXPORTABLES: ColumnaExportable<SolicitudDeRecuperacion>[] = [
         <ng-template #celda let-s let-columna="columna">
           @switch (columna.clave) {
             @case ('nombres') { {{ nombreDe(s) }} }
-            @case ('alcance') { {{ ALCANCES[s.alcance] }} }
-            @case ('estado') { <ap-chip-estado [tono]="TONOS[s.estado]">{{ ESTADOS[s.estado] }}</ap-chip-estado> }
+            @case ('alcance') { {{ ALCANCES[s.alcance as AlcanceDeRecuperacion] }} }
+            @case ('estado') { <ap-chip-estado [tono]="TONOS[s.estado]">{{ ESTADOS[s.estado as EstadoDeRecuperacion] }}</ap-chip-estado> }
             @case ('solicitadaEn') { <ap-fecha [iso]="s.solicitadaEn" /> }
             @case ('enfriamientoHasta') { @if (s.enfriamientoHasta) { <ap-fecha [iso]="s.enfriamientoHasta" /> } @else { <span class="nota">—</span> } }
             @default { {{ s[columna.clave] }} }
@@ -90,7 +90,7 @@ export class PantallaDeRecuperaciones {
   protected readonly identidad = (s: SolicitudDeRecuperacion) => s.id
   protected readonly l = crearListadoPorCursor({
     pedir: pedidorDeRecuperaciones(),
-    camposDeBusqueda: [nombreDe, (s: SolicitudDeRecuperacion) => ALCANCES[s.alcance], 'motivo'],
+    camposDeBusqueda: [nombreDe, (s: SolicitudDeRecuperacion) => ALCANCES[s.alcance as AlcanceDeRecuperacion], 'motivo'],
     filtrosDeServidor: [{ nombre: 'estado', etiqueta: 'Estado', opciones: (Object.keys(ESTADOS) as EstadoDeRecuperacion[]).map((valor) => ({ valor, texto: ESTADOS[valor] })), textoTodos: 'Todos los estados' }],
     filtrosIniciales: { estado: 'PENDIENTE' },
   })

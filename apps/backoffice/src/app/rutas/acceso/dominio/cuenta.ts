@@ -20,9 +20,9 @@ import type { PedirPorCursor } from '../../../nucleo/tabla/cursor'
 import { cursorDe, pedirJson } from '../../operacion/dominio/bandeja-por-cursor'
 
 export type { SalidaConsultaInvitacion, SalidaInicioEnrolamientoTotp, SalidaCompletarInvitacion, SalidaCambioDeClave, SalidaPedidoDeRecuperacion, SolicitudDeRecuperacion }
-export type AlcanceDeInvitacion = SalidaConsultaInvitacion['alcance']
-export type AlcanceDeRecuperacion = EntradaPedirRecuperacion['alcance']
-export type EstadoDeRecuperacion = SolicitudDeRecuperacion['estado']
+export type AlcanceDeInvitacion = 'ALTA' | 'CLAVE' | 'FACTOR'
+export type AlcanceDeRecuperacion = 'CLAVE' | 'FACTOR'
+export type EstadoDeRecuperacion = 'PENDIENTE' | 'APROBADA' | 'RECHAZADA' | 'EMITIDA' | 'COMPLETADA' | 'VENCIDA'
 
 /**
  * GU-C · Cuenta del operador, contra `identidad.yaml` (tag `Cuenta`, `/cuenta/*`). Ninguna lleva `Idempotency-Key`
