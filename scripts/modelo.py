@@ -292,6 +292,9 @@ def rol_de(esquema):
 # svc_* dueño para que el relevo del outbox pueda marcar publicado. El payload
 # es inmutable de facto (solo se otorga UPDATE sobre publicado_en/estado/intentos).
 APPEND_ONLY = {
+    # CU-134 · el expediente de una medida sobre la cuenta se prueba con filas que no se tocan.
+    "evidencia_medida_cuenta",
+    "historial_estado_medida_cuenta",
     # F3.S8.M6 · el congelamiento de parámetros de un grupo no se corrige: rige el ciclo entero.
     "parametro_congelado_grupo",
     "decision_ingreso",
@@ -380,6 +383,10 @@ CK_AMPLIADOS = {
     "pago": ["monto_comision_proveedor", "monto_neto_acreditado"],
     "reembolso": ["monto"],
     "disputa_pago": ["monto_disputado"],
+    # 2026-11-24: CU-134 (D-14, D-15) — cuenta comprometida como motivo de bloqueo, y la
+    # ficha del participante y el correo como datos cuya lectura deja rastro.
+    "bloqueo_cuenta": ["motivo"],
+    "registro_acceso_datos": ["tipo_dato"],
 }
 
 # CHECK de enumerado que se ESTRECHO despues de que existieran bases: un valor sale del

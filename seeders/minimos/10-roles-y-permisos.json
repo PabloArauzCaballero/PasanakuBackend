@@ -953,6 +953,42 @@
           "requiere_mfa": true,
           "nivel_riesgo": "CRITICO",
           "exige_motivo": true
+        },
+        {
+          "codigo": "PARTICIPANTES_LEER",
+          "descripcion": "Buscar participantes y abrir su ficha enmascarada con justificación (CU-134)",
+          "recurso": "usuario",
+          "accion": "LEER",
+          "requiere_mfa": false,
+          "nivel_riesgo": "MEDIO",
+          "exige_motivo": true
+        },
+        {
+          "codigo": "PARTICIPANTES_MEDIDA_PROPONER",
+          "descripcion": "Proponer una suspensión o un bloqueo cautelar de la cuenta de un participante (CU-134)",
+          "recurso": "expediente_medida_cuenta",
+          "accion": "PROPONER",
+          "requiere_mfa": true,
+          "nivel_riesgo": "ALTO",
+          "exige_motivo": true
+        },
+        {
+          "codigo": "PARTICIPANTES_MEDIDA_DECIDIR",
+          "descripcion": "Decidir con fundamento una medida sobre la cuenta propuesta por otra persona (CU-134)",
+          "recurso": "expediente_medida_cuenta",
+          "accion": "DECIDIR",
+          "requiere_mfa": true,
+          "nivel_riesgo": "CRITICO",
+          "exige_motivo": true
+        },
+        {
+          "codigo": "PARTICIPANTES_APELACION_RESOLVER",
+          "descripcion": "Resolver en segunda instancia la apelación de una medida sobre la cuenta (CU-134)",
+          "recurso": "apelacion_medida_cuenta",
+          "accion": "RESOLVER",
+          "requiere_mfa": true,
+          "nivel_riesgo": "CRITICO",
+          "exige_motivo": true
         }
       ],
       "comentario": "`requiere_mfa` marca los permisos que exigen segundo factor en el momento de usarlos, no solo al iniciar sesión: todo lo que mueve dinero, publica precios, edita catálogos o lee datos de terceros."
@@ -2623,6 +2659,96 @@
           "permiso_id": {
             "$ref": "permiso",
             "codigo": "PUBLICIDAD_APROBAR_CAMPANA"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "SOPORTE"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PARTICIPANTES_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "FRAUD_ANALYST"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PARTICIPANTES_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "RESPONSABLE_SEGURIDAD"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PARTICIPANTES_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "OFICIAL_CUMPLIMIENTO"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PARTICIPANTES_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "RESPONSABLE_RIESGOS"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PARTICIPANTES_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "FRAUD_ANALYST"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PARTICIPANTES_MEDIDA_PROPONER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "RESPONSABLE_SEGURIDAD"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PARTICIPANTES_MEDIDA_DECIDIR"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "OFICIAL_CUMPLIMIENTO"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PARTICIPANTES_APELACION_RESOLVER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "RESPONSABLE_RIESGOS"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PARTICIPANTES_APELACION_RESOLVER"
           }
         }
       ]
