@@ -28,6 +28,7 @@ import { rolLegible } from './dominio/cerrar-sesion'
       <ul [id]="id" role="menu" aria-label="Cuenta">
         <li role="none" class="quien"><ap-icono nombre="persona" tamano="s4" />{{ rol() }}</li>
         <li role="none"><a role="menuitem" routerLink="/ayuda" data-tutorial-id="menu-ayuda" (click)="abierto.set(false)"><ap-icono nombre="libro" tamano="s4" />Centro de ayuda</a></li>
+        <li role="none"><a role="menuitem" routerLink="/acceso/cambiar-clave" (click)="abierto.set(false)"><ap-icono nombre="llave" tamano="s4" />Cambiar mi clave</a></li>
         <li role="none"><button role="menuitem" type="button" [disabled]="saliendo()" (click)="salir.emit()"><ap-icono-de-seccion nombre="salir" />{{ saliendo() ? 'Saliendo…' : 'Salir' }}</button></li>
       </ul>
     }

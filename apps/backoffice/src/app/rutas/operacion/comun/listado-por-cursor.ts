@@ -17,6 +17,8 @@ export type ConfigPorCursor<T, C> = {
   camposDeBusqueda: readonly (keyof T | ((fila: T) => unknown))[]
   filtrosLocales?: readonly FiltroDeListado<T>[]
   filtrosDeServidor?: readonly FiltroDeServidor[]
+  /** Valores con los que arrancan los filtros de servidor (p. ej. `{ estado: 'PENDIENTE' }`): la primera consulta ya sale filtrada. */
+  filtrosIniciales?: Readonly<Record<string, string>>
   porPagina?: number
 }
 
@@ -44,7 +46,7 @@ export function crearListadoPorCursor<T, C>(config: ConfigPorCursor<T, C>) {
   // 10 = la primera opción: `ap-paginacion` muestra la primera opción del selector al montar (ver «Pedidos» en franjas/b.md).
   const porPagina = signal(config.porPagina ?? 10)
   const totalConocido = signal(0)
-  const deServidor = signal<Record<string, string>>({})
+  const deServidor = signal<Record<string, string>>({ ...config.filtrosIniciales })
   const definiciones = config.filtrosDeServidor ?? []
   // La página del servidor es la unidad: el listado local nunca la vuelve a partir (100 = el tamaño máximo).
   const local = crearListado<T>({ filas, camposDeBusqueda: config.camposDeBusqueda, filtros: config.filtrosLocales, porPagina: 100, opcionesPorPagina: [100] })

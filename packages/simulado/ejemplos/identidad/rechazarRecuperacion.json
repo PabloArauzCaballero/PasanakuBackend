@@ -1,0 +1,98 @@
+{
+  "servicio": "identidad",
+  "operacion": "rechazarRecuperacion",
+  "metodo": "post",
+  "ruta": "/cuenta/recuperaciones/{id}/rechazo",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "id": "98074518-2e9b-4f8c-8496-3256cc6a2e4a",
+        "usuarioId": "8b7571ca-384c-40c8-84cc-66efec3c2529",
+        "nombres": "nombres",
+        "apellidos": "apellidos",
+        "alcance": "CLAVE",
+        "estado": "PENDIENTE",
+        "solicitadaEn": "2026-01-15T10:30:00Z",
+        "motivo": "motivo",
+        "decididaPor": "b5bf5ba7-1574-408f-85f3-434d8cb33ec3",
+        "decididaEn": "2026-01-15T10:30:00Z",
+        "motivoDecision": "motivoDecision",
+        "enfriamientoHasta": "2026-01-15T10:30:00Z",
+        "emitidaEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "id": "98074518-2e9b-4f8c-8496-3256cc6a2e4a",
+        "usuarioId": "8b7571ca-384c-40c8-84cc-66efec3c2529",
+        "nombres": "nombres",
+        "apellidos": "apellidos",
+        "alcance": "CLAVE",
+        "estado": "PENDIENTE",
+        "solicitadaEn": "2026-01-15T10:30:00Z",
+        "motivo": "motivo",
+        "decididaPor": "b5bf5ba7-1574-408f-85f3-434d8cb33ec3",
+        "decididaEn": "2026-01-15T10:30:00Z",
+        "motivoDecision": "motivoDecision",
+        "enfriamientoHasta": "2026-01-15T10:30:00Z",
+        "emitidaEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "id": "98074518-2e9b-4f8c-8496-3256cc6a2e4a",
+        "usuarioId": "8b7571ca-384c-40c8-84cc-66efec3c2529",
+        "nombres": "nombres",
+        "apellidos": "apellidos",
+        "alcance": "CLAVE",
+        "estado": "PENDIENTE",
+        "solicitadaEn": "2026-01-15T10:30:00Z",
+        "motivo": "motivo",
+        "decididaPor": "b5bf5ba7-1574-408f-85f3-434d8cb33ec3",
+        "decididaEn": "2026-01-15T10:30:00Z",
+        "motivoDecision": "motivoDecision",
+        "enfriamientoHasta": "2026-01-15T10:30:00Z",
+        "emitidaEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "id": "98074518-2e9b-4f8c-8496-3256cc6a2e4a",
+        "usuarioId": "8b7571ca-384c-40c8-84cc-66efec3c2529",
+        "nombres": "nombres",
+        "apellidos": "apellidos",
+        "alcance": "CLAVE",
+        "estado": "PENDIENTE",
+        "solicitadaEn": "2026-01-15T10:30:00Z",
+        "motivo": "motivo",
+        "decididaPor": "b5bf5ba7-1574-408f-85f3-434d8cb33ec3",
+        "decididaEn": "2026-01-15T10:30:00Z",
+        "motivoDecision": "motivoDecision",
+        "enfriamientoHasta": "2026-01-15T10:30:00Z",
+        "emitidaEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU09-09",
+        "mensaje": "Aprobacion requerida",
+        "detalle": {},
+        "trazaId": "traza-rechazarRecuperacion-rechazo"
+      }
+    }
+  }
+}
