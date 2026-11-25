@@ -12,13 +12,13 @@ import type { RolCatalogo } from 'clientes/angular/identidad'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { cargaDe, filasDe } from '../compartido/carga'
 import { CifrasDeSistemas, contar, type Cifra } from '../compartido/cifras'
-import { catalogoRoles } from '../dominio/usuarios-internos'
+import { rolesAsignables } from '../dominio/gobierno-de-accesos'
 import { textosSistemas } from '../textos'
 
 const origenDe = (r: RolCatalogo) => (r.esSistema ? 'Sistema' : 'Personalizado')
 
 /**
- * Catálogo de roles internos (`GET /roles`). Es de solo lectura en el contrato —no hay alta, edición ni baja de
+ * Catálogo de roles asignables al personal interno. Es de solo lectura en el contrato —no hay alta, edición ni baja de
  * roles—, así que la única acción de fila es **Ver**, que abre en un cajón los permisos que suma el rol.
  */
 @Component({
@@ -73,7 +73,7 @@ export class PantallaRolesInternos {
   }
 
   protected readonly t = textosSistemas.rolesInternos
-  protected readonly recurso = catalogoRoles()
+  protected readonly recurso = rolesAsignables()
   protected readonly carga = cargaDe(this.recurso)
   private readonly filas = filasDe<RolCatalogo>(this.recurso)
   protected readonly seleccionado = signal<RolCatalogo | null>(null)

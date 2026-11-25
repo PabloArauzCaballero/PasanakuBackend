@@ -1,12 +1,10 @@
 import { InjectionToken, type Provider } from '@angular/core'
 import { adaptadorFuenteNoDisponible } from './adaptador-fuente-no-disponible'
-import { puertoAccesos } from './accesos'
 import { puertoIncidentes } from './incidentes'
 import { puertoProveedores } from './proveedores'
 import { puertoSaludDeServicios } from './salud-de-servicios'
 import { puertoWebhooks } from './webhooks'
 import {
-  PUERTO_ACCESOS,
   PUERTO_DESPLIEGUES,
   PUERTO_INCIDENTES,
   PUERTO_PROVEEDORES,
@@ -32,8 +30,6 @@ export function proveedoresFuenteNoDisponible(): Provider[] {
     { provide: PUERTO_PROVEEDORES, useFactory: () => puertoProveedores() },
     // Webhooks: los de las pasarelas (aportes) y los avisos de entrega de mensajería (notificaciones).
     { provide: PUERTO_WEBHOOKS, useFactory: puertoWebhooks },
-    // Revisión de accesos: identidad ya publica los usuarios internos con sus roles (`listarUsuariosInternos`).
-    { provide: PUERTO_ACCESOS, useFactory: puertoAccesos },
     // Incidentes: auditoria publica `incidente_operativo` (`listarIncidentesOperativos`).
     { provide: PUERTO_INCIDENTES, useFactory: puertoIncidentes },
     { provide: ES_FUENTE_SIMULADA, useValue: false },

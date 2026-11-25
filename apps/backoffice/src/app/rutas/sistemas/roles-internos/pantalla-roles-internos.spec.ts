@@ -53,7 +53,7 @@ describe('PantallaRolesInternos', () => {
     const fixture = TestBed.createComponent(PantallaRolesInternos)
     fixture.detectChanges()
 
-    http.expectOne('http://gw/api/v1/roles').flush(ROLES_EJEMPLO)
+    http.expectOne('http://gw/api/v1/roles?asignablesAPersonalInterno=true').flush(ROLES_EJEMPLO)
     await fixture.whenStable()
     fixture.detectChanges()
 
@@ -68,7 +68,7 @@ describe('PantallaRolesInternos', () => {
 describe('PantallaRolesInternos · listado del kit en los tres niveles', () => {
   probarListadoHttp<RolCatalogo>({
     componente: PantallaRolesInternos,
-    url: `${GW_DE_PRUEBA}/roles`,
+    url: `${GW_DE_PRUEBA}/roles?asignablesAPersonalInterno=true`,
     filas: (n) => Array.from({ length: n }, (_, i) => ({ id: `r-${i + 1}`, codigo: i === 3 ? 'TREASURY_LEAD' : `ROL_${i + 1}`, nombre: `Rol ${i + 1}`, ambito: 'INTERNO', departamento: i % 5 === 0 ? 'AUDITORIA' : 'OPERACIONES', descripcion: 'Rol sintético', esSistema: i % 2 === 0, permisos: ['ALERTAS_RIESGO_LEER'] })),
     textoVacio: 'No hay roles internos configurados.',
     busqueda: { termino: 'treasury', esperadas: 1 },
@@ -80,7 +80,7 @@ describe('PantallaRolesInternos · listado del kit en los tres niveles', () => {
     const http = TestBed.inject(HttpTestingController)
     const f = TestBed.createComponent(PantallaRolesInternos)
     f.detectChanges()
-    http.expectOne(`${GW_DE_PRUEBA}/roles`).flush(ROLES_EJEMPLO)
+    http.expectOne(`${GW_DE_PRUEBA}/roles?asignablesAPersonalInterno=true`).flush(ROLES_EJEMPLO)
     const el = await estabilizar(f)
     expect(Array.from(el.querySelectorAll('tbody button')).map((b) => texto(b))).toEqual(['Ver permisos', 'Ver permisos'])
     pulsar(el.querySelector('tbody tr')!, 'Ver permisos')

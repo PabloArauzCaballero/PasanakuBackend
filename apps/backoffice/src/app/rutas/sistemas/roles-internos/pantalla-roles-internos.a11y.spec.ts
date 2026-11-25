@@ -35,7 +35,7 @@ describe('PantallaRolesInternos · accesibilidad', () => {
     const fixture = TestBed.createComponent(PantallaRolesInternos)
     fixture.detectChanges()
 
-    http.expectOne(`${GW}/roles`).flush(ROLES_FIXTURE)
+    http.expectOne(`${GW}/roles?asignablesAPersonalInterno=true`).flush(ROLES_FIXTURE)
     await fixture.whenStable()
     fixture.detectChanges()
 

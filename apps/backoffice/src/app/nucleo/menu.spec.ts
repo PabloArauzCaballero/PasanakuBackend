@@ -10,9 +10,9 @@ const textos = (c: Credenciales) => entradasVisibles(c).flatMap((g) => g.entrada
 
 /** El árbol del menú (A1), sus requisitos (F1) y las migas que salen de la URL. */
 describe('menú del backoffice', () => {
-  it('correcto: seis entradas de primer nivel (sin «Inicio»: se vuelve con el logo, 2026-10-28), ninguna sección con más de ocho pestañas, todas con ícono y ruta absoluta', () => {
+  it('correcto: siete entradas de primer nivel (sin «Inicio»: se vuelve con el logo, 2026-10-28), ninguna sección con más de ocho pestañas, todas con ícono y ruta absoluta', () => {
     const entradas = MENU.flatMap((g) => g.entradas)
-    expect(entradas.map((e) => e.texto)).toEqual(['Operación', 'Cumplimiento', 'Contabilidad', 'Publicidad', 'Sistemas', 'Configuración'])
+    expect(entradas.map((e) => e.texto)).toEqual(['Operación', 'Cumplimiento', 'Contabilidad', 'Publicidad', 'Sistemas', 'Personal y accesos', 'Configuración'])
     for (const e of entradas) {
       expect(e.pantallas?.length ?? 0, e.texto).toBeLessThanOrEqual(8)
       for (const h of (e.pantallas ?? []).flatMap(hojas)) {

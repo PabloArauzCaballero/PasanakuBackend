@@ -8,10 +8,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { GATEWAY } from '../../../nucleo/gateway'
 import { Sesion } from '../../../nucleo/sesion'
 import { conteoDeExportacion, elegir, estabilizar, filasVisibles, listadoDe, pulsar, resumenDePaginas, texto } from '../compartido/pruebas.apoyo'
+import { EVIDENCIA_DE_PRUEBA, escribirCodigoDePrueba, verificarPasoDeSeguridad } from './paso-de-seguridad.pruebas'
 import { PantallaUsuariosInternos } from './pantalla-usuarios-internos'
 
 const GW = 'http://gw/api/v1'
-const LISTA = `${GW}/usuarios-internos`
+const LISTA = `${GW}/usuarios-internos?limite=50`
 /** Usuarios sintéticos y deterministas (regla 97.6): ningún dato real de persona. */
 function usuarios(n: number): UsuarioInternoResumen[] {
   return Array.from({ length: n }, (_, i) => ({
@@ -37,7 +38,7 @@ describe('PantallaUsuariosInternos · listado y operaciones del contrato (identi
     TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection(), provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: GATEWAY, useValue: GW }] })
     http = TestBed.inject(HttpTestingController)
     // La descarga de usuarios internos exige su permiso de exportación (regla 90.2): esta suite la ejercita.
-    TestBed.inject(Sesion).abrir('token', ['exportar:usuarios-internos'], 'PLATAFORMA')
+    TestBed.inject(Sesion).abrir('token', ['exportar:usuarios-internos', 'USUARIOS_INTERNOS_GESTIONAR'], 'PLATAFORMA')
     f = TestBed.createComponent(PantallaUsuariosInternos)
   })
   afterEach(() => http.verify())
@@ -51,7 +52,7 @@ describe('PantallaUsuariosInternos · listado y operaciones del contrato (identi
     const el = await cargar(25)
     expect(filasVisibles(el)).toBe(10)
     expect(resumenDePaginas(el)).toContain('Página 1 de 3')
-    expect(texto(el.querySelector('ap-cifras-de-sistemas'))).toContain('Suspendidos 5')
+    expect(texto(el.querySelector('ap-cifras-de-sistemas'))).toContain('Suspendidos o de baja 5')
     listadoDe(f).buscar('jose')
     await estabilizar(f)
     expect(conteoDeExportacion(el)).toBe('1 fila')
@@ -61,11 +62,11 @@ describe('PantallaUsuariosInternos · listado y operaciones del contrato (identi
     expect(listadoDe(f).total()).toBe(5)
   })
 
-  it('aceptado: cada fila trae Ver, Editar, Roles y Suspender/Reactivar con ícono + nombre, Desbloquear solo si está bloqueado, y ningún Eliminar', async () => {
+  it('aceptado: cada fila trae Ver y menú con actos permitidos, incluido Desbloquear si corresponde', async () => {
     const el = await cargar(3)
     const fila2 = el.querySelectorAll('tbody tr')[1]!
-    expect(Array.from(fila2.querySelectorAll('button')).map((b) => texto(b))).toEqual(['Ver', 'Roles', 'Suspender', 'Desbloquear', 'Editar'])
-    expect(fila2.querySelectorAll('button ap-icono').length).toBe(5)
+    expect(Array.from(fila2.querySelectorAll('button')).map((b) => texto(b))).toEqual(['Ver', 'Asignar rol', 'Suspender', 'Desbloquear', 'Editar', 'Dar de baja'])
+    expect(fila2.querySelectorAll('button ap-icono').length).toBe(6)
     expect(texto(el.querySelectorAll('tbody tr')[0]!)).toContain('Reactivar')
     expect(Array.from(el.querySelectorAll('button')).some((b) => texto(b) === 'Eliminar')).toBe(false)
   })
@@ -104,10 +105,12 @@ describe('PantallaUsuariosInternos · listado y operaciones del contrato (identi
     const d = dialogoAbierto(el)
     expect(texto(d.querySelector('h2'))).toBe('Suspender usuario interno')
     escribir(d, 'Motivo', 'Baja por fin de contrato')
+    escribirCodigoDePrueba(d)
     await estabilizar(f)
     pulsar(d, 'Suspender')
+    verificarPasoDeSeguridad(http, GW)
     const req = http.expectOne(`${GW}/usuarios-internos/u-2`)
-    expect(req.request.body).toEqual({ estado: 'SUSPENDIDO', motivo: 'Baja por fin de contrato' })
+    expect(req.request.body).toEqual({ estado: 'SUSPENDIDO', motivo: 'Baja por fin de contrato', evidenciaMfa: EVIDENCIA_DE_PRUEBA })
     req.flush({ codigo: 'X' }, { status: 500, statusText: 'Error' })
     await estabilizar(f)
     expect(dialogoAbierto(el)).not.toBeNull()
@@ -123,14 +126,16 @@ describe('PantallaUsuariosInternos · listado y operaciones del contrato (identi
     await estabilizar(f)
     const d = dialogoAbierto(el)
     escribir(d, 'Motivo', 'ok')
+    escribirCodigoDePrueba(d)
     await estabilizar(f)
     expect((Array.from(d.querySelectorAll('button')).find((b) => texto(b) === 'Desbloquear') as HTMLButtonElement).disabled).toBe(true)
     escribir(d, 'Motivo', 'Identidad verificada por teléfono')
     await estabilizar(f)
     pulsar(d, 'Desbloquear')
+    verificarPasoDeSeguridad(http, GW)
     const req = http.expectOne(`${GW}/usuarios-internos/u-2/desbloquear`)
     expect(req.request.method).toBe('POST')
-    expect(req.request.body).toEqual({ motivo: 'Identidad verificada por teléfono' })
+    expect(req.request.body).toEqual({ motivo: 'Identidad verificada por teléfono', evidenciaMfa: EVIDENCIA_DE_PRUEBA })
     req.flush({})
     f.detectChanges()
     http.expectOne(LISTA).flush(usuarios(2))
@@ -138,26 +143,27 @@ describe('PantallaUsuariosInternos · listado y operaciones del contrato (identi
     expect(dialogoAbierto(el)).toBeNull()
   })
 
-  it('aceptado: Roles abre el diálogo con los roles vigentes y manda PUT con la selección y el motivo', async () => {
+  it('aceptado: asigna un rol mediante POST con su ámbito, justificación y segundo factor', async () => {
     const el = await cargar(2)
-    pulsar(el.querySelectorAll('tbody tr')[1]!, 'Roles')
+    pulsar(el.querySelectorAll('tbody tr')[1]!, 'Asignar rol')
     f.detectChanges()
-    http.expectOne(`${GW}/roles`).flush([
-      { id: 'r1', codigo: 'RISK_ANALYST', nombre: 'Analista de riesgo', ambito: 'INTERNO', departamento: 'RIESGOS', descripcion: null, esSistema: true, permisos: [] },
+    http.expectOne(`${GW}/roles?asignablesAPersonalInterno=true`).flush([
       { id: 'r2', codigo: 'AUDITOR', nombre: 'Auditor', ambito: 'INTERNO', departamento: 'AUDITORIA', descripcion: null, esSistema: true, permisos: [] },
     ])
     await estabilizar(f)
     const d = dialogoAbierto(el)
-    const casillas = d.querySelectorAll('input[type=checkbox]') as NodeListOf<HTMLInputElement>
-    expect(casillas[0]!.checked).toBe(true)
-    casillas[1]!.click()
-    escribir(d, 'Motivo formal', 'Rota a auditoría por seis meses')
+    const rol = d.querySelector<HTMLSelectElement>('ap-lista-de-opciones select')!
+    rol.value = 'r2'
+    rol.dispatchEvent(new Event('change'))
+    escribir(d, 'Justificación', 'Rota a auditoría por seis meses')
+    escribirCodigoDePrueba(d)
     await estabilizar(f)
-    pulsar(d, 'Confirmar roles')
-    const req = http.expectOne(`${GW}/usuarios-internos/u-2/roles`)
-    expect(req.request.method).toBe('PUT')
-    expect(req.request.body).toEqual({ roles: ['RISK_ANALYST', 'AUDITOR'], motivo: 'Rota a auditoría por seis meses' })
-    req.flush({})
+    pulsar(d, 'Asignar rol')
+    verificarPasoDeSeguridad(http, GW)
+    const req = http.expectOne(`${GW}/usuarios-internos/u-2/asignaciones`)
+    expect(req.request.method).toBe('POST')
+    expect(req.request.body).toEqual({ rolId: 'r2', ambito: 'GLOBAL', ambitoId: null, vigenteHasta: null, justificacion: 'Rota a auditoría por seis meses', evidenciaMfa: EVIDENCIA_DE_PRUEBA })
+    req.flush({ rolCodigo: 'AUDITOR', yaExistia: true, requiereMfa: true })
     f.detectChanges()
     http.expectOne(LISTA).flush(usuarios(2))
     await estabilizar(f)
