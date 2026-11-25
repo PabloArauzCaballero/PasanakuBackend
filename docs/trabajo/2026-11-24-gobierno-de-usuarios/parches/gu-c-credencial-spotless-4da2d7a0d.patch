@@ -1,0 +1,61 @@
+diff --git a/servicios/identidad/src/test/java/bo/aportaya/identidad/CU09CuentaDeOperadorTest.java b/servicios/identidad/src/test/java/bo/aportaya/identidad/CU09CuentaDeOperadorTest.java
+index 32ac5ccfb..66d1f0f5f 100644
+--- a/servicios/identidad/src/test/java/bo/aportaya/identidad/CU09CuentaDeOperadorTest.java
++++ b/servicios/identidad/src/test/java/bo/aportaya/identidad/CU09CuentaDeOperadorTest.java
+@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
+ import bo.aportaya.identidad.aplicacion.BitacoraDeCuenta;
+ import bo.aportaya.identidad.aplicacion.CambiarClaveDeCuenta;
+ import bo.aportaya.identidad.aplicacion.InvitacionesDeCuenta;
+-import bo.aportaya.identidad.aplicacion.ReglasDeGobierno;
+ import bo.aportaya.identidad.aplicacion.RecuperacionesDeAcceso;
++import bo.aportaya.identidad.aplicacion.ReglasDeGobierno;
+ import bo.aportaya.identidad.dominio.AlcanceDeCuenta;
+ import bo.aportaya.identidad.dominio.puertos.CorreoDeCuenta;
+ import bo.aportaya.identidad.infraestructura.CredencialRepositorio;
+@@ -228,8 +228,8 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
+             return null;
+         });
+         UUID solicitud = solicitudDe(operador);
+-        transaccion.execute(
+-                e -> recuperaciones.aprobar(solicitud, "Verificado en persona con documento", "evidencia-sintetica", comoOperador(aprobador)));
++        transaccion.execute(e -> recuperaciones.aprobar(
++                solicitud, "Verificado en persona con documento", "evidencia-sintetica", comoOperador(aprobador)));
+ 
+         assertThat(correrElTrabajo()).isZero();
+         assertThat(correo.enlaces).isEmpty();
+@@ -489,7 +489,8 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
+ 
+     private void assertThatThrownByAprobar(UUID solicitud, ContextoSesion ctx) {
+         try {
+-            transaccion.execute(e -> recuperaciones.aprobar(solicitud, "Me apruebo a mi mismo", "evidencia-sintetica", ctx));
++            transaccion.execute(
++                    e -> recuperaciones.aprobar(solicitud, "Me apruebo a mi mismo", "evidencia-sintetica", ctx));
+             throw new AssertionError("la autoaprobacion no debio pasar");
+         } catch (ErrorDeNegocio rechazo) {
+             assertThat(rechazo.codigo().valor()).isEqualTo("AP-CU09-09");
+diff --git a/servicios/identidad/src/test/java/bo/aportaya/identidad/web/CuentaControllerWebTest.java b/servicios/identidad/src/test/java/bo/aportaya/identidad/web/CuentaControllerWebTest.java
+index 27d9dc5f8..0b185d5bf 100644
+--- a/servicios/identidad/src/test/java/bo/aportaya/identidad/web/CuentaControllerWebTest.java
++++ b/servicios/identidad/src/test/java/bo/aportaya/identidad/web/CuentaControllerWebTest.java
+@@ -87,7 +87,9 @@ class CuentaControllerWebTest {
+     void consultarSinSesion() throws Exception {
+         when(invitaciones.consultar(any(), any()))
+                 .thenReturn(new InvitacionesDeCuenta.Consulta(
+-                        AlcanceDeCuenta.ALTA, "Operadora", OffsetDateTime.now(ZoneOffset.UTC).plusHours(1)));
++                        AlcanceDeCuenta.ALTA,
++                        "Operadora",
++                        OffsetDateTime.now(ZoneOffset.UTC).plusHours(1)));
+ 
+         mvc.perform(post("/cuenta/invitacion/consultar")
+                         .contentType(MediaType.APPLICATION_JSON)
+@@ -238,7 +240,9 @@ class CuentaControllerWebTest {
+     @DisplayName("invalido: cambiar la clave sin token es 401, y el cuerpo no puede nombrar a otro usuario")
+     void cambiarClaveSinToken() throws Exception {
+         String cuerpo = "{\"claveActual\":\"la-actual\",\"claveNueva\":\"una-clave-larga-1\"}";
+-        mvc.perform(post("/cuenta/clave").contentType(MediaType.APPLICATION_JSON).content(cuerpo))
++        mvc.perform(post("/cuenta/clave")
++                        .contentType(MediaType.APPLICATION_JSON)
++                        .content(cuerpo))
+                 .andExpect(status().isUnauthorized());
+         mvc.perform(post("/cuenta/clave")
+                         .with(token(TITULAR, "BACKOFFICE"))
