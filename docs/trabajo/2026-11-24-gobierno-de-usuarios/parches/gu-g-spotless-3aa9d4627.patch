@@ -1,0 +1,1106 @@
+diff --git a/servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/CU134ConsultarParticipante.java b/servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/CU134ConsultarParticipante.java
+index 6d26757d5..d547cae52 100644
+--- a/servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/CU134ConsultarParticipante.java
++++ b/servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/CU134ConsultarParticipante.java
+@@ -72,13 +72,28 @@ public class CU134ConsultarParticipante {
+         OffsetDateTime ahora = ahora();
+         return datos.conContexto(ctx, dsl -> {
+             List<Fila> filas = participantes.buscar(
+-                    dsl, b.codigoPublico(), b.telefonoE164(), b.estado(), b.antesDe(), b.antesDeId(),
+-                    Math.max(1, Math.min(50, b.limite())), ahora);
++                    dsl,
++                    b.codigoPublico(),
++                    b.telefonoE164(),
++                    b.estado(),
++                    b.antesDe(),
++                    b.antesDeId(),
++                    Math.max(1, Math.min(50, b.limite())),
++                    ahora);
+             // Una fila de rastro por persona devuelta: el rastro dice a quien se vio, no solo que se busco.
+             // Sin resultados no se leyo el dato de nadie.
+             for (Fila f : filas) {
+-                participantes.registrarLectura(dsl, ctx.usuarioId(), f.usuarioId(), "FICHA_PARTICIPANTE",
+-                        "BUSQUEDA", b.justificacion(), b.ticketSoporteId(), 1, ip, ahora);
++                participantes.registrarLectura(
++                        dsl,
++                        ctx.usuarioId(),
++                        f.usuarioId(),
++                        "FICHA_PARTICIPANTE",
++                        "BUSQUEDA",
++                        b.justificacion(),
++                        b.ticketSoporteId(),
++                        1,
++                        ip,
++                        ahora);
+             }
+             return filas.stream()
+                     .map(f -> new Resumen(f, Enmascarado.nombreAbreviado(f.nombres(), f.apellidos())))
+@@ -92,17 +107,27 @@ public class CU134ConsultarParticipante {
+         exigirJustificacion(justificacion);
+         noSobreSiMismo(ctx, usuarioId);
+         OffsetDateTime ahora = ahora();
+-        return datos.conContexto(ctx, dsl -> participantes.ficha(dsl, usuarioId, ahora).map(f -> {
+-            participantes.registrarLectura(dsl, ctx.usuarioId(), usuarioId, "FICHA_PARTICIPANTE", "LECTURA",
+-                    justificacion, ticketSoporteId, 1, ip, ahora);
+-            return new FichaEnmascarada(
+-                    f.resumen(),
+-                    f.resumen().nombres() + " " + f.resumen().apellidos(),
+-                    f.ultimoAcceso(),
+-                    Enmascarado.telefono(f.telefonoE164()),
+-                    Enmascarado.correo(f.correo()),
+-                    medidas.deUsuario(dsl, usuarioId));
+-        }));
++        return datos.conContexto(
++                ctx, dsl -> participantes.ficha(dsl, usuarioId, ahora).map(f -> {
++                    participantes.registrarLectura(
++                            dsl,
++                            ctx.usuarioId(),
++                            usuarioId,
++                            "FICHA_PARTICIPANTE",
++                            "LECTURA",
++                            justificacion,
++                            ticketSoporteId,
++                            1,
++                            ip,
++                            ahora);
++                    return new FichaEnmascarada(
++                            f.resumen(),
++                            f.resumen().nombres() + " " + f.resumen().apellidos(),
++                            f.ultimoAcceso(),
++                            Enmascarado.telefono(f.telefonoE164()),
++                            Enmascarado.correo(f.correo()),
++                            medidas.deUsuario(dsl, usuarioId));
++                }));
+     }
+ 
+     /** Un campo por vez, con segundo factor de quien lee y su propia fila de rastro. */
+@@ -112,16 +137,18 @@ public class CU134ConsultarParticipante {
+         exigirJustificacion(justificacion);
+         noSobreSiMismo(ctx, usuarioId);
+         if (!evidencias.consumir(ctx.usuarioId(), evidenciaMfa)) {
+-            throw new ErrorDeNegocio(CodigoError.de(134, 3),
++            throw new ErrorDeNegocio(
++                    CodigoError.de(134, 3),
+                     "Confirma con tu segundo factor antes de ver un dato completo de otra persona (R-SEG-12).");
+         }
+         OffsetDateTime ahora = ahora();
+-        return datos.conContexto(ctx, dsl -> participantes.ficha(dsl, usuarioId, ahora).map(f -> {
+-            String tipo = "CORREO".equals(campo) ? "CORREO" : "TELEFONO";
+-            participantes.registrarLectura(dsl, ctx.usuarioId(), usuarioId, tipo, "LECTURA", justificacion,
+-                    null, 1, ip, ahora);
+-            return "CORREO".equals(campo) ? f.correo() : f.telefonoE164();
+-        }));
++        return datos.conContexto(
++                ctx, dsl -> participantes.ficha(dsl, usuarioId, ahora).map(f -> {
++                    String tipo = "CORREO".equals(campo) ? "CORREO" : "TELEFONO";
++                    participantes.registrarLectura(
++                            dsl, ctx.usuarioId(), usuarioId, tipo, "LECTURA", justificacion, null, 1, ip, ahora);
++                    return "CORREO".equals(campo) ? f.correo() : f.telefonoE164();
++                }));
+     }
+ 
+     /** Para {@code entregas} (D-11): solo un booleano y el expediente, nunca la causal. */
+@@ -132,14 +159,16 @@ public class CU134ConsultarParticipante {
+ 
+     static void exigirJustificacion(String justificacion) {
+         if (justificacion == null || justificacion.strip().length() < 10) {
+-            throw new ErrorDeNegocio(CodigoError.de(134, 1),
++            throw new ErrorDeNegocio(
++                    CodigoError.de(134, 1),
+                     "Escribi por que necesitas ver estos datos (al menos 10 caracteres): queda en el rastro.");
+         }
+     }
+ 
+     static void noSobreSiMismo(ContextoSesion ctx, UUID afectado) {
+         if (afectado.equals(ctx.usuarioId())) {
+-            throw new ErrorDeNegocio(CodigoError.de(134, 2),
++            throw new ErrorDeNegocio(
++                    CodigoError.de(134, 2),
+                     "Tu propia cuenta de participante la ves en la app; desde el backoffice actua otra persona.");
+         }
+     }
+diff --git a/servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/CU134GestionarMedida.java b/servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/CU134GestionarMedida.java
+index c15e525bd..60760bbe0 100644
+--- a/servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/CU134GestionarMedida.java
++++ b/servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/CU134GestionarMedida.java
+@@ -41,7 +41,8 @@ import org.springframework.transaction.annotation.Transactional;
+ public class CU134GestionarMedida {
+ 
+     /** Estados de la cuenta que una medida puede afectar: los que admite {@code estado_cuenta_previo}. */
+-    private static final Set<String> AFECTABLES = Set.of("ACTIVO", "INCOMPLETO_KYC", "PENDIENTE_VERIFICACION", "PRE_REGISTRO");
++    private static final Set<String> AFECTABLES =
++            Set.of("ACTIVO", "INCOMPLETO_KYC", "PENDIENTE_VERIFICACION", "PRE_REGISTRO");
+ 
+     private final Datos datos;
+     private final MedidasDeCuentaRepositorio medidas;
+@@ -75,19 +76,24 @@ public class CU134GestionarMedida {
+             List<Evidencia> evidencias,
+             Optional<OffsetDateTime> vigenteHasta) {}
+ 
+-    public record Vista(Expediente expediente, List<MedidasDeCuentaRepositorio.Hito> lineaDeTiempo,
+-            Optional<String> apelacionEstado, String estadoCuenta) {}
++    public record Vista(
++            Expediente expediente,
++            List<MedidasDeCuentaRepositorio.Hito> lineaDeTiempo,
++            Optional<String> apelacionEstado,
++            String estadoCuenta) {}
+ 
+     @Transactional
+     public Vista proponer(UUID usuarioId, Propuesta p, String clave, ContextoSesion ctx) {
+         CU134ConsultarParticipante.noSobreSiMismo(ctx, usuarioId);
+-        CausalDeMedida causal = CausalDeMedida.del(p.causal()).orElseThrow(() -> new ErrorDeNegocio(
+-                CodigoError.de(134, 4),
+-                "Esa causal no esta en el catalogo: la mora, una orden de autoridad o una sospecha de lavado van por su propio caso."));
++        CausalDeMedida causal = CausalDeMedida.del(p.causal())
++                .orElseThrow(() -> new ErrorDeNegocio(
++                        CodigoError.de(134, 4),
++                        "Esa causal no esta en el catalogo: la mora, una orden de autoridad o una sospecha de"
++                                + " lavado van por su propio caso."));
+         boolean bloqueo = "BLOQUEO_CAUTELAR".equals(p.medida());
+         if ((p.cautelar() || bloqueo) && !causal.admiteCautelar()) {
+-            throw new ErrorDeNegocio(CodigoError.de(134, 5),
+-                    "Esta causal no admite medida inmediata: primero se escucha el descargo.");
++            throw new ErrorDeNegocio(
++                    CodigoError.de(134, 5), "Esta causal no admite medida inmediata: primero se escucha el descargo.");
+         }
+         boolean cautelar = p.cautelar() || bloqueo;
+         OffsetDateTime ahora = ahora();
+@@ -99,23 +105,37 @@ public class CU134GestionarMedida {
+             String previo = medidas.estadoDeCuenta(dsl, usuarioId)
+                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(134, 6), "No existe ese participante."));
+             if (medidas.hayAbierto(dsl, usuarioId, causal.name()) || !AFECTABLES.contains(previo)) {
+-                throw new ErrorDeNegocio(CodigoError.de(134, 6),
++                throw new ErrorDeNegocio(
++                        CodigoError.de(134, 6),
+                         "Ya hay un expediente abierto sobre esta cuenta: agrega la evidencia nueva ahi.");
+             }
+-            var politica = medidas.politicaVigente(dsl, ahora).orElseThrow(() ->
+-                    new IllegalStateException("Sin politica_medida_cuenta vigente: se deniega por omision"));
++            var politica = medidas.politicaVigente(dsl, ahora)
++                    .orElseThrow(() ->
++                            new IllegalStateException("Sin politica_medida_cuenta vigente: se deniega por omision"));
+             OffsetDateTime tope = ahora.plusDays(politica.plazos().suspensionMaximaDias());
+             OffsetDateTime vigenteHasta = p.vigenteHasta()
+                     .filter(h -> PlazosDeMedida.dentroDelMaximo(ahora, h, politica.plazos()))
+                     .orElse(tope);
+             String estado = cautelar ? "CAUTELAR" : "NOTIFICACION_PENDIENTE";
+-            UUID id = medidas.abrir(dsl, usuarioId, politica.id(), causal.name(), p.medida(), cautelar, p.motivo(),
+-                    estado, previo, ctx.usuarioId(), ahora, PlazosDeMedida.prescripcion(ahora, politica.plazos()),
+-                    vigenteHasta, clave);
++            UUID id = medidas.abrir(
++                    dsl,
++                    usuarioId,
++                    politica.id(),
++                    causal.name(),
++                    p.medida(),
++                    cautelar,
++                    p.motivo(),
++                    estado,
++                    previo,
++                    ctx.usuarioId(),
++                    ahora,
++                    PlazosDeMedida.prescripcion(ahora, politica.plazos()),
++                    vigenteHasta,
++                    clave);
+             medidas.primerHito(dsl, id, estado, ctx.usuarioId(), ahora);
+             for (Evidencia ev : p.evidencias()) {
+-                medidas.agregarEvidencia(dsl, id, "EVIDENCIA_OPERADOR", ev.descripcion(), ev.referenciaId(),
+-                        ctx.usuarioId(), ahora);
++                medidas.agregarEvidencia(
++                        dsl, id, "EVIDENCIA_OPERADOR", ev.descripcion(), ev.referenciaId(), ctx.usuarioId(), ahora);
+             }
+             if (cautelar) {
+                 aplicarMedida(dsl, usuarioId, causal, p.medida(), ahora);
+@@ -134,7 +154,8 @@ public class CU134GestionarMedida {
+             if (e.notificadaEn() == null) {
+                 noPrescrito(e, ahora);
+                 var plazos = medidas.politica(dsl, e.politicaId()).plazos();
+-                OffsetDateTime limite = PlazosDeMedida.limiteDescargo(entregadaEn, plazos, calendario(dsl, entregadaEn));
++                OffsetDateTime limite =
++                        PlazosDeMedida.limiteDescargo(entregadaEn, plazos, calendario(dsl, entregadaEn));
+                 medidas.marcarNotificada(dsl, e.id(), entregadaEn, limite);
+                 medidas.transicion(dsl, e, "EN_DESCARGO", ctx.usuarioId(), "Aviso entregado", ahora);
+             }
+@@ -151,15 +172,16 @@ public class CU134GestionarMedida {
+             noPrescrito(e, ahora);
+             medidas.agregarEvidencia(dsl, e.id(), "DESCARGO", argumento, null, ctx.usuarioId(), ahora);
+             for (Evidencia ev : aportadas) {
+-                medidas.agregarEvidencia(dsl, e.id(), "EVIDENCIA_AFECTADO", ev.descripcion(), ev.referenciaId(),
+-                        ctx.usuarioId(), ahora);
++                medidas.agregarEvidencia(
++                        dsl, e.id(), "EVIDENCIA_AFECTADO", ev.descripcion(), ev.referenciaId(), ctx.usuarioId(), ahora);
+             }
+             return vista(dsl, expedienteId);
+         });
+     }
+ 
+     @Transactional
+-    public Vista decidir(UUID expedienteId, String resultado, String fundamento, String evidenciaMfa, ContextoSesion ctx) {
++    public Vista decidir(
++            UUID expedienteId, String resultado, String fundamento, String evidenciaMfa, ContextoSesion ctx) {
+         exigirSegundoFactor(ctx, evidenciaMfa);
+         OffsetDateTime ahora = ahora();
+         return datos.conContexto(ctx, dsl -> {
+@@ -171,7 +193,8 @@ public class CU134GestionarMedida {
+             noPrescrito(e, ahora);
+             if (e.notificadaEn() == null
+                     || (ahora.isBefore(e.fechaLimiteDescargo()) && !medidas.tieneDescargo(dsl, e.id()))) {
+-                throw new ErrorDeNegocio(CodigoError.de(134, 7),
++                throw new ErrorDeNegocio(
++                        CodigoError.de(134, 7),
+                         "Todavia corre el plazo de descargo: no se decide sin escuchar a la persona.");
+             }
+             var plazos = medidas.politica(dsl, e.politicaId()).plazos();
+@@ -198,7 +221,8 @@ public class CU134GestionarMedida {
+                 throw new ErrorDeNegocio(CodigoError.de(134, 9), "Ya presentaste la apelacion de esta medida.");
+             }
+             if (!"DECIDIDA".equals(e.estado()) || ahora.isAfter(e.fechaLimiteApelacion())) {
+-                throw new ErrorDeNegocio(CodigoError.de(134, 10), "El plazo de apelacion de esta medida ya no esta abierto.");
++                throw new ErrorDeNegocio(
++                        CodigoError.de(134, 10), "El plazo de apelacion de esta medida ya no esta abierto.");
+             }
+             medidas.apelar(dsl, e.id(), ctx.usuarioId(), argumento, ahora);
+             medidas.transicion(dsl, e, "EN_APELACION", ctx.usuarioId(), "Apelacion presentada", ahora);
+@@ -208,14 +232,16 @@ public class CU134GestionarMedida {
+     }
+ 
+     @Transactional
+-    public Vista resolver(UUID expedienteId, String resultado, String resolucion, String evidenciaMfa, ContextoSesion ctx) {
++    public Vista resolver(
++            UUID expedienteId, String resultado, String resolucion, String evidenciaMfa, ContextoSesion ctx) {
+         exigirSegundoFactor(ctx, evidenciaMfa);
+         OffsetDateTime ahora = ahora();
+         return datos.conContexto(ctx, dsl -> {
+             Expediente e = abierto(dsl, expedienteId);
+             CU134ConsultarParticipante.noSobreSiMismo(ctx, e.usuarioId());
+             if (ctx.usuarioId().equals(e.propuestaPor()) || ctx.usuarioId().equals(e.decididaPor())) {
+-                throw new ErrorDeNegocio(CodigoError.de(134, 8),
++                throw new ErrorDeNegocio(
++                        CodigoError.de(134, 8),
+                         "La apelacion la resuelve quien no propuso ni decidio la medida (R-SEG-13).");
+             }
+             var apelacion = medidas.apelacion(dsl, e.id())
+@@ -237,14 +263,15 @@ public class CU134GestionarMedida {
+     @Transactional(readOnly = true)
+     public Optional<Vista> consultar(UUID expedienteId, ContextoSesion ctx) {
+         OffsetDateTime ahora = ahora();
+-        return datos.conContexto(ctx, dsl -> medidas.consultar(dsl, expedienteId).map(e -> {
+-            if (!e.usuarioId().equals(ctx.usuarioId())
+-                    && !PermisosEfectivos.de(accesos.asignacionesDe(dsl, ctx.usuarioId()), ahora)
+-                            .contains("PARTICIPANTES_LEER")) {
+-                throw new AccessDeniedException("expediente ajeno");
+-            }
+-            return vista(dsl, expedienteId);
+-        }));
++        return datos.conContexto(
++                ctx, dsl -> medidas.consultar(dsl, expedienteId).map(e -> {
++                    if (!e.usuarioId().equals(ctx.usuarioId())
++                            && !PermisosEfectivos.de(accesos.asignacionesDe(dsl, ctx.usuarioId()), ahora)
++                                    .contains("PARTICIPANTES_LEER")) {
++                        throw new AccessDeniedException("expediente ajeno");
++                    }
++                    return vista(dsl, expedienteId);
++                }));
+     }
+ 
+     /**
+@@ -266,11 +293,14 @@ public class CU134GestionarMedida {
+                     medidas.transicion(dsl, e, "PRESCRITO", null, "Prescribio sin decision", ahora);
+                     revertir(dsl, e, null, ahora);
+                     tocados++;
+-                } else if ("DECIDIDA".equals(e.estado()) && !ahora.isBefore(e.fechaLimiteApelacion())
++                } else if ("DECIDIDA".equals(e.estado())
++                        && !ahora.isBefore(e.fechaLimiteApelacion())
+                         && medidas.apelacion(dsl, e.id()).isEmpty()) {
+                     quedaFirme(dsl, e, ctx, ahora);
+                     tocados++;
+-                } else if ("FIRME".equals(e.estado()) && e.vigenteHasta() != null && !ahora.isBefore(e.vigenteHasta())) {
++                } else if ("FIRME".equals(e.estado())
++                        && e.vigenteHasta() != null
++                        && !ahora.isBefore(e.vigenteHasta())) {
+                     medidas.transicion(dsl, e, "CUMPLIDA", null, "Vencio la suspension", ahora);
+                     revertir(dsl, e, null, ahora);
+                     tocados++;
+@@ -290,11 +320,16 @@ public class CU134GestionarMedida {
+         emitir(dsl, "identidad.medida_cuenta_firme", e.id(), e.usuarioId(), ctx);
+     }
+ 
+-    private void aplicarMedida(DSLContext dsl, UUID usuarioId, CausalDeMedida causal, String medida, OffsetDateTime ahora) {
+-        medidas.estadoDeCuenta(dsl, usuarioId, "BLOQUEO_CAUTELAR".equals(medida) ? "BLOQUEADO_SEGURIDAD" : "SUSPENDIDO");
++    private void aplicarMedida(
++            DSLContext dsl, UUID usuarioId, CausalDeMedida causal, String medida, OffsetDateTime ahora) {
++        medidas.estadoDeCuenta(
++                dsl, usuarioId, "BLOQUEO_CAUTELAR".equals(medida) ? "BLOQUEADO_SEGURIDAD" : "SUSPENDIDO");
+         if ("BLOQUEO_CAUTELAR".equals(medida)) {
+-            medidas.bloquear(dsl, usuarioId,
+-                    causal == CausalDeMedida.CUENTA_COMPROMETIDA ? "CUENTA_COMPROMETIDA" : "FRAUDE", ahora);
++            medidas.bloquear(
++                    dsl,
++                    usuarioId,
++                    causal == CausalDeMedida.CUENTA_COMPROMETIDA ? "CUENTA_COMPROMETIDA" : "FRAUDE",
++                    ahora);
+         }
+         accesos.cerrarSesionesDe(dsl, usuarioId, "Medida sobre la cuenta (CU-134)", ahora);
+     }
+@@ -321,7 +356,8 @@ public class CU134GestionarMedida {
+ 
+     private static void noPrescrito(Expediente e, OffsetDateTime ahora) {
+         if (!ahora.isBefore(e.prescribeEn())) {
+-            throw new ErrorDeNegocio(CodigoError.de(134, 10), "El expediente prescribio: no se reabre por el mismo hecho.");
++            throw new ErrorDeNegocio(
++                    CodigoError.de(134, 10), "El expediente prescribio: no se reabre por el mismo hecho.");
+         }
+     }
+ 
+@@ -333,26 +369,36 @@ public class CU134GestionarMedida {
+ 
+     private void exigirSegundoFactor(ContextoSesion ctx, String evidenciaMfa) {
+         if (!evidencias.consumir(ctx.usuarioId(), evidenciaMfa)) {
+-            throw new ErrorDeNegocio(CodigoError.de(134, 3),
++            throw new ErrorDeNegocio(
++                    CodigoError.de(134, 3),
+                     "Confirma esta decision con tu segundo factor y volve a intentarlo (R-SEG-12).");
+         }
+     }
+ 
+     private CalendarioHabil calendario(DSLContext dsl, OffsetDateTime desde) {
+-        Set<java.time.LocalDate> no = medidas.noHabiles(dsl, desde.toLocalDate(), desde.toLocalDate().plusDays(90));
++        Set<java.time.LocalDate> no =
++                medidas.noHabiles(dsl, desde.toLocalDate(), desde.toLocalDate().plusDays(90));
+         return no::contains;
+     }
+ 
+     private Vista vista(DSLContext dsl, UUID id) {
+         Expediente e = medidas.consultar(dsl, id).orElseThrow();
+-        return new Vista(e, medidas.lineaDeTiempo(dsl, id),
++        return new Vista(
++                e,
++                medidas.lineaDeTiempo(dsl, id),
+                 medidas.apelacion(dsl, id).map(MedidasDeCuentaRepositorio.Apelacion::estado),
+                 medidas.estadoDeCuenta(dsl, e.usuarioId()).orElse("ACTIVO"));
+     }
+ 
+     private void emitir(DSLContext dsl, String tipo, UUID expedienteId, UUID usuarioId, ContextoSesion ctx) {
+-        outbox.emitir(dsl, new EventoDominio(tipo, "expediente_medida_cuenta", expedienteId,
+-                Map.of("usuarioId", usuarioId.toString()), UUID.fromString(ctx.traza().id())));
++        outbox.emitir(
++                dsl,
++                new EventoDominio(
++                        tipo,
++                        "expediente_medida_cuenta",
++                        expedienteId,
++                        Map.of("usuarioId", usuarioId.toString()),
++                        UUID.fromString(ctx.traza().id())));
+     }
+ 
+     private OffsetDateTime ahora() {
+diff --git a/servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/MedidasDeCuentaRepositorio.java b/servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/MedidasDeCuentaRepositorio.java
+index e586c6e77..e6ad70b7b 100644
+--- a/servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/MedidasDeCuentaRepositorio.java
++++ b/servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/MedidasDeCuentaRepositorio.java
+@@ -90,8 +90,11 @@ public class MedidasDeCuentaRepositorio {
+     }
+ 
+     public boolean hayAbierto(DSLContext dsl, UUID usuarioId, String causal) {
+-        return dsl.fetchExists(EXPEDIENTE_MEDIDA_CUENTA,
+-                EXPEDIENTE_MEDIDA_CUENTA.USUARIO_ID.eq(usuarioId)
++        return dsl.fetchExists(
++                EXPEDIENTE_MEDIDA_CUENTA,
++                EXPEDIENTE_MEDIDA_CUENTA
++                        .USUARIO_ID
++                        .eq(usuarioId)
+                         .and(EXPEDIENTE_MEDIDA_CUENTA.CAUSAL.eq(causal))
+                         .and(EXPEDIENTE_MEDIDA_CUENTA.CERRADA_EN.isNull()));
+     }
+@@ -131,7 +134,12 @@ public class MedidasDeCuentaRepositorio {
+     }
+ 
+     public void agregarEvidencia(
+-            DSLContext dsl, UUID expedienteId, String tipo, String contenido, UUID referenciaId, UUID por,
++            DSLContext dsl,
++            UUID expedienteId,
++            String tipo,
++            String contenido,
++            UUID referenciaId,
++            UUID por,
+             OffsetDateTime ahora) {
+         dsl.insertInto(EVIDENCIA_MEDIDA_CUENTA)
+                 .set(EVIDENCIA_MEDIDA_CUENTA.EXPEDIENTE_MEDIDA_CUENTA_ID, expedienteId)
+@@ -144,14 +152,16 @@ public class MedidasDeCuentaRepositorio {
+     }
+ 
+     public boolean tieneDescargo(DSLContext dsl, UUID expedienteId) {
+-        return dsl.fetchExists(EVIDENCIA_MEDIDA_CUENTA,
+-                EVIDENCIA_MEDIDA_CUENTA.EXPEDIENTE_MEDIDA_CUENTA_ID.eq(expedienteId)
++        return dsl.fetchExists(
++                EVIDENCIA_MEDIDA_CUENTA,
++                EVIDENCIA_MEDIDA_CUENTA
++                        .EXPEDIENTE_MEDIDA_CUENTA_ID
++                        .eq(expedienteId)
+                         .and(EVIDENCIA_MEDIDA_CUENTA.TIPO.eq("DESCARGO")));
+     }
+ 
+     /** Cambia el estado y deja la fila del historial en la misma transaccion. */
+-    public void transicion(
+-            DSLContext dsl, Expediente e, String nuevo, UUID por, String motivo, OffsetDateTime ahora) {
++    public void transicion(DSLContext dsl, Expediente e, String nuevo, UUID por, String motivo, OffsetDateTime ahora) {
+         dsl.update(EXPEDIENTE_MEDIDA_CUENTA)
+                 .set(EXPEDIENTE_MEDIDA_CUENTA.ESTADO, nuevo)
+                 .set(EXPEDIENTE_MEDIDA_CUENTA.VERSION, EXPEDIENTE_MEDIDA_CUENTA.VERSION.plus(1))
+@@ -186,7 +196,12 @@ public class MedidasDeCuentaRepositorio {
+     }
+ 
+     public void decidir(
+-            DSLContext dsl, UUID id, UUID por, String resultado, String fundamento, OffsetDateTime ahora,
++            DSLContext dsl,
++            UUID id,
++            UUID por,
++            String resultado,
++            String fundamento,
++            OffsetDateTime ahora,
+             OffsetDateTime limiteApelacion) {
+         dsl.update(EXPEDIENTE_MEDIDA_CUENTA)
+                 .set(EXPEDIENTE_MEDIDA_CUENTA.DECIDIDA_POR, por)
+@@ -243,7 +258,9 @@ public class MedidasDeCuentaRepositorio {
+         return dsl.select(EXPEDIENTE_MEDIDA_CUENTA.ID)
+                 .from(EXPEDIENTE_MEDIDA_CUENTA)
+                 .where(EXPEDIENTE_MEDIDA_CUENTA.CERRADA_EN.isNull())
+-                .and(EXPEDIENTE_MEDIDA_CUENTA.PRESCRIBE_EN.le(ahora)
++                .and(EXPEDIENTE_MEDIDA_CUENTA
++                        .PRESCRIBE_EN
++                        .le(ahora)
+                         .or(EXPEDIENTE_MEDIDA_CUENTA.FECHA_LIMITE_APELACION.le(ahora))
+                         .or(EXPEDIENTE_MEDIDA_CUENTA.VIGENTE_HASTA.le(ahora)))
+                 .limit(500)
+@@ -255,8 +272,7 @@ public class MedidasDeCuentaRepositorio {
+                 .where(HISTORIAL_ESTADO_MEDIDA_CUENTA.EXPEDIENTE_MEDIDA_CUENTA_ID.eq(expedienteId))
+                 .orderBy(HISTORIAL_ESTADO_MEDIDA_CUENTA.OCURRIDO_EN, HISTORIAL_ESTADO_MEDIDA_CUENTA.ID)
+                 .limit(100)
+-                .fetch(r -> new Hito(
+-                        r.getEstadoAnterior(), r.getEstadoNuevo(), r.getMotivo(), r.getOcurridoEn()));
++                .fetch(r -> new Hito(r.getEstadoAnterior(), r.getEstadoNuevo(), r.getMotivo(), r.getOcurridoEn()));
+     }
+ 
+     /** La medida vigente que retiene la entrega (D-11): abierta y con la cuenta afectada. */
+@@ -265,7 +281,9 @@ public class MedidasDeCuentaRepositorio {
+                 .from(EXPEDIENTE_MEDIDA_CUENTA)
+                 .where(EXPEDIENTE_MEDIDA_CUENTA.USUARIO_ID.eq(usuarioId))
+                 .and(EXPEDIENTE_MEDIDA_CUENTA.CERRADA_EN.isNull())
+-                .and(EXPEDIENTE_MEDIDA_CUENTA.ESTADO.notIn("PROPUESTA", "NOTIFICACION_PENDIENTE", "EN_DESCARGO")
++                .and(EXPEDIENTE_MEDIDA_CUENTA
++                        .ESTADO
++                        .notIn("PROPUESTA", "NOTIFICACION_PENDIENTE", "EN_DESCARGO")
+                         .or(EXPEDIENTE_MEDIDA_CUENTA.CAUTELAR.isTrue()))
+                 .orderBy(EXPEDIENTE_MEDIDA_CUENTA.PROPUESTA_EN)
+                 .limit(1)
+@@ -304,7 +322,10 @@ public class MedidasDeCuentaRepositorio {
+     }
+ 
+     public Optional<String> estadoDeCuenta(DSLContext dsl, UUID usuarioId) {
+-        return dsl.select(USUARIO.ESTADO).from(USUARIO).where(USUARIO.ID.eq(usuarioId)).fetchOptional(USUARIO.ESTADO);
++        return dsl.select(USUARIO.ESTADO)
++                .from(USUARIO)
++                .where(USUARIO.ID.eq(usuarioId))
++                .fetchOptional(USUARIO.ESTADO);
+     }
+ 
+     public void estadoDeCuenta(DSLContext dsl, UUID usuarioId, String estado) {
+@@ -348,11 +369,27 @@ public class MedidasDeCuentaRepositorio {
+     private static Expediente expediente(Record r) {
+         var e = r.into(EXPEDIENTE_MEDIDA_CUENTA);
+         return new Expediente(
+-                e.getId(), e.getUsuarioId(), e.getPoliticaMedidaCuentaId(), e.getCausal(), e.getMedida(),
+-                Boolean.TRUE.equals(e.getCautelar()), e.getMotivo(), e.getEstado(), e.getEstadoCuentaPrevio(),
+-                e.getPropuestaPor(), e.getPropuestaEn(), e.getNotificadaEn(), e.getFechaLimiteDescargo(),
+-                e.getDecididaPor(), e.getResultadoDecision(), e.getFundamentoDecision(), e.getFechaLimiteApelacion(),
+-                e.getVigenteHasta(), e.getPrescribeEn(), e.getFirmeEn(), e.getCerradaEn());
++                e.getId(),
++                e.getUsuarioId(),
++                e.getPoliticaMedidaCuentaId(),
++                e.getCausal(),
++                e.getMedida(),
++                Boolean.TRUE.equals(e.getCautelar()),
++                e.getMotivo(),
++                e.getEstado(),
++                e.getEstadoCuentaPrevio(),
++                e.getPropuestaPor(),
++                e.getPropuestaEn(),
++                e.getNotificadaEn(),
++                e.getFechaLimiteDescargo(),
++                e.getDecididaPor(),
++                e.getResultadoDecision(),
++                e.getFundamentoDecision(),
++                e.getFechaLimiteApelacion(),
++                e.getVigenteHasta(),
++                e.getPrescribeEn(),
++                e.getFirmeEn(),
++                e.getCerradaEn());
+     }
+ 
+     private static String recortar(String s, int largo) {
+diff --git a/servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/ParticipantesRepositorio.java b/servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/ParticipantesRepositorio.java
+index 51431884c..fd92b8c24 100644
+--- a/servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/ParticipantesRepositorio.java
++++ b/servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/ParticipantesRepositorio.java
+@@ -37,8 +37,7 @@ public class ParticipantesRepositorio {
+             boolean tieneMedidaEnCurso) {}
+ 
+     /** Los datos de la ficha antes de enmascarar. El valor plano no sale del organismo. */
+-    public record Ficha(
+-            Fila resumen, OffsetDateTime ultimoAcceso, String telefonoE164, String correo) {}
++    public record Ficha(Fila resumen, OffsetDateTime ultimoAcceso, String telefonoE164, String correo) {}
+ 
+     public List<Fila> buscar(
+             DSLContext dsl,
+@@ -111,7 +110,9 @@ public class ParticipantesRepositorio {
+                 .set(DSL.field(DSL.name("justificacion"), String.class), justificacion)
+                 .set(DSL.field(DSL.name("ticket_soporte_id"), String.class), ticketSoporteId)
+                 .set(DSL.field(DSL.name("cantidad_registros"), Integer.class), cantidad)
+-                .set(DSL.field(DSL.name("ip_origen"), Object.class), DSL.field("cast({0} as inet)", Object.class, DSL.val(ip)))
++                .set(
++                        DSL.field(DSL.name("ip_origen"), Object.class),
++                        DSL.field("cast({0} as inet)", Object.class, DSL.val(ip)))
+                 .set(DSL.field(DSL.name("fecha_hora"), OffsetDateTime.class), ahora)
+                 .execute();
+     }
+@@ -129,7 +130,10 @@ public class ParticipantesRepositorio {
+                             .from(RESTRICCION_USUARIO)
+                             .where(RESTRICCION_USUARIO.USUARIO_ID.eq(USUARIO.ID))
+                             .and(RESTRICCION_USUARIO.VIGENTE_DESDE.le(ahora))
+-                            .and(RESTRICCION_USUARIO.VIGENTE_HASTA.isNull().or(RESTRICCION_USUARIO.VIGENTE_HASTA.gt(ahora))))
++                            .and(RESTRICCION_USUARIO
++                                    .VIGENTE_HASTA
++                                    .isNull()
++                                    .or(RESTRICCION_USUARIO.VIGENTE_HASTA.gt(ahora))))
+                     .as("tiene_restriccion"),
+             DSL.exists(DSL.selectOne()
+                             .from(BLOQUEO_CUENTA)
+diff --git a/servicios/identidad/src/main/java/bo/aportaya/identidad/web/ParticipantesController.java b/servicios/identidad/src/main/java/bo/aportaya/identidad/web/ParticipantesController.java
+index d21ae354a..3f677393f 100644
+--- a/servicios/identidad/src/main/java/bo/aportaya/identidad/web/ParticipantesController.java
++++ b/servicios/identidad/src/main/java/bo/aportaya/identidad/web/ParticipantesController.java
+@@ -71,23 +71,25 @@ public class ParticipantesController implements ParticipantesApi {
+                         e.getLimite() == null ? 20 : e.getLimite()),
+                 ip(),
+                 ctx);
+-        return ResponseEntity.ok(new PaginaDeParticipantes().filas(filas.stream()
+-                .map(r -> new ParticipanteResumen()
+-                        .usuarioId(r.fila().usuarioId())
+-                        .codigoPublico(r.fila().codigoPublico())
+-                        .nombreAbreviado(r.nombreAbreviado())
+-                        .estado(r.fila().estado())
+-                        .nivelKyc(r.fila().nivelKyc())
+-                        .fechaRegistro(r.fila().fechaRegistro())
+-                        .tieneRestriccion(r.fila().tieneRestriccion())
+-                        .tieneBloqueo(r.fila().tieneBloqueo())
+-                        .tieneMedidaEnCurso(r.fila().tieneMedidaEnCurso()))
+-                .toList()));
++        return ResponseEntity.ok(new PaginaDeParticipantes()
++                .filas(filas.stream()
++                        .map(r -> new ParticipanteResumen()
++                                .usuarioId(r.fila().usuarioId())
++                                .codigoPublico(r.fila().codigoPublico())
++                                .nombreAbreviado(r.nombreAbreviado())
++                                .estado(r.fila().estado())
++                                .nivelKyc(r.fila().nivelKyc())
++                                .fechaRegistro(r.fila().fechaRegistro())
++                                .tieneRestriccion(r.fila().tieneRestriccion())
++                                .tieneBloqueo(r.fila().tieneBloqueo())
++                                .tieneMedidaEnCurso(r.fila().tieneMedidaEnCurso()))
++                        .toList()));
+     }
+ 
+     @Override
+     @Permiso("PARTICIPANTES_LEER")
+-    public ResponseEntity<FichaDeParticipante> abrirFichaDeParticipante(UUID usuarioId, EntradaJustificacionDeLectura e) {
++    public ResponseEntity<FichaDeParticipante> abrirFichaDeParticipante(
++            UUID usuarioId, EntradaJustificacionDeLectura e) {
+         ContextoSesion ctx = sesion.actual();
+         return consulta.ficha(usuarioId, e.getJustificacion(), e.getTicketSoporteId(), ip(), ctx)
+                 .map(f -> ResponseEntity.ok(new FichaDeParticipante()
+@@ -100,7 +102,9 @@ public class ParticipantesController implements ParticipantesApi {
+                         .ultimoAcceso(f.ultimoAcceso())
+                         .telefonoEnmascarado(f.telefonoEnmascarado())
+                         .correoEnmascarado(f.correoEnmascarado())
+-                        .medidas(f.medidas().stream().map(m -> resumen(m, f.resumen().estado())).toList())))
++                        .medidas(f.medidas().stream()
++                                .map(m -> resumen(m, f.resumen().estado()))
++                                .toList())))
+                 .orElseGet(() -> ResponseEntity.notFound().build());
+     }
+ 
+@@ -153,8 +157,8 @@ public class ParticipantesController implements ParticipantesApi {
+     @Override
+     public ResponseEntity<ExpedienteDeMedida> presentarDescargoDeMedida(
+             UUID idempotencyKey, UUID expedienteId, EntradaDescargoDeMedida e) {
+-        return ResponseEntity.ok(expediente(medidas.descargo(
+-                expedienteId, e.getArgumento(), evidencias(e.getEvidencias()), sesion.actual())));
++        return ResponseEntity.ok(expediente(
++                medidas.descargo(expedienteId, e.getArgumento(), evidencias(e.getEvidencias()), sesion.actual())));
+     }
+ 
+     @Override
+diff --git a/servicios/identidad/src/test/java/bo/aportaya/identidad/CU134Test.java b/servicios/identidad/src/test/java/bo/aportaya/identidad/CU134Test.java
+index 54da5bbd5..4e1641943 100644
+--- a/servicios/identidad/src/test/java/bo/aportaya/identidad/CU134Test.java
++++ b/servicios/identidad/src/test/java/bo/aportaya/identidad/CU134Test.java
+@@ -62,7 +62,8 @@ class CU134Test {
+         Datos datos = new Datos(dsl);
+         EvidenciaDeStepUp stepUp = (actor, evidencia) -> EVIDENCIA.equals(evidencia);
+         var repo = new MedidasDeCuentaRepositorio();
+-        consulta = new CU134ConsultarParticipante(datos, new ParticipantesRepositorio(), repo, stepUp, Reloj.delSistema());
++        consulta =
++                new CU134ConsultarParticipante(datos, new ParticipantesRepositorio(), repo, stepUp, Reloj.delSistema());
+         medidas = new CU134GestionarMedida(
+                 datos, repo, new AccesosRepositorio(), stepUp, new Outbox("identidad"), Reloj.delSistema());
+         dsl.execute(
+@@ -76,7 +77,10 @@ class CU134Test {
+     }
+ 
+     @Test
+-    @DisplayName("Dado un operador con permiso de lectura de participantes · Cuando abre la ficha de un participante con una justificación válida · Entonces ve el teléfono y el correo enmascarados · Y existe una fila en registro_acceso_datos con operacion LECTURA y su justificación")
++    @DisplayName(
++            "Dado un operador con permiso de lectura de participantes · Cuando abre la ficha de un participante con"
++                + " una justificación válida · Entonces ve el teléfono y el correo enmascarados · Y existe una fila en"
++                + " registro_acceso_datos con operacion LECTURA y su justificación")
+     void criterio1() {
+         UUID operador = persona();
+         UUID participante = persona();
+@@ -86,51 +90,82 @@ class CU134Test {
+                 participante, "Ticket de soporte por cobro duplicado", null, "10.0.0.1", como(operador)));
+ 
+         assertThat(ficha).isPresent();
+-        assertThat(ficha.get().telefonoEnmascarado()).contains("•").doesNotContain(telefonoDe(participante).substring(5));
++        assertThat(ficha.get().telefonoEnmascarado())
++                .contains("•")
++                .doesNotContain(telefonoDe(participante).substring(5));
+         assertThat(ficha.get().correoEnmascarado()).isEqualTo("j•••@e•••.bo");
+         // R-SEG-02: la lectura deja rastro con justificacion, en la misma transaccion.
+-        assertThat(dsl.fetchCount(DSL.table("comun.registro_acceso_datos"),
+-                        DSL.field("usuario_afectado_id").eq(participante)
++        assertThat(dsl.fetchCount(
++                        DSL.table("comun.registro_acceso_datos"),
++                        DSL.field("usuario_afectado_id")
++                                .eq(participante)
+                                 .and(DSL.field("operacion").eq("LECTURA"))
+                                 .and(DSL.field("justificacion").eq("Ticket de soporte por cobro duplicado"))))
+                 .isEqualTo(1);
+     }
+ 
+     @Test
+-    @DisplayName("Dado un operador que busca participantes sin justificación · Cuando envía la búsqueda · Entonces se rechaza con JUSTIFICACION_INSUFICIENTE y no se devuelve ninguna fila")
++    @DisplayName("Dado un operador que busca participantes sin justificación · Cuando envía la búsqueda · Entonces se"
++            + " rechaza con JUSTIFICACION_INSUFICIENTE y no se devuelve ninguna fila")
+     void criterio2() {
+         UUID operador = persona();
+-        assertThatThrownBy(() -> consulta.buscar(new CU134ConsultarParticipante.Busqueda(
+-                        Optional.empty(), Optional.empty(), Optional.empty(), "corta", null,
+-                        Optional.empty(), Optional.empty(), 20), "10.0.0.1", como(operador)))
+-                .isInstanceOfSatisfying(ErrorDeNegocio.class, e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU134-01"));
++        assertThatThrownBy(() -> consulta.buscar(
++                        new CU134ConsultarParticipante.Busqueda(
++                                Optional.empty(),
++                                Optional.empty(),
++                                Optional.empty(),
++                                "corta",
++                                null,
++                                Optional.empty(),
++                                Optional.empty(),
++                                20),
++                        "10.0.0.1",
++                        como(operador)))
++                .isInstanceOfSatisfying(
++                        ErrorDeNegocio.class,
++                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU134-01"));
+     }
+ 
+     @Test
+-    @DisplayName("Dado un operador sin segundo factor reciente · Cuando pide revelar el teléfono de un participante · Entonces se rechaza con SEGUNDO_FACTOR_REQUERIDO")
++    @DisplayName("Dado un operador sin segundo factor reciente · Cuando pide revelar el teléfono de un participante ·"
++            + " Entonces se rechaza con SEGUNDO_FACTOR_REQUERIDO")
+     void criterio3() {
+         UUID operador = persona();
+         UUID participante = persona();
+         // R-SEG-12: sin evidencia de step-up no se lee el dato completo de un tercero.
+         assertThatThrownBy(() -> consulta.revelar(
+-                        participante, "TELEFONO", "Verificar titularidad por llamada", "sin-evidencia", "10.0.0.1",
++                        participante,
++                        "TELEFONO",
++                        "Verificar titularidad por llamada",
++                        "sin-evidencia",
++                        "10.0.0.1",
+                         como(operador)))
+-                .isInstanceOfSatisfying(ErrorDeNegocio.class, e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU134-03"));
++                .isInstanceOfSatisfying(
++                        ErrorDeNegocio.class,
++                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU134-03"));
+     }
+ 
+     @Test
+-    @DisplayName("Dado un operador que también es participante · Cuando intenta abrir su propia ficha o proponer una medida sobre su cuenta · Entonces se rechaza con ACTUA_SOBRE_SI_MISMO")
++    @DisplayName(
++            "Dado un operador que también es participante · Cuando intenta abrir su propia ficha o proponer una medida"
++                    + " sobre su cuenta · Entonces se rechaza con ACTUA_SOBRE_SI_MISMO")
+     void criterio4() {
+         UUID operador = persona();
+         // R-SEG-04: nadie actua sobre si mismo.
+-        assertThatThrownBy(() -> consulta.ficha(operador, "Revision de mi propia cuenta", null, "10.0.0.1", como(operador)))
+-                .isInstanceOfSatisfying(ErrorDeNegocio.class, e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU134-02"));
++        assertThatThrownBy(() ->
++                        consulta.ficha(operador, "Revision de mi propia cuenta", null, "10.0.0.1", como(operador)))
++                .isInstanceOfSatisfying(
++                        ErrorDeNegocio.class,
++                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU134-02"));
+         assertThatThrownBy(() -> proponer(operador, operador, "FRAUDE_CON_EVIDENCIA", "SUSPENSION_TEMPORAL", false))
+-                .isInstanceOfSatisfying(ErrorDeNegocio.class, e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU134-02"));
++                .isInstanceOfSatisfying(
++                        ErrorDeNegocio.class,
++                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU134-02"));
+     }
+ 
+     @Test
+-    @DisplayName("Dado un participante con deuda vencida · Cuando un analista intenta suspender su cuenta por mora · Entonces se rechaza con CAUSAL_FUERA_DE_CATALOGO y se indica el caso de restricción por mora")
++    @DisplayName("Dado un participante con deuda vencida · Cuando un analista intenta suspender su cuenta por mora ·"
++            + " Entonces se rechaza con CAUSAL_FUERA_DE_CATALOGO y se indica el caso de restricción por mora")
+     void criterio5() {
+         UUID analista = persona();
+         UUID participante = persona();
+@@ -142,16 +177,24 @@ class CU134Test {
+     }
+ 
+     @Test
+-    @DisplayName("Dada una propuesta de suspensión por abuso contra participantes · Cuando se la marca como cautelar · Entonces se rechaza con CAUTELAR_NO_ADMITIDA")
++    @DisplayName("Dada una propuesta de suspensión por abuso contra participantes · Cuando se la marca como cautelar ·"
++            + " Entonces se rechaza con CAUTELAR_NO_ADMITIDA")
+     void criterio6() {
+         UUID analista = persona();
+         UUID participante = persona();
+-        assertThatThrownBy(() -> proponer(analista, participante, "ABUSO_CONTRA_PARTICIPANTES", "SUSPENSION_TEMPORAL", true))
+-                .isInstanceOfSatisfying(ErrorDeNegocio.class, e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU134-05"));
++        assertThatThrownBy(() ->
++                        proponer(analista, participante, "ABUSO_CONTRA_PARTICIPANTES", "SUSPENSION_TEMPORAL", true))
++                .isInstanceOfSatisfying(
++                        ErrorDeNegocio.class,
++                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU134-05"));
+     }
+ 
+     @Test
+-    @DisplayName("Dada una cuenta comprometida con evidencia de sesiones anómalas · Cuando el analista propone un bloqueo cautelar · Entonces la cuenta queda BLOQUEADO_SEGURIDAD, sus sesiones quedan revocadas y el expediente queda CAUTELAR · Y al acreditarse la notificación se guarda la fecha límite de descargo y el expediente pasa a EN_DESCARGO")
++    @DisplayName(
++            "Dada una cuenta comprometida con evidencia de sesiones anómalas · Cuando el analista propone un bloqueo"
++                + " cautelar · Entonces la cuenta queda BLOQUEADO_SEGURIDAD, sus sesiones quedan revocadas y el"
++                + " expediente queda CAUTELAR · Y al acreditarse la notificación se guarda la fecha límite de descargo"
++                + " y el expediente pasa a EN_DESCARGO")
+     void criterio7() {
+         UUID analista = persona();
+         UUID participante = persona();
+@@ -162,18 +205,24 @@ class CU134Test {
+         assertThat(vista.expediente().estado()).isEqualTo("CAUTELAR");
+         assertThat(estadoDe(participante)).isEqualTo("BLOQUEADO_SEGURIDAD");
+         // R-SEG-09: ninguna sesion ni refresco sigue vivo tras el bloqueo.
+-        assertThat(dsl.fetchCount(DSL.table("identidad.sesion"),
+-                        DSL.field("usuario_id").eq(participante).and(DSL.field("revocada_en").isNull())))
++        assertThat(dsl.fetchCount(
++                        DSL.table("identidad.sesion"),
++                        DSL.field("usuario_id")
++                                .eq(participante)
++                                .and(DSL.field("revocada_en").isNull())))
+                 .isZero();
+ 
+-        var notificada = transaccion.execute(e -> medidas.notificar(
+-                vista.expediente().id(), OffsetDateTime.now(), como(analista)));
++        var notificada = transaccion.execute(
++                e -> medidas.notificar(vista.expediente().id(), OffsetDateTime.now(), como(analista)));
+         assertThat(notificada.expediente().estado()).isEqualTo("EN_DESCARGO");
+-        assertThat(notificada.expediente().fechaLimiteDescargo()).isAfter(notificada.expediente().notificadaEn());
++        assertThat(notificada.expediente().fechaLimiteDescargo())
++                .isAfter(notificada.expediente().notificadaEn());
+     }
+ 
+     @Test
+-    @DisplayName("Dado un expediente con el plazo de descargo abierto y sin descargo · Cuando se intenta decidir · Entonces se rechaza con PLAZO_DESCARGO_ABIERTO")
++    @DisplayName(
++            "Dado un expediente con el plazo de descargo abierto y sin descargo · Cuando se intenta decidir · Entonces"
++                    + " se rechaza con PLAZO_DESCARGO_ABIERTO")
+     void criterio8() {
+         UUID analista = persona();
+         UUID responsable = persona();
+@@ -182,60 +231,84 @@ class CU134Test {
+         transaccion.execute(e -> medidas.notificar(vista.expediente().id(), OffsetDateTime.now(), como(analista)));
+ 
+         assertThatThrownBy(() -> decidir(responsable, vista.expediente().id(), "CONFIRMADA"))
+-                .isInstanceOfSatisfying(ErrorDeNegocio.class, e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU134-07"));
++                .isInstanceOfSatisfying(
++                        ErrorDeNegocio.class,
++                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU134-07"));
+     }
+ 
+     @Test
+-    @DisplayName("Dado un expediente propuesto por un analista · Cuando el mismo analista intenta decidirlo · Entonces se rechaza con MISMA_PERSONA")
++    @DisplayName(
++            "Dado un expediente propuesto por un analista · Cuando el mismo analista intenta decidirlo · Entonces se"
++                    + " rechaza con MISMA_PERSONA")
+     void criterio9() {
+         UUID analista = persona();
+         UUID participante = persona();
+         var vista = proponer(analista, participante, "FRAUDE_CON_EVIDENCIA", "SUSPENSION_TEMPORAL", false);
+         // R-SEG-13: quien propone no decide; la base lo repite con ck_expediente_medida_decide_otro.
+         assertThatThrownBy(() -> decidir(analista, vista.expediente().id(), "CONFIRMADA"))
+-                .isInstanceOfSatisfying(ErrorDeNegocio.class, e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU134-08"));
++                .isInstanceOfSatisfying(
++                        ErrorDeNegocio.class,
++                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU134-08"));
+     }
+ 
+     @Test
+-    @DisplayName("Dada una propuesta de medida reenviada con la misma clave de idempotencia · Cuando llega por segunda vez · Entonces devuelve el mismo expedienteId y no se crea otro expediente")
++    @DisplayName(
++            "Dada una propuesta de medida reenviada con la misma clave de idempotencia · Cuando llega por segunda vez"
++                    + " · Entonces devuelve el mismo expedienteId y no se crea otro expediente")
+     void criterio10() {
+         UUID analista = persona();
+         UUID participante = persona();
+         String clave = UUID.randomUUID().toString();
+-        var primera = proponerConClave(analista, participante, "FRAUDE_CON_EVIDENCIA", "SUSPENSION_TEMPORAL", false, clave);
+-        var segunda = proponerConClave(analista, participante, "FRAUDE_CON_EVIDENCIA", "SUSPENSION_TEMPORAL", false, clave);
++        var primera =
++                proponerConClave(analista, participante, "FRAUDE_CON_EVIDENCIA", "SUSPENSION_TEMPORAL", false, clave);
++        var segunda =
++                proponerConClave(analista, participante, "FRAUDE_CON_EVIDENCIA", "SUSPENSION_TEMPORAL", false, clave);
+ 
+         assertThat(segunda.expediente().id()).isEqualTo(primera.expediente().id());
+-        assertThat(dsl.fetchCount(DSL.table("identidad.expediente_medida_cuenta"), DSL.field("usuario_id").eq(participante)))
++        assertThat(dsl.fetchCount(
++                        DSL.table("identidad.expediente_medida_cuenta"),
++                        DSL.field("usuario_id").eq(participante)))
+                 .isEqualTo(1);
+     }
+ 
+     @Test
+-    @DisplayName("Dada una apelación que una tercera persona acepta · Cuando la resuelve · Entonces la medida queda REVOCADA, la cuenta vuelve a su estado previo · Y se emite identidad.medida_cuenta_revocada sin borrar el historial del expediente")
++    @DisplayName("Dada una apelación que una tercera persona acepta · Cuando la resuelve · Entonces la medida queda"
++            + " REVOCADA, la cuenta vuelve a su estado previo · Y se emite identidad.medida_cuenta_revocada sin"
++            + " borrar el historial del expediente")
+     void criterio11() {
+         UUID analista = persona();
+         UUID responsable = persona();
+         UUID comite = persona();
+         UUID participante = persona();
+         var id = expedienteDecidido(analista, responsable, participante);
+-        transaccion.execute(e -> medidas.apelar(id, "No fui yo: adjunto la denuncia policial del robo del telefono.", como(participante)));
++        transaccion.execute(e -> medidas.apelar(
++                id, "No fui yo: adjunto la denuncia policial del robo del telefono.", como(participante)));
+ 
+         var revocada = transaccion.execute(e -> medidas.resolver(
+-                id, "ACEPTADA", "La evidencia del afectado acredita el robo del telefono en la fecha de los hechos.",
+-                EVIDENCIA, como(comite)));
++                id,
++                "ACEPTADA",
++                "La evidencia del afectado acredita el robo del telefono en la fecha de los hechos.",
++                EVIDENCIA,
++                como(comite)));
+ 
+         assertThat(revocada.expediente().estado()).isEqualTo("REVOCADA");
+         assertThat(estadoDe(participante)).isEqualTo("ACTIVO");
+         // R-AUD-04: el evento sale en la misma transaccion; R-AUD-01: el historial no se borra.
+-        assertThat(dsl.fetchCount(DSL.table("identidad.evento_dominio"),
+-                        DSL.field("tipo").eq("identidad.medida_cuenta_revocada").and(DSL.field("agregado_id").eq(id))))
++        assertThat(dsl.fetchCount(
++                        DSL.table("identidad.evento_dominio"),
++                        DSL.field("tipo")
++                                .eq("identidad.medida_cuenta_revocada")
++                                .and(DSL.field("agregado_id").eq(id))))
+                 .isEqualTo(1);
+-        assertThat(revocada.lineaDeTiempo()).extracting(MedidasDeCuentaRepositorio.Hito::estado)
++        assertThat(revocada.lineaDeTiempo())
++                .extracting(MedidasDeCuentaRepositorio.Hito::estado)
+                 .contains("NOTIFICACION_PENDIENTE", "EN_DESCARGO", "DECIDIDA", "EN_APELACION", "REVOCADA");
+     }
+ 
+     @Test
+-    @DisplayName("Dada una cuenta suspendida con aportes pendientes en un grupo · Cuando se aplica la suspensión · Entonces ninguna obligación, entrega ni cupo del grupo cambia por la medida")
++    @DisplayName(
++            "Dada una cuenta suspendida con aportes pendientes en un grupo · Cuando se aplica la suspensión · Entonces"
++                    + " ninguna obligación, entrega ni cupo del grupo cambia por la medida")
+     void criterio12() {
+         UUID analista = persona();
+         UUID participante = persona();
+@@ -253,26 +326,37 @@ class CU134Test {
+         UUID analista = persona();
+         UUID participante = persona();
+         proponer(analista, participante, "CUENTA_DUPLICADA_O_DE_TERCERO", "SUSPENSION_TEMPORAL", false);
+-        assertThatThrownBy(() -> proponer(analista, participante, "CUENTA_DUPLICADA_O_DE_TERCERO", "SUSPENSION_TEMPORAL", false))
+-                .isInstanceOfSatisfying(ErrorDeNegocio.class, e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU134-06"));
++        assertThatThrownBy(() ->
++                        proponer(analista, participante, "CUENTA_DUPLICADA_O_DE_TERCERO", "SUSPENSION_TEMPORAL", false))
++                .isInstanceOfSatisfying(
++                        ErrorDeNegocio.class,
++                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU134-06"));
+     }
+ 
+     @Test
+-    @DisplayName("rechaza que decida o resuelva la apelacion quien ya actuo, y una segunda apelacion (R-SEG-13, R-SEG-15)")
++    @DisplayName(
++            "rechaza que decida o resuelva la apelacion quien ya actuo, y una segunda apelacion (R-SEG-13, R-SEG-15)")
+     void rechazaSegregacionYApelacionDuplicada() {
+         UUID analista = persona();
+         UUID responsable = persona();
+         UUID participante = persona();
+         var id = expedienteDecidido(analista, responsable, participante);
+-        transaccion.execute(e -> medidas.apelar(id, "Pido revision: la evidencia es de otra cuenta, no de la mia.", como(participante)));
+-
+-        assertThatThrownBy(() -> transaccion.execute(e -> medidas.resolver(
+-                        id, "RECHAZADA", "x".repeat(60), EVIDENCIA, como(responsable))))
+-                .isInstanceOfSatisfying(ErrorDeNegocio.class, e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU134-08"));
+-        assertThatThrownBy(() -> transaccion.execute(e -> medidas.apelar(id, "Segunda apelacion que no corresponde.", como(participante))))
+-                .isInstanceOfSatisfying(ErrorDeNegocio.class, e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU134-09"));
++        transaccion.execute(e ->
++                medidas.apelar(id, "Pido revision: la evidencia es de otra cuenta, no de la mia.", como(participante)));
++
++        assertThatThrownBy(() -> transaccion.execute(
++                        e -> medidas.resolver(id, "RECHAZADA", "x".repeat(60), EVIDENCIA, como(responsable))))
++                .isInstanceOfSatisfying(
++                        ErrorDeNegocio.class,
++                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU134-08"));
++        assertThatThrownBy(() -> transaccion.execute(
++                        e -> medidas.apelar(id, "Segunda apelacion que no corresponde.", como(participante))))
++                .isInstanceOfSatisfying(
++                        ErrorDeNegocio.class,
++                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU134-09"));
+         // R-SEG-15: la base no deja una decision sin fundamento.
+-        assertThat(rechazaLaBase("UPDATE identidad.expediente_medida_cuenta SET fundamento_decision = 'corto' WHERE id = ?", id))
++        assertThat(rechazaLaBase(
++                        "UPDATE identidad.expediente_medida_cuenta SET fundamento_decision = 'corto' WHERE id = ?", id))
+                 .contains("ck_expediente_medida_decision_fundada");
+     }
+ 
+@@ -281,11 +365,18 @@ class CU134Test {
+     void rechazaEditarElExpediente() {
+         UUID analista = persona();
+         UUID participante = persona();
+-        var id = proponer(analista, participante, "FRAUDE_CON_EVIDENCIA", "SUSPENSION_TEMPORAL", false).expediente().id();
++        var id = proponer(analista, participante, "FRAUDE_CON_EVIDENCIA", "SUSPENSION_TEMPORAL", false)
++                .expediente()
++                .id();
+         // Mismo criterio que R-GAR-02 (evidencia inmutable) y R-ORG-05 (una apelacion, por otro) en sus casos.
+-        assertThat(rechazaLaBase("UPDATE identidad.evidencia_medida_cuenta SET contenido = 'otra' WHERE expediente_medida_cuenta_id = ?", id))
++        assertThat(rechazaLaBase(
++                        "UPDATE identidad.evidencia_medida_cuenta SET contenido = 'otra' WHERE"
++                                + " expediente_medida_cuenta_id = ?",
++                        id))
+                 .contains("R-AUD-01");
+-        assertThat(rechazaLaBase("DELETE FROM identidad.historial_estado_medida_cuenta WHERE expediente_medida_cuenta_id = ?", id))
++        assertThat(rechazaLaBase(
++                        "DELETE FROM identidad.historial_estado_medida_cuenta WHERE expediente_medida_cuenta_id = ?",
++                        id))
+                 .contains("R-AUD-01");
+     }
+ 
+@@ -298,42 +389,59 @@ class CU134Test {
+     }
+ 
+     private static ContextoSesion como(UUID usuario) {
+-        return ContextoSesion.de(usuario, "BACKOFFICE", new Traza(UUID.randomUUID().toString()));
++        return ContextoSesion.de(
++                usuario, "BACKOFFICE", new Traza(UUID.randomUUID().toString()));
+     }
+ 
+-    private static CU134GestionarMedida.Vista proponer(UUID por, UUID sobre, String causal, String medida, boolean cautelar) {
+-        return proponerConClave(por, sobre, causal, medida, cautelar, UUID.randomUUID().toString());
++    private static CU134GestionarMedida.Vista proponer(
++            UUID por, UUID sobre, String causal, String medida, boolean cautelar) {
++        return proponerConClave(
++                por, sobre, causal, medida, cautelar, UUID.randomUUID().toString());
+     }
+ 
+     private static CU134GestionarMedida.Vista proponerConClave(
+             UUID por, UUID sobre, String causal, String medida, boolean cautelar, String clave) {
+-        return transaccion.execute(e -> medidas.proponer(sobre,
+-                new Propuesta(causal, medida, cautelar,
++        return transaccion.execute(e -> medidas.proponer(
++                sobre,
++                new Propuesta(
++                        causal,
++                        medida,
++                        cautelar,
+                         "Hallazgo documentado por el equipo de prevencion de fraude en la revision semanal.",
+-                        List.of(new Evidencia("Captura de los intentos de acceso", null)), Optional.empty()),
+-                clave, como(por)));
++                        List.of(new Evidencia("Captura de los intentos de acceso", null)),
++                        Optional.empty()),
++                clave,
++                como(por)));
+     }
+ 
+     private static CU134GestionarMedida.Vista decidir(UUID por, UUID expediente, String resultado) {
+-        return transaccion.execute(e -> medidas.decidir(expediente, resultado,
+-                "La evidencia del sistema y el descargo se ponderaron y sostienen la medida propuesta.", EVIDENCIA,
++        return transaccion.execute(e -> medidas.decidir(
++                expediente,
++                resultado,
++                "La evidencia del sistema y el descargo se ponderaron y sostienen la medida propuesta.",
++                EVIDENCIA,
+                 como(por)));
+     }
+ 
+     private static UUID expedienteDecidido(UUID analista, UUID responsable, UUID participante) {
+-        UUID id = proponer(analista, participante, "FRAUDE_CON_EVIDENCIA", "SUSPENSION_TEMPORAL", true).expediente().id();
++        UUID id = proponer(analista, participante, "FRAUDE_CON_EVIDENCIA", "SUSPENSION_TEMPORAL", true)
++                .expediente()
++                .id();
+         transaccion.execute(e -> medidas.notificar(id, OffsetDateTime.now(), como(analista)));
+-        transaccion.execute(e -> medidas.descargo(id, "Presento mi descargo con los comprobantes de mis pagos.", List.of(), como(participante)));
++        transaccion.execute(e -> medidas.descargo(
++                id, "Presento mi descargo con los comprobantes de mis pagos.", List.of(), como(participante)));
+         decidir(responsable, id, "CONFIRMADA");
+         return id;
+     }
+ 
+     private static String estadoDe(UUID usuario) {
+-        return dsl.fetchValue("SELECT estado FROM identidad.usuario WHERE id = ?", usuario).toString();
++        return dsl.fetchValue("SELECT estado FROM identidad.usuario WHERE id = ?", usuario)
++                .toString();
+     }
+ 
+     private static String telefonoDe(UUID usuario) {
+-        return dsl.fetchValue("SELECT telefono_e164 FROM identidad.usuario WHERE id = ?", usuario).toString();
++        return dsl.fetchValue("SELECT telefono_e164 FROM identidad.usuario WHERE id = ?", usuario)
++                .toString();
+     }
+ 
+     private static int filasDeDinero() {
+diff --git a/servicios/identidad/src/test/java/bo/aportaya/identidad/web/ParticipantesControllerWebTest.java b/servicios/identidad/src/test/java/bo/aportaya/identidad/web/ParticipantesControllerWebTest.java
+index 1009fdee5..03a10818e 100644
+--- a/servicios/identidad/src/test/java/bo/aportaya/identidad/web/ParticipantesControllerWebTest.java
++++ b/servicios/identidad/src/test/java/bo/aportaya/identidad/web/ParticipantesControllerWebTest.java
+@@ -189,9 +189,27 @@ class ParticipantesControllerWebTest {
+ 
+     private static CU134GestionarMedida.Vista vista(String estado) {
+         var e = new MedidasDeCuentaRepositorio.Expediente(
+-                EXPEDIENTE, PARTICIPANTE, UUID.randomUUID(), "CUENTA_COMPROMETIDA", "BLOQUEO_CAUTELAR", true,
+-                "Accesos anomalos", estado, "ACTIVO", UUID.randomUUID(), AHORA, null, null, null, null, null, null,
+-                AHORA.plusDays(90), AHORA.plusMonths(12), null, null);
++                EXPEDIENTE,
++                PARTICIPANTE,
++                UUID.randomUUID(),
++                "CUENTA_COMPROMETIDA",
++                "BLOQUEO_CAUTELAR",
++                true,
++                "Accesos anomalos",
++                estado,
++                "ACTIVO",
++                UUID.randomUUID(),
++                AHORA,
++                null,
++                null,
++                null,
++                null,
++                null,
++                null,
++                AHORA.plusDays(90),
++                AHORA.plusMonths(12),
++                null,
++                null);
+         return new CU134GestionarMedida.Vista(
+                 e,
+                 List.of(new MedidasDeCuentaRepositorio.Hito(null, "CAUTELAR", null, AHORA)),
