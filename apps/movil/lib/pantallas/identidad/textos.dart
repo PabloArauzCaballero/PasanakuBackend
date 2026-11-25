@@ -39,10 +39,8 @@ class TextosIdentidad {
       'El orden no lo decide nadie. Sale de una semilla pública que se toma después '
       'de cerrar la lista, y cualquiera puede repetir el sorteo y llegar al mismo '
       'resultado.';
-  // Fuente (RESPALDO-003, regla 97.5.4): CU-23 «Cubrir un incumplimiento con el fondo» (flujo 2,
-  // alternativo 2a y postcondiciones) y CU-22 (turno con faltante en espera). Sin cifras, topes ni
-  // porcentajes de cobertura: ninguno tiene fuente. El texto no dice que el turno «se entrega igual»:
-  // si el fondo no alcanza, la entrega espera. Y la empresa no pone plata (ADR-055/056).
+  // Fuente (RESPALDO-003, 97.5.4): CU-23 y CU-22. Sin cifras ni coberturas sin fuente; si el
+  // fondo no alcanza, la entrega espera; la empresa no pone plata.
   static const tour4Titulo = 'Si alguien no aporta,';
   static const tour4Destacado = 'la deuda no se pierde';
   static const tour4Texto =
