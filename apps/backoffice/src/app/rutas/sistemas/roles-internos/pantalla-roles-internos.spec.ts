@@ -54,6 +54,7 @@ describe('PantallaRolesInternos', () => {
     fixture.detectChanges()
 
     http.expectOne('http://gw/api/v1/roles?asignablesAPersonalInterno=true').flush(ROLES_EJEMPLO)
+    http.expectOne('http://gw/api/v1/roles/solicitudes').flush([])
     await fixture.whenStable()
     fixture.detectChanges()
 
@@ -70,18 +71,21 @@ describe('PantallaRolesInternos · listado del kit en los tres niveles', () => {
     componente: PantallaRolesInternos,
     url: `${GW_DE_PRUEBA}/roles?asignablesAPersonalInterno=true`,
     filas: (n) => Array.from({ length: n }, (_, i) => ({ id: `r-${i + 1}`, codigo: i === 3 ? 'TREASURY_LEAD' : `ROL_${i + 1}`, nombre: `Rol ${i + 1}`, ambito: 'INTERNO', departamento: i % 5 === 0 ? 'AUDITORIA' : 'OPERACIONES', descripcion: 'Rol sintético', esSistema: i % 2 === 0, permisos: ['ALERTAS_RIESGO_LEER'] })),
+    respuestasExtra: { [`${GW_DE_PRUEBA}/roles/solicitudes`]: [] },
     textoVacio: 'No hay roles internos configurados.',
     busqueda: { termino: 'treasury', esperadas: 1 },
     filtro: { etiqueta: 'Departamento', valor: 'AUDITORIA', esperadas: 5 },
   })
 
-  it('Ver permisos abre el cajón con los permisos del rol; no hay Editar ni Eliminar (el contrato no los tiene)', async () => {
+  it('Ver permisos abre el cajón con los permisos del rol; en los roles de sistema no hay Editar', async () => {
     TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection(), provideHttpClient(), provideHttpClientTesting(), { provide: GATEWAY, useValue: GW_DE_PRUEBA }] })
     const http = TestBed.inject(HttpTestingController)
     const f = TestBed.createComponent(PantallaRolesInternos)
     f.detectChanges()
     http.expectOne(`${GW_DE_PRUEBA}/roles?asignablesAPersonalInterno=true`).flush(ROLES_EJEMPLO)
+    http.expectOne(`${GW_DE_PRUEBA}/roles/solicitudes`).flush([])
     const el = await estabilizar(f)
+    // Los roles de sistema solo se ven: «Editar rol» aparece únicamente en los personalizados.
     expect(Array.from(el.querySelectorAll('tbody button')).map((b) => texto(b))).toEqual(['Ver permisos', 'Ver permisos'])
     pulsar(el.querySelector('tbody tr')!, 'Ver permisos')
     await estabilizar(f)

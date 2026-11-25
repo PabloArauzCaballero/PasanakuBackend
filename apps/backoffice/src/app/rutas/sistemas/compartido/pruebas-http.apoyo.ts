@@ -20,6 +20,8 @@ export type CasoDeListadoHttp<T> = {
   busqueda: { termino: string; esperadas: number }
   filtro: { etiqueta: string; valor: string; esperadas: number }
   extra?: Provider[]
+  /** Otras lecturas que la vista pide al montar (URL → respuesta): se contestan solas, no son lo que se prueba. */
+  respuestasExtra?: Record<string, unknown>
 }
 
 /**
@@ -35,6 +37,7 @@ export function probarListadoHttp<T>(caso: CasoDeListadoHttp<T>): void {
     const http = TestBed.inject(HttpTestingController)
     const f = TestBed.createComponent(caso.componente)
     f.detectChanges()
+    for (const [url, cuerpo] of Object.entries(caso.respuestasExtra ?? {})) http.match(url).forEach((r) => r.flush(cuerpo))
     return { f, http }
   }
 

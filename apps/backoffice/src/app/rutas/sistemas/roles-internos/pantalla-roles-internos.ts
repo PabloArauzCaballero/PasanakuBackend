@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core'
+import { httpResource } from '@angular/common/http'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
 import { AccionesDeFila } from '@aportaya/ui/acciones-de-fila/acciones-de-fila'
 import { Boton } from '@aportaya/ui/boton/boton'
@@ -16,7 +17,7 @@ import { CifrasDeSistemas, contar, type Cifra } from '../compartido/cifras'
 import { rolesAsignables } from '../dominio/gobierno-de-accesos'
 import { accionesDeRoles, RIESGO_DE_CUATRO_OJOS, type SalidaDeRol } from '../dominio/gobierno-de-roles'
 import type { ErrorDeGobierno } from '../dominio/errores-de-gobierno'
-import { catalogoPermisos } from '../dominio/usuarios-internos'
+import { GATEWAY } from '../../../nucleo/gateway'
 import { textosSistemas } from '../textos'
 import { DialogoDeActo } from '../usuarios-internos/dialogo-de-acto'
 import { FormularioDeRol } from './formulario-de-rol'
@@ -102,7 +103,9 @@ export class PantallaRolesInternos {
   protected readonly carga = cargaDe(this.recurso)
   private readonly filas = filasDe<RolCatalogo>(this.recurso)
   private readonly acciones = accionesDeRoles()
-  private readonly permisos = catalogoPermisos()
+  private readonly gateway = inject(GATEWAY)
+  /** El catálogo de permisos se pide recién al abrir el formulario: la pantalla sola no lo necesita. */
+  private readonly permisos = httpResource<PermisoCatalogo[]>(() => (this.formulario() ? `${this.gateway}/permisos` : undefined))
   private readonly panel = viewChild(PanelDeSolicitudesDeRol)
   protected readonly catalogoDePermisos = computed<PermisoCatalogo[]>(() => (this.permisos.hasValue() ? this.permisos.value() : []))
   protected readonly formulario = signal<'crear' | 'editar' | null>(null)
