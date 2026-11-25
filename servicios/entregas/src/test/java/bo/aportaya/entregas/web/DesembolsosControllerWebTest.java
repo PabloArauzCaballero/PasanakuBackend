@@ -54,6 +54,9 @@ class DesembolsosControllerWebTest {
     @MockitoBean
     private CU28EmitirDesembolso cu28;
 
+    @MockitoBean
+    private bo.aportaya.entregas.dominio.puertos.MedidaDeCuenta medidaDeCuenta;
+
     private org.springframework.test.web.servlet.ResultActions emitir(String cuerpo) throws Exception {
         return mvc.perform(post("/desembolsos")
                 .with(Sesiones.como("ORGANIZADOR", "ENTREGA_EJECUTAR"))

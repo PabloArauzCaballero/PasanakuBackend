@@ -4,6 +4,7 @@ import bo.aportaya.entregas.aplicacion.CU18RegistrarCuentaDestino;
 import bo.aportaya.entregas.aplicacion.CU22EntregarPozoCompleto;
 import bo.aportaya.entregas.aplicacion.CU22LiquidarEntrega;
 import bo.aportaya.entregas.aplicacion.CU28EmitirDesembolso;
+import bo.aportaya.entregas.dominio.puertos.MedidaDeCuenta;
 import bo.aportaya.entregas.dominio.puertos.TitularDeLaBilletera;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.SabanaDeSeguridadWeb;
@@ -38,6 +39,9 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private TitularDeLaBilletera titularDeLaBilletera;
+
+    @MockitoBean
+    private MedidaDeCuenta medidaDeCuenta;
 
     @org.springframework.test.context.bean.override.mockito.MockitoBean
     private bo.aportaya.entregas.aplicacion.ConsultarDesembolsos consultarDesembolsos;

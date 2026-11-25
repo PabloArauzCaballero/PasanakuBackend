@@ -1,0 +1,41 @@
+{
+  "servicio": "identidad",
+  "operacion": "consultarMedidaVigente",
+  "metodo": "get",
+  "ruta": "/identidad/participantes/{usuarioId}/medida-vigente",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "usuarioId": "6fc83333-d9f9-4151-849c-ead9e49c1948",
+        "retenerEntrega": true,
+        "expedienteId": "f57b1062-269b-4c5c-82c1-f83c21c167cb"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "usuarioId": "6fc83333-d9f9-4151-849c-ead9e49c1948",
+        "retenerEntrega": false,
+        "expedienteId": "f57b1062-269b-4c5c-82c1-f83c21c167cb"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "usuarioId": "6fc83333-d9f9-4151-849c-ead9e49c1948",
+        "retenerEntrega": true,
+        "expedienteId": "f57b1062-269b-4c5c-82c1-f83c21c167cb"
+      }
+    },
+    "rechazo": {
+      "estado": 401,
+      "cuerpo": {
+        "codigo": "AP-CU01-03",
+        "mensaje": "Cuenta ya existe",
+        "detalle": {},
+        "trazaId": "traza-consultarMedidaVigente-rechazo"
+      }
+    }
+  }
+}

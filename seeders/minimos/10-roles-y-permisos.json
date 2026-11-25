@@ -955,6 +955,15 @@
           "exige_motivo": true
         },
         {
+          "codigo": "PARTICIPANTES_MEDIDA_VIGENTE_LEER",
+          "descripcion": "Saber si un participante tiene una medida que retiene su entrega, sin datos de la persona (servicio a servicio, CU-134 D-11)",
+          "recurso": "usuario",
+          "accion": "LEER",
+          "requiere_mfa": false,
+          "nivel_riesgo": "BAJO",
+          "exige_motivo": false
+        },
+        {
           "codigo": "PARTICIPANTES_LEER",
           "descripcion": "Buscar participantes y abrir su ficha enmascarada con justificación (CU-134)",
           "recurso": "usuario",
@@ -2749,6 +2758,16 @@
           "permiso_id": {
             "$ref": "permiso",
             "codigo": "PARTICIPANTES_APELACION_RESOLVER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "SERVICIO_ENTREGAS"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PARTICIPANTES_MEDIDA_VIGENTE_LEER"
           }
         }
       ]

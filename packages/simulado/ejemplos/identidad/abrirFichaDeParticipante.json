@@ -1,0 +1,181 @@
+{
+  "servicio": "identidad",
+  "operacion": "abrirFichaDeParticipante",
+  "metodo": "post",
+  "ruta": "/identidad/participantes/{usuarioId}/ficha",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "usuarioId": "87ae5e10-70d4-457a-8885-d496f882d38a",
+        "codigoPublico": "codigoPublic",
+        "nombreCompleto": "nombreCompleto",
+        "estado": "estado",
+        "nivelKyc": "nivelKyc",
+        "fechaRegistro": "2026-01-15T10:30:00Z",
+        "ultimoAcceso": "2026-01-15T10:30:00Z",
+        "telefonoEnmascarado": "telefonoEnmascarado",
+        "correoEnmascarado": "correoEnmascarado",
+        "gruposActivos": 0,
+        "medidas": [
+          {
+            "expedienteId": "c9dc64c2-103e-496a-8261-d2258da1b1e2",
+            "usuarioId": "47478813-39f4-444b-8eb3-9c58813b9c5e",
+            "causal": "causal",
+            "medida": "medida",
+            "cautelar": true,
+            "motivo": "motivo",
+            "estado": "PROPUESTA",
+            "estadoCuenta": "estadoCuenta",
+            "propuestaEn": "2026-01-15T10:30:00Z",
+            "notificadaEn": "2026-01-15T10:30:00Z",
+            "fechaLimiteDescargo": "2026-01-15T10:30:00Z",
+            "resultadoDecision": "CONFIRMADA",
+            "fundamentoDecision": "fundamentoDecision",
+            "fechaLimiteApelacion": "2026-01-15T10:30:00Z",
+            "vigenteHasta": "2026-01-15T10:30:00Z",
+            "prescribeEn": "2026-01-15T10:30:00Z",
+            "apelacionEstado": "PRESENTADA",
+            "fechaLimiteResolucionApelacion": "2026-01-15T10:30:00Z",
+            "lineaDeTiempo": [
+              {
+                "estadoAnterior": "estadoAnterior",
+                "estado": "estado",
+                "motivo": "motivo",
+                "ocurridoEn": "2026-01-15T10:30:00Z"
+              }
+            ]
+          }
+        ],
+        "bloqueoDeAutoridadVigente": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "usuarioId": "87ae5e10-70d4-457a-8885-d496f882d38a",
+        "codigoPublico": "codigoPublic",
+        "nombreCompleto": "nombreCompleto",
+        "estado": "estado",
+        "nivelKyc": "nivelKyc",
+        "fechaRegistro": "2026-01-15T10:30:00Z",
+        "ultimoAcceso": "2026-01-15T10:30:00Z",
+        "telefonoEnmascarado": "telefonoEnmascarado",
+        "correoEnmascarado": "correoEnmascarado",
+        "gruposActivos": 0,
+        "medidas": [],
+        "bloqueoDeAutoridadVigente": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "usuarioId": "87ae5e10-70d4-457a-8885-d496f882d38a",
+        "codigoPublico": "codigoPublic",
+        "nombreCompleto": "nombreCompleto",
+        "estado": "estado",
+        "nivelKyc": "nivelKyc",
+        "fechaRegistro": "2026-01-15T10:30:00Z",
+        "ultimoAcceso": "2026-01-15T10:30:00Z",
+        "telefonoEnmascarado": "telefonoEnmascarado",
+        "correoEnmascarado": "correoEnmascarado",
+        "gruposActivos": 0,
+        "medidas": [
+          {
+            "expedienteId": "c9dc64c2-103e-496a-8261-d2258da1b1e2",
+            "usuarioId": "47478813-39f4-444b-8eb3-9c58813b9c5e",
+            "causal": "causal",
+            "medida": "medida",
+            "cautelar": true,
+            "motivo": "motivo",
+            "estado": "PROPUESTA",
+            "estadoCuenta": "estadoCuenta",
+            "propuestaEn": "2026-01-15T10:30:00Z",
+            "notificadaEn": "2026-01-15T10:30:00Z",
+            "fechaLimiteDescargo": "2026-01-15T10:30:00Z",
+            "resultadoDecision": "CONFIRMADA",
+            "fundamentoDecision": "fundamentoDecision",
+            "fechaLimiteApelacion": "2026-01-15T10:30:00Z",
+            "vigenteHasta": "2026-01-15T10:30:00Z",
+            "prescribeEn": "2026-01-15T10:30:00Z",
+            "apelacionEstado": "PRESENTADA",
+            "fechaLimiteResolucionApelacion": "2026-01-15T10:30:00Z",
+            "lineaDeTiempo": [
+              {
+                "estadoAnterior": "estadoAnterior",
+                "estado": "estado",
+                "motivo": "motivo",
+                "ocurridoEn": "2026-01-15T10:30:00Z"
+              }
+            ]
+          }
+        ],
+        "bloqueoDeAutoridadVigente": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "usuarioId": "87ae5e10-70d4-457a-8885-d496f882d38a",
+        "codigoPublico": "codigoPublic",
+        "nombreCompleto": "nombreCompleto",
+        "estado": "estado",
+        "nivelKyc": "nivelKyc",
+        "fechaRegistro": "2026-01-15T10:30:00Z",
+        "ultimoAcceso": "2026-01-15T10:30:00Z",
+        "telefonoEnmascarado": "telefonoEnmascarado",
+        "correoEnmascarado": "correoEnmascarado",
+        "gruposActivos": 0,
+        "medidas": [
+          {
+            "expedienteId": "c9dc64c2-103e-496a-8261-d2258da1b1e2",
+            "usuarioId": "47478813-39f4-444b-8eb3-9c58813b9c5e",
+            "causal": "causal",
+            "medida": "medida",
+            "cautelar": true,
+            "motivo": "motivo",
+            "estado": "PROPUESTA",
+            "estadoCuenta": "estadoCuenta",
+            "propuestaEn": "2026-01-15T10:30:00Z",
+            "notificadaEn": "2026-01-15T10:30:00Z",
+            "fechaLimiteDescargo": "2026-01-15T10:30:00Z",
+            "resultadoDecision": "CONFIRMADA",
+            "fundamentoDecision": "fundamentoDecision",
+            "fechaLimiteApelacion": "2026-01-15T10:30:00Z",
+            "vigenteHasta": "2026-01-15T10:30:00Z",
+            "prescribeEn": "2026-01-15T10:30:00Z",
+            "apelacionEstado": "PRESENTADA",
+            "fechaLimiteResolucionApelacion": "2026-01-15T10:30:00Z",
+            "lineaDeTiempo": [
+              {
+                "estadoAnterior": "estadoAnterior",
+                "estado": "estado",
+                "motivo": "motivo",
+                "ocurridoEn": "2026-01-15T10:30:00Z"
+              }
+            ]
+          }
+        ],
+        "bloqueoDeAutoridadVigente": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 404,
+      "cuerpo": {
+        "codigo": "AP-CU134-01",
+        "mensaje": "Justificacion insuficiente",
+        "detalle": {},
+        "trazaId": "traza-abrirFichaDeParticipante-rechazo"
+      }
+    }
+  }
+}

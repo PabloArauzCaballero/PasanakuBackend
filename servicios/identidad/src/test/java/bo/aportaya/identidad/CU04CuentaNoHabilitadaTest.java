@@ -2,12 +2,14 @@ package bo.aportaya.identidad;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import bo.aportaya.identidad.aplicacion.EmitirAcceso;
 import bo.aportaya.identidad.aplicacion.EntradaAutenticacion;
 import bo.aportaya.identidad.aplicacion.RenovarSesion;
 import bo.aportaya.identidad.dominio.PoliticaDeIntentos;
 import bo.aportaya.identidad.dominio.ResultadoDeAutenticacion;
 import bo.aportaya.identidad.infraestructura.AccesosRepositorio;
 import bo.aportaya.identidad.infraestructura.Argon2Hasheador;
+import bo.aportaya.identidad.infraestructura.EmisorDeAcceso;
 import bo.aportaya.identidad.infraestructura.RolesYPermisosRepositorio;
 import bo.aportaya.identidad.infraestructura.UsuarioRepositorio;
 import bo.aportaya.identidad.infraestructura.UsuariosInternosRepositorio;
@@ -15,6 +17,7 @@ import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.Ids;
 import bo.aportaya.plataforma.dominio.Reloj;
+import com.nimbusds.jwt.SignedJWT;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -38,6 +41,8 @@ class CU04CuentaNoHabilitadaTest extends BaseDeCU04 {
 
     private RenovarSesion refresco;
 
+    private static final EmisorDeAcceso emisor = new EmisorDeAcceso("", "");
+
     @BeforeEach
     void armarRefresco() {
         dsl.execute(
@@ -54,9 +59,9 @@ class CU04CuentaNoHabilitadaTest extends BaseDeCU04 {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"SUSPENDIDO", "BLOQUEADO_SEGURIDAD", "BAJA_VOLUNTARIA", "ELIMINADO"})
+    @ValueSource(strings = {"BLOQUEADO_SEGURIDAD", "BAJA_VOLUNTARIA", "ELIMINADO"})
     @DisplayName(
-            "Dada una cuenta SUSPENDIDO, BLOQUEADO_SEGURIDAD, BAJA_VOLUNTARIA o ELIMINADO · Cuando inicia sesión con la clave correcta · Entonces se responde AP-CU04-02 y no se abre sesión")
+            "Dada una cuenta BLOQUEADO_SEGURIDAD, BAJA_VOLUNTARIA o ELIMINADO · Cuando inicia sesión con la clave correcta · Entonces se responde AP-CU04-02 y no se abre sesión")
     void noHabilitadaNoEntra(String estado) {
         String telefono = telefonoUnico();
         UUID usuario = participanteConCredencial(telefono);
@@ -73,6 +78,39 @@ class CU04CuentaNoHabilitadaTest extends BaseDeCU04 {
                         "SELECT motivo_fallo FROM identidad.intento_autenticacion WHERE usuario_id = ? ORDER BY fecha_hora DESC LIMIT 1",
                         usuario))
                 .isEqualTo("CUENTA_NO_HABILITADA");
+    }
+
+    @Test
+    @DisplayName(
+            "Dado un participante con la cuenta SUSPENDIDO por una medida de CU-134 · Cuando inicia sesión con la clave correcta · Entonces no se lo rechaza por su estado · Y el token que se le emite lleva alcance RESTRINGIDO")
+    void participanteSuspendidoEntraRestringido() throws Exception {
+        String telefono = telefonoUnico();
+        UUID usuario = participanteConCredencial(telefono);
+        UUID activo = participanteConCredencial(telefonoUnico());
+        cambiarEstado(usuario, "SUSPENDIDO");
+
+        ResultadoDeAutenticacion resultado = autenticar(telefono, "clave-correcta");
+
+        assertThat(resultado.codigo().filter(CodigoError.de(4, 2)::equals)).isEmpty();
+        assertThat(alcanceDelToken(usuario)).isEqualTo("RESTRINGIDO");
+        // El limite: la misma emision para una cuenta ACTIVO no lleva el reclamo.
+        assertThat(alcanceDelToken(activo)).isNull();
+    }
+
+    @Test
+    @DisplayName(
+            "Dado un operador del personal interno con la cuenta SUSPENDIDO · Cuando inicia sesión con la clave correcta · Entonces se responde AP-CU04-02 y no se abre sesión")
+    void operadorSuspendidoNoEntra() {
+        String telefono = telefonoUnico();
+        UUID operador = participanteConCredencial(telefono);
+        fixtura.asignarRol(operador, fixtura.rolGlobal("OPS" + telefono.substring(8)));
+        cambiarEstado(operador, "SUSPENDIDO");
+        int sesionesAntes = sesionesDe(operador);
+
+        ResultadoDeAutenticacion resultado = autenticar(telefono, "clave-correcta");
+
+        assertThat(resultado.codigo()).contains(CodigoError.de(4, 2));
+        assertThat(sesionesDe(operador)).isEqualTo(sesionesAntes);
     }
 
     @Test
@@ -197,6 +235,16 @@ class CU04CuentaNoHabilitadaTest extends BaseDeCU04 {
             return refresco.renovar(
                     token, "127.0.0.1", "prueba", UUID.randomUUID().toString());
         });
+    }
+
+    /** El reclamo {@code alcance} del token que emite identidad para ese usuario (null si no lo lleva). */
+    private String alcanceDelToken(UUID usuario) throws Exception {
+        var emitir = new EmitirAcceso(
+                new Datos(dsl), new AccesosRepositorio(), emisor, Reloj.delSistema(), new UsuarioRepositorio());
+        String token = transaccion
+                .execute(e -> emitir.ejecutar(usuario, "PARTICIPANTE", "BASICO", "disp", null))
+                .token();
+        return SignedJWT.parse(token).getJWTClaimsSet().getStringClaim("alcance");
     }
 
     private static String telefonoUnico() {

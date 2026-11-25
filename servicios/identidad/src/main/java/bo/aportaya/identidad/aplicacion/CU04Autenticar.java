@@ -129,7 +129,10 @@ public class CU04Autenticar {
         // DESPUES de la credencial: decir «esa cuenta esta suspendida» a quien no sabe la
         // clave contaria el estado de la cuenta de otro. El codigo es el de cuenta
         // bloqueada del contrato; el motivo queda distinto en el intento, para auditar.
-        if (!PuedeAutenticarse.segun(usuarios.estadoDe(dsl, usuario))) {
+        // CU-134 (D-6): el participante suspendido si entra, con alcance restringido (lo pone EmitirAcceso).
+        PerfilDeAcceso perfil = usuarios.perfilDe(dsl, usuario);
+        Optional<String> estado = usuarios.estadoDe(dsl, usuario);
+        if (!PuedeAutenticarse.segun(estado) && !PuedeAutenticarse.conAlcanceRestringido(estado, perfil.esOperador())) {
             return cerrar(
                     dsl,
                     intentoId,
@@ -138,7 +141,6 @@ public class CU04Autenticar {
                             CodigoError.de(4, 2), "Tu cuenta no esta habilitada para ingresar. Escribinos a soporte."));
         }
 
-        PerfilDeAcceso perfil = usuarios.perfilDe(dsl, usuario);
         var dispositivo = accesos.dispositivoPorHuella(dsl, usuario, entrada.huella(), entrada.plataforma(), ahora);
         Optional<String> enrolado = accesos.factorActivo(dsl, usuario);
 

@@ -2,6 +2,7 @@ package bo.aportaya.entregas.web;
 
 import bo.aportaya.entregas.aplicacion.CU28EmitirDesembolso;
 import bo.aportaya.entregas.aplicacion.ConsultarDesembolsos;
+import bo.aportaya.entregas.dominio.puertos.MedidaDeCuenta;
 import bo.aportaya.entregas.web.generado.DesembolsosApi;
 import bo.aportaya.entregas.web.generado.modelo.DesembolsoEnLista;
 import bo.aportaya.entregas.web.generado.modelo.EntradaOrdenDesembolso;
@@ -35,11 +36,17 @@ public class DesembolsosController implements DesembolsosApi {
     private final CU28EmitirDesembolso cu28;
     private final ConsultarDesembolsos consultas;
     private final SesionDeLaPeticion sesion;
+    private final MedidaDeCuenta medidaDeCuenta;
 
-    public DesembolsosController(CU28EmitirDesembolso cu28, ConsultarDesembolsos consultas, SesionDeLaPeticion sesion) {
+    public DesembolsosController(
+            CU28EmitirDesembolso cu28,
+            ConsultarDesembolsos consultas,
+            SesionDeLaPeticion sesion,
+            MedidaDeCuenta medidaDeCuenta) {
         this.cu28 = cu28;
         this.consultas = consultas;
         this.sesion = sesion;
+        this.medidaDeCuenta = medidaDeCuenta;
     }
 
     // Tesoreria la opera (ENTREGA_EJECUTAR) y Auditoria la lee: ninguno de los dos mueve plata desde aca.
@@ -82,6 +89,11 @@ public class DesembolsosController implements DesembolsosApi {
             UUID idempotencyKey, EntradaOrdenDesembolso cuerpo) {
         Traza.marcarCasoDeUso("CU-28", cuerpo.getEntregaId().toString());
 
+        var ctx = sesion.actual();
+        // CU-134 (D-11): se pregunta a identidad FUERA de la transaccion de emitir (invariante 6).
+        boolean retenida = cu28.titularDeLaCuenta(cuerpo.getCuentaDestinoId(), ctx)
+                .map(medidaDeCuenta::retieneEntrega)
+                .orElse(false);
         var salida = cu28.emitir(
                 new CU28EmitirDesembolso.EntradaOrden(
                         cuerpo.getEntregaId(),
@@ -89,8 +101,9 @@ public class DesembolsosController implements DesembolsosApi {
                         cuerpo.getCuentaDestinoId(),
                         cuerpo.getGlosa(),
                         idempotencyKey.toString(),
-                        Boolean.TRUE.equals(cuerpo.getSaldoRetenido())),
-                sesion.actual());
+                        Boolean.TRUE.equals(cuerpo.getSaldoRetenido()),
+                        retenida),
+                ctx);
 
         var respuesta = new SalidaOrdenDesembolso();
         respuesta.setOrdenId(salida.ordenId());

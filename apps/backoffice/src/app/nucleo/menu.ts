@@ -51,10 +51,7 @@ const sis = (ruta: string, texto: string, icono: NombreDeIcono): Pantalla => ({ 
 /** Una pantalla de «Personal y accesos»: la rama `/sistemas` la abre `ver:sistemas` y cada pantalla, el permiso que el servidor le exige. */
 const per = (ruta: keyof typeof PERMISOS_DE_PERSONAL, texto: string, icono: NombreDeIcono): Pantalla => ({ ruta: `/sistemas/${ruta}`, texto, icono, requiere: [p('ver:sistemas'), p(...PERMISOS_DE_PERSONAL[ruta]!)] })
 /** Cumplimiento comparte la lista de requisitos de cada pestaña con sus guardias. */
-const cum = (ruta: string, texto: string, icono: NombreDeIcono): Pantalla => {
-  const codigos = ENTRADAS_DE_CUMPLIMIENTO.find((e) => e.ruta === `/cumplimiento/${ruta}`)?.codigos ?? []
-  return { ruta: `/cumplimiento/${ruta}`, texto, icono, requiere: [CUMPLIMIENTO, pr(...codigos)] }
-}
+const cum = (ruta: string, texto: string, icono: NombreDeIcono): Pantalla => ({ ruta: `/cumplimiento/${ruta}`, texto, icono, requiere: [CUMPLIMIENTO, pr(...(ENTRADAS_DE_CUMPLIMIENTO.find((e) => e.ruta === `/cumplimiento/${ruta}`)?.codigos ?? []))] })
 
 /**
  * El árbol del menú: seis entradas (sin «Inicio» desde 2026-10-28: se vuelve con el logo) y hasta ocho pestañas por
@@ -111,6 +108,7 @@ export const MENU: readonly Grupo[] = [
               cum('riesgos/eventos', 'Eventos de riesgo operativo', 'advertencia'),
               cum('continuidad', 'Pruebas de continuidad', 'actividad'),
               cum('seguridad/incidentes', 'Incidentes de seguridad', 'candado'),
+              cum('participantes', 'Participantes', 'persona'),
             ],
           },
         ],

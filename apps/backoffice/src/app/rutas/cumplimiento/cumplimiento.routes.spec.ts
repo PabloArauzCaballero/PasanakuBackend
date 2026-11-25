@@ -49,3 +49,17 @@ describe('rutasCumplimiento · bloqueos de autoridad (CU-17)', () => {
     expect(await navegar('/cumplimiento/bloqueos', ['CUMPLIMIENTO_CASOS'])).toBe('/tablero')
   })
 })
+
+describe('rutasCumplimiento · participantes (CU-134)', () => {
+  it('con PARTICIPANTES_LEER se entra al directorio', async () => {
+    expect(await navegar('/cumplimiento/participantes', ['PARTICIPANTES_LEER'])).toBe('/cumplimiento/participantes')
+  })
+
+  it('con PARTICIPANTES_LEER se entra a la ficha', async () => {
+    expect(await navegar('/cumplimiento/participantes/u-1', ['PARTICIPANTES_LEER'])).toBe('/cumplimiento/participantes/u-1')
+  })
+
+  it('sin PARTICIPANTES_LEER, al tablero', async () => {
+    expect(await navegar('/cumplimiento/participantes', ['CUMPLIMIENTO_CASOS'])).toBe('/tablero')
+  })
+})
