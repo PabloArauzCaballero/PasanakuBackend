@@ -50585,18 +50585,7 @@
     "secretos": 0,
     "derivados": 0
    },
-   "operaciones": [
-    {
-     "casoDeUso": "CU-135",
-     "titulo": "Crear, editar y retirar roles personalizados con step-up y cuatro ojos",
-     "endpoints": []
-    },
-    {
-     "casoDeUso": "CU-136",
-     "titulo": "Gobernar las cuentas de servicio con credencial de un solo uso",
-     "endpoints": []
-    }
-   ]
+   "operaciones": []
   },
   {
    "tabla": "expediente_medida_cuenta",

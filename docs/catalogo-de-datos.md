@@ -6327,8 +6327,6 @@ Los tres motivos (`VENTA`, `REEMPLAZO_POR_MORA`, `RETIRO`) tienen consecuencias 
 
 **Por qué existe.** El JWT de evidencia vale hasta que vence (minutos). Guardar su consumo en memoria dejaba usarlo una vez por réplica o de nuevo tras un reinicio; Pablo decidió (2026-11-24, GU-11) que el consumo viva en la base, compartido por todas las instancias.
 
-**Casos de uso que la nombran.** CU-135 Crear, editar y retirar roles personalizados con step-up y cuatro ojos · CU-136 Gobernar las cuentas de servicio con credencial de un solo uso
-
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `usuario`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
