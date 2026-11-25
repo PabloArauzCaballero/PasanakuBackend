@@ -1363,6 +1363,7 @@ paths:
               schema: { $ref: '#/components/schemas/DatoRevelado' }
         '401': { $ref: '#/components/responses/NoAutenticado' }
         '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '404': { $ref: '#/components/responses/ReglaDeNegocio' }
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU134-01 · AP-CU134-02 · AP-CU134-03 SEGUNDO_FACTOR_REQUERIDO
