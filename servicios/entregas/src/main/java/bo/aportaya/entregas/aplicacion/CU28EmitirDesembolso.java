@@ -292,7 +292,8 @@ public class CU28EmitirDesembolso {
     /** El titular de la cuenta de destino, para preguntar por su medida fuera de la transaccion de emitir. */
     @Transactional(readOnly = true)
     public java.util.Optional<UUID> titularDeLaCuenta(UUID cuentaDestinoId, ContextoSesion ctx) {
-        return datos.conContexto(ctx, dsl -> cuentas.ver(dsl, cuentaDestinoId).map(CuentaDestinoRepositorio.Cuenta::usuarioId));
+        return datos.conContexto(
+                ctx, dsl -> cuentas.ver(dsl, cuentaDestinoId).map(CuentaDestinoRepositorio.Cuenta::usuarioId));
     }
 
     public record SalidaOrden(UUID ordenId, String estado, String claveIdempotencia, int intentos, boolean esNueva) {}

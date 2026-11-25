@@ -106,7 +106,8 @@ class MedidaDeCuentaPorHttpTest {
     @Test
     @DisplayName("rechaza: sin credencial no pregunta y retiene; 403, 500, cuerpo ilegible e identidad caida retienen")
     void invalido() {
-        assertThat(adaptador(CredencialDeServicio.ninguna()).retieneEntrega(BENEFICIARIO)).isTrue();
+        assertThat(adaptador(CredencialDeServicio.ninguna()).retieneEntrega(BENEFICIARIO))
+                .isTrue();
         assertThat(recibidos).isEmpty();
 
         var adaptador = adaptador(CredencialDeServicio.fija(TOKEN_DE_SERVICIO));
