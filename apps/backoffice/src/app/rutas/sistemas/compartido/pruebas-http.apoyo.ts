@@ -21,7 +21,7 @@ export type CasoDeListadoHttp<T> = {
   filtro: { etiqueta: string; valor: string; esperadas: number }
   extra?: Provider[]
   /** Otras lecturas que la vista pide al montar (URL → respuesta): se contestan solas, no son lo que se prueba. */
-  respuestasExtra?: Record<string, unknown>
+  respuestasExtra?: Record<string, object>
 }
 
 /**
