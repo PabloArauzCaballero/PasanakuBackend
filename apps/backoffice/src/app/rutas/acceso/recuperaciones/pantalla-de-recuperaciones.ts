@@ -56,7 +56,7 @@ const EXPORTABLES: ColumnaExportable<SolicitudDeRecuperacion>[] = [
           @switch (columna.clave) {
             @case ('nombres') { {{ nombreDe(s) }} }
             @case ('alcance') { {{ ALCANCES[s.alcance] }} }
-            @case ('estado') { <ap-chip-estado [tono]="TONOS[s.estado]">{{ ESTADOS[s.estado] }}</ap-chip-estado> }
+            @case ('estado') { <ap-chip-estado [tono]="TONOS[s.estado] ?? 'neutro'">{{ ESTADOS[s.estado] }}</ap-chip-estado> }
             @case ('solicitadaEn') { <ap-fecha [iso]="s.solicitadaEn" /> }
             @case ('enfriamientoHasta') { @if (s.enfriamientoHasta) { <ap-fecha [iso]="s.enfriamientoHasta" /> } @else { <span class="nota">—</span> } }
             @default { {{ s[columna.clave] }} }
