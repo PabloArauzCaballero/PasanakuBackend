@@ -128,7 +128,8 @@ test.describe('[doble del contrato pedido] saldos y posiciones en el backoffice'
 const SECCIONES = ['Operación', 'Cumplimiento', 'Contabilidad', 'Publicidad', 'Sistemas', 'Configuración'] as const
 const ROLES: { rol: string; ve: (typeof SECCIONES)[number][]; prohibida: string; billeteraDeTerceros: boolean }[] = [
   { rol: 'PARTICIPANTE', ve: [], prohibida: '/operacion/estado', billeteraDeTerceros: false },
-  { rol: 'SOPORTE', ve: ['Operación'], prohibida: '/admisiones', billeteraDeTerceros: true },
+  // CU-134 (2026-11-25): SOPORTE busca participantes y abre su ficha justificada (PARTICIPANTES_LEER), que vive en Cumplimiento.
+  { rol: 'SOPORTE', ve: ['Operación', 'Cumplimiento'], prohibida: '/admisiones', billeteraDeTerceros: true },
   // F4: el catálogo sembrado le concede RECLAMO_VER y SOLICITUD_INGRESO_VER/RESOLVER, que piden operacion/reclamos y operacion/solicitudes-escaladas:
   // por eso ve «Operación». Contabilidad sigue ajena (no tiene ningún CONTABILIDAD_ERP_*). Sistemas exige además el rol PLATAFORMA o SEGURIDAD.
   // Sistemas sí: desde 3d4344e3 (2026-10-21) `soloRolesDeSistemas` acepta el rol de catálogo ADMIN_PLATAFORMA (lo lee de `permisos`), y
