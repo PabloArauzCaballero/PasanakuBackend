@@ -1,0 +1,82 @@
+{
+  "servicio": "tarifas",
+  "operacion": "proponerVersionDeParametro",
+  "metodo": "post",
+  "ruta": "/tarifas/parametros/{codigo}/versiones",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "id": "7511d522-ba19-4c4c-830f-756922f2b516",
+        "codigo": "codigo",
+        "nivel": "nivel",
+        "valor": "valor",
+        "moneda": "moneda",
+        "vigenteDesde": "2026-01-15T10:30:00Z",
+        "estado": "PROPUESTA",
+        "propuestoPor": "a1fa13b5-853a-4e2b-84c0-ed9e273511e0",
+        "aprobadoPor": "5b754b32-9d0d-4294-8398-7665af8831dc"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "id": "7511d522-ba19-4c4c-830f-756922f2b516",
+        "codigo": "codigo",
+        "nivel": "nivel",
+        "valor": "valor",
+        "moneda": "moneda",
+        "vigenteDesde": "2026-01-15T10:30:00Z",
+        "estado": "PROPUESTA",
+        "propuestoPor": "a1fa13b5-853a-4e2b-84c0-ed9e273511e0",
+        "aprobadoPor": "5b754b32-9d0d-4294-8398-7665af8831dc"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "id": "7511d522-ba19-4c4c-830f-756922f2b516",
+        "codigo": "codigo",
+        "nivel": "nivel",
+        "valor": "valor",
+        "moneda": "moneda",
+        "vigenteDesde": "2026-01-15T10:30:00Z",
+        "estado": "PROPUESTA",
+        "propuestoPor": "a1fa13b5-853a-4e2b-84c0-ed9e273511e0",
+        "aprobadoPor": "5b754b32-9d0d-4294-8398-7665af8831dc"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "id": "7511d522-ba19-4c4c-830f-756922f2b516",
+        "codigo": "codigo",
+        "nivel": "nivel",
+        "valor": "valor",
+        "moneda": "moneda",
+        "vigenteDesde": "2026-01-15T10:30:00Z",
+        "estado": "PROPUESTA",
+        "propuestoPor": "a1fa13b5-853a-4e2b-84c0-ed9e273511e0",
+        "aprobadoPor": "5b754b32-9d0d-4294-8398-7665af8831dc"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU132-01",
+        "mensaje": "Parametro inexistente",
+        "detalle": {},
+        "trazaId": "traza-proponerVersionDeParametro-rechazo"
+      }
+    }
+  }
+}

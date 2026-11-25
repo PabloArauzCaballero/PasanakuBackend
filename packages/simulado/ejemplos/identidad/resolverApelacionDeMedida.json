@@ -1,0 +1,143 @@
+{
+  "servicio": "identidad",
+  "operacion": "resolverApelacionDeMedida",
+  "metodo": "post",
+  "ruta": "/identidad/medidas-cuenta/{expedienteId}/apelacion/resolucion",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "expedienteId": "9ed99b00-4d1f-41bc-82c3-9c544ebf93cb",
+        "usuarioId": "9b3ab935-d4fd-4a71-8fc7-3344703843a6",
+        "causal": "causal",
+        "medida": "medida",
+        "cautelar": true,
+        "motivo": "motivo",
+        "estado": "PROPUESTA",
+        "estadoCuenta": "estadoCuenta",
+        "propuestaEn": "2026-01-15T10:30:00Z",
+        "notificadaEn": "2026-01-15T10:30:00Z",
+        "fechaLimiteDescargo": "2026-01-15T10:30:00Z",
+        "resultadoDecision": "CONFIRMADA",
+        "fundamentoDecision": "fundamentoDecision",
+        "fechaLimiteApelacion": "2026-01-15T10:30:00Z",
+        "vigenteHasta": "2026-01-15T10:30:00Z",
+        "prescribeEn": "2026-01-15T10:30:00Z",
+        "apelacionEstado": "PRESENTADA",
+        "fechaLimiteResolucionApelacion": "2026-01-15T10:30:00Z",
+        "lineaDeTiempo": [
+          {
+            "estadoAnterior": "estadoAnterior",
+            "estado": "estado",
+            "motivo": "motivo",
+            "ocurridoEn": "2026-01-15T10:30:00Z"
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "expedienteId": "9ed99b00-4d1f-41bc-82c3-9c544ebf93cb",
+        "usuarioId": "9b3ab935-d4fd-4a71-8fc7-3344703843a6",
+        "causal": "causal",
+        "medida": "medida",
+        "cautelar": false,
+        "motivo": "motivo",
+        "estado": "PROPUESTA",
+        "estadoCuenta": "estadoCuenta",
+        "propuestaEn": "2026-01-15T10:30:00Z",
+        "notificadaEn": "2026-01-15T10:30:00Z",
+        "fechaLimiteDescargo": "2026-01-15T10:30:00Z",
+        "resultadoDecision": "CONFIRMADA",
+        "fundamentoDecision": "fundamentoDecision",
+        "fechaLimiteApelacion": "2026-01-15T10:30:00Z",
+        "vigenteHasta": "2026-01-15T10:30:00Z",
+        "prescribeEn": "2026-01-15T10:30:00Z",
+        "apelacionEstado": "PRESENTADA",
+        "fechaLimiteResolucionApelacion": "2026-01-15T10:30:00Z",
+        "lineaDeTiempo": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "expedienteId": "9ed99b00-4d1f-41bc-82c3-9c544ebf93cb",
+        "usuarioId": "9b3ab935-d4fd-4a71-8fc7-3344703843a6",
+        "causal": "causal",
+        "medida": "medida",
+        "cautelar": true,
+        "motivo": "motivo",
+        "estado": "PROPUESTA",
+        "estadoCuenta": "estadoCuenta",
+        "propuestaEn": "2026-01-15T10:30:00Z",
+        "notificadaEn": "2026-01-15T10:30:00Z",
+        "fechaLimiteDescargo": "2026-01-15T10:30:00Z",
+        "resultadoDecision": "CONFIRMADA",
+        "fundamentoDecision": "fundamentoDecision",
+        "fechaLimiteApelacion": "2026-01-15T10:30:00Z",
+        "vigenteHasta": "2026-01-15T10:30:00Z",
+        "prescribeEn": "2026-01-15T10:30:00Z",
+        "apelacionEstado": "PRESENTADA",
+        "fechaLimiteResolucionApelacion": "2026-01-15T10:30:00Z",
+        "lineaDeTiempo": [
+          {
+            "estadoAnterior": "estadoAnterior",
+            "estado": "estado",
+            "motivo": "motivo",
+            "ocurridoEn": "2026-01-15T10:30:00Z"
+          }
+        ]
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "expedienteId": "9ed99b00-4d1f-41bc-82c3-9c544ebf93cb",
+        "usuarioId": "9b3ab935-d4fd-4a71-8fc7-3344703843a6",
+        "causal": "causal",
+        "medida": "medida",
+        "cautelar": true,
+        "motivo": "motivo",
+        "estado": "PROPUESTA",
+        "estadoCuenta": "estadoCuenta",
+        "propuestaEn": "2026-01-15T10:30:00Z",
+        "notificadaEn": "2026-01-15T10:30:00Z",
+        "fechaLimiteDescargo": "2026-01-15T10:30:00Z",
+        "resultadoDecision": "CONFIRMADA",
+        "fundamentoDecision": "fundamentoDecision",
+        "fechaLimiteApelacion": "2026-01-15T10:30:00Z",
+        "vigenteHasta": "2026-01-15T10:30:00Z",
+        "prescribeEn": "2026-01-15T10:30:00Z",
+        "apelacionEstado": "PRESENTADA",
+        "fechaLimiteResolucionApelacion": "2026-01-15T10:30:00Z",
+        "lineaDeTiempo": [
+          {
+            "estadoAnterior": "estadoAnterior",
+            "estado": "estado",
+            "motivo": "motivo",
+            "ocurridoEn": "2026-01-15T10:30:00Z"
+          }
+        ]
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU134-03",
+        "mensaje": "Segundo factor requerido",
+        "detalle": {},
+        "trazaId": "traza-resolverApelacionDeMedida-rechazo"
+      }
+    }
+  }
+}

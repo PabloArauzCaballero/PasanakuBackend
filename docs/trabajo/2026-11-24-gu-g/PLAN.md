@@ -100,13 +100,13 @@
 ### H3.S5 — Modo restringido del suspendido (D-6)
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H3.S5.M1 | `SUSPENDIDO` entra con alcance restringido (ver medida, descargo, apelación, pagar, reclamar) | Escenario de CU-04 ajustado en verde | `./gradlew :servicios:identidad:test --tests 'CU04*'` | TODO |
+| H3.S5.M1 | `SUSPENDIDO` entra con alcance restringido (ver medida, descargo, apelación, pagar, reclamar) | Escenario de CU-04 ajustado en verde | `./gradlew :servicios:identidad:test --tests 'CU04*'` | BLOQUEADO — toca la emisión de tokens de CU-04 (compartida con los lotes C y E) y no se puede compilar ni probar acá (Gradle: Maven Central 429). Contrato del colaborador: un claim de alcance restringido en el token y la lista blanca de rutas; se escribe cuando haya build verificable o contra un doble declarado del emisor |
 
 ### H3.S6 — Backoffice
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H3.S6.M1 | Entrada «Participantes» (coordinada con lote D) + directorio con cuatro estados | Specs en verde | specs del backoffice | TODO |
-| H3.S6.M2 | Ficha enmascarada con «Revelar» y expediente con línea de tiempo y acciones por permiso | Specs en verde + capturas en 3 viewports y 2 temas | specs + `evidencia/` | TODO |
+| H3.S6.M1 | Entrada «Participantes» (coordinada con lote D) + directorio con cuatro estados | Specs en verde | specs del backoffice | BLOQUEADO — el backoffice importa los clientes de `clientes/angular` que genera Gradle (no están en git) y `ng test` hace typecheck: falla con TS2307 sin ellos (`yarn install` y tokens sí andan con `COREPACK_NPM_REGISTRY=https://registry.npmjs.org NODE_USE_ENV_PROXY=1`). Lo destraba un entorno con Gradle que genere los clientes. La entrada del menú se coordina con el lote D |
+| H3.S6.M2 | Ficha enmascarada con «Revelar» y expediente con línea de tiempo y acciones por permiso | Specs en verde + capturas en 3 viewports y 2 temas | specs + `evidencia/` | BLOQUEADO — mismo bloqueo que H3.S6.M1, más la prueba visual de la regla 95.7 (capturas en tres viewports y dos temas), que exige la app corriendo |
 
 ### H3.S7 — Regresión y gates
 | ID | Microtarea | CA (binario) | DoD | Estado |
