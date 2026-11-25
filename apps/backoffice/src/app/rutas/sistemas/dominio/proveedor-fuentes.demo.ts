@@ -1,7 +1,6 @@
 import type { Provider } from '@angular/core'
 import { ES_FUENTE_SIMULADA, proveedoresFuenteNoDisponible, type ModoFuentesDeSistemas } from './proveedor-fuentes.compartido'
 import {
-  PUERTO_ACCESOS,
   PUERTO_DESPLIEGUES,
   PUERTO_INCIDENTES,
   PUERTO_PROVEEDORES,
@@ -37,7 +36,6 @@ export function provideFuentesDeSistemas(modo: ModoFuentesDeSistemas): Provider[
     { provide: PUERTO_RESPALDOS, useValue: conFuenteSimulada((m) => m.adaptadorSimuladoSistemas.respaldos()) },
     { provide: PUERTO_PROVEEDORES, useValue: conFuenteSimulada((m) => m.adaptadorSimuladoSistemas.proveedores()) },
     { provide: PUERTO_WEBHOOKS, useValue: conFuenteSimulada((m) => m.adaptadorSimuladoSistemas.webhooks()) },
-    { provide: PUERTO_ACCESOS, useValue: conFuenteSimulada((m) => m.adaptadorSimuladoSistemas.accesos()) },
     { provide: PUERTO_INCIDENTES, useValue: conFuenteSimulada((m) => m.adaptadorSimuladoSistemas.incidentes()) },
     { provide: ES_FUENTE_SIMULADA, useValue: true },
   ]

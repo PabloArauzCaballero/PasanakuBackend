@@ -2,9 +2,8 @@ import { provideZonelessChangeDetection, type InjectionToken, type Type } from '
 import { TestBed } from '@angular/core/testing'
 import { axe } from 'vitest-axe'
 import { describe, expect, it } from 'vitest'
-import { PantallaAccesos } from '../accesos/pantalla-accesos'
 import { PantallaDespliegues } from '../despliegues/pantalla-despliegues'
-import { PUERTO_ACCESOS, PUERTO_DESPLIEGUES, PUERTO_INCIDENTES, PUERTO_PROVEEDORES, PUERTO_WEBHOOKS } from '../dominio/puertos'
+import { PUERTO_DESPLIEGUES, PUERTO_INCIDENTES, PUERTO_PROVEEDORES, PUERTO_WEBHOOKS } from '../dominio/puertos'
 import { PantallaIncidentes } from '../incidentes/pantalla-incidentes'
 import { PantallaProveedores } from '../proveedores/pantalla-proveedores'
 import { PantallaWebhooks } from '../webhooks/pantalla-webhooks'
@@ -14,7 +13,6 @@ import { estabilizar } from './pruebas.apoyo'
 const CASOS: [string, Type<unknown>, InjectionToken<unknown>, unknown][] = [
   ['Proveedores', PantallaProveedores, PUERTO_PROVEEDORES, [{ id: 'p1', nombre: 'Nube', categoria: 'Infraestructura', costoRealUltimoPeriodo: '100.00', moneda: 'USD' }]],
   ['Webhooks', PantallaWebhooks, PUERTO_WEBHOOKS, [{ id: 'w1', direccion: 'entrante', origen: 'pasarela', ultimoEstado: 'error', ultimaEntregaEl: '2026-10-25' }]],
-  ['Accesos', PantallaAccesos, PUERTO_ACCESOS, [{ id: 'a1', persona: 'Persona Prueba', rol: 'PLATAFORMA', ambito: 'sistemas', otorgadoEl: '2026-09-01' }]],
   ['Incidentes', PantallaIncidentes, PUERTO_INCIDENTES, [{ id: 'i1', titulo: 'Latencia alta', severidad: 'sev2', estado: 'abierto', abiertoEl: '2026-10-20' }]],
   ['Despliegues', PantallaDespliegues, PUERTO_DESPLIEGUES, { despliegues: [{ id: 'd1', servicio: 'aportes', version: '1.0.0', desplegadoEl: '2026-10-25', desplegadoPor: 'ci', estado: 'exitoso' }], interruptores: [{ id: 'x1', nombre: 'Retiros extraordinarios', tocaDinero: true, activo: false }] }],
 ]

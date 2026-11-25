@@ -58,16 +58,12 @@ describe('MenuLateral', () => {
       'Proveedores',
       'Outbox por servicio',
       'Webhooks',
-      'Usuarios internos',
-      'Roles internos',
-      'Permisos internos',
-      'Revisión de accesos',
       'Operaciones del sistema',
       'Mapa de flujos',
       'Registro del sistema',
     ])
-    expect(textos(sistemas, '.subgrupo')).toEqual(['Integraciones', 'Personal y accesos', 'Endpoints y flujos'])
-    expect(sistemas.querySelectorAll('a ap-icono').length).toBe(14)
+    expect(textos(sistemas, '.subgrupo')).toEqual(['Integraciones', 'Endpoints y flujos'])
+    expect(sistemas.querySelectorAll('a ap-icono').length).toBe(10)
     // La pantalla actual se marca con aria-current, no solo con color; la sección, con su barra.
     expect(el.querySelector('a[aria-current="page"]')?.textContent?.trim()).toBe('Outbox por servicio')
     expect(el.querySelector('a.seccion.activo')?.textContent?.trim()).toBe('Sistemas')
@@ -89,8 +85,10 @@ describe('MenuLateral', () => {
   })
 
   it('límite: en un subgrupo se marca la hoja exacta (la ruta más larga), no la primera del grupo', async () => {
-    const { el } = await montar(['ver:sistemas'], '/sistemas/roles-internos', 'PLATAFORMA')
+    // «Personal y accesos» es sección propia (GU-09): la abre el permiso de gobierno, no el rol de Sistemas.
+    const { el } = await montar(['ver:sistemas', 'ACCESOS_ADMINISTRAR'], '/sistemas/roles-internos', 'OPERADOR')
     expect(textos(el, 'a[aria-current="page"]')).toEqual(['Roles internos'])
+    expect(el.querySelector('a.seccion.activo')?.textContent?.trim()).toBe('Personal y accesos')
   })
 
   it('límite (2026-10-29): un rótulo largo que se corta con «…» conserva el texto completo en title y su nombre accesible', async () => {

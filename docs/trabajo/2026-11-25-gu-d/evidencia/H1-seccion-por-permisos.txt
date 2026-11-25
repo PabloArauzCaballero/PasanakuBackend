@@ -1,0 +1,6 @@
+$ cd apps/backoffice && yarn ng test --include='src/app/nucleo/*.spec.ts' --include='src/app/layout/*.spec.ts' --include='src/app/rutas/sistemas/*.spec.ts'
+ Test Files  31 passed (31)
+      Tests  321 passed (321)
+(incluye nucleo/menu-y-guardias.spec.ts: matriz de cada permiso por separado navegando con el router real,
+ nucleo/matriz-de-roles.spec.ts «Personal y accesos (GU-09)» y guardia-rol-sistemas.spec.ts de 3 niveles)
+No cubierto: navegador real (E2E) y capturas — H6.

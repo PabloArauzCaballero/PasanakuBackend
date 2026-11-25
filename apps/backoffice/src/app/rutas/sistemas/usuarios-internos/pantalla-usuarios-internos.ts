@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core'
 import { Router } from '@angular/router'
+import { Alerta } from '@aportaya/ui/alerta/alerta'
 import { AccionesDeFila } from '@aportaya/ui/acciones-de-fila/acciones-de-fila'
 import { Boton } from '@aportaya/ui/boton/boton'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
@@ -8,119 +9,66 @@ import type { ColumnaExportable } from '@aportaya/ui/exportar-listado/exportar'
 import { Icono } from '@aportaya/ui/icono/icono'
 import { crearListado } from '@aportaya/ui/listado/crear-listado'
 import { ListadoDeDatos } from '@aportaya/ui/listado/listado'
+import type { CargaDeListado } from '@aportaya/ui/listado/listado'
 import type { Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
-import type { UsuarioInternoResumen } from 'clientes/angular/identidad'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
-import { cargaDe, filasDe } from '../compartido/carga'
+import { Sesion } from '../../../nucleo/sesion'
+import { mensajeDeError } from '../compartido/carga'
 import { CifrasDeSistemas, contar, type Cifra } from '../compartido/cifras'
-import { usuariosInternos } from '../dominio/usuarios-internos'
+import { accionesDeAccesos, cursorDespuesDe, TAMANO_DE_PAGINA_DE_USUARIOS, type CursorDeUsuarios, type UsuarioInternoDeLista } from '../dominio/gobierno-de-accesos'
+import { PERMISOS_DE_GESTION_DE_PERSONAL } from '../personal-y-accesos'
 import { textosSistemas } from '../textos'
+import { ESTADO, TONO, estaBloqueado, estaDeBaja, estadoDe, segundoFactor } from './estado-del-usuario'
 import { GestorDeUsuarioInterno } from './gestor-de-usuario-interno'
 import { ModalAltaUsuarioInterno } from './modal-alta-usuario-interno'
-import { ModalAsignarRoles } from './modal-asignar-roles'
+import { ModalAsignarRol } from './modal-asignar-rol'
 import { Exportador } from '../../../nucleo/exportador'
 
-type Usuario = UsuarioInternoResumen
-const ESTADO: Record<string, string> = { ACTIVO: 'Activo', SUSPENDIDO: 'Suspendido' }
-const estadoDe = (u: Usuario) => ESTADO[u.estado] ?? u.estado
-const segundoFactor = (u: Usuario) => (u.tieneSegundoFactor ? 'Configurado' : 'Pendiente')
+type Usuario = UsuarioInternoDeLista
 
 /**
- * Usuarios internos (`GET /usuarios-internos`, sin paginar en el contrato: la colección entera se filtra y pagina en
- * el navegador). Cada fila tiene las operaciones que el contrato sí tiene: Ver (ficha), Editar (PATCH datos), Roles
- * (PUT roles), Suspender/Reactivar (PATCH estado) y Desbloquear (POST) si está bloqueado. No hay DELETE: no se dibuja
- * «Eliminar».
+ * Usuarios internos (`GET /usuarios-internos`, **paginado por cursor**, GU-17: `limite` 1–100, `antesDe` + `antesDeId`
+ * de la última fila). Se piden de a 50 y «Cargar más» pide la siguiente; la búsqueda y los filtros trabajan sobre lo ya
+ * cargado y la pantalla lo dice. Cada fila tiene las operaciones del contrato: Ver (ficha) y, a quien gestiona, Asignar
+ * rol, Suspender/Reactivar, Desbloquear, Dar de baja y Editar. Nada de esto se dibuja a quien solo lee.
  */
 @Component({
   selector: 'ap-pantalla-usuarios-internos',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AccionesDeFila, Boton, CabeceraDePagina, ChipEstado, CifrasDeSistemas, GestorDeUsuarioInterno, Icono, ListadoDeDatos, ModalAltaUsuarioInterno, ModalAsignarRoles],
-  template: `
-    <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Sistemas · Identidad" [titulo]="t.titulo" [descripcion]="t.proposito">
-        @if (carga().tipo !== 'sin-fuente') { <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="recurso.isLoading()" (pulsado)="recurso.reload()">Actualizar</ap-boton> }
-        <ap-boton acciones variante="primario" icono="personaMas" (pulsado)="mostrarAlta.set(true)">{{ t.nuevoUsuario }}</ap-boton>
-      </ap-cabecera-de-pagina>
-      <ap-cifras-de-sistemas etiqueta="Resumen de usuarios internos" [cifras]="cifras()" [carga]="carga()" />
-      <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" [identidad]="identidad" ayudaDeBusqueda="Busca por nombre, correo, código, departamento, cargo o rol." [exportables]="exportables" [exportable]="exportador.puedeExportar('usuarios-internos')" nombreDeRegistros="usuarios" [textoVacio]="t.vacio" explicacionVacio="Dá de alta al primer operador interno con su rol inicial." accionVacio="Dar de alta" (primeraAccion)="mostrarAlta.set(true)" (reintentar)="recurso.reload()">
-        <ng-template #celda let-u let-c="columna">
-          @switch (c.clave) {
-            @case ('nombres') { <strong>{{ u.nombres }} {{ u.apellidos }}</strong><span class="sub">{{ u.correo }}</span> }
-            @case ('roles') { <span class="roles">@for (r of u.roles; track r) { <code>{{ r }}</code> }</span> }
-            @case ('estado') {
-              <span class="chips"><ap-chip-estado [tono]="u.estado === 'ACTIVO' ? 'ok' : 'aviso'">{{ estado(u) }}</ap-chip-estado>@if (u.bloqueadoHasta) { <ap-chip-estado tono="error">Bloqueado</ap-chip-estado> }</span>
-            }
-            @case ('tieneSegundoFactor') { <ap-chip-estado [tono]="u.tieneSegundoFactor ? 'ok' : 'neutro'">{{ factor(u) }}</ap-chip-estado> }
-            @default { {{ u[c.clave] }} }
-          }
-        </ng-template>
-        <ng-template #acciones let-u>
-          <ap-acciones-de-fila [fila]="u.nombres + ' ' + u.apellidos" [ver]="true" (verPulsado)="ver(u)">
-            <!-- Cinco acciones en la fila la estiraban a cuatro líneas: Ver queda a la vista y el resto va en «Más». -->
-            <details class="mas" (toggle)="ubicarMenu($event)">
-              <summary [attr.aria-label]="'Más acciones para ' + u.nombres + ' ' + u.apellidos"><ap-icono nombre="puntos" tamano="s4" />Más</summary>
-              <div class="menu">
-                <button type="button" apAccionDeFila [attr.aria-label]="'Asignar roles a ' + u.nombres + ' ' + u.apellidos" (click)="rolesDe.set(u)"><ap-icono nombre="escudo" tamano="s4" />Roles</button>
-                <button type="button" apAccionDeFila [attr.aria-label]="(u.estado === 'ACTIVO' ? 'Suspender a ' : 'Reactivar a ') + u.nombres + ' ' + u.apellidos" (click)="gestor().cambiarEstado(u)"><ap-icono [nombre]="u.estado === 'ACTIVO' ? 'pausa' : 'reproducir'" tamano="s4" />{{ u.estado === 'ACTIVO' ? 'Suspender' : 'Reactivar' }}</button>
-                @if (u.bloqueadoHasta) {
-                  <button type="button" apAccionDeFila [attr.aria-label]="'Desbloquear a ' + u.nombres + ' ' + u.apellidos" (click)="gestor().desbloquear(u)"><ap-icono nombre="llave" tamano="s4" />Desbloquear</button>
-                }
-                <button type="button" apAccionDeFila [attr.aria-label]="'Editar ' + u.nombres + ' ' + u.apellidos" (click)="gestor().editar(u)"><ap-icono nombre="editar" tamano="s4" />Editar</button>
-              </div>
-            </details>
-          </ap-acciones-de-fila>
-        </ng-template>
-      </ap-listado>
-
-      <ap-gestor-de-usuario-interno (actualizado)="recurso.reload()" />
-      @if (mostrarAlta()) {
-        <ap-modal-alta-usuario-interno (cerrar)="mostrarAlta.set(false)" (guardado)="onUsuarioCreado()" />
-      }
-      @if (rolesDe(); as u) {
-        <ap-modal-asignar-roles [usuarioId]="u.id" [rolesActuales]="u.roles" (cerrar)="rolesDe.set(null)" (guardado)="onRolesGuardados()" />
-      }
-    </section>
-  `,
+  imports: [AccionesDeFila, Alerta, Boton, CabeceraDePagina, ChipEstado, CifrasDeSistemas, GestorDeUsuarioInterno, Icono, ListadoDeDatos, ModalAltaUsuarioInterno, ModalAsignarRol],
+  templateUrl: './pantalla-usuarios-internos.html',
   host: { '(document:click)': 'cerrarMenus($event)', '(document:keydown.escape)': 'cerrarMenus()', '(window:resize)': 'cerrarMenus()', '(window:scroll)': 'cerrarMenus()' },
-  styles: `
-    :host { display: block; min-width: 0; }
-    /* «Más»: menú propio de la fila. Se ubica fijo junto a su botón (y hacia arriba si abajo no entra): dentro de la
-       tabla lo recortaría su marco desplazable. */
-    .mas { position: relative; }
-    .mas summary { display: inline-flex; align-items: center; gap: var(--s1); min-height: var(--area-tactil); padding: 0 var(--s2); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); background: var(--surface); color: var(--text); font: var(--t-cuerpo-chico); font-weight: 600; list-style: none; cursor: pointer; }
-    .mas summary::-webkit-details-marker { display: none; }
-    .mas summary:hover, .mas[open] summary { background: var(--surface-2); }
-    .mas summary:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
-    .menu { position: fixed; z-index: 20; display: grid; gap: var(--s1); min-width: calc(var(--s7) * 4); padding: var(--s2); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); background: var(--surface); box-shadow: var(--sombra-3); }
-    .menu [apAccionDeFila] { justify-content: flex-start; width: 100%; border-color: transparent; }
-    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
-    /* ap-listado deja sus pistas en «auto»: sin esto la tabla ensancha la página en vez de desplazarse en su marco. */ ap-listado { grid-template-columns: minmax(0, 1fr); }
-    .sub { display: block; font: var(--t-ayuda); color: var(--text-3); overflow-wrap: break-word; }
-    .chips { display: inline-flex; flex-wrap: wrap; gap: var(--s1); }
-    .roles { display: flex; flex-wrap: wrap; gap: var(--s1); }
-    code { padding: 0 var(--s1); border-radius: var(--r-sm); background: var(--surface-2); font: var(--t-ayuda); font-family: var(--f-mono); color: var(--text-2); }
-  `,
+  styleUrl: './pantalla-usuarios-internos.css',
 })
 export class PantallaUsuariosInternos {
   /** Correos y datos del personal: la descarga en el navegador solo con `exportar:usuarios-internos` (regla 90.2). */
   protected readonly exportador = inject(Exportador)
-  constructor() {
-    inject(ExplicadorDeVista).fijar(this.t.proposito)
-  }
-
   private readonly router = inject(Router)
   protected readonly gestor = viewChild.required(GestorDeUsuarioInterno)
   protected readonly t = textosSistemas.usuariosInternos
   protected readonly mostrarAlta = signal(false)
-  protected readonly rolesDe = signal<Usuario | null>(null)
-  // El contrato acepta estado/rol/busqueda en la consulta, pero devuelve la colección sin paginar: se pide entera y
-  // el kit busca y filtra en el navegador, así el CSV/JSON baja exactamente lo que se ve filtrado.
-  protected readonly recurso = usuariosInternos({ estado: signal(''), rol: signal(''), busqueda: signal('') })
-  protected readonly carga = cargaDe(this.recurso)
-  private readonly filas = filasDe<Usuario>(this.recurso)
+  protected readonly rolDe = signal<Usuario | null>(null)
+  protected readonly aviso = signal<string | null>(null)
+  private readonly sesion = inject(Sesion)
+  /** Dar de alta, suspender, desbloquear, baja y asignar: solo a quien el servidor se lo permite (`USUARIOS_INTERNOS_GESTIONAR` o `ACCESOS_ADMINISTRAR`). */
+  protected readonly gestiona = computed(() => PERMISOS_DE_GESTION_DE_PERSONAL.some((p) => this.sesion.permisos().includes(p)))
+  private readonly acciones = accionesDeAccesos()
+  protected readonly cargadas = signal<readonly Usuario[]>([])
+  protected readonly cargando = signal(true)
+  protected readonly cargandoMas = signal(false)
+  protected readonly hayMas = signal(false)
+  protected readonly errorAlCargar = signal<{ mensaje: string; trazaId?: string } | null>(null)
+  protected readonly errorAlCargarMas = signal<string | null>(null)
+  private generacion = 0
+  protected readonly carga = computed<CargaDeListado>(() => {
+    const e = this.errorAlCargar()
+    if (e) return { tipo: 'error', mensaje: e.mensaje, idPeticion: e.trazaId }
+    return this.cargando() ? { tipo: 'cargando' } : { tipo: 'lista' }
+  })
+
   protected readonly identidad = (u: Usuario) => u.id
   protected readonly listado = crearListado<Usuario>({
-    filas: this.filas,
+    filas: this.cargadas,
     camposDeBusqueda: ['nombres', 'apellidos', 'correo', 'codigoPublico', 'departamento', 'cargo', (u) => u.roles.join(' ')],
     filtros: [
       { nombre: 'estado', etiqueta: 'Estado', valor: (u) => u.estado, texto: (v) => ESTADO[v] ?? v },
@@ -130,11 +78,11 @@ export class PantallaUsuariosInternos {
     porPagina: 10,
   })
   protected readonly cifras = computed<Cifra[]>(() => {
-    const f = this.filas()
+    const f = this.cargadas()
     return [
-      { etiqueta: 'Usuarios internos', valor: contar(f), icono: 'grupo' },
+      { etiqueta: this.hayMas() ? 'Usuarios cargados' : 'Usuarios internos', valor: contar(f), icono: 'grupo' },
       { etiqueta: 'Activos', valor: contar(f, (u) => u.estado === 'ACTIVO'), icono: 'verificado', tono: 'ok' },
-      { etiqueta: 'Suspendidos', valor: contar(f, (u) => u.estado === 'SUSPENDIDO'), icono: 'pausa', tono: 'aviso' },
+      { etiqueta: 'Suspendidos o de baja', valor: contar(f, (u) => u.estado === 'SUSPENDIDO' || u.estado === 'BAJA_LABORAL'), icono: 'pausa', tono: 'aviso' },
       { etiqueta: 'Sin segundo factor', valor: contar(f, (u) => !u.tieneSegundoFactor), icono: 'candado', tono: 'error' },
     ]
   })
@@ -157,6 +105,9 @@ export class PantallaUsuariosInternos {
     { clave: 'estado', titulo: 'Estado', valor: estadoDe },
   ]
   protected readonly estado = estadoDe
+  protected readonly tono = (u: Usuario) => TONO[u.estado] ?? 'neutro'
+  protected readonly bloqueado = estaBloqueado
+  protected readonly deBaja = estaDeBaja
   protected readonly factor = segundoFactor
 
   private readonly elemento = inject(ElementRef<HTMLElement>)
@@ -186,13 +137,64 @@ export class PantallaUsuariosInternos {
     void this.router.navigate(['/sistemas/usuarios-internos', u.id])
   }
 
-  protected onUsuarioCreado(): void {
-    this.mostrarAlta.set(false)
-    this.recurso.reload()
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+    this.recargar()
   }
 
-  protected onRolesGuardados(): void {
-    this.rolesDe.set(null)
-    this.recurso.reload()
+  /** Vuelve a la primera página. Con filas a la vista no parpadea a esqueleto: las reemplaza al llegar. */
+  protected recargar(): void {
+    const mia = ++this.generacion
+    this.cargando.set(this.cargadas().length === 0)
+    this.cargandoMas.set(false)
+    this.errorAlCargar.set(null)
+    this.errorAlCargarMas.set(null)
+    this.acciones.paginaDeUsuarios(null).subscribe({
+      next: (pagina) => {
+        if (mia !== this.generacion) return
+        this.cargadas.set(pagina)
+        this.hayMas.set(pagina.length >= TAMANO_DE_PAGINA_DE_USUARIOS && cursorDespuesDe(pagina) !== null)
+        this.cargando.set(false)
+      },
+      error: (e: unknown) => {
+        if (mia !== this.generacion) return
+        this.errorAlCargar.set(mensajeDeError(e, 'No pudimos cargar los usuarios internos. Probá de nuevo.'))
+        this.cargando.set(false)
+      },
+    })
+  }
+
+  protected cargarMas(): void {
+    const cursor: CursorDeUsuarios | null = cursorDespuesDe(this.cargadas())
+    if (!cursor || this.cargandoMas()) return
+    const mia = this.generacion
+    this.cargandoMas.set(true)
+    this.errorAlCargarMas.set(null)
+    this.acciones.paginaDeUsuarios(cursor).subscribe({
+      next: (pagina) => {
+        if (mia !== this.generacion) return
+        const vistos = new Set(this.cargadas().map((u) => u.id))
+        this.cargadas.set([...this.cargadas(), ...pagina.filter((u) => !vistos.has(u.id))])
+        this.hayMas.set(pagina.length >= TAMANO_DE_PAGINA_DE_USUARIOS && cursorDespuesDe(pagina) !== null)
+        this.cargandoMas.set(false)
+      },
+      error: (e: unknown) => {
+        if (mia !== this.generacion) return
+        this.errorAlCargarMas.set(mensajeDeError(e, 'No pudimos cargar más usuarios. Probá de nuevo.').mensaje)
+        this.cargandoMas.set(false)
+      },
+    })
+  }
+
+  protected onUsuarioCreado(): void {
+    this.mostrarAlta.set(false)
+    this.aviso.set('Usuario creado. Tiene una contraseña provisional y debe configurar su segundo factor al ingresar.')
+    this.recargar()
+  }
+
+  protected onRolAsignado(r: { yaExistia: boolean; requiereMfa: boolean; rolCodigo: string }): void {
+    this.rolDe.set(null)
+    this.aviso.set(r.yaExistia ? `Esa persona ya tenía el rol ${r.rolCodigo} con ese ámbito: no se cambió nada.` : `Rol ${r.rolCodigo} asignado.${r.requiereMfa ? ' Todavía no tiene segundo factor confirmado: no podrá entrar hasta configurarlo.' : ''}`)
+    this.recargar()
   }
 }

@@ -107,7 +107,7 @@ export const textosSistemas = {
   },
   accesos: {
     proposito: 'Ver quién tiene acceso a qué, para revisar o revocar.',
-    titulo: 'Accesos',
+    titulo: 'Revisión de accesos',
     cargando: 'Cargando los accesos',
     vacio: 'No hay accesos registrados.',
   },
