@@ -50,12 +50,6 @@ export type Proveedor = { id: string; nombre: string; categoria: string; costoRe
 export type Webhook = { id: string; direccion: 'entrante' | 'saliente'; origen: string; ultimoEstado: 'ok' | 'error'; ultimaEntregaEl: string; detalle?: string; ultimaEntregaIso?: string }
 
 /**
- * Un acceso = una persona interna con un rol. `estado` y `segundoFactor` los trae identidad (`UsuarioInternoResumen`);
- * `otorgadoEl` no lo publica ningún contrato todavía y el adaptador real lo deja en «—».
- */
-export type Acceso = { id: string; persona: string; rol: string; ambito: string; otorgadoEl: string; estado?: string; segundoFactor?: string }
-
-/**
  * Un incidente. `estado` resume si sigue afectando (abierto) o ya se restableció (cerrado); `etapa` y `sistema` los
  * trae el adaptador real (`auditoria.incidente_operativo`): Detectado, Mitigado, Post mortem o Resuelto.
  */
@@ -105,23 +99,17 @@ export interface PuertoWebhooks {
 }
 export const PUERTO_WEBHOOKS = new InjectionToken<PuertoWebhooks>('aportaya.sistemas.puertoWebhooks')
 
-export interface PuertoAccesos {
-  obtener(): Promise<Acceso[]>
-}
-export const PUERTO_ACCESOS = new InjectionToken<PuertoAccesos>('aportaya.sistemas.puertoAccesos')
-
 export interface PuertoIncidentes {
   obtener(): Promise<Incidente[]>
 }
 export const PUERTO_INCIDENTES = new InjectionToken<PuertoIncidentes>('aportaya.sistemas.puertoIncidentes')
 
-/** Los siete tokens juntos: para que `proveedor-fuentes.ts` no pueda olvidarse de ninguno. */
+/** Los tokens juntos: para que `proveedor-fuentes.ts` no pueda olvidarse de ninguno. */
 export const TODOS_LOS_PUERTOS_DE_SISTEMAS = [
   PUERTO_SERVICIOS,
   PUERTO_DESPLIEGUES,
   PUERTO_RESPALDOS,
   PUERTO_PROVEEDORES,
   PUERTO_WEBHOOKS,
-  PUERTO_ACCESOS,
   PUERTO_INCIDENTES,
 ] as const

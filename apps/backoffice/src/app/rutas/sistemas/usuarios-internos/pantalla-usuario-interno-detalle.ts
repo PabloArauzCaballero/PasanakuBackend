@@ -32,10 +32,12 @@ import { ModalAsignarRol } from './modal-asignar-rol'
         @if (recurso.hasValue() && recurso.value(); as u) {
           <ap-cabecera-de-pagina [eyebrow]="t.detalle" [titulo]="u.nombres + ' ' + u.apellidos" [descripcion]="u.cargo + ' · ' + u.departamento">
             @if (gestiona() && !deBaja(u)) {
-              <ap-boton acciones icono="editar" (pulsado)="gestor().editar(u)">{{ t.editarUsuario }}</ap-boton>
-              @if (u.estado === 'ACTIVO') { <ap-boton acciones icono="escudo" (pulsado)="mostrarModalRol.set(true)">Asignar rol</ap-boton> }
-              <ap-boton acciones [icono]="u.estado === 'ACTIVO' ? 'pausa' : 'reproducir'" [variante]="u.estado === 'ACTIVO' ? 'peligro' : 'secundario'" (pulsado)="gestor().cambiarEstado(u)">{{ u.estado === 'ACTIVO' ? 'Suspender cuenta' : 'Reactivar cuenta' }}</ap-boton>
-              <ap-boton acciones icono="candado" variante="peligro" (pulsado)="gestor().darDeBaja(u)">Dar de baja</ap-boton>
+              <ng-container acciones>
+              <ap-boton icono="editar" (pulsado)="gestor().editar(u)">{{ t.editarUsuario }}</ap-boton>
+              @if (u.estado === 'ACTIVO') { <ap-boton icono="escudo" (pulsado)="mostrarModalRol.set(true)">Asignar rol</ap-boton> }
+              <ap-boton [icono]="u.estado === 'ACTIVO' ? 'pausa' : 'reproducir'" [variante]="u.estado === 'ACTIVO' ? 'peligro' : 'secundario'" (pulsado)="gestor().cambiarEstado(u)">{{ u.estado === 'ACTIVO' ? 'Suspender cuenta' : 'Reactivar cuenta' }}</ap-boton>
+              <ap-boton icono="candado" variante="peligro" (pulsado)="gestor().darDeBaja(u)">Dar de baja</ap-boton>
+              </ng-container>
             }
           </ap-cabecera-de-pagina>
 

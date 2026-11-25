@@ -1,6 +1,5 @@
 import {
   errorFuenteNoDisponible,
-  type Acceso,
   type DespliguesEInterruptores,
   type EstadoServicio,
   type Incidente,
@@ -35,6 +34,5 @@ export const adaptadorFuenteNoDisponible = {
     ),
   proveedores: (): Promise<Proveedor[]> => Promise.reject(errorFuenteNoDisponible()),
   webhooks: (): Promise<Webhook[]> => Promise.reject(errorFuenteNoDisponible()),
-  accesos: (): Promise<Acceso[]> => Promise.reject(errorFuenteNoDisponible()),
   incidentes: (): Promise<Incidente[]> => Promise.reject(errorFuenteNoDisponible()),
 } as const

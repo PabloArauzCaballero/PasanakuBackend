@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, effect, input, model, output, signal, untracked } from '@angular/core'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
 import { AreaDeTexto } from '@aportaya/ui/area-de-texto/area-de-texto'
 import { CampoOTP } from '@aportaya/ui/campo-otp/campo-otp'
@@ -23,13 +23,13 @@ import { esCodigoValido, LARGO_DEL_CODIGO, pasoDeSeguridad } from '../dominio/pa
   imports: [Alerta, AreaDeTexto, CampoOTP, Dialogo, ErrorDeEnvio],
   template: `
     <ap-dialogo [titulo]="titulo()" [textoDeConfirmar]="enviando() ? 'Confirmando…' : textoDeConfirmar()" [destructivo]="destructivo()" [cargando]="enviando()" [confirmarDeshabilitado]="!puedeEnviar() || enviando()" [puedeDescartar]="puedeCerrar" [(abierto)]="abierto" (confirmar)="enviar()" (cancelar)="abierto.set(false)">
-      <ng-content />
+      <fieldset class="campos-del-acto" [disabled]="enviando() || evidenciaPendienteVisible()"><ng-content /></fieldset>
       @if (efecto(); as texto) { <ap-alerta tono="aviso" titulo="Qué va a pasar">{{ texto }}</ap-alerta> }
       <div class="campos">
-        <ap-area-de-texto [etiqueta]="etiquetaDeMotivo()" [(valor)]="motivo" [maximo]="maximoDeMotivo()" [deshabilitado]="enviando()" [error]="errorDeCampo('motivo')" [ayuda]="'Queda en la auditoría. Mínimo ' + minimoDeMotivo() + ' caracteres.'" />
+        <ap-area-de-texto [etiqueta]="etiquetaDeMotivo()" [(valor)]="motivo" [maximo]="maximoDeMotivo()" [deshabilitado]="enviando() || evidenciaPendienteVisible()" [error]="errorDeCampo('motivo')" [ayuda]="'Queda en la auditoría. Mínimo ' + minimoDeMotivo() + ' caracteres.'" />
         <div class="otp">
           <span class="rotulo" aria-hidden="true">Confirmá con tu segundo factor</span>
-          <ap-campo-otp [etiqueta]="'Código de ' + largo + ' dígitos de tu aplicación de autenticación'" [largo]="largo" [(valor)]="codigo" [error]="errorDeCampo('codigo')" />
+          <fieldset class="campos-del-acto" [disabled]="enviando() || evidenciaPendienteVisible()"><ap-campo-otp [etiqueta]="'Código de ' + largo + ' dígitos de tu aplicación de autenticación'" [largo]="largo" [(valor)]="codigo" [error]="errorDeCampo('codigo')" /></fieldset>
           <span class="ayuda">Abrí tu aplicación de autenticación y escribí el código de {{ largo }} dígitos. Sirve una sola vez.</span>
         </div>
       </div>
@@ -37,6 +37,7 @@ import { esCodigoValido, LARGO_DEL_CODIGO, pasoDeSeguridad } from '../dominio/pa
     </ap-dialogo>
   `,
   styles: `
+    .campos-del-acto { margin: 0; min-width: 0; padding: 0; border: 0; }
     .campos { display: grid; gap: var(--s4); margin-top: var(--s3); }
     .otp { display: grid; gap: var(--s1); }
     .rotulo { font-weight: 600; color: var(--text-2); }

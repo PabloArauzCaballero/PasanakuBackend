@@ -14,9 +14,9 @@ const AMBITOS: Opcion[] = [
   { valor: 'ORGANIZACION', texto: 'Una organización' },
 ]
 
-/** El fin de un día (fecha local) como instante ISO; nulo si no hay fecha. */
+/** El fin de un día en La Paz como instante ISO; nulo si no hay fecha. */
 export function finDelDia(fecha: string): string | null {
-  return fecha ? new Date(`${fecha}T23:59:59`).toISOString() : null
+  return fecha ? new Date(`${fecha}T23:59:59-04:00`).toISOString() : null
 }
 
 /**
@@ -70,12 +70,15 @@ export class ModalAsignarRol {
   protected readonly opcionesDeRol = computed<Opcion[]>(() => (this.roles.hasValue() ? (this.roles.value() ?? []) : []).map((r) => ({ valor: r.id, texto: r.departamento ? `${r.nombre} (${r.departamento})` : r.nombre })))
   protected readonly errorDeCatalogo = computed(() => mensajeDeError(this.roles.error(), 'No se pudo cargar la lista de roles. Cerrá y volvé a abrir.').mensaje)
   protected readonly idValido = computed(() => UUID.test(this.ambitoId().trim()))
-  protected readonly errorDeVigencia = computed(() => {
+  private readonly vigenciaVencida = computed(() => {
     const fin = finDelDia(this.hasta())
-    if (fin && new Date(fin).getTime() <= Date.now()) return 'La fecha de fin tiene que ser futura.'
+    return fin !== null && new Date(fin).getTime() <= Date.now()
+  })
+  protected readonly errorDeVigencia = computed(() => {
+    if (this.vigenciaVencida()) return 'La fecha de fin tiene que ser futura.'
     return this.error()?.campo === 'vigencia' ? this.error()!.mensaje : undefined
   })
-  protected readonly esValido = computed(() => this.rolId() !== '' && (this.ambito() !== 'GRUPO' || this.idValido()) && !this.errorDeVigencia())
+  protected readonly esValido = computed(() => this.rolId() !== '' && (this.ambito() !== 'GRUPO' || this.idValido()) && !this.vigenciaVencida())
 
   protected errorDeCampo(campo: 'rol' | 'ambito'): string | undefined {
     const e = this.error()

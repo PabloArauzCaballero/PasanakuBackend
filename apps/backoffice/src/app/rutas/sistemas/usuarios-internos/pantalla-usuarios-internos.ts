@@ -18,19 +18,13 @@ import { CifrasDeSistemas, contar, type Cifra } from '../compartido/cifras'
 import { accionesDeAccesos, cursorDespuesDe, TAMANO_DE_PAGINA_DE_USUARIOS, type CursorDeUsuarios, type UsuarioInternoDeLista } from '../dominio/gobierno-de-accesos'
 import { PERMISOS_DE_GESTION_DE_PERSONAL } from '../personal-y-accesos'
 import { textosSistemas } from '../textos'
+import { ESTADO, TONO, estaBloqueado, estaDeBaja, estadoDe, segundoFactor } from './estado-del-usuario'
 import { GestorDeUsuarioInterno } from './gestor-de-usuario-interno'
 import { ModalAltaUsuarioInterno } from './modal-alta-usuario-interno'
 import { ModalAsignarRol } from './modal-asignar-rol'
 import { Exportador } from '../../../nucleo/exportador'
 
 type Usuario = UsuarioInternoDeLista
-const ESTADO: Record<string, string> = { ACTIVO: 'Activo', SUSPENDIDO: 'Suspendido', BAJA_LABORAL: 'Baja laboral', BAJA_VOLUNTARIA: 'Baja voluntaria', BLOQUEADO_SEGURIDAD: 'Bloqueado por seguridad' }
-const TONO: Record<string, 'ok' | 'aviso' | 'neutro' | 'error'> = { ACTIVO: 'ok', SUSPENDIDO: 'aviso', BLOQUEADO_SEGURIDAD: 'error' }
-/** Hay un bloqueo de acceso vigente: con fecha de fin, o indefinido (`bloqueadoHasta` nulo y `motivoBloqueo` informado, GU-10). */
-const estaBloqueado = (u: Usuario) => !!u.bloqueadoHasta || !!u.motivoBloqueo
-const estaDeBaja = (u: Usuario) => u.estado === 'BAJA_LABORAL'
-const estadoDe = (u: Usuario) => ESTADO[u.estado] ?? u.estado
-const segundoFactor = (u: Usuario) => (u.tieneSegundoFactor ? 'Configurado' : 'Pendiente')
 
 /**
  * Usuarios internos (`GET /usuarios-internos`, **paginado por cursor**, GU-17: `limite` 1–100, `antesDe` + `antesDeId`
@@ -42,87 +36,9 @@ const segundoFactor = (u: Usuario) => (u.tieneSegundoFactor ? 'Configurado' : 'P
   selector: 'ap-pantalla-usuarios-internos',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [AccionesDeFila, Alerta, Boton, CabeceraDePagina, ChipEstado, CifrasDeSistemas, GestorDeUsuarioInterno, Icono, ListadoDeDatos, ModalAltaUsuarioInterno, ModalAsignarRol],
-  template: `
-    <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Sistemas · Identidad" [titulo]="t.titulo" [descripcion]="t.proposito">
-        @if (carga().tipo !== 'sin-fuente') { <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="cargando() || cargandoMas()" (pulsado)="recargar()">Actualizar</ap-boton> }
-        @if (gestiona()) { <ap-boton acciones variante="primario" icono="personaMas" (pulsado)="mostrarAlta.set(true)">{{ t.nuevoUsuario }}</ap-boton> }
-      </ap-cabecera-de-pagina>
-      @if (aviso(); as texto) { <ap-alerta tono="ok" titulo="Listo">{{ texto }}</ap-alerta> }
-      <ap-cifras-de-sistemas etiqueta="Resumen de usuarios internos" [cifras]="cifras()" [carga]="carga()" />
-      <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" [identidad]="identidad" ayudaDeBusqueda="Busca por nombre, correo, código, departamento, cargo o rol entre los usuarios ya cargados." [exportables]="exportables" [exportable]="exportador.puedeExportar('usuarios-internos')" nombreDeRegistros="usuarios" [textoVacio]="t.vacio" explicacionVacio="Dá de alta al primer operador interno con su rol inicial." [accionVacio]="gestiona() ? 'Dar de alta' : undefined" (primeraAccion)="mostrarAlta.set(true)" (reintentar)="recargar()">
-        <ng-template #celda let-u let-c="columna">
-          @switch (c.clave) {
-            @case ('nombres') { <strong>{{ u.nombres }} {{ u.apellidos }}</strong><span class="sub">{{ u.correo }}</span> }
-            @case ('roles') { <span class="roles">@for (r of u.roles; track r) { <code>{{ r }}</code> }</span> }
-            @case ('estado') {
-              <span class="chips"><ap-chip-estado [tono]="tono(u)">{{ estado(u) }}</ap-chip-estado>@if (bloqueado(u)) { <ap-chip-estado tono="error">{{ u.bloqueadoHasta ? 'Bloqueado' : 'Bloqueado sin fecha de fin' }}</ap-chip-estado> }</span>
-            }
-            @case ('tieneSegundoFactor') { <ap-chip-estado [tono]="u.tieneSegundoFactor ? 'ok' : 'neutro'">{{ factor(u) }}</ap-chip-estado> }
-            @default { {{ u[c.clave] }} }
-          }
-        </ng-template>
-        <ng-template #acciones let-u>
-          <ap-acciones-de-fila [fila]="u.nombres + ' ' + u.apellidos" [ver]="true" (verPulsado)="ver(u)">
-            <!-- Cinco acciones en la fila la estiraban a cuatro líneas: Ver queda a la vista y el resto va en «Más». -->
-            @if (gestiona() && !deBaja(u)) {
-            <details class="mas" (toggle)="ubicarMenu($event)">
-              <summary [attr.aria-label]="'Más acciones para ' + u.nombres + ' ' + u.apellidos"><ap-icono nombre="puntos" tamano="s4" />Más</summary>
-              <div class="menu">
-                @if (u.estado === 'ACTIVO') {
-                  <button type="button" apAccionDeFila [attr.aria-label]="'Asignar un rol a ' + u.nombres + ' ' + u.apellidos" (click)="rolDe.set(u)"><ap-icono nombre="escudo" tamano="s4" />Asignar rol</button>
-                }
-                <button type="button" apAccionDeFila [attr.aria-label]="(u.estado === 'ACTIVO' ? 'Suspender a ' : 'Reactivar a ') + u.nombres + ' ' + u.apellidos" (click)="gestor().cambiarEstado(u)"><ap-icono [nombre]="u.estado === 'ACTIVO' ? 'pausa' : 'reproducir'" tamano="s4" />{{ u.estado === 'ACTIVO' ? 'Suspender' : 'Reactivar' }}</button>
-                @if (bloqueado(u)) {
-                  <button type="button" apAccionDeFila [attr.aria-label]="'Desbloquear a ' + u.nombres + ' ' + u.apellidos" (click)="gestor().desbloquear(u)"><ap-icono nombre="llave" tamano="s4" />Desbloquear</button>
-                }
-                <button type="button" apAccionDeFila [attr.aria-label]="'Editar ' + u.nombres + ' ' + u.apellidos" (click)="gestor().editar(u)"><ap-icono nombre="editar" tamano="s4" />Editar</button>
-                <button type="button" apAccionDeFila [attr.aria-label]="'Dar de baja a ' + u.nombres + ' ' + u.apellidos" (click)="gestor().darDeBaja(u)"><ap-icono nombre="candado" tamano="s4" />Dar de baja</button>
-              </div>
-            </details>
-            }
-          </ap-acciones-de-fila>
-        </ng-template>
-      </ap-listado>
-
-      @if (hayMas() && carga().tipo === 'lista') {
-        <div class="mas-filas">
-          <ap-boton variante="secundario" icono="recarga" [deshabilitado]="cargandoMas()" (pulsado)="cargarMas()">{{ cargandoMas() ? 'Cargando…' : 'Cargar más usuarios' }}</ap-boton>
-          @if (errorAlCargarMas(); as e) { <p class="error" role="alert">{{ e }}</p> }
-          <p class="sub" role="status">Se muestran los primeros {{ cargadas().length }}; hay más. La búsqueda y los filtros trabajan sobre los ya cargados.</p>
-        </div>
-      }
-      <ap-gestor-de-usuario-interno (actualizado)="recargar()" (resumen)="aviso.set($event)" />
-      @if (mostrarAlta()) {
-        <ap-modal-alta-usuario-interno (cerrar)="mostrarAlta.set(false)" (guardado)="onUsuarioCreado()" />
-      }
-      @if (rolDe(); as u) {
-        <ap-modal-asignar-rol [usuarioId]="u.id" (cerrar)="rolDe.set(null)" (guardado)="onRolAsignado($event)" />
-      }
-    </section>
-  `,
+  templateUrl: './pantalla-usuarios-internos.html',
   host: { '(document:click)': 'cerrarMenus($event)', '(document:keydown.escape)': 'cerrarMenus()', '(window:resize)': 'cerrarMenus()', '(window:scroll)': 'cerrarMenus()' },
-  styles: `
-    :host { display: block; min-width: 0; }
-    /* «Más»: menú propio de la fila. Se ubica fijo junto a su botón (y hacia arriba si abajo no entra): dentro de la
-       tabla lo recortaría su marco desplazable. */
-    .mas { position: relative; }
-    .mas summary { display: inline-flex; align-items: center; gap: var(--s1); min-height: var(--area-tactil); padding: 0 var(--s2); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); background: var(--surface); color: var(--text); font: var(--t-cuerpo-chico); font-weight: 600; list-style: none; cursor: pointer; }
-    .mas summary::-webkit-details-marker { display: none; }
-    .mas summary:hover, .mas[open] summary { background: var(--surface-2); }
-    .mas summary:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
-    .menu { position: fixed; z-index: 20; display: grid; gap: var(--s1); min-width: calc(var(--s7) * 4); padding: var(--s2); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); background: var(--surface); box-shadow: var(--sombra-3); }
-    .menu [apAccionDeFila] { justify-content: flex-start; width: 100%; border-color: transparent; }
-    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
-    /* ap-listado deja sus pistas en «auto»: sin esto la tabla ensancha la página en vez de desplazarse en su marco. */ ap-listado { grid-template-columns: minmax(0, 1fr); }
-    .sub { display: block; font: var(--t-ayuda); color: var(--text-3); overflow-wrap: break-word; }
-    .chips { display: inline-flex; flex-wrap: wrap; gap: var(--s1); }
-    .mas-filas { display: grid; justify-items: start; gap: var(--s2); }
-    .mas-filas .error { margin: 0; font: var(--t-cuerpo-chico); color: var(--err-texto); }
-    .mas-filas .sub { margin: 0; }
-    .roles { display: flex; flex-wrap: wrap; gap: var(--s1); }
-    code { padding: 0 var(--s1); border-radius: var(--r-sm); background: var(--surface-2); font: var(--t-ayuda); font-family: var(--f-mono); color: var(--text-2); }
-  `,
+  styleUrl: './pantalla-usuarios-internos.css',
 })
 export class PantallaUsuariosInternos {
   /** Correos y datos del personal: la descarga en el navegador solo con `exportar:usuarios-internos` (regla 90.2). */
@@ -149,11 +65,10 @@ export class PantallaUsuariosInternos {
     if (e) return { tipo: 'error', mensaje: e.mensaje, idPeticion: e.trazaId }
     return this.cargando() ? { tipo: 'cargando' } : { tipo: 'lista' }
   })
-  private readonly filas = this.cargadas
 
   protected readonly identidad = (u: Usuario) => u.id
   protected readonly listado = crearListado<Usuario>({
-    filas: this.filas,
+    filas: this.cargadas,
     camposDeBusqueda: ['nombres', 'apellidos', 'correo', 'codigoPublico', 'departamento', 'cargo', (u) => u.roles.join(' ')],
     filtros: [
       { nombre: 'estado', etiqueta: 'Estado', valor: (u) => u.estado, texto: (v) => ESTADO[v] ?? v },
@@ -163,7 +78,7 @@ export class PantallaUsuariosInternos {
     porPagina: 10,
   })
   protected readonly cifras = computed<Cifra[]>(() => {
-    const f = this.filas()
+    const f = this.cargadas()
     return [
       { etiqueta: this.hayMas() ? 'Usuarios cargados' : 'Usuarios internos', valor: contar(f), icono: 'grupo' },
       { etiqueta: 'Activos', valor: contar(f, (u) => u.estado === 'ACTIVO'), icono: 'verificado', tono: 'ok' },
@@ -231,6 +146,7 @@ export class PantallaUsuariosInternos {
   protected recargar(): void {
     const mia = ++this.generacion
     this.cargando.set(this.cargadas().length === 0)
+    this.cargandoMas.set(false)
     this.errorAlCargar.set(null)
     this.errorAlCargarMas.set(null)
     this.acciones.paginaDeUsuarios(null).subscribe({

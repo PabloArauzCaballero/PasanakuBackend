@@ -1,38 +1,12 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { PERMISOS_DE_PERSONAL } from '../rutas/sistemas/personal-y-accesos'
-import { entradasVisibles, pantallasVisibles } from './navegacion'
-import { MENU } from './menu'
+import { leerCatalogoDeRoles } from './catalogo-de-roles.pruebas'
 import { alcanza, PERMISOS_POR_SECCION } from './secciones'
 
-/**
- * H12.S1.M1 · recorrido por roles sin acciones ajenas.
- *
- * La fuente es el catálogo REAL de roles y permisos (`sql/60_semillas/10-roles-y-permisos.sql`, generado desde
- * `seeders/minimos`): el token de `identidad` lleva los permisos efectivos del rol MÁS el código de cada rol vigente
- * (`AccesosRepositorio.codigosDeRolesVigentes`). Esta prueba arma ese token para cada rol y comprueba qué secciones
- * abre y qué acciones habilita. Es una prueba de la LÓGICA DEL CLIENTE sobre el catálogo versionado; no consulta un
- * `identidad` real ni prueba que el servidor niegue lo que el cliente oculta (eso es de cada servicio).
- */
-const RAIZ = join(__dirname, '../../../../..')
-const SEMILLA = readFileSync(join(RAIZ, 'sql/60_semillas/10-roles-y-permisos.sql'), 'utf8')
+const CATALOGO = leerCatalogoDeRoles(readFileSync(join(process.cwd(), '../../sql/60_semillas/10-roles-y-permisos.sql'), 'utf8'))
+const { tokenDe } = CATALOGO
 
-function leerCatalogo() {
-  const roles = new Set([...SEMILLA.slice(0, SEMILLA.indexOf('INSERT INTO permiso')).matchAll(/^\s*\('([A-Z_]+)',/gm)].map((m) => m[1]!))
-  const permisos = new Set(
-    [...SEMILLA.slice(SEMILLA.indexOf('INSERT INTO permiso'), SEMILLA.indexOf('INSERT INTO rol_permiso')).matchAll(/^\s*\('([A-Z_]+)',/gm)].map((m) => m[1]!),
-  )
-  const concedidos = new Map<string, string[]>()
-  for (const m of SEMILLA.matchAll(/FROM rol WHERE codigo = '([A-Z_]+)'\)\s*,\s*\(SELECT id FROM permiso WHERE codigo = '([A-Z_]+)'\)/g)) {
-    concedidos.set(m[1]!, [...(concedidos.get(m[1]!) ?? []), m[2]!])
-  }
-  return { roles, permisos, concedidos }
-}
-const CATALOGO = leerCatalogo()
-
-/** El token de un rol: su código más los permisos del catálogo que ese rol concede. */
-const tokenDe = (rol: string): string[] => [rol, ...(CATALOGO.concedidos.get(rol) ?? [])]
 const SECCIONES = ['ver:operacion', 'ver:cumplimiento', 'ver:admisiones', 'ver:sistemas', 'ver:contabilidad', 'ver:publicidad', 'ver:configuracion'] as const
 const seccionesDe = (rol: string) => SECCIONES.filter((s) => alcanza(s, tokenDe(rol), true)).map((s) => s.slice(4))
 
@@ -130,44 +104,6 @@ describe('matriz de roles · qué secciones abre cada rol del catálogo', () => 
   })
 })
 
-/**
- * GU-09 · «Personal y accesos» se abre por permiso. Se arma el token de cada rol del catálogo y se pregunta al menú real
- * qué pestañas de la sección ve: nadie ve una pantalla cuyo endpoint le respondería 403.
- */
-describe('matriz de roles · «Personal y accesos» (GU-09)', () => {
-  const credenciales = (rol: string) => ({ puede: (p: string) => alcanza(p, tokenDe(rol), true), rol: () => 'OPERADOR' })
-  const entrada = MENU.flatMap((g) => g.entradas).find((e) => e.ruta === 'personal')!
-  const pestanasDe = (rol: string) => pantallasVisibles(entrada, credenciales(rol)).map((p) => p.ruta.replace('/sistemas/', ''))
-  const veLaSeccion = (rol: string) => entradasVisibles(credenciales(rol)).some((g) => g.entradas.some((e) => e.ruta === 'personal'))
-
-  it('correcto: INTERNAL_IDENTITY_ADMIN y ADMIN_PLATAFORMA ven la sección con sus cuatro pantallas', () => {
-    for (const rol of ['INTERNAL_IDENTITY_ADMIN', 'ADMIN_PLATAFORMA']) {
-      expect(veLaSeccion(rol), rol).toBe(true)
-      expect(pestanasDe(rol), rol).toEqual(['usuarios-internos', 'roles-internos', 'permisos-internos', 'accesos'])
-    }
-  })
-
-  it('inválido: RESPONSABLE_SEGURIDAD entra a Sistemas pero NO ve «Personal y accesos» (el servidor le respondería 403)', () => {
-    expect(seccionesDe('RESPONSABLE_SEGURIDAD')).toContain('sistemas')
-    expect(veLaSeccion('RESPONSABLE_SEGURIDAD')).toBe(false)
-    expect(pestanasDe('RESPONSABLE_SEGURIDAD')).toEqual([])
-  })
-
-  it('límite: cada pestaña aparece si y solo si el rol tiene un permiso que el servidor acepta para ella', () => {
-    for (const rol of CATALOGO.roles) {
-      const visibles = pestanasDe(rol)
-      for (const [pantalla, permisos] of Object.entries(PERMISOS_DE_PERSONAL)) {
-        const alcanzaUno = permisos.some((p) => tokenDe(rol).includes(p))
-        expect(visibles.includes(pantalla), `${rol} · ${pantalla}`).toBe(alcanzaUno && alcanza('ver:sistemas', tokenDe(rol), true))
-      }
-    }
-  })
-
-  it('el conjunto exacto de roles que ven la sección queda fijado (si cambia el catálogo, hay que decidirlo)', () => {
-    expect([...CATALOGO.roles].filter(veLaSeccion).sort()).toEqual(['ADMIN_PLATAFORMA', 'INTERNAL_IDENTITY_ADMIN'])
-  })
-})
-
 function fuentes(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
     const ruta = join(dir, e.name)
@@ -185,7 +121,7 @@ const SIN_CATALOGO_DECLARADOS: string[] = []
 
 describe('contrato de permisos · lo que el backoffice pide existe en el catálogo', () => {
   const literales = new Set(
-    fuentes(join(__dirname, '..'))
+    fuentes(join(process.cwd(), 'src/app'))
       .flatMap((f) => [...readFileSync(f, 'utf8').matchAll(/\b(?:puede|requierePermiso|alcanza)\('([A-Za-z_:]+)'/g)].map((m) => m[1]!))
       .filter((p) => !p.startsWith('ver:')),
   )

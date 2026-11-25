@@ -5,14 +5,6 @@ import type { RolCatalogo, UsuarioInternoDetalle, UsuarioInternoResumen } from '
 import { GATEWAY } from '../../../nucleo/gateway'
 import { contextoIdempotente } from '../../../nucleo/idempotencia.interceptor'
 
-/**
- * Gobierno de accesos del personal interno (CU-08, GU-05/08/11/13/14) contra el contrato del PR #516 (rama
- * `claude/gu-b-cu08`, `identidad.yaml`). **Doble declarado (regla 65):** el cliente generado sale del `identidad.yaml` de
- * `dev`, que todavía no trae estas operaciones; por eso los tipos y las llamadas viven acá, con el nombre exacto de
- * cada esquema del contrato. Cuando #516 entre a `dev`, `EntradaAsignacionDeRol` & co. se importan de
- * `clientes/angular/identidad` y este archivo se achica a las llamadas. Lo verificado contra el doble está en el REPORTE.
- */
-
 export type AmbitoDeRol = 'GLOBAL' | 'GRUPO' | 'ORGANIZACION'
 export const AMBITOS_DE_ROL: readonly AmbitoDeRol[] = ['GLOBAL', 'GRUPO', 'ORGANIZACION']
 

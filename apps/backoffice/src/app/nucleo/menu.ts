@@ -50,10 +50,7 @@ const SISTEMAS = [p('ver:sistemas'), { roles: ['PLATAFORMA', 'SEGURIDAD'], permi
 const sis = (ruta: string, texto: string, icono: NombreDeIcono): Pantalla => ({ ruta: `/sistemas/${ruta}`, texto, icono, requiere: SISTEMAS })
 /** Una pantalla de «Personal y accesos»: la rama `/sistemas` la abre `ver:sistemas` y cada pantalla, el permiso que el servidor le exige. */
 const per = (ruta: keyof typeof PERMISOS_DE_PERSONAL, texto: string, icono: NombreDeIcono): Pantalla => ({ ruta: `/sistemas/${ruta}`, texto, icono, requiere: [p('ver:sistemas'), p(...PERMISOS_DE_PERSONAL[ruta]!)] })
-/**
- * Las pestañas de Cumplimiento toman sus códigos de `ENTRADAS_DE_CUMPLIMIENTO` (la lista de la franja C, que también
- * usa `cumplimiento.routes.ts` en sus guardias): una sola lista para la ruta y para la pestaña.
- */
+/** Cumplimiento comparte la lista de requisitos de cada pestaña con sus guardias. */
 const cum = (ruta: string, texto: string, icono: NombreDeIcono): Pantalla => {
   const codigos = ENTRADAS_DE_CUMPLIMIENTO.find((e) => e.ruta === `/cumplimiento/${ruta}`)?.codigos ?? []
   return { ruta: `/cumplimiento/${ruta}`, texto, icono, requiere: [CUMPLIMIENTO, pr(...codigos)] }
