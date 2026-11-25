@@ -76,9 +76,8 @@ public class CU09CambiarCredencial {
                             credenciales.telefonoDe(dsl, usuario).orElse(null),
                             entrada.documento().orElse(null))
                     .ifPresent(motivo -> {
-                        throw new ErrorDeNegocio(
-                                CodigoError.de(9, motivo == PoliticaDeClave.MotivoDeRechazo.REUTILIZADA ? 3 : 2),
-                                mensajeDe(motivo));
+                        int numero = motivo == PoliticaDeClave.MotivoDeRechazo.REUTILIZADA ? 3 : 2;
+                        throw new ErrorDeNegocio(CodigoError.de(9, numero), mensajeDe(motivo));
                     });
 
             PerfilDeAcceso perfil = usuarios.perfilDe(dsl, usuario);
