@@ -1,8 +1,10 @@
 package bo.aportaya.identidad.aplicacion;
 
 import bo.aportaya.identidad.dominio.PermisosEfectivos;
+import bo.aportaya.identidad.dominio.PuedeAutenticarse;
 import bo.aportaya.identidad.infraestructura.AccesosRepositorio;
 import bo.aportaya.identidad.infraestructura.EmisorDeAcceso;
+import bo.aportaya.identidad.infraestructura.UsuarioRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Reloj;
@@ -36,9 +38,12 @@ public class EmitirAcceso {
     private final AccesosRepositorio accesos;
     private final EmisorDeAcceso emisor;
     private final Reloj reloj;
+    private final UsuarioRepositorio usuarios;
 
-    public EmitirAcceso(Datos datos, AccesosRepositorio accesos, EmisorDeAcceso emisor, Reloj reloj) {
+    public EmitirAcceso(
+            Datos datos, AccesosRepositorio accesos, EmisorDeAcceso emisor, Reloj reloj, UsuarioRepositorio usuarios) {
         this.datos = datos;
+        this.usuarios = usuarios;
         this.accesos = accesos;
         this.emisor = emisor;
         this.reloj = reloj;
@@ -70,7 +75,13 @@ public class EmitirAcceso {
             return List.copyOf(todos);
         });
 
-        var emitido = emisor.emitir(usuarioId, rol, permisos, nivelDiligencia, dispositivo, sesionId);
+        // CU-134 (D-6): el alcance sale del estado de la cuenta al emitir, no de quien pide el token.
+        boolean restringida = datos.conContexto(
+                ctx,
+                dsl -> PuedeAutenticarse.conAlcanceRestringido(
+                        usuarios.estadoDe(dsl, usuarioId),
+                        usuarios.perfilDe(dsl, usuarioId).esOperador()));
+        var emitido = emisor.emitir(usuarioId, rol, permisos, nivelDiligencia, dispositivo, sesionId, restringida);
         return new Acceso(emitido.token(), emitido.expiraEn(), permisos);
     }
 

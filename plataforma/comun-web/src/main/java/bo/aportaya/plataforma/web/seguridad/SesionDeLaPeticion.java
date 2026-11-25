@@ -49,7 +49,7 @@ public class SesionDeLaPeticion {
      */
     static final String RECLAMO_PERMISOS = "permisos";
 
-    static final String RECLAMO_ALCANCE = "alcance";
+    public static final String RECLAMO_ALCANCE = "alcance";
 
     public static final String ALCANCE_RESTRINGIDO = "RESTRINGIDO";
 
