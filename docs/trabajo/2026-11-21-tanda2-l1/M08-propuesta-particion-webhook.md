@@ -64,3 +64,9 @@ solo por la purga.
   de Pablo y de Cumplimiento, y abren un precedente.
 
 **Decisión:** T11-3 eligió A. No se crea una excepción a R-AUD-01 ni se modifica el plazo existente; solo se desprenden y eliminan particiones completas al cumplir la política vigente.
+
+## Estado de la implementación
+
+- La migración conserva los avisos, su clave y su estado inicial. Bloquea la tabla original antes de copiar y comprueba los datos antes de sustituirla. La instalación nueva y el upgrade usan los mismos límites mensuales UTC.
+- CU-100 reserva la clave `(proveedor_id, clave_idempotencia)` en la misma sentencia que guarda el aviso y su estado inicial. Cuando dos entregas compiten por esa clave, solo una guarda el aviso. El cierre del procesamiento inserta una transición en el historial.
+- La purga queda pendiente. Desprender un mes cuando vence su última fila puede conservar la primera casi un mes adicional. Se mantienen la política de 12 meses en caliente y 24 totales y el sellado de avisos e historial. La rama todavía requiere resolver cómo ejecutar y verificar la eliminación dentro del plazo antes de promoverla.

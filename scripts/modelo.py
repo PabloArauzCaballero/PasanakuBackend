@@ -357,9 +357,9 @@ PARTICIONADAS = {
     "historial_estado_webhook": "webhook_recibido_en",
 }
 
-# Los webhooks llegan con fecha fijada por el servidor; el trabajo con ShedLock
-# prepara meses futuros. No hay partición DEFAULT porque retendría datos sin una
-# cota mensual purgable y ocultaría una falla en el trabajo de mantenimiento.
+# Los webhooks llegan con fecha fijada por el servidor. El DDL prepara meses
+# futuros, sin DEFAULT: un desborde ocultaría que se agotó el horizonte y
+# dejaría avisos fuera de las particiones mensuales que se pueden purgar.
 SIN_PARTICION_DESBORDE = {"webhook_pasarela", "historial_estado_webhook"}
 
 # CHECK de enumerado que se AMPLIO despues de que existieran bases. El CREATE TABLE

@@ -35,12 +35,12 @@ import org.junit.jupiter.api.Test;
  */
 class CU100WebhookTest extends BaseDeAportes {
 
-    private static final Instant AHORA_DE_BORDE = Instant.parse("2026-09-23T12:00:00Z");
+    private static final Instant AHORA_DE_BORDE = Instant.now();
 
     @AfterEach
     void limpiar() {
-        dsl.deleteFrom(org.jooq.impl.DSL.table(org.jooq.impl.DSL.name("aportes", "webhook_pasarela")))
-                .execute();
+        dslFixtura.execute(
+                "TRUNCATE aportes.historial_estado_webhook, aportes.webhook_pasarela, aportes.webhook_clave");
         fixtura.limpiar();
     }
 
@@ -108,7 +108,8 @@ class CU100WebhookTest extends BaseDeAportes {
         assertThat(r.estado()).isEqualTo(Resultado.Estado.PROCESADO);
         assertThat(r.pagoId()).isEqualTo(pagoId);
         assertThat(contar(
-                        "SELECT count(*)::int FROM aportes.webhook_pasarela WHERE estado = 'PROCESADO' AND pago_id = ?",
+                        "SELECT count(*)::int FROM aportes.historial_estado_webhook"
+                                + " WHERE estado_nuevo = 'PROCESADO' AND pago_id = ?",
                         pagoId))
                 .isEqualTo(1);
     }
@@ -160,9 +161,8 @@ class CU100WebhookTest extends BaseDeAportes {
         Resultado r = recibirEnInstanteFijo("QR_TEST", cuerpo, firma, ts);
 
         assertThat(r.estado()).isEqualTo(Resultado.Estado.FIRMA_INVALIDA);
-        assertThat(
-                        contar(
-                                "SELECT count(*)::int FROM aportes.webhook_pasarela WHERE clave_idempotencia = 'evt-borde-mal'"))
+        assertThat(contar("SELECT count(*)::int FROM aportes.webhook_pasarela WHERE clave_idempotencia ="
+                        + " 'evt-borde-mal'"))
                 .isZero();
     }
 
@@ -181,9 +181,8 @@ class CU100WebhookTest extends BaseDeAportes {
         Resultado r = recibir("QR_TEST", cuerpo, firmaAjena, ts);
 
         assertThat(r.estado()).isEqualTo(Resultado.Estado.FIRMA_INVALIDA);
-        assertThat(
-                        contar(
-                                "SELECT count(*)::int FROM aportes.webhook_pasarela WHERE clave_idempotencia = 'evt-firma-mala'"))
+        assertThat(contar("SELECT count(*)::int FROM aportes.webhook_pasarela WHERE clave_idempotencia ="
+                        + " 'evt-firma-mala'"))
                 .isZero();
     }
 

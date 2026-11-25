@@ -32,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
  *       escribe una sola fila — ni para auditar. Un atacante que prueba firmas no
  *       puede aprender nada del sistema mirando la base.
  *   <li>Deduplicación por {@code (proveedor_id, clave_idempotencia)}
- *       ({@code uq_webhook_idem}, invariante 7): el mismo evento entregado dos veces
+ *       ({@code pk_webhook_clave}, invariante 7): el mismo evento entregado dos veces
  *       (la pasarela reintenta) no se reprocesa ni duplica el efecto financiero.
  *   <li>La regla de negocio: el monto y la moneda del evento tienen que coincidir con
  *       el {@code pago} ya registrado por su referencia de proveedor. Si no hay pago
@@ -130,13 +130,8 @@ public class CU100RecibirWebhookPasarela {
                 return Resultado.descartado(null, "falta idEvento");
             }
 
-            // Paso 2 — deduplicacion por la MISMA identidad que uq_webhook_idem.
-            var existente = webhooks.porClaveDeEvento(dsl, proveedor.get().id(), claveEvento);
-            if (existente.isPresent()) {
-                return Resultado.duplicado(existente.get().id(), existente.get().pagoId());
-            }
-
-            UUID webhookId = webhooks.registrar(
+            // Paso 2 — la clave global arbitra también dos entregas simultáneas.
+            var registrada = webhooks.registrar(
                     dsl,
                     proveedor.get().id(),
                     tipoEvento == null ? "desconocido" : tipoEvento,
@@ -144,6 +139,13 @@ public class CU100RecibirWebhookPasarela {
                     entrada.firma(),
                     claveEvento,
                     ahora);
+            if (registrada.isEmpty()) {
+                // Una sentencia nueva puede ver la transacción ganadora que resolvió el conflicto.
+                var existente = webhooks.porClaveDeEvento(dsl, proveedor.get().id(), claveEvento)
+                        .orElseThrow(() -> new IllegalStateException("La clave de webhook no apunta a un aviso"));
+                return Resultado.duplicado(existente.id(), existente.pagoId());
+            }
+            UUID webhookId = registrada.get();
 
             // Paso 3 — la regla de negocio: nunca se acredita "lo que vino".
             String referencia = textoDe(evento, "referenciaProveedor");
@@ -152,18 +154,24 @@ public class CU100RecibirWebhookPasarela {
                     : pagos.porReferenciaProveedor(dsl, referencia);
             if (pagoOpt.isEmpty()) {
                 webhooks.marcarProcesado(
-                        dsl, webhookId, "DESCARTADO", "no existe pago con esa referencia", null, ahora);
+                        dsl, webhookId, ahora, "DESCARTADO", "no existe pago con esa referencia", null, ahora);
                 return Resultado.descartado(webhookId, "no existe pago con esa referencia de proveedor");
             }
             var pago = pagoOpt.get();
             Dinero montoDelEvento = montoDe(evento);
             if (montoDelEvento == null || !montoDelEvento.equals(pago.monto())) {
                 webhooks.marcarProcesado(
-                        dsl, webhookId, "DESCARTADO", "el monto del webhook no coincide con el pago", pago.id(), ahora);
+                        dsl,
+                        webhookId,
+                        ahora,
+                        "DESCARTADO",
+                        "el monto del webhook no coincide con el pago",
+                        pago.id(),
+                        ahora);
                 return Resultado.descartado(webhookId, "el monto no coincide con el pago");
             }
 
-            webhooks.marcarProcesado(dsl, webhookId, "PROCESADO", null, pago.id(), ahora);
+            webhooks.marcarProcesado(dsl, webhookId, ahora, "PROCESADO", null, pago.id(), ahora);
             return Resultado.procesado(webhookId, pago.id());
         });
     }

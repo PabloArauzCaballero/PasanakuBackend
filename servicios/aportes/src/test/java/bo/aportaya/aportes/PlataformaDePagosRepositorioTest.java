@@ -8,6 +8,8 @@ import bo.aportaya.aportes.infraestructura.PlataformaDePagosRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Traza;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.UUID;
@@ -29,20 +31,25 @@ class PlataformaDePagosRepositorioTest extends BaseDeAportes {
         return "P" + UUID.randomUUID().toString().substring(0, 8).toUpperCase(Locale.ROOT);
     }
 
-    private void webhook(UUID proveedor, String estado, String recibido, String procesado) {
+    private void webhook(UUID proveedor, String estado, OffsetDateTime recibido, OffsetDateTime procesado) {
         dslFixtura.execute(
                 """
-                insert into aportes.webhook_pasarela
-                  (proveedor_id, evento, payload_crudo, firma, firma_valida, recibido_en, procesado_en, estado,
-                   clave_idempotencia, intentos_procesamiento)
-                values (?, 'pago.confirmado', '{"secreto":"no-sale"}'::jsonb, 'firma-no-sale', true, ?::timestamptz,
-                        ?::timestamptz, ?, ?, 1)
+                with aviso as (
+                  insert into aportes.webhook_pasarela
+                    (proveedor_id, evento, payload_crudo, firma, firma_valida, recibido_en, clave_idempotencia)
+                  values (?, 'pago.confirmado', '{"secreto":"no-sale"}'::jsonb, 'firma-no-sale', true,
+                          ?::timestamptz, ?)
+                  returning id, recibido_en
+                )
+                insert into aportes.historial_estado_webhook
+                  (webhook_id, webhook_recibido_en, estado_nuevo, procesado_en, intentos_procesamiento)
+                select id, recibido_en, ?, ?::timestamptz, 1 from aviso
                 """,
                 proveedor,
                 recibido,
-                procesado,
+                UUID.randomUUID().toString(),
                 estado,
-                UUID.randomUUID().toString());
+                procesado);
     }
 
     @Test
@@ -67,8 +74,9 @@ class PlataformaDePagosRepositorioTest extends BaseDeAportes {
     void webhooks() {
         String c = codigo();
         UUID p = fixtura.proveedor(c, false, 99);
-        webhook(p, "PROCESADO", "2099-02-01T10:00:00Z", "2099-02-01T10:00:02Z");
-        webhook(p, "FALLIDO", "2099-02-02T10:00:00Z", null);
+        var recibido = OffsetDateTime.now(ZoneOffset.UTC).plusMonths(1);
+        webhook(p, "PROCESADO", recibido, recibido.plusSeconds(2));
+        webhook(p, "FALLIDO", recibido.plusSeconds(3), null);
 
         var ultimos = transaccion.execute(s -> consulta.webhooks(2, operador()));
         assertThat(ultimos).hasSize(2);

@@ -34,10 +34,17 @@ public class PlataformaDePagosRepositorio {
     public List<Webhook> webhooks(DSLContext dsl, int limite) {
         return dsl.fetch(
                         """
-                        select w.id, p.codigo, w.evento, w.estado, w.firma_valida, w.recibido_en, w.procesado_en,
-                               w.intentos_procesamiento
+                        select w.id, p.codigo, w.evento, h.estado_nuevo as estado, w.firma_valida, w.recibido_en,
+                               h.procesado_en, h.intentos_procesamiento
                           from aportes.webhook_pasarela w
                           join aportes.proveedor_pago p on p.id = w.proveedor_id
+                         cross join lateral (
+                           select h.estado_nuevo, h.procesado_en, h.intentos_procesamiento
+                             from aportes.historial_estado_webhook h
+                            where h.webhook_id = w.id and h.webhook_recibido_en = w.recibido_en
+                            order by (h.estado_anterior is null), h.procesado_en desc nulls last, h.id
+                            limit 1
+                         ) h
                          order by w.recibido_en desc, w.id
                          limit ?
                         """,

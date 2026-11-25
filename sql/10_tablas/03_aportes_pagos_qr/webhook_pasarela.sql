@@ -17,15 +17,15 @@ CREATE TABLE IF NOT EXISTS aportes.webhook_pasarela (
 ) PARTITION BY RANGE (recibido_en);
 
 DO $$
-DECLARE d DATE := date_trunc('month', current_date)::date;
+DECLARE d DATE := date_trunc('month', now() AT TIME ZONE 'UTC')::date;
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_partitioned_table WHERE partrelid = to_regclass('aportes.webhook_pasarela')) THEN
     FOR i IN 0..23 LOOP
       EXECUTE format(
       'CREATE TABLE IF NOT EXISTS aportes.webhook_pasarela_%s PARTITION OF aportes.webhook_pasarela FOR VALUES FROM (%L) TO (%L)',
         to_char(d + (i || ' month')::interval, 'YYYYMM'),
-        d + (i || ' month')::interval,
-        d + ((i + 1) || ' month')::interval);
+        (d + (i || ' month')::interval) AT TIME ZONE 'UTC',
+        (d + ((i + 1) || ' month')::interval) AT TIME ZONE 'UTC');
     END LOOP;
   END IF;
 END $$;

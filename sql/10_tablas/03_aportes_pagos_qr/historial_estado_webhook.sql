@@ -20,15 +20,15 @@ CREATE TABLE IF NOT EXISTS aportes.historial_estado_webhook (
 ) PARTITION BY RANGE (webhook_recibido_en);
 
 DO $$
-DECLARE d DATE := date_trunc('month', current_date)::date;
+DECLARE d DATE := date_trunc('month', now() AT TIME ZONE 'UTC')::date;
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_partitioned_table WHERE partrelid = to_regclass('aportes.historial_estado_webhook')) THEN
     FOR i IN 0..23 LOOP
       EXECUTE format(
       'CREATE TABLE IF NOT EXISTS aportes.historial_estado_webhook_%s PARTITION OF aportes.historial_estado_webhook FOR VALUES FROM (%L) TO (%L)',
         to_char(d + (i || ' month')::interval, 'YYYYMM'),
-        d + (i || ' month')::interval,
-        d + ((i + 1) || ' month')::interval);
+        (d + (i || ' month')::interval) AT TIME ZONE 'UTC',
+        (d + ((i + 1) || ' month')::interval) AT TIME ZONE 'UTC');
     END LOOP;
   END IF;
 END $$;

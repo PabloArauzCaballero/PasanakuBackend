@@ -5,31 +5,35 @@
 
 DO $m08$
 DECLARE
-  padre regclass := to_regclass('aportes.webhook_pasarela');
+  padre regclass;
   padre_particionado boolean;
+  mes_actual date := date_trunc('month', now() AT TIME ZONE 'UTC')::date;
   mes date;
   desde date;
   hasta date;
+  columna record;
   total_origen bigint;
   total_copia bigint;
 BEGIN
-  IF padre IS NULL THEN
-    RAISE EXCEPTION 'M08: falta aportes.webhook_pasarela antes de migrar';
-  END IF;
+  -- Bloquea escritores durante la copia y el cambio de tabla; evita un ascenso de lock en DROP.
+  LOCK TABLE ONLY aportes.webhook_pasarela IN ACCESS EXCLUSIVE MODE;
+  padre := 'aportes.webhook_pasarela'::regclass;
   SELECT EXISTS (SELECT 1 FROM pg_partitioned_table WHERE partrelid = padre)
     INTO padre_particionado;
   IF padre_particionado THEN
     -- Una ejecución posterior solo prepara el horizonte; no reescribe datos.
-    desde := date_trunc('month', current_date)::date;
+    desde := mes_actual;
     hasta := (desde + interval '23 months')::date;
     mes := desde;
     WHILE mes <= hasta LOOP
       EXECUTE format(
         'CREATE TABLE IF NOT EXISTS aportes.%I PARTITION OF aportes.webhook_pasarela FOR VALUES FROM (%L) TO (%L)',
-        'webhook_pasarela_' || to_char(mes, 'YYYYMM'), mes, (mes + interval '1 month')::date);
+        'webhook_pasarela_' || to_char(mes, 'YYYYMM'),
+        mes::timestamp AT TIME ZONE 'UTC', (mes + interval '1 month') AT TIME ZONE 'UTC');
       EXECUTE format(
         'CREATE TABLE IF NOT EXISTS aportes.%I PARTITION OF aportes.historial_estado_webhook FOR VALUES FROM (%L) TO (%L)',
-        'historial_estado_webhook_' || to_char(mes, 'YYYYMM'), mes, (mes + interval '1 month')::date);
+        'historial_estado_webhook_' || to_char(mes, 'YYYYMM'),
+        mes::timestamp AT TIME ZONE 'UTC', (mes + interval '1 month') AT TIME ZONE 'UTC');
       mes := (mes + interval '1 month')::date;
     END LOOP;
     RETURN;
@@ -40,12 +44,10 @@ BEGIN
   IF to_regclass('aportes.webhook_pasarela_m08') IS NOT NULL THEN
     RAISE EXCEPTION 'M08: existe webhook_pasarela_m08 sin completar; revisar antes de reintentar';
   END IF;
-  SELECT COALESCE(date_trunc('month', min(recibido_en))::date, date_trunc('month', current_date)::date)
-    INTO desde FROM aportes.webhook_pasarela;
-  SELECT GREATEST(
-           COALESCE(date_trunc('month', max(recibido_en))::date, desde),
-           (date_trunc('month', current_date)::date + interval '23 months')::date)
-    INTO hasta FROM aportes.webhook_pasarela;
+  SELECT LEAST(mes_actual, date_trunc('month', min(recibido_en) AT TIME ZONE 'UTC')::date),
+         GREATEST((mes_actual + interval '23 months')::date,
+                  date_trunc('month', max(recibido_en) AT TIME ZONE 'UTC')::date)
+    INTO desde, hasta FROM aportes.webhook_pasarela;
   CREATE TABLE aportes.webhook_pasarela_m08 (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     proveedor_id uuid NOT NULL,
@@ -54,25 +56,40 @@ BEGIN
     firma varchar(255) NOT NULL,
     firma_valida boolean NOT NULL DEFAULT false,
     recibido_en timestamptz NOT NULL DEFAULT now(),
+    clave_idempotencia varchar(120) NOT NULL,
     CONSTRAINT pk_webhook_pasarela_m08 PRIMARY KEY (id, recibido_en)
   ) PARTITION BY RANGE (recibido_en);
+  -- El DDL de tablas ya actualizó los comentarios del modelo en la tabla original.
+  EXECUTE format('COMMENT ON TABLE aportes.webhook_pasarela_m08 IS %L', obj_description(padre, 'pg_class'));
+  FOR columna IN
+    SELECT origen.attname, col_description(padre, origen.attnum) AS comentario
+      FROM pg_attribute origen
+      JOIN pg_attribute destino USING (attname)
+     WHERE origen.attrelid = padre AND origen.attnum > 0 AND NOT origen.attisdropped
+       AND destino.attrelid = 'aportes.webhook_pasarela_m08'::regclass
+       AND col_description(padre, origen.attnum) IS NOT NULL
+  LOOP
+    EXECUTE format('COMMENT ON COLUMN aportes.webhook_pasarela_m08.%I IS %L', columna.attname, columna.comentario);
+  END LOOP;
   mes := desde;
   WHILE mes <= hasta LOOP
     EXECUTE format(
       'CREATE TABLE aportes.%I PARTITION OF aportes.webhook_pasarela_m08 FOR VALUES FROM (%L) TO (%L)',
-      'webhook_pasarela_' || to_char(mes, 'YYYYMM'), mes, (mes + interval '1 month')::date);
+      'webhook_pasarela_' || to_char(mes, 'YYYYMM'),
+      mes::timestamp AT TIME ZONE 'UTC', (mes + interval '1 month') AT TIME ZONE 'UTC');
     -- El padre de historial ya nació desde el modelo; se extiende para cubrir cada fecha copiada.
     IF to_regclass('aportes.historial_estado_webhook_' || to_char(mes, 'YYYYMM')) IS NULL THEN
       EXECUTE format(
         'CREATE TABLE aportes.%I PARTITION OF aportes.historial_estado_webhook FOR VALUES FROM (%L) TO (%L)',
-        'historial_estado_webhook_' || to_char(mes, 'YYYYMM'), mes, (mes + interval '1 month')::date);
+        'historial_estado_webhook_' || to_char(mes, 'YYYYMM'),
+        mes::timestamp AT TIME ZONE 'UTC', (mes + interval '1 month') AT TIME ZONE 'UTC');
     END IF;
     mes := (mes + interval '1 month')::date;
   END LOOP;
   SELECT count(*) INTO total_origen FROM aportes.webhook_pasarela;
   INSERT INTO aportes.webhook_pasarela_m08
-    (id, proveedor_id, evento, payload_crudo, firma, firma_valida, recibido_en)
-  SELECT id, proveedor_id, evento, payload_crudo, firma, firma_valida, recibido_en
+    (id, proveedor_id, evento, payload_crudo, firma, firma_valida, recibido_en, clave_idempotencia)
+  SELECT id, proveedor_id, evento, payload_crudo, firma, firma_valida, recibido_en, clave_idempotencia
     FROM aportes.webhook_pasarela;
   INSERT INTO aportes.webhook_clave
     (proveedor_id, clave_idempotencia, webhook_id, webhook_recibido_en)
@@ -94,9 +111,9 @@ BEGIN
         ON copia.id = original.id AND copia.recibido_en = original.recibido_en
      WHERE original.id IS NULL OR copia.id IS NULL
         OR ROW(original.proveedor_id, original.evento, original.payload_crudo, original.firma,
-               original.firma_valida, original.recibido_en)
+               original.firma_valida, original.recibido_en, original.clave_idempotencia)
            IS DISTINCT FROM ROW(copia.proveedor_id, copia.evento, copia.payload_crudo, copia.firma,
-                               copia.firma_valida, copia.recibido_en)
+                               copia.firma_valida, copia.recibido_en, copia.clave_idempotencia)
   ) THEN
     RAISE EXCEPTION 'M08: la copia del webhook no coincide; se conserva íntegra la tabla de origen';
   END IF;
@@ -127,4 +144,5 @@ BEGIN
   -- La tabla vieja solo se suelta después de comprobar raw, deduplicación e historial exactos.
   DROP TABLE aportes.webhook_pasarela;
   ALTER TABLE aportes.webhook_pasarela_m08 RENAME TO webhook_pasarela;
+  ALTER TABLE aportes.webhook_pasarela RENAME CONSTRAINT pk_webhook_pasarela_m08 TO pk_webhook_pasarela;
 END $m08$;
