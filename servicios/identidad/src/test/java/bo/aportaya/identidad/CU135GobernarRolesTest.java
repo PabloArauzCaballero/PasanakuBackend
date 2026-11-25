@@ -18,13 +18,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/**
- * CU-135 contra PostgreSQL real (GU-16): crear, editar y retirar roles personalizados, la segregacion de funciones
- * (R-SEG-04), los cuatro ojos y que nada se borra (R-AUD-01: un rol retirado conserva su fila).
- *
- * <p>Doble declarado (regla 65): la evidencia step-up es la de {@link BaseDeGobiernoCU08}; la validacion real del JWT
- * se prueba en {@code EvidenciaDeStepUpJwtTest}.
- */
+/** CU-135 contra PostgreSQL (GU-16). Doble declarado (regla 65): el step-up es el de {@link BaseDeGobiernoCU08}; R-SEG-04 y R-AUD-01 se ejercitan abajo. */
 class CU135GobernarRolesTest extends BaseDeGobiernoCU08 {
 
     private static CU135GobernarRoles casoDeUso;
@@ -40,12 +34,12 @@ class CU135GobernarRolesTest extends BaseDeGobiernoCU08 {
                 Reloj.delSistema());
     }
 
-    private static PedidoDeCreacion pedido(String codigo, Set<String> permisos) {
+    static PedidoDeCreacion pedido(String codigo, Set<String> permisos) {
         return new PedidoDeCreacion(
                 codigo, "Rol de prueba", "descripcion", permisos, "Nuevo puesto aprobado", EVIDENCIA);
     }
 
-    private static String codigoNuevo() {
+    static String codigoNuevo() {
         return "GU_F_"
                 + UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
     }
@@ -149,64 +143,6 @@ class CU135GobernarRolesTest extends BaseDeGobiernoCU08 {
                     .isEqualTo("sistema");
             assertThat(columna("SELECT retirado_en FROM identidad.rol WHERE id = ?", sistema))
                     .isNull();
-        });
-    }
-
-    @Test
-    @DisplayName(
-            "Dado un operador que crea un rol con un permiso de riesgo alto · Cuando otra persona aprueba la solicitud"
-                    + " · Entonces el rol existe recien al aprobar y el evento nombra a quien propuso")
-    void cuatroOjosCreaElRolAlAprobar() {
-        enTransaccionQueSeDeshace(() -> {
-            fixtura.permisoDelCatalogo("RETIRO_APROBAR", "orden_retiro", "APROBAR");
-            UUID proponente = operador();
-            UUID aprobador = operador();
-            String codigo = codigoNuevo();
-
-            Resultado pendiente = casoDeUso.crear(pedido(codigo, Set.of("RETIRO_APROBAR")), como(proponente));
-
-            assertThat(pendiente.estado()).isEqualTo("PENDIENTE_DE_APROBACION");
-            assertThat(pendiente.rolId()).isNull();
-            assertThat(columna("SELECT count(*)::int FROM identidad.rol WHERE codigo = ?", codigo))
-                    .isEqualTo(0);
-            assertThat(eventos("identidad.rol_solicitado", pendiente.solicitudId()))
-                    .isEqualTo(1);
-
-            Resultado aprobado =
-                    casoDeUso.aprobar(pendiente.solicitudId(), "Revisado y aprobado", EVIDENCIA, como(aprobador));
-
-            assertThat(aprobado.estado()).isEqualTo("APLICADO");
-            assertThat(columna("SELECT codigo FROM identidad.rol WHERE id = ?", aprobado.rolId()))
-                    .isEqualTo(codigo);
-            assertThat(columna(
-                            "SELECT payload->>'propuestaPor' FROM identidad.evento_dominio WHERE agregado_id = ?",
-                            aprobado.rolId()))
-                    .isEqualTo(proponente.toString());
-            assertThat(columna(
-                            "SELECT estado FROM identidad.solicitud_cambio_rol WHERE id = ?", pendiente.solicitudId()))
-                    .isEqualTo("APROBADA");
-        });
-    }
-
-    @Test
-    @DisplayName(
-            "Dada una solicitud pendiente · Cuando la persona que la propuso intenta aprobarla · Entonces se rechaza"
-                    + " con APROBADOR_ES_EL_PROPONENTE y sigue pendiente")
-    void rechazaQueElProponenteResuelva() {
-        enTransaccionQueSeDeshace(() -> {
-            fixtura.permisoDelCatalogo("RETIRO_APROBAR", "orden_retiro", "APROBAR");
-            UUID proponente = operador();
-            Resultado pendiente = casoDeUso.crear(pedido(codigoNuevo(), Set.of("RETIRO_APROBAR")), como(proponente));
-
-            assertThatThrownBy(() ->
-                            casoDeUso.aprobar(pendiente.solicitudId(), "Me lo apruebo", EVIDENCIA, como(proponente)))
-                    .isInstanceOfSatisfying(
-                            ErrorDeNegocio.class,
-                            e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU135-12"));
-
-            assertThat(columna(
-                            "SELECT estado FROM identidad.solicitud_cambio_rol WHERE id = ?", pendiente.solicitudId()))
-                    .isEqualTo("PENDIENTE");
         });
     }
 

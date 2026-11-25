@@ -14,12 +14,10 @@ import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.mensajeria.EventoDominio;
 import bo.aportaya.plataforma.mensajeria.Outbox;
-import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,11 +57,7 @@ public class CU136GobernarCuentasDeServicio {
     public static final CodigoError SIN_CREDENCIAL = CodigoError.de(CU, 10);
 
     private static final String PREFIJO_DE_SERVICIO = "SERVICIO_";
-    private static final int LARGO_MAXIMO_NOMBRE = 80;
-    private static final int LARGO_MAXIMO_MOTIVO = 160;
-    private static final int BYTES_DE_CREDENCIAL = 32;
-    private static final int LIMITE_DEL_LISTADO = 200;
-    private static final SecureRandom AZAR = new SecureRandom();
+    private static final int FILAS_DEL_LISTADO = 200;
 
     private final Datos datos;
     private final CuentasDeServicioRepositorio cuentas;
@@ -118,11 +112,11 @@ public class CU136GobernarCuentasDeServicio {
 
     @Transactional
     public Alta registrar(PedidoDeAlta p, ContextoSesion ctx) {
-        validarNombre(p.nombre());
-        validarMotivo(p.motivo());
+        ValidacionesDeCuentaDeServicio.validarNombre(p.nombre());
+        ValidacionesDeCuentaDeServicio.validarMotivo(p.motivo());
         exigirStepUp(ctx, p.evidencia());
         OffsetDateTime ahora = ahora();
-        validarVencimiento(p.venceEn(), ahora);
+        ValidacionesDeCuentaDeServicio.validarVencimiento(p.venceEn(), vigenciaMaxima, ahora);
         if (p.usuarioId().equals(ctx.usuarioId())) {
             throw new ErrorDeNegocio(NADIE_SE_GOBIERNA_A_SI_MISMO, "No podes gobernar tu propia cuenta.");
         }
@@ -159,10 +153,10 @@ public class CU136GobernarCuentasDeServicio {
 
     @Transactional
     public Rotacion rotar(UUID cuentaId, PedidoDeRotacion p, ContextoSesion ctx) {
-        validarMotivo(p.motivo());
+        ValidacionesDeCuentaDeServicio.validarMotivo(p.motivo());
         exigirStepUp(ctx, p.evidencia());
         OffsetDateTime ahora = ahora();
-        p.venceEn().ifPresent(v -> validarVencimiento(v, ahora));
+        p.venceEn().ifPresent(v -> ValidacionesDeCuentaDeServicio.validarVencimiento(v, vigenciaMaxima, ahora));
         return datos.conContexto(ctx, dsl -> {
             Fila cuenta = activa(dsl, cuentaId);
             if (cuenta.usuarioId().equals(ctx.usuarioId())) {
@@ -175,7 +169,7 @@ public class CU136GobernarCuentasDeServicio {
                 throw new ErrorDeNegocio(VENCIMIENTO_INVALIDO, "La cuenta ya vencio: indica un vencimiento nuevo.");
             }
 
-            char[] valor = nuevaCredencial();
+            char[] valor = CredencialDeServicio.nueva();
             try {
                 credenciales.archivar(dsl, cuenta.usuarioId(), hashAnterior, ahora);
                 credenciales.reemplazar(dsl, cuenta.usuarioId(), hasheador.hashear(valor), ahora);
@@ -204,7 +198,7 @@ public class CU136GobernarCuentasDeServicio {
 
     @Transactional
     public Revocacion revocar(UUID cuentaId, String motivo, String evidencia, ContextoSesion ctx) {
-        validarMotivo(motivo);
+        ValidacionesDeCuentaDeServicio.validarMotivo(motivo);
         exigirStepUp(ctx, evidencia);
         OffsetDateTime ahora = ahora();
         return datos.conContexto(ctx, dsl -> {
@@ -240,7 +234,7 @@ public class CU136GobernarCuentasDeServicio {
 
     @Transactional(readOnly = true)
     public List<Fila> listar(ContextoSesion ctx) {
-        return datos.conContexto(ctx, dsl -> cuentas.listar(dsl, LIMITE_DEL_LISTADO));
+        return datos.conContexto(ctx, dsl -> cuentas.listar(dsl, FILAS_DEL_LISTADO));
     }
 
     // ------------------------------------------------------------------ reglas
@@ -254,43 +248,11 @@ public class CU136GobernarCuentasDeServicio {
         return cuenta;
     }
 
-    private static void validarNombre(String nombre) {
-        if (nombre == null || nombre.isBlank() || nombre.length() > LARGO_MAXIMO_NOMBRE) {
-            throw new ErrorDeNegocio(NOMBRE_INVALIDO, "El nombre es obligatorio (hasta 80 caracteres).");
-        }
-    }
-
-    private static void validarMotivo(String motivo) {
-        if (motivo == null || motivo.isBlank() || motivo.length() > LARGO_MAXIMO_MOTIVO) {
-            throw new ErrorDeNegocio(MOTIVO_REQUERIDO, "Escribi el motivo (hasta 160 caracteres).");
-        }
-    }
-
-    /** Vence en el futuro y dentro del tope configurado ({@code aportaya.cuentas-servicio.vigencia-maxima}). */
-    private void validarVencimiento(OffsetDateTime vence, OffsetDateTime ahora) {
-        if (vence == null || !vence.isAfter(ahora) || vence.isAfter(ahora.plus(vigenciaMaxima))) {
-            throw new ErrorDeNegocio(
-                    VENCIMIENTO_INVALIDO,
-                    "El vencimiento tiene que ser futuro y no pasar de la vigencia maxima.",
-                    Map.of("vigenciaMaxima", vigenciaMaxima.toString()));
-        }
-    }
-
     private void exigirStepUp(ContextoSesion ctx, String evidencia) {
         if (evidencia == null || !evidencias.consumir(ctx.usuarioId(), evidencia)) {
             throw new ErrorDeNegocio(
                     STEP_UP_REQUERIDO, "Confirma esta accion con tu segundo factor y volve a intentarlo.");
         }
-    }
-
-    /** 32 bytes del generador seguro, en base64 sin relleno: 43 caracteres, sin nada que escapar en una URL. */
-    private static char[] nuevaCredencial() {
-        byte[] bytes = new byte[BYTES_DE_CREDENCIAL];
-        AZAR.nextBytes(bytes);
-        char[] valor =
-                Base64.getUrlEncoder().withoutPadding().encodeToString(bytes).toCharArray();
-        Arrays.fill(bytes, (byte) 0);
-        return valor;
     }
 
     // ------------------------------------------------------------------ eventos
