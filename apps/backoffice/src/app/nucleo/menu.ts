@@ -111,6 +111,7 @@ export const MENU: readonly Grupo[] = [
               cum('riesgos/eventos', 'Eventos de riesgo operativo', 'advertencia'),
               cum('continuidad', 'Pruebas de continuidad', 'actividad'),
               cum('seguridad/incidentes', 'Incidentes de seguridad', 'candado'),
+              cum('participantes', 'Participantes', 'persona'),
             ],
           },
         ],
