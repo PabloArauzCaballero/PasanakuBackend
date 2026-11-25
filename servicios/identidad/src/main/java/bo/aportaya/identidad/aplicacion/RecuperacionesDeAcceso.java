@@ -35,7 +35,6 @@ public class RecuperacionesDeAcceso {
 
     private static final Logger BITACORA = LoggerFactory.getLogger(RecuperacionesDeAcceso.class);
 
-
     private final Datos datos;
     private final RecuperacionesRepositorio solicitudes;
     private final EmisorDeInvitaciones invitaciones;
