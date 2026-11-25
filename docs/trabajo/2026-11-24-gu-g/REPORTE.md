@@ -38,6 +38,7 @@
   4. `ParticipantesController implements ParticipantesApi` con `@Permiso("PARTICIPANTES_*")`.
   5. Escribir `CU134Test`: un `@DisplayName` por escenario gherkin del CU y la cita de cada R-XXX del CU (lo exige `verificar_criterios.py`). Base con `BaseDePrueba.contenedor()`, como `BaseDeCU08`.
   6. La segunda instancia y el segundo factor reciente: verificar la evidencia de step-up de `CU04StepUp` (hoy solo la verifica `nucleo-financiero`, con `SegundoFactorLocal`).
+- **PR #525 (borrador), CI en `abef59c92`:** los verificadores Python de seguridad y pruebas web quedaron en verde tras dos arreglos. Falla «Formato, reglas propias y compilación» porque `spotlessCheck` encuentra formato Palantir distinto en `CU134ConsultarParticipante`, `CU134GestionarMedida`, `MedidasDeCuentaRepositorio`, `ParticipantesRepositorio`, `ParticipantesController`, `CU134Test` y `ParticipantesControllerWebTest`. Destraba esto correr `./gradlew :servicios:identidad:spotlessApply` en una máquina con Gradle funcionando y pushear el resultado. Desde esta sesión: el espejo de Maven y el formateador nativo de Palantir (repo1.maven.org) fueron denegados por el control de permisos. La CI todavía no llegó a compilar ni a correr `CU134Test`.
 - **Bloqueo:** `./gradlew` no resuelve dependencias en este entorno (Maven Central 429; espejo denegado por permisos, `evidencia/H3.S3-bloqueo-maven-429.txt`). La CI sí compila: verificar con la CI.
 - **Dónde quedó:** rama `claude/gu-g-cu-participantes`, todo pusheado, PR #519.
 
