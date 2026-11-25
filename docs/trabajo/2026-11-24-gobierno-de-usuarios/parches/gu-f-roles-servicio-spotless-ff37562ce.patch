@@ -1,0 +1,41 @@
+diff --git a/servicios/identidad/src/test/java/bo/aportaya/identidad/CU135GobernarRolesTest.java b/servicios/identidad/src/test/java/bo/aportaya/identidad/CU135GobernarRolesTest.java
+index 4248ebf71..16d2f2852 100644
+--- a/servicios/identidad/src/test/java/bo/aportaya/identidad/CU135GobernarRolesTest.java
++++ b/servicios/identidad/src/test/java/bo/aportaya/identidad/CU135GobernarRolesTest.java
+@@ -72,8 +72,8 @@ class CU135GobernarRolesTest extends BaseDeGobiernoCU08 {
+     @Test
+     @DisplayName(
+             "Dado un operador con ROLES_INTERNOS_GESTIONAR y step-up vigente · Cuando crea un rol personalizado con"
+-                    + " permisos de riesgo bajo o medio · Entonces el rol existe como no de sistema, con sus permisos, y"
+-                    + " deja identidad.rol_creado con actor y motivo")
++                + " permisos de riesgo bajo o medio · Entonces el rol existe como no de sistema, con sus permisos, y"
++                + " deja identidad.rol_creado con actor y motivo")
+     void creaUnRolPersonalizado() {
+         enTransaccionQueSeDeshace(() -> {
+             UUID actor = operador();
+diff --git a/servicios/identidad/src/test/java/bo/aportaya/identidad/CU136GobernarCuentasDeServicioTest.java b/servicios/identidad/src/test/java/bo/aportaya/identidad/CU136GobernarCuentasDeServicioTest.java
+index 58833a52a..a1acc41d4 100644
+--- a/servicios/identidad/src/test/java/bo/aportaya/identidad/CU136GobernarCuentasDeServicioTest.java
++++ b/servicios/identidad/src/test/java/bo/aportaya/identidad/CU136GobernarCuentasDeServicioTest.java
+@@ -88,8 +88,8 @@ class CU136GobernarCuentasDeServicioTest extends BaseDeGobiernoCU08 {
+     @Test
+     @DisplayName(
+             "Dada una cuenta aprovisionada con un rol SERVICIO_* vigente · Cuando un operador con step-up la registra"
+-                    + " con nombre y vencimiento dentro del tope · Entonces la cuenta queda ACTIVA con quien la registro y"
+-                    + " deja identidad.cuenta_servicio_alta")
++                + " con nombre y vencimiento dentro del tope · Entonces la cuenta queda ACTIVA con quien la registro y"
++                + " deja identidad.cuenta_servicio_alta")
+     void registraUnaCuentaAprovisionada() {
+         enTransaccionQueSeDeshace(() -> {
+             UUID actor = operador();
+@@ -110,8 +110,8 @@ class CU136GobernarCuentasDeServicioTest extends BaseDeGobiernoCU08 {
+     @Test
+     @DisplayName(
+             "Dada una cuenta de servicio registrada con una sesion abierta · Cuando un operador rota su credencial con"
+-                    + " step-up · Entonces recibe la credencial una sola vez, en la base queda solo su hash y la sesion se"
+-                    + " cierra")
++                + " step-up · Entonces recibe la credencial una sola vez, en la base queda solo su hash y la sesion se"
++                + " cierra")
+     void rotaYEntregaLaCredencialUnaSolaVez() {
+         enTransaccionQueSeDeshace(() -> {
+             UUID actor = operador();

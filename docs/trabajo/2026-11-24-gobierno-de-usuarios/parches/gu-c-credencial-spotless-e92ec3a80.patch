@@ -1,0 +1,237 @@
+diff --git a/servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/InvitacionesDeCuenta.java b/servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/InvitacionesDeCuenta.java
+index 6b7ec1995..cdbe0856d 100644
+--- a/servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/InvitacionesDeCuenta.java
++++ b/servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/InvitacionesDeCuenta.java
+@@ -309,11 +309,10 @@ public class InvitacionesDeCuenta {
+                         null)
+                 .map(motivo -> switch (motivo) {
+                     case DEMASIADO_CORTA -> new ErrorDeNegocio(CodigoError.de(9, 2), "Esa clave es demasiado corta.");
+-                    case DERIVADA_DE_DATOS_PERSONALES ->
+-                        new ErrorDeNegocio(
+-                                CodigoError.de(9, 2), "No uses tu telefono ni tu documento dentro de la clave.");
+-                    case REUTILIZADA ->
+-                        new ErrorDeNegocio(CodigoError.de(9, 3), "Ya usaste esa clave antes. Elegi una nueva.");
++                    case DERIVADA_DE_DATOS_PERSONALES -> new ErrorDeNegocio(
++                            CodigoError.de(9, 2), "No uses tu telefono ni tu documento dentro de la clave.");
++                    case REUTILIZADA -> new ErrorDeNegocio(
++                            CodigoError.de(9, 3), "Ya usaste esa clave antes. Elegi una nueva.");
+                 })
+                 .orElse(null);
+     }
+diff --git a/servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/RecuperacionesDeAcceso.java b/servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/RecuperacionesDeAcceso.java
+index 5675fbb9e..48dcfaac3 100644
+--- a/servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/RecuperacionesDeAcceso.java
++++ b/servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/RecuperacionesDeAcceso.java
+@@ -189,7 +189,8 @@ public class RecuperacionesDeAcceso {
+                     solicitudes.vencer(dsl, aprobada.id());
+                     continue;
+                 }
+-                AlcanceDeCuenta alcance = AlcanceDeCuenta.dePedido(aprobada.alcance()).orElseThrow();
++                AlcanceDeCuenta alcance =
++                        AlcanceDeCuenta.dePedido(aprobada.alcance()).orElseThrow();
+                 UUID token;
+                 try {
+                     token = invitaciones.emitirYEnviar(
+diff --git a/servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/RecuperacionesRepositorio.java b/servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/RecuperacionesRepositorio.java
+index 509eae140..766ced433 100644
+--- a/servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/RecuperacionesRepositorio.java
++++ b/servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/RecuperacionesRepositorio.java
+@@ -45,7 +45,8 @@ public class RecuperacionesRepositorio {
+         if (filas.size() != 1) {
+             return Optional.empty();
+         }
+-        return Optional.of(new Operador(filas.get(0).get("id", UUID.class), filas.get(0).get("correo", String.class)));
++        return Optional.of(
++                new Operador(filas.get(0).get("id", UUID.class), filas.get(0).get("correo", String.class)));
+     }
+ 
+     /** {@code true} si creo el pedido; {@code false} si ya habia uno vivo del mismo alcance. */
+@@ -115,8 +116,7 @@ public class RecuperacionesRepositorio {
+     }
+ 
+     public Optional<SolicitudDeRecuperacion> porId(DSLContext dsl, UUID id) {
+-        return Optional.ofNullable(
+-                dsl.fetchOne(SELECCION + " WHERE s.id = ?", id))
++        return Optional.ofNullable(dsl.fetchOne(SELECCION + " WHERE s.id = ?", id))
+                 .map(RecuperacionesRepositorio::aSolicitud);
+     }
+ 
+@@ -143,7 +143,8 @@ public class RecuperacionesRepositorio {
+ 
+     /** Las aprobadas cuyo enfriamiento ya paso, con candado y sin esperar a quien las tenga tomadas. */
+     public List<Aprobada> listasParaEmitir(DSLContext dsl, OffsetDateTime ahora, int tanda) {
+-        return dsl.fetch(
++        return dsl
++                .fetch(
+                         """
+                                 SELECT id, usuario_id, alcance FROM identidad.solicitud_recuperacion_acceso
+                                 WHERE estado = 'APROBADA' AND enfriamiento_hasta <= ?::timestamptz
+diff --git a/servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/TokensDeCuentaRepositorio.java b/servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/TokensDeCuentaRepositorio.java
+index 310fa1ecd..2b6383fef 100644
+--- a/servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/TokensDeCuentaRepositorio.java
++++ b/servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/TokensDeCuentaRepositorio.java
+@@ -125,9 +125,7 @@ public class TokensDeCuentaRepositorio {
+             return Optional.empty();
+         }
+         var fila = dsl.fetchOne(
+-                paraActualizar ? VIGENTE_BLOQUEANDO : VIGENTE,
+-                secretos.firmar("cuenta-token", token),
+-                ahora);
++                paraActualizar ? VIGENTE_BLOQUEANDO : VIGENTE, secretos.firmar("cuenta-token", token), ahora);
+         if (fila == null) {
+             return Optional.empty();
+         }
+diff --git a/servicios/identidad/src/test/java/bo/aportaya/identidad/CU09CuentaDeOperadorTest.java b/servicios/identidad/src/test/java/bo/aportaya/identidad/CU09CuentaDeOperadorTest.java
+index 549df4b80..adb272427 100644
+--- a/servicios/identidad/src/test/java/bo/aportaya/identidad/CU09CuentaDeOperadorTest.java
++++ b/servicios/identidad/src/test/java/bo/aportaya/identidad/CU09CuentaDeOperadorTest.java
+@@ -103,8 +103,7 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
+                 Duration.ofDays(7));
+         cambioDeClave = new CambiarClaveDeCuenta(
+                 cambiarCredencial, datos, new UsuarioRepositorio(), bitacora, Reloj.delSistema(), 10, 5);
+-        for (String proposito :
+-                List.of("INVITACION_OPERADOR", "RECUPERACION_OPERADOR_CLAVE", "REINSCRIPCION_FACTOR")) {
++        for (String proposito : List.of("INVITACION_OPERADOR", "RECUPERACION_OPERADOR_CLAVE", "REINSCRIPCION_FACTOR")) {
+             dsl.execute(
+                     """
+                     INSERT INTO identidad.politica_token
+@@ -122,7 +121,10 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
+     // ------------------------------------------------------------------ criterios de la boveda
+ 
+     @Test
+-    @DisplayName("Dado un operador recién dado de alta con una invitación vigente · Cuando abre el enlace, elige una clave válida y confirma su TOTP · Entonces su credencial queda con la clave elegida y requiere_cambio en false · Y el token queda CONSUMIDO y no sirve una segunda vez")
++    @DisplayName(
++            "Dado un operador recién dado de alta con una invitación vigente · Cuando abre el enlace, elige una clave"
++                + " válida y confirma su TOTP · Entonces su credencial queda con la clave elegida y requiere_cambio en"
++                + " false · Y el token queda CONSUMIDO y no sirve una segunda vez")
+     void criterio8() {
+         UUID operador = operadorConClaveInutilizable("+59176100001");
+         emitir(operador, AlcanceDeCuenta.ALTA);
+@@ -149,7 +151,8 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
+     }
+ 
+     @Test
+-    @DisplayName("Dado una invitación vencida, usada o de otro propósito · Cuando se intenta consultar o completar · Entonces se rechaza con TOKEN_INVALIDO, con el mismo mensaje en los tres casos")
++    @DisplayName("Dado una invitación vencida, usada o de otro propósito · Cuando se intenta consultar o completar ·"
++            + " Entonces se rechaza con TOKEN_INVALIDO, con el mismo mensaje en los tres casos")
+     void criterio9() {
+         UUID operador = operadorConClaveInutilizable("+59176100002");
+         emitir(operador, AlcanceDeCuenta.ALTA);
+@@ -182,7 +185,10 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
+     }
+ 
+     @Test
+-    @DisplayName("Dado un operador que pidió recuperar su clave · Cuando él mismo intenta aprobar la solicitud · Entonces se rechaza con APROBACION_REQUERIDA · Y la base lo rechaza aunque se evite la aplicación (R-SEG-13)")
++    @DisplayName(
++            "Dado un operador que pidió recuperar su clave · Cuando él mismo intenta aprobar la solicitud · Entonces"
++                    + " se rechaza con APROBACION_REQUERIDA · Y la base lo rechaza aunque se evite la aplicación"
++                    + " (R-SEG-13)")
+     void criterio10() {
+         UUID operador = operadorConClaveInutilizable("+59176100005");
+         String correoDelOperador = correoDe(operador);
+@@ -208,7 +214,10 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
+     }
+ 
+     @Test
+-    @DisplayName("Dado una solicitud aprobada con enfriamiento vigente · Cuando corre el trabajo de emisión · Entonces no se emite ninguna invitación · Y pasado el enfriamiento se emite una sola, aunque el trabajo corra dos veces")
++    @DisplayName(
++            "Dado una solicitud aprobada con enfriamiento vigente · Cuando corre el trabajo de emisión · Entonces no"
++                + " se emite ninguna invitación · Y pasado el enfriamiento se emite una sola, aunque el trabajo corra"
++                + " dos veces")
+     void criterio11() {
+         UUID operador = operadorConClaveInutilizable("+59176100006");
+         UUID aprobador = operadorConClaveInutilizable("+59176100007");
+@@ -237,7 +246,10 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
+     }
+ 
+     @Test
+-    @DisplayName("Dado un operador con una invitación de reinscripción del factor · Cuando la completa con su clave actual y un código del TOTP nuevo · Entonces el factor anterior queda inactivo y el nuevo confirmado · Y todas sus sesiones quedan revocadas")
++    @DisplayName(
++            "Dado un operador con una invitación de reinscripción del factor · Cuando la completa con su clave actual"
++                + " y un código del TOTP nuevo · Entonces el factor anterior queda inactivo y el nuevo confirmado · Y"
++                + " todas sus sesiones quedan revocadas")
+     void criterio12() {
+         UUID operador = operadorConClaveInutilizable("+59176100008");
+         String claveActual = "la-clave-actual-del-operador-8";
+@@ -258,12 +270,14 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
+         assertThat(factorConfirmadoDe(operador)).isEqualTo(1);
+         assertThat(sesionViva(sesion)).isFalse();
+         assertThat(sesionesVivasDe(operador)).isZero();
+-        assertThat(hasheador.coincide(claveActual.toCharArray(), hashDe(operador))).isTrue();
++        assertThat(hasheador.coincide(claveActual.toCharArray(), hashDe(operador)))
++                .isTrue();
+     }
+ 
+-
+     @Test
+-    @DisplayName("Dado un operador con la marca de cambio de clave pendiente · Cuando cambia su clave con la actual correcta · Entonces la marca queda en falso y la clave nueva rige · Y todas sus sesiones, incluida la actual, quedan cerradas")
++    @DisplayName("Dado un operador con la marca de cambio de clave pendiente · Cuando cambia su clave con la actual"
++            + " correcta · Entonces la marca queda en falso y la clave nueva rige · Y todas sus sesiones, incluida"
++            + " la actual, quedan cerradas")
+     void criterio13() {
+         UUID operador = operadorConClaveInutilizable("+59176100013");
+         String actual = "la-clave-actual-del-operador-13";
+@@ -274,8 +288,8 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
+         UUID sesion = fixtura.sesionAbierta(operador);
+         fixtura.sesionAbierta(operador);
+ 
+-        var salida = transaccion.execute(e -> cambioDeClave.cambiar(
+-                actual, "la-clave-nueva-del-operador-13", sesion, comoOperador(operador)));
++        var salida = transaccion.execute(
++                e -> cambioDeClave.cambiar(actual, "la-clave-nueva-del-operador-13", sesion, comoOperador(operador)));
+ 
+         assertThat(salida.cierraLaSesionActual()).isTrue();
+         assertThat(sesionesVivasDe(operador)).isZero();
+@@ -417,8 +431,10 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
+                 VALUES (gen_random_uuid(), ?, 'Sistemas', 'Analista', true)
+                 """,
+                 usuario);
+-        fixtura.credencial(usuario, hasheador.hashear(UUID.randomUUID().toString().toCharArray()));
+-        fixtura.asignarRol(usuario, fixtura.rolGlobal("OPC" + UUID.randomUUID().toString().substring(0, 8)));
++        fixtura.credencial(
++                usuario, hasheador.hashear(UUID.randomUUID().toString().toCharArray()));
++        fixtura.asignarRol(
++                usuario, fixtura.rolGlobal("OPC" + UUID.randomUUID().toString().substring(0, 8)));
+         return usuario;
+     }
+ 
+@@ -442,11 +458,13 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
+     }
+ 
+     private InvitacionesDeCuenta.Origen origen() {
+-        return new InvitacionesDeCuenta.Origen("127.0.0.1", "prueba", new Traza(UUID.randomUUID().toString()));
++        return new InvitacionesDeCuenta.Origen(
++                "127.0.0.1", "prueba", new Traza(UUID.randomUUID().toString()));
+     }
+ 
+     private ContextoSesion comoOperador(UUID usuario) {
+-        return ContextoSesion.de(usuario, "BACKOFFICE", new Traza(UUID.randomUUID().toString()));
++        return ContextoSesion.de(
++                usuario, "BACKOFFICE", new Traza(UUID.randomUUID().toString()));
+     }
+ 
+     private String rechazoDeConsultar(String token) {
+@@ -477,8 +495,8 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
+     }
+ 
+     private int correrElTrabajo() {
+-        return transaccion.execute(
+-                e -> recuperaciones.emitirLasQueYaPuedenSalir(new Traza(UUID.randomUUID().toString())));
++        return transaccion.execute(e -> recuperaciones.emitirLasQueYaPuedenSalir(
++                new Traza(UUID.randomUUID().toString())));
+     }
+ 
+     private UUID abrirSolicitud(UUID operador) {
+@@ -517,7 +535,11 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
+     private int factorConfirmadoDe(UUID operador) {
+         return dsl.fetchCount(
+                 org.jooq.impl.DSL.table("identidad.factor_mfa"),
+-                org.jooq.impl.DSL.field("usuario_id").eq(operador)
++                org.jooq
++                        .impl
++                        .DSL
++                        .field("usuario_id")
++                        .eq(operador)
+                         .and(org.jooq.impl.DSL.field("activo").isTrue())
+                         .and(org.jooq.impl.DSL.field("confirmado_en").isNotNull()));
+     }
