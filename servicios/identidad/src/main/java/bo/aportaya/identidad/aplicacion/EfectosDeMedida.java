@@ -2,11 +2,11 @@ package bo.aportaya.identidad.aplicacion;
 
 import bo.aportaya.identidad.dominio.CausalDeMedida;
 import bo.aportaya.identidad.dominio.PlazosDeMedida;
+import bo.aportaya.identidad.dominio.RegistroDeMedida.Apelacion;
+import bo.aportaya.identidad.dominio.RegistroDeMedida.Expediente;
 import bo.aportaya.identidad.dominio.puertos.EvidenciaDeStepUp;
 import bo.aportaya.identidad.infraestructura.AccesosRepositorio;
 import bo.aportaya.identidad.infraestructura.MedidasDeCuentaRepositorio;
-import bo.aportaya.identidad.infraestructura.MedidasDeCuentaRepositorio.Apelacion;
-import bo.aportaya.identidad.infraestructura.MedidasDeCuentaRepositorio.Expediente;
 import bo.aportaya.plataforma.dominio.CalendarioHabil;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ContextoSesion;

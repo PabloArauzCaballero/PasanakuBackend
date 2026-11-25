@@ -12,8 +12,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import bo.aportaya.identidad.aplicacion.CU134ConsultarParticipante;
 import bo.aportaya.identidad.aplicacion.CU134GestionarMedida;
-import bo.aportaya.identidad.infraestructura.MedidasDeCuentaRepositorio;
-import bo.aportaya.identidad.infraestructura.ParticipantesRepositorio;
+import bo.aportaya.identidad.dominio.RegistroDeMedida;
+import bo.aportaya.identidad.dominio.RegistroDeParticipante;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
@@ -198,13 +198,13 @@ class ParticipantesWebTest {
                 .andExpect(status().isForbidden());
     }
 
-    private static ParticipantesRepositorio.Fila fila() {
-        return new ParticipantesRepositorio.Fila(
+    private static RegistroDeParticipante.Fila fila() {
+        return new RegistroDeParticipante.Fila(
                 PARTICIPANTE, "AY-33333333", "Juana", "Perez", "ACTIVO", "BASICO", AHORA, false, false, false);
     }
 
     private static CU134GestionarMedida.Vista vista(String estado) {
-        var e = new MedidasDeCuentaRepositorio.Expediente(
+        var e = new RegistroDeMedida.Expediente(
                 EXPEDIENTE,
                 PARTICIPANTE,
                 UUID.randomUUID(),
@@ -228,7 +228,7 @@ class ParticipantesWebTest {
                 null);
         return new CU134GestionarMedida.Vista(
                 e,
-                List.of(new MedidasDeCuentaRepositorio.Hito(null, "CAUTELAR", null, AHORA)),
+                List.of(new RegistroDeMedida.Hito(null, "CAUTELAR", null, AHORA)),
                 Optional.empty(),
                 "BLOQUEADO_SEGURIDAD");
     }

@@ -1,10 +1,11 @@
 package bo.aportaya.identidad.aplicacion;
 
 import bo.aportaya.identidad.dominio.Enmascarado;
+import bo.aportaya.identidad.dominio.RegistroDeMedida;
+import bo.aportaya.identidad.dominio.RegistroDeParticipante.Fila;
 import bo.aportaya.identidad.dominio.puertos.EvidenciaDeStepUp;
 import bo.aportaya.identidad.infraestructura.MedidasDeCuentaRepositorio;
 import bo.aportaya.identidad.infraestructura.ParticipantesRepositorio;
-import bo.aportaya.identidad.infraestructura.ParticipantesRepositorio.Fila;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
@@ -64,7 +65,7 @@ public class CU134ConsultarParticipante {
             OffsetDateTime ultimoAcceso,
             String telefonoEnmascarado,
             String correoEnmascarado,
-            List<MedidasDeCuentaRepositorio.Expediente> medidas) {}
+            List<RegistroDeMedida.Expediente> medidas) {}
 
     @Transactional
     public List<Resumen> buscar(Busqueda b, String ip, ContextoSesion ctx) {

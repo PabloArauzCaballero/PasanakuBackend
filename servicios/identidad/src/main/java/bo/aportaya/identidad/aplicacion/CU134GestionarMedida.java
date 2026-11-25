@@ -3,11 +3,12 @@ package bo.aportaya.identidad.aplicacion;
 import bo.aportaya.identidad.dominio.CausalDeMedida;
 import bo.aportaya.identidad.dominio.PermisosEfectivos;
 import bo.aportaya.identidad.dominio.PlazosDeMedida;
+import bo.aportaya.identidad.dominio.RegistroDeMedida;
+import bo.aportaya.identidad.dominio.RegistroDeMedida.Apelacion;
+import bo.aportaya.identidad.dominio.RegistroDeMedida.Expediente;
 import bo.aportaya.identidad.dominio.puertos.EvidenciaDeStepUp;
 import bo.aportaya.identidad.infraestructura.AccesosRepositorio;
 import bo.aportaya.identidad.infraestructura.MedidasDeCuentaRepositorio;
-import bo.aportaya.identidad.infraestructura.MedidasDeCuentaRepositorio.Apelacion;
-import bo.aportaya.identidad.infraestructura.MedidasDeCuentaRepositorio.Expediente;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
@@ -73,7 +74,7 @@ public class CU134GestionarMedida {
 
     public record Vista(
             Expediente expediente,
-            List<MedidasDeCuentaRepositorio.Hito> lineaDeTiempo,
+            List<RegistroDeMedida.Hito> lineaDeTiempo,
             Optional<Apelacion> apelacion,
             String estadoCuenta) {}
 

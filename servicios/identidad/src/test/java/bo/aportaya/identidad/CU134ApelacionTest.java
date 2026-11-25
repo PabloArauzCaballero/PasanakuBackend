@@ -3,7 +3,7 @@ package bo.aportaya.identidad;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import bo.aportaya.identidad.infraestructura.MedidasDeCuentaRepositorio;
+import bo.aportaya.identidad.dominio.RegistroDeMedida;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Traza;
@@ -84,7 +84,7 @@ class CU134ApelacionTest extends EscenarioDeCU134 {
                                 .and(DSL.field("agregado_id").eq(id))))
                 .isEqualTo(1);
         assertThat(revocada.lineaDeTiempo())
-                .extracting(MedidasDeCuentaRepositorio.Hito::estado)
+                .extracting(RegistroDeMedida.Hito::estado)
                 .contains("CAUTELAR", "EN_DESCARGO", "DECIDIDA", "EN_APELACION", "REVOCADA");
     }
 

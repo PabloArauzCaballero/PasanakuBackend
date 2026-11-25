@@ -5,6 +5,8 @@ import static bo.aportaya.identidad.generado.Tables.EXPEDIENTE_MEDIDA_CUENTA;
 import static bo.aportaya.identidad.generado.Tables.RESTRICCION_USUARIO;
 import static bo.aportaya.identidad.generado.Tables.USUARIO;
 
+import bo.aportaya.identidad.dominio.RegistroDeParticipante.Ficha;
+import bo.aportaya.identidad.dominio.RegistroDeParticipante.Fila;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,22 +24,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ParticipantesRepositorio {
-
-    /** Una fila del directorio: lo minimo para elegir a quien abrir, sin contacto. */
-    public record Fila(
-            UUID usuarioId,
-            String codigoPublico,
-            String nombres,
-            String apellidos,
-            String estado,
-            String nivelKyc,
-            OffsetDateTime fechaRegistro,
-            boolean tieneRestriccion,
-            boolean tieneBloqueo,
-            boolean tieneMedidaEnCurso) {}
-
-    /** Los datos de la ficha antes de enmascarar. El valor plano no sale del organismo. */
-    public record Ficha(Fila resumen, OffsetDateTime ultimoAcceso, String telefonoE164, String correo) {}
 
     public List<Fila> buscar(
             DSLContext dsl,

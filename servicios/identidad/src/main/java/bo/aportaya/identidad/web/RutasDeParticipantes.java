@@ -2,7 +2,7 @@ package bo.aportaya.identidad.web;
 
 import bo.aportaya.identidad.aplicacion.CU134ConsultarParticipante;
 import bo.aportaya.identidad.aplicacion.CU134GestionarMedida;
-import bo.aportaya.identidad.infraestructura.MedidasDeCuentaRepositorio;
+import bo.aportaya.identidad.dominio.RegistroDeMedida;
 import bo.aportaya.identidad.web.generado.IdentidadApi;
 import bo.aportaya.identidad.web.generado.modelo.DatoRevelado;
 import bo.aportaya.identidad.web.generado.modelo.EntradaBusquedaParticipantes;
@@ -229,7 +229,7 @@ abstract class RutasDeParticipantes implements IdentidadApi {
         return salida;
     }
 
-    private static ExpedienteDeMedida resumen(MedidasDeCuentaRepositorio.Expediente e, String estadoCuenta) {
+    private static ExpedienteDeMedida resumen(RegistroDeMedida.Expediente e, String estadoCuenta) {
         ExpedienteDeMedida s = new ExpedienteDeMedida()
                 .expedienteId(e.id())
                 .usuarioId(e.usuarioId())

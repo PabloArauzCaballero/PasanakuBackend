@@ -8,9 +8,9 @@ import static bo.aportaya.identidad.generado.Tables.POLITICA_MEDIDA_CUENTA;
 import static bo.aportaya.identidad.generado.Tables.USUARIO;
 
 import bo.aportaya.identidad.dominio.PlazosDeMedida;
-import bo.aportaya.identidad.infraestructura.MedidasDeCuentaRepositorio.Apelacion;
-import bo.aportaya.identidad.infraestructura.MedidasDeCuentaRepositorio.Expediente;
-import bo.aportaya.identidad.infraestructura.MedidasDeCuentaRepositorio.Hito;
+import bo.aportaya.identidad.dominio.RegistroDeMedida.Apelacion;
+import bo.aportaya.identidad.dominio.RegistroDeMedida.Expediente;
+import bo.aportaya.identidad.dominio.RegistroDeMedida.Hito;
 import bo.aportaya.identidad.infraestructura.MedidasDeCuentaRepositorio.PoliticaVigente;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;

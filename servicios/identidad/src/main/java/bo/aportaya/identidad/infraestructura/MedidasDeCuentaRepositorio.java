@@ -8,6 +8,7 @@ import static bo.aportaya.identidad.generado.Tables.HISTORIAL_ESTADO_MEDIDA_CUEN
 import static bo.aportaya.identidad.generado.Tables.USUARIO;
 
 import bo.aportaya.identidad.dominio.PlazosDeMedida;
+import bo.aportaya.identidad.dominio.RegistroDeMedida.Expediente;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,33 +25,6 @@ public class MedidasDeCuentaRepositorio extends LecturasDeMedidasRepositorio {
 
     public record PoliticaVigente(
             UUID id, PlazosDeMedida.Politica plazos, Optional<Integer> resolucionApelacionDiasHabiles) {}
-
-    public record Expediente(
-            UUID id,
-            UUID usuarioId,
-            UUID politicaId,
-            String causal,
-            String medida,
-            boolean cautelar,
-            String motivo,
-            String estado,
-            String estadoCuentaPrevio,
-            UUID propuestaPor,
-            OffsetDateTime propuestaEn,
-            OffsetDateTime notificadaEn,
-            OffsetDateTime fechaLimiteDescargo,
-            UUID decididaPor,
-            String resultadoDecision,
-            String fundamentoDecision,
-            OffsetDateTime fechaLimiteApelacion,
-            OffsetDateTime vigenteHasta,
-            OffsetDateTime prescribeEn,
-            OffsetDateTime firmeEn,
-            OffsetDateTime cerradaEn) {}
-
-    public record Hito(String estadoAnterior, String estado, String motivo, OffsetDateTime ocurridoEn) {}
-
-    public record Apelacion(UUID id, String estado, OffsetDateTime fechaLimiteResolucion) {}
 
     public UUID abrir(
             DSLContext dsl,
