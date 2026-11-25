@@ -156,7 +156,7 @@ La clave del mensaje es el id del rol (o de la solicitud si el rol todavía no e
 
 ## Evidencia que deja
 
-[[rol]] · [[permiso]] · [[rol_permiso]] · [[solicitud_cambio_rol]] · [[bitacora_evento]] · `evento_dominio`
+[[rol]] · [[permiso]] · [[rol_permiso]] · [[solicitud_cambio_rol]] · [[evidencia_step_up_consumida]] · [[bitacora_evento]] · `evento_dominio`
 
 ## Criterios de aceptación
 
@@ -192,4 +192,4 @@ Entonces se rechaza con CON_ASIGNACIONES_VIGENTES y sin titulares queda retirado
 
 ## Ver también
 
-[[CU-08 Asignar y revocar roles de operador]] · [[CU-04 Autenticar con MFA y registrar dispositivo]]
+[[CU-08 Asignar y revocar roles de operador]] · [[CU-04 Autenticar con MFA y registrar dispositivo]] · [[CU-136 Gobernar las cuentas de servicio con credencial de un solo uso]]
