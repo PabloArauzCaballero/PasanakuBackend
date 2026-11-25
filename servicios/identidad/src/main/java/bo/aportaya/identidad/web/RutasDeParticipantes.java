@@ -22,6 +22,7 @@ import bo.aportaya.identidad.web.generado.modelo.PaginaDeParticipantes;
 import bo.aportaya.identidad.web.generado.modelo.ParticipanteResumen;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
+import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -142,6 +143,8 @@ abstract class RutasDeParticipantes implements IdentidadApi {
     }
 
     @Override
+    @Permiso("PARTICIPANTE")
+    @PermisoAlternativo({"PARTICIPANTES_LEER"})
     public ResponseEntity<ExpedienteDeMedida> consultarExpedienteDeMedida(UUID expedienteId) {
         ContextoSesion ctx = sesion.actual();
         return medidas.consultar(expedienteId, ctx)
@@ -157,6 +160,7 @@ abstract class RutasDeParticipantes implements IdentidadApi {
     }
 
     @Override
+    @Permiso("PARTICIPANTE")
     public ResponseEntity<ExpedienteDeMedida> presentarDescargoDeMedida(
             UUID idempotencyKey, UUID expedienteId, EntradaDescargoDeMedida e) {
         return ResponseEntity.ok(expediente(
@@ -172,6 +176,7 @@ abstract class RutasDeParticipantes implements IdentidadApi {
     }
 
     @Override
+    @Permiso("PARTICIPANTE")
     public ResponseEntity<ExpedienteDeMedida> apelarMedidaDeCuenta(
             UUID idempotencyKey, UUID expedienteId, EntradaDescargoDeMedida e) {
         return ResponseEntity.status(HttpStatus.CREATED)
