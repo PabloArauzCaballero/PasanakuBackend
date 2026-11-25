@@ -27,6 +27,9 @@ public class BitacoraDeCuenta {
 
     static final String VERSION = "1";
     static final String EVENTO_NOTIFICABLE = "ACCESO_DE_OPERADOR_CAMBIADO";
+    /** El NOMBRE del canal, no una direccion: la direccion la resuelve notificaciones. */
+    static final String CANAL_DEL_AVISO = "CORREO";
+
     static final String ROL_QUE_SE_ENTERA = "OFICIAL_CUMPLIMIENTO";
 
     /** Quien actua cuando es la propia persona, sin sesion (el enlace del correo). */
@@ -105,7 +108,7 @@ public class BitacoraDeCuenta {
                                 "eventoOrigen", accion.tipoDeEvento(),
                                 "accion", accion.name(),
                                 "afectadoId", afectadoId.toString(),
-                                "canal", "CORREO",
+                                "canal", CANAL_DEL_AVISO,
                                 "destinatarios", List.copyOf(destinatarios)),
                         correlacion));
     }

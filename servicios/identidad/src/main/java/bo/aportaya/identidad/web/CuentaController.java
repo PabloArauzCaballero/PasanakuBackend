@@ -76,7 +76,7 @@ public class CuentaController implements CuentaApi {
     @Publico("CU-09 §10: la credencial es el token de un solo uso del correo institucional; no hay sesion todavia")
     public ResponseEntity<SalidaConsultaInvitacion> consultarInvitacion(EntradaConsultaInvitacion cuerpo) {
         bo.aportaya.plataforma.web.traza.Traza.marcarCasoDeUso("CU-09", "invitacion-consultar");
-        var consulta = invitaciones.consultar(cuerpo.getToken(), origen());
+        var consulta = invitaciones.verificarVigencia(cuerpo.getToken(), origen());
         var salida = new SalidaConsultaInvitacion();
         salida.setAlcance(consulta.alcance().name());
         salida.setNombres(consulta.nombres());
@@ -142,7 +142,7 @@ public class CuentaController implements CuentaApi {
     @Publico("CU-09 §11: quien perdio la clave o el telefono no tiene sesion; el pedido solo abre un expediente")
     public ResponseEntity<SalidaPedidoDeRecuperacion> pedirRecuperacion(EntradaPedirRecuperacion cuerpo) {
         bo.aportaya.plataforma.web.traza.Traza.marcarCasoDeUso("CU-09", "recuperacion-pedir");
-        recuperaciones.pedir(cuerpo.getCorreo(), cuerpo.getAlcance(), cuerpo.getMotivo(), origen());
+        recuperaciones.solicitar(cuerpo.getCorreo(), cuerpo.getAlcance(), cuerpo.getMotivo(), origen());
         var salida = new SalidaPedidoDeRecuperacion();
         salida.setMensaje(MENSAJE_DEL_PEDIDO);
         return ResponseEntity.accepted().body(salida);

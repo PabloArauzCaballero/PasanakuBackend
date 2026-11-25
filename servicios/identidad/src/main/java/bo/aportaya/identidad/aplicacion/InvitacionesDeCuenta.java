@@ -120,7 +120,7 @@ public class InvitacionesDeCuenta implements InvitadorDeOperador {
     public record Origen(String ip, String agente, Traza traza) {}
 
     @Transactional(readOnly = true)
-    public Consulta consultar(String token, Origen origen) {
+    public Consulta verificarVigencia(String token, Origen origen) {
         OffsetDateTime ahora = ahora();
         return datos.conContexto(deSistema(origen), dsl -> {
             var vigente = tokens.vigente(dsl, token, ahora, false).orElseThrow(InvitacionesDeCuenta::tokenInvalido);

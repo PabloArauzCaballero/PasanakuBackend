@@ -196,7 +196,7 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
         String correoDelOperador = correoDe(operador);
 
         transaccion.execute(e -> {
-            recuperaciones.pedir(correoDelOperador, "CLAVE", "Perdi mi clave", origen());
+            recuperaciones.solicitar(correoDelOperador, "CLAVE", "Perdi mi clave", origen());
             return null;
         });
         UUID solicitud = solicitudDe(operador);
@@ -224,7 +224,7 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
         UUID operador = operadorConClaveInutilizable("+59176100006");
         UUID aprobador = operadorConClaveInutilizable("+59176100007");
         transaccion.execute(e -> {
-            recuperaciones.pedir(correoDe(operador), "CLAVE", "Perdi mi clave", origen());
+            recuperaciones.solicitar(correoDe(operador), "CLAVE", "Perdi mi clave", origen());
             return null;
         });
         UUID solicitud = solicitudDe(operador);
@@ -391,7 +391,7 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
 
         // No lanza, no responde distinto y no deja rastro: nadie puede usarlo para averiguar quien es operador.
         transaccion.execute(e -> {
-            recuperaciones.pedir("nadie@ejemplo.test", "CLAVE", null, origen());
+            recuperaciones.solicitar("nadie@ejemplo.test", "CLAVE", null, origen());
             return null;
         });
 
@@ -408,7 +408,7 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
 
         for (int i = 0; i < 2; i++) {
             transaccion.execute(e -> {
-                recuperaciones.pedir(correoDelOperador, "FACTOR", "Perdi el telefono", origen());
+                recuperaciones.solicitar(correoDelOperador, "FACTOR", "Perdi el telefono", origen());
                 return null;
             });
         }
@@ -471,7 +471,7 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
 
     private String rechazoDeConsultar(String token) {
         try {
-            transaccion.execute(e -> invitaciones.consultar(token, origen()));
+            transaccion.execute(e -> invitaciones.verificarVigencia(token, origen()));
             return "SIN RECHAZO";
         } catch (ErrorDeNegocio rechazo) {
             return rechazo.codigo().valor() + " " + rechazo.getMessage();
@@ -504,7 +504,7 @@ class CU09CuentaDeOperadorTest extends BaseDeCU09 {
 
     private UUID abrirSolicitud(UUID operador) {
         transaccion.execute(e -> {
-            recuperaciones.pedir(correoDe(operador), "CLAVE", "Perdi mi clave", origen());
+            recuperaciones.solicitar(correoDe(operador), "CLAVE", "Perdi mi clave", origen());
             return null;
         });
         return solicitudDe(operador);

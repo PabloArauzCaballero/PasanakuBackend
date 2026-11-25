@@ -69,7 +69,7 @@ public class RecuperacionesDeAcceso {
 
     /** Siempre termina bien: lo que ocurrio (o no) es asunto del expediente, no de la respuesta. */
     @Transactional
-    public void pedir(String correo, String alcance, String motivo, InvitacionesDeCuenta.Origen origen) {
+    public void solicitar(String correo, String alcance, String motivo, InvitacionesDeCuenta.Origen origen) {
         OffsetDateTime ahora = ahora();
         AlcanceDeCuenta pedido = AlcanceDeCuenta.dePedido(alcance)
                 .orElseThrow(() -> new IllegalArgumentException("alcance de recuperacion desconocido"));

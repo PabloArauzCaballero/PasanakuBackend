@@ -85,7 +85,7 @@ class CuentaControllerWebTest {
     @Test
     @DisplayName("correcto: consultar la invitacion no pide sesion, devuelve el alcance y no se cachea")
     void consultarSinSesion() throws Exception {
-        when(invitaciones.consultar(any(), any()))
+        when(invitaciones.verificarVigencia(any(), any()))
                 .thenReturn(new InvitacionesDeCuenta.Consulta(
                         AlcanceDeCuenta.ALTA,
                         "Operadora",
@@ -104,7 +104,7 @@ class CuentaControllerWebTest {
     @Test
     @DisplayName("invalido: un token que no sirve responde 422 AP-CU09-04, el mismo mensaje en todos los casos")
     void tokenInvalido() throws Exception {
-        when(invitaciones.consultar(any(), any()))
+        when(invitaciones.verificarVigencia(any(), any()))
                 .thenThrow(new ErrorDeNegocio(CodigoError.de(9, 4), "Ese enlace ya no sirve."));
 
         mvc.perform(post("/cuenta/invitacion/consultar")
@@ -158,7 +158,7 @@ class CuentaControllerWebTest {
                         .content("{\"correo\":\"operadora@ejemplo.test\",\"alcance\":\"CLAVE\"}"))
                 .andExpect(status().isAccepted())
                 .andExpect(jsonPath("$.mensaje").isNotEmpty());
-        verify(recuperaciones).pedir(eq("operadora@ejemplo.test"), eq("CLAVE"), any(), any());
+        verify(recuperaciones).solicitar(eq("operadora@ejemplo.test"), eq("CLAVE"), any(), any());
     }
 
     @Test
