@@ -64,3 +64,4 @@ Ver `INVENTARIO.md` («Decisiones de Pablo»). Además:
 | 2026-11-25 ~14:55 | B (#523 docs, 20/20), H y D confirmaron todo subido. Esperando C, F, G. |
 | 2026-11-25 ~14:55 | C y F confirmaron todo subido. Falta G. |
 | 2026-11-25 ~14:57 | G confirmó todo subido. Las seis sesiones confirmaron: nada local sin subir. |
+| 2026-11-25 ~16:05 | #519 (G, modelo) y #521 (H) mergeados a dev (`282a1522`). #523 (B, docs) mergeado. G abrió #525 (draft; backend CU-134) con spotless en rojo: el parche de formato Palantir está en `docs/trabajo/2026-11-24-gobierno-de-usuarios/parches/gu-g-spotless-3aa9d4627.patch` (se aplica con `git apply` sobre `claude/gu-g-cu-participantes`). Los vigilantes de auto-merge de la sesión principal terminaron por límite de tiempo: **hacer los merges a mano** con CI verde (#520 F, #522 C, #524 D, #525 G). Apareció #526 (`codex/gu-revocacion-lista-kafka`): no es de ninguna sesión de este trabajo, **no tocarlo sin confirmar su origen con Pablo**. |
