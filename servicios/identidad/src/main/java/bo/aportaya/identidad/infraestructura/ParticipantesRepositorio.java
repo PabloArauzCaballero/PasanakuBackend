@@ -125,21 +125,21 @@ public class ParticipantesRepositorio {
             USUARIO.ESTADO,
             USUARIO.NIVEL_KYC,
             USUARIO.FECHA_REGISTRO,
-            DSL.field(DSL.exists(DSL.selectOne()
+            DSL.exists(DSL.selectOne()
                             .from(RESTRICCION_USUARIO)
                             .where(RESTRICCION_USUARIO.USUARIO_ID.eq(USUARIO.ID))
                             .and(RESTRICCION_USUARIO.VIGENTE_DESDE.le(ahora))
-                            .and(RESTRICCION_USUARIO.VIGENTE_HASTA.isNull().or(RESTRICCION_USUARIO.VIGENTE_HASTA.gt(ahora)))))
+                            .and(RESTRICCION_USUARIO.VIGENTE_HASTA.isNull().or(RESTRICCION_USUARIO.VIGENTE_HASTA.gt(ahora))))
                     .as("tiene_restriccion"),
-            DSL.field(DSL.exists(DSL.selectOne()
+            DSL.exists(DSL.selectOne()
                             .from(BLOQUEO_CUENTA)
                             .where(BLOQUEO_CUENTA.USUARIO_ID.eq(USUARIO.ID))
-                            .and(BLOQUEO_CUENTA.LIBERADA_EN.isNull())))
+                            .and(BLOQUEO_CUENTA.LIBERADA_EN.isNull()))
                     .as("tiene_bloqueo"),
-            DSL.field(DSL.exists(DSL.selectOne()
+            DSL.exists(DSL.selectOne()
                             .from(EXPEDIENTE_MEDIDA_CUENTA)
                             .where(EXPEDIENTE_MEDIDA_CUENTA.USUARIO_ID.eq(USUARIO.ID))
-                            .and(EXPEDIENTE_MEDIDA_CUENTA.CERRADA_EN.isNull())))
+                            .and(EXPEDIENTE_MEDIDA_CUENTA.CERRADA_EN.isNull()))
                     .as("tiene_medida")
         };
     }

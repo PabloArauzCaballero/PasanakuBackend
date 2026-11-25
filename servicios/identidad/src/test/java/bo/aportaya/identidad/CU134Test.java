@@ -272,7 +272,7 @@ class CU134Test {
         assertThatThrownBy(() -> transaccion.execute(e -> medidas.apelar(id, "Segunda apelacion que no corresponde.", como(participante))))
                 .isInstanceOfSatisfying(ErrorDeNegocio.class, e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU134-09"));
         // R-SEG-15: la base no deja una decision sin fundamento.
-        assertThat(rechazaLaBase("UPDATE identidad.expediente_medida_cuenta SET fundamento_decision = 'corto' WHERE id = '" + id + "'"))
+        assertThat(rechazaLaBase("UPDATE identidad.expediente_medida_cuenta SET fundamento_decision = 'corto' WHERE id = ?", id))
                 .contains("ck_expediente_medida_decision_fundada");
     }
 
@@ -283,9 +283,9 @@ class CU134Test {
         UUID participante = persona();
         var id = proponer(analista, participante, "FRAUDE_CON_EVIDENCIA", "SUSPENSION_TEMPORAL", false).expediente().id();
         // Mismo criterio que R-GAR-02 (evidencia inmutable) y R-ORG-05 (una apelacion, por otro) en sus casos.
-        assertThat(rechazaLaBase("UPDATE identidad.evidencia_medida_cuenta SET contenido = 'otra' WHERE expediente_medida_cuenta_id = '" + id + "'"))
+        assertThat(rechazaLaBase("UPDATE identidad.evidencia_medida_cuenta SET contenido = 'otra' WHERE expediente_medida_cuenta_id = ?", id))
                 .contains("R-AUD-01");
-        assertThat(rechazaLaBase("DELETE FROM identidad.historial_estado_medida_cuenta WHERE expediente_medida_cuenta_id = '" + id + "'"))
+        assertThat(rechazaLaBase("DELETE FROM identidad.historial_estado_medida_cuenta WHERE expediente_medida_cuenta_id = ?", id))
                 .contains("R-AUD-01");
     }
 
@@ -338,16 +338,19 @@ class CU134Test {
 
     private static int filasDeDinero() {
         return dsl.fetchValue(
-                        "SELECT (SELECT count(*) FROM aportes.obligacion_aporte) + (SELECT count(*) FROM entregas.entrega_fondo)"
-                                + " + (SELECT count(*) FROM grupos.cupo)",
+                        """
+                        SELECT (SELECT count(*) FROM aportes.obligacion_aporte)
+                             + (SELECT count(*) FROM entregas.entrega_fondo)
+                             + (SELECT count(*) FROM grupos.cupo)
+                        """,
                         Long.class)
                 .intValue();
     }
 
-    private static String rechazaLaBase(String sql) {
+    private static String rechazaLaBase(String sql, Object... valores) {
         try {
             transaccion.execute(estado -> {
-                dsl.execute(sql);
+                dsl.execute(sql, valores);
                 estado.setRollbackOnly();
                 return null;
             });
