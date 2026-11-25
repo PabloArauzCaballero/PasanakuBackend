@@ -78,10 +78,11 @@
 | H6.S1.M1 | Ejemplos curados del simulado para operaciones nuevas (ok/límite/inválido) | cumplen el contrato de B | `simulado` tests | HECHO (evidencia/H6-*.txt, capturas/) |
 | H6.S1.M2 | E2E de personal y accesos | un worker, sin errores de consola | playwright | HECHO (evidencia/H6-*.txt, capturas/) |
 | H6.S1.M3 | Capturas y revisión | 6 viewports×tema inspeccionados | `evidencia/` | HECHO (evidencia/H6-*.txt, capturas/) |
-| H6.S1.M4 | Gates + REPORTE + PR | CI verde | salidas pegadas | TODO |
+| H6.S1.M5 | Re-verificar contra el contrato real de #516 | tipos del doble = tipos generados; ejemplos reales; E2E sin `page.route` contra el simulado | `conformidad-516.spec.ts` + `contrato-real-personal-y-accesos.e2e.ts` | HECHO (evidencia/H6-M5-conformidad-516.txt) |
+| H6.S1.M4 | Gates + REPORTE + PR | CI verde | salidas pegadas | HECHO (CI #524 verde, PR mergeado) |
 
 ## Simulación (regla 65)
-Todo lo de B se construye contra un doble: tipos/llamadas locales + ejemplos curados del simulado. **Verificado solo contra el doble** hasta que #516 entre a `dev`; entonces se re-verifica contra los ejemplos reales (microtarea H6.S1.M5, TODO).
+Todo lo de B se construye contra un doble: tipos/llamadas locales + ejemplos curados del simulado. **Verificado solo contra el doble** hasta que #516 entre a `dev`; entonces se re-verifica contra los ejemplos reales (microtarea H6.S1.M5, HECHO: evidencia/H6-M5-conformidad-516.txt).
 
 ## Riesgos
 | Riesgo | Impacto | Mitigación |
