@@ -202,7 +202,11 @@ class CU08BajaYVencimientoTest extends BaseDeGobiernoCU08 {
                 // Un otorgante de ESTA transaccion: el de la fixtura queda en cache y, creado dentro de un
                 // escenario que se deshizo, ya no existe en el siguiente (fk_asignacion_rol_otorgada_por).
                 operador(),
-                hasta.minusDays(10).toString(),
+                // Otorgada siempre en el pasado: con vigencia a 30 dias, «hasta - 10» caia en el futuro y la
+                // asignacion todavia no estaba vigente.
+                hasta.isBefore(OffsetDateTime.now())
+                        ? hasta.minusDays(10).toString()
+                        : OffsetDateTime.now().minusDays(1).toString(),
                 hasta.toString());
         return id;
     }
