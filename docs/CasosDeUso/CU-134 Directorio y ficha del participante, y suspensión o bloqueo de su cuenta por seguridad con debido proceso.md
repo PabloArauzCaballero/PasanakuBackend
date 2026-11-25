@@ -493,6 +493,7 @@ principal del trabajo de gobierno de usuarios.
 | A-1 | **Resuelta por Pablo (2026-11-25)**: custodia a favor del titular mientras siga vigente la medida | Al terminar, liberar a cuenta verificada solo si no hay otra restricción vigente | — |
 | A-2 | ~~Unidad de la prescripción~~ — **resuelta**: [[politica_medida_cuenta]] guarda `prescribe_en_meses` y `duracion_maxima_suspension_dias` en columnas propias | — | — |
 | A-3 | **Resuelta por Pablo (2026-11-25)**: la segunda instancia dispone de 10 días hábiles desde la recepción acreditada | Si vence el plazo sin resolución, se acepta la apelación y se revierte la medida | — |
+| A-4 | Qué rutas cuentan como «pagar» y «reclamar» en el modo restringido (D-6) | Implementado lo inequívoco: ver el expediente, descargo, apelación y `pagarCuotaConSaldo`. Quedan **fuera** hasta decisión: emitir/pagar/leer QR y la recarga de billetera; ver el perfil o la billetera. No existe ruta para que el participante **presente** un reclamo (solo la bandeja del Punto de Reclamo), así que «reclamar» no tiene qué abrir | Pablo |
 
 ## Ver también
 

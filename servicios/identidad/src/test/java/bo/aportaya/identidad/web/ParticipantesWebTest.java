@@ -140,6 +140,15 @@ class ParticipantesWebTest {
     }
 
     @Test
+    @DisplayName("CU-134 · correcto: la cuenta suspendida (sesion restringida) consulta su expediente")
+    void restringidaConsultaSuExpediente() throws Exception {
+        when(medidas.consultar(eq(EXPEDIENTE), any())).thenReturn(Optional.of(vista("EN_DESCARGO")));
+
+        mvc.perform(get("/identidad/medidas-cuenta/{id}", EXPEDIENTE).with(Sesiones.restringida("PARTICIPANTE")))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     @DisplayName("consultar expediente: 200 con su linea de tiempo")
     void consultarExpedienteOk() throws Exception {
         when(medidas.consultar(eq(EXPEDIENTE), any())).thenReturn(Optional.of(vista("EN_DESCARGO")));

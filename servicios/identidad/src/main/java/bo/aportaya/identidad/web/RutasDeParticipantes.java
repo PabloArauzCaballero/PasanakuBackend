@@ -23,6 +23,7 @@ import bo.aportaya.identidad.web.generado.modelo.ParticipanteResumen;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
+import bo.aportaya.plataforma.web.seguridad.PermitidoEnRestriccion;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -39,6 +40,9 @@ import org.springframework.http.ResponseEntity;
  * <p>Vive bajo {@code /identidad}, asi que es parte de {@link IdentidadApi}: la atiende
  * {@link VerificacionesController}, el unico controlador concreto de esa interfaz (dos beans que la
  * implementaran registrarian las mismas rutas dos veces).
+ *
+ * <p>D-6: consultar el expediente, el descargo y la apelacion son de la lista cerrada que una cuenta suspendida
+ * alcanza con su sesion restringida ({@link PermitidoEnRestriccion}).
  */
 abstract class RutasDeParticipantes implements IdentidadApi {
 
@@ -145,6 +149,7 @@ abstract class RutasDeParticipantes implements IdentidadApi {
     @Override
     @Permiso("PARTICIPANTE")
     @PermisoAlternativo({"PARTICIPANTES_LEER"})
+    @PermitidoEnRestriccion
     public ResponseEntity<ExpedienteDeMedida> consultarExpedienteDeMedida(UUID expedienteId) {
         ContextoSesion ctx = sesion.actual();
         return medidas.consultar(expedienteId, ctx)
@@ -161,6 +166,7 @@ abstract class RutasDeParticipantes implements IdentidadApi {
 
     @Override
     @Permiso("PARTICIPANTE")
+    @PermitidoEnRestriccion
     public ResponseEntity<ExpedienteDeMedida> presentarDescargoDeMedida(
             UUID idempotencyKey, UUID expedienteId, EntradaDescargoDeMedida e) {
         return ResponseEntity.ok(expediente(
@@ -177,6 +183,7 @@ abstract class RutasDeParticipantes implements IdentidadApi {
 
     @Override
     @Permiso("PARTICIPANTE")
+    @PermitidoEnRestriccion
     public ResponseEntity<ExpedienteDeMedida> apelarMedidaDeCuenta(
             UUID idempotencyKey, UUID expedienteId, EntradaDescargoDeMedida e) {
         return ResponseEntity.status(HttpStatus.CREATED)

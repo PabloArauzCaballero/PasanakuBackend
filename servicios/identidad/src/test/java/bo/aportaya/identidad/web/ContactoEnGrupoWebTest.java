@@ -53,6 +53,14 @@ class ContactoEnGrupoWebTest {
     }
 
     @Test
+    @DisplayName("CU-134 · limite: una sesion restringida no llega al contacto en grupo (fuera de la lista cerrada)")
+    void restringidaNoVeElContacto() throws Exception {
+        mvc.perform(get(RUTA, GRUPO, USUARIO).with(Sesiones.restringida("PARTICIPANTE")))
+                .andExpect(status().isForbidden());
+        verifyNoInteractions(contactos);
+    }
+
+    @Test
     @DisplayName("contacto · 403: quien no comparte el grupo (o no se pudo comprobar) no ve nada")
     void noCompartenEs403() throws Exception {
         when(contactos.ejecutar(eq(GRUPO), eq(USUARIO), any())).thenThrow(new AccessDeniedException("no comparte"));
