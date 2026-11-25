@@ -27,8 +27,8 @@
 - Dónde quedó: sin código nuevo (se descartó un golden sin poder generar su baseline).
 
 ## CI de #521
-- Rojo en `5828baae`, job «Frontend — Flutter y Angular»: el lint de `apps/movil` falló por «ningún archivo de más de 200 líneas» (`textos.dart` 202). Causa: mi comentario de fuente. Corregido en `4c3b0b48` (ahora 200 líneas; test del tour sigue en verde). Falta ver que la CI de ese commit cierre en verde; nada más conocido en rojo.
-- Próximo paso: esperar la CI de `4c3b0b48`; si pasa, el PR queda listo para que la sesión principal lo mergee. Pendientes reales siguen siendo: verificar `assembleRelease` sin secretos (en CI o con SDK) y la matriz de capturas de grupos/detalle.
+- Rojo en `5828baae`, job «Frontend — Flutter y Angular»: el lint de `apps/movil` falló por «ningún archivo de más de 200 líneas» (`textos.dart` 202). Causa: mi comentario de fuente. Corregido en `4c3b0b48` (ahora 200 líneas; test del tour sigue en verde). El PR #521 se mergeó a `dev` (282a1522) con la CI sin rojos al cierre (suite del commit `7de86687` completada sin fallos según GitHub).
+- Estado final: MERGEADO. Lo que sigue sin verificar y pasa a quien retome: verificar `assembleRelease` sin secretos (en CI o con SDK) y la matriz de capturas de grupos/detalle.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
