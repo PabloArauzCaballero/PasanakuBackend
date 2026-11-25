@@ -215,4 +215,30 @@ class CU28Test extends EscenarioDeDesembolso {
         assertThat(contar("SELECT count(*)::int FROM entregas.orden_desembolso WHERE entrega_id = ?", c.entregaId()))
                 .isZero();
     }
+
+    @Test
+    @DisplayName(
+            "Dado un beneficiario con una medida vigente sobre su cuenta · Cuando se emite la orden de desembolso · Entonces se rechaza con ENTREGA_RETENIDA_POR_MEDIDA · Y la entrega sigue AUTORIZADA sin ninguna orden_desembolso")
+    void criterioRetenidaPorMedida() {
+        Caso c = caso(true, true);
+        var base = orden(c, "des-retenida");
+        var retenida = new bo.aportaya.entregas.aplicacion.CU28EmitirDesembolso.EntradaOrden(
+                base.entregaId(),
+                base.proveedorId(),
+                base.cuentaDestinoId(),
+                base.glosa(),
+                base.claveIdempotencia(),
+                base.saldoRetenido(),
+                true);
+
+        assertThatThrownBy(() -> transaccion.execute(t -> desembolsoCU.emitir(retenida, c.ctx())))
+                .isInstanceOfSatisfying(
+                        ErrorDeNegocio.class, e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU28-08"));
+        assertThat(contar(
+                        "SELECT count(*)::int FROM entregas.entrega_fondo WHERE id = ? AND estado = 'AUTORIZADA'",
+                        c.entregaId()))
+                .isEqualTo(1);
+        assertThat(contar("SELECT count(*)::int FROM entregas.orden_desembolso WHERE entrega_id = ?", c.entregaId()))
+                .isZero();
+    }
 }

@@ -77,6 +77,7 @@ normas: [ASFI conciliación, BCB pagos, contabilidad]
 | 5a | El beneficiario dice que no le llegó y el proveedor dice que sí | Se pide el comprobante de acreditación al proveedor y se resuelve con evidencia; mientras tanto la incidencia queda abierta con su SLA corriendo |
 | — | Cambio de proveedor a mitad de camino | Se cierra la orden y se emite una nueva; **nunca se reasigna una orden viva a otro proveedor** |
 | — | Desembolso a cuenta en otra moneda | Se aplica el [[tipo_cambio]] del día, se guarda cuál se usó, y la diferencia de cambio va a su propia cuenta contable |
+| — | El beneficiario tiene una medida vigente sobre su cuenta (CU-134, D-11) | No se emite la orden (`ENTREGA_RETENIDA_POR_MEDIDA`); la entrega sigue AUTORIZADA y su saldo retenido. La consulta a identidad se hace fuera de la transacción y, si no responde, se retiene |
 
 ## Postcondiciones
 
@@ -111,6 +112,7 @@ export const ErroresCU28 = {
   ORDEN_YA_EXISTE:        'AP-CU28-05',
   RECHAZO_DEFINITIVO:     'AP-CU28-06',
   FILTRO_DE_LISTADO_INVALIDO: 'AP-CU28-07',
+  ENTREGA_RETENIDA_POR_MEDIDA: 'AP-CU28-08',
 } as const
 ```
 
@@ -123,6 +125,7 @@ export const ErroresCU28 = {
 | `ORDEN_YA_EXISTE` | Reintento con la misma clave; se devuelve la orden existente |
 | `RECHAZO_DEFINITIVO` | El proveedor rechazó por un motivo que no se reintenta |
 | `FILTRO_DE_LISTADO_INVALIDO` | La bandeja recibió un estado desconocido, o `antesDe` sin `antesDeId` (o al revés) |
+| `ENTREGA_RETENIDA_POR_MEDIDA` | El beneficiario tiene una medida vigente sobre su cuenta, o identidad no pudo confirmar que no la tenga: la entrega queda AUTORIZADA con su saldo retenido y se desembolsa al levantarse la medida ([[CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso]], D-11) |
 
 **Bandeja de desembolsos (backoffice carril A · H8).** `GET /desembolsos` (`listarDesembolsos`,
 `ENTREGA_EJECUTAR` o `AUDITORIA_LEER`) muestra por omisión las excepciones que esperan a una persona
@@ -199,6 +202,11 @@ Entonces ve solo la rechazada, con su último código de error
 Dadas dos órdenes rechazadas
 Cuando Tesorería recorre la bandeja de a una
 Entonces ve cada una una sola vez, de la más reciente a la más antigua, y la última página cierra sin cursor
+
+Dado un beneficiario con una medida vigente sobre su cuenta
+Cuando se emite la orden de desembolso
+Entonces se rechaza con ENTREGA_RETENIDA_POR_MEDIDA
+Y la entrega sigue AUTORIZADA sin ninguna orden_desembolso
 ```
 
 ## Ver también

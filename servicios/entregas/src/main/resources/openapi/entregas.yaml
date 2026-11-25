@@ -31,6 +31,7 @@
 #   AP-CU28-04  SALDO_NO_RETENIDO     · el saldo de la entrega no esta retenido
 #   AP-CU28-05  ORDEN_YA_EXISTE       · la orden no existe (el duplicado devuelve la que hay)
 #   AP-CU28-06  RECHAZO_DEFINITIVO    · error que no se reintenta
+#   AP-CU28-08  ENTREGA_RETENIDA_POR_MEDIDA · el beneficiario tiene una medida vigente sobre su cuenta (CU-134, D-11)
 #   AP-CU28-07  FILTRO_DE_LISTADO_INVALIDO · estado desconocido o cursor a medias (backoffice carril A · H8)
 #   AP-CU28-08  RESPUESTA_MANUAL_RETIRADA · 410: la respuesta del proveedor ya no la anota una persona (F1.L2.M05)
 #

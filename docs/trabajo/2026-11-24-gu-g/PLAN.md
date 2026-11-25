@@ -94,8 +94,8 @@
 ### H3.S4 — Entrega retenida (D-11) en `entregas`
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H3.S4.M1 | Contrato mínimo y doble en tres niveles (correcto, límite, inválido/caída) de la consulta a `identidad` | Pruebas del doble en verde | `./gradlew :servicios:entregas:test --tests '*MedidaVigente*'` | TODO |
-| H3.S4.M2 | Retener la entrega con medida vigente y liberarla al levantarse, con idempotencia y evidencia de la regla 91.6 | Duplicado sin doble efecto | ídem + evidencia 91.6 | TODO |
+| H3.S4.M1 | Contrato mínimo y doble en tres niveles (correcto, límite, inválido/caída) de la consulta a `identidad` | Pruebas del doble en verde | `./gradlew :servicios:entregas:test --tests '*MedidaVigente*'` | A MEDIAS — puerto `MedidaDeCuenta` y adaptador `MedidaDeCuentaPorHttp` (falla cerrado) con `MedidaDeCuentaPorHttpTest` en tres niveles contra una identidad de ensayo; falta la corrida en la CI |
+| H3.S4.M2 | Retener la entrega con medida vigente y liberarla al levantarse, con idempotencia y evidencia de la regla 91.6 | Duplicado sin doble efecto | ídem + evidencia 91.6 | A MEDIAS — `CU28EmitirDesembolso` rechaza con AP-CU28-08 y la entrega sigue AUTORIZADA (consulta fuera de la transacción, en `DesembolsosController`); criterio nuevo en CU-28 con su prueba; falta la corrida en la CI |
 
 ### H3.S5 — Modo restringido del suspendido (D-6)
 | ID | Microtarea | CA (binario) | DoD | Estado |
