@@ -486,14 +486,13 @@ class CU134Test {
     }
 
     private static int filasDeDinero() {
-        return dsl.fetchValue(
+        return dsl.fetchSingle(
                         """
                         SELECT (SELECT count(*) FROM aportes.obligacion_aporte)
                              + (SELECT count(*) FROM entregas.entrega_fondo)
                              + (SELECT count(*) FROM grupos.cupo)
-                        """,
-                        Long.class)
-                .intValue();
+                        """)
+                .get(0, Integer.class);
     }
 
     private static String rechazaLaBase(String sql, Object... valores) {
