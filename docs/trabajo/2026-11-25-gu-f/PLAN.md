@@ -61,3 +61,10 @@
 |---|---|---|
 | Java no compila en local (Gradle 429) | Errores solo visibles en CI | Código pequeño y simétrico a los patrones vecinos; CI como árbitro |
 | #516 no entra a dev | `EvidenciaDeStepUp` ausente | Doble declarado (regla 65); al entrar #516, merge de dev |
+
+## Estado al traspaso (2026-11-25)
+H1.S1.M1/M2, H1.S2.M1/M2/M3, H2.S1.M1/M2, H4.S1.M1 (CU-135 y CU-136): **A MEDIAS** — escritos, sin ejecutar en CI (la CI de efa22f39 cayó en spotless y bóveda; corregido en f9e5c579, corrida nueva pendiente).
+H2.S1.M3 (doble de step-up): **DESCARTADO** — #516 ya está en dev y trae el puerto `EvidenciaDeStepUp`; se usa el real (las pruebas usan el doble `DOBLE_DE_STEP_UP` de B).
+H3.S1.M1/M2 (backoffice): **TODO** — falta además un componente de step-up (abrir desafío + código TOTP → evidencia), que el backoffice no tiene.
+H4.S1.M2/M3: **TODO / EN ESPERA de CI**.
+Alcance de H2 ajustado: se **registra** una cuenta ya aprovisionada (no se crea el usuario): ambigüedad A5.
