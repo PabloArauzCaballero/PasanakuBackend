@@ -1276,6 +1276,286 @@ paths:
                 type: array
                 items: { $ref: '#/components/schemas/PermisoCatalogo' }
 
+  # ---------------------------------------------------------------------------------
+  # CU-134 · Directorio y ficha del participante, y suspension o bloqueo de su cuenta
+  # por seguridad con debido proceso. Errores AP-CU134-01..11:
+  #   AP-CU134-01 JUSTIFICACION_INSUFICIENTE · AP-CU134-02 ACTUA_SOBRE_SI_MISMO
+  #   AP-CU134-03 SEGUNDO_FACTOR_REQUERIDO   · AP-CU134-04 CAUSAL_FUERA_DE_CATALOGO
+  #   AP-CU134-05 CAUTELAR_NO_ADMITIDA       · AP-CU134-06 EXPEDIENTE_ABIERTO
+  #   AP-CU134-07 PLAZO_DESCARGO_ABIERTO     · AP-CU134-08 MISMA_PERSONA
+  #   AP-CU134-09 APELACION_DUPLICADA        · AP-CU134-10 EXPEDIENTE_PRESCRITO
+  #   AP-CU134-11 RECLAMO_EN_CURSO
+  # El termino buscado y la justificacion viajan en el cuerpo, nunca en la URL (regla 90.2.2).
+  # ---------------------------------------------------------------------------------
+  /identidad/participantes/busquedas:
+    post:
+      tags: [Participantes]
+      operationId: buscarParticipantes
+      summary: Directorio de participantes, paginado, con rastro de la busqueda (CU-134)
+      description: >-
+        Devuelve por fila solo codigo publico, nombre abreviado, estado, nivel KYC, fecha de
+        registro y marcas. Cada busqueda escribe registro_acceso_datos (BUSQUEDA) con la
+        justificacion. Orden fechaRegistro descendente y, a igual fecha, id descendente; la pagina
+        siguiente se pide con el cursor de la ultima fila.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaBusquedaParticipantes' }
+      responses:
+        '200':
+          description: Pagina de participantes (vacia si no hay coincidencias)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeParticipantes' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU134-01 JUSTIFICACION_INSUFICIENTE
+
+  /identidad/participantes/{usuarioId}/ficha:
+    post:
+      tags: [Participantes]
+      operationId: abrirFichaDeParticipante
+      summary: Ficha enmascarada del participante, con registro de la lectura (CU-134)
+      description: >-
+        Contacto enmascarado, participacion sin importes y medidas vigentes. No devuelve saldo,
+        movimientos, cuentas ni casos de cumplimiento. Si no se puede registrar la lectura, no
+        se muestra.
+      parameters:
+        - { name: usuarioId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaJustificacionDeLectura' }
+      responses:
+        '200':
+          description: Ficha enmascarada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FichaDeParticipante' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '404': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU134-01 JUSTIFICACION_INSUFICIENTE · AP-CU134-02 ACTUA_SOBRE_SI_MISMO
+
+  /identidad/participantes/{usuarioId}/revelaciones:
+    post:
+      tags: [Participantes]
+      operationId: revelarDatoDeParticipante
+      summary: Revela un campo de contacto, con segundo factor y rastro (CU-134)
+      parameters:
+        - { name: usuarioId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaRevelacion' }
+      responses:
+        '200':
+          description: El valor del campo pedido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DatoRevelado' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU134-01 · AP-CU134-02 · AP-CU134-03 SEGUNDO_FACTOR_REQUERIDO
+
+  /identidad/participantes/{usuarioId}/medidas:
+    post:
+      tags: [Participantes]
+      operationId: proponerMedidaDeCuenta
+      summary: Abre el expediente de una suspension o un bloqueo cautelar (CU-134)
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - { name: usuarioId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaMedidaDeCuenta' }
+      responses:
+        '201':
+          description: Expediente abierto (o el mismo, si se reintenta con la misma clave)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExpedienteDeMedida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU134-02 · AP-CU134-04 CAUSAL_FUERA_DE_CATALOGO · AP-CU134-05 CAUTELAR_NO_ADMITIDA · AP-CU134-06 EXPEDIENTE_ABIERTO
+
+  /identidad/medidas-cuenta/{expedienteId}:
+    get:
+      tags: [Participantes]
+      operationId: consultarExpedienteDeMedida
+      summary: Expediente con su linea de tiempo y sus plazos (operador o titular) (CU-134)
+      parameters:
+        - { name: expedienteId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: El expediente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExpedienteDeMedida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '404': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /identidad/medidas-cuenta/{expedienteId}/notificacion:
+    post:
+      tags: [Participantes]
+      operationId: registrarNotificacionDeMedida
+      summary: Acredita la entrega del aviso y hace correr el plazo de descargo (CU-134)
+      description: >-
+        La invoca el servicio de notificaciones con el acuse de entrega. El plazo de descargo se
+        calcula aca, en dias habiles, y se guarda; un segundo acuse no lo mueve.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - { name: expedienteId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaNotificacionDeMedida' }
+      responses:
+        '200':
+          description: Expediente con el plazo guardado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExpedienteDeMedida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU134-10 EXPEDIENTE_PRESCRITO
+
+  /identidad/medidas-cuenta/{expedienteId}/descargo:
+    post:
+      tags: [Participantes]
+      operationId: presentarDescargoDeMedida
+      summary: El titular presenta su descargo con evidencias (CU-134)
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - { name: expedienteId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDescargoDeMedida' }
+      responses:
+        '200':
+          description: Descargo agregado al expediente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExpedienteDeMedida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU134-10 EXPEDIENTE_PRESCRITO
+
+  /identidad/medidas-cuenta/{expedienteId}/decision:
+    post:
+      tags: [Participantes]
+      operationId: decidirMedidaDeCuenta
+      summary: Decision motivada por una persona distinta de quien propuso (CU-134)
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - { name: expedienteId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDecisionDeMedida' }
+      responses:
+        '200':
+          description: Expediente decidido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExpedienteDeMedida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU134-03 · AP-CU134-07 PLAZO_DESCARGO_ABIERTO · AP-CU134-08 MISMA_PERSONA · AP-CU134-10 · AP-CU134-11 RECLAMO_EN_CURSO
+
+  /identidad/medidas-cuenta/{expedienteId}/apelacion:
+    post:
+      tags: [Participantes]
+      operationId: apelarMedidaDeCuenta
+      summary: Una sola apelacion por expediente (CU-134)
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - { name: expedienteId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDescargoDeMedida' }
+      responses:
+        '201':
+          description: Apelacion presentada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExpedienteDeMedida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU134-09 APELACION_DUPLICADA
+
+  /identidad/medidas-cuenta/{expedienteId}/apelacion/resolucion:
+    post:
+      tags: [Participantes]
+      operationId: resolverApelacionDeMedida
+      summary: Resuelve la apelacion una tercera persona (CU-134)
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - { name: expedienteId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaResolucionDeApelacion' }
+      responses:
+        '200':
+          description: Apelacion resuelta
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExpedienteDeMedida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU134-03 · AP-CU134-08 MISMA_PERSONA
+
+  /identidad/participantes/{usuarioId}/medida-vigente:
+    get:
+      tags: [Participantes]
+      operationId: consultarMedidaVigente
+      summary: Si el participante tiene una medida vigente que retiene su entrega (servicio a servicio) (CU-134)
+      description: >-
+        La consulta `entregas` antes de acreditar una entrega (D-11). Devuelve identificadores y
+        un booleano, nunca la causal ni la evidencia.
+      parameters:
+        - { name: usuarioId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Estado de la medida
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MedidaVigente' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+
 components:
   parameters:
     ClaveIdempotencia:
@@ -2122,6 +2402,171 @@ components:
         nivelRiesgo: { type: string, enum: [BAJO, MEDIO, ALTO, CRITICO] }
         exigeMotivo: { type: boolean }
         requiereMfa: { type: boolean }
+
+    # --- CU-134 ---------------------------------------------------------------------
+    EntradaBusquedaParticipantes:
+      type: object
+      additionalProperties: false
+      required: [justificacion]
+      properties:
+        codigoPublico:   { type: string, maxLength: 12 }
+        telefonoE164:    { type: string, maxLength: 20, pattern: '^\+\d{8,15}$' }
+        estado:          { type: string, enum: [ACTIVO, BAJA_VOLUNTARIA, BLOQUEADO_SEGURIDAD, ELIMINADO, INCOMPLETO_KYC, PENDIENTE_VERIFICACION, PRE_REGISTRO, SUSPENDIDO] }
+        justificacion:   { type: string, minLength: 10, maxLength: 300 }
+        ticketSoporteId: { type: string, maxLength: 30 }
+        antesDe:         { type: string, format: date-time }
+        antesDeId:       { type: string, format: uuid }
+        limite:          { type: integer, minimum: 1, maximum: 50, default: 20 }
+    ParticipanteResumen:
+      type: object
+      additionalProperties: false
+      required: [usuarioId, codigoPublico, nombreAbreviado, estado, nivelKyc, fechaRegistro, tieneRestriccion, tieneBloqueo, tieneMedidaEnCurso]
+      properties:
+        usuarioId:          { type: string, format: uuid }
+        codigoPublico:      { type: string, maxLength: 12 }
+        nombreAbreviado:    { type: string, maxLength: 90 }
+        estado:             { type: string, maxLength: 25 }
+        nivelKyc:           { type: string, maxLength: 15 }
+        fechaRegistro:      { type: string, format: date-time }
+        tieneRestriccion:   { type: boolean }
+        tieneBloqueo:       { type: boolean }
+        tieneMedidaEnCurso: { type: boolean }
+    PaginaDeParticipantes:
+      type: object
+      additionalProperties: false
+      required: [filas]
+      properties:
+        filas: { type: array, maxItems: 50, items: { $ref: '#/components/schemas/ParticipanteResumen' } }
+    EntradaJustificacionDeLectura:
+      type: object
+      additionalProperties: false
+      required: [justificacion]
+      properties:
+        justificacion:   { type: string, minLength: 10, maxLength: 300 }
+        ticketSoporteId: { type: string, maxLength: 30 }
+    FichaDeParticipante:
+      type: object
+      additionalProperties: false
+      description: >-
+        gruposActivos y bloqueoDeAutoridadVigente viven en grupos y nucleo-financiero; identidad no lee esas bases
+        (regla 98.1). Quedan vacios hasta que se lean por la API de su dueno.
+      required: [usuarioId, codigoPublico, nombreCompleto, estado, nivelKyc, fechaRegistro, telefonoEnmascarado, medidas]
+      properties:
+        usuarioId:           { type: string, format: uuid }
+        codigoPublico:       { type: string, maxLength: 12 }
+        nombreCompleto:      { type: string, maxLength: 161 }
+        estado:              { type: string, maxLength: 25 }
+        nivelKyc:            { type: string, maxLength: 15 }
+        fechaRegistro:       { type: string, format: date-time }
+        ultimoAcceso:        { type: string, format: date-time }
+        telefonoEnmascarado: { type: string, maxLength: 20 }
+        correoEnmascarado:   { type: string, maxLength: 150 }
+        gruposActivos:       { type: integer, minimum: 0 }
+        medidas:             { type: array, maxItems: 100, items: { $ref: '#/components/schemas/ExpedienteDeMedida' } }
+        bloqueoDeAutoridadVigente: { type: boolean }
+    EntradaRevelacion:
+      type: object
+      additionalProperties: false
+      required: [campo, justificacion, evidenciaMfa]
+      properties:
+        campo:         { type: string, enum: [TELEFONO, CORREO] }
+        justificacion: { type: string, minLength: 10, maxLength: 300 }
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096, description: 'Evidencia de step-up de quien actua, un solo uso (R-SEG-12)' }
+    DatoRevelado:
+      type: object
+      additionalProperties: false
+      required: [campo, valor]
+      properties:
+        campo: { type: string, enum: [TELEFONO, CORREO] }
+        valor: { type: string, maxLength: 150 }
+    EvidenciaDeMedida:
+      type: object
+      additionalProperties: false
+      required: [descripcion]
+      properties:
+        descripcion:  { type: string, minLength: 1, maxLength: 300 }
+        referenciaId: { type: string, format: uuid }
+    EntradaMedidaDeCuenta:
+      type: object
+      additionalProperties: false
+      required: [causal, medida, cautelar, motivo, evidencias]
+      properties:
+        causal:       { type: string, enum: [CUENTA_COMPROMETIDA, FRAUDE_CON_EVIDENCIA, ABUSO_CONTRA_PARTICIPANTES, CUENTA_DUPLICADA_O_DE_TERCERO] }
+        medida:       { type: string, enum: [BLOQUEO_CAUTELAR, SUSPENSION_TEMPORAL] }
+        cautelar:     { type: boolean }
+        motivo:       { type: string, minLength: 30, maxLength: 500 }
+        evidencias:   { type: array, minItems: 1, maxItems: 20, items: { $ref: '#/components/schemas/EvidenciaDeMedida' } }
+        vigenteHasta: { type: string, format: date-time }
+    EntradaNotificacionDeMedida:
+      type: object
+      additionalProperties: false
+      required: [entregadaEn]
+      properties:
+        entregadaEn: { type: string, format: date-time }
+        mensajeId:   { type: string, format: uuid }
+    EntradaDescargoDeMedida:
+      type: object
+      additionalProperties: false
+      required: [argumento]
+      properties:
+        argumento:  { type: string, minLength: 20, maxLength: 4000 }
+        evidencias: { type: array, maxItems: 10, items: { $ref: '#/components/schemas/EvidenciaDeMedida' } }
+    EntradaDecisionDeMedida:
+      type: object
+      additionalProperties: false
+      required: [resultado, fundamento, evidenciaMfa]
+      properties:
+        resultado:  { type: string, enum: [CONFIRMADA, DESESTIMADA] }
+        fundamento: { type: string, minLength: 50, maxLength: 4000 }
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096, description: 'Evidencia de step-up de quien actua, un solo uso (R-SEG-12)' }
+    EntradaResolucionDeApelacion:
+      type: object
+      additionalProperties: false
+      required: [resultado, resolucion, evidenciaMfa]
+      properties:
+        resultado:  { type: string, enum: [ACEPTADA, RECHAZADA] }
+        resolucion: { type: string, minLength: 50, maxLength: 4000 }
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096, description: 'Evidencia de step-up de quien actua, un solo uso (R-SEG-12)' }
+    HitoDeMedida:
+      type: object
+      additionalProperties: false
+      required: [estado, ocurridoEn]
+      properties:
+        estadoAnterior: { type: string, maxLength: 25 }
+        estado:         { type: string, maxLength: 25 }
+        motivo:         { type: string, maxLength: 500 }
+        ocurridoEn:     { type: string, format: date-time }
+    ExpedienteDeMedida:
+      type: object
+      additionalProperties: false
+      required: [expedienteId, usuarioId, causal, medida, cautelar, estado, estadoCuenta, propuestaEn, prescribeEn, lineaDeTiempo]
+      properties:
+        expedienteId:         { type: string, format: uuid }
+        usuarioId:            { type: string, format: uuid }
+        causal:               { type: string, maxLength: 40 }
+        medida:               { type: string, maxLength: 25 }
+        cautelar:             { type: boolean }
+        motivo:               { type: string, maxLength: 500 }
+        estado:               { type: string, enum: [PROPUESTA, CAUTELAR, NOTIFICACION_PENDIENTE, EN_DESCARGO, DECIDIDA, EN_APELACION, FIRME, DESESTIMADA, REVOCADA, CUMPLIDA, PRESCRITO] }
+        estadoCuenta:         { type: string, maxLength: 25 }
+        propuestaEn:          { type: string, format: date-time }
+        notificadaEn:         { type: string, format: date-time }
+        fechaLimiteDescargo:  { type: string, format: date-time }
+        resultadoDecision:    { type: string, enum: [CONFIRMADA, DESESTIMADA] }
+        fundamentoDecision:   { type: string, maxLength: 4000 }
+        fechaLimiteApelacion: { type: string, format: date-time }
+        vigenteHasta:         { type: string, format: date-time }
+        prescribeEn:          { type: string, format: date-time }
+        apelacionEstado:      { type: string, enum: [PRESENTADA, ACEPTADA, RECHAZADA, ACEPTADA_POR_VENCIMIENTO] }
+        lineaDeTiempo:        { type: array, maxItems: 100, items: { $ref: '#/components/schemas/HitoDeMedida' } }
+    MedidaVigente:
+      type: object
+      additionalProperties: false
+      required: [usuarioId, retenerEntrega]
+      properties:
+        usuarioId:      { type: string, format: uuid }
+        retenerEntrega: { type: boolean }
+        expedienteId:   { type: string, format: uuid }
 
   responses:
     ReglaDeNegocio:

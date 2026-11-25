@@ -80,16 +80,16 @@
 ### H3.S2 — Contrato `identidad.yaml` (tag Participantes, solo operaciones nuevas)
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H3.S2.M1 | Operaciones y esquemas de búsqueda, ficha, revelación, medida, descargo, decisión, apelación y resolución, con `AP-CU134-01..11` | Contrato válido y con límites | `verificar_contratos_limites.py` exit 0 | A MEDIAS — escrito y validado (`verificar_contratos_limites.py` exit 0), guardado como `evidencia/H3.S2-contrato-participantes.patch` y no aplicado a `identidad.yaml`: sin controladores, `inventario_endpoints.py --check` falla, y el build que los permite está bloqueado (H3.S3.M1). Se aplica con `git apply` junto con H3.S3 |
+| H3.S2.M1 | Operaciones y esquemas de búsqueda, ficha, revelación, medida, descargo, decisión, apelación y resolución, con `AP-CU134-01..11` | Contrato válido y con límites | `verificar_contratos_limites.py` exit 0 | HECHO — aplicado en `identidad.yaml` con `evidenciaMfa`; `verificar_contratos_limites.py` e `inventario_endpoints.py --check` exit 0 |
 
 ### H3.S3 — Backend `identidad`
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H3.S3.M1 | Directorio, ficha enmascarada y revelación con `registro_acceso_datos` | Escenarios gherkin de lectura en verde | `./gradlew :servicios:identidad:test --tests 'CU134*'` | BLOQUEADO — `./gradlew` no resuelve dependencias: Maven Central responde 429 desde este entorno (`evidencia/H3.S3-bloqueo-maven-429.txt`). Se intentó: reintento; init script local con el espejo de Maven Central de Google (responde 200), denegado por el control de permisos de la sesión. Lo destraba: que Pablo permita el espejo, o que el 429 ceda. Contrato del colaborador: el build de Gradle; no hay doble posible para un compilador |
-| H3.S3.M2 | Proponer medida (cautelar, idempotencia, sesiones revocadas, notificación por outbox) | Escenarios de propuesta en verde | ídem | TODO |
-| H3.S3.M3 | Descargo, decisión por otra persona y firmeza | Escenarios de decisión en verde | ídem | TODO |
-| H3.S3.M4 | Apelación por una tercera, resolución a favor por vencimiento, prescripción y reversión (trabajo diario) | Escenarios de apelación en verde | ídem | TODO |
-| H3.S3.M5 | Consulta interna «¿tiene medida vigente?» para `entregas` | Contrato de servicio a servicio probado | ídem | TODO |
+| H3.S3.M1 | Directorio, ficha enmascarada y revelación con `registro_acceso_datos` | Escenarios gherkin de lectura en verde | `./gradlew :servicios:identidad:test --tests 'CU134*'` | A MEDIAS — código y prueba escritos (`CU134ConsultarParticipante`, `CU134GestionarMedida`, `ParticipantesController`, `CU134Test`); `verificar_criterios.py` lo da por implementado; falta la corrida real de `CU134Test` en la CI (build local bloqueado) |
+| H3.S3.M2 | Proponer medida (cautelar, idempotencia, sesiones revocadas, notificación por outbox) | Escenarios de propuesta en verde | ídem | A MEDIAS — código y prueba escritos (`CU134ConsultarParticipante`, `CU134GestionarMedida`, `ParticipantesController`, `CU134Test`); `verificar_criterios.py` lo da por implementado; falta la corrida real de `CU134Test` en la CI (build local bloqueado) |
+| H3.S3.M3 | Descargo, decisión por otra persona y firmeza | Escenarios de decisión en verde | ídem | A MEDIAS — código y prueba escritos (`CU134ConsultarParticipante`, `CU134GestionarMedida`, `ParticipantesController`, `CU134Test`); `verificar_criterios.py` lo da por implementado; falta la corrida real de `CU134Test` en la CI (build local bloqueado) |
+| H3.S3.M4 | Apelación por una tercera, resolución a favor por vencimiento, prescripción y reversión (trabajo diario) | Escenarios de apelación en verde | ídem | A MEDIAS — código y prueba escritos (`CU134ConsultarParticipante`, `CU134GestionarMedida`, `ParticipantesController`, `CU134Test`); `verificar_criterios.py` lo da por implementado; falta la corrida real de `CU134Test` en la CI (build local bloqueado) |
+| H3.S3.M5 | Consulta interna «¿tiene medida vigente?» para `entregas` | Contrato de servicio a servicio probado | ídem | A MEDIAS — código y prueba escritos (`CU134ConsultarParticipante`, `CU134GestionarMedida`, `ParticipantesController`, `CU134Test`); `verificar_criterios.py` lo da por implementado; falta la corrida real de `CU134Test` en la CI (build local bloqueado) |
 
 ### H3.S4 — Entrega retenida (D-11) en `entregas`
 | ID | Microtarea | CA (binario) | DoD | Estado |

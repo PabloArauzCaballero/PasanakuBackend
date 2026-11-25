@@ -83,8 +83,8 @@ Este caso **no** reemplaza a ninguno de estos; los invoca o se aparta de ellos.
    estable (`fecha_registro`, `id`) y devuelve por fila solo: código público, nombre
    abreviado («Juan P.»), `estado`, `nivel_kyc`, fecha de registro y marcas booleanas
    (tiene restricción vigente, tiene bloqueo vigente, tiene medida de seguridad en curso).
-   Cada búsqueda escribe una fila en [[registro_acceso_datos]] con `operacion='BUSQUEDA'`,
-   `cantidad_registros` y la justificación. El término buscado viaja en el cuerpo, nunca en
+   Cada búsqueda escribe en [[registro_acceso_datos]] una fila por persona devuelta, con
+   `operacion='BUSQUEDA'` y la justificación; sin resultados no se leyó el dato de nadie. El término buscado viaja en el cuerpo, nunca en
    la URL (regla 90.2.2).
 2. **Abrir la ficha.** Devuelve los datos **mínimos y enmascarados**:
    - identidad: nombre completo, código público, `estado`, `nivel_kyc`, fecha de registro,
@@ -330,11 +330,11 @@ export const ErroresCU134 = {
 | Átomo | `enmascarar(campo, valor)` | Teléfono, correo y documento enmascarados; puro |
 | Átomo | `causalAdmiteCautelar(causal)` | Lee el catálogo cerrado; puro |
 | Átomo | `plazosDeMedida(politica, notificadoEn, calendario)` | Descargo, apelación y prescripción en días hábiles; puro |
-| Molécula | `RegistroDeLectura` | Escribe [[registro_acceso_datos]] en la transacción de la lectura |
-| Molécula | `ExpedienteMedidaCuentaRepositorio` | Persistencia del expediente, evidencias, decisión y apelación (*APROBADO*, D-4) |
-| Molécula | `RevocadorDeSesiones` | Compartido con [[CU-04 Autenticar con MFA y registrar dispositivo]] |
-| Organismo | `CU134ConsultarParticipante` | Transacción: lectura + registro de lectura |
-| Organismo | `CU134ProponerMedida` · `CU134DecidirMedida` · `CU134ResolverApelacion` | Transacción: expediente, estado de cuenta, bloqueo, sesiones y evento |
+| Molécula | `ParticipantesRepositorio` | Directorio, ficha y rastro en [[registro_acceso_datos]] en la transaccion de la lectura |
+| Molécula | `MedidasDeCuentaRepositorio` | Expediente, evidencia e historial append-only, apelacion, estado de cuenta, bloqueo y calendario habil |
+| Molécula | `AccesosRepositorio.cerrarSesionesDe` | Compartido con [[CU-04 Autenticar con MFA y registrar dispositivo]] y CU-08 |
+| Organismo | `CU134ConsultarParticipante` | Transacción: busqueda, ficha y revelacion con su rastro; medida vigente para `entregas` |
+| Organismo | `CU134GestionarMedida` | Transacción: proponer, notificar, descargo, decidir, apelar, resolver y el trabajo diario de vencimientos |
 | Página | `POST /identidad/participantes/busquedas` · `POST /identidad/participantes/{id}/ficha` · `POST /identidad/participantes/{id}/medidas` · `POST /identidad/medidas-cuenta/{id}/decision` | Traduce y delega |
 
 ## Eventos, trabajos y permisos
@@ -426,8 +426,8 @@ Entonces se rechaza con CAUTELAR_NO_ADMITIDA
 
 Dada una cuenta comprometida con evidencia de sesiones anómalas
 Cuando el analista propone un bloqueo cautelar
-Entonces la cuenta queda BLOQUEADO_SEGURIDAD, sus sesiones quedan revocadas
-Y el expediente queda CAUTELAR con la fecha límite de descargo guardada al notificar
+Entonces la cuenta queda BLOQUEADO_SEGURIDAD, sus sesiones quedan revocadas y el expediente queda CAUTELAR
+Y al acreditarse la notificación se guarda la fecha límite de descargo y el expediente pasa a EN_DESCARGO
 
 Dado un expediente con el plazo de descargo abierto y sin descargo
 Cuando se intenta decidir
@@ -441,10 +441,10 @@ Dada una propuesta de medida reenviada con la misma clave de idempotencia
 Cuando llega por segunda vez
 Entonces devuelve el mismo expedienteId y no se crea otro expediente
 
-Dada una apelación que la instancia no resuelve dentro de su plazo
-Cuando vence
+Dada una apelación que una tercera persona acepta
+Cuando la resuelve
 Entonces la medida queda REVOCADA, la cuenta vuelve a su estado previo
-Y se registra un evento de reputación compensatorio sin borrar el original
+Y se emite identidad.medida_cuenta_revocada sin borrar el historial del expediente
 
 Dada una cuenta suspendida con aportes pendientes en un grupo
 Cuando se aplica la suspensión
@@ -482,7 +482,7 @@ principal del trabajo de gobierno de usuarios.
 | --- | --- | --- | --- |
 | A-1 | Destino de una entrega retenida cuando la medida queda firme (D-11) | Sigue retenida; nadie la mueve | Pablo |
 | A-2 | ~~Unidad de la prescripción~~ — **resuelta**: [[politica_medida_cuenta]] guarda `prescribe_en_meses` y `duracion_maxima_suspension_dias` en columnas propias | — | — |
-| A-3 | Plazo de la segunda instancia para resolver la apelación (sin él no hay «resuelta a favor por vencimiento») | `plazo_resolucion_apelacion_dias_habiles` queda vacío: no se resuelve sola | Pablo |
+| A-3 | Plazo de la segunda instancia para resolver la apelación (sin él no hay «resuelta a favor por vencimiento») | `plazo_resolucion_apelacion_dias_habiles` queda vacío: no se resuelve sola; la reputación compensatoria la registra CU-70 al consumir `identidad.medida_cuenta_revocada` | Pablo |
 
 ## Ver también
 

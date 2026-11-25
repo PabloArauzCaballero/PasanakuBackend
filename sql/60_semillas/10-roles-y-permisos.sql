@@ -296,7 +296,8 @@ INSERT INTO rol_permiso (rol_id, permiso_id) VALUES
   ((SELECT id FROM rol WHERE codigo = 'FRAUD_ANALYST'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_MEDIDA_PROPONER')),
   ((SELECT id FROM rol WHERE codigo = 'RESPONSABLE_SEGURIDAD'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_MEDIDA_DECIDIR')),
   ((SELECT id FROM rol WHERE codigo = 'OFICIAL_CUMPLIMIENTO'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_APELACION_RESOLVER')),
-  ((SELECT id FROM rol WHERE codigo = 'RESPONSABLE_RIESGOS'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_APELACION_RESOLVER'))
+  ((SELECT id FROM rol WHERE codigo = 'RESPONSABLE_RIESGOS'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_APELACION_RESOLVER')),
+  ((SELECT id FROM rol WHERE codigo = 'SERVICIO_ENTREGAS'), (SELECT id FROM permiso WHERE codigo = 'PARTICIPANTES_LEER'))
 ON CONFLICT (rol_id, permiso_id) DO NOTHING;
 
 -- P-3 (decisión de Pablo, 2026-11-24): nadie reúne funciones incompatibles. El oficial de cumplimiento registra los bloqueos por autoridad y el supervisor los levanta; el operador de publicidad da de alta anunciantes y liquida, y el aprobador de publicidad aprueba campañas. La siembra es DO NOTHING, así que una base ya sembrada conservaría las concesiones viejas: estos DELETE las retiran y son re-ejecutables (la segunda corrida no borra nada).

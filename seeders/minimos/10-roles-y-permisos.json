@@ -2750,6 +2750,16 @@
             "$ref": "permiso",
             "codigo": "PARTICIPANTES_APELACION_RESOLVER"
           }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "SERVICIO_ENTREGAS"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PARTICIPANTES_LEER"
+          }
         }
       ]
     },
