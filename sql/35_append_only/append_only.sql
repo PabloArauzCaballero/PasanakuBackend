@@ -133,6 +133,11 @@ CREATE TRIGGER tg_evidencia_mfa_consumida_append_only
   BEFORE UPDATE OR DELETE ON nucleo_financiero.evidencia_mfa_consumida
   FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
 
+DROP TRIGGER IF EXISTS tg_evidencia_step_up_consumida_append_only ON identidad.evidencia_step_up_consumida;
+CREATE TRIGGER tg_evidencia_step_up_consumida_append_only
+  BEFORE UPDATE OR DELETE ON identidad.evidencia_step_up_consumida
+  FOR EACH ROW EXECUTE FUNCTION fn_aud_bloquear_mutacion();
+
 DROP TRIGGER IF EXISTS tg_factura_proveedor_append_only ON erp.factura_proveedor;
 CREATE TRIGGER tg_factura_proveedor_append_only
   BEFORE UPDATE OR DELETE ON erp.factura_proveedor
