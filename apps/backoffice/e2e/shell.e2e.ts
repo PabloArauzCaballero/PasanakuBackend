@@ -55,7 +55,7 @@ test('cabecera: el menú de usuario muestra el rol y ofrece salir; el buscador a
   await expect(page.getByRole('banner').getByRole('button', { name: /Plataforma/, expanded: true })).toBeVisible()
   await expect(page.getByRole('menu', { name: 'Cuenta' })).toBeVisible()
   // Ayuda vive acá desde el recorte del menú lateral; cada opción con ícono y texto.
-  await expect(page.getByRole('menuitem')).toHaveText(['Centro de ayuda', 'Salir'])
+  await expect(page.getByRole('menuitem')).toHaveText(['Centro de ayuda', 'Cambiar mi clave', 'Salir'])
   await capturar(page, P, 'menu-de-usuario', 'escritorio', 'light')
   await page.keyboard.press('Escape')
   await expect(page.getByRole('menu', { name: 'Cuenta' })).toBeHidden()
