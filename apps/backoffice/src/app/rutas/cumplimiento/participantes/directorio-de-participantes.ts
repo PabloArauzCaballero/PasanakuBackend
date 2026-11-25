@@ -79,6 +79,7 @@ const COLUMNAS: Columna<ParticipanteResumen>[] = [
                 @switch (columna.clave) {
                   @case ('codigoPublico') {
                     <a
+                      class="enlace"
                       [routerLink]="['/cumplimiento/participantes', p.usuarioId]"
                       [attr.aria-label]="t.abrir + ' ' + p.codigoPublico"
                       >{{ p.codigoPublico }}</a
@@ -106,6 +107,9 @@ const COLUMNAS: Columna<ParticipanteResumen>[] = [
     </ap-marco-de-cumplimiento>
   `,
   styles: `
+    .enlace { color: var(--brand-texto); font-weight: 600; text-decoration: none; }
+    .enlace:hover { text-decoration: underline; }
+    .enlace:focus-visible { outline: var(--borde-foco) solid var(--brand); outline-offset: var(--borde-desfase); }
     .busqueda {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));

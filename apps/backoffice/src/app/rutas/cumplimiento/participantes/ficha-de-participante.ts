@@ -68,15 +68,15 @@ const T = textosParticipantes;
               @for (m of f.medidas; track m.expedienteId) {
                 <article class="medida">
                   <header>
-                    <strong>{{ m.causal }}</strong> · {{ m.medida }}
-                    <ap-chip-estado tono="aviso">{{ m.estado }}</ap-chip-estado>
+                    <strong>{{ texto(t.causales, m.causal) }}</strong> · {{ texto(t.medidas, m.medida) }}
+                    <ap-chip-estado tono="aviso">{{ texto(t.etapas, m.estado) }}</ap-chip-estado>
                   </header>
                   <h3><ap-icono nombre="historial" tamano="s4" />{{ t.ficha.lineaDeTiempo }}</h3>
                   <ol>
                     @for (h of m.lineaDeTiempo; track $index) {
                       <li>
                         <time [attr.datetime]="h.ocurridoEn">{{ fecha(h.ocurridoEn) }}</time> ·
-                        {{ h.estado }}
+                        {{ texto(t.etapas, h.estado) }}
                       </li>
                     }
                   </ol>
@@ -146,6 +146,7 @@ export class FichaDeParticipante {
   protected readonly motivo = signal<string | null>(null);
   protected readonly ficha = fichaDe(this.usuarioId, this.motivo);
   protected readonly fecha = (iso: string) => formatearFecha(iso);
+  protected readonly texto = (mapa: Record<string, string>, codigo: string) => mapa[codigo] ?? codigo
   protected readonly estado = (codigo: string) => T.estados[codigo] ?? codigo;
 
   protected abrir(): void {
@@ -168,8 +169,8 @@ export class FichaDeParticipante {
 
   protected contactoDe(f: Ficha) {
     return [
-      { nombre: T.telefono, valor: f.telefonoEnmascarado },
-      { nombre: 'Correo', valor: f.correoEnmascarado ?? '—' },
+      { nombre: T.ficha.telefono, valor: f.telefonoEnmascarado },
+      { nombre: T.ficha.correo, valor: f.correoEnmascarado ?? '—' },
     ];
   }
 

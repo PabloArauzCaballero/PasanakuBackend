@@ -129,9 +129,9 @@ describe('CU-134 · Participantes', () => {
           expedienteId: 'e1',
           usuarioId: USUARIO,
           causal: 'CUENTA_COMPROMETIDA',
-          medida: 'SUSPENSION',
+          medida: 'SUSPENSION_TEMPORAL',
           cautelar: true,
-          estado: 'NOTIFICADA',
+          estado: 'EN_DESCARGO',
           estadoCuenta: 'SUSPENDIDA',
           propuestaEn: '2026-11-01T10:00:00Z',
           fechaLimiteDescargo: '2026-11-08T23:59:59Z',
@@ -143,7 +143,7 @@ describe('CU-134 · Participantes', () => {
     await f.whenStable();
     const texto = f.nativeElement.textContent;
     expect(texto).toContain('+591 7•••••12');
-    expect(texto).toContain('CUENTA_COMPROMETIDA');
+    expect(texto).toContain('Cuenta comprometida');
     expect(texto).toContain('Descargo hasta');
     expect(await axe(f.nativeElement)).toHaveNoViolations();
   });

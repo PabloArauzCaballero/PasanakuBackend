@@ -1,6 +1,6 @@
 # Reporte — Lote G · CU de gobierno de participantes (borrador para aprobación)
 
-> **AVANCE: ver `plan_status.py` (H1, H2 y H3.S1 hechos).** H3 (implementación) en curso: modelo, esquema, semillas y contrato escritos y verificados en local; backend BLOQUEADO por Maven Central 429. Antes: H1 cerrado (PR #514 y #518 en `dev`). H2: CU-134 pasa a APROBADO (decisión de Pablo del 2026-11-24); falta la CI del PR. D-3 (5/5 días hábiles, 12 meses, 90 días) y D-11 (retener la entrega) resueltas por Pablo el mismo día; abiertas A-1 y A-2.
+> **AVANCE: 17 / 28 — 60,7 %** (`plan_status.py`). H3.S6.M1/M2 (backoffice «Participantes») hechos contra backend SIMULADO; H3.S5.M1 A MEDIAS (contrato registrado, CU-04 compartido); H3.S2–S4 esperan la CI del PR #525; H3.S6.M3 TODO.
 
 - Fecha: 2026-11-24 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/gu-g-cu-participantes` → PR a `dev`
 - Peldaño de evidencia alcanzado: `RUNS` sobre la bóveda, en local y en la CI del PR #514 (los verificadores corren en exit 0 con el CU nuevo). Es un documento: no hay comportamiento que ejercitar; el CU queda **BORRADOR** hasta que Pablo lo apruebe (decisión P-11).
@@ -15,6 +15,8 @@
 | H1.S3.M1 | Verificadores de los workflows en local | ver «Evidencia» | PASS: seguridad, bóveda, carriles, criterios, inventario de endpoints, contratos y límites, maqueta, flujos, pruebas web, catálogo de datos → exit 0 |
 | H1.S3.M2 | Este reporte con las preguntas para Pablo | `python3 .claude/hooks/report_gate.py --self-test` | `14 PASS, 0 FAIL` |
 | H1.S3.M3 | PR #514 a `dev` con la CI en verde; mergeado el 2026-11-24 | checks del head `af1db1d` (runs 45459193470 y 45459192974) | PASS — ver «CI del PR #514» |
+| H3.S6.M1 | Entrada «Participantes» (Cumplimiento › Riesgo y seguridad) y directorio con cargando/datos/vacío/error | `npx ng test --include='src/app/nucleo/**/*.spec.ts' --include='src/app/rutas/cumplimiento/**/*.spec.ts'` | PASS 74 archivos / 576 tests; typecheck y lint exit 0 (`evidencia/h3-s6-ng-test.txt`, `evidencia/h3-s6-typecheck-lint.txt`) |
+| H3.S6.M2 | Ficha con justificación previa, contacto enmascarado y medidas con línea de tiempo | `npx playwright test e2e/visual-participantes.e2e.ts --workers=1` | PASS 24/24 en 390/834/1440 × claro/oscuro, consola limpia, capturas inspeccionadas; **backend simulado** (`evidencia/h3-s6-capturas.txt`) |
 
 ## A medias
 ### H2.S1.M3 — PR de aprobación a `dev`
@@ -48,6 +50,12 @@
 En `codex/cu134-medidas-participantes`, desde #525 (`6f42f97ce`), están las decisiones A-1 y A-3 de Pablo. La semilla conserva la versión anterior y agrega la versión con diez días hábiles para resolver una apelación. Identidad persiste el plazo de CU-59 en la recepción y devuelve la fecha al titular en la vista del expediente. El trabajo diario toma lotes con bloqueo de filas y acepta por vencimiento, revierte y emite el evento en la misma transacción. La consulta interna de retención distingue cautelar vigente y medida firme vigente de una suspensión todavía apelable que no se aplicó.
 
 Continúan pendientes H3.S4–S6: custodia de punta a punta en entregas, aplicación y conciliación de la liberación con otras restricciones y cuenta verificada, modo restringido y backoffice. La rama conserva #525 como base y se debe integrar revisando sus últimos cambios. La autorización de un desembolso requiere validación del servicio de entregas. La consulta de identidad por sí sola no acredita fondos. El cierre de una medida que no se aplicó deja intacto el estado de la cuenta. Para un bloqueo cautelar aplicado, falta vincular su fila de bloqueo al expediente para revertirla sin alcanzar bloqueos independientes por la misma causal. Antes de usar la consulta desde entregas, conceder al servicio permiso dedicado a ese veredicto en lugar de lectura del directorio.
+
+## Continuación del 2026-11-25 · lote G (H3.S5 y H3.S6)
+
+- **Hallazgo de seguridad corregido (`a605b179f`):** la credencial `SERVICIO_ENTREGAS` tenía `PARTICIPANTES_LEER`, que le abría el directorio y las fichas con datos personales. Ahora `medida-vigente` usa el permiso propio `PARTICIPANTES_MEDIDA_VIGENTE_LEER` (solo esa credencial), con su WebTest negativo (403 al abrir una ficha). Lo detectó la matriz de roles del backoffice. Compilación y WebTest se verifican en la CI de #525 (sin Gradle local).
+- **H3.S5.M1 — A MEDIAS.** Qué anda: un `SUSPENDIDO` hoy no obtiene token (`CU04Autenticar.java:132`), falla cerrado. Qué no anda: no hay alcance restringido. Qué falta: claim `alcance=RESTRINGIDO` en CU-04 y lista blanca en `GuardiaDePermiso` (plataforma/comun-web), aditivo, coordinado con el lote C (avisado el 2026-11-25). Dónde quedó: sin código; contrato y tres niveles en `PLAN.md`.
+- **H3.S6.M3 — TODO:** revelar, proponer, decidir y resolver con segundo factor desde el backoffice.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |

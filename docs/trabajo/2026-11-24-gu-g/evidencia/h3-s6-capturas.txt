@@ -1,0 +1,29 @@
+# H3.S6 capturas — backend SIMULADO (page.route, datos sintéticos; declarado)
+$ npx playwright test e2e/visual-participantes.e2e.ts --workers=1 --retries=0 --trace off
+  24 passed (1.3m)
+Capturas (gitignored) en .playwright/backoffice/visual/participantes/:
+directorio-datos.escritorio.dark.png
+directorio-datos.escritorio.light.png
+directorio-datos.movil.dark.png
+directorio-datos.movil.light.png
+directorio-datos.tablet.dark.png
+directorio-datos.tablet.light.png
+directorio-error.escritorio.dark.png
+directorio-error.escritorio.light.png
+directorio-error.movil.dark.png
+directorio-error.movil.light.png
+directorio-error.tablet.dark.png
+directorio-error.tablet.light.png
+directorio-vacio.escritorio.dark.png
+directorio-vacio.escritorio.light.png
+directorio-vacio.movil.dark.png
+directorio-vacio.movil.light.png
+directorio-vacio.tablet.dark.png
+directorio-vacio.tablet.light.png
+ficha.escritorio.dark.png
+ficha.escritorio.light.png
+ficha.movil.dark.png
+ficha.movil.light.png
+ficha.tablet.dark.png
+ficha.tablet.light.png
+Inspeccionadas: ficha.movil.dark, ficha.tablet.light, directorio-datos.escritorio.light, directorio-error.movil.dark, directorio-vacio.escritorio.dark
