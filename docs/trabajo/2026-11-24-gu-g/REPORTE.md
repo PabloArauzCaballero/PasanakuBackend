@@ -1,6 +1,6 @@
 # Reporte — Lote G · CU de gobierno de participantes (borrador para aprobación)
 
-> **AVANCE: 17 / 28 — 60,7 %** (`plan_status.py`). H3.S6.M1/M2 (backoffice «Participantes») hechos contra backend SIMULADO; H3.S5.M1 A MEDIAS (contrato registrado, CU-04 compartido); H3.S2–S4 esperan la CI del PR #525; H3.S6.M3 TODO.
+> **AVANCE: 23 / 31 — 74,2 %** (`plan_status.py`). PR #525 con la CI completa en verde (head `d855ce0e2`) y fuera de draft. H3.S3 y H3.S4.M1 TESTED en la CI; H3.S6.M1/M2 hechos contra backend simulado; abiertos H3.S4.M2 (evidencia 91.6), H3.S5 (modo restringido, asignado a G) y H3.S6.M3.
 
 - Fecha: 2026-11-24 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/gu-g-cu-participantes` → PR a `dev`
 - Peldaño de evidencia alcanzado: `RUNS` sobre la bóveda, en local y en la CI del PR #514 (los verificadores corren en exit 0 con el CU nuevo). Es un documento: no hay comportamiento que ejercitar; el CU queda **BORRADOR** hasta que Pablo lo apruebe (decisión P-11).
@@ -56,6 +56,14 @@ Continúan pendientes H3.S4–S6: custodia de punta a punta en entregas, aplicac
 - **Hallazgo de seguridad corregido (`a605b179f`):** la credencial `SERVICIO_ENTREGAS` tenía `PARTICIPANTES_LEER`, que le abría el directorio y las fichas con datos personales. Ahora `medida-vigente` usa el permiso propio `PARTICIPANTES_MEDIDA_VIGENTE_LEER` (solo esa credencial), con su WebTest negativo (403 al abrir una ficha). Lo detectó la matriz de roles del backoffice. Compilación y WebTest se verifican en la CI de #525 (sin Gradle local).
 - **H3.S5.M1 — A MEDIAS.** Qué anda: un `SUSPENDIDO` hoy no obtiene token (`CU04Autenticar.java:132`), falla cerrado. Qué no anda: no hay alcance restringido. Qué falta: claim `alcance=RESTRINGIDO` en CU-04 y lista blanca en `GuardiaDePermiso` (plataforma/comun-web), aditivo, coordinado con el lote C (avisado el 2026-11-25; respondió que no lo toma: CU-04 y GuardiaDePermiso quedan fuera de su alcance, lo asigna la sesión principal). Dónde quedó: sin código; contrato y tres niveles en `PLAN.md`.
 - **H3.S6.M3 — TODO:** revelar, proponer, decidir y resolver con segundo factor desde el backoffice.
+
+## CI de #525 hasta verde (2026-11-25)
+
+La primera compilación real del backend se hizo en la CI (Gradle local bloqueado por Maven Central 429). Fallos encontrados y corregidos, en orden: import faltante en `MedidaDeCuentaPorHttp`; archivos de 300 líneas o más (`CU28EmitirDesembolso`, `CU134GestionarMedida` → `EfectosDeMedida`, `MedidasDeCuentaRepositorio` → `LecturasDeMedidasRepositorio`, `CU134Test` → `EscenarioDeCU134` + `CU134ApelacionTest`); formato Palantir (SQL de prueba en bloques de texto para no chocar con `verificar_seguridad`); dobles faltantes en las sábanas de seguridad web; el generador Spring agrupa `/identidad/*` en `IdentidadApi` (`ParticipantesController` → `RutasDeParticipantes`, servida por `VerificacionesController`); `set` ambiguo de jOOQ para `inet`; `fetchValue` con clase como parámetro; rutas del titular sin `@Permiso` (ahora `PARTICIPANTE`, y `PARTICIPANTES_LEER` como alternativa al consultar); colección Postman; `menu.ts` sobre 200 líneas tras integrar `dev`; `ArquitecturaTest` (la web no depende de infraestructura: registros a `dominio.RegistroDeMedida` y `dominio.RegistroDeParticipante`); el e2e de roles (SOPORTE ve Cumplimiento por CU-134). `catalogo-gobierno.e2e.ts:143` falló dos veces en la CI de `065a9e24e` con `AbortError` y no se reprodujo en local (`evidencia/h3-e2e-roles-y-catalogo.txt`); en `d855ce0e2` pasó. Una caída de Maven Central (429) en «Dependencias» se resolvió con el push siguiente, sin relanzar.
+
+Resultado en `d855ce0e2`: 12 trabajos en verde (formato y compilación, cinco corredores con las pruebas de identidad y entregas, frontend, contratos, esquema y semillas sobre PostgreSQL real, dependencias, Trivy, bootJar e imagen) y 6 omitidos por diseño (solo `main`, iOS, goldens).
+
+Pendiente fuera del repositorio: dos `git stash` con capturas de `docs/trabajo/2026-10-08-endurecimiento-integral/` que la corrida e2e local sobrescribió (no se commitean; descartar con confirmación).
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
