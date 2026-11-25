@@ -233,7 +233,8 @@ class CU28Test extends EscenarioDeDesembolso {
 
         assertThatThrownBy(() -> transaccion.execute(t -> desembolsoCU.emitir(retenida, c.ctx())))
                 .isInstanceOfSatisfying(
-                        ErrorDeNegocio.class, e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU28-08"));
+                        ErrorDeNegocio.class,
+                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU28-08"));
         assertThat(contar(
                         "SELECT count(*)::int FROM entregas.entrega_fondo WHERE id = ? AND estado = 'AUTORIZADA'",
                         c.entregaId()))
