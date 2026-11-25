@@ -54,7 +54,9 @@ abstract class EscenarioDeDesembolso extends BaseDeEntregas {
                 // Se adelanta el reloj de la cuenta: esperar 24 horas en una prueba no
                 // prueba nada, y lo que se verifica es que el plazo GUARDADO se respeta.
                 dsl.execute(
-                        "UPDATE entregas.cuenta_bancaria_beneficiario SET bloqueada_hasta = now() - interval '1 hour' WHERE id = ?",
+                        """
+                        UPDATE entregas.cuenta_bancaria_beneficiario SET bloqueada_hasta = now() - interval '1 hour'
+                        WHERE id = ?""",
                         cuenta.cuentaId());
             }
         }

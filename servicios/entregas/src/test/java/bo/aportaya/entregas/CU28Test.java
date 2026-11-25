@@ -14,8 +14,8 @@ import org.junit.jupiter.api.Test;
 class CU28Test extends EscenarioDeDesembolso {
 
     @Test
-    @DisplayName(
-            "Dada una entrega autorizada con cuenta destino verificada · Cuando se emite la orden de desembolso · Entonces existe una orden_desembolso con clave_idempotencia · Y un intento_desembolso número 1")
+    @DisplayName("Dada una entrega autorizada con cuenta destino verificada · Cuando se emite la orden de desembolso ·"
+            + " Entonces existe una orden_desembolso con clave_idempotencia · Y un intento_desembolso número 1")
     void criterio1() {
         Caso c = caso(true, true);
 
@@ -24,18 +24,22 @@ class CU28Test extends EscenarioDeDesembolso {
         assertThat(salida.esNueva()).isTrue();
         assertThat(salida.claveIdempotencia()).isEqualTo("des-1");
         assertThat(contar(
-                        "SELECT count(*)::int FROM entregas.orden_desembolso WHERE id = ? AND clave_idempotencia = 'des-1'",
+                        """
+                        SELECT count(*)::int FROM entregas.orden_desembolso WHERE id = ?
+                        AND clave_idempotencia = 'des-1'""",
                         salida.ordenId()))
                 .isEqualTo(1);
         assertThat(contar(
-                        "SELECT count(*)::int FROM entregas.intento_desembolso WHERE orden_desembolso_id = ? AND numero_intento = 1",
+                        """
+                        SELECT count(*)::int FROM entregas.intento_desembolso WHERE orden_desembolso_id = ?
+                        AND numero_intento = 1""",
                         salida.ordenId()))
                 .isEqualTo(1);
     }
 
     @Test
-    @DisplayName(
-            "Dada una orden ya emitida · Cuando el trabajo se ejecuta de nuevo con la misma clave · Entonces se devuelve la orden existente y no se crea una segunda")
+    @DisplayName("Dada una orden ya emitida · Cuando el trabajo se ejecuta de nuevo con la misma clave · Entonces se"
+            + " devuelve la orden existente y no se crea una segunda")
     void criterio2() {
         Caso c = caso(true, true);
 
@@ -52,7 +56,9 @@ class CU28Test extends EscenarioDeDesembolso {
 
     @Test
     @DisplayName(
-            "Dado un proveedor que responde cuenta inexistente · Cuando se procesa la respuesta · Entonces la orden queda RECHAZADA sin programar reintento · Y el saldo vuelve a estar disponible para el beneficiario")
+            "Dado un proveedor que responde cuenta inexistente · Cuando se procesa la respuesta · Entonces la orden"
+                    + " queda RECHAZADA sin programar reintento · Y el saldo vuelve a estar disponible para el"
+                    + " beneficiario")
     void criterio3() {
         Caso c = caso(true, true);
         SalidaOrden orden = transaccion.execute(t -> desembolsoCU.emitir(orden(c, "des-rechazo"), c.ctx()));
@@ -97,8 +103,8 @@ class CU28Test extends EscenarioDeDesembolso {
     }
 
     @Test
-    @DisplayName(
-            "Dada una orden acreditada que no cruza con el extracto bancario · Cuando se intenta cerrar el día · Entonces el cierre no puede marcarse cuadrado")
+    @DisplayName("Dada una orden acreditada que no cruza con el extracto bancario · Cuando se intenta cerrar el día ·"
+            + " Entonces el cierre no puede marcarse cuadrado")
     void criterio4() {
         Caso c = caso(true, true);
         SalidaOrden orden = transaccion.execute(t -> desembolsoCU.emitir(orden(c, "des-cruce"), c.ctx()));
@@ -218,7 +224,9 @@ class CU28Test extends EscenarioDeDesembolso {
 
     @Test
     @DisplayName(
-            "Dado un beneficiario con una medida vigente sobre su cuenta · Cuando se emite la orden de desembolso · Entonces se rechaza con ENTREGA_RETENIDA_POR_MEDIDA · Y la entrega sigue AUTORIZADA sin ninguna orden_desembolso")
+            "Dado un beneficiario con una medida vigente sobre su cuenta · Cuando se emite la orden de desembolso ·"
+                    + " Entonces se rechaza con ENTREGA_RETENIDA_POR_MEDIDA · Y la entrega sigue AUTORIZADA sin ninguna"
+                    + " orden_desembolso")
     void criterioRetenidaPorMedida() {
         Caso c = caso(true, true);
         var base = orden(c, "des-retenida");

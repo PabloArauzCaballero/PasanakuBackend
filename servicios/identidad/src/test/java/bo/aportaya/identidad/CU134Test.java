@@ -80,8 +80,8 @@ class CU134Test {
     @Test
     @DisplayName(
             "Dado un operador con permiso de lectura de participantes · Cuando abre la ficha de un participante con"
-                    + " una justificación válida · Entonces ve el teléfono y el correo enmascarados · Y existe una fila en"
-                    + " registro_acceso_datos con operacion LECTURA y su justificación")
+                + " una justificación válida · Entonces ve el teléfono y el correo enmascarados · Y existe una fila en"
+                + " registro_acceso_datos con operacion LECTURA y su justificación")
     void criterio1() {
         UUID operador = persona();
         UUID participante = persona();
@@ -193,9 +193,9 @@ class CU134Test {
     @Test
     @DisplayName(
             "Dada una cuenta comprometida con evidencia de sesiones anómalas · Cuando el analista propone un bloqueo"
-                    + " cautelar · Entonces la cuenta queda BLOQUEADO_SEGURIDAD, sus sesiones quedan revocadas y el"
-                    + " expediente queda CAUTELAR · Y al acreditarse la notificación se guarda la fecha límite de descargo"
-                    + " y el expediente pasa a EN_DESCARGO")
+                + " cautelar · Entonces la cuenta queda BLOQUEADO_SEGURIDAD, sus sesiones quedan revocadas y el"
+                + " expediente queda CAUTELAR · Y al acreditarse la notificación se guarda la fecha límite de descargo"
+                + " y el expediente pasa a EN_DESCARGO")
     void criterio7() {
         UUID analista = persona();
         UUID participante = persona();

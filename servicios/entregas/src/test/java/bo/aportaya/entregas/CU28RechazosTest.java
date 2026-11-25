@@ -52,7 +52,9 @@ class CU28RechazosTest extends BaseDeEntregas {
             transaccion.execute(t -> cuentaCU.verificar(cuenta.cuentaId(), "MICRODEPOSITO", ctx));
             if (fueraDeEnfriamiento) {
                 dsl.execute(
-                        "UPDATE entregas.cuenta_bancaria_beneficiario SET bloqueada_hasta = now() - interval '1 hour' WHERE id = ?",
+                        """
+                        UPDATE entregas.cuenta_bancaria_beneficiario SET bloqueada_hasta = now() - interval '1 hour'
+                        WHERE id = ?""",
                         cuenta.cuentaId());
             }
         }
@@ -63,7 +65,8 @@ class CU28RechazosTest extends BaseDeEntregas {
 
     private SalidaOrden emitir(Caso c, String clave) {
         return transaccion.execute(t -> desembolsoCU.emitir(
-                new EntradaOrden(c.entregaId(), c.proveedorId(), c.cuentaId(), "Turno 1", clave, true, false), c.ctx()));
+                new EntradaOrden(c.entregaId(), c.proveedorId(), c.cuentaId(), "Turno 1", clave, true, false),
+                c.ctx()));
     }
 
     @Test
