@@ -49,6 +49,10 @@ public class SesionDeLaPeticion {
      */
     static final String RECLAMO_PERMISOS = "permisos";
 
+    static final String RECLAMO_ALCANCE = "alcance";
+
+    public static final String ALCANCE_RESTRINGIDO = "RESTRINGIDO";
+
     /**
      * El contexto de quien esta operando.
      *
@@ -100,6 +104,18 @@ public class SesionDeLaPeticion {
         }
         List<String> permisos = token.getClaimAsStringList(RECLAMO_PERMISOS);
         return permisos == null ? Set.of() : Set.copyOf(permisos);
+    }
+
+    /**
+     * {@code true} si identidad emitio la sesion con alcance restringido (CU-134, D-6: cuenta bajo medida). El
+     * reclamo viaja firmado en el token; sin el, la sesion es completa, como siempre.
+     */
+    public boolean restringida() {
+        Authentication autenticacion = SecurityContextHolder.getContext().getAuthentication();
+        if (autenticacion == null || !(autenticacion.getPrincipal() instanceof Jwt token)) {
+            return false;
+        }
+        return ALCANCE_RESTRINGIDO.equals(token.getClaimAsString(RECLAMO_ALCANCE));
     }
 
     /** Identificador de sesión firmado por identidad; nunca se toma del cuerpo o query del cliente. */
