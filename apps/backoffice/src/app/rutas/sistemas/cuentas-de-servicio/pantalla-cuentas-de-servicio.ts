@@ -38,7 +38,7 @@ const PROPOSITO = 'Las identidades con las que un servicio le habla a otro: qui�
       @if (entregada(); as e) {
         <ap-alerta tono="aviso" titulo="Copiá la credencial ahora: no se vuelve a mostrar">
           <ap-codigo-copiable [valor]="e.credencial" nombre="credencial de la cuenta de servicio" />
-          <p class="sub">Vence el <ap-fecha [valor]="e.venceEn" />. Se cerraron {{ e.sesionesCerradas }} {{ e.sesionesCerradas === 1 ? 'sesión' : 'sesiones' }}. El servicio tiene que recibir esta clave antes de su próximo ingreso.</p>
+          <p class="sub">Vence el <ap-fecha [iso]="e.venceEn" />. Se cerraron {{ e.sesionesCerradas }} {{ e.sesionesCerradas === 1 ? 'sesión' : 'sesiones' }}. El servicio tiene que recibir esta clave antes de su próximo ingreso.</p>
           <ap-boton variante="secundario" (pulsado)="entregada.set(null)">Ya la guardé</ap-boton>
         </ap-alerta>
       }
@@ -49,8 +49,8 @@ const PROPOSITO = 'Las identidades con las que un servicio le habla a otro: qui�
           <ng-template #celda let-c let-col="columna">
             @switch (col.clave) {
               @case ('estado') { <ap-chip-estado [tono]="c.estado === 'ACTIVA' ? 'ok' : 'neutro'">{{ c.estado === 'ACTIVA' ? 'Activa' : 'Revocada' }}</ap-chip-estado> }
-              @case ('venceEn') { <ap-fecha [valor]="c.venceEn" /> }
-              @case ('credencialRotadaEn') { <ap-fecha [valor]="c.credencialRotadaEn" /> }
+              @case ('venceEn') { <ap-fecha [iso]="c.venceEn" /> }
+              @case ('credencialRotadaEn') { <ap-fecha [iso]="c.credencialRotadaEn" /> }
               @case ('rolCodigo') { <code>{{ c.rolCodigo }}</code> }
               @case ('id') {
                 @if (c.estado === 'ACTIVA') {
