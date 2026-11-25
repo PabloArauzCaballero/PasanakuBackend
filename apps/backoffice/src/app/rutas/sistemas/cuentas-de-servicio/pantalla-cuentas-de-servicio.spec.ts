@@ -48,7 +48,7 @@ describe('PantallaCuentasDeServicio (doble del gateway, regla 65)', () => {
     http.expectOne(`${GW_DE_PRUEBA}/cuentas-servicio`).flush({ mensaje: 'java.lang.NullPointerException' }, { status: 500, statusText: 'x' })
     const el = await estabilizar(f)
     expect(texto(el)).not.toContain('NullPointerException')
-    expect(texto(el)).toContain('Reintentar')
+    expect(texto(el)).toContain('Volver a intentar')
   })
 
   it('la credencial entregada no está en el listado ni en la página al cargar', async () => {
