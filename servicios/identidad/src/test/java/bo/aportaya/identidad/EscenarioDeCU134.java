@@ -80,8 +80,7 @@ abstract class EscenarioDeCU134 {
                 usuario, "BACKOFFICE", new Traza(UUID.randomUUID().toString()));
     }
 
-    static CU134GestionarMedida.Vista proponer(
-            UUID por, UUID sobre, String causal, String medida, boolean cautelar) {
+    static CU134GestionarMedida.Vista proponer(UUID por, UUID sobre, String causal, String medida, boolean cautelar) {
         return proponerConClave(
                 por, sobre, causal, medida, cautelar, UUID.randomUUID().toString());
     }
