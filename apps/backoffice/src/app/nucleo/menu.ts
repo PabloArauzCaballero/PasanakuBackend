@@ -179,8 +179,7 @@ export const MENU: readonly Grupo[] = [
           per('usuarios-internos', 'Usuarios internos', 'persona'),
           per('roles-internos', 'Roles internos', 'grupo'),
           per('permisos-internos', 'Permisos internos', 'llave'),
-          per('accesos', 'Revisión de accesos', 'candado'),
-          per('cuentas-de-servicio', 'Cuentas de servicio', 'llave'),
+          per('accesos', 'Revisión de accesos', 'candado'), per('cuentas-de-servicio', 'Cuentas de servicio', 'llave'),
         ],
       },
       {

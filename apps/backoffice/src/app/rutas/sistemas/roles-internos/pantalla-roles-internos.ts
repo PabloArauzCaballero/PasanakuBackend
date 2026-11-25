@@ -6,10 +6,8 @@ import { Boton } from '@aportaya/ui/boton/boton'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { CajonLateral } from '@aportaya/ui/cajon-lateral/cajon-lateral'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
-import type { ColumnaExportable } from '@aportaya/ui/exportar-listado/exportar'
 import { crearListado } from '@aportaya/ui/listado/crear-listado'
 import { ListadoDeDatos } from '@aportaya/ui/listado/listado'
-import type { Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
 import type { PermisoCatalogo, RolCatalogo } from 'clientes/angular/identidad'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { cargaDe, filasDe } from '../compartido/carga'
@@ -20,10 +18,9 @@ import type { ErrorDeGobierno } from '../dominio/errores-de-gobierno'
 import { GATEWAY } from '../../../nucleo/gateway'
 import { textosSistemas } from '../textos'
 import { DialogoDeActo } from '../usuarios-internos/dialogo-de-acto'
+import { COLUMNAS, EXPORTABLES, origenDe } from './columnas-de-roles'
 import { FormularioDeRol } from './formulario-de-rol'
 import { PanelDeSolicitudesDeRol } from './panel-de-solicitudes-de-rol'
-
-const origenDe = (r: RolCatalogo) => (r.esSistema ? 'Sistema' : 'Personalizado')
 
 /**
  * Catálogo de roles asignables al personal interno. Es de solo lectura en el contrato —no hay alta, edición ni baja de
@@ -149,23 +146,8 @@ export class PantallaRolesInternos {
       { etiqueta: 'Departamentos', valor: String(new Set(f.map((r) => r.departamento ?? '')).size), icono: 'carpeta' },
     ]
   })
-  protected readonly columnas: Columna<RolCatalogo>[] = [
-    { clave: 'codigo', titulo: 'Código de rol', ordenable: true },
-    { clave: 'nombre', titulo: 'Nombre', ordenable: true },
-    { clave: 'departamento', titulo: 'Departamento', ordenable: true },
-    { clave: 'descripcion', titulo: 'Descripción' },
-    { clave: 'esSistema', titulo: 'Origen' },
-    { clave: 'permisos', titulo: 'Permisos', numerica: true },
-  ]
-  protected readonly exportables: ColumnaExportable<RolCatalogo>[] = [
-    { clave: 'codigo', titulo: 'Código de rol' },
-    { clave: 'nombre', titulo: 'Nombre' },
-    { clave: 'ambito', titulo: 'Ámbito' },
-    { clave: 'departamento', titulo: 'Departamento' },
-    { clave: 'descripcion', titulo: 'Descripción' },
-    { clave: 'esSistema', titulo: 'Origen', valor: origenDe },
-    { clave: 'permisos', titulo: 'Permisos', valor: (r) => r.permisos.join(' | ') },
-  ]
+  protected readonly columnas = COLUMNAS
+  protected readonly exportables = EXPORTABLES
 
   protected abrirCrear(): void {
     this.reiniciar('', '', '', [])

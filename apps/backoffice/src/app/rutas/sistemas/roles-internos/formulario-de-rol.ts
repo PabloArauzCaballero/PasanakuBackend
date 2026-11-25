@@ -42,7 +42,7 @@ import { RIESGO_DE_CUATRO_OJOS } from '../dominio/gobierno-de-roles'
   `,
   styles: `
     .campos { display: grid; gap: var(--s3); }
-    .permisos { margin: 0; padding: var(--s2) var(--s3); border: 1px solid var(--borde-tarjeta); border-radius: var(--r-md); min-width: 0; }
+    .permisos { margin: 0; padding: var(--s2) var(--s3); border: var(--borde-fino) solid var(--borde-tarjeta); border-radius: var(--r-md); min-width: 0; }
     legend { padding: 0 var(--s1); font-weight: 600; color: var(--text-2); }
     ul { display: grid; gap: var(--s1); margin: 0; padding: 0; list-style: none; max-height: 16rem; overflow: auto; }
     code { font-family: var(--f-mono); font: var(--t-ayuda); overflow-wrap: anywhere; }

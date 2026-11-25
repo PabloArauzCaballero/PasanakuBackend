@@ -45,7 +45,7 @@ const TIPO: Readonly<Record<SolicitudDeRol['tipo'], string>> = { CREAR: 'Crear r
     .panel { display: grid; gap: var(--s3); }
     h2 { margin: 0; font: var(--t-titulo-3); }
     .lista { display: grid; gap: var(--s2); margin: 0; padding: 0; list-style: none; }
-    li { display: flex; flex-wrap: wrap; gap: var(--s3); align-items: center; justify-content: space-between; padding: var(--s3); border: 1px solid var(--borde-tarjeta); border-radius: var(--r-md); background: var(--fondo-tarjeta); }
+    li { display: flex; flex-wrap: wrap; gap: var(--s3); align-items: center; justify-content: space-between; padding: var(--s3); border: var(--borde-fino) solid var(--borde-tarjeta); border-radius: var(--r-md); background: var(--fondo-tarjeta); }
     .que { display: grid; gap: var(--s1); min-width: 0; }
     .sub { font: var(--t-ayuda); color: var(--text-2); overflow-wrap: anywhere; }
     code { font-family: var(--f-mono); font: var(--t-ayuda); }
