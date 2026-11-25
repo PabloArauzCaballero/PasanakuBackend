@@ -60,7 +60,10 @@ public final class ReglasDeRolPersonalizado {
 
     /** Cuatro ojos si algun permiso del conjunto es {@code ALTO} o {@code CRITICO} segun el catalogo. */
     public static boolean exigeCuatroOjos(Set<String> permisos, Map<String, String> riesgoPorPermiso) {
-        return permisos.stream().map(riesgoPorPermiso::get).anyMatch(RIESGO_DE_CUATRO_OJOS::contains);
+        return permisos.stream()
+                .map(riesgoPorPermiso::get)
+                .filter(java.util.Objects::nonNull)
+                .anyMatch(RIESGO_DE_CUATRO_OJOS::contains);
     }
 
     public static boolean motivoValido(String motivo) {

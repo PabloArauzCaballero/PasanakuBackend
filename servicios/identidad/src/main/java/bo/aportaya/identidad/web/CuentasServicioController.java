@@ -6,7 +6,7 @@ import bo.aportaya.identidad.aplicacion.CU136GobernarCuentasDeServicio.PedidoDeA
 import bo.aportaya.identidad.aplicacion.CU136GobernarCuentasDeServicio.PedidoDeRotacion;
 import bo.aportaya.identidad.aplicacion.CU136GobernarCuentasDeServicio.Revocacion;
 import bo.aportaya.identidad.aplicacion.CU136GobernarCuentasDeServicio.Rotacion;
-import bo.aportaya.identidad.infraestructura.CuentasDeServicioRepositorio.Fila;
+import bo.aportaya.identidad.aplicacion.ResumenDeCuentaDeServicio;
 import bo.aportaya.identidad.web.generado.CuentasServicioApi;
 import bo.aportaya.identidad.web.generado.modelo.CuentaDeServicio;
 import bo.aportaya.identidad.web.generado.modelo.EntradaDeAltaDeCuentaDeServicio;
@@ -104,7 +104,7 @@ public class CuentasServicioController implements CuentasServicioApi {
         return ResponseEntity.ok(salida);
     }
 
-    private static CuentaDeServicio salida(Fila f) {
+    private static CuentaDeServicio salida(ResumenDeCuentaDeServicio f) {
         CuentaDeServicio c = new CuentaDeServicio();
         c.setId(f.id());
         c.setUsuarioId(f.usuarioId());

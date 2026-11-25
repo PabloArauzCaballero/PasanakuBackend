@@ -233,8 +233,10 @@ public class CU136GobernarCuentasDeServicio {
     }
 
     @Transactional(readOnly = true)
-    public List<Fila> listar(ContextoSesion ctx) {
-        return datos.conContexto(ctx, dsl -> cuentas.listar(dsl, FILAS_DEL_LISTADO));
+    public List<ResumenDeCuentaDeServicio> listar(ContextoSesion ctx) {
+        return datos.conContexto(ctx, dsl -> cuentas.listar(dsl, FILAS_DEL_LISTADO).stream()
+                .map(ResumenDeCuentaDeServicio::de)
+                .toList());
     }
 
     // ------------------------------------------------------------------ reglas
