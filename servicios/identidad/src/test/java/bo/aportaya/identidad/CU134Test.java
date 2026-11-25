@@ -293,7 +293,7 @@ class CU134Test {
                 .isEqualTo(1);
         assertThat(revocada.lineaDeTiempo())
                 .extracting(MedidasDeCuentaRepositorio.Hito::estado)
-                .contains("NOTIFICACION_PENDIENTE", "EN_DESCARGO", "DECIDIDA", "EN_APELACION", "REVOCADA");
+                .contains("CAUTELAR", "EN_DESCARGO", "DECIDIDA", "EN_APELACION", "REVOCADA");
     }
 
     @Test

@@ -360,14 +360,20 @@ public class CU134GestionarMedida {
         accesos.cerrarSesionesDe(dsl, usuarioId, "Medida sobre la cuenta (CU-134)", ahora);
     }
 
-    /** Vuelve la cuenta a su estado previo y libera solo los bloqueos que pudo poner la medida. */
+    /** Cierra el expediente y revierte los efectos solo si la medida llegó a aplicarse. */
     private void revertir(DSLContext dsl, Expediente e, UUID por, OffsetDateTime ahora) {
+        if (!e.cautelar() && e.firmeEn() == null) {
+            medidas.cerrar(dsl, e.id(), ahora);
+            return;
+        }
         medidas.estadoDeCuenta(dsl, e.usuarioId()).ifPresent(actual -> {
             if (actual.equals("SUSPENDIDO") || actual.equals("BLOQUEADO_SEGURIDAD")) {
                 medidas.estadoDeCuenta(dsl, e.usuarioId(), e.estadoCuentaPrevio());
             }
         });
-        medidas.liberarBloqueosDeMedida(dsl, e.usuarioId(), por, ahora);
+        if ("BLOQUEO_CAUTELAR".equals(e.medida())) {
+            medidas.liberarBloqueosDeMedida(dsl, e.usuarioId(), por, ahora);
+        }
         medidas.cerrar(dsl, e.id(), ahora);
     }
 
