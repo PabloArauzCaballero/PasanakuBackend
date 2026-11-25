@@ -51,6 +51,11 @@ public class ListaDeRevocaciones {
         alDia.set(true);
     }
 
+    /** El tema no esta disponible. Conserva lo conocido, pero no se puede validar el resto de las sesiones. */
+    void marcarNoDisponible() {
+        alDia.set(false);
+    }
+
     public boolean estaAlDia() {
         return alDia.get();
     }

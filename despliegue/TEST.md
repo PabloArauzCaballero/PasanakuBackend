@@ -551,8 +551,17 @@ docker run --rm --network aportaya-interna -e PGHOST=postgres -e PGUSER="$BD_USU
 Como es aditivo, **las imagenes viejas siguen funcionando contra el esquema nuevo** (columnas nuevas
 opcionales o con default, tablas nuevas ignoradas). Esta es la etapa «expandir» de la regla 97.3.5.
 
-**Etapa 4 · servicios.** Reconstruir las quince imagenes (de a una; el timer) y desplegar. Orden
-que impone el compose: `esquema` -> `identidad` -> olas de a cuatro. Verificar:
+**Etapa 4 · servicios.** Antes de activar los servicios con GU-15, ejecutar
+`bash despliegue/host/crear-topicos.sh` desde el checkout del SHA candidato, con el Kafka de TEST
+levantado. La revisión `f957167b` todavía no incluye el tópico de revocaciones en ese script.
+Desde el host, comprobar `aportaya.identidad.revocacion` en el broker con `kafka-topics --describe`
+y `kafka-configs --describe`. Debe haber una partición con líder y la configuración del candidato
+(`compact,delete`, retención de una hora y segmentos de diez minutos). Confirmar publicación y
+lectura habilitadas. Sin tópico o sin carga inicial, un servicio con el lector habilitado rechaza
+los tokens con `sesion_id` y la sonda `revocacion` queda DOWN.
+
+Reconstruir las quince imagenes (de a una; el timer) y desplegar. Orden que impone el compose:
+`esquema` -> `identidad` -> olas de a cuatro. Verificar:
 
 ```bash
 docker ps --format '{{.Names}} {{.Status}}' | grep -v healthy   # nada debe quedar unhealthy/restarting
@@ -563,6 +572,14 @@ for s in identidad nucleo-financiero inversiones; do
 **Etapa 5 · humo por el borde.** `GET https://api.aportaya…/api/v1/sesiones` sin token debe dar 401
 (no 503/504); `GET /api/v1/inversiones/productos` sin token, 401; un login con el operador de plataforma.
 Es lo que hace `despliegue/ensayos/arranque/humo.sh` apuntando al gateway local.
+
+Para verificar GU-15, consultar `/actuator/health/revocacion` en cada réplica con el lector
+habilitado. Los checks de estado del proceso y de una solicitud sin token no prueban revocación.
+Abrir dos sesiones sintéticas y comprobar que ambas funcionan. Revocar una y verificar que se
+rechaza dentro de cinco segundos en todos los servicios que validan sesiones, mientras el control
+sigue funcionando. Repetir tras un reinicio controlado mientras el token revocado todavía esté
+dentro de su vigencia original. Registrar SHA desplegado, resultado de `estado`, salud por réplica
+y tiempo de propagación, sin copiar tokens ni datos de usuarios al reporte.
 
 **Marcha atras, sin perdida de datos.** El esquema solo se expandio: no hay nada que deshacer en
 la base. Se revierte el codigo con un **revert-commit** sobre `test` (el mismo mecanismo que ya se
