@@ -12,6 +12,7 @@ export const PERMISOS_DE_PERSONAL: Readonly<Record<string, readonly string[]>> =
   'roles-internos': ['ROLES_INTERNOS_LEER', 'ACCESOS_ADMINISTRAR'],
   'permisos-internos': ['PERMISOS_INTERNOS_LEER', 'ACCESOS_ADMINISTRAR'],
   accesos: ['ACCESOS_ADMINISTRAR', 'USUARIOS_INTERNOS_LEER'],
+  'cuentas-de-servicio': ['ACCESOS_ADMINISTRAR', 'USUARIOS_INTERNOS_LEER'],
 }
 
 /** Todos los permisos que abren al menos una pantalla de la sección (los suma `nucleo/secciones.ts` a `ver:sistemas`). */
