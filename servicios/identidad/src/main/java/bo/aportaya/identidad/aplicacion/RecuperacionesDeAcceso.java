@@ -189,7 +189,8 @@ public class RecuperacionesDeAcceso {
                     solicitudes.vencer(dsl, aprobada.id());
                     continue;
                 }
-                AlcanceDeCuenta alcance = AlcanceDeCuenta.dePedido(aprobada.alcance()).orElseThrow();
+                AlcanceDeCuenta alcance =
+                        AlcanceDeCuenta.dePedido(aprobada.alcance()).orElseThrow();
                 UUID token;
                 try {
                     token = invitaciones.emitirYEnviar(

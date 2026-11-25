@@ -125,9 +125,7 @@ public class TokensDeCuentaRepositorio {
             return Optional.empty();
         }
         var fila = dsl.fetchOne(
-                paraActualizar ? VIGENTE_BLOQUEANDO : VIGENTE,
-                secretos.firmar("cuenta-token", token),
-                ahora);
+                paraActualizar ? VIGENTE_BLOQUEANDO : VIGENTE, secretos.firmar("cuenta-token", token), ahora);
         if (fila == null) {
             return Optional.empty();
         }

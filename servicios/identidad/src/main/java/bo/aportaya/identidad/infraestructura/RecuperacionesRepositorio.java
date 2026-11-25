@@ -45,7 +45,8 @@ public class RecuperacionesRepositorio {
         if (filas.size() != 1) {
             return Optional.empty();
         }
-        return Optional.of(new Operador(filas.get(0).get("id", UUID.class), filas.get(0).get("correo", String.class)));
+        return Optional.of(
+                new Operador(filas.get(0).get("id", UUID.class), filas.get(0).get("correo", String.class)));
     }
 
     /** {@code true} si creo el pedido; {@code false} si ya habia uno vivo del mismo alcance. */
@@ -115,8 +116,7 @@ public class RecuperacionesRepositorio {
     }
 
     public Optional<SolicitudDeRecuperacion> porId(DSLContext dsl, UUID id) {
-        return Optional.ofNullable(
-                dsl.fetchOne(SELECCION + " WHERE s.id = ?", id))
+        return Optional.ofNullable(dsl.fetchOne(SELECCION + " WHERE s.id = ?", id))
                 .map(RecuperacionesRepositorio::aSolicitud);
     }
 
@@ -143,7 +143,8 @@ public class RecuperacionesRepositorio {
 
     /** Las aprobadas cuyo enfriamiento ya paso, con candado y sin esperar a quien las tenga tomadas. */
     public List<Aprobada> listasParaEmitir(DSLContext dsl, OffsetDateTime ahora, int tanda) {
-        return dsl.fetch(
+        return dsl
+                .fetch(
                         """
                                 SELECT id, usuario_id, alcance FROM identidad.solicitud_recuperacion_acceso
                                 WHERE estado = 'APROBADA' AND enfriamiento_hasta <= ?::timestamptz
