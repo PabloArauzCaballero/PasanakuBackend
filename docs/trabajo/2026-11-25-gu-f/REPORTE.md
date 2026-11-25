@@ -1,6 +1,6 @@
 # Reporte — Lote F · roles editables (GU-16) y cuentas de servicio (GU-18)
 
-> **AVANCE: 0 / 13 — 0,0 %.** (`microtareas HECHO / total`; ninguna tiene su DoD completo todavía: lo hecho está en `A MEDIAS`.)
+> **AVANCE: 11 / 13 — 84,6 %.** (CI verde en `1aa88c913`; faltan capturas de la UI y el cierre del PR. Ver «Actualización 3».)
 
 - Fecha: 2026-11-25 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/gu-f-roles-servicio` (sin PR todavía)
 - Rama/PR: `claude/gu-f-roles-servicio` · PR #520 (borrador) · último commit f9e5c579
@@ -62,3 +62,10 @@ A1–A4 en el PLAN (cuatro ojos para todo riesgo ALTO/CRÍTICO del catálogo; vi
 - **Capturas 390/834/1440 × claro/oscuro: BLOQUEADO** por lo mismo (la app no compila sin clientes generados). Pendiente tras la CI.
 - Cuatro estados resueltos en las pantallas nuevas (cargando, datos, vacío orientado, error con reintento); formularios con error por campo, sin doble envío (por `ap-dialogo-de-acto`).
 - AVANCE sigue en 0 / 13 HECHO: ningún DoD ejecutado hasta que la CI de la rama termine.
+
+## ACTUALIZACIÓN 3 (2026-11-25, CI verde)
+- CI y «Bóveda, esquema, semillas y despliegue» **en verde en `1aa88c913`** (con compilación, `testBarrido`, `ArquitecturaTest`, `SeguridadWebTest`, `integrationTest` contra PostgreSQL —incluidos `CU135*Test` y `CU136*Test`— y las pruebas del frontend). Después, merge de `origin/dev` en `ca1b805e1` (conflicto resuelto conservando lo ajeno): su CI está en curso.
+- Corregido por la CI, todo en el código del lote: formato de `@DisplayName`, reglas de frontend (literal de diseño, 200 líneas), tipo de retorno jOOQ, archivos >300 líneas y constantes `LIMITE_*`, import estático, doble de `SeguridadWebTest`, `ap-fecha [iso]`, prefijo `/cuentas-servicio` en modelo/gateway/ArranqueTest, la web sin depender de infraestructura, permiso inexistente (NPE), TOTP de la cuenta de prueba (R-SEG-10).
+- Peldaño: `TESTED` para backend (tests dirigidos en verde en CI) y para los specs del frontend; **no hay `VERIFIED`**: nadie ejercitó la UI en runtime.
+- **Sigue pendiente:** capturas 390/834/1440 × claro/oscuro de las dos pantallas (necesitan la app compilada con clientes generados: ver en CI o en un entorno con Gradle); vencimiento de cuentas de servicio no aplicado en el login (CU-04); A1–A5 por confirmar.
+- AVANCE por la fórmula del plan: las 13 microtareas tienen su DoD de pruebas en verde en CI **salvo** H3 (capturas) y H4.S1.M3 (cierre con PR): **11 / 13** con la salida de CI como evidencia (enlace en el PR #520).
