@@ -87,7 +87,9 @@ class CuentaControllerWebTest {
     void consultarSinSesion() throws Exception {
         when(invitaciones.consultar(any(), any()))
                 .thenReturn(new InvitacionesDeCuenta.Consulta(
-                        AlcanceDeCuenta.ALTA, "Operadora", OffsetDateTime.now(ZoneOffset.UTC).plusHours(1)));
+                        AlcanceDeCuenta.ALTA,
+                        "Operadora",
+                        OffsetDateTime.now(ZoneOffset.UTC).plusHours(1)));
 
         mvc.perform(post("/cuenta/invitacion/consultar")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -238,7 +240,9 @@ class CuentaControllerWebTest {
     @DisplayName("invalido: cambiar la clave sin token es 401, y el cuerpo no puede nombrar a otro usuario")
     void cambiarClaveSinToken() throws Exception {
         String cuerpo = "{\"claveActual\":\"la-actual\",\"claveNueva\":\"una-clave-larga-1\"}";
-        mvc.perform(post("/cuenta/clave").contentType(MediaType.APPLICATION_JSON).content(cuerpo))
+        mvc.perform(post("/cuenta/clave")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(cuerpo))
                 .andExpect(status().isUnauthorized());
         mvc.perform(post("/cuenta/clave")
                         .with(token(TITULAR, "BACKOFFICE"))
