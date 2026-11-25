@@ -63,7 +63,7 @@ class CU28RechazosTest extends BaseDeEntregas {
 
     private SalidaOrden emitir(Caso c, String clave) {
         return transaccion.execute(t -> desembolsoCU.emitir(
-                new EntradaOrden(c.entregaId(), c.proveedorId(), c.cuentaId(), "Turno 1", clave, true), c.ctx()));
+                new EntradaOrden(c.entregaId(), c.proveedorId(), c.cuentaId(), "Turno 1", clave, true, false), c.ctx()));
     }
 
     @Test

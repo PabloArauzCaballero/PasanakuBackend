@@ -67,6 +67,6 @@ abstract class EscenarioDeDesembolso extends BaseDeEntregas {
     }
 
     protected EntradaOrden orden(Caso c, String clave) {
-        return new EntradaOrden(c.entregaId(), c.proveedorId(), c.cuentaId(), "Entrega de turno 1", clave, true);
+        return new EntradaOrden(c.entregaId(), c.proveedorId(), c.cuentaId(), "Entrega de turno 1", clave, true, false);
     }
 }

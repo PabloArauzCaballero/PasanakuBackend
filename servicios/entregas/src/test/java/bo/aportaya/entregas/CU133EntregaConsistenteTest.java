@@ -56,7 +56,8 @@ class CU133EntregaConsistenteTest extends BaseDePozoCompleto {
                         cuenta.cuentaId(),
                         "Entrega del pozo completo",
                         "des-" + c.e().turnoId(),
-                        true),
+                        true,
+                        false),
                 c.ctx()));
         transaccion.execute(t -> desembolsoCU.anotarRespuesta(
                 new EntradaRespuesta(
