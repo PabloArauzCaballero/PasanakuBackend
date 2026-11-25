@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, output, signal } from '@angular/core'
 import { Boton } from '@aportaya/ui/boton/boton'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
-import { DialogoDeActo } from '../usuarios-internos/dialogo-de-acto'
+import { DialogoDeActo } from '../compartido/dialogo-de-acto'
 import { accionesDeRoles, solicitudesDeRol, type SalidaDeRol, type SolicitudDeRol } from '../dominio/gobierno-de-roles'
 
 const TIPO: Readonly<Record<SolicitudDeRol['tipo'], string>> = { CREAR: 'Crear rol', EDITAR: 'Editar rol', RETIRAR: 'Retirar rol' }

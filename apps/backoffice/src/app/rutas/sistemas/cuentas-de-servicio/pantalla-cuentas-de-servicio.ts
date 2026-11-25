@@ -16,7 +16,7 @@ import {
   type CuentaDeServicio,
   type SalidaDeRotacion,
 } from '../dominio/gobierno-de-roles'
-import { DialogoDeActo } from '../usuarios-internos/dialogo-de-acto'
+import { DialogoDeActo } from '../compartido/dialogo-de-acto'
 
 const PROPOSITO = 'Las identidades con las que un servicio le habla a otro: quién las registró, cuándo vencen, cuándo cambió su clave, y rotarlas o revocarlas con segundo factor.'
 

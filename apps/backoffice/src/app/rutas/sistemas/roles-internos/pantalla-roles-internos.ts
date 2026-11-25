@@ -17,7 +17,7 @@ import { accionesDeRoles, RIESGO_DE_CUATRO_OJOS, type SalidaDeRol } from '../dom
 import type { ErrorDeGobierno } from '../dominio/errores-de-gobierno'
 import { GATEWAY } from '../../../nucleo/gateway'
 import { textosSistemas } from '../textos'
-import { DialogoDeActo } from '../usuarios-internos/dialogo-de-acto'
+import { DialogoDeActo } from '../compartido/dialogo-de-acto'
 import { COLUMNAS, EXPORTABLES, origenDe } from './columnas-de-roles'
 import { FormularioDeRol } from './formulario-de-rol'
 import { PanelDeSolicitudesDeRol } from './panel-de-solicitudes-de-rol'
