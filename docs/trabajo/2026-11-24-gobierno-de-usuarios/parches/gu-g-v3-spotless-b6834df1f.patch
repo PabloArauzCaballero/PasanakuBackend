@@ -1,0 +1,204 @@
+diff --git a/servicios/entregas/src/test/java/bo/aportaya/entregas/CU133EntregaConsistenteTest.java b/servicios/entregas/src/test/java/bo/aportaya/entregas/CU133EntregaConsistenteTest.java
+index 96be5b537..23b38d1e0 100644
+--- a/servicios/entregas/src/test/java/bo/aportaya/entregas/CU133EntregaConsistenteTest.java
++++ b/servicios/entregas/src/test/java/bo/aportaya/entregas/CU133EntregaConsistenteTest.java
+@@ -45,7 +45,8 @@ class CU133EntregaConsistenteTest extends BaseDePozoCompleto {
+                 c.ctx()));
+         transaccion.execute(t -> cuentaCU.verificar(cuenta.cuentaId(), "MICRODEPOSITO", c.ctx()));
+         dsl.execute(
+-                "UPDATE entregas.cuenta_bancaria_beneficiario SET bloqueada_hasta = now() - interval '1 hour' WHERE id = ?",
++                "UPDATE entregas.cuenta_bancaria_beneficiario SET bloqueada_hasta = now() - interval '1 hour' WHERE id"
++                        + " = ?",
+                 cuenta.cuentaId());
+         ContextoSesion supervisor = contextoDe(fixtura.usuario());
+         transaccion.execute(t -> entregaCU.autorizar(fondeo.entregaId(), supervisor));
+@@ -72,15 +73,17 @@ class CU133EntregaConsistenteTest extends BaseDePozoCompleto {
+     }
+ 
+     @Test
+-    @DisplayName(
+-            "Dado fondeo completo (Bs 6.000 confirmados) · Cuando el proveedor confirma el desembolso · Entonces ledger propuesto, confirmacion externa y comprobante coinciden en Bs 6.000 de principal, una sola vez")
++    @DisplayName("Dado fondeo completo (Bs 6.000 confirmados) · Cuando el proveedor confirma el desembolso · Entonces"
++            + " ledger propuesto, confirmacion externa y comprobante coinciden en Bs 6.000 de principal, una sola"
++            + " vez")
+     void ledgerConfirmacionYComprobanteCoinciden() {
+         var c = caso();
+         var e = entregarElPozo(c, "REF-BANCO-6000");
+ 
+         // COMPROBANTE: la entrega entera y la orden, al centavo, sin deducciones.
+         var entrega = dsl.fetchOne(
+-                "SELECT estado, monto_bolsa_bruto, total_deducciones, monto_neto_a_entregar FROM entregas.entrega_fondo WHERE id = ?",
++                "SELECT estado, monto_bolsa_bruto, total_deducciones, monto_neto_a_entregar FROM"
++                        + " entregas.entrega_fondo WHERE id = ?",
+                 e.entregaId());
+         var orden = dsl.fetchOne(
+                 "SELECT estado, monto, referencia_proveedor FROM entregas.orden_desembolso WHERE id = ?", e.ordenId());
+@@ -95,7 +98,8 @@ class CU133EntregaConsistenteTest extends BaseDePozoCompleto {
+         // LEDGER: el asiento propuesto viaja en el evento, cuadra y su origen es la entrega.
+         var mayor = new MayorDeDoble();
+         JsonNode evento = MayorDeDoble.leer(dsl.fetchOne(
+-                        "SELECT payload::text FROM entregas.evento_dominio WHERE tipo = 'entregas.desembolso_acreditado' AND agregado_id = ?",
++                        "SELECT payload::text FROM entregas.evento_dominio WHERE tipo ="
++                                + " 'entregas.desembolso_acreditado' AND agregado_id = ?",
+                         e.ordenId())
+                 .get(0, String.class));
+         assertThat(evento.get("referenciaProveedor").asText()).isEqualTo("REF-BANCO-6000");
+@@ -113,7 +117,8 @@ class CU133EntregaConsistenteTest extends BaseDePozoCompleto {
+         assertThat(mayor.registrar(UUID.randomUUID(), evento)).isFalse();
+         assertThat(mayor.asientos()).isEqualTo(1);
+         assertThat(contar(
+-                        "SELECT count(*)::int FROM entregas.evento_dominio WHERE tipo = 'entregas.desembolso_acreditado' AND payload->>'entregaId' = ?",
++                        "SELECT count(*)::int FROM entregas.evento_dominio WHERE tipo ="
++                                + " 'entregas.desembolso_acreditado' AND payload->>'entregaId' = ?",
+                         e.entregaId().toString()))
+                 .isEqualTo(1);
+     }
+@@ -136,7 +141,8 @@ class CU133EntregaConsistenteTest extends BaseDePozoCompleto {
+ 
+         assertThat(otra.esNuevo()).isFalse();
+         assertThat(contar(
+-                        "SELECT count(*)::int FROM entregas.evento_dominio WHERE tipo = 'entregas.desembolso_acreditado' AND agregado_id = ?",
++                        "SELECT count(*)::int FROM entregas.evento_dominio WHERE tipo ="
++                                + " 'entregas.desembolso_acreditado' AND agregado_id = ?",
+                         e.ordenId()))
+                 .isEqualTo(1);
+     }
+diff --git a/servicios/entregas/src/test/java/bo/aportaya/entregas/CU28RechazosTest.java b/servicios/entregas/src/test/java/bo/aportaya/entregas/CU28RechazosTest.java
+index 5afdbb94e..4a545aa51 100644
+--- a/servicios/entregas/src/test/java/bo/aportaya/entregas/CU28RechazosTest.java
++++ b/servicios/entregas/src/test/java/bo/aportaya/entregas/CU28RechazosTest.java
+@@ -52,7 +52,8 @@ class CU28RechazosTest extends BaseDeEntregas {
+             transaccion.execute(t -> cuentaCU.verificar(cuenta.cuentaId(), "MICRODEPOSITO", ctx));
+             if (fueraDeEnfriamiento) {
+                 dsl.execute(
+-                        "UPDATE entregas.cuenta_bancaria_beneficiario SET bloqueada_hasta = now() - interval '1 hour' WHERE id = ?",
++                        "UPDATE entregas.cuenta_bancaria_beneficiario SET bloqueada_hasta = now() - interval '1 hour'"
++                                + " WHERE id = ?",
+                         cuenta.cuentaId());
+             }
+         }
+@@ -63,7 +64,8 @@ class CU28RechazosTest extends BaseDeEntregas {
+ 
+     private SalidaOrden emitir(Caso c, String clave) {
+         return transaccion.execute(t -> desembolsoCU.emitir(
+-                new EntradaOrden(c.entregaId(), c.proveedorId(), c.cuentaId(), "Turno 1", clave, true, false), c.ctx()));
++                new EntradaOrden(c.entregaId(), c.proveedorId(), c.cuentaId(), "Turno 1", clave, true, false),
++                c.ctx()));
+     }
+ 
+     @Test
+diff --git a/servicios/entregas/src/test/java/bo/aportaya/entregas/CU28Test.java b/servicios/entregas/src/test/java/bo/aportaya/entregas/CU28Test.java
+index d0d331033..76e82360a 100644
+--- a/servicios/entregas/src/test/java/bo/aportaya/entregas/CU28Test.java
++++ b/servicios/entregas/src/test/java/bo/aportaya/entregas/CU28Test.java
+@@ -14,8 +14,8 @@ import org.junit.jupiter.api.Test;
+ class CU28Test extends EscenarioDeDesembolso {
+ 
+     @Test
+-    @DisplayName(
+-            "Dada una entrega autorizada con cuenta destino verificada · Cuando se emite la orden de desembolso · Entonces existe una orden_desembolso con clave_idempotencia · Y un intento_desembolso número 1")
++    @DisplayName("Dada una entrega autorizada con cuenta destino verificada · Cuando se emite la orden de desembolso ·"
++            + " Entonces existe una orden_desembolso con clave_idempotencia · Y un intento_desembolso número 1")
+     void criterio1() {
+         Caso c = caso(true, true);
+ 
+@@ -24,18 +24,20 @@ class CU28Test extends EscenarioDeDesembolso {
+         assertThat(salida.esNueva()).isTrue();
+         assertThat(salida.claveIdempotencia()).isEqualTo("des-1");
+         assertThat(contar(
+-                        "SELECT count(*)::int FROM entregas.orden_desembolso WHERE id = ? AND clave_idempotencia = 'des-1'",
++                        "SELECT count(*)::int FROM entregas.orden_desembolso WHERE id = ? AND clave_idempotencia ="
++                                + " 'des-1'",
+                         salida.ordenId()))
+                 .isEqualTo(1);
+         assertThat(contar(
+-                        "SELECT count(*)::int FROM entregas.intento_desembolso WHERE orden_desembolso_id = ? AND numero_intento = 1",
++                        "SELECT count(*)::int FROM entregas.intento_desembolso WHERE orden_desembolso_id = ? AND"
++                                + " numero_intento = 1",
+                         salida.ordenId()))
+                 .isEqualTo(1);
+     }
+ 
+     @Test
+-    @DisplayName(
+-            "Dada una orden ya emitida · Cuando el trabajo se ejecuta de nuevo con la misma clave · Entonces se devuelve la orden existente y no se crea una segunda")
++    @DisplayName("Dada una orden ya emitida · Cuando el trabajo se ejecuta de nuevo con la misma clave · Entonces se"
++            + " devuelve la orden existente y no se crea una segunda")
+     void criterio2() {
+         Caso c = caso(true, true);
+ 
+@@ -52,7 +54,9 @@ class CU28Test extends EscenarioDeDesembolso {
+ 
+     @Test
+     @DisplayName(
+-            "Dado un proveedor que responde cuenta inexistente · Cuando se procesa la respuesta · Entonces la orden queda RECHAZADA sin programar reintento · Y el saldo vuelve a estar disponible para el beneficiario")
++            "Dado un proveedor que responde cuenta inexistente · Cuando se procesa la respuesta · Entonces la orden"
++                    + " queda RECHAZADA sin programar reintento · Y el saldo vuelve a estar disponible para el"
++                    + " beneficiario")
+     void criterio3() {
+         Caso c = caso(true, true);
+         SalidaOrden orden = transaccion.execute(t -> desembolsoCU.emitir(orden(c, "des-rechazo"), c.ctx()));
+@@ -97,8 +101,8 @@ class CU28Test extends EscenarioDeDesembolso {
+     }
+ 
+     @Test
+-    @DisplayName(
+-            "Dada una orden acreditada que no cruza con el extracto bancario · Cuando se intenta cerrar el día · Entonces el cierre no puede marcarse cuadrado")
++    @DisplayName("Dada una orden acreditada que no cruza con el extracto bancario · Cuando se intenta cerrar el día ·"
++            + " Entonces el cierre no puede marcarse cuadrado")
+     void criterio4() {
+         Caso c = caso(true, true);
+         SalidaOrden orden = transaccion.execute(t -> desembolsoCU.emitir(orden(c, "des-cruce"), c.ctx()));
+@@ -218,7 +222,9 @@ class CU28Test extends EscenarioDeDesembolso {
+ 
+     @Test
+     @DisplayName(
+-            "Dado un beneficiario con una medida vigente sobre su cuenta · Cuando se emite la orden de desembolso · Entonces se rechaza con ENTREGA_RETENIDA_POR_MEDIDA · Y la entrega sigue AUTORIZADA sin ninguna orden_desembolso")
++            "Dado un beneficiario con una medida vigente sobre su cuenta · Cuando se emite la orden de desembolso ·"
++                    + " Entonces se rechaza con ENTREGA_RETENIDA_POR_MEDIDA · Y la entrega sigue AUTORIZADA sin ninguna"
++                    + " orden_desembolso")
+     void criterioRetenidaPorMedida() {
+         Caso c = caso(true, true);
+         var base = orden(c, "des-retenida");
+diff --git a/servicios/entregas/src/test/java/bo/aportaya/entregas/EscenarioDeDesembolso.java b/servicios/entregas/src/test/java/bo/aportaya/entregas/EscenarioDeDesembolso.java
+index 96c66902a..648b8c71a 100644
+--- a/servicios/entregas/src/test/java/bo/aportaya/entregas/EscenarioDeDesembolso.java
++++ b/servicios/entregas/src/test/java/bo/aportaya/entregas/EscenarioDeDesembolso.java
+@@ -54,7 +54,8 @@ abstract class EscenarioDeDesembolso extends BaseDeEntregas {
+                 // Se adelanta el reloj de la cuenta: esperar 24 horas en una prueba no
+                 // prueba nada, y lo que se verifica es que el plazo GUARDADO se respeta.
+                 dsl.execute(
+-                        "UPDATE entregas.cuenta_bancaria_beneficiario SET bloqueada_hasta = now() - interval '1 hour' WHERE id = ?",
++                        "UPDATE entregas.cuenta_bancaria_beneficiario SET bloqueada_hasta = now() - interval '1 hour'"
++                                + " WHERE id = ?",
+                         cuenta.cuentaId());
+             }
+         }
+diff --git a/servicios/identidad/src/test/java/bo/aportaya/identidad/CU134Test.java b/servicios/identidad/src/test/java/bo/aportaya/identidad/CU134Test.java
+index 99146fc9a..d59705bb4 100644
+--- a/servicios/identidad/src/test/java/bo/aportaya/identidad/CU134Test.java
++++ b/servicios/identidad/src/test/java/bo/aportaya/identidad/CU134Test.java
+@@ -80,8 +80,8 @@ class CU134Test {
+     @Test
+     @DisplayName(
+             "Dado un operador con permiso de lectura de participantes · Cuando abre la ficha de un participante con"
+-                    + " una justificación válida · Entonces ve el teléfono y el correo enmascarados · Y existe una fila en"
+-                    + " registro_acceso_datos con operacion LECTURA y su justificación")
++                + " una justificación válida · Entonces ve el teléfono y el correo enmascarados · Y existe una fila en"
++                + " registro_acceso_datos con operacion LECTURA y su justificación")
+     void criterio1() {
+         UUID operador = persona();
+         UUID participante = persona();
+@@ -193,9 +193,9 @@ class CU134Test {
+     @Test
+     @DisplayName(
+             "Dada una cuenta comprometida con evidencia de sesiones anómalas · Cuando el analista propone un bloqueo"
+-                    + " cautelar · Entonces la cuenta queda BLOQUEADO_SEGURIDAD, sus sesiones quedan revocadas y el"
+-                    + " expediente queda CAUTELAR · Y al acreditarse la notificación se guarda la fecha límite de descargo"
+-                    + " y el expediente pasa a EN_DESCARGO")
++                + " cautelar · Entonces la cuenta queda BLOQUEADO_SEGURIDAD, sus sesiones quedan revocadas y el"
++                + " expediente queda CAUTELAR · Y al acreditarse la notificación se guarda la fecha límite de descargo"
++                + " y el expediente pasa a EN_DESCARGO")
+     void criterio7() {
+         UUID analista = persona();
+         UUID participante = persona();
