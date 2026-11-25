@@ -1,0 +1,53 @@
+{
+  "servicio": "tarifas",
+  "operacion": "listarVersionesDeParametro",
+  "metodo": "get",
+  "ruta": "/tarifas/parametros/{codigo}/versiones",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "71e9eb35-e3ec-4cb9-86df-ab87455d697e",
+          "codigo": "codigo",
+          "nivel": "nivel",
+          "valor": "valor",
+          "moneda": "moneda",
+          "vigenteDesde": "2026-01-15T10:30:00Z",
+          "estado": "PROPUESTA",
+          "propuestoPor": "4f48806a-1f05-42d0-804d-02ba6e4e033a",
+          "aprobadoPor": "c2e37997-e48b-43c3-8668-da54a76f1d5a"
+        }
+      ]
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": []
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "71e9eb35-e3ec-4cb9-86df-ab87455d697e",
+          "codigo": "codigo",
+          "nivel": "nivel",
+          "valor": "valor",
+          "moneda": "moneda",
+          "vigenteDesde": "2026-01-15T10:30:00Z",
+          "estado": "PROPUESTA",
+          "propuestoPor": "4f48806a-1f05-42d0-804d-02ba6e4e033a",
+          "aprobadoPor": "c2e37997-e48b-43c3-8668-da54a76f1d5a"
+        }
+      ]
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU132-01",
+        "mensaje": "Parametro inexistente",
+        "detalle": {},
+        "trazaId": "traza-listarVersionesDeParametro-rechazo"
+      }
+    }
+  }
+}

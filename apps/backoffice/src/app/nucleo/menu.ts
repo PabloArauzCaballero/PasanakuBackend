@@ -1,6 +1,7 @@
 import type { NombreDeIcono } from '@aportaya/ui/icono/icono'
 import type { Seccion as NombreDeSeccion } from '../layout/icono-de-seccion'
 import { ENTRADAS_DE_CUMPLIMIENTO } from '../rutas/cumplimiento/compartido/navegacion'
+import { PERMISOS_DE_PERSONAL } from '../rutas/sistemas/personal-y-accesos'
 
 /** Una condición de acceso: alcanza con **uno** de sus permisos (`Sesion.puede`) o con que el rol sea uno de sus `roles`.
  * La misma forma que las guardias (`requierePermiso`, `requiereAlguno`, `soloRolesDeSistemas`), como dato: el menú pregunta sin navegar. */
@@ -47,10 +48,9 @@ const CONFIGURACION = p('ver:configuracion')
 const SISTEMAS = [p('ver:sistemas'), { roles: ['PLATAFORMA', 'SEGURIDAD'], permisos: ['ADMIN_PLATAFORMA', 'RESPONSABLE_SEGURIDAD'] }] as const
 
 const sis = (ruta: string, texto: string, icono: NombreDeIcono): Pantalla => ({ ruta: `/sistemas/${ruta}`, texto, icono, requiere: SISTEMAS })
-/**
- * Las pestañas de Cumplimiento toman sus códigos de `ENTRADAS_DE_CUMPLIMIENTO` (la lista de la franja C, que también
- * usa `cumplimiento.routes.ts` en sus guardias): una sola lista para la ruta y para la pestaña.
- */
+/** Una pantalla de «Personal y accesos»: la rama `/sistemas` la abre `ver:sistemas` y cada pantalla, el permiso que el servidor le exige. */
+const per = (ruta: keyof typeof PERMISOS_DE_PERSONAL, texto: string, icono: NombreDeIcono): Pantalla => ({ ruta: `/sistemas/${ruta}`, texto, icono, requiere: [p('ver:sistemas'), p(...PERMISOS_DE_PERSONAL[ruta]!)] })
+/** Cumplimiento comparte la lista de requisitos de cada pestaña con sus guardias. */
 const cum = (ruta: string, texto: string, icono: NombreDeIcono): Pantalla => {
   const codigos = ENTRADAS_DE_CUMPLIMIENTO.find((e) => e.ruta === `/cumplimiento/${ruta}`)?.codigos ?? []
   return { ruta: `/cumplimiento/${ruta}`, texto, icono, requiere: [CUMPLIMIENTO, pr(...codigos)] }
@@ -160,17 +160,6 @@ export const MENU: readonly Grupo[] = [
             icono: 'enlace',
             grupo: [sis('proveedores', 'Proveedores', 'paquete'), sis('outbox', 'Outbox por servicio', 'bandeja'), sis('webhooks', 'Webhooks', 'enlace')],
           },
-          {
-            ruta: '/sistemas/usuarios-internos',
-            texto: 'Personal y accesos',
-            icono: 'escudo',
-            grupo: [
-              sis('usuarios-internos', 'Usuarios internos', 'persona'),
-              sis('roles-internos', 'Roles internos', 'grupo'),
-              sis('permisos-internos', 'Permisos internos', 'llave'),
-              sis('accesos', 'Revisión de accesos', 'candado'),
-            ],
-          },
           // Metadata real de endpoints y flujos (fuera del menú desde A1); en grupo para no pasar de ocho pestañas.
           {
             ruta: '/sistemas/operaciones',
@@ -179,6 +168,18 @@ export const MENU: readonly Grupo[] = [
             grupo: [sis('operaciones', 'Operaciones del sistema', 'lista'), sis('flujos', 'Mapa de flujos', 'relacion')],
           },
           sis('bitacora', 'Registro del sistema', 'historial'),
+        ],
+      },
+      // Sección propia desde GU-09 (2026-11-24): la abren los permisos de gobierno de personal, no el rol de Sistemas.
+      {
+        ruta: 'personal',
+        texto: 'Personal y accesos',
+        prefijos: ['/sistemas/usuarios-internos', '/sistemas/roles-internos', '/sistemas/permisos-internos', '/sistemas/accesos'],
+        pantallas: [
+          per('usuarios-internos', 'Usuarios internos', 'persona'),
+          per('roles-internos', 'Roles internos', 'grupo'),
+          per('permisos-internos', 'Permisos internos', 'llave'),
+          per('accesos', 'Revisión de accesos', 'candado'),
         ],
       },
       {
