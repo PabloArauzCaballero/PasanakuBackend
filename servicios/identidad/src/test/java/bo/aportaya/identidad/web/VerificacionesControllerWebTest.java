@@ -45,12 +45,7 @@ import org.springframework.test.web.servlet.MockMvc;
  * se rompe.
  */
 @PruebaWeb(VerificacionesController.class)
-@MockitoBean(
-        types = {
-            bo.aportaya.identidad.aplicacion.ConsultarContactoEnGrupo.class,
-            bo.aportaya.identidad.aplicacion.CU134ConsultarParticipante.class,
-            bo.aportaya.identidad.aplicacion.CU134GestionarMedida.class
-        })
+@ConDoblesDeIdentidadApi
 class VerificacionesControllerWebTest {
 
     private static final UUID VERIFICACION = UUID.fromString("dddddddd-0000-4000-8000-000000000001");
