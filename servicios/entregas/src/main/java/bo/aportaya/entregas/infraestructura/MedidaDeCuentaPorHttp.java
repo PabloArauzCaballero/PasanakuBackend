@@ -1,6 +1,7 @@
 package bo.aportaya.entregas.infraestructura;
 
 import bo.aportaya.entregas.dominio.puertos.MedidaDeCuenta;
+import bo.aportaya.plataforma.web.clientes.CredencialDeServicio;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
