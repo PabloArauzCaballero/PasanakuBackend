@@ -54,7 +54,7 @@ Continúan pendientes H3.S4–S6: custodia de punta a punta en entregas, aplicac
 ## Continuación del 2026-11-25 · lote G (H3.S5 y H3.S6)
 
 - **Hallazgo de seguridad corregido (`a605b179f`):** la credencial `SERVICIO_ENTREGAS` tenía `PARTICIPANTES_LEER`, que le abría el directorio y las fichas con datos personales. Ahora `medida-vigente` usa el permiso propio `PARTICIPANTES_MEDIDA_VIGENTE_LEER` (solo esa credencial), con su WebTest negativo (403 al abrir una ficha). Lo detectó la matriz de roles del backoffice. Compilación y WebTest se verifican en la CI de #525 (sin Gradle local).
-- **H3.S5.M1 — A MEDIAS.** Qué anda: un `SUSPENDIDO` hoy no obtiene token (`CU04Autenticar.java:132`), falla cerrado. Qué no anda: no hay alcance restringido. Qué falta: claim `alcance=RESTRINGIDO` en CU-04 y lista blanca en `GuardiaDePermiso` (plataforma/comun-web), aditivo, coordinado con el lote C (avisado el 2026-11-25). Dónde quedó: sin código; contrato y tres niveles en `PLAN.md`.
+- **H3.S5.M1 — A MEDIAS.** Qué anda: un `SUSPENDIDO` hoy no obtiene token (`CU04Autenticar.java:132`), falla cerrado. Qué no anda: no hay alcance restringido. Qué falta: claim `alcance=RESTRINGIDO` en CU-04 y lista blanca en `GuardiaDePermiso` (plataforma/comun-web), aditivo, coordinado con el lote C (avisado el 2026-11-25; respondió que no lo toma: CU-04 y GuardiaDePermiso quedan fuera de su alcance, lo asigna la sesión principal). Dónde quedó: sin código; contrato y tres niveles en `PLAN.md`.
 - **H3.S6.M3 — TODO:** revelar, proponer, decidir y resolver con segundo factor desde el backoffice.
 
 ## Pendiente
