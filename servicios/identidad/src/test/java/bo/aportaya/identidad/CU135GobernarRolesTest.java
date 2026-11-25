@@ -72,8 +72,8 @@ class CU135GobernarRolesTest extends BaseDeGobiernoCU08 {
     @Test
     @DisplayName(
             "Dado un operador con ROLES_INTERNOS_GESTIONAR y step-up vigente · Cuando crea un rol personalizado con"
-                    + " permisos de riesgo bajo o medio · Entonces el rol existe como no de sistema, con sus permisos, y"
-                    + " deja identidad.rol_creado con actor y motivo")
+                + " permisos de riesgo bajo o medio · Entonces el rol existe como no de sistema, con sus permisos, y"
+                + " deja identidad.rol_creado con actor y motivo")
     void creaUnRolPersonalizado() {
         enTransaccionQueSeDeshace(() -> {
             UUID actor = operador();
