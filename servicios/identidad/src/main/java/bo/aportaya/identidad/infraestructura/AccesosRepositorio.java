@@ -6,17 +6,22 @@ import static bo.aportaya.identidad.generado.Tables.PERMISO;
 import static bo.aportaya.identidad.generado.Tables.ROL;
 import static bo.aportaya.identidad.generado.Tables.ROL_PERMISO;
 import static bo.aportaya.identidad.generado.Tables.SESION;
+import static bo.aportaya.identidad.generado.Tables.USUARIO;
 
+import bo.aportaya.identidad.dominio.MotivoDeRevocacion;
 import bo.aportaya.identidad.dominio.PermisosEfectivos.AsignacionVigente;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.impl.DSL;
 import org.springframework.stereotype.Component;
 
 /** Roles, permisos y asignaciones. Sin logica: la decision es de los atomos. */
@@ -101,7 +106,9 @@ public class AccesosRepositorio {
     public int revocar(DSLContext dsl, UUID asignacionId, String motivo, OffsetDateTime ahora) {
         return dsl.update(ASIGNACION_ROL)
                 .set(ASIGNACION_ROL.REVOCADA_EN, ahora)
-                .set(ASIGNACION_ROL.MOTIVO_REVOCACION, motivo)
+                .set(
+                        ASIGNACION_ROL.MOTIVO_REVOCACION,
+                        MotivoDeRevocacion.de("", motivo, MotivoDeRevocacion.LARGO_EN_ASIGNACION))
                 .where(ASIGNACION_ROL.ID.eq(asignacionId))
                 .and(ASIGNACION_ROL.REVOCADA_EN.isNull())
                 .execute();
@@ -137,28 +144,52 @@ public class AccesosRepositorio {
     }
 
     /**
-     * Revocar un permiso y dejar viva la sesion que lo usaba no es revocar nada.
+     * Revocar un permiso y dejar viva la sesion que lo usaba no es revocar nada. El motivo se recorta a la
+     * columna ({@code VARCHAR(80)}): un motivo de suspension de 200 caracteres hacia fallar el acto entero.
      */
     public int cerrarSesionesDe(DSLContext dsl, UUID usuarioId, String motivo, OffsetDateTime ahora) {
         return dsl.update(SESION)
                 .set(SESION.REVOCADA_EN, ahora)
-                .set(SESION.MOTIVO_REVOCACION, motivo)
+                .set(SESION.MOTIVO_REVOCACION, MotivoDeRevocacion.de("", motivo, MotivoDeRevocacion.LARGO_EN_SESION))
                 .where(SESION.USUARIO_ID.eq(usuarioId))
                 .and(SESION.REVOCADA_EN.isNull())
                 .execute();
     }
 
-    /** Cuantos usuarios distintos conservan el permiso, sin contar una asignacion dada. */
-    public int cuantosConservan(DSLContext dsl, String codigoDePermiso, UUID asignacionExcluida) {
-        return dsl.selectCount()
+    /**
+     * Cuantas PERSONAS conservan el permiso por una asignacion vigente (sin revocar, ya otorgada y sin vencer)
+     * con la cuenta ACTIVA, sin contar las asignaciones ni el usuario excluidos (GU-11).
+     *
+     * <p>Antes se contaban FILAS de asignacion vivas: una asignacion vencida, una cuenta suspendida o dos roles
+     * de la misma persona contaban como «otro administrador», y la plataforma podia quedarse sin nadie que
+     * pudiera entrar a administrar accesos.
+     */
+    public int titularesVigentesDelPermiso(
+            DSLContext dsl,
+            String codigoDePermiso,
+            Collection<UUID> asignacionesExcluidas,
+            Optional<UUID> usuarioExcluido,
+            OffsetDateTime ahora) {
+        Condition excluidas =
+                asignacionesExcluidas.isEmpty() ? DSL.noCondition() : ASIGNACION_ROL.ID.notIn(asignacionesExcluidas);
+        Condition excluido = usuarioExcluido
+                .<Condition>map(usuario -> ASIGNACION_ROL.USUARIO_ID.ne(usuario))
+                .orElse(DSL.noCondition());
+        return dsl.select(DSL.countDistinct(ASIGNACION_ROL.USUARIO_ID))
                 .from(ASIGNACION_ROL)
                 .join(ROL_PERMISO)
                 .on(ROL_PERMISO.ROL_ID.eq(ASIGNACION_ROL.ROL_ID))
                 .join(PERMISO)
                 .on(PERMISO.ID.eq(ROL_PERMISO.PERMISO_ID))
+                .join(USUARIO)
+                .on(USUARIO.ID.eq(ASIGNACION_ROL.USUARIO_ID))
                 .where(PERMISO.CODIGO.eq(codigoDePermiso))
+                .and(USUARIO.ESTADO.eq("ACTIVO"))
                 .and(ASIGNACION_ROL.REVOCADA_EN.isNull())
-                .and(ASIGNACION_ROL.ID.ne(asignacionExcluida))
+                .and(ASIGNACION_ROL.OTORGADA_EN.le(ahora))
+                .and(ASIGNACION_ROL.VIGENTE_HASTA.isNull().or(ASIGNACION_ROL.VIGENTE_HASTA.gt(ahora)))
+                .and(excluidas)
+                .and(excluido)
                 .fetchOne(0, int.class);
     }
 }

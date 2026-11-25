@@ -119,11 +119,11 @@
   {
    "nombre": "identidad",
    "descripcion": "Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena.",
-   "tablas": 36,
-   "tablasDeNegocio": 32,
-   "columnas": 375,
-   "relaciones": 46,
-   "appendOnly": 2,
+   "tablas": 37,
+   "tablasDeNegocio": 33,
+   "columnas": 381,
+   "relaciones": 47,
+   "appendOnly": 3,
    "conDatosPersonales": 8,
    "servicio": "identidad"
   },
@@ -50256,6 +50256,110 @@
    ]
   },
   {
+   "tabla": "evidencia_step_up_consumida",
+   "esquema": "identidad",
+   "tipo": "NEGOCIO",
+   "modulo": "01",
+   "nombreModulo": "Identidad, Usuarios y Seguridad",
+   "servicio": "identidad",
+   "appendOnly": true,
+   "negocio": {
+    "queEs": "La marca de que una evidencia de segundo factor (el jti del JWT de step-up con propósito ADMIN) ya se usó para un acto de gobierno de accesos: asignar o revocar un rol, dar de alta, suspender, reactivar, dar de baja o desbloquear a un operador.",
+    "negocio": "Que cada cambio de quién puede tocar la plata y los datos de terceros lo confirme quien lo hace con su segundo factor, una vez por acto: quien robe esa evidencia no puede reusarla para otro cambio de acceso.",
+    "porQue": "El JWT de evidencia vale hasta que vence (minutos). Guardar su consumo en memoria dejaba usarlo una vez por réplica o de nuevo tras un reinicio; Pablo decidió (2026-11-24, GU-11) que el consumo viva en la base, compartido por todas las instancias."
+   },
+   "notaDeSistema": "jti único: el INSERT ... ON CONFLICT (jti) DO NOTHING es la barrera, y de dos actos simultáneos con el mismo jti solo uno gana. vence_en es el exp de la evidencia. Append-only (tg_evidencia_step_up_consumida_append_only); svc_identidad solo inserta y lee. El consumo va en la transacción del acto: si el acto revierte, la evidencia no se gastó.\n\n*Fuente: CU-08, GU-11; servicios/identidad/.../EvidenciaStepUpConsumidaRepositorio.java.*",
+   "reglas": [],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "jti",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa jti en el modelo de evidencia_step_up_consumida.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, restricción única.",
+     "sensibilidad": "NINGUNA",
+     "unica": true
+    },
+    {
+     "nombre": "usuario_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "usuario",
+     "negocio": "Referencia al usuario titular de la cuenta o actor principal de la operación.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a usuario, índice b-tree.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "proposito",
+     "tipo": "VARCHAR(20)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa proposito en el modelo de evidencia_step_up_consumida.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(20), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "consumida_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de consumida en evidencia_step_up_consumida.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "vence_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de vence en evidencia_step_up_consumida.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria, índice b-tree.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "usuario_id",
+      "tabla": "usuario",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_evidencia_step_up_consumida_usuario_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     }
+    ],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de usuario.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": []
+  },
+  {
    "tabla": "expediente_medida_cuenta",
    "esquema": "identidad",
    "tipo": "NEGOCIO",
@@ -54867,6 +54971,16 @@
       "obligatoria": false
      },
      {
+      "columna": "usuario_id",
+      "tabla": "evidencia_step_up_consumida",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_evidencia_step_up_consumida_usuario_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
       "columna": "redactado_por",
       "tabla": "reglamento_grupo",
       "esquema": "grupos",
@@ -56858,7 +56972,7 @@
      }
     ]
    },
-   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian apelacion_medida_cuenta, aportes.comprobante_manual, aportes.conciliacion, aportes.excepcion_conciliacion, aportes.extracto_bancario, aportes.historial_estado_reembolso, aportes.pago, aportes.plan_regularizacion, aportes.reembolso, asignacion_rol, auditoria.alerta_cumplimiento, auditoria.coincidencia_lista, auditoria.ejecucion_reporte, auditoria.proceso_anonimizacion, auditoria.reporte_operacion_sospechosa, auditoria.solicitud_datos_personales, auditoria.ticket_soporte, bloqueo_cuenta, catalogo.licencia_regulatoria, catalogo.tarifario, comun.bitacora_evento, comun.registro_acceso_datos, consentimiento, credencial_acceso, cumplimiento.aceptacion_contrato, cumplimiento.acta_comite, cumplimiento.activo_informacion, cumplimiento.alerta_monitoreo_lft, cumplimiento.beneficiario_final, cumplimiento.calificacion_riesgo_cliente, cumplimiento.capacitacion_cumplimiento, cumplimiento.caso_investigacion_lft, cumplimiento.contrato_adhesion, cumplimiento.contrato_tercero, cumplimiento.control_interno, cumplimiento.debida_diligencia, cumplimiento.declaracion_origen_fondos, cumplimiento.declaracion_pep, cumplimiento.designacion_regulatoria, cumplimiento.desvio_perfil, cumplimiento.documento_publicado, cumplimiento.envio_regulatorio, cumplimiento.evaluacion_riesgo_producto, cumplimiento.evaluacion_tercero, cumplimiento.evento_riesgo_operativo, cumplimiento.expediente_cliente, cumplimiento.factor_riesgo_evaluado, cumplimiento.hallazgo_auditoria, cumplimiento.incidente_seguridad, cumplimiento.matriz_riesgo_lft, cumplimiento.observacion_regulatoria, cumplimiento.oficial_cumplimiento, cumplimiento.perfil_transaccional, cumplimiento.plan_accion_riesgo, cumplimiento.plan_continuidad, cumplimiento.politica_interna, cumplimiento.prueba_continuidad, cumplimiento.prueba_control, cumplimiento.punto_reclamo, cumplimiento.reclamo_cliente, cumplimiento.registro_operacion_relevante, cumplimiento.regla_monitoreo_lft, cumplimiento.reporte_regulatorio, cumplimiento.requerimiento_autoridad, cumplimiento.revision_periodica_kyc, direccion_usuario, dispositivo, documento_identidad, entregas.cuenta_bancaria_beneficiario, entregas.entrega_fondo, entregas.historial_estado_entrega, entregas.incidencia_entrega, entregas.validacion_pre_entrega, erp.asiento_plantilla, erp.cierre_periodo_contable, erp.ejercicio_fiscal, erp.estado_financiero_generado, erp.factura_proveedor, erp.orden_compra, erp.pago_a_proveedor, erp.presupuesto, evidencia_medida_cuenta, expediente_medida_cuenta, factor_mfa, garantia.abono_recuperacion, garantia.accion_cobranza, garantia.acuerdo_quita, garantia.alerta_temprana, garantia.apelacion_sancion, garantia.aval_participante, garantia.candidato_reemplazo, garantia.capacidad_respaldo, garantia.castigo_deuda, garantia.cobertura_incumplimiento, garantia.cobertura_respaldo, garantia.descargo_participante, garantia.deuda_participante, garantia.evidencia_incumplimiento, garantia.gestion_cobranza, garantia.historial_estado_incumplimiento, garantia.historial_incumplimiento_usuario, garantia.lista_restriccion_interna, garantia.movimiento_fondo, garantia.movimiento_reserva, garantia.promesa_pago, garantia.registro_incumplimiento, garantia.reserva_respaldo, garantia.sancion, garantia.score_riesgo_incumplimiento, grupos.acuerdo, grupos.enlace_grupo, grupos.historial_estado_grupo, grupos.invitacion, grupos.participante, grupos.postulacion_emparejamiento, grupos.reglamento_grupo, grupos.solicitud_ingreso, grupos.sorteo_turnos, historial_credencial, historial_estado_medida_cuenta, intento_autenticacion, notificaciones.aviso_interno, notificaciones.bandeja_entrada, notificaciones.canal_vinculado, notificaciones.notificacion, nucleo_financiero.asiento_contable, nucleo_financiero.bloqueo_saldo, nucleo_financiero.certificado_saldo, nucleo_financiero.cierre_diario, nucleo_financiero.conciliacion_custodia, nucleo_financiero.cuenta_billetera, nucleo_financiero.descuadre_custodia, nucleo_financiero.evaluacion_antifraude, nucleo_financiero.evidencia_mfa_consumida, nucleo_financiero.instrumento_fondeo, nucleo_financiero.orden_retiro, nucleo_financiero.politica_billetera, nucleo_financiero.regla_antifraude, nucleo_financiero.respuesta_idempotente, nucleo_financiero.retencion_saldo, nucleo_financiero.reverso_transaccion, nucleo_financiero.solicitud_cierre_billetera, nucleo_financiero.solicitud_reverso, nucleo_financiero.transaccion_billetera, organizador.apelacion_sancion_org, organizador.organizador, organizador.sancion_organizador, organizador.solicitud_organizador, perfil_financiero, politica_medida_cuenta, preferencia_notificacion, publicidad.campana_publicitaria, publicidad.clic_anuncio, publicidad.impresion_anuncio, publicidad.revision_creativa, publicidad.segmento_audiencia, publicidad.socio_comercial, referencia_personal, reputacion_usuario, restriccion_usuario, sesion, solicitud_baja, tarifas.asignacion_tarifario, tarifas.cambio_tarifario, tarifas.campana_promocional, tarifas.cuenta_por_cobrar_comision, tarifas.datos_facturacion, tarifas.devengo_comision, tarifas.devolucion_comision, tarifas.evento_significativo_sin, tarifas.exencion_comision, tarifas.factura_electronica, tarifas.liquidacion_ingresos, tarifas.simulacion_tarifa, token_verificacion, transparencia.certificado_reputacion, transparencia.evento_reputacion, transparencia.insignia_otorgada, transparencia.puntaje_reputacion, transparencia.resena_participante, transparencia.snapshot_reputacion, usuario_interno, verificacion_kyc.",
+   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian apelacion_medida_cuenta, aportes.comprobante_manual, aportes.conciliacion, aportes.excepcion_conciliacion, aportes.extracto_bancario, aportes.historial_estado_reembolso, aportes.pago, aportes.plan_regularizacion, aportes.reembolso, asignacion_rol, auditoria.alerta_cumplimiento, auditoria.coincidencia_lista, auditoria.ejecucion_reporte, auditoria.proceso_anonimizacion, auditoria.reporte_operacion_sospechosa, auditoria.solicitud_datos_personales, auditoria.ticket_soporte, bloqueo_cuenta, catalogo.licencia_regulatoria, catalogo.tarifario, comun.bitacora_evento, comun.registro_acceso_datos, consentimiento, credencial_acceso, cumplimiento.aceptacion_contrato, cumplimiento.acta_comite, cumplimiento.activo_informacion, cumplimiento.alerta_monitoreo_lft, cumplimiento.beneficiario_final, cumplimiento.calificacion_riesgo_cliente, cumplimiento.capacitacion_cumplimiento, cumplimiento.caso_investigacion_lft, cumplimiento.contrato_adhesion, cumplimiento.contrato_tercero, cumplimiento.control_interno, cumplimiento.debida_diligencia, cumplimiento.declaracion_origen_fondos, cumplimiento.declaracion_pep, cumplimiento.designacion_regulatoria, cumplimiento.desvio_perfil, cumplimiento.documento_publicado, cumplimiento.envio_regulatorio, cumplimiento.evaluacion_riesgo_producto, cumplimiento.evaluacion_tercero, cumplimiento.evento_riesgo_operativo, cumplimiento.expediente_cliente, cumplimiento.factor_riesgo_evaluado, cumplimiento.hallazgo_auditoria, cumplimiento.incidente_seguridad, cumplimiento.matriz_riesgo_lft, cumplimiento.observacion_regulatoria, cumplimiento.oficial_cumplimiento, cumplimiento.perfil_transaccional, cumplimiento.plan_accion_riesgo, cumplimiento.plan_continuidad, cumplimiento.politica_interna, cumplimiento.prueba_continuidad, cumplimiento.prueba_control, cumplimiento.punto_reclamo, cumplimiento.reclamo_cliente, cumplimiento.registro_operacion_relevante, cumplimiento.regla_monitoreo_lft, cumplimiento.reporte_regulatorio, cumplimiento.requerimiento_autoridad, cumplimiento.revision_periodica_kyc, direccion_usuario, dispositivo, documento_identidad, entregas.cuenta_bancaria_beneficiario, entregas.entrega_fondo, entregas.historial_estado_entrega, entregas.incidencia_entrega, entregas.validacion_pre_entrega, erp.asiento_plantilla, erp.cierre_periodo_contable, erp.ejercicio_fiscal, erp.estado_financiero_generado, erp.factura_proveedor, erp.orden_compra, erp.pago_a_proveedor, erp.presupuesto, evidencia_medida_cuenta, evidencia_step_up_consumida, expediente_medida_cuenta, factor_mfa, garantia.abono_recuperacion, garantia.accion_cobranza, garantia.acuerdo_quita, garantia.alerta_temprana, garantia.apelacion_sancion, garantia.aval_participante, garantia.candidato_reemplazo, garantia.capacidad_respaldo, garantia.castigo_deuda, garantia.cobertura_incumplimiento, garantia.cobertura_respaldo, garantia.descargo_participante, garantia.deuda_participante, garantia.evidencia_incumplimiento, garantia.gestion_cobranza, garantia.historial_estado_incumplimiento, garantia.historial_incumplimiento_usuario, garantia.lista_restriccion_interna, garantia.movimiento_fondo, garantia.movimiento_reserva, garantia.promesa_pago, garantia.registro_incumplimiento, garantia.reserva_respaldo, garantia.sancion, garantia.score_riesgo_incumplimiento, grupos.acuerdo, grupos.enlace_grupo, grupos.historial_estado_grupo, grupos.invitacion, grupos.participante, grupos.postulacion_emparejamiento, grupos.reglamento_grupo, grupos.solicitud_ingreso, grupos.sorteo_turnos, historial_credencial, historial_estado_medida_cuenta, intento_autenticacion, notificaciones.aviso_interno, notificaciones.bandeja_entrada, notificaciones.canal_vinculado, notificaciones.notificacion, nucleo_financiero.asiento_contable, nucleo_financiero.bloqueo_saldo, nucleo_financiero.certificado_saldo, nucleo_financiero.cierre_diario, nucleo_financiero.conciliacion_custodia, nucleo_financiero.cuenta_billetera, nucleo_financiero.descuadre_custodia, nucleo_financiero.evaluacion_antifraude, nucleo_financiero.evidencia_mfa_consumida, nucleo_financiero.instrumento_fondeo, nucleo_financiero.orden_retiro, nucleo_financiero.politica_billetera, nucleo_financiero.regla_antifraude, nucleo_financiero.respuesta_idempotente, nucleo_financiero.retencion_saldo, nucleo_financiero.reverso_transaccion, nucleo_financiero.solicitud_cierre_billetera, nucleo_financiero.solicitud_reverso, nucleo_financiero.transaccion_billetera, organizador.apelacion_sancion_org, organizador.organizador, organizador.sancion_organizador, organizador.solicitud_organizador, perfil_financiero, politica_medida_cuenta, preferencia_notificacion, publicidad.campana_publicitaria, publicidad.clic_anuncio, publicidad.impresion_anuncio, publicidad.revision_creativa, publicidad.segmento_audiencia, publicidad.socio_comercial, referencia_personal, reputacion_usuario, restriccion_usuario, sesion, solicitud_baja, tarifas.asignacion_tarifario, tarifas.cambio_tarifario, tarifas.campana_promocional, tarifas.cuenta_por_cobrar_comision, tarifas.datos_facturacion, tarifas.devengo_comision, tarifas.devolucion_comision, tarifas.evento_significativo_sin, tarifas.exencion_comision, tarifas.factura_electronica, tarifas.liquidacion_ingresos, tarifas.simulacion_tarifa, token_verificacion, transparencia.certificado_reputacion, transparencia.evento_reputacion, transparencia.insignia_otorgada, transparencia.puntaje_reputacion, transparencia.resena_participante, transparencia.snapshot_reputacion, usuario_interno, verificacion_kyc.",
    "clasificacion": {
     "personales": 6,
     "financieros": 0,

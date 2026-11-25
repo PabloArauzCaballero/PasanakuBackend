@@ -427,6 +427,13 @@ COMMENT ON COLUMN identidad.apelacion_medida_cuenta.fecha_limite_resolucion IS '
 COMMENT ON COLUMN identidad.apelacion_medida_cuenta.resuelta_por IS '[NEGOCIO] tercera persona; la base impide que sea quien propuso o decidió. [SISTEMA] uuid, opcional, clave foránea (FK) hacia `usuario`.';
 COMMENT ON COLUMN identidad.apelacion_medida_cuenta.resuelta_en IS '[NEGOCIO] Marca temporal o fecha de resuelta en `apelacion_medida_cuenta`. [SISTEMA] timestamptz, opcional.';
 COMMENT ON COLUMN identidad.apelacion_medida_cuenta.resolucion IS '[NEGOCIO] Atributo que representa resolucion en el modelo de `apelacion_medida_cuenta`. [SISTEMA] text, opcional.';
+COMMENT ON TABLE identidad.evidencia_step_up_consumida IS '[NEGOCIO] La marca de que una evidencia de segundo factor (el `jti` del JWT de step-up con propósito `ADMIN`) ya se usó para un acto de gobierno de accesos: asignar o revocar un rol, dar de alta, suspender, reactivar, dar de baja o desbloquear a un operador.. Que cada cambio de quién puede tocar la plata y los datos de terceros lo confirme quien lo hace con su segundo factor, una vez por acto: quien robe esa evidencia no puede reusarla para otro cambio de acceso. [SISTEMA] Esquema `identidad`, tabla inmutable append-only (UPDATE/DELETE prohibidos), servicio dueño `identidad`.';
+COMMENT ON COLUMN identidad.evidencia_step_up_consumida.id IS '[NEGOCIO] Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. [SISTEMA] uuid, obligatoria (NOT NULL), clave primaria (PK).';
+COMMENT ON COLUMN identidad.evidencia_step_up_consumida.jti IS '[NEGOCIO] Atributo que representa jti en el modelo de `evidencia_step_up_consumida`. [SISTEMA] uuid, obligatoria (NOT NULL), restricción UNIQUE.';
+COMMENT ON COLUMN identidad.evidencia_step_up_consumida.usuario_id IS '[NEGOCIO] Referencia al usuario titular de la cuenta o actor principal de la operación. [SISTEMA] uuid, obligatoria (NOT NULL), clave foránea (FK) hacia `usuario`, con índice B-tree.';
+COMMENT ON COLUMN identidad.evidencia_step_up_consumida.proposito IS '[NEGOCIO] Atributo que representa proposito en el modelo de `evidencia_step_up_consumida`. [SISTEMA] varchar(20), obligatoria (NOT NULL).';
+COMMENT ON COLUMN identidad.evidencia_step_up_consumida.consumida_en IS '[NEGOCIO] Marca temporal o fecha de consumida en `evidencia_step_up_consumida`. [SISTEMA] timestamptz, obligatoria (NOT NULL).';
+COMMENT ON COLUMN identidad.evidencia_step_up_consumida.vence_en IS '[NEGOCIO] Marca temporal o fecha de vence en `evidencia_step_up_consumida`. [SISTEMA] timestamptz, obligatoria (NOT NULL), con índice B-tree.';
 
 -- ===========================================================================
 -- MÓDULO 02 — GRUPOS, CUPOS, TURNOS Y GOBERNANZA

@@ -1,0 +1,89 @@
+{
+  "servicio": "identidad",
+  "operacion": "asignarRolDeOperador",
+  "metodo": "post",
+  "ruta": "/usuarios-internos/{id}/asignaciones",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "asignacionId": "b3668c43-b73a-42dd-845c-fe9e6aa0ff20",
+        "usuarioId": "30dc263f-e889-45ab-827a-acc6c19653be",
+        "rolCodigo": "OPERATIONS_ANALYST",
+        "ambito": "GLOBAL",
+        "vigenteHasta": "2026-12-15T23:59:00Z",
+        "permisosEfectivos": [
+          "CONCILIACION_LEER",
+          "OPERACIONES_LEER"
+        ],
+        "requiereMfa": false,
+        "yaExistia": false
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "asignacionId": "b3668c43-b73a-42dd-845c-fe9e6aa0ff20",
+        "usuarioId": "30dc263f-e889-45ab-827a-acc6c19653be",
+        "rolCodigo": "OPERATIONS_ANALYST",
+        "ambito": "GLOBAL",
+        "vigenteHasta": "2026-12-15T23:59:00Z",
+        "permisosEfectivos": [
+          "CONCILIACION_LEER",
+          "OPERACIONES_LEER"
+        ],
+        "requiereMfa": false,
+        "yaExistia": true
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "asignacionId": "b3668c43-b73a-42dd-845c-fe9e6aa0ff20",
+        "usuarioId": "30dc263f-e889-45ab-827a-acc6c19653be",
+        "rolCodigo": "OPERATIONS_ANALYST",
+        "ambito": "GLOBAL",
+        "permisosEfectivos": [
+          "CONCILIACION_LEER",
+          "OPERACIONES_LEER"
+        ],
+        "requiereMfa": true,
+        "yaExistia": false
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "asignacionId": "b3668c43-b73a-42dd-845c-fe9e6aa0ff20",
+        "usuarioId": "30dc263f-e889-45ab-827a-acc6c19653be",
+        "rolCodigo": "OPERATIONS_ANALYST",
+        "ambito": "GLOBAL",
+        "vigenteHasta": "2026-12-15T23:59:00Z",
+        "permisosEfectivos": [
+          "CONCILIACION_LEER",
+          "OPERACIONES_LEER"
+        ],
+        "requiereMfa": false,
+        "yaExistia": false
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU08-09",
+        "mensaje": "Confirma esta accion con tu segundo factor y volve a intentarlo.",
+        "detalle": {},
+        "trazaId": "traza-asignarRolDeOperador-rechazo"
+      }
+    }
+  }
+}

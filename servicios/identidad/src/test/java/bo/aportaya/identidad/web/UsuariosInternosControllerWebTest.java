@@ -31,6 +31,13 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @PruebaWeb(UsuariosInternosController.class)
+// CU-08 por asignacion (GU-B): las rutas de accesos viven en el mismo controlador.
+@MockitoBean(
+        types = {
+            bo.aportaya.identidad.aplicacion.GobiernoDeAccesos.class,
+            bo.aportaya.identidad.aplicacion.CU08DarDeBaja.class,
+            bo.aportaya.identidad.aplicacion.CU08InformeDeAccesos.class
+        })
 class UsuariosInternosControllerWebTest {
 
     private static final UUID USUARIO_ID = UUID.fromString("11111111-2222-3333-4444-555555555555");
@@ -198,7 +205,7 @@ class UsuariosInternosControllerWebTest {
         desbloqueado.setId(PERFIL_ID);
         desbloqueado.setBloqueadoHasta(null);
 
-        when(casoDeUso.desbloquear(any(), any(), any())).thenReturn(desbloqueado);
+        when(casoDeUso.desbloquear(any(), any(), any(), any())).thenReturn(desbloqueado);
 
         String json =
                 """

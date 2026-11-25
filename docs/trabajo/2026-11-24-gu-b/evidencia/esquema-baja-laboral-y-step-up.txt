@@ -1,0 +1,25 @@
+# PostgreSQL 16 local efimero (mismo motor que la CI). Base nueva, sql/aplicar.sql dos veces.
+NOTICE:  database "gub2" does not exist, skipping
+$ psql -f sql/aplicar.sql  # base vacia
+EXIT=0
+$ psql -f sql/aplicar.sql  # segunda corrida
+EXIT=0
+tabla_existe|1
+columnas|id:uuid:NO jti:uuid:NO usuario_id:uuid:NO proposito:character varying:NO consumida_en:timestamp with time zone:NO vence_en:timestamp with time zone:NO
+ck_estado_incluye_BAJA_LABORAL|t
+uq_jti|CREATE UNIQUE INDEX uq_evidencia_step_up_consumida_jti ON identidad.evidencia_step_up_consumida USING btree (jti)
+append_only_trigger|tg_evidencia_step_up_consumida_append_only
+grants_svc_identidad|INSERT,SELECT
+INSERT 0 1
+insert_BAJA_LABORAL|BAJA_LABORAL
+INSERT 0 1
+INSERT 0 0
+filas_tras_doble_uso_mismo_jti|1
+$ UPDATE identidad.evidencia_step_up_consumida ...  # append-only
+ERROR:  R-AUD-01: evidencia_step_up_consumida es append-only; corrija con el movimiento inverso
+$ INSERT usuario estado BAJA_INVENTADA
+ERROR:  new row for relation "usuario" violates check constraint "ck_usuario_estado"
+# Base vieja (CHECK sin BAJA_LABORAL) + aplicar.sql: CK_AMPLIADOS la amplia
+antes|f
+reaplicar EXIT=0
+despues|t

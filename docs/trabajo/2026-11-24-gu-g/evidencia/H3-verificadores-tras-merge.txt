@@ -1,0 +1,8 @@
+verificar_boveda exit=0
+verificar_seguridad exit=0
+verificar_carriles exit=0
+verificar_criterios exit=0
+inventario_endpoints exit=0
+verificar_contratos_limites exit=0
+verificar_narrativas exit=0
+deriva exit=0

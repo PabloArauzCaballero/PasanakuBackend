@@ -1,6 +1,6 @@
 # Reporte — Lote G · CU de gobierno de participantes (borrador para aprobación)
 
-> **AVANCE: ver `plan_status.py`.** H3 (implementación) en curso: modelo, esquema, semillas y contrato escritos y verificados en local; backend BLOQUEADO por Maven Central 429. Antes: H1 cerrado (PR #514 y #518 en `dev`). H2: CU-134 pasa a APROBADO (decisión de Pablo del 2026-11-24); falta la CI del PR. D-3 (5/5 días hábiles, 12 meses, 90 días) y D-11 (retener la entrega) resueltas por Pablo el mismo día; abiertas A-1 y A-2.
+> **AVANCE: ver `plan_status.py` (H1, H2 y H3.S1 hechos).** H3 (implementación) en curso: modelo, esquema, semillas y contrato escritos y verificados en local; backend BLOQUEADO por Maven Central 429. Antes: H1 cerrado (PR #514 y #518 en `dev`). H2: CU-134 pasa a APROBADO (decisión de Pablo del 2026-11-24); falta la CI del PR. D-3 (5/5 días hábiles, 12 meses, 90 días) y D-11 (retener la entrega) resueltas por Pablo el mismo día; abiertas A-1 y A-2.
 
 - Fecha: 2026-11-24 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/gu-g-cu-participantes` → PR a `dev`
 - Peldaño de evidencia alcanzado: `RUNS` sobre la bóveda, en local y en la CI del PR #514 (los verificadores corren en exit 0 con el CU nuevo). Es un documento: no hay comportamiento que ejercitar; el CU queda **BORRADOR** hasta que Pablo lo apruebe (decisión P-11).
@@ -23,11 +23,22 @@
 - Qué falta exactamente: abrir el PR y ver los checks en verde.
 - Dónde quedó: rama `claude/gu-g-cu-participantes`, actualizada con `dev`.
 
-### H3 — Implementación de CU-134 (en curso)
-- Qué anda: H3.S1 (5 tablas nuevas, CHECK ampliados, R-SEG-13..15, permisos y política sembrados) aplicado dos veces sobre PostgreSQL 16 local, con las restricciones probadas en tres niveles (`evidencia/H3.S1-*.txt`); H3.S2 contrato `[Participantes]` válido (`verificar_contratos_limites.py` exit 0).
-- Qué no anda: no hay controladores ni casos de uso; `inventario_endpoints.py --check` marca las 11 operaciones sin implementar.
-- Qué falta exactamente: H3.S3 a H3.S7. El build de Java está bloqueado (Maven Central 429).
-- Dónde quedó: commits locales en `claude/gu-g-cu-participantes` (modelo y contrato), sin pushear para no meter código en el PR #519 de documentación.
+### H3 — Implementación de CU-134 (en curso) — ESTADO PARA RETOMAR
+- **Qué anda (verificado en local):**
+  - H3.S1, modelo y esquema: 5 tablas nuevas, CHECK ampliados, R-SEG-13..15, permisos `PARTICIPANTES_*` y la semilla de `politica_medida_cuenta` (5/5 días hábiles, 12 meses, 90 días). Aplicado dos veces sobre Postgres 16; restricciones probadas en tres niveles; semillas idempotentes (`evidencia/H3.S1-*.txt`).
+  - Prueba de humo: 166 OK, 0 FALLA (`evidencia/H3.S1-prueba-humo.txt`).
+  - Verificadores y deriva en 0 tras integrar `dev` con #516 (`evidencia/H3-verificadores-tras-merge.txt`).
+  - H3.S3, átomos puros: `CausalDeMedida`, `PlazosDeMedida` y `Enmascarado`. Compilan con `javac -Xlint:all -Werror` y su ejercicio en tres niveles pasa (`evidencia/H3.S3-atomos.txt`). Están formateados según Spotless.
+- **Qué no anda / no existe todavía:** repositorios, organismos `CU134*`, controlador `ParticipantesController`, trabajo diario de vencimientos, pruebas `CU134*Test`, retención de la entrega en `entregas` (H3.S4), modo restringido del suspendido (H3.S5) y backoffice (H3.S6).
+- **Qué falta exactamente (próximo paso concreto):**
+  1. Aplicar el contrato: `git apply docs/trabajo/2026-11-24-gu-g/evidencia/H3.S2-contrato-participantes.patch`. Las rutas son `/identidad/participantes/...` y `/identidad/medidas-cuenta/...`; los errores `AP-CU134-01..11` ya están en comentarios.
+  2. Escribir en `servicios/identidad` los repositorios `ParticipantesRepositorio` y `MedidasDeCuentaRepositorio`, con tablas jOOQ `Tables.EXPEDIENTE_MEDIDA_CUENTA` etc. y `catalogo.dia_no_habil` para el calendario (patrón `aportes/infraestructura/FeriadosRepositorio`). La escritura en `comun.registro_acceso_datos` sigue el patrón de `aportes/infraestructura/AuditoriaRepositorio`.
+  3. Escribir los organismos `CU134ConsultarParticipante`, `CU134ProponerMedida`, `CU134DecidirMedida` y `CU134ResolverApelacion`, más notificación, descargo y apelación, con el patrón de `CU08AsignarRol` (`datos.conContexto`, `ErrorDeNegocio(CodigoError.de(134, n))`, `outbox.emitir`).
+  4. `ParticipantesController implements ParticipantesApi` con `@Permiso("PARTICIPANTES_*")`.
+  5. Escribir `CU134Test`: un `@DisplayName` por escenario gherkin del CU y la cita de cada R-XXX del CU (lo exige `verificar_criterios.py`). Base con `BaseDePrueba.contenedor()`, como `BaseDeCU08`.
+  6. La segunda instancia y el segundo factor reciente: verificar la evidencia de step-up de `CU04StepUp` (hoy solo la verifica `nucleo-financiero`, con `SegundoFactorLocal`).
+- **Bloqueo:** `./gradlew` no resuelve dependencias en este entorno (Maven Central 429; espejo denegado por permisos, `evidencia/H3.S3-bloqueo-maven-429.txt`). La CI sí compila: verificar con la CI.
+- **Dónde quedó:** rama `claude/gu-g-cu-participantes`, todo pusheado, PR #519.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |

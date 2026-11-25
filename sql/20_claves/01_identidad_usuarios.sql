@@ -89,6 +89,11 @@ ALTER TABLE identidad.evidencia_medida_cuenta
   ADD CONSTRAINT fk_evidencia_medida_cuenta_expediente_medida_cuenta_id
   FOREIGN KEY (expediente_medida_cuenta_id) REFERENCES identidad.expediente_medida_cuenta (id) ON DELETE RESTRICT ON UPDATE CASCADE;
 
+ALTER TABLE identidad.evidencia_step_up_consumida DROP CONSTRAINT IF EXISTS fk_evidencia_step_up_consumida_usuario_id;
+ALTER TABLE identidad.evidencia_step_up_consumida
+  ADD CONSTRAINT fk_evidencia_step_up_consumida_usuario_id
+  FOREIGN KEY (usuario_id) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
 ALTER TABLE identidad.expediente_medida_cuenta DROP CONSTRAINT IF EXISTS fk_expediente_medida_cuenta_decidida_por;
 ALTER TABLE identidad.expediente_medida_cuenta
   ADD CONSTRAINT fk_expediente_medida_cuenta_decidida_por
