@@ -3995,7 +3995,7 @@
             }
           ]
         },
-        "description": "## Expediente con su linea de tiempo y sus plazos (operador o titular) (CU-134)\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `consultarExpedienteDeMedida` |\n| **Ruta** | `GET /api/v1/identidad/medidas-cuenta/{expedienteId}` |\n| **Permiso** | _no declarado en el codigo_ |\n| **Respuestas** | `200`, `401`, `403`, `404` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+        "description": "## Expediente con su linea de tiempo y sus plazos (operador o titular) (CU-134)\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `consultarExpedienteDeMedida` |\n| **Ruta** | `GET /api/v1/identidad/medidas-cuenta/{expedienteId}` |\n| **Permiso** | `PARTICIPANTE` |\n| **Respuestas** | `200`, `401`, `403`, `404` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
       },
       "response": [],
       "event": [
@@ -4170,7 +4170,7 @@
             }
           ]
         },
-        "description": "## El titular presenta su descargo con evidencias (CU-134)\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `presentarDescargoDeMedida` |\n| **Ruta** | `POST /api/v1/identidad/medidas-cuenta/{expedienteId}/descargo` |\n| **Permiso** | _no declarado en el codigo_ |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `401`, `403`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU134-10` | Expediente prescrito |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## El titular presenta su descargo con evidencias (CU-134)\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `presentarDescargoDeMedida` |\n| **Ruta** | `POST /api/v1/identidad/medidas-cuenta/{expedienteId}/descargo` |\n| **Permiso** | `PARTICIPANTE` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `401`, `403`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU134-10` | Expediente prescrito |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"argumento\": \"xxxxxxxxxxxxxxxxxxxx\",\n  \"evidencias\": [\n    {\n      \"descripcion\": \"descripcion-de-prueba\",\n      \"referenciaId\": \"{{referenciaId}}\"\n    }\n  ]\n}",
@@ -4354,7 +4354,7 @@
             }
           ]
         },
-        "description": "## Una sola apelacion por expediente (CU-134)\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `apelarMedidaDeCuenta` |\n| **Ruta** | `POST /api/v1/identidad/medidas-cuenta/{expedienteId}/apelacion` |\n| **Permiso** | _no declarado en el codigo_ |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `401`, `403`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU134-09` | Apelacion duplicada |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Una sola apelacion por expediente (CU-134)\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `apelarMedidaDeCuenta` |\n| **Ruta** | `POST /api/v1/identidad/medidas-cuenta/{expedienteId}/apelacion` |\n| **Permiso** | `PARTICIPANTE` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `401`, `403`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU134-09` | Apelacion duplicada |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"argumento\": \"xxxxxxxxxxxxxxxxxxxx\",\n  \"evidencias\": [\n    {\n      \"descripcion\": \"descripcion-de-prueba\",\n      \"referenciaId\": \"{{referenciaId}}\"\n    }\n  ]\n}",
