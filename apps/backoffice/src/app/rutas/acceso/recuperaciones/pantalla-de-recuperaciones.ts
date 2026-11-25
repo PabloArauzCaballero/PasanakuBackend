@@ -91,7 +91,7 @@ export class PantallaDeRecuperaciones {
   protected readonly l = crearListadoPorCursor({
     pedir: pedidorDeRecuperaciones(),
     camposDeBusqueda: [nombreDe, (s: SolicitudDeRecuperacion) => ALCANCES[s.alcance], 'motivo'],
-    filtrosDeServidor: [{ nombre: 'estado', etiqueta: 'Estado', opciones: (Object.keys(ESTADOS) as EstadoDeRecuperacion[]).map((valor) => ({ valor, texto: ESTADOS[valor] })), textoTodos: 'Todos los estados' }],
+    filtrosDeServidor: [{ nombre: 'estado', etiqueta: 'Estado', opciones: (Object.keys(ESTADOS) as EstadoDeRecuperacion[]).map((valor) => ({ valor, texto: ESTADOS[valor] ?? valor })), textoTodos: 'Todos los estados' }],
     filtrosIniciales: { estado: 'PENDIENTE' },
   })
   protected readonly puedeDecidir = computed(() => this.sesion.puede(PERMISO_DE_DECIDIR))
