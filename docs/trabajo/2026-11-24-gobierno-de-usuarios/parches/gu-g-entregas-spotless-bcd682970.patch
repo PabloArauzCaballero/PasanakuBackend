@@ -1,0 +1,111 @@
+diff --git a/servicios/entregas/src/main/java/bo/aportaya/entregas/aplicacion/CU28EmitirDesembolso.java b/servicios/entregas/src/main/java/bo/aportaya/entregas/aplicacion/CU28EmitirDesembolso.java
+index b9319c8d8..cdab33a61 100644
+--- a/servicios/entregas/src/main/java/bo/aportaya/entregas/aplicacion/CU28EmitirDesembolso.java
++++ b/servicios/entregas/src/main/java/bo/aportaya/entregas/aplicacion/CU28EmitirDesembolso.java
+@@ -292,7 +292,8 @@ public class CU28EmitirDesembolso {
+     /** El titular de la cuenta de destino, para preguntar por su medida fuera de la transaccion de emitir. */
+     @Transactional(readOnly = true)
+     public java.util.Optional<UUID> titularDeLaCuenta(UUID cuentaDestinoId, ContextoSesion ctx) {
+-        return datos.conContexto(ctx, dsl -> cuentas.ver(dsl, cuentaDestinoId).map(CuentaDestinoRepositorio.Cuenta::usuarioId));
++        return datos.conContexto(
++                ctx, dsl -> cuentas.ver(dsl, cuentaDestinoId).map(CuentaDestinoRepositorio.Cuenta::usuarioId));
+     }
+ 
+     public record SalidaOrden(UUID ordenId, String estado, String claveIdempotencia, int intentos, boolean esNueva) {}
+diff --git a/servicios/entregas/src/test/java/bo/aportaya/entregas/CU28Test.java b/servicios/entregas/src/test/java/bo/aportaya/entregas/CU28Test.java
+index 7dbc6dfcd..76e82360a 100644
+--- a/servicios/entregas/src/test/java/bo/aportaya/entregas/CU28Test.java
++++ b/servicios/entregas/src/test/java/bo/aportaya/entregas/CU28Test.java
+@@ -14,8 +14,8 @@ import org.junit.jupiter.api.Test;
+ class CU28Test extends EscenarioDeDesembolso {
+ 
+     @Test
+-    @DisplayName(
+-            "Dada una entrega autorizada con cuenta destino verificada · Cuando se emite la orden de desembolso · Entonces existe una orden_desembolso con clave_idempotencia · Y un intento_desembolso número 1")
++    @DisplayName("Dada una entrega autorizada con cuenta destino verificada · Cuando se emite la orden de desembolso ·"
++            + " Entonces existe una orden_desembolso con clave_idempotencia · Y un intento_desembolso número 1")
+     void criterio1() {
+         Caso c = caso(true, true);
+ 
+@@ -24,18 +24,20 @@ class CU28Test extends EscenarioDeDesembolso {
+         assertThat(salida.esNueva()).isTrue();
+         assertThat(salida.claveIdempotencia()).isEqualTo("des-1");
+         assertThat(contar(
+-                        "SELECT count(*)::int FROM entregas.orden_desembolso WHERE id = ? AND clave_idempotencia = 'des-1'",
++                        "SELECT count(*)::int FROM entregas.orden_desembolso WHERE id = ? AND clave_idempotencia ="
++                                + " 'des-1'",
+                         salida.ordenId()))
+                 .isEqualTo(1);
+         assertThat(contar(
+-                        "SELECT count(*)::int FROM entregas.intento_desembolso WHERE orden_desembolso_id = ? AND numero_intento = 1",
++                        "SELECT count(*)::int FROM entregas.intento_desembolso WHERE orden_desembolso_id = ? AND"
++                                + " numero_intento = 1",
+                         salida.ordenId()))
+                 .isEqualTo(1);
+     }
+ 
+     @Test
+-    @DisplayName(
+-            "Dada una orden ya emitida · Cuando el trabajo se ejecuta de nuevo con la misma clave · Entonces se devuelve la orden existente y no se crea una segunda")
++    @DisplayName("Dada una orden ya emitida · Cuando el trabajo se ejecuta de nuevo con la misma clave · Entonces se"
++            + " devuelve la orden existente y no se crea una segunda")
+     void criterio2() {
+         Caso c = caso(true, true);
+ 
+@@ -52,7 +54,9 @@ class CU28Test extends EscenarioDeDesembolso {
+ 
+     @Test
+     @DisplayName(
+-            "Dado un proveedor que responde cuenta inexistente · Cuando se procesa la respuesta · Entonces la orden queda RECHAZADA sin programar reintento · Y el saldo vuelve a estar disponible para el beneficiario")
++            "Dado un proveedor que responde cuenta inexistente · Cuando se procesa la respuesta · Entonces la orden"
++                    + " queda RECHAZADA sin programar reintento · Y el saldo vuelve a estar disponible para el"
++                    + " beneficiario")
+     void criterio3() {
+         Caso c = caso(true, true);
+         SalidaOrden orden = transaccion.execute(t -> desembolsoCU.emitir(orden(c, "des-rechazo"), c.ctx()));
+@@ -97,8 +101,8 @@ class CU28Test extends EscenarioDeDesembolso {
+     }
+ 
+     @Test
+-    @DisplayName(
+-            "Dada una orden acreditada que no cruza con el extracto bancario · Cuando se intenta cerrar el día · Entonces el cierre no puede marcarse cuadrado")
++    @DisplayName("Dada una orden acreditada que no cruza con el extracto bancario · Cuando se intenta cerrar el día ·"
++            + " Entonces el cierre no puede marcarse cuadrado")
+     void criterio4() {
+         Caso c = caso(true, true);
+         SalidaOrden orden = transaccion.execute(t -> desembolsoCU.emitir(orden(c, "des-cruce"), c.ctx()));
+@@ -218,7 +222,9 @@ class CU28Test extends EscenarioDeDesembolso {
+ 
+     @Test
+     @DisplayName(
+-            "Dado un beneficiario con una medida vigente sobre su cuenta · Cuando se emite la orden de desembolso · Entonces se rechaza con ENTREGA_RETENIDA_POR_MEDIDA · Y la entrega sigue AUTORIZADA sin ninguna orden_desembolso")
++            "Dado un beneficiario con una medida vigente sobre su cuenta · Cuando se emite la orden de desembolso ·"
++                    + " Entonces se rechaza con ENTREGA_RETENIDA_POR_MEDIDA · Y la entrega sigue AUTORIZADA sin ninguna"
++                    + " orden_desembolso")
+     void criterioRetenidaPorMedida() {
+         Caso c = caso(true, true);
+         var base = orden(c, "des-retenida");
+@@ -233,7 +239,8 @@ class CU28Test extends EscenarioDeDesembolso {
+ 
+         assertThatThrownBy(() -> transaccion.execute(t -> desembolsoCU.emitir(retenida, c.ctx())))
+                 .isInstanceOfSatisfying(
+-                        ErrorDeNegocio.class, e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU28-08"));
++                        ErrorDeNegocio.class,
++                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU28-08"));
+         assertThat(contar(
+                         "SELECT count(*)::int FROM entregas.entrega_fondo WHERE id = ? AND estado = 'AUTORIZADA'",
+                         c.entregaId()))
+diff --git a/servicios/entregas/src/test/java/bo/aportaya/entregas/infraestructura/MedidaDeCuentaPorHttpTest.java b/servicios/entregas/src/test/java/bo/aportaya/entregas/infraestructura/MedidaDeCuentaPorHttpTest.java
+index 97d0e3e7a..8c2c9af00 100644
+--- a/servicios/entregas/src/test/java/bo/aportaya/entregas/infraestructura/MedidaDeCuentaPorHttpTest.java
++++ b/servicios/entregas/src/test/java/bo/aportaya/entregas/infraestructura/MedidaDeCuentaPorHttpTest.java
+@@ -106,7 +106,8 @@ class MedidaDeCuentaPorHttpTest {
+     @Test
+     @DisplayName("rechaza: sin credencial no pregunta y retiene; 403, 500, cuerpo ilegible e identidad caida retienen")
+     void invalido() {
+-        assertThat(adaptador(CredencialDeServicio.ninguna()).retieneEntrega(BENEFICIARIO)).isTrue();
++        assertThat(adaptador(CredencialDeServicio.ninguna()).retieneEntrega(BENEFICIARIO))
++                .isTrue();
+         assertThat(recibidos).isEmpty();
+ 
+         var adaptador = adaptador(CredencialDeServicio.fija(TOKEN_DE_SERVICIO));
