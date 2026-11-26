@@ -1,0 +1,12 @@
+== operador previo T-A1 con 1990-01-01 (califica) y la base ya con el trigger ==
+T-A1|1990-01-01
+== aplicar.sql corrida 1 ==
+errores: 0
+T-A1|sin dato
+T-A2|1990-01-01
+T-A4|1990-01-01
+== aplicar.sql corrida 2 ==
+errores: 0
+T-A1|sin dato
+T-A2|1990-01-01
+T-A4|1990-01-01

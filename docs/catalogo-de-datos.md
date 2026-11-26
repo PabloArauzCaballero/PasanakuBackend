@@ -6963,7 +6963,7 @@ El campo `codigoPublico` existe porque nadie debería mostrar un UUID en pantall
 | `apellidos` | VARCHAR(80) | Atributo que representa apellidos en el modelo de `usuario`. | VARCHAR(80), obligatoria, sensibilidad personal. | PERSONAL |
 | `telefono_e164` | VARCHAR(20) | Atributo que representa telefono e164 en el modelo de `usuario`. | VARCHAR(20), obligatoria, restricción única, índice b-tree, sensibilidad personal. | PERSONAL |
 | `correo` | VARCHAR(150) | Atributo que representa correo en el modelo de `usuario`. | VARCHAR(150), opcional, restricción única, sensibilidad personal. | PERSONAL |
-| `fecha_nacimiento` | DATE | Marca temporal o fecha de nacimiento en `usuario`. | DATE, obligatoria, sensibilidad personal. | PERSONAL |
+| `fecha_nacimiento` | DATE | Marca temporal o fecha de nacimiento en `usuario`. | DATE, opcional, sensibilidad personal. | PERSONAL |
 | `estado` | VARCHAR(25) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(25), obligatoria. | NINGUNA |
 | `nivel_kyc` | VARCHAR(15) | Atributo que representa nivel kyc en el modelo de `usuario`. | VARCHAR(15), obligatoria. | NINGUNA |
 | `idioma` | VARCHAR(10) | Atributo que representa idioma en el modelo de `usuario`. | VARCHAR(10), obligatoria. | NINGUNA |

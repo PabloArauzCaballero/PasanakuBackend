@@ -2883,6 +2883,11 @@ components:
         departamento: { type: string }
         cargo: { type: string }
         estado: { type: string }
+        fechaNacimientoPendiente:
+          type: boolean
+          description: >-
+            true cuando la persona esta «sin dato» de fecha de nacimiento (GU-17, A8): se dio de alta antes de que el alta la
+            pidiera. El backoffice pide completarla con `PATCH /usuarios-internos/{id}`.
         debeCambiarContrasena: { type: boolean }
         tieneSegundoFactor:
           type: boolean
@@ -2949,6 +2954,13 @@ components:
         departamento: { type: string, maxLength: 60, nullable: true }
         cargo: { type: string, maxLength: 80, nullable: true }
         estado: { type: string, enum: [ACTIVO, SUSPENDIDO], nullable: true }
+        fechaNacimiento:
+          type: string
+          format: date
+          nullable: true
+          description: >-
+            Completa la fecha de nacimiento de quien esta «sin dato» (GU-17, A8). Se rechaza si ya tiene una (AP-CU08-15), si es
+            futura (AP-CU08-13) o si la persona no cumplio 18 anos (AP-CU08-14). Exige evidenciaMfa.
         motivo: { type: string, minLength: 5, maxLength: 200 }
         evidenciaMfa:
           type: string

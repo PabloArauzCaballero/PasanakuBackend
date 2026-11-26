@@ -3468,7 +3468,7 @@
         "description": "## Actualizar departamento, cargo o suspender con motivo\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `actualizarUsuarioInterno` |\n| **Ruta** | `PATCH /api/v1/usuarios-internos/{id}` |\n| **Permiso** | `USUARIOS_INTERNOS_GESTIONAR` |\n| **Respuestas** | `200`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"departamento\": \"departamento-de-prueba\",\n  \"cargo\": \"cargo-de-prueba\",\n  \"estado\": \"ACTIVO\",\n  \"motivo\": \"motivo-de-prueba\",\n  \"evidenciaMfa\": \"evidenciaMfa-de-prueba\"\n}",
+          "raw": "{\n  \"departamento\": \"departamento-de-prueba\",\n  \"cargo\": \"cargo-de-prueba\",\n  \"estado\": \"ACTIVO\",\n  \"fechaNacimiento\": \"{{fecha_hoy}}\",\n  \"motivo\": \"motivo-de-prueba\",\n  \"evidenciaMfa\": \"evidenciaMfa-de-prueba\"\n}",
           "options": {
             "raw": {
               "language": "json"

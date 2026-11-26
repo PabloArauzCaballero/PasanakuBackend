@@ -14,6 +14,7 @@ import { PERMISOS_DE_GESTION_DE_PERSONAL } from '../personal-y-accesos'
 import { textosSistemas } from '../textos'
 import { GestorDeUsuarioInterno } from './gestor-de-usuario-interno'
 import { ModalAsignarRol } from './modal-asignar-rol'
+import { ModalCompletarFecha } from './modal-completar-fecha'
 
 /**
  * Ficha de un usuario interno (GET `/usuarios-internos/{id}`) en **una** tarjeta a todo el ancho: datos, roles y
@@ -24,7 +25,7 @@ import { ModalAsignarRol } from './modal-asignar-rol'
 @Component({
   selector: 'ap-pantalla-usuario-interno-detalle',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alerta, Boton, CabeceraDePagina, ChipEstado, EstadoDePantalla, GestorDeUsuarioInterno, Migas, ModalAsignarRol, RouterLink, SeccionClaveValor],
+  imports: [Alerta, Boton, CabeceraDePagina, ChipEstado, EstadoDePantalla, GestorDeUsuarioInterno, Migas, ModalAsignarRol, ModalCompletarFecha, RouterLink, SeccionClaveValor],
   template: `
     <section class="pantalla">
       <ap-migas [migas]="[{ texto: 'Usuarios internos', ruta: '/sistemas/usuarios-internos' }, { texto: titulo() }]" />
@@ -52,6 +53,13 @@ import { ModalAsignarRol } from './modal-asignar-rol'
             </ap-alerta>
           }
 
+          @if (u.fechaNacimientoPendiente && !deBaja(u)) {
+            <ap-alerta tono="aviso" titulo="Falta la fecha de nacimiento">
+              Esta persona se dio de alta antes de que el alta pidiera la fecha real. Hay que completarla con su dato verdadero.
+              @if (gestiona()) { <ap-boton variante="primario" icono="editar" tamano="sm" (pulsado)="mostrarModalFecha.set(true)">Completar la fecha</ap-boton> }
+            </ap-alerta>
+          }
+
           <article class="ficha">
             <div class="estados">
               <ap-chip-estado [tono]="u.estado === 'ACTIVO' ? 'ok' : u.estado === 'BAJA_LABORAL' ? 'neutro' : 'aviso'">{{ etiquetaDeEstado(u.estado) }}</ap-chip-estado>
@@ -70,6 +78,9 @@ import { ModalAsignarRol } from './modal-asignar-rol'
             </section>
           </article>
 
+          @if (mostrarModalFecha()) {
+            <ap-modal-completar-fecha [usuarioId]="u.id" (cerrar)="mostrarModalFecha.set(false)" (guardado)="onFechaCompletada()" />
+          }
           @if (mostrarModalRol()) {
             <ap-modal-asignar-rol [usuarioId]="u.id" (cerrar)="mostrarModalRol.set(false)" (guardado)="onRolAsignado($event)" />
           }
@@ -98,6 +109,7 @@ export class PantallaUsuarioInternoDetalle {
   protected readonly id = signal<string | null>(this.route.snapshot.paramMap.get('id'))
   protected readonly recurso = usuarioInterno(this.id)
   protected readonly mostrarModalRol = signal(false)
+  protected readonly mostrarModalFecha = signal(false)
   protected readonly aviso = signal<string | null>(null)
   private readonly sesion = inject(Sesion)
   protected readonly gestiona = computed(() => PERMISOS_DE_GESTION_DE_PERSONAL.some((p) => this.sesion.permisos().includes(p)))
@@ -123,6 +135,12 @@ export class PantallaUsuarioInternoDetalle {
       { etiqueta: 'Última actualización', valor: u.actualizadoEn },
     ]
   })
+
+  protected onFechaCompletada(): void {
+    this.mostrarModalFecha.set(false)
+    this.aviso.set('Fecha de nacimiento completada.')
+    this.recurso.reload()
+  }
 
   protected onRolAsignado(r: SalidaAsignacionDeRol): void {
     this.mostrarModalRol.set(false)

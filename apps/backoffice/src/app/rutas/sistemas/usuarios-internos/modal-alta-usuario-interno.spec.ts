@@ -63,7 +63,7 @@ describe('ModalAltaUsuarioInterno · POST /usuarios-internos', () => {
     expect(guardado).toBe(true)
   })
 
-  it('límite: sin fecha de nacimiento no deja crear y una futura marca el campo (GU-17)', async () => {
+  it('límite: sin fecha de nacimiento no deja crear; una futura o de menor de 18 marca el campo (GU-17)', async () => {
     const { f, el } = await montar()
     await completar(f, el)
     const crear = () => Array.from(el.querySelectorAll('button')).find((b) => texto(b) === 'Crear usuario') as HTMLButtonElement
@@ -75,6 +75,13 @@ describe('ModalAltaUsuarioInterno · POST /usuarios-internos', () => {
     await estabilizar(f)
     expect(texto(el)).toContain('La fecha de nacimiento no puede ser futura.')
     expect(crear().disabled).toBe(true)
+    escribir(el, 'Fecha de nacimiento', `${new Date().getFullYear() - 17}-06-15`)
+    await estabilizar(f)
+    expect(texto(el)).toContain('mayor de 18 años')
+    expect(crear().disabled).toBe(true)
+    escribir(el, 'Fecha de nacimiento', `${new Date().getFullYear() - 40}-06-15`)
+    await estabilizar(f)
+    expect(crear().disabled).toBe(false)
   })
 
   it('límite: un correo mal escrito marca el campo y no deja crear', async () => {

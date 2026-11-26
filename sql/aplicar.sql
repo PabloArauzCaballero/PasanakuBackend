@@ -409,6 +409,9 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 --     migraciones. Sobre una base recién creada no hace nada.
 \ir 15_infra/nulabilidad.sql
 
+-- 2c') GU-17: operadores con la fecha ficticia pasan a «sin dato» (una sola vez, acotado por corte).
+\ir 15_infra/correccion_gu17_fecha_ficticia.sql
+
 -- 2d) Borradores de onboarding incompleto.
 \ir 15_infra/borradores.sql
 

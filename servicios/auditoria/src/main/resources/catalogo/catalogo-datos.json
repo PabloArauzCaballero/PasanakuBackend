@@ -55320,11 +55320,11 @@
     {
      "nombre": "fecha_nacimiento",
      "tipo": "DATE",
-     "nulable": false,
+     "nulable": true,
      "pk": false,
      "negocio": "Marca temporal o fecha de nacimiento en usuario.",
      "origenNegocio": "convencion",
-     "sistema": "DATE, obligatoria, sensibilidad personal.",
+     "sistema": "DATE, opcional, sensibilidad personal.",
      "sensibilidad": "PERSONAL"
     },
     {

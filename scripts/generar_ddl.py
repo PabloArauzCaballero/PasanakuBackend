@@ -719,6 +719,7 @@ def generar():
         raise SystemExit("COLUMNAS_AGREGADAS nombra columnas que el modelo no tiene")
     escribir_columnas_agregadas(agregadas)
     escribir_convergencia(opcionales)
+    escribir_correccion_gu17()
     escribir_orquestador(mods)
 
     # El catálogo de restricciones se extrae de docs/Restricciones.md: se
@@ -1174,6 +1175,44 @@ def escribir_columnas_agregadas(agregadas):
     (d / "columnas_agregadas.sql").write_text("\n".join(L), encoding="utf-8")
 
 
+# GU-17 (decision de Pablo, A8): hasta el cambio de contrato del alta, `GestionarUsuariosInternos` guardaba a todo
+# operador con la fecha ficticia 1990-01-01. Se marca «sin dato» (NULL) solo a quien tiene exactamente esa fecha, es
+# personal interno y se registro antes del corte: el instante en que #538 (el alta que pide la fecha real) entro a dev.
+# El corte hace que la correccion sea de una sola vez aunque `aplicar.sql` se corra en cada despliegue: un operador
+# dado de alta despues, que de verdad naciera el 1990-01-01, no se toca.
+CORTE_GU17 = "2026-11-26 03:17:43+00"
+
+
+def escribir_correccion_gu17():
+    L = ["-- GU-17 · operadores con la fecha de nacimiento ficticia pasan a «sin dato».",
+         "-- Generado por scripts/generar_ddl.py — no editar a mano.",
+         "--",
+         "-- No hay migraciones versionadas en este repositorio (docs/operacion/schema-changes.md): esta es la",
+         "-- correccion de datos con nombre explicito, idempotente y acotada por el corte de abajo.",
+         "-- Solo toca a quien cumple LAS TRES: fecha exactamente 1990-01-01, es personal interno y se",
+         f"-- registro antes de {CORTE_GU17}. Segunda corrida: 0 filas.",
+         "--",
+         "-- REVERSA (a mano, solo si hubiera que deshacerla; restituye lo que sigue «sin dato»):",
+         "--   UPDATE identidad.usuario u SET fecha_nacimiento = DATE '1990-01-01'",
+         f"--    WHERE u.fecha_nacimiento IS NULL AND u.fecha_registro < TIMESTAMPTZ '{CORTE_GU17}'",
+         "--      AND EXISTS (SELECT 1 FROM identidad.usuario_interno ui WHERE ui.usuario_id = u.id);",
+         "",
+         "-- aplicar.sql corre en una transaccion: sin esto, las filas corregidas dejan eventos diferidos del",
+         "-- trigger de R-SEG-18 y el siguiente ALTER TABLE falla («pending trigger events»). Los operadores",
+         "-- cumplen la regla, asi que se comprueba ya.",
+         "SET CONSTRAINTS ALL IMMEDIATE;",
+         "UPDATE identidad.usuario u",
+         "   SET fecha_nacimiento = NULL",
+         " WHERE u.fecha_nacimiento = DATE '1990-01-01'",
+         f"   AND u.fecha_registro < TIMESTAMPTZ '{CORTE_GU17}'",
+         "   AND EXISTS (SELECT 1 FROM identidad.usuario_interno ui WHERE ui.usuario_id = u.id);",
+         "SET CONSTRAINTS ALL DEFERRED;",
+         ""]
+    d = OUT / "15_infra"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / "correccion_gu17_fecha_ficticia.sql").write_text("\n".join(L), encoding="utf-8")
+
+
 def escribir_convergencia(opcionales):
     """Pone al dia la nulabilidad de una base que YA existe.
 
@@ -1320,6 +1359,8 @@ def escribir_orquestador(mods):
           "--     Solo afloja lo que el modelo declara opcional; no es un sistema de",
           "--     migraciones. Sobre una base recién creada no hace nada.",
           "\\ir 15_infra/nulabilidad.sql"]
+    L += ["", "-- 2c') GU-17: operadores con la fecha ficticia pasan a «sin dato» (una sola vez, acotado por corte).",
+          "\\ir 15_infra/correccion_gu17_fecha_ficticia.sql"]
     L += ["", "-- 2d) Borradores de onboarding incompleto.",
           "\\ir 15_infra/borradores.sql"]
     L += ["", "-- 3) Claves foráneas (después de todas las tablas)"]

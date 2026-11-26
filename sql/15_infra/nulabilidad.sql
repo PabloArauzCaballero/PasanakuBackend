@@ -587,6 +587,7 @@ ALTER TABLE identidad.token_verificacion ALTER COLUMN usuario_id DROP NOT NULL;
 ALTER TABLE identidad.usuario ALTER COLUMN correo DROP NOT NULL;
 ALTER TABLE identidad.usuario ALTER COLUMN correo_verificado_en DROP NOT NULL;
 ALTER TABLE identidad.usuario ALTER COLUMN eliminado_en DROP NOT NULL;
+ALTER TABLE identidad.usuario ALTER COLUMN fecha_nacimiento DROP NOT NULL;
 ALTER TABLE identidad.usuario ALTER COLUMN telefono_verificado_en DROP NOT NULL;
 ALTER TABLE identidad.usuario ALTER COLUMN ultimo_acceso_en DROP NOT NULL;
 ALTER TABLE identidad.usuario ALTER COLUMN url_avatar DROP NOT NULL;

@@ -59,6 +59,7 @@ final class UsuarioInternoMapeador {
         detalle.setDepartamento(r.get(USUARIO_INTERNO.DEPARTAMENTO));
         detalle.setCargo(r.get(USUARIO_INTERNO.CARGO));
         detalle.setEstado(r.get(USUARIO.ESTADO));
+        detalle.setFechaNacimientoPendiente(r.get(USUARIO.FECHA_NACIMIENTO) == null);
         detalle.setDebeCambiarContrasena(r.get(USUARIO_INTERNO.DEBE_CAMBIAR_CONTRASENA));
         detalle.setTieneSegundoFactor(tieneMfa);
         detalle.setBloqueadoHasta(bloqueo.map(BloqueoVigente::hasta).orElse(null));

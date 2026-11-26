@@ -15,6 +15,7 @@ import bo.aportaya.identidad.web.generado.modelo.UsuarioInternoResumen;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import java.security.SecureRandom;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -149,6 +150,20 @@ public class UsuariosInternosRepositorio {
         }
 
         return consultar(dsl, uId, ahora).orElseThrow();
+    }
+
+    /**
+     * GU-17 (A8): completa la fecha de quien esta «sin dato». La precondicion va en la escritura (regla 96.3): si ya
+     * tiene una, no se toca y devuelve {@code false}.
+     */
+    public boolean completarFechaDeNacimiento(DSLContext dsl, UUID usuarioId, LocalDate fecha) {
+        UUID uId = resolverUsuarioId(dsl, usuarioId);
+        return dsl.update(USUARIO)
+                        .set(USUARIO.FECHA_NACIMIENTO, fecha)
+                        .where(USUARIO.ID.eq(uId))
+                        .and(USUARIO.FECHA_NACIMIENTO.isNull())
+                        .execute()
+                == 1;
     }
 
     public UsuarioInternoDetalle asignarRoles(

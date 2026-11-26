@@ -1539,6 +1539,7 @@ ALTER TABLE estado_cuenta_billetera
 | R-SEG-14 | Un solo expediente abierto por cuenta y causal | Debido proceso · no acumular medidas por el mismo hecho | [[CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso]] |
 | R-SEG-15 | Una medida no queda firme sin decisión confirmada, ni se decide sin fundamento | Debido proceso (regla 91.4) | [[CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso]] |
 | R-SEG-16 | Nadie aprueba su propia recuperación de acceso, y una recuperación aprobada tiene aprobador, fecha y enfriamiento | ISO 27001 A.5.17, A.8.2 · ADR-038 §4 | [[CU-09 Cambiar credenciales y solicitar la baja]] |
+| R-SEG-18 | Solo el personal interno puede no tener fecha de nacimiento («sin dato»); todo otro usuario la tiene | GU-17 (decisión de Pablo 2026-11-26) · ISO 27001 A.5.34 | [[CU-08 Asignar y revocar roles de operador]] |
 
 ```sql
 -- R-SEG-01 · solo hash, token y enmascarado
@@ -2134,6 +2135,28 @@ ALTER TABLE solicitud_recuperacion_acceso
 CREATE UNIQUE INDEX IF NOT EXISTS uq_recuperacion_viva
   ON solicitud_recuperacion_acceso (usuario_id, alcance)
   WHERE (estado IN ('PENDIENTE','APROBADA','EMITIDA'));
+
+-- R-SEG-18 · solo el personal interno puede estar «sin dato» de fecha de nacimiento
+--
+-- GU-17: la fecha de un operador la declara quien da el alta; los operadores dados de alta antes de
+-- ese cambio quedaron con una fecha ficticia y se marcan «sin dato» (NULL). Eso relaja la columna,
+-- pero la fecha de un participante sigue siendo obligatoria: lo verifica la base, al confirmar la
+-- transaccion (el alta inserta `usuario` y luego `usuario_interno` en la misma).
+CREATE OR REPLACE FUNCTION fn_seg_fecha_nacimiento_obligatoria() RETURNS trigger AS $$
+BEGIN
+  IF NEW.fecha_nacimiento IS NULL
+     AND NOT EXISTS (SELECT 1 FROM usuario_interno ui WHERE ui.usuario_id = NEW.id) THEN
+    RAISE EXCEPTION 'R-SEG-18: el usuario % no es personal interno y necesita fecha de nacimiento', NEW.id;
+  END IF;
+  RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS tg_fecha_nacimiento_obligatoria ON usuario;
+CREATE CONSTRAINT TRIGGER tg_fecha_nacimiento_obligatoria
+  AFTER INSERT OR UPDATE OF fecha_nacimiento ON usuario
+  DEFERRABLE INITIALLY DEFERRED
+  FOR EACH ROW WHEN (NEW.fecha_nacimiento IS NULL)
+  EXECUTE FUNCTION fn_seg_fecha_nacimiento_obligatoria();
 ```
 
 ---
