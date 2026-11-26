@@ -25,6 +25,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  * pidiendola, esta prueba lo diria — y seria un defecto, porque ataria el arranque de
  * los trece servicios al de identidad.
  */
+@org.springframework.test.context.ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ArranqueTest {
 

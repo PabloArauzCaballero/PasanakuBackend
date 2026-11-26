@@ -1,5 +1,8 @@
 package bo.aportaya.aportes.aplicacion;
 
+import bo.aportaya.aportes.dominio.InterpreteDeWebhook;
+import bo.aportaya.aportes.dominio.InterpreteDeWebhook.EventoDePago;
+import bo.aportaya.aportes.dominio.InterpreteDeWebhook.PayloadIlegible;
 import bo.aportaya.aportes.dominio.ProveedorDeSecretoWebhook;
 import bo.aportaya.aportes.dominio.VerificadorDeFirmaWebhook;
 import bo.aportaya.aportes.infraestructura.PagoRepositorio;
@@ -7,12 +10,8 @@ import bo.aportaya.aportes.infraestructura.ProveedorPagoRepositorio;
 import bo.aportaya.aportes.infraestructura.WebhookRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
-import bo.aportaya.plataforma.dominio.Dinero;
-import bo.aportaya.plataforma.dominio.Moneda;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.dominio.Traza;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
@@ -27,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>Tres pasos, EN ORDEN, y ninguno se salta:
  *
  * <ol>
- *   <li>Firma (HMAC-SHA256 sobre el cuerpo crudo) y ventana temporal (+-5 minutos):
+ *   <li>Firma (HMAC-SHA256 sobre timestamp + cuerpo crudo) y ventana temporal (+-5 minutos):
  *       si cualquiera de las dos falla, se responde igual (firma invalida) y no se
  *       escribe una sola fila — ni para auditar. Un atacante que prueba firmas no
  *       puede aprender nada del sistema mirando la base.
@@ -39,6 +38,9 @@ import org.springframework.transaction.annotation.Transactional;
  *       o el monto no cuadra, el webhook se archiva DESCARTADO — nunca se acredita
  *       "lo que vino" (regla 91.3.2 / `payments-qr-integration` §4.3).
  * </ol>
+ *
+ * <p>El formato del cuerpo es del proveedor: lo traduce {@link InterpreteDeWebhook} (puerto), de modo que este caso
+ * de uso no cambia al enchufar la pasarela real.
  *
  * <p><b>Simplificación de alcance, declarada</b>: no existe en este repo la cadena
  * {@code orden_cobro → intento_pago} que describe la skill de pagos QR;
@@ -59,7 +61,7 @@ public class CU100RecibirWebhookPasarela {
     private final PagoRepositorio pagos;
     private final ProveedorDeSecretoWebhook secretos;
     private final Reloj reloj;
-    private final ObjectMapper json;
+    private final InterpreteDeWebhook interprete;
 
     public CU100RecibirWebhookPasarela(
             Datos datos,
@@ -68,14 +70,14 @@ public class CU100RecibirWebhookPasarela {
             PagoRepositorio pagos,
             ProveedorDeSecretoWebhook secretos,
             Reloj reloj,
-            ObjectMapper json) {
+            InterpreteDeWebhook interprete) {
         this.datos = datos;
         this.proveedores = proveedores;
         this.webhooks = webhooks;
         this.pagos = pagos;
         this.secretos = secretos;
         this.reloj = reloj;
-        this.json = json;
+        this.interprete = interprete;
     }
 
     @Transactional
@@ -115,16 +117,16 @@ public class CU100RecibirWebhookPasarela {
             }
 
             // A partir de aca la firma esta verificada: recien ahora se lee el cuerpo.
-            JsonNode evento;
+            EventoDePago evento;
             try {
-                evento = json.readTree(entrada.cuerpoCrudo());
-            } catch (Exception e) {
+                evento = interprete.interpretar(entrada.cuerpoCrudo());
+            } catch (PayloadIlegible e) {
                 BITACORA.error("webhook con firma valida pero cuerpo no es JSON");
                 return Resultado.descartado(null, "cuerpo no es JSON valido");
             }
 
-            String claveEvento = textoDe(evento, "idEvento");
-            String tipoEvento = textoDe(evento, "evento");
+            String claveEvento = evento.idEvento();
+            String tipoEvento = evento.tipo();
             if (claveEvento == null || claveEvento.isBlank()) {
                 BITACORA.error("webhook con firma valida pero sin idEvento");
                 return Resultado.descartado(null, "falta idEvento");
@@ -146,7 +148,7 @@ public class CU100RecibirWebhookPasarela {
                     ahora);
 
             // Paso 3 — la regla de negocio: nunca se acredita "lo que vino".
-            String referencia = textoDe(evento, "referenciaProveedor");
+            String referencia = evento.referenciaProveedor();
             var pagoOpt = referencia == null
                     ? java.util.Optional.<PagoRepositorio.PagoParaConciliar>empty()
                     : pagos.porReferenciaProveedor(dsl, referencia);
@@ -156,8 +158,7 @@ public class CU100RecibirWebhookPasarela {
                 return Resultado.descartado(webhookId, "no existe pago con esa referencia de proveedor");
             }
             var pago = pagoOpt.get();
-            Dinero montoDelEvento = montoDe(evento);
-            if (montoDelEvento == null || !montoDelEvento.equals(pago.monto())) {
+            if (evento.monto().isEmpty() || !evento.monto().get().equals(pago.monto())) {
                 webhooks.marcarProcesado(
                         dsl, webhookId, "DESCARTADO", "el monto del webhook no coincide con el pago", pago.id(), ahora);
                 return Resultado.descartado(webhookId, "el monto no coincide con el pago");
@@ -166,32 +167,6 @@ public class CU100RecibirWebhookPasarela {
             webhooks.marcarProcesado(dsl, webhookId, "PROCESADO", null, pago.id(), ahora);
             return Resultado.procesado(webhookId, pago.id());
         });
-    }
-
-    private static String textoDe(JsonNode nodo, String campo) {
-        JsonNode valor = nodo.get(campo);
-        return valor == null || valor.isNull() ? null : valor.asText();
-    }
-
-    private static Dinero montoDe(JsonNode nodo) {
-        String monto = null;
-        JsonNode nodoMonto = nodo.get("monto");
-        if (nodoMonto != null && !nodoMonto.isNull()) {
-            monto = nodoMonto.asText();
-        }
-        String moneda = null;
-        JsonNode nodoMoneda = nodo.get("moneda");
-        if (nodoMoneda != null && !nodoMoneda.isNull()) {
-            moneda = nodoMoneda.asText();
-        }
-        if (monto == null || moneda == null) {
-            return null;
-        }
-        try {
-            return Dinero.de(monto, Moneda.valueOf(moneda));
-        } catch (RuntimeException e) {
-            return null;
-        }
     }
 
     public record Entrada(String proveedorCodigo, String cuerpoCrudo, String firma, String timestamp) {}

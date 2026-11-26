@@ -57,4 +57,30 @@ class ArquitecturaTest {
             .should()
             .dependOnClassesThat()
             .resideInAPackage("..infraestructura..");
+
+    // Hexagonal de la pasarela: el nucleo habla con PUERTOS (dominio.PasarelaDePagos, InterpreteDeWebhook...) y jamas
+    // con un adaptador. Asi enchufar la pasarela real no toca dominio, aplicacion ni web.
+    @ArchTest
+    static final ArchRule elNucleoNoConoceLosAdaptadoresDeLaPasarela = noClasses()
+            .that()
+            .resideInAnyPackage("..dominio..", "..aplicacion..", "..web..")
+            .should()
+            .dependOnClassesThat()
+            .resideInAPackage("..infraestructura.pasarela..");
+
+    @ArchTest
+    static final ArchRule elAdaptadorRealNoDependeDelDoble = noClasses()
+            .that()
+            .resideInAPackage("..infraestructura.pasarela.real..")
+            .should()
+            .dependOnClassesThat()
+            .resideInAPackage("..infraestructura.pasarela.simulada..");
+
+    @ArchTest
+    static final ArchRule elDobleNoDependeDelAdaptadorReal = noClasses()
+            .that()
+            .resideInAPackage("..infraestructura.pasarela.simulada..")
+            .should()
+            .dependOnClassesThat()
+            .resideInAPackage("..infraestructura.pasarela.real..");
 }
