@@ -30,5 +30,5 @@
 | H2.S1.M1 | Modelo: `usuario.fecha_nacimiento` `<<NULL>>` + invariante en la base (solo el personal interno puede no tenerla) | participante sin fecha → rechazo de la base; operador sin fecha → acepta | `psql` con ambos casos | HECHO |
 | H2.S1.M2 | Corrección generada con nombre explícito, acotada por corte, con reversa | primera corrida marca N filas; segunda marca 0; reversa restituye | `psql` con salida | HECHO |
 | H2.S2.M1 | Backend: el detalle del operador indica que falta la fecha y se puede completar una vez (con motivo y step-up, mismas reglas que las demás ediciones) | se completa: queda guardada con bitácora; ya completa: se rechaza | `test` + `webTest` | A MEDIAS |
-| H2.S2.M2 | Backoffice: aviso «Falta la fecha de nacimiento» en el detalle y acción para completarla | spec; captura | `ng test` + Playwright | A MEDIAS |
-| H2.S3.M1 | Gates y deriva | `generar_ddl` sin diff, `verificar_*` OK, lint/typecheck | scripts | A MEDIAS |
+| H2.S2.M2 | Backoffice: aviso «Falta la fecha de nacimiento» en el detalle y acción para completarla | spec; captura | `ng test` + Playwright | HECHO |
+| H2.S3.M1 | Gates y deriva | `generar_ddl` sin diff, `verificar_*` OK, lint/typecheck | scripts | HECHO |

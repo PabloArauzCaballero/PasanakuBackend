@@ -1,4 +1,4 @@
-> **AVANCE: 5 / 8 — 62,5 %.** (3 en A MEDIAS: faltan la prueba de integración en CI, las capturas miradas y los gates finales)
+> **AVANCE: 7 / 8 — 87,5 %.** (queda en A MEDIAS H2.S2.M1: su prueba de integración solo corre en CI)
 
 # Reporte — GU-17 · edad mínima 18 (A9) y operadores «sin dato» (A8)
 
@@ -13,6 +13,8 @@
 | H1.S1.M2 | AP-CU08-13/14/15 y criterios en CU-08 | `verificar_criterios.py; verificar_boveda.py` | «Sin divergencias» / TODO OK |
 | H1.S2.M1 | Modal de alta: error por campo (futura, menor de 18) y mapeo del servidor; la regla vive en un solo lugar (`dominio/fecha-de-nacimiento.ts`) | `npx ng test --include='src/app/rutas/sistemas/**/*.spec.ts'` | 50 archivos, 224 pruebas pasan |
 | H2.S1.M1 | `usuario.fecha_nacimiento` nullable (`<<NULL>>`) + R-SEG-18: solo el personal interno puede estar sin dato | `psql` (evidencia/sql-r-seg-18.txt) | participante sin fecha → `ERROR: R-SEG-18`; operador sin fecha → COMMIT; UPDATE a NULL de un participante → rechazado |
+| H2.S2.M2 | Backoffice: aviso «Falta la fecha de nacimiento» + modal con paso de seguridad; capturas 390/834/1440 × claro/oscuro miradas (aviso, error de fecha futura, alta con menor de 18) | `yarn typecheck`, `yarn lint`, `ng test` sistemas (224), `npx playwright test e2e/visual-fecha-operador.e2e.ts --workers=1 --project=chromium` | todo OK; `18 passed (52.3s)`; capturas móvil y escritorio en `evidencia/capturas/` (tablet tomada y mirada, no versionada) |
+| H2.S3.M1 | Gates y deriva sobre el head | `spotlessCheck`, `testBarrido`, `contractTest`, `verificar_boveda/criterios/seguridad/carriles`, `inventario_endpoints --check`, `generar_ddl`/`extraer_sql`/`generar_postman`/`catalogo_de_datos --escribir` sin diff | todo en verde / sin deriva |
 | H2.S1.M2 | Corrección generada `sql/15_infra/correccion_gu17_fecha_ficticia.sql` (acotada por corte, de una sola vez, con reversa) | `psql` (evidencia/sql-a8.txt, sql-reaplicacion.txt) | 1.ª corrida: 1 fila (solo el operador previo con 1990-01-01); 2.ª: `UPDATE 0`; reversa restituye; `aplicar.sql` dos veces sin errores |
 
 ## A medias
@@ -21,16 +23,6 @@
 - Qué no anda / no verificado: `CU08CompletarFechaTest` (integración con base) solo corre en CI; no se ejecutó local (Docker).
 - Qué falta: CI verde de la rama con esa prueba.
 - Dónde quedó: `GestionarUsuariosInternos`, `UsuariosInternosRepositorio`, `LecturaDeUsuariosInternos`, `identidad.yaml`; compila.
-
-### H2.S2.M2 — Completar la fecha (backoffice)
-- Qué anda: aviso «Falta la fecha de nacimiento» en el detalle + modal con paso de seguridad; 4 pruebas nuevas pasan; typecheck y lint en 0.
-- Qué no anda: sin capturas miradas todavía (spec `visual-fecha-operador.e2e.ts` escrito, corrida en curso).
-- Qué falta: mirar las capturas 390/834/1440 × claro/oscuro y corregir lo que muestren.
-- Dónde quedó: `pantalla-usuario-interno-detalle.ts`, `modal-completar-fecha.ts`; compila.
-
-### H2.S3.M1 — Gates finales
-- Qué anda: `spotlessCheck`, `testBarrido`, `contractTest`, `inventario_endpoints --check`, `verificar_*` en verde antes del último cambio de UI.
-- Qué falta: repetirlos sobre el head final y CI.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
