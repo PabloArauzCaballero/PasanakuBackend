@@ -560,6 +560,14 @@ ALTER TABLE identidad.solicitud_cambio_rol ALTER COLUMN motivo_resolucion DROP N
 ALTER TABLE identidad.solicitud_cambio_rol ALTER COLUMN resuelta_en DROP NOT NULL;
 ALTER TABLE identidad.solicitud_cambio_rol ALTER COLUMN resuelta_por DROP NOT NULL;
 ALTER TABLE identidad.solicitud_cambio_rol ALTER COLUMN rol_id DROP NOT NULL;
+ALTER TABLE identidad.solicitud_recuperacion_acceso ALTER COLUMN completada_en DROP NOT NULL;
+ALTER TABLE identidad.solicitud_recuperacion_acceso ALTER COLUMN decidida_en DROP NOT NULL;
+ALTER TABLE identidad.solicitud_recuperacion_acceso ALTER COLUMN decidida_por DROP NOT NULL;
+ALTER TABLE identidad.solicitud_recuperacion_acceso ALTER COLUMN emitida_en DROP NOT NULL;
+ALTER TABLE identidad.solicitud_recuperacion_acceso ALTER COLUMN enfriamiento_hasta DROP NOT NULL;
+ALTER TABLE identidad.solicitud_recuperacion_acceso ALTER COLUMN motivo_decision DROP NOT NULL;
+ALTER TABLE identidad.solicitud_recuperacion_acceso ALTER COLUMN solicitada_por DROP NOT NULL;
+ALTER TABLE identidad.solicitud_recuperacion_acceso ALTER COLUMN token_id DROP NOT NULL;
 ALTER TABLE identidad.token_verificacion ALTER COLUMN clicks DROP NOT NULL;
 ALTER TABLE identidad.token_verificacion ALTER COLUMN consumido_en DROP NOT NULL;
 ALTER TABLE identidad.token_verificacion ALTER COLUMN dispositivo_id DROP NOT NULL;

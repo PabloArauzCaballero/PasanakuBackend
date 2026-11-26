@@ -171,3 +171,12 @@ CREATE INDEX IF NOT EXISTS ix_evidencia_step_up_consumida_usuario_id
 
 CREATE INDEX IF NOT EXISTS ix_evidencia_step_up_consumida_vence_en
   ON identidad.evidencia_step_up_consumida (vence_en);
+
+CREATE INDEX IF NOT EXISTS ix_solicitud_recuperacion_acceso_usuario_id
+  ON identidad.solicitud_recuperacion_acceso (usuario_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_solicitud_recuperacion_acceso_token_id
+  ON identidad.solicitud_recuperacion_acceso (token_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_solicitud_recuperacion_acceso_clave_idempotencia
+  ON identidad.solicitud_recuperacion_acceso (clave_idempotencia);

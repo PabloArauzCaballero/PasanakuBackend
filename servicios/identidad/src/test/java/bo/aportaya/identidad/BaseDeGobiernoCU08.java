@@ -103,7 +103,8 @@ abstract class BaseDeGobiernoCU08 {
                 repositorio,
                 reglas,
                 reloj,
-                outbox);
+                outbox,
+                (dsl, operador, quien, motivo) -> {});
     }
 
     protected static void enTransaccionQueSeDeshace(Runnable escenario) {

@@ -1,0 +1,73 @@
+{
+  "servicio": "identidad",
+  "operacion": "listarRecuperaciones",
+  "metodo": "get",
+  "ruta": "/cuenta/recuperaciones",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "id": "434c510f-9e71-4f49-822c-281bae1bd805",
+            "usuarioId": "884cecbf-1754-41df-860e-7c2a09fa1be9",
+            "nombres": "nombres",
+            "apellidos": "apellidos",
+            "alcance": "CLAVE",
+            "estado": "PENDIENTE",
+            "solicitadaEn": "2026-01-15T10:30:00Z",
+            "motivo": "motivo",
+            "decididaPor": "a43f4d9a-fe23-422e-8a1c-cfb4a262cfc8",
+            "decididaEn": "2026-01-15T10:30:00Z",
+            "motivoDecision": "motivoDecision",
+            "enfriamientoHasta": "2026-01-15T10:30:00Z",
+            "emitidaEn": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "siguienteAntesDe": "2026-01-15T10:30:00Z",
+        "siguienteAntesDeId": "cd8a4310-faa9-4a28-8723-d938c833dd38"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "siguienteAntesDe": "2026-01-15T10:30:00Z",
+        "siguienteAntesDeId": "cd8a4310-faa9-4a28-8723-d938c833dd38"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "id": "434c510f-9e71-4f49-822c-281bae1bd805",
+            "usuarioId": "884cecbf-1754-41df-860e-7c2a09fa1be9",
+            "nombres": "nombres",
+            "apellidos": "apellidos",
+            "alcance": "CLAVE",
+            "estado": "PENDIENTE",
+            "solicitadaEn": "2026-01-15T10:30:00Z",
+            "motivo": "motivo",
+            "decididaPor": "a43f4d9a-fe23-422e-8a1c-cfb4a262cfc8",
+            "decididaEn": "2026-01-15T10:30:00Z",
+            "motivoDecision": "motivoDecision",
+            "enfriamientoHasta": "2026-01-15T10:30:00Z",
+            "emitidaEn": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "siguienteAntesDe": "2026-01-15T10:30:00Z",
+        "siguienteAntesDeId": "cd8a4310-faa9-4a28-8723-d938c833dd38"
+      }
+    },
+    "rechazo": {
+      "estado": 401,
+      "cuerpo": {
+        "codigo": "AP-CU01-03",
+        "mensaje": "Cuenta ya existe",
+        "detalle": {},
+        "trazaId": "traza-listarRecuperaciones-rechazo"
+      }
+    }
+  }
+}

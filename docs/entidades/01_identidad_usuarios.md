@@ -757,6 +757,20 @@ puede explicar un score calculado con una versión anterior del modelo de scorin
 
 ---
 
+### `SolicitudRecuperacionAcceso` / `solicitud_recuperacion_acceso`
+
+**Qué es.** El expediente con el que un operador del backoffice recupera su clave o reinscribe su segundo factor: quién lo pidió, quién lo decidió, cuándo termina el enfriamiento y qué invitación se emitió.
+
+**Para qué sirve (negocio).** Que perder la clave o el teléfono no sea una forma de tomar la cuenta de otra persona. Nadie recupera su propio acceso: otra persona con permiso de seguridad lo aprueba, pasa un plazo de enfriamiento y solo entonces llega una invitación de un solo uso al correo institucional.
+
+**Por qué debe existir.** ADR-038 §4 dejaba al aprobador solo en la bitácora, sin ninguna tabla que lo guardara, y por eso la base no podía rechazar una autoaprobación. Con esta tabla la restricción `R-SEG-16` la rechaza en el motor, aunque la aplicación se saltee la validación.
+
+**A nivel de sistema.** Una fila por pedido; una sola viva por operador y alcance (`uq_recuperacion_viva`). `estado` recorre PENDIENTE → APROBADA → EMITIDA → COMPLETADA (o RECHAZADA / VENCIDA). `decidida_por` es siempre distinta de `usuario_id`; `enfriamiento_hasta` se guarda al aprobar y no se recalcula. `token_id` apunta al token de invitación; del token solo existe su hash con pepper (regla 90.2.9). `clave_idempotencia` evita duplicar un pedido reintentado.
+
+*Fuente: CU-09 §10-§11; ADR-038 §4-§5; `docs/Restricciones.md` R-SEG-16.*
+
+---
+
 ### `UsuarioInterno` / `usuario_interno`
 
 **Qué es.** El perfil laboral y operativo del usuario que desempeña funciones internas en la plataforma.

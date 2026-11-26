@@ -105,6 +105,43 @@ de operador y enrolar otro exige:
 
 Es la ventana de enfriamiento del paso 5, aplicada del lado que puede mover plata ajena.
 
+### 10 · Primer acceso del operador — invitación de un solo uso (P-1)
+
+Un operador **nunca recibe una clave provisional**: no existe. El alta (CU-08) deja su
+[[credencial_acceso]] con un valor inutilizable y emite, en la misma transacción, una
+invitación: [[token_verificacion]] `proposito='INVITACION_OPERADOR'`, `uso_unico`, de vigencia
+corta, al **correo institucional**. El enlace lleva el token en el **fragmento** (`#`), que el
+navegador no manda al servidor ni queda en los registros de acceso. De la base solo sale el
+**hash con pepper**; el valor plano existe en el correo y en la memoria de quien lo abre.
+
+1. `POST /cuenta/invitacion/consultar` valida el token **sin consumirlo** y devuelve el alcance.
+2. `POST /cuenta/invitacion/factor` genera la semilla TOTP (cifrada en reposo) y la devuelve una sola vez.
+3. `POST /cuenta/invitacion/completar` hace, **en una sola transacción**: política de clave, hash,
+   confirmación del TOTP con un código real, `requiere_cambio=false`, token `CONSUMIDO`. Si cualquier
+   paso falla, el token **no se consume** y la persona puede reintentar dentro de su vigencia y su
+   tope de intentos. Sin factor confirmado no hay sesión (`R-SEG-10`), de modo que la invitación
+   cierra GU-02: el operador ya puede entrar.
+
+Reemitir la invitación invalida la anterior. Todo error de token responde `TOKEN_INVALIDO` sin
+distinguir vencido, usado, falso o de otro propósito.
+
+### 11 · Recuperación asistida a cuatro ojos (P-4, ADR-038 §4 y §5)
+
+Recuperar la clave o reinscribir el factor de un operador es un **expediente** en
+`solicitud_recuperacion_acceso`, no un enlace:
+
+| Paso | Quién | Qué queda escrito |
+| :-: | --- | --- |
+| 1 · Pedido | El operador (sin sesión) o una persona de seguridad en su nombre | `estado=PENDIENTE`, `alcance` (`CLAVE` o `FACTOR`), motivo; respuesta idéntica exista o no el correo |
+| 2 · Aprobación o rechazo | **Otra** identidad con `SEGURIDAD_ACCESO_RESTABLECER` | `decidida_por`, `decidida_en`, motivo y `enfriamiento_hasta` (`R-SEG-16`: la base rechaza la autoaprobación) |
+| 3 · Enfriamiento | El sistema | Hasta `enfriamiento_hasta` no se emite nada; el plazo se guarda al aprobar, no se recalcula |
+| 4 · Invitación | Trabajo programado | Token de un solo uso (`RECUPERACION_OPERADOR_CLAVE` o `REINSCRIPCION_FACTOR`) al correo institucional; `estado=EMITIDA` |
+| 5 · Cumplimiento | El operador con el enlace | `CLAVE` cambia solo la clave; `FACTOR` exige la clave actual y reemplaza solo el TOTP; ambos cierran **todas** las sesiones y quitan la confianza de los dispositivos (`R-SEG-11`) |
+
+Hay una sola solicitud viva por operador y alcance. Cada acto emite, por outbox y en la misma
+transacción, el evento `identidad.usuario_interno_*` de la bitácora (con `actorId`, `actorRol`,
+`origen`, `afectadoId` y `motivo`) y el pedido de aviso al afectado y al oficial de cumplimiento (P-5).
+
 ## Flujos alternativos
 
 | # | Situación | Resultado |
@@ -117,6 +154,10 @@ Es la ventana de enfriamiento del paso 5, aplicada del lado que puede mover plat
 | 6b | Pide la baja con saldo a favor | La baja se acepta pero exige elegir destino del saldo antes de la fecha efectiva |
 | — | Rotación obligatoria de clave de operador | El sistema fuerza el cambio al iniciar sesión y no deja operar hasta completarlo |
 | — | Compromiso confirmado de la cuenta | Se fuerza el cambio, se cierran sesiones y dispositivos, y se abre [[incidente_seguridad]] ([[CU-55 Gestionar un incidente de seguridad]]) |
+| 10a | La invitación está vencida, usada o la manipularon | Rechazo `TOKEN_INVALIDO`, el mismo mensaje en los tres casos |
+| 10b | El código TOTP de la invitación no coincide | Rechazo `AP-CU04-04`; el token **no** se consume |
+| 11a | Segundo pedido con uno vivo del mismo alcance | Misma respuesta neutra; no se crea otro |
+| 11b | Decidir una solicitud que ya no está pendiente | Rechazo `SOLICITUD_NO_DECIDIBLE` |
 | 8a | Un **operador** intenta recuperar por autoservicio | Rechazo `RECUPERACION_ASISTIDA_REQUERIDA`: el token solo habilita el trámite, no lo completa |
 | 8b | La aprobación la intenta el propio titular | Rechazo `APROBACION_REQUERIDA`; la segregación no admite que nadie se restablezca a sí mismo (`R-SEG-07`, `R-SEG-11`) |
 | 8c | El operador cambió su clave y quiere seguir en la sesión que la cambió | No se puede: `R-SEG-11` revoca **todas**. Vuelve a entrar con clave y TOTP |
@@ -190,6 +231,8 @@ export const ErroresCU09 = {
   RECUPERACION_ASISTIDA_REQUERIDA: 'AP-CU09-08',
   APROBACION_REQUERIDA:            'AP-CU09-09',
   FACTOR_EN_ENFRIAMIENTO:          'AP-CU09-10',
+  SOLICITUD_NO_ENCONTRADA:         'AP-CU09-11',
+  SOLICITUD_NO_DECIDIBLE:          'AP-CU09-12',
 } as const
 ```
 
@@ -204,6 +247,8 @@ export const ErroresCU09 = {
 | `SALDO_SIN_DESTINO` | Pide la baja con saldo a favor y no indicó a dónde va |
 | `RECUPERACION_ASISTIDA_REQUERIDA` | Un operador intentó completar la recuperación por autoservicio |
 | `APROBACION_REQUERIDA` | Falta la aprobación de otra identidad con `SEGURIDAD_ACCESO_RESTABLECER`, o la intentó el titular |
+| `SOLICITUD_NO_ENCONTRADA` | La solicitud de recuperación no existe |
+| `SOLICITUD_NO_DECIDIBLE` | La solicitud ya fue decidida, emitida o venció |
 | `FACTOR_EN_ENFRIAMIENTO` | El operador reenroló su factor y la acción exige `requiere_mfa`; se responde con el tiempo restante |
 
 ## Descomposición atómica
@@ -242,7 +287,7 @@ export const ErroresCU09 = {
 
 ## Restricciones aplicables
 
-`R-SEG-02` · `R-SEG-03` · `R-SEG-07` · `R-SEG-10` · `R-SEG-11` · `R-BIL-13` · `R-AUD-01` · `R-AUD-04` · `R-CON-05`
+`R-SEG-02` · `R-SEG-03` · `R-SEG-07` · `R-SEG-10` · `R-SEG-11` · `R-SEG-16` · `R-BIL-13` · `R-AUD-01` · `R-AUD-04` · `R-CON-05`
 
 ## Evidencia que deja
 
@@ -290,8 +335,37 @@ Y el corte total de R-SEG-11 no se le aplica
 Dado un operador que reenroló su segundo factor hace una hora
 Cuando intenta autorizar un desembolso
 Entonces se rechaza con FACTOR_EN_ENFRIAMIENTO indicando el tiempo restante
+
+Dado un operador recién dado de alta con una invitación vigente
+Cuando abre el enlace, elige una clave válida y confirma su TOTP
+Entonces su credencial queda con la clave elegida y requiere_cambio en false
+Y el token queda CONSUMIDO y no sirve una segunda vez
+
+Dado una invitación vencida, usada o de otro propósito
+Cuando se intenta consultar o completar
+Entonces se rechaza con TOKEN_INVALIDO, con el mismo mensaje en los tres casos
+
+Dado un operador que pidió recuperar su clave
+Cuando él mismo intenta aprobar la solicitud
+Entonces se rechaza con APROBACION_REQUERIDA
+Y la base lo rechaza aunque se evite la aplicación (R-SEG-16)
+
+Dado una solicitud aprobada con enfriamiento vigente
+Cuando corre el trabajo de emisión
+Entonces no se emite ninguna invitación
+Y pasado el enfriamiento se emite una sola, aunque el trabajo corra dos veces
+
+Dado un operador con una invitación de reinscripción del factor
+Cuando la completa con su clave actual y un código del TOTP nuevo
+Entonces el factor anterior queda inactivo y el nuevo confirmado
+Y todas sus sesiones quedan revocadas
+
+Dado un operador con la marca de cambio de clave pendiente
+Cuando cambia su clave con la actual correcta
+Entonces la marca queda en falso y la clave nueva rige
+Y todas sus sesiones, incluida la actual, quedan cerradas
 ```
 
 ## Ver también
 
-[[CU-04 Autenticar con MFA y registrar dispositivo]] · [[CU-07 Ejercer derechos sobre datos personales]] · [[CU-08 Asignar y revocar roles de operador]] · [[CU-16 Cerrar billetera y devolver saldo]] · [[CU-55 Gestionar un incidente de seguridad]] · [[ADR-038 Acceso administrativo · segundo factor y recuperación asistida]] · [[Seguridad]]
+[[CU-04 Autenticar con MFA y registrar dispositivo]] · [[CU-07 Ejercer derechos sobre datos personales]] · [[CU-08 Asignar y revocar roles de operador]] · [[CU-16 Cerrar billetera y devolver saldo]] · [[CU-55 Gestionar un incidente de seguridad]] · [[ADR-038 Acceso administrativo · segundo factor y recuperación asistida]] · `solicitud_recuperacion_acceso` · [[Seguridad]]

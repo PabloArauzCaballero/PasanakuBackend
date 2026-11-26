@@ -37,7 +37,8 @@ class ArranqueTest {
             "/sesiones",
             "/roles",
             "/permisos",
-            "/cuentas-servicio");
+            "/cuentas-servicio",
+            "/cuenta");
 
     @DynamicPropertySource
     static void configuracion(DynamicPropertyRegistry registro) {

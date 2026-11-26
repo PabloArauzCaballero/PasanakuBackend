@@ -202,7 +202,7 @@ PREFIJOS = {
     # validez; CU-04 y el flujo del backoffice usan `POST /sesiones` para abrirla.
     # La reserva listaba solo el primero, y por eso el contrato de identidad no
     # pasaba su propia prueba de prefijos.
-    "identidad":         ["/identidad", "/usuarios", "/usuarios-internos", "/sesion", "/sesiones", "/roles", "/permisos", "/cuentas-servicio"],
+    "identidad":         ["/identidad", "/usuarios", "/usuarios-internos", "/sesion", "/sesiones", "/roles", "/permisos", "/cuentas-servicio", "/cuenta"],
     "grupos":            ["/grupos", "/turnos", "/acuerdos"],
     "nucleo_financiero": ["/billetera", "/custodia", "/puntos-atencion", "/contabilidad", "/recargas-de-prueba"],
     "aportes":           ["/aportes", "/pagos", "/qr", "/conciliacion"],
@@ -238,7 +238,7 @@ RUTAS_PUBLICAS = ["/publico", "/verificar"]
 # misma noche. Agregar las cuatro que faltan a esta lista cuando existan es
 # una linea; inventarles una ruta ahora violaria la regla 00 (anti-invencion).
 RUTAS_SENSIBLES = {
-    "identidad":         ["/sesiones", "/usuarios"],          # login, registro
+    "identidad":         ["/sesiones", "/usuarios", "/cuenta"],  # login, registro, invitacion y recuperacion de acceso (GU-C)
     "nucleo_financiero": ["/billetera/retiros", "/billetera/transferencias"],
 }
 

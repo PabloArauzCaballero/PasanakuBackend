@@ -38,61 +38,95 @@ final class PoliticaDeAcceso {
                             + "y todo otro caso es el mismo 403 (TitularDelExpediente)");
 
     /** Una ruta publica que CAMBIA estado: sin sesion, algo tiene que autenticar o limitar. */
-    static final Map<String, ControlCompensatorio> PUBLICAS_QUE_ESCRIBEN = Map.of(
-            "recibirWebhookPasarela",
-            new ControlCompensatorio(
-                    "servicios/aportes/src/main/java/bo/aportaya/aportes/dominio/VerificadorDeFirmaWebhook.java",
-                    "HmacSHA256",
-                    "la pasarela no tiene JWT nuestro; la firma HMAC es la autenticacion"),
-            "procesarRespuestaEntrante",
-            new ControlCompensatorio(
-                    "servicios/notificaciones/src/main/java/bo/aportaya/notificaciones/dominio/FirmaDeWebhook.java",
-                    "Hmac",
-                    "el proveedor de mensajeria no tiene sesion; lo autentica su firma"),
-            "autenticar",
-            new ControlCompensatorio(
-                    "servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/CU04Autenticar.java",
-                    "(?i)intentos",
-                    "el ingreso es el momento en que se obtiene la sesion; limita por intentos"),
-            "registrarUsuario",
-            new ControlCompensatorio(
-                    "servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/CU01RegistrarUsuario.java",
-                    "vincularAlAlta",
-                    "el alta ocurre antes de que exista la sesion; exige el correo verificado"),
-            "solicitarVerificacionCorreo",
-            new ControlCompensatorio(
-                    "servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/VerificacionCorreoRepositorio.java",
-                    "max_reenvios_por_hora",
-                    "se pide el codigo antes de existir como usuario; tope de reenvios por hora"),
-            "confirmarVerificacionCorreo",
-            new ControlCompensatorio(
-                    "servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/VerificacionCorreoRepositorio.java",
-                    "max_intentos",
-                    "se confirma antes de existir como usuario; el codigo se invalida al agotar intentos"),
-            "guardarBorradorOnboarding",
-            new ControlCompensatorio(
-                    "servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/BorradorOnboardingRepositorio.java",
-                    "SOLO_CORREO_CONFIRMADO\\.equals",
-                    "CU-01: el avance se guarda antes de existir como usuario; solo escribe quien ya confirmo el "
-                            + "codigo de ESE correo (token CONSUMIDO y huella del correo), no basta el UUID de la ruta"),
-            "subirDocumento",
-            new ControlCompensatorio(
-                    "servicios/identidad/src/main/java/bo/aportaya/identidad/web/TitularDelExpediente.java",
-                    "AccessDeniedException",
-                    "las fotos se suben durante el alta, sin sesion; exige el token de alta de ESE usuario o su sesion"),
-            "actualizarFechaExpiracionDocumento",
-            new ControlCompensatorio(
-                    "servicios/identidad/src/main/java/bo/aportaya/identidad/web/TitularDelExpediente.java",
-                    "AccessDeniedException",
-                    "@Publico porque quien todavia no tiene rol no tiene permiso que declarar (CU-02); el control es "
-                            + "la sesion del PROPIO titular (TitularDelExpediente.exigir con token nulo): ni el UUID de "
-                            + "la ruta ni el token de alta alcanzan. Prueba: UsuariosFechaExpiracionWebTest"),
-            "renovarSesion",
-            new ControlCompensatorio(
-                    "servicios/identidad/src/main/java/bo/aportaya/identidad/web/CookieDeRefresco.java",
-                    "sameSite\\(\"Strict\"\\)",
-                    "ADR-010: la credencial es la cookie de refresh (HttpOnly, Secure, SameSite=Strict contra CSRF), "
-                            + "rotada y de un solo uso; no hay token de acceso que presentar porque es lo que se renueva"));
+    static final Map<String, ControlCompensatorio> PUBLICAS_QUE_ESCRIBEN = Map.ofEntries(
+            Map.entry(
+                    "recibirWebhookPasarela",
+                    new ControlCompensatorio(
+                            "servicios/aportes/src/main/java/bo/aportaya/aportes/dominio/VerificadorDeFirmaWebhook.java",
+                            "HmacSHA256",
+                            "la pasarela no tiene JWT nuestro; la firma HMAC es la autenticacion")),
+            Map.entry(
+                    "procesarRespuestaEntrante",
+                    new ControlCompensatorio(
+                            "servicios/notificaciones/src/main/java/bo/aportaya/notificaciones/dominio/FirmaDeWebhook.java",
+                            "Hmac",
+                            "el proveedor de mensajeria no tiene sesion; lo autentica su firma")),
+            Map.entry(
+                    "autenticar",
+                    new ControlCompensatorio(
+                            "servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/CU04Autenticar.java",
+                            "(?i)intentos",
+                            "el ingreso es el momento en que se obtiene la sesion; limita por intentos")),
+            Map.entry(
+                    "registrarUsuario",
+                    new ControlCompensatorio(
+                            "servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/CU01RegistrarUsuario.java",
+                            "vincularAlAlta",
+                            "el alta ocurre antes de que exista la sesion; exige el correo verificado")),
+            Map.entry(
+                    "solicitarVerificacionCorreo",
+                    new ControlCompensatorio(
+                            "servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/VerificacionCorreoRepositorio.java",
+                            "max_reenvios_por_hora",
+                            "se pide el codigo antes de existir como usuario; tope de reenvios por hora")),
+            Map.entry(
+                    "confirmarVerificacionCorreo",
+                    new ControlCompensatorio(
+                            "servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/VerificacionCorreoRepositorio.java",
+                            "max_intentos",
+                            "se confirma antes de existir como usuario; el codigo se invalida al agotar intentos")),
+            Map.entry(
+                    "guardarBorradorOnboarding",
+                    new ControlCompensatorio(
+                            "servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/BorradorOnboardingRepositorio.java",
+                            "SOLO_CORREO_CONFIRMADO\\.equals",
+                            "CU-01: el avance se guarda antes de existir como usuario; solo escribe quien ya confirmo el "
+                                    + "codigo de ESE correo (token CONSUMIDO y huella del correo), no basta el UUID de la ruta")),
+            Map.entry(
+                    "subirDocumento",
+                    new ControlCompensatorio(
+                            "servicios/identidad/src/main/java/bo/aportaya/identidad/web/TitularDelExpediente.java",
+                            "AccessDeniedException",
+                            "las fotos se suben durante el alta, sin sesion; exige el token de alta de ESE usuario o su sesion")),
+            Map.entry(
+                    "actualizarFechaExpiracionDocumento",
+                    new ControlCompensatorio(
+                            "servicios/identidad/src/main/java/bo/aportaya/identidad/web/TitularDelExpediente.java",
+                            "AccessDeniedException",
+                            "@Publico porque quien todavia no tiene rol no tiene permiso que declarar (CU-02); el control es "
+                                    + "la sesion del PROPIO titular (TitularDelExpediente.exigir con token nulo): ni el UUID de "
+                                    + "la ruta ni el token de alta alcanzan. Prueba: UsuariosFechaExpiracionWebTest")),
+            Map.entry(
+                    "renovarSesion",
+                    new ControlCompensatorio(
+                            "servicios/identidad/src/main/java/bo/aportaya/identidad/web/CookieDeRefresco.java",
+                            "sameSite\\(\"Strict\"\\)",
+                            "ADR-010: la credencial es la cookie de refresh (HttpOnly, Secure, SameSite=Strict contra CSRF), "
+                                    + "rotada y de un solo uso; no hay token de acceso que presentar porque es lo que se renueva")),
+            Map.entry(
+                    "consultarInvitacion",
+                    new ControlCompensatorio(
+                            "servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/TokensDeCuentaRepositorio.java",
+                            "intentos_fallidos < max_intentos",
+                            "CU-09: la credencial es el token de un solo uso del correo; solo se guarda su hash y el intento se limita")),
+            Map.entry(
+                    "iniciarFactorDeInvitacion",
+                    new ControlCompensatorio(
+                            "servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/TokensDeCuentaRepositorio.java",
+                            "intentos_fallidos < max_intentos",
+                            "CU-09: exige el token vigente de un solo uso; sin el, la misma respuesta que un token falso")),
+            Map.entry(
+                    "completarInvitacion",
+                    new ControlCompensatorio(
+                            "servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/TokensDeCuentaRepositorio.java",
+                            "registrarIntentoFallido",
+                            "CU-09: el token se consume una sola vez y cada codigo o clave erronea cuenta contra su tope")),
+            Map.entry(
+                    "pedirRecuperacion",
+                    new ControlCompensatorio(
+                            "servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/RecuperacionesRepositorio.java",
+                            "ON CONFLICT DO NOTHING",
+                            "CU-09: solo abre un expediente idempotente y con un solo pedido vivo; no emite nada hasta la aprobacion de otra persona")));
 
     // No hay lista de «publicas que escriben sin control»: el ultimo hallazgo (subirDocumento) se
     // cerro con el token de alta. Una ruta publica que escribe y no figura arriba rompe la matriz.

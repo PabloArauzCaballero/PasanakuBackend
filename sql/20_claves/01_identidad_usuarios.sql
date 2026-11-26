@@ -244,6 +244,26 @@ ALTER TABLE identidad.solicitud_cambio_rol
   ADD CONSTRAINT fk_solicitud_cambio_rol_rol_id
   FOREIGN KEY (rol_id) REFERENCES identidad.rol (id) ON DELETE SET NULL ON UPDATE CASCADE;
 
+ALTER TABLE identidad.solicitud_recuperacion_acceso DROP CONSTRAINT IF EXISTS fk_solicitud_recuperacion_acceso_decidida_por;
+ALTER TABLE identidad.solicitud_recuperacion_acceso
+  ADD CONSTRAINT fk_solicitud_recuperacion_acceso_decidida_por
+  FOREIGN KEY (decidida_por) REFERENCES identidad.usuario (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE identidad.solicitud_recuperacion_acceso DROP CONSTRAINT IF EXISTS fk_solicitud_recuperacion_acceso_solicitada_por;
+ALTER TABLE identidad.solicitud_recuperacion_acceso
+  ADD CONSTRAINT fk_solicitud_recuperacion_acceso_solicitada_por
+  FOREIGN KEY (solicitada_por) REFERENCES identidad.usuario (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE identidad.solicitud_recuperacion_acceso DROP CONSTRAINT IF EXISTS fk_solicitud_recuperacion_acceso_token_id;
+ALTER TABLE identidad.solicitud_recuperacion_acceso
+  ADD CONSTRAINT fk_solicitud_recuperacion_acceso_token_id
+  FOREIGN KEY (token_id) REFERENCES identidad.token_verificacion (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE identidad.solicitud_recuperacion_acceso DROP CONSTRAINT IF EXISTS fk_solicitud_recuperacion_acceso_usuario_id;
+ALTER TABLE identidad.solicitud_recuperacion_acceso
+  ADD CONSTRAINT fk_solicitud_recuperacion_acceso_usuario_id
+  FOREIGN KEY (usuario_id) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
 ALTER TABLE identidad.token_verificacion DROP CONSTRAINT IF EXISTS fk_token_verificacion_dispositivo_id;
 ALTER TABLE identidad.token_verificacion
   ADD CONSTRAINT fk_token_verificacion_dispositivo_id

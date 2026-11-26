@@ -1538,6 +1538,7 @@ ALTER TABLE estado_cuenta_billetera
 | R-SEG-13 | Una medida sobre la cuenta la proponen, la deciden y resuelven su apelación tres personas distintas, y ninguna es el afectado | Debido proceso · segregación de funciones (regla 91.4) | [[CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso]] |
 | R-SEG-14 | Un solo expediente abierto por cuenta y causal | Debido proceso · no acumular medidas por el mismo hecho | [[CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso]] |
 | R-SEG-15 | Una medida no queda firme sin decisión confirmada, ni se decide sin fundamento | Debido proceso (regla 91.4) | [[CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso]] |
+| R-SEG-16 | Nadie aprueba su propia recuperación de acceso, y una recuperación aprobada tiene aprobador, fecha y enfriamiento | ISO 27001 A.5.17, A.8.2 · ADR-038 §4 | [[CU-09 Cambiar credenciales y solicitar la baja]] |
 
 ```sql
 -- R-SEG-01 · solo hash, token y enmascarado
@@ -2104,6 +2105,24 @@ ALTER TABLE expediente_medida_cuenta
          AND fundamento_decision IS NOT NULL AND length(btrim(fundamento_decision)) >= 50)),
   ADD CONSTRAINT ck_expediente_medida_firme_confirmada CHECK (
         firme_en IS NULL OR resultado_decision = 'CONFIRMADA');
+-- R-SEG-16 · nadie aprueba su propia recuperación de acceso
+--
+-- ADR-038 §4 dejaba la aprobación a cargo de la aplicación («hueco declarado»): ninguna tabla
+-- guardaba al aprobador. Ahora lo guarda `solicitud_recuperacion_acceso`, y la base rechaza la
+-- autoaprobación y una aprobación sin aprobador, fecha ni enfriamiento.
+ALTER TABLE solicitud_recuperacion_acceso DROP CONSTRAINT IF EXISTS ck_recuperacion_no_autoaprobada;
+ALTER TABLE solicitud_recuperacion_acceso DROP CONSTRAINT IF EXISTS ck_recuperacion_decision_completa;
+ALTER TABLE solicitud_recuperacion_acceso
+  ADD CONSTRAINT ck_recuperacion_no_autoaprobada CHECK (decidida_por IS NULL OR decidida_por <> usuario_id),
+  ADD CONSTRAINT ck_recuperacion_decision_completa CHECK (
+        estado = 'PENDIENTE'
+     OR estado = 'VENCIDA'
+     OR (decidida_por IS NOT NULL AND decidida_en IS NOT NULL AND motivo_decision IS NOT NULL
+         AND (estado = 'RECHAZADA' OR enfriamiento_hasta IS NOT NULL)));
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_recuperacion_viva
+  ON solicitud_recuperacion_acceso (usuario_id, alcance)
+  WHERE (estado IN ('PENDIENTE','APROBADA','EMITIDA'));
 ```
 
 ---

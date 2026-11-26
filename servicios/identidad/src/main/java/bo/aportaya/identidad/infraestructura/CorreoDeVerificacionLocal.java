@@ -1,5 +1,7 @@
 package bo.aportaya.identidad.infraestructura;
 
+import bo.aportaya.identidad.dominio.AlcanceDeCuenta;
+import bo.aportaya.identidad.dominio.puertos.CorreoDeCuenta;
 import bo.aportaya.identidad.dominio.puertos.CorreoDeVerificacion;
 import java.time.Duration;
 import org.slf4j.Logger;
@@ -10,7 +12,7 @@ import org.springframework.stereotype.Component;
 /** Adaptador sin salida para desarrollo; confirma el envio sin filtrar el codigo al log. */
 @Component
 @ConditionalOnProperty(name = "aportaya.correo.proveedor", havingValue = "local", matchIfMissing = true)
-public class CorreoDeVerificacionLocal implements CorreoDeVerificacion {
+public class CorreoDeVerificacionLocal implements CorreoDeVerificacion, CorreoDeCuenta {
 
     private static final Logger BITACORA = LoggerFactory.getLogger(CorreoDeVerificacionLocal.class);
 
@@ -22,5 +24,11 @@ public class CorreoDeVerificacionLocal implements CorreoDeVerificacion {
     @Override
     public void enviarCodigoDeAcceso(String destino, String codigo, Duration vigencia) {
         BITACORA.info("correo de acceso preparado para un destino local ({} digitos)", codigo.length());
+    }
+
+    /** El enlace lleva el token: ni siquiera en desarrollo se escribe en el log. */
+    @Override
+    public void enviarInvitacion(String destino, String enlace, AlcanceDeCuenta alcance, Duration vigencia) {
+        BITACORA.info("invitacion de cuenta preparada para un destino local (alcance={})", alcance);
     }
 }
