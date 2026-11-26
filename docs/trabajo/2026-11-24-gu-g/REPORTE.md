@@ -1,6 +1,6 @@
 # Reporte — Lote G · CU de gobierno de participantes (borrador para aprobación)
 
-> **AVANCE: ver `plan_status.py` (H1, H2 y H3.S1 hechos).** H3 (implementación) en curso: modelo, esquema, semillas y contrato escritos y verificados en local; backend BLOQUEADO por Maven Central 429. Antes: H1 cerrado (PR #514 y #518 en `dev`). H2: CU-134 pasa a APROBADO (decisión de Pablo del 2026-11-24); falta la CI del PR. D-3 (5/5 días hábiles, 12 meses, 90 días) y D-11 (retener la entrega) resueltas por Pablo el mismo día; abiertas A-1 y A-2.
+> **AVANCE: 23 / 31 — 74,2 %** (`plan_status.py`). PR #525 con la CI completa en verde (head `d855ce0e2`) y fuera de draft. H3.S3 y H3.S4.M1 TESTED en la CI; H3.S6.M1/M2 hechos contra backend simulado; abiertos H3.S4.M2 (evidencia 91.6), H3.S5 (modo restringido, asignado a G) y H3.S6.M3.
 
 - Fecha: 2026-11-24 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/gu-g-cu-participantes` → PR a `dev`
 - Peldaño de evidencia alcanzado: `RUNS` sobre la bóveda, en local y en la CI del PR #514 (los verificadores corren en exit 0 con el CU nuevo). Es un documento: no hay comportamiento que ejercitar; el CU queda **BORRADOR** hasta que Pablo lo apruebe (decisión P-11).
@@ -15,6 +15,8 @@
 | H1.S3.M1 | Verificadores de los workflows en local | ver «Evidencia» | PASS: seguridad, bóveda, carriles, criterios, inventario de endpoints, contratos y límites, maqueta, flujos, pruebas web, catálogo de datos → exit 0 |
 | H1.S3.M2 | Este reporte con las preguntas para Pablo | `python3 .claude/hooks/report_gate.py --self-test` | `14 PASS, 0 FAIL` |
 | H1.S3.M3 | PR #514 a `dev` con la CI en verde; mergeado el 2026-11-24 | checks del head `af1db1d` (runs 45459193470 y 45459192974) | PASS — ver «CI del PR #514» |
+| H3.S6.M1 | Entrada «Participantes» (Cumplimiento › Riesgo y seguridad) y directorio con cargando/datos/vacío/error | `npx ng test --include='src/app/nucleo/**/*.spec.ts' --include='src/app/rutas/cumplimiento/**/*.spec.ts'` | PASS 74 archivos / 576 tests; typecheck y lint exit 0 (`evidencia/h3-s6-ng-test.txt`, `evidencia/h3-s6-typecheck-lint.txt`) |
+| H3.S6.M2 | Ficha con justificación previa, contacto enmascarado y medidas con línea de tiempo | `npx playwright test e2e/visual-participantes.e2e.ts --workers=1` | PASS 24/24 en 390/834/1440 × claro/oscuro, consola limpia, capturas inspeccionadas; **backend simulado** (`evidencia/h3-s6-capturas.txt`) |
 
 ## A medias
 ### H2.S1.M3 — PR de aprobación a `dev`
@@ -29,7 +31,8 @@
   - Prueba de humo: 166 OK, 0 FALLA (`evidencia/H3.S1-prueba-humo.txt`).
   - Verificadores y deriva en 0 tras integrar `dev` con #516 (`evidencia/H3-verificadores-tras-merge.txt`).
   - H3.S3, átomos puros: `CausalDeMedida`, `PlazosDeMedida` y `Enmascarado`. Compilan con `javac -Xlint:all -Werror` y su ejercicio en tres niveles pasa (`evidencia/H3.S3-atomos.txt`). Están formateados según Spotless.
-- **Qué no anda / no existe todavía:** repositorios, organismos `CU134*`, controlador `ParticipantesController`, trabajo diario de vencimientos, pruebas `CU134*Test`, retención de la entrega en `entregas` (H3.S4), modo restringido del suspendido (H3.S5) y backoffice (H3.S6).
+- **Escrito, sin compilar en local (lo verifica la CI):** contrato aplicado; `ParticipantesRepositorio`, `MedidasDeCuentaRepositorio`, `CU134ConsultarParticipante`, `CU134GestionarMedida` (incluido el trabajo diario `vencer`), `ParticipantesController` y `CU134Test` (12 criterios y 3 rechazos). `verificar_criterios.py`, `inventario_endpoints.py --check` y `verificar_contratos_limites.py` dan 0.
+- **Qué no existe todavía:** el disparador programado del trabajo `vencer`, el consumidor de acuses de `notificaciones` (hoy registra la notificación quien tiene `PARTICIPANTES_MEDIDA_PROPONER`), la retención de la entrega en `entregas` (H3.S4), el modo restringido del suspendido (H3.S5) y el backoffice (H3.S6). La ficha no muestra `gruposActivos` ni el bloqueo de autoridad, que viven en otros servicios (regla 98.1). RECLAMO_EN_CURSO (AP-CU134-11) no se verifica: los reclamos son de `cumplimiento`.
 - **Qué falta exactamente (próximo paso concreto):**
   1. Aplicar el contrato: `git apply docs/trabajo/2026-11-24-gu-g/evidencia/H3.S2-contrato-participantes.patch`. Las rutas son `/identidad/participantes/...` y `/identidad/medidas-cuenta/...`; los errores `AP-CU134-01..11` ya están en comentarios.
   2. Escribir en `servicios/identidad` los repositorios `ParticipantesRepositorio` y `MedidasDeCuentaRepositorio`, con tablas jOOQ `Tables.EXPEDIENTE_MEDIDA_CUENTA` etc. y `catalogo.dia_no_habil` para el calendario (patrón `aportes/infraestructura/FeriadosRepositorio`). La escritura en `comun.registro_acceso_datos` sigue el patrón de `aportes/infraestructura/AuditoriaRepositorio`.
@@ -37,15 +40,38 @@
   4. `ParticipantesController implements ParticipantesApi` con `@Permiso("PARTICIPANTES_*")`.
   5. Escribir `CU134Test`: un `@DisplayName` por escenario gherkin del CU y la cita de cada R-XXX del CU (lo exige `verificar_criterios.py`). Base con `BaseDePrueba.contenedor()`, como `BaseDeCU08`.
   6. La segunda instancia y el segundo factor reciente: verificar la evidencia de step-up de `CU04StepUp` (hoy solo la verifica `nucleo-financiero`, con `SegundoFactorLocal`).
+- **PR #525 (borrador), CI en `abef59c92`:** los verificadores Python de seguridad y pruebas web quedaron en verde tras dos arreglos. Falla «Formato, reglas propias y compilación» porque `spotlessCheck` encuentra formato Palantir distinto en `CU134ConsultarParticipante`, `CU134GestionarMedida`, `MedidasDeCuentaRepositorio`, `ParticipantesRepositorio`, `ParticipantesController`, `CU134Test` y `ParticipantesControllerWebTest`. Destraba esto correr `./gradlew :servicios:identidad:spotlessApply` en una máquina con Gradle funcionando y pushear el resultado. Desde esta sesión: el espejo de Maven y el formateador nativo de Palantir (repo1.maven.org) fueron denegados por el control de permisos. La CI todavía no llegó a compilar ni a correr `CU134Test`.
+- **H3.S4 (retención de la entrega, D-11), escrito:** `entregas` pregunta a `identidad` (`GET /identidad/participantes/{id}/medida-vigente`, credencial de servicio, circuit breaker) **fuera** de la transacción de CU-28. Con medida vigente, o si identidad no responde (falla cerrado), `CU28EmitirDesembolso` rechaza con `AP-CU28-08`: no se crea orden, la entrega sigue AUTORIZADA y su saldo retenido. Evidencia de la regla 91.6 aplicable: no se genera asiento ni movimiento (la retención es no emitir); idempotencia: un reintento retenido tampoco crea orden; caída del dependido: `MedidaDeCuentaPorHttpTest` (identidad apagada → retiene). Liberación: al levantarse la medida, el desembolso normal pasa. Falta: la corrida de las pruebas en la CI.
 - **Bloqueo:** `./gradlew` no resuelve dependencias en este entorno (Maven Central 429; espejo denegado por permisos, `evidencia/H3.S3-bloqueo-maven-429.txt`). La CI sí compila: verificar con la CI.
 - **Dónde quedó:** rama `claude/gu-g-cu-participantes`, todo pusheado, PR #519.
+
+## Continuación del 2026-11-25
+
+En `codex/cu134-medidas-participantes`, desde #525 (`6f42f97ce`), están las decisiones A-1 y A-3 de Pablo. La semilla conserva la versión anterior y agrega la versión con diez días hábiles para resolver una apelación. Identidad persiste el plazo de CU-59 en la recepción y devuelve la fecha al titular en la vista del expediente. El trabajo diario toma lotes con bloqueo de filas y acepta por vencimiento, revierte y emite el evento en la misma transacción. La consulta interna de retención distingue cautelar vigente y medida firme vigente de una suspensión todavía apelable que no se aplicó.
+
+Continúan pendientes H3.S4–S6: custodia de punta a punta en entregas, aplicación y conciliación de la liberación con otras restricciones y cuenta verificada, modo restringido y backoffice. La rama conserva #525 como base y se debe integrar revisando sus últimos cambios. La autorización de un desembolso requiere validación del servicio de entregas. La consulta de identidad por sí sola no acredita fondos. El cierre de una medida que no se aplicó deja intacto el estado de la cuenta. Para un bloqueo cautelar aplicado, falta vincular su fila de bloqueo al expediente para revertirla sin alcanzar bloqueos independientes por la misma causal. Antes de usar la consulta desde entregas, conceder al servicio permiso dedicado a ese veredicto en lugar de lectura del directorio.
+
+## Continuación del 2026-11-25 · lote G (H3.S5 y H3.S6)
+
+- **Hallazgo de seguridad corregido (`a605b179f`):** la credencial `SERVICIO_ENTREGAS` tenía `PARTICIPANTES_LEER`, que le abría el directorio y las fichas con datos personales. Ahora `medida-vigente` usa el permiso propio `PARTICIPANTES_MEDIDA_VIGENTE_LEER` (solo esa credencial), con su WebTest negativo (403 al abrir una ficha). Lo detectó la matriz de roles del backoffice. Compilación y WebTest se verifican en la CI de #525 (sin Gradle local).
+- **H3.S5.M1 — A MEDIAS.** Qué anda: un `SUSPENDIDO` hoy no obtiene token (`CU04Autenticar.java:132`), falla cerrado. Qué no anda: no hay alcance restringido. Qué falta: claim `alcance=RESTRINGIDO` en CU-04 y lista blanca en `GuardiaDePermiso` (plataforma/comun-web), aditivo, coordinado con el lote C (avisado el 2026-11-25; respondió que no lo toma: CU-04 y GuardiaDePermiso quedan fuera de su alcance, lo asigna la sesión principal). Dónde quedó: sin código; contrato y tres niveles en `PLAN.md`.
+- **H3.S6.M3 — TODO:** revelar, proponer, decidir y resolver con segundo factor desde el backoffice.
+
+## CI de #525 hasta verde (2026-11-25)
+
+La primera compilación real del backend se hizo en la CI (Gradle local bloqueado por Maven Central 429). Fallos encontrados y corregidos, en orden: import faltante en `MedidaDeCuentaPorHttp`; archivos de 300 líneas o más (`CU28EmitirDesembolso`, `CU134GestionarMedida` → `EfectosDeMedida`, `MedidasDeCuentaRepositorio` → `LecturasDeMedidasRepositorio`, `CU134Test` → `EscenarioDeCU134` + `CU134ApelacionTest`); formato Palantir (SQL de prueba en bloques de texto para no chocar con `verificar_seguridad`); dobles faltantes en las sábanas de seguridad web; el generador Spring agrupa `/identidad/*` en `IdentidadApi` (`ParticipantesController` → `RutasDeParticipantes`, servida por `VerificacionesController`); `set` ambiguo de jOOQ para `inet`; `fetchValue` con clase como parámetro; rutas del titular sin `@Permiso` (ahora `PARTICIPANTE`, y `PARTICIPANTES_LEER` como alternativa al consultar); colección Postman; `menu.ts` sobre 200 líneas tras integrar `dev`; `ArquitecturaTest` (la web no depende de infraestructura: registros a `dominio.RegistroDeMedida` y `dominio.RegistroDeParticipante`); el e2e de roles (SOPORTE ve Cumplimiento por CU-134). `catalogo-gobierno.e2e.ts:143` falló dos veces en la CI de `065a9e24e` con `AbortError` y no se reprodujo en local (`evidencia/h3-e2e-roles-y-catalogo.txt`); en `d855ce0e2` pasó. Una caída de Maven Central (429) en «Dependencias» se resolvió con el push siguiente, sin relanzar.
+
+Resultado en `d855ce0e2`: 12 trabajos en verde (formato y compilación, cinco corredores con las pruebas de identidad y entregas, frontend, contratos, esquema y semillas sobre PostgreSQL real, dependencias, Trivy, bootJar e imagen) y 6 omitidos por diseño (solo `main`, iOS, goldens).
+
+Pendiente fuera del repositorio: dos `git stash` con capturas de `docs/trabajo/2026-10-08-endurecimiento-integral/` que la corrida e2e local sobrescribió (no se commitean; descartar con confirmación).
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
 |---|---|---|
 | Implementación de CU-134 (Ola 3) | `TODO` | Aprobada por la sesión principal; arranca cuando #516 (lote B) esté en `dev` o contra un doble declarado de su contrato |
-| A-1 destino de la entrega retenida si la medida queda firme | `DECISION_REQUIRED` | Pablo |
-| A-2 prescripción en meses vs. columna en días; sin columna para duración máxima | `TODO` | Se resuelve en el modelo al implementar; Pablo si exige elegir equivalencia |
+| A-1 destino de la entrega retenida si la medida queda firme | Decidido | Custodia al titular durante la vigencia. Falta integrar en entregas. |
+| A-2 prescripción en meses y duración máxima en días | Decidido | Columnas propias en la política. |
+| A-3 plazo de resolución de la apelación interna | Decidido | Diez días hábiles, con aceptación por vencimiento. |
 
 ## Hallazgos (relevamiento)
 | Hecho | Ruta |

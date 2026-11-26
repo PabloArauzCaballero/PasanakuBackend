@@ -112,6 +112,30 @@ class ConsumidorDeCambiosDeAccesoTest {
     }
 
     @Test
+    @DisplayName(
+            "GU-16/GU-18: la definicion de un rol es del rol, la cuenta de servicio es suya, y el patron las escucha")
+    void rolesYCuentasDeServicio() {
+        for (String tipo : new String[] {
+            "identidad.rol_creado",
+            "identidad.rol_editado",
+            "identidad.rol_retirado",
+            "identidad.rol_solicitado",
+            "identidad.rol_solicitud_rechazada"
+        }) {
+            assertThat(ConsumidorDeCambiosDeAccesoKafka.entidadDe(tipo)).isEqualTo("rol");
+            assertThat(Pattern.matches(ConsumidorDeCambiosDeAccesoKafka.PATRON, "aportaya." + tipo))
+                    .isTrue();
+        }
+        assertThat(ConsumidorDeCambiosDeAccesoKafka.entidadDe("identidad.cuenta_servicio_credencial_rotada"))
+                .isEqualTo("cuenta_servicio");
+        assertThat(Pattern.matches(
+                        ConsumidorDeCambiosDeAccesoKafka.PATRON, "aportaya.identidad.cuenta_servicio_revocada"))
+                .isTrue();
+        assertThat(ConsumidorDeCambiosDeAccesoKafka.entidadDe("identidad.rol_asignado"))
+                .isEqualTo("asignacion_rol");
+    }
+
+    @Test
     @DisplayName("el patron no escucha la revocacion de sesiones ni eventos ajenos")
     void patron() {
         assertThat(Pattern.matches(

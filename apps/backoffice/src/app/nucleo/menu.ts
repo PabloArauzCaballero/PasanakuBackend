@@ -46,15 +46,11 @@ const PUBLICIDAD = p('ver:publicidad')
 const CONFIGURACION = p('ver:configuracion')
 /** `ver:sistemas` y rol PLATAFORMA o SEGURIDAD, o el de catálogo que identidad agrega a `permisos` (`guardia-rol-sistemas.ts`: el `rol` del token real es siempre `OPERADOR`). */
 const SISTEMAS = [p('ver:sistemas'), { roles: ['PLATAFORMA', 'SEGURIDAD'], permisos: ['ADMIN_PLATAFORMA', 'RESPONSABLE_SEGURIDAD'] }] as const
-
 const sis = (ruta: string, texto: string, icono: NombreDeIcono): Pantalla => ({ ruta: `/sistemas/${ruta}`, texto, icono, requiere: SISTEMAS })
 /** Una pantalla de «Personal y accesos»: la rama `/sistemas` la abre `ver:sistemas` y cada pantalla, el permiso que el servidor le exige. */
 const per = (ruta: keyof typeof PERMISOS_DE_PERSONAL, texto: string, icono: NombreDeIcono): Pantalla => ({ ruta: `/sistemas/${ruta}`, texto, icono, requiere: [p('ver:sistemas'), p(...PERMISOS_DE_PERSONAL[ruta]!)] })
 /** Cumplimiento comparte la lista de requisitos de cada pestaña con sus guardias. */
-const cum = (ruta: string, texto: string, icono: NombreDeIcono): Pantalla => {
-  const codigos = ENTRADAS_DE_CUMPLIMIENTO.find((e) => e.ruta === `/cumplimiento/${ruta}`)?.codigos ?? []
-  return { ruta: `/cumplimiento/${ruta}`, texto, icono, requiere: [CUMPLIMIENTO, pr(...codigos)] }
-}
+const cum = (ruta: string, texto: string, icono: NombreDeIcono): Pantalla => ({ ruta: `/cumplimiento/${ruta}`, texto, icono, requiere: [CUMPLIMIENTO, pr(...(ENTRADAS_DE_CUMPLIMIENTO.find((e) => e.ruta === `/cumplimiento/${ruta}`)?.codigos ?? []))] })
 
 /**
  * El árbol del menú: seis entradas (sin «Inicio» desde 2026-10-28: se vuelve con el logo) y hasta ocho pestañas por
@@ -111,6 +107,7 @@ export const MENU: readonly Grupo[] = [
               cum('riesgos/eventos', 'Eventos de riesgo operativo', 'advertencia'),
               cum('continuidad', 'Pruebas de continuidad', 'actividad'),
               cum('seguridad/incidentes', 'Incidentes de seguridad', 'candado'),
+              cum('participantes', 'Participantes', 'persona'),
             ],
           },
         ],
@@ -174,12 +171,12 @@ export const MENU: readonly Grupo[] = [
       {
         ruta: 'personal',
         texto: 'Personal y accesos',
-        prefijos: ['/sistemas/usuarios-internos', '/sistemas/roles-internos', '/sistemas/permisos-internos', '/sistemas/accesos'],
+        prefijos: ['/sistemas/usuarios-internos', '/sistemas/roles-internos', '/sistemas/permisos-internos', '/sistemas/accesos', '/sistemas/cuentas-de-servicio'],
         pantallas: [
           per('usuarios-internos', 'Usuarios internos', 'persona'),
           per('roles-internos', 'Roles internos', 'grupo'),
           per('permisos-internos', 'Permisos internos', 'llave'),
-          per('accesos', 'Revisión de accesos', 'candado'),
+          per('accesos', 'Revisión de accesos', 'candado'), per('cuentas-de-servicio', 'Cuentas de servicio', 'llave'),
         ],
       },
       {
@@ -192,6 +189,7 @@ export const MENU: readonly Grupo[] = [
           { ruta: '/configuracion/mensajeria', texto: 'Mensajería', icono: 'correo', requiere: [CONFIGURACION, p('AUDITORIA_LEER')] },
           { ruta: '/configuracion/reportes', texto: 'Reportes', icono: 'documento', requiere: [CONFIGURACION, p('AUDITORIA_LEER')] },
           sis('catalogos-operativos', 'Catálogos operativos', 'engranaje'),
+          { ruta: '/acceso/recuperaciones', texto: 'Recuperaciones de acceso', icono: 'llave', requiere: [p('SEGURIDAD_ACCESO_RESTABLECER')] },
           { ruta: '/tablero/catalogo-de-datos', texto: 'Catálogo de datos', icono: 'baseDeDatos', requiere: [p('TABLERO_SISTEMAS_VER')] },
         ],
       },

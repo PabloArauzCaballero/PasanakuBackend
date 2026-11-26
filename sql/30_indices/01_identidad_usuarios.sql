@@ -106,6 +106,21 @@ CREATE INDEX IF NOT EXISTS ix_referencia_personal_usuario_id
 CREATE UNIQUE INDEX IF NOT EXISTS uq_rol_codigo
   ON identidad.rol (codigo);
 
+CREATE INDEX IF NOT EXISTS ix_solicitud_cambio_rol_rol_id
+  ON identidad.solicitud_cambio_rol (rol_id);
+
+CREATE INDEX IF NOT EXISTS ix_solicitud_cambio_rol_propuesta_por
+  ON identidad.solicitud_cambio_rol (propuesta_por);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_cuenta_servicio_usuario_id
+  ON identidad.cuenta_servicio (usuario_id);
+
+CREATE INDEX IF NOT EXISTS ix_cuenta_servicio_rol_id
+  ON identidad.cuenta_servicio (rol_id);
+
+CREATE INDEX IF NOT EXISTS ix_cuenta_servicio_vence_en
+  ON identidad.cuenta_servicio (vence_en);
+
 CREATE UNIQUE INDEX IF NOT EXISTS uq_permiso_codigo
   ON identidad.permiso (codigo);
 
@@ -156,3 +171,12 @@ CREATE INDEX IF NOT EXISTS ix_evidencia_step_up_consumida_usuario_id
 
 CREATE INDEX IF NOT EXISTS ix_evidencia_step_up_consumida_vence_en
   ON identidad.evidencia_step_up_consumida (vence_en);
+
+CREATE INDEX IF NOT EXISTS ix_solicitud_recuperacion_acceso_usuario_id
+  ON identidad.solicitud_recuperacion_acceso (usuario_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_solicitud_recuperacion_acceso_token_id
+  ON identidad.solicitud_recuperacion_acceso (token_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_solicitud_recuperacion_acceso_clave_idempotencia
+  ON identidad.solicitud_recuperacion_acceso (clave_idempotencia);

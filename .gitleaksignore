@@ -91,3 +91,4 @@ c21797e9996a319fc4cf767abf2cbdd729a6ee8a:servicios/identidad/src/test/java/bo/ap
 d2d8c26b7225a7a7e57955af21c82bc5af7c8f95:plataforma/comun-web/src/test/java/bo/aportaya/plataforma/web/observabilidad/EnmascaradorPiiTest.java:generic-api-key:15
 # 2026-11-23: falso positivo generic-api-key en SHOWN_INPUTS de PLAN.md. Son identificadores públicos de campos del modelo usados en un ejemplo UI; mismo contexto que el fingerprint anterior de este archivo.
 452446ac86f766fe56c23a75ee9eb2248db1a367:docs/trabajo/2026-10-11-alta-atlas-sesion-premium/PLAN.md:generic-api-key:52147
+46736691ba532eaeae51f6382921f59ee8e752f8:servicios/identidad/src/test/java/bo/aportaya/identidad/CU09CuentaDeOperadorTest.java:generic-api-key:45

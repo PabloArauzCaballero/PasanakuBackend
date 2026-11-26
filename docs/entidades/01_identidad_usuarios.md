@@ -277,6 +277,29 @@ vale para siempre.
 
 ---
 
+### `SolicitudCambioRol` / `solicitud_cambio_rol`
+
+**Qué es.** La propuesta de crear, editar o retirar un rol personalizado cuando el rol toca permisos de riesgo `ALTO` o `CRITICO` del catálogo: queda pendiente hasta que **otra persona** la aprueba o la rechaza (cuatro ojos).
+
+**Para qué sirve (negocio).** Que un solo operador no pueda darse ni darle a otro un rol que mueve plata o decide sobre la identidad de terceros. Lo propone uno, lo confirma otro, y los dos quedan escritos con su motivo.
+
+**Por qué debe existir.** Un rol personalizado con `ENTREGA_AUTORIZAR` aprobado por quien lo escribió es el mismo riesgo que autoasignarse el permiso. Sin la solicitud, el cuatro ojos viviría en la memoria del proceso y se perdería con un reinicio.
+
+**A nivel de sistema.** `propuesta` guarda el código, nombre, descripción y permisos propuestos; `propuesta_por` y `resuelta_por` son personas distintas (lo exige la base, `ck_solicitud_cambio_rol_cuatro_ojos`). El permiso de riesgo se evalúa contra `permiso.nivel_riesgo` en el momento de proponer. Un rol `es_sistema` nunca es objeto de una solicitud.
+
+*Fuente: GU-16 (decisión de Pablo, P-9), CU-135.*
+
+### `CuentaServicio` / `cuenta_servicio`
+
+**Qué es.** El gobierno de una identidad de servicio: la cuenta de usuario que porta un rol `SERVICIO_*`, con su vencimiento, el momento en que se rotó su credencial por última vez y, si se revocó, quién y por qué.
+
+**Para qué sirve (negocio).** Que las credenciales con las que un servicio le habla a otro dejen de ser un secreto aprovisionado a mano y sin dueño: se dan de alta, se rotan y se revocan desde el backoffice, con su rastro.
+
+**Por qué debe existir.** Hasta ahora la cuenta de servicio solo existía como un usuario más y un rol de catálogo; nadie podía decir quién la creó, cuándo vence ni cuándo cambió su clave (GU-18).
+
+**A nivel de sistema.** Nunca guarda la credencial: la clave vive solo como hash en `credencial_acceso` y se entrega una vez al crearla o rotarla. `vence_en` es obligatorio. Una cuenta `REVOCADA` no vuelve a `ACTIVA`: se crea otra. Un usuario es a lo sumo una cuenta de servicio (`uq_cuenta_servicio_usuario_id`).
+
+*Fuente: GU-18 (decisión de Pablo, P-10), CU-136.*
 ### `EvidenciaStepUpConsumida` / `evidencia_step_up_consumida`
 
 **Qué es.** La marca de que una evidencia de segundo factor (el `jti` del JWT de step-up con propósito `ADMIN`) ya se usó para un acto de gobierno de accesos: asignar o revocar un rol, dar de alta, suspender, reactivar, dar de baja o desbloquear a un operador.
@@ -731,6 +754,20 @@ puede explicar un score calculado con una versión anterior del modelo de scorin
 **A nivel de sistema.** Una fila por token (`token_id` único). `clave_emision` hace idempotente la emisión y `huella_solicitud` detecta la misma clave reutilizada con otro pedido. `clave_consumo` y `consumidor_id` registran quién la usó. El límite diario de emisiones y la reemisión (`invalida_anteriores`) los decide la política vigente (`EmitirTokenDeInvitacion`). El secreto nunca se guarda (regla 90.2.9).
 
 *Fuente: CU-69; `servicios/identidad/.../EmitirTokenDeInvitacion.java`.*
+
+---
+
+### `SolicitudRecuperacionAcceso` / `solicitud_recuperacion_acceso`
+
+**Qué es.** El expediente con el que un operador del backoffice recupera su clave o reinscribe su segundo factor: quién lo pidió, quién lo decidió, cuándo termina el enfriamiento y qué invitación se emitió.
+
+**Para qué sirve (negocio).** Que perder la clave o el teléfono no sea una forma de tomar la cuenta de otra persona. Nadie recupera su propio acceso: otra persona con permiso de seguridad lo aprueba, pasa un plazo de enfriamiento y solo entonces llega una invitación de un solo uso al correo institucional.
+
+**Por qué debe existir.** ADR-038 §4 dejaba al aprobador solo en la bitácora, sin ninguna tabla que lo guardara, y por eso la base no podía rechazar una autoaprobación. Con esta tabla la restricción `R-SEG-16` la rechaza en el motor, aunque la aplicación se saltee la validación.
+
+**A nivel de sistema.** Una fila por pedido; una sola viva por operador y alcance (`uq_recuperacion_viva`). `estado` recorre PENDIENTE → APROBADA → EMITIDA → COMPLETADA (o RECHAZADA / VENCIDA). `decidida_por` es siempre distinta de `usuario_id`; `enfriamiento_hasta` se guarda al aprobar y no se recalcula. `token_id` apunta al token de invitación; del token solo existe su hash con pepper (regla 90.2.9). `clave_idempotencia` evita duplicar un pedido reintentado.
+
+*Fuente: CU-09 §10-§11; ADR-038 §4-§5; `docs/Restricciones.md` R-SEG-16.*
 
 ---
 

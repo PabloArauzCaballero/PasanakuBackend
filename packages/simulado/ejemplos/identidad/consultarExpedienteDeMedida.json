@@ -1,0 +1,103 @@
+{
+  "servicio": "identidad",
+  "operacion": "consultarExpedienteDeMedida",
+  "metodo": "get",
+  "ruta": "/identidad/medidas-cuenta/{expedienteId}",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "expedienteId": "9acf40ee-234e-4c92-8467-ed384be1dad8",
+        "usuarioId": "66a100c7-2c65-4783-8ac4-b7449306b84a",
+        "causal": "causal",
+        "medida": "medida",
+        "cautelar": true,
+        "motivo": "motivo",
+        "estado": "PROPUESTA",
+        "estadoCuenta": "estadoCuenta",
+        "propuestaEn": "2026-01-15T10:30:00Z",
+        "notificadaEn": "2026-01-15T10:30:00Z",
+        "fechaLimiteDescargo": "2026-01-15T10:30:00Z",
+        "resultadoDecision": "CONFIRMADA",
+        "fundamentoDecision": "fundamentoDecision",
+        "fechaLimiteApelacion": "2026-01-15T10:30:00Z",
+        "vigenteHasta": "2026-01-15T10:30:00Z",
+        "prescribeEn": "2026-01-15T10:30:00Z",
+        "apelacionEstado": "PRESENTADA",
+        "fechaLimiteResolucionApelacion": "2026-01-15T10:30:00Z",
+        "lineaDeTiempo": [
+          {
+            "estadoAnterior": "estadoAnterior",
+            "estado": "estado",
+            "motivo": "motivo",
+            "ocurridoEn": "2026-01-15T10:30:00Z"
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "expedienteId": "9acf40ee-234e-4c92-8467-ed384be1dad8",
+        "usuarioId": "66a100c7-2c65-4783-8ac4-b7449306b84a",
+        "causal": "causal",
+        "medida": "medida",
+        "cautelar": false,
+        "motivo": "motivo",
+        "estado": "PROPUESTA",
+        "estadoCuenta": "estadoCuenta",
+        "propuestaEn": "2026-01-15T10:30:00Z",
+        "notificadaEn": "2026-01-15T10:30:00Z",
+        "fechaLimiteDescargo": "2026-01-15T10:30:00Z",
+        "resultadoDecision": "CONFIRMADA",
+        "fundamentoDecision": "fundamentoDecision",
+        "fechaLimiteApelacion": "2026-01-15T10:30:00Z",
+        "vigenteHasta": "2026-01-15T10:30:00Z",
+        "prescribeEn": "2026-01-15T10:30:00Z",
+        "apelacionEstado": "PRESENTADA",
+        "fechaLimiteResolucionApelacion": "2026-01-15T10:30:00Z",
+        "lineaDeTiempo": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "expedienteId": "9acf40ee-234e-4c92-8467-ed384be1dad8",
+        "usuarioId": "66a100c7-2c65-4783-8ac4-b7449306b84a",
+        "causal": "causal",
+        "medida": "medida",
+        "cautelar": true,
+        "motivo": "motivo",
+        "estado": "PROPUESTA",
+        "estadoCuenta": "estadoCuenta",
+        "propuestaEn": "2026-01-15T10:30:00Z",
+        "notificadaEn": "2026-01-15T10:30:00Z",
+        "fechaLimiteDescargo": "2026-01-15T10:30:00Z",
+        "resultadoDecision": "CONFIRMADA",
+        "fundamentoDecision": "fundamentoDecision",
+        "fechaLimiteApelacion": "2026-01-15T10:30:00Z",
+        "vigenteHasta": "2026-01-15T10:30:00Z",
+        "prescribeEn": "2026-01-15T10:30:00Z",
+        "apelacionEstado": "PRESENTADA",
+        "fechaLimiteResolucionApelacion": "2026-01-15T10:30:00Z",
+        "lineaDeTiempo": [
+          {
+            "estadoAnterior": "estadoAnterior",
+            "estado": "estado",
+            "motivo": "motivo",
+            "ocurridoEn": "2026-01-15T10:30:00Z"
+          }
+        ]
+      }
+    },
+    "rechazo": {
+      "estado": 404,
+      "cuerpo": {
+        "codigo": "AP-CU01-03",
+        "mensaje": "Cuenta ya existe",
+        "detalle": {},
+        "trazaId": "traza-consultarExpedienteDeMedida-rechazo"
+      }
+    }
+  }
+}

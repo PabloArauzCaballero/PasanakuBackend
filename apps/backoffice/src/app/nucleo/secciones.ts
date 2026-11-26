@@ -47,6 +47,8 @@ export const PERMISOS_POR_SECCION: Readonly<Record<string, readonly string[]>> =
     // CU-17 (pedido de L1): la bandeja de bloqueos por orden de autoridad la abren los mismos dos permisos que su listado.
     'BLOQUEO_AUTORIDAD_REGISTRAR',
     'BLOQUEO_AUTORIDAD_LEVANTAR',
+    // CU-134: el directorio y la ficha del participante.
+    'PARTICIPANTES_LEER',
     'CUMPLIMIENTO_REPORTAR',
     'OFICIAL_CUMPLIMIENTO',
     'RESPONSABLE_RIESGOS',

@@ -10,6 +10,7 @@ import bo.aportaya.plataforma.web.idempotencia.IdempotenciaConflicto;
 import bo.aportaya.plataforma.web.idempotencia.IdempotenciaEnProceso;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
+import bo.aportaya.plataforma.web.seguridad.PermitidoEnRestriccion;
 import bo.aportaya.plataforma.web.seguridad.Publico;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -83,6 +84,14 @@ public class ControladorDeEnsayo {
     @Permiso("PARTICIPANTE")
     @PermisoAlternativo("SOLICITUD_INGRESO_VER")
     public Map<String, String> dosPuertas() {
+        return Map.of("estado", "ok");
+    }
+
+    /** Una ruta de la lista cerrada de CU-134: la puede usar una sesion con alcance restringido. */
+    @GetMapping("/ensayo/en-restriccion")
+    @Permiso("PARTICIPANTE")
+    @PermitidoEnRestriccion
+    public Map<String, String> enRestriccion() {
         return Map.of("estado", "ok");
     }
 

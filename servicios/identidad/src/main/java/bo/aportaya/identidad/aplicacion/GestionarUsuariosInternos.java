@@ -50,6 +50,7 @@ public class GestionarUsuariosInternos {
     private final BitacoraDeAccesos bitacora;
     private final Reloj reloj;
     private final Outbox outbox;
+    private final InvitadorDeOperador invitador;
 
     public GestionarUsuariosInternos(
             Datos datos,
@@ -59,7 +60,8 @@ public class GestionarUsuariosInternos {
             GobiernoDeAccesosRepositorio gobierno,
             ReglasDeGobierno reglas,
             Reloj reloj,
-            Outbox outbox) {
+            Outbox outbox,
+            InvitadorDeOperador invitador) {
         this.datos = datos;
         this.repositorio = repositorio;
         this.rolesYPermisos = rolesYPermisos;
@@ -69,6 +71,7 @@ public class GestionarUsuariosInternos {
         this.bitacora = new BitacoraDeAccesos(outbox, gobierno);
         this.reloj = reloj;
         this.outbox = outbox;
+        this.invitador = invitador;
     }
 
     @Transactional
@@ -89,6 +92,8 @@ public class GestionarUsuariosInternos {
                             "cargo", entrada.getCargo()),
                     ctx,
                     ahora);
+            // P-1: sin clave provisional; la persona recibe su invitacion de un solo uso al correo institucional.
+            invitador.invitar(dsl, detalle.getUsuarioId(), ctx, motivo);
             return detalle;
         });
     }

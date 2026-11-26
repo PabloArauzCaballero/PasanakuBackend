@@ -23,7 +23,8 @@ const ESPERADO: Record<string, string[]> = {
   RESPONSABLE_SEGURIDAD: ['cumplimiento', 'sistemas'],
   TESORERIA: ['operacion', 'contabilidad'],
   CONTABILIDAD: ['operacion', 'contabilidad'],
-  SOPORTE: ['operacion'],
+  // CU-134 (2026-11-25): soporte busca participantes y abre su ficha justificada (PARTICIPANTES_LEER), que vive en Cumplimiento.
+  SOPORTE: ['operacion', 'cumplimiento'],
   PUNTO_RECLAMO: ['operacion'],
   OPERADOR_PUBLICIDAD: ['publicidad'],
   // P-3 (2026-11-24): publicidad son tres personas. El operador da de alta anunciantes y liquida; el aprobador aprueba

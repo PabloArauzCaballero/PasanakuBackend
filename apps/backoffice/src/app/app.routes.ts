@@ -18,6 +18,17 @@ export const routes: Routes = [
     loadComponent: () => import('./rutas/ingreso/pantalla-de-ingreso').then((m) => m.PantallaDeIngreso),
     title: 'Ingresar · AportaYa',
   },
+  // GU-C · Acceso sin sesión: la invitación del operador (el token va en el fragmento) y «No puedo entrar». Las de con sesión: `acceso.routes.ts`.
+  {
+    path: 'acceso/invitacion',
+    loadComponent: () => import('./rutas/acceso/invitacion/pantalla-de-invitacion').then((m) => m.PantallaDeInvitacion),
+    title: 'Tu invitación · AportaYa',
+  },
+  {
+    path: 'acceso/recuperar',
+    loadComponent: () => import('./rutas/acceso/recuperar/pantalla-de-recuperar').then((m) => m.PantallaDeRecuperar),
+    title: 'No puedo entrar · AportaYa',
+  },
   // H3 (PR11-Sesion) · Restauración de sesión al arrancar o al reintentar tras un ERROR.
   {
     path: 'arranque',
@@ -127,6 +138,7 @@ export const routes: Routes = [
         canMatch: [requierePermiso('ver:publicidad')],
         loadChildren: () => import('./rutas/publicidad/publicidad.routes').then((m) => m.rutasPublicidad),
       },
+      { path: 'acceso', loadChildren: () => import('./rutas/acceso/acceso.routes').then((m) => m.rutasAcceso) },
       {
         // Carril B · L4: tarifario (CU-34), mensajería (CU-80/83) y reportes (CU-58), de solo lectura.
         path: 'configuracion',

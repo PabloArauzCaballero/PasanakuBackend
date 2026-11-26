@@ -90,6 +90,15 @@ const CATALOGO: Readonly<Record<string, string>> = {
   'AP-CU132-03': 'La aprobación tiene que hacerla otra persona desde su propia sesión.',
   'AP-CU132-04': 'Otra persona ya resolvió esta propuesta. Actualizá el catálogo y revisá el historial.',
   'AP-CU132-05': 'La clave de esta propuesta ya se usó con otros datos. No repitas el envío; revisá el estado del parámetro.',
+  // GU-C · cuenta del operador (`/cuenta/*`): invitación, cambio de clave y recuperación asistida. Cada pantalla de `rutas/acceso`
+  // los mapea además a su campo (`dominio/errores-de-cuenta.ts`).
+  'AP-CU09-01': 'La clave actual no coincide. Revisala y probá de nuevo.',
+  'AP-CU09-02': 'Esa clave no sirve: usá una más larga y que no contenga tu teléfono ni tu documento.',
+  'AP-CU09-03': 'Esa clave ya la usaste antes. Elegí una distinta de las anteriores.',
+  'AP-CU09-04': 'Este enlace ya no sirve: pudo vencer, haberse usado o no ser válido. Pedí una invitación nueva o recuperá tu acceso.',
+  'AP-CU09-09': 'No podés decidir tu propia solicitud. La tiene que decidir otra persona con este mismo permiso.',
+  'AP-CU09-11': 'Esa solicitud ya no existe. Actualizá la bandeja.',
+  'AP-CU09-12': 'Esa solicitud ya fue decidida por otra persona. Actualizá la bandeja para ver cómo quedó.',
 }
 
 export function mensajeDe(codigo: string | undefined, estado: number): string {

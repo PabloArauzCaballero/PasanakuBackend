@@ -1,0 +1,58 @@
+{
+  "servicio": "identidad",
+  "operacion": "iniciarFactorDeInvitacion",
+  "metodo": "post",
+  "ruta": "/cuenta/invitacion/factor",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "factorId": "d49ba183-5584-49e5-87ee-0379a2a200b6",
+        "semilla": "semilla",
+        "uriOtpauth": "uriOtpauth"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "factorId": "d49ba183-5584-49e5-87ee-0379a2a200b6",
+        "semilla": "semilla",
+        "uriOtpauth": "uriOtpauth"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "factorId": "d49ba183-5584-49e5-87ee-0379a2a200b6",
+        "semilla": "semilla",
+        "uriOtpauth": "uriOtpauth"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "factorId": "d49ba183-5584-49e5-87ee-0379a2a200b6",
+        "semilla": "semilla",
+        "uriOtpauth": "uriOtpauth"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU09-04",
+        "mensaje": "Token invalido",
+        "detalle": {},
+        "trazaId": "traza-iniciarFactorDeInvitacion-rechazo"
+      }
+    }
+  }
+}

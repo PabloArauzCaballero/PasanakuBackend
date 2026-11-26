@@ -42,7 +42,7 @@ import org.springframework.stereotype.Component;
         matchIfMissing = true)
 public class ConsumidorDeCambiosDeAccesoKafka {
 
-    static final String PATRON = "aportaya\\.identidad\\.(usuario_interno|rol|asignacion_rol)_[a-z_]+";
+    static final String PATRON = "aportaya\\.identidad\\.(usuario_interno|rol|asignacion_rol|cuenta_servicio)_[a-z_]+";
 
     private static final ObjectMapper JSON = new ObjectMapper();
     private static final List<String> CAMPOS_DE_ACTOR = List.of("actorId", "operadorId", "otorgadoPor", "revocadoPor");
@@ -58,6 +58,12 @@ public class ConsumidorDeCambiosDeAccesoKafka {
             "WEBHOOK_ENTRANTE");
     private static final List<String> SENSIBLES =
             List.of("correo", "telefono", "documento", "clave", "contrasena", "token", "secreto");
+    private static final Set<String> ROLES_DE_DEFINICION = Set.of(
+            "identidad.rol_creado",
+            "identidad.rol_editado",
+            "identidad.rol_retirado",
+            "identidad.rol_solicitado",
+            "identidad.rol_solicitud_rechazada");
     private static final int LARGO_DEL_MOTIVO = 300;
     private static final int LARGO_DEL_ROL = 30;
 
@@ -109,7 +115,16 @@ public class ConsumidorDeCambiosDeAccesoKafka {
 
     /** La tabla a la que se refiere el cambio. El id es la clave del mensaje (el agregado del outbox). */
     static String entidadDe(String tipo) {
-        return tipo.startsWith("identidad.usuario_interno_") ? "usuario_interno" : "asignacion_rol";
+        if (tipo.startsWith("identidad.usuario_interno_")) {
+            return "usuario_interno";
+        }
+        if (tipo.startsWith("identidad.cuenta_servicio_")) {
+            return "cuenta_servicio";
+        }
+        // GU-16: la definicion de un rol (creado, editado, retirado, solicitado, solicitud rechazada) es sobre el rol;
+        // las
+        // asignaciones (rol_asignado, rol_revocado, rol_vencido) siguen siendo de asignacion_rol.
+        return ROLES_DE_DEFINICION.contains(tipo) ? "rol" : "asignacion_rol";
     }
 
     /**

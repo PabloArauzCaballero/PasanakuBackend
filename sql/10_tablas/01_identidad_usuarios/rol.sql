@@ -10,6 +10,9 @@ CREATE TABLE IF NOT EXISTS identidad.rol (
   departamento                       VARCHAR(60),
   descripcion                        VARCHAR(255),
   es_sistema                         BOOLEAN DEFAULT FALSE NOT NULL,
+  creado_por                         UUID,
+  creado_en                          TIMESTAMPTZ,
+  retirado_en                        TIMESTAMPTZ,
   CONSTRAINT pk_rol PRIMARY KEY (id),
   CONSTRAINT ck_rol_ambito CHECK (ambito IN ('GLOBAL', 'GRUPO', 'ORGANIZACION'))
 );
@@ -20,3 +23,6 @@ COMMENT ON COLUMN identidad.rol.codigo IS 'UQ';
 COMMENT ON COLUMN identidad.rol.ambito IS 'CK';
 COMMENT ON COLUMN identidad.rol.departamento IS 'NULL';
 COMMENT ON COLUMN identidad.rol.descripcion IS 'NULL';
+COMMENT ON COLUMN identidad.rol.creado_por IS 'NULL, FK, rol personalizado: quien lo creo (GU-16)';
+COMMENT ON COLUMN identidad.rol.creado_en IS 'NULL';
+COMMENT ON COLUMN identidad.rol.retirado_en IS 'NULL, un rol retirado no se asigna mas; no se borra (GU-16)';

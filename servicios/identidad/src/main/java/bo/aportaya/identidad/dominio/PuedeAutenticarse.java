@@ -27,4 +27,13 @@ public final class PuedeAutenticarse {
     public static boolean segun(Optional<String> estado) {
         return estado.map(HABILITADOS::contains).orElse(false);
     }
+
+    /**
+     * CU-134 (D-6): un participante con la cuenta {@code SUSPENDIDO} entra, pero con alcance restringido, para ver
+     * su medida, defenderse, pagar y reclamar. No vale para el personal interno (CU-08 suspende operadores con el
+     * mismo estado) ni para {@code BLOQUEADO_SEGURIDAD}: una cuenta comprometida se atiende por canal verificado.
+     */
+    public static boolean conAlcanceRestringido(Optional<String> estado, boolean esOperador) {
+        return !esOperador && estado.filter("SUSPENDIDO"::equals).isPresent();
+    }
 }

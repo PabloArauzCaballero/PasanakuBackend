@@ -9,6 +9,7 @@ import bo.aportaya.aportes.web.generado.modelo.SalidaCobro;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
+import bo.aportaya.plataforma.web.seguridad.PermitidoEnRestriccion;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import jakarta.validation.ConstraintViolationException;
@@ -40,8 +41,10 @@ abstract class RutasDelCobroDeAportes implements AportesApi {
         this.grupos = grupos;
     }
 
+    /** CU-134 (D-6): una cuenta suspendida, con su sesion restringida, sigue pagando lo que debe. */
     @Override
     @Permiso("BILLETERA_OPERAR")
+    @PermitidoEnRestriccion
     public ResponseEntity<SalidaCobro> pagarCuotaConSaldo(UUID idempotencyKey, UUID obligacionId, Object cuerpo) {
         Traza.marcarCasoDeUso("CU-21", obligacionId.toString());
         // El generador traduce el esquema sin campos a Object, y Object acepta cualquier JSON. La lista blanca

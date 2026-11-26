@@ -1,0 +1,58 @@
+{
+  "servicio": "identidad",
+  "operacion": "crearRol",
+  "metodo": "post",
+  "ruta": "/roles",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "estado": "APLICADO",
+        "rolId": "d2f089f8-5a52-4efa-8775-d58fe2d42b8f",
+        "solicitudId": "af5258f7-bb96-4ae5-84c4-32126ae8c3dc"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "estado": "APLICADO",
+        "rolId": "d2f089f8-5a52-4efa-8775-d58fe2d42b8f",
+        "solicitudId": "af5258f7-bb96-4ae5-84c4-32126ae8c3dc"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "estado": "APLICADO",
+        "rolId": "d2f089f8-5a52-4efa-8775-d58fe2d42b8f",
+        "solicitudId": "af5258f7-bb96-4ae5-84c4-32126ae8c3dc"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "estado": "APLICADO",
+        "rolId": "d2f089f8-5a52-4efa-8775-d58fe2d42b8f",
+        "solicitudId": "af5258f7-bb96-4ae5-84c4-32126ae8c3dc"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 400,
+      "cuerpo": {
+        "codigo": "AP-CU135-05",
+        "mensaje": "Par incompatible",
+        "detalle": {},
+        "trazaId": "traza-crearRol-rechazo"
+      }
+    }
+  }
+}

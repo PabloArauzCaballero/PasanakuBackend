@@ -71,6 +71,10 @@ class CU01VerificacionCorreoTest {
     @MockitoBean
     private CorreoDeVerificacion correo;
 
+    // El doble de arriba reemplaza el bean unico de correo: el de la invitacion del operador se dobla aparte.
+    @MockitoBean
+    private bo.aportaya.identidad.dominio.puertos.CorreoDeCuenta correoDeCuenta;
+
     private final AtomicReference<String> codigoEntregado = new AtomicReference<>();
 
     @BeforeEach

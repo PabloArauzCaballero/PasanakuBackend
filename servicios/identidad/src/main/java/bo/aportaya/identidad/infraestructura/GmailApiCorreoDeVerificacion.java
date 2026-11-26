@@ -1,5 +1,7 @@
 package bo.aportaya.identidad.infraestructura;
 
+import bo.aportaya.identidad.dominio.AlcanceDeCuenta;
+import bo.aportaya.identidad.dominio.puertos.CorreoDeCuenta;
 import bo.aportaya.identidad.dominio.puertos.CorreoDeVerificacion;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -15,7 +17,7 @@ import org.springframework.web.client.RestClient;
 /** Envio real mediante OAuth 2 y {@code users.messages.send} de Gmail API. */
 @Component
 @ConditionalOnProperty(name = "aportaya.correo.proveedor", havingValue = "gmail_api")
-public class GmailApiCorreoDeVerificacion implements CorreoDeVerificacion {
+public class GmailApiCorreoDeVerificacion implements CorreoDeVerificacion, CorreoDeCuenta {
 
     private final RestClient rest;
     private final String clientId;
@@ -46,7 +48,22 @@ public class GmailApiCorreoDeVerificacion implements CorreoDeVerificacion {
         enviar(destino, codigo, vigencia, PlantillaCorreoDeVerificacion.Motivo.ACCESO);
     }
 
+    @Override
+    public void enviarInvitacion(String destino, String enlace, AlcanceDeCuenta alcance, Duration vigencia) {
+        enviarHtml(
+                destino,
+                PlantillaCorreoDeInvitacion.asunto(alcance),
+                PlantillaCorreoDeInvitacion.html(enlace, alcance, vigencia));
+    }
+
     private void enviar(String destino, String codigo, Duration vigencia, PlantillaCorreoDeVerificacion.Motivo motivo) {
+        enviarHtml(
+                destino,
+                PlantillaCorreoDeVerificacion.asunto(motivo),
+                PlantillaCorreoDeVerificacion.html(codigo, vigencia, motivo));
+    }
+
+    private void enviarHtml(String destino, String asuntoPlano, String html) {
         var formulario = new LinkedMultiValueMap<String, String>();
         formulario.add("client_id", clientId);
         formulario.add("client_secret", clientSecret);
@@ -65,11 +82,9 @@ public class GmailApiCorreoDeVerificacion implements CorreoDeVerificacion {
             throw new IllegalStateException("Gmail no devolvio un access_token");
         }
 
-        String asunto = Base64.getEncoder()
-                .encodeToString(PlantillaCorreoDeVerificacion.asunto(motivo).getBytes(StandardCharsets.UTF_8));
+        String asunto = Base64.getEncoder().encodeToString(asuntoPlano.getBytes(StandardCharsets.UTF_8));
         String cuerpo = Base64.getMimeEncoder(76, "\r\n".getBytes(StandardCharsets.US_ASCII))
-                .encodeToString(PlantillaCorreoDeVerificacion.html(codigo, vigencia, motivo)
-                        .getBytes(StandardCharsets.UTF_8));
+                .encodeToString(html.getBytes(StandardCharsets.UTF_8));
         String mime = "From: AportaYa <" + remitente + ">\r\n"
                 + "To: " + destino + "\r\n"
                 + "Subject: =?UTF-8?B?" + asunto + "?=\r\n"

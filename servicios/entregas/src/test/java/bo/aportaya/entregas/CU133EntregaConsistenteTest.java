@@ -45,7 +45,9 @@ class CU133EntregaConsistenteTest extends BaseDePozoCompleto {
                 c.ctx()));
         transaccion.execute(t -> cuentaCU.verificar(cuenta.cuentaId(), "MICRODEPOSITO", c.ctx()));
         dsl.execute(
-                "UPDATE entregas.cuenta_bancaria_beneficiario SET bloqueada_hasta = now() - interval '1 hour' WHERE id = ?",
+                """
+                UPDATE entregas.cuenta_bancaria_beneficiario SET bloqueada_hasta = now() - interval '1 hour'
+                WHERE id = ?""",
                 cuenta.cuentaId());
         ContextoSesion supervisor = contextoDe(fixtura.usuario());
         transaccion.execute(t -> entregaCU.autorizar(fondeo.entregaId(), supervisor));
@@ -56,7 +58,8 @@ class CU133EntregaConsistenteTest extends BaseDePozoCompleto {
                         cuenta.cuentaId(),
                         "Entrega del pozo completo",
                         "des-" + c.e().turnoId(),
-                        true),
+                        true,
+                        false),
                 c.ctx()));
         transaccion.execute(t -> desembolsoCU.anotarRespuesta(
                 new EntradaRespuesta(
@@ -71,15 +74,18 @@ class CU133EntregaConsistenteTest extends BaseDePozoCompleto {
     }
 
     @Test
-    @DisplayName(
-            "Dado fondeo completo (Bs 6.000 confirmados) · Cuando el proveedor confirma el desembolso · Entonces ledger propuesto, confirmacion externa y comprobante coinciden en Bs 6.000 de principal, una sola vez")
+    @DisplayName("Dado fondeo completo (Bs 6.000 confirmados) · Cuando el proveedor confirma el desembolso · Entonces"
+            + " ledger propuesto, confirmacion externa y comprobante coinciden en Bs 6.000 de principal, una sola"
+            + " vez")
     void ledgerConfirmacionYComprobanteCoinciden() {
         var c = caso();
         var e = entregarElPozo(c, "REF-BANCO-6000");
 
         // COMPROBANTE: la entrega entera y la orden, al centavo, sin deducciones.
         var entrega = dsl.fetchOne(
-                "SELECT estado, monto_bolsa_bruto, total_deducciones, monto_neto_a_entregar FROM entregas.entrega_fondo WHERE id = ?",
+                """
+                SELECT estado, monto_bolsa_bruto, total_deducciones, monto_neto_a_entregar
+                FROM entregas.entrega_fondo WHERE id = ?""",
                 e.entregaId());
         var orden = dsl.fetchOne(
                 "SELECT estado, monto, referencia_proveedor FROM entregas.orden_desembolso WHERE id = ?", e.ordenId());
@@ -94,7 +100,9 @@ class CU133EntregaConsistenteTest extends BaseDePozoCompleto {
         // LEDGER: el asiento propuesto viaja en el evento, cuadra y su origen es la entrega.
         var mayor = new MayorDeDoble();
         JsonNode evento = MayorDeDoble.leer(dsl.fetchOne(
-                        "SELECT payload::text FROM entregas.evento_dominio WHERE tipo = 'entregas.desembolso_acreditado' AND agregado_id = ?",
+                        """
+                        SELECT payload::text FROM entregas.evento_dominio
+                        WHERE tipo = 'entregas.desembolso_acreditado' AND agregado_id = ?""",
                         e.ordenId())
                 .get(0, String.class));
         assertThat(evento.get("referenciaProveedor").asText()).isEqualTo("REF-BANCO-6000");
@@ -112,7 +120,9 @@ class CU133EntregaConsistenteTest extends BaseDePozoCompleto {
         assertThat(mayor.registrar(UUID.randomUUID(), evento)).isFalse();
         assertThat(mayor.asientos()).isEqualTo(1);
         assertThat(contar(
-                        "SELECT count(*)::int FROM entregas.evento_dominio WHERE tipo = 'entregas.desembolso_acreditado' AND payload->>'entregaId' = ?",
+                        """
+                        SELECT count(*)::int FROM entregas.evento_dominio
+                        WHERE tipo = 'entregas.desembolso_acreditado' AND payload->>'entregaId' = ?""",
                         e.entregaId().toString()))
                 .isEqualTo(1);
     }
@@ -135,7 +145,9 @@ class CU133EntregaConsistenteTest extends BaseDePozoCompleto {
 
         assertThat(otra.esNuevo()).isFalse();
         assertThat(contar(
-                        "SELECT count(*)::int FROM entregas.evento_dominio WHERE tipo = 'entregas.desembolso_acreditado' AND agregado_id = ?",
+                        """
+                        SELECT count(*)::int FROM entregas.evento_dominio
+                        WHERE tipo = 'entregas.desembolso_acreditado' AND agregado_id = ?""",
                         e.ordenId()))
                 .isEqualTo(1);
     }

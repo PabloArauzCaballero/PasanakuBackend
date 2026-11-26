@@ -83,6 +83,14 @@ public final class Sesiones {
     }
 
     /** Un sujeto que no es un identificador de usuario. */
+    /** Sesion de una cuenta bajo medida (CU-134, D-6): el token lleva {@code alcance=RESTRINGIDO}. */
+    public static RequestPostProcessor restringida(String rol, String... permisos) {
+        return jwt().jwt(token -> {
+            reclamos(token, USUARIO.toString(), rol, List.of(permisos));
+            token.claim("alcance", "RESTRINGIDO");
+        });
+    }
+
     public static RequestPostProcessor conSujetoInvalido() {
         return jwt().jwt(token -> reclamos(token, "no-soy-un-uuid", "PARTICIPANTE", List.of()));
     }

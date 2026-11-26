@@ -115,6 +115,13 @@ class PagoConSaldoWebTest {
         }
 
         @Test
+        @DisplayName("CU-134 · correcto: una cuenta suspendida (sesion restringida) paga su cuota: 201")
+        void cuentaSuspendidaPaga() throws Exception {
+            mvc.perform(conSaldo().with(Sesiones.restringida("PARTICIPANTE", "BILLETERA_OPERAR")))
+                    .andExpect(status().isCreated());
+        }
+
+        @Test
         @DisplayName("limite · cuerpo {} vacio: 201, es lo mismo que no mandar nada")
         void cuerpoVacio() throws Exception {
             mvc.perform(conSaldo()

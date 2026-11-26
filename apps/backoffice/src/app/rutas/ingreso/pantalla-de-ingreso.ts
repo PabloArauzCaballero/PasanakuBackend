@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core'
-import { ActivatedRoute, Router } from '@angular/router'
+import { ActivatedRoute, Router, RouterLink } from '@angular/router'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
 import { Boton } from '@aportaya/ui/boton/boton'
 import { Campo } from '@aportaya/ui/campo/campo'
@@ -33,7 +33,7 @@ const MENSAJE_CREDENCIAL = 'El correo, el teléfono o la contraseña no coincide
 @Component({
   selector: 'ap-pantalla-de-ingreso',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alerta, Boton, Campo, CampoContrasena, CampoOTP, Icono, PanelDeMarca, SimboloDeMarca],
+  imports: [Alerta, Boton, Campo, CampoContrasena, CampoOTP, Icono, PanelDeMarca, RouterLink, SimboloDeMarca],
   template: `
     <main>
       <ap-panel-de-marca />
@@ -51,6 +51,8 @@ const MENSAJE_CREDENCIAL = 'El correo, el teléfono o la contraseña no coincide
 
           @if (error(); as e) {
             <ap-alerta tono="error">{{ e }}</ap-alerta>
+          } @else if (cerradaPorClave && paso() === 'credencial') {
+            <ap-alerta tono="info">Tu sesión se cerró porque cambiaste tu clave; entrá con tu clave nueva.</ap-alerta>
           } @else if (cerradaPorInactividad && paso() === 'credencial') {
             <ap-alerta tono="info">Cerramos tu sesión porque pasaron 15 minutos sin actividad. Ingresá de nuevo y volvés a la pantalla en la que estabas.</ap-alerta>
           }
@@ -79,6 +81,7 @@ const MENSAJE_CREDENCIAL = 'El correo, el teléfono o la contraseña no coincide
               <ap-boton variante="enlace" icono="flechaIzquierda" [ancho]="true" (pulsado)="volver()">Usar otra cuenta</ap-boton>
             }
           </form>
+          @if (paso() === 'credencial') { <a class="recuperar" routerLink="/acceso/recuperar">No puedo entrar</a> }
 
           <p class="nota">
             <ap-icono nombre="candado" tamano="s4" />
@@ -110,6 +113,7 @@ const MENSAJE_CREDENCIAL = 'El correo, el teléfono o la contraseña no coincide
       display: flex; gap: var(--s2); align-items: flex-start; margin: 0; padding-top: var(--s4);
       border-top: var(--borde-fino) solid var(--border); font: var(--t-cuerpo-chico); color: var(--text-3);
     }
+    .recuperar { justify-self: center; display: inline-flex; align-items: center; min-height: var(--area-tactil); color: var(--brand-texto); font: var(--t-cuerpo-chico); } .recuperar:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
     .nota ap-icono { margin-top: .1rem; color: var(--text-2); } .aviso { margin: 0; font: var(--t-cuerpo-chico); color: var(--text-3); text-align: center; }
     @media (min-width: 64rem) { .simbolo { display: none; } .tarjeta { padding: var(--s7) var(--s6); } }
     @keyframes aparecer { from { opacity: 0; transform: translateY(.5rem); } } @media (prefers-reduced-motion: reduce) { .tarjeta { animation: none; } }
@@ -118,22 +122,20 @@ const MENSAJE_CREDENCIAL = 'El correo, el teléfono o la contraseña no coincide
 export class PantallaDeIngreso {
   private readonly autenticar = crearAutenticar()
   private readonly sesion = inject(Sesion)
-  private readonly router = inject(Router)
-  private readonly route = inject(ActivatedRoute)
+  private readonly router = inject(Router); private readonly route = inject(ActivatedRoute)
   private readonly huella = huellaDeEstaPestana()
 
   protected readonly paso = signal<Paso>('credencial')
-  protected readonly identificador = signal('')
-  protected readonly credencial = signal('')
-  protected readonly codigo = signal('')
+  protected readonly identificador = signal(''); protected readonly credencial = signal(''); protected readonly codigo = signal('')
   protected readonly enviando = signal(false)
   protected readonly error = signal<string | null>(null)
   /** ADR-038 §1: el shell cerró la sesión por inactividad y lo dice acá, no con un silencio. */
   protected readonly cerradaPorInactividad = this.route.snapshot.queryParamMap.get('motivo') === 'inactividad'
+  /** GU-C: cambiar la clave cierra todas las sesiones (R-SEG-11); la pantalla de cambio vuelve acá con este motivo. */
+  protected readonly cerradaPorClave = this.route.snapshot.queryParamMap.get('motivo') === 'clave'
   protected readonly errorIdentificador = signal<string | undefined>(undefined)
   // Cada error de forma va con su campo (95.3.1); el del servidor, que no dice qué dato falló, va en la alerta.
-  protected readonly errorCredencial = signal<string | undefined>(undefined)
-  protected readonly errorCodigo = signal<string | undefined>(undefined)
+  protected readonly errorCredencial = signal<string | undefined>(undefined); protected readonly errorCodigo = signal<string | undefined>(undefined)
 
   protected enviar(): void {
     if (this.enviando()) return
