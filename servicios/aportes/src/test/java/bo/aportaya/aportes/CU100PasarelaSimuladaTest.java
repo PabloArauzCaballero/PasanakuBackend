@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
  * <p>Usa el secreto de {@link BaseDeAportes#SECRETO_DE_PRUEBA}, el mismo con el que CU-100 verifica: el doble firma con
  * el secreto del entorno y no necesita ninguno de la pasarela.
  */
-class PasarelaSimuladaFlujoTest extends BaseDeAportes {
+class CU100PasarelaSimuladaTest extends BaseDeAportes {
 
     private static final String PROVEEDOR = "QR_TEST";
     private static final Instant AHORA = Instant.parse("2026-11-26T12:00:00Z");

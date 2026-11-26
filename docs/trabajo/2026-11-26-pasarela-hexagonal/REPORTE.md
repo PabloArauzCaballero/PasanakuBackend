@@ -14,7 +14,7 @@
 | H1.S2.M2 | `InterpreteDeWebhookJson` (parseo movido desde CU-100) | `InterpreteDeWebhookJsonTest` | PASS 3/3 |
 | H1.S2.M3 | Guardia `!local & !test`, esqueleto `real/` fail-closed, `application.yml` | `PasarelaConfiguracionTest` + arranque Spring real con `production` | PASS 3/3; arranque falla con el mensaje esperado |
 | H1.S2.M4 | CU-100 consume el puerto; suites existentes adaptadas | `:servicios:aportes:test :webTest` | 82/82 y 101/101 PASS |
-| H1.S3.M1 | Flujo simulador→CU-100: correcto, duplicado, borde 300 s/301 s, monto distinto, orden inexistente, firma inválida | `PasarelaSimuladaFlujoTest` | PASS 6/6 |
+| H1.S3.M1 | Flujo simulador→CU-100: correcto, duplicado, borde 300 s/301 s, monto distinto, orden inexistente, firma inválida | `CU100PasarelaSimuladaTest` | PASS 6/6 |
 | H1.S3.M2 | Reglas ArchUnit de la pasarela | `ArquitecturaTest` + mutación | PASS 8/8; con un import de adaptador en `aplicacion`, 1 falla |
 | H1.S4.M1 | Guía `docs/operacion/pasarela-real-como-enchufar.md` | lectura | entregada |
 

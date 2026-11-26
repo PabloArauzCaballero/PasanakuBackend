@@ -61,7 +61,7 @@ mutado a propósito para verlo fallar · tests de los 3 niveles · doc en `docs/
 ### H1.S3 — Pruebas de integración y arquitectura
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H1.S3.M1 | E2E simulador→CU100: correcto, duplicado, monto distinto, orden inexistente, firma inválida, timestamp al borde | Cada caso devuelve el estado esperado y la base lo confirma | `PasarelaSimuladaFlujoTest` | HECHO |
+| H1.S3.M1 | E2E simulador→CU100: correcto, duplicado, monto distinto, orden inexistente, firma inválida, timestamp al borde | Cada caso devuelve el estado esperado y la base lo confirma | `CU100PasarelaSimuladaTest` | HECHO |
 | H1.S3.M2 | Regla ArchUnit pasarela | Importar el adaptador desde dominio/aplicacion/web falla | ArquitecturaTest + mutación manual | HECHO |
 
 ### H1.S4 — Documentación y cierre

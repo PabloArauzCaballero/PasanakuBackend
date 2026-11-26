@@ -53,7 +53,7 @@ aborta el arranque (`GuardiaDePasarelaSimulada`). `modo=real` sin adaptador tamb
 
 ## Qué quedó verificado solo contra el doble (regla 65)
 
-Todo lo de `PasarelaSimuladaTest`, `InterpreteDeWebhookJsonTest` y `PasarelaSimuladaFlujoTest`: firma válida, mismo evento
+Todo lo de `PasarelaSimuladaTest`, `InterpreteDeWebhookJsonTest` y `CU100PasarelaSimuladaTest`: firma válida, mismo evento
 dos veces, monto distinto, orden inexistente, firma inválida y timestamp al borde. Prueban CU-100 real contra un emisor
 sintético, **no** contra un proveedor.
 

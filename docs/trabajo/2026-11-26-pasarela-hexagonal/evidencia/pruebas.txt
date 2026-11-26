@@ -2,7 +2,7 @@
 `./gradlew :servicios:aportes:spotlessCheck :servicios:aportes:test :servicios:aportes:webTest` (base limpia)
   test      tests=82  skipped=0 failures=0 errors=0   (incluye ArquitecturaTest 8/8, PasarelaSimuladaTest 8/8,
                                                       InterpreteDeWebhookJsonTest 3/3, PasarelaConfiguracionTest 3/3,
-                                                      PasarelaSimuladaFlujoTest 6/6, CU100WebhookTest)
+                                                      CU100PasarelaSimuladaTest 6/6, CU100WebhookTest)
   webTest   tests=101 skipped=0 failures=0 errors=0
 `integrationTest` (misma base tras `test`): 161 tests, 9 fallos, TODOS ENVIRONMENT/DATA, ninguno de este cambio:
   - AislamientoEsquemaTest, ArranqueTest: "Could not find a valid Docker environment" (Testcontainers; sin Docker aqui).
