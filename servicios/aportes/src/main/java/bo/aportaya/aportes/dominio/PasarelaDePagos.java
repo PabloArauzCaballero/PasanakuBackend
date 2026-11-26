@@ -25,6 +25,15 @@ public interface PasarelaDePagos {
      */
     OrdenDeCobro crearOrdenDeCobro(SolicitudDeCobro solicitud);
 
+    /**
+     * {@code true} si el cobro de la cuota debe abrir una orden en esta pasarela. Solo lo declara el doble, para poder
+     * recorrer orden → aviso → conciliacion en {@code local}/{@code test}; el adaptador real devuelve {@code false}
+     * mientras no exista la cadena {@code orden_cobro → intento_pago} (decision de producto).
+     */
+    default boolean registraOrdenPorCobro() {
+        return false;
+    }
+
     /** El estado que la pasarela dice tener de la orden; vacio si no la conoce. */
     Optional<CobroConsultado> consultarEstado(String referenciaProveedor);
 

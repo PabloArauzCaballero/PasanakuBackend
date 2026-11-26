@@ -1,5 +1,6 @@
 package bo.aportaya.aportes.aplicacion;
 
+import bo.aportaya.aportes.dominio.PasarelaDePagos;
 import bo.aportaya.aportes.infraestructura.ObligacionRepositorio;
 import bo.aportaya.aportes.infraestructura.PagoRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
@@ -9,6 +10,8 @@ import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import java.util.Optional;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,17 +22,25 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CU21PagarConSaldo {
 
+    private static final Logger BITACORA = LoggerFactory.getLogger(CU21PagarConSaldo.class);
+
     private final Datos datos;
     private final ObligacionRepositorio obligaciones;
     private final PagoRepositorio pagos;
     private final CU21CobrarAporte cobro;
+    private final PasarelaDePagos pasarela;
 
     public CU21PagarConSaldo(
-            Datos datos, ObligacionRepositorio obligaciones, PagoRepositorio pagos, CU21CobrarAporte cobro) {
+            Datos datos,
+            ObligacionRepositorio obligaciones,
+            PagoRepositorio pagos,
+            CU21CobrarAporte cobro,
+            PasarelaDePagos pasarela) {
         this.datos = datos;
         this.obligaciones = obligaciones;
         this.pagos = pagos;
         this.cobro = cobro;
+        this.pasarela = pasarela;
     }
 
     /**
@@ -46,7 +57,7 @@ public class CU21PagarConSaldo {
             Optional<Dinero> montoDeclarado,
             boolean periodoAbierto,
             ContextoSesion ctx) {
-        Dinero pendiente = datos.conContexto(ctx, dsl -> {
+        Lectura lectura = datos.conContexto(ctx, dsl -> {
             var pendienteLeido = obligaciones
                     .ver(dsl, obligacionId)
                     .map(o -> o.saldo().pendiente())
@@ -60,8 +71,9 @@ public class CU21PagarConSaldo {
                     && !montoDeclarado.get().equals(pendienteLeido)) {
                 throw new ErrorDeNegocio(CodigoError.de(21, 2), "El monto no coincide: falta " + pendienteLeido + ".");
             }
-            return pendienteLeido;
+            return new Lectura(pendienteLeido, esReintento);
         });
+        Dinero pendiente = lectura.pendiente();
         return cobro.acreditar(
                 new CU21CobrarAporte.EntradaCobro(
                         claveIdempotencia,
@@ -69,11 +81,37 @@ public class CU21PagarConSaldo {
                         pendiente,
                         Dinero.cero(pendiente.moneda()),
                         CANAL_SALDO,
-                        referenciaDelSaldo(obligacionId, claveIdempotencia),
+                        referenciaDelCobro(lectura, claveIdempotencia, obligacionId),
                         Optional.empty(),
                         false,
                         periodoAbierto),
                 ctx);
+    }
+
+    private record Lectura(Dinero pendiente, boolean esReintento) {}
+
+    /**
+     * Con una pasarela que lo pide (hoy solo el doble de {@code local}/{@code test}) la primera vez que se paga se abre una
+     * orden y su referencia queda en el pago, para recorrer orden → aviso → conciliacion. Nunca cambia lo que responde el
+     * cobro: un reintento, una cuota sin pendiente o una orden que la pasarela rechaza siguen con la referencia del saldo, y
+     * el cobro responde lo que respondia (los errores de la obligacion los da {@link CU21CobrarAporte#acreditar}).
+     */
+    private String referenciaDelCobro(Lectura lectura, String claveIdempotencia, UUID obligacionId) {
+        String delSaldo = referenciaDelSaldo(obligacionId, claveIdempotencia);
+        if (!pasarela.registraOrdenPorCobro()
+                || lectura.esReintento()
+                || lectura.pendiente().esCero()
+                || lectura.pendiente().esNegativo()) {
+            return delSaldo;
+        }
+        try {
+            return pasarela.crearOrdenDeCobro(new PasarelaDePagos.SolicitudDeCobro(
+                            obligacionId + ":" + claveIdempotencia, lectura.pendiente()))
+                    .referenciaProveedor();
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            BITACORA.warn("la pasarela no abrio la orden del cobro: se usa la referencia del saldo");
+            return delSaldo;
+        }
     }
 
     /** El unico canal que admite el cobro de la persona (P-06): el saldo de su billetera. */

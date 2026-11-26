@@ -57,9 +57,26 @@ Todo lo de `PasarelaSimuladaTest`, `InterpreteDeWebhookJsonTest` y `CU100Pasarel
 dos veces, monto distinto, orden inexistente, firma inválida y timestamp al borde. Prueban CU-100 real contra un emisor
 sintético, **no** contra un proveedor.
 
+## Ciclo orden → aviso → conciliación en local/test
+
+1. `CU21PagarConSaldo` (pago de cuota con saldo): si la pasarela declara `registraOrdenPorCobro()` (solo el doble), la **primera**
+   vez abre una orden simulada y deja su referencia (`SIM-…`) en `pago.referencia_proveedor`. Las respuestas y los códigos de error
+   no cambian; un reintento, una cuota sin pendiente o una orden rechazada siguen con la referencia `SALDO-…` de siempre.
+2. `POST /qr/simulador/avisos-de-pago` `{ "referenciaProveedor": "SIM-…" }` (`CU100EmitirAvisoDePagoSimulado`): el doble firma el aviso con
+   el secreto del entorno y se entrega a `CU100RecibirWebhookPasarela` por el camino REAL (firma, ventana, dedup por
+   `uq_webhook_idem`, conciliación). Repetirlo devuelve `DUPLICADO`. Deja rastro en `comun.bitacora_evento` (acción `CONCILIACION`,
+   `simulado: true`). 401 sin sesión · 403 sin `ADMIN_PLATAFORMA` · 422 orden desconocida (`AP-CU100-11`) o verificación fallida (`AP-CU100-12`).
+3. **Fail-closed:** el controlador y el caso de uso son `@Profile({"local","test"})` + `modo=simulada`: fuera de ahí la ruta no existe (404).
+4. **Requisito de datos en TEST:** el proveedor `QR_INTEROP` está sembrado con `activo = FALSE`
+   (`sql/60_semillas/14-proveedores-externos.sql`); mientras siga inactivo el aviso responde `AP-CU100-12`. Activarlo es una decisión de
+   negocio (contrato de tercero vigente, `CU99`): no se corrige en la base a mano.
+
+El adaptador real **no** debe devolver `registraOrdenPorCobro() = true` hasta que exista la cadena `orden_cobro → intento_pago`.
+
 ## Límites conocidos
 
-- `CU21CobrarAporte` todavía no usa `crearOrdenDeCobro`: no existe la cadena `orden_cobro → intento_pago` (ver
-  `CU100RecibirWebhookPasarela`). El puerto está listo para cuando exista (decisión de producto).
-- No hay endpoint HTTP para disparar el webhook simulado en el servidor TEST; hoy se recorre en pruebas de integración.
+- El cobro real de una cuota sigue siendo con saldo: no existe la cadena `orden_cobro → intento_pago` (decisión de producto). El doble solo
+  agrega la orden simulada para poder recorrer el ciclo en pruebas.
+- El doble conserva los estados `PENDIENTE`/`PAGADO`; no hay proveedor real del que copiar más estados ni errores.
+- El aviso concilia el pago ya registrado; no acredita saldo (eso es de `nucleo-financiero`).
 - El doble guarda sus órdenes en memoria: un reinicio las olvida.

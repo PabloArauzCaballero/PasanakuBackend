@@ -516,6 +516,35 @@ paths:
               schema: { $ref: '#/components/schemas/CalendarioDeObligaciones' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
+  /qr/simulador/avisos-de-pago:
+    post:
+      operationId: emitirAvisoDePagoSimulado     # CU-100 (solo local/test)
+      summary: Disparar el aviso de pago de una orden de la pasarela SIMULADA
+      description: >-
+        SOLO existe en los perfiles `local` y `test` con `aportaya.aportes.pasarela.modo=simulada`: en cualquier otro
+        entorno la ruta no esta mapeada (404, fail-closed). Exige sesion y el permiso `ADMIN_PLATAFORMA`.
+
+        El doble de la pasarela firma el aviso con el secreto de verificacion del entorno y se entrega a CU-100 por el
+        camino REAL: se verifica la firma y la ventana, se deduplica por `(proveedor_id, clave_idempotencia)` y se concilia
+        contra el pago. No se saltea ninguna verificacion. Repetir la llamada devuelve DUPLICADO. Es un DOBLE: no prueba
+        ningun proveedor real. El proveedor del doble (`QR_INTEROP`) tiene que estar activo con webhook en `proveedor_pago`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaAvisoSimulado' }
+      responses:
+        '200':
+          description: PROCESADO (primera vez), DUPLICADO (repeticion) o DESCARTADO (firma valida, regla de negocio lo rechaza)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaAvisoSimulado' }
+        '401':
+          description: Sin sesion
+        '403':
+          description: Sin el permiso ADMIN_PLATAFORMA
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
 components:
   parameters:
     ClaveIdempotencia:
@@ -527,6 +556,21 @@ components:
         seguro, y la clave se valida ANTES de escribir (invariante 7).
       schema: { type: string, format: uuid }
   schemas:
+    EntradaAvisoSimulado:
+      type: object
+      additionalProperties: false
+      required: [referenciaProveedor]
+      properties:
+        referenciaProveedor: { type: string, minLength: 1, maxLength: 80, pattern: '^[A-Za-z0-9._:-]+$' }
+    SalidaAvisoSimulado:
+      type: object
+      additionalProperties: false
+      required: [estado, webhookId]
+      properties:
+        estado:    { type: string, enum: [PROCESADO, DUPLICADO, DESCARTADO] }
+        webhookId: { type: string, format: uuid }
+        pagoId:    { type: string, format: uuid }
+        motivo:    { type: string, maxLength: 200 }
     LineaDelCalendario:
       type: object
       additionalProperties: false
