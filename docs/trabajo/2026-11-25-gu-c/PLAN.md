@@ -30,7 +30,7 @@
 |---|---|---|---|---|
 | H1.S1.M1 | Tabla `solicitud_recuperacion_acceso` en el `.puml` (CHECK aprobador ≠ titular, estados, UNIQUE de clave de idempotencia, índice nombrado) | `generar_ddl.py` produce la tabla y los índices | `python3 scripts/generar_ddl.py && git diff --stat sql/` solo muestra la tabla | HECHO |
 | H1.S1.M2 | Propósitos `INVITACION_OPERADOR` y `REINSCRIPCION_FACTOR` en el enum del `.puml` y política en el seeder JSON | el SQL de semilla los trae con TTL | `python3 scripts/generar_semillas.py` (o el generador que corresponda) sin diff extra | HECHO |
-| H1.S2.M1 | Operaciones `/cuenta/*` y schemas nuevos en `identidad.yaml` (tag `Cuenta`) sin tocar lo ajeno | el validador no reporta problemas | `openapi-generator validate -i servicios/identidad/src/main/resources/openapi/identidad.yaml` | A MEDIAS |
+| H1.S2.M1 | Operaciones `/cuenta/*` y schemas nuevos en `identidad.yaml` (tag `Cuenta`) sin tocar lo ajeno | el validador no reporta problemas | `openapi-generator validate -i servicios/identidad/src/main/resources/openapi/identidad.yaml` | HECHO (`generarServidorOpenApi --rerun-tasks` BUILD SUCCESSFUL, 2026-11-26) |
 | H1.S2.M2 | CU-04 y CU-09 al día (flujo de invitación, recuperación a cuatro ojos, códigos) | `verificar_criterios` y `verificar_boveda` en 0 | `python3 scripts/verificar_criterios.py; python3 scripts/verificar_boveda.py` | HECHO |
 
 ## H2 — Invitación del operador (GU-02, P-1)
@@ -41,11 +41,11 @@
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H2.S1.M1 | Alta sin clave provisional ni fecha inventada: la credencial nace inutilizable y el alta emite la invitación | el alta no devuelve ni persiste una clave usable | test `AltaDeOperadorInvitacionTest` (CI) | A MEDIAS |
-| H2.S1.M2 | `InvitacionesDeCuenta` (emitir: solo hash con pepper, propósito único, vencimiento, invalida la anterior) | el valor plano no está en la tabla; la anterior queda `INVALIDADO` | test del repositorio contra base real (CI) | A MEDIAS |
-| H2.S1.M3 | Puerto `CorreoDeInvitacion` + impl local y Gmail; el enlace lleva el token en el fragmento | local registra sin token; Gmail arma el mensaje | test de plantilla y del doble (correcto/límite/inválido) | A MEDIAS |
-| H2.S2.M1 | `POST /cuenta/invitacion/consultar` y `/factor` (público, con límite de tasa) | token válido → alcance y semilla una vez; inválido → `AP-CU09-04` genérico | `CuentaInvitacionWebTest` (CI) | A MEDIAS |
-| H2.S2.M2 | `POST /cuenta/invitacion/completar` (atómico: clave + factor + consumo) | segunda llamada con el mismo token → rechazo; clave débil → `AP-CU09-02` sin consumir el token | test de idempotencia y de carrera (CI) | A MEDIAS |
+| H2.S1.M1 | Alta sin clave provisional ni fecha inventada: la credencial nace inutilizable y el alta emite la invitación | el alta no devuelve ni persiste una clave usable | test `AltaDeOperadorInvitacionTest` (CI) | HECHO (CI verde en a0cc5678d: integración, web, barrido y contrato; #522 en dev) |
+| H2.S1.M2 | `InvitacionesDeCuenta` (emitir: solo hash con pepper, propósito único, vencimiento, invalida la anterior) | el valor plano no está en la tabla; la anterior queda `INVALIDADO` | test del repositorio contra base real (CI) | HECHO (CI verde en a0cc5678d: integración, web, barrido y contrato; #522 en dev) |
+| H2.S1.M3 | Puerto `CorreoDeInvitacion` + impl local y Gmail; el enlace lleva el token en el fragmento | local registra sin token; Gmail arma el mensaje | test de plantilla y del doble (correcto/límite/inválido) | HECHO (CI verde en a0cc5678d: integración, web, barrido y contrato; #522 en dev) |
+| H2.S2.M1 | `POST /cuenta/invitacion/consultar` y `/factor` (público, con límite de tasa) | token válido → alcance y semilla una vez; inválido → `AP-CU09-04` genérico | `CuentaInvitacionWebTest` (CI) | HECHO (CI verde en a0cc5678d: integración, web, barrido y contrato; #522 en dev) |
+| H2.S2.M2 | `POST /cuenta/invitacion/completar` (atómico: clave + factor + consumo) | segunda llamada con el mismo token → rechazo; clave débil → `AP-CU09-02` sin consumir el token | test de idempotencia y de carrera (CI) | HECHO (CI verde en a0cc5678d: integración, web, barrido y contrato; #522 en dev) |
 
 ## H3 — Cambio de clave (GU-03, CU-09)
 
@@ -55,8 +55,8 @@
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H3.S1.M1 | `POST /cuenta/clave` sobre `CU09CambiarCredencial` (operador: corta todas las sesiones, R-SEG-11) | 200 con sesiones cerradas; sin token → 401; clave actual mala → 401 `AP-CU09-01` | test web (CI) | A MEDIAS |
-| H3.S1.M2 | Bandera `requiereCambio` coherente: se limpia al cambiar y la invitación la deja en falso | tras cambiar, `requiere_cambio=false` | consulta de verificación en el test | A MEDIAS |
+| H3.S1.M1 | `POST /cuenta/clave` sobre `CU09CambiarCredencial` (operador: corta todas las sesiones, R-SEG-11) | 200 con sesiones cerradas; sin token → 401; clave actual mala → 401 `AP-CU09-01` | test web (CI) | HECHO (CI verde en a0cc5678d: integración, web, barrido y contrato; #522 en dev) |
+| H3.S1.M2 | Bandera `requiereCambio` coherente: se limpia al cambiar y la invitación la deja en falso | tras cambiar, `requiere_cambio=false` | consulta de verificación en el test | HECHO (CI verde en a0cc5678d: integración, web, barrido y contrato; #522 en dev) |
 
 ## H4 — Recuperación asistida a cuatro ojos (GU-04, P-4, ADR-038)
 
@@ -66,10 +66,10 @@
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H4.S1.M1 | `POST /cuenta/recuperaciones` (público, 202 siempre, sin enumerar; idempotente por solicitud viva) | misma respuesta exista o no el correo; segunda solicitud viva no duplica | test web (CI) | A MEDIAS |
-| H4.S1.M2 | `GET /cuenta/recuperaciones` + `POST …/aprobacion` y `…/rechazo` (permiso, motivo, ≠ titular) | autoaprobación → `AP-CU09-09` y la base la rechaza aunque se evite la app | test con base real (CI) | A MEDIAS |
-| H4.S1.M3 | Trabajo `EmisionDeRecuperaciones` (SKIP LOCKED, idempotente, solo tras el enfriamiento) | antes del plazo no emite; dos corridas emiten una vez | test del trabajo con reloj fijo (CI) | A MEDIAS |
-| H4.S2.M1 | `completar` para alcance CLAVE y FACTOR (FACTOR exige la clave actual; no reactiva el otro secreto) | cada alcance cambia solo lo suyo y corta sesiones y confianza | test web (CI) | A MEDIAS |
+| H4.S1.M1 | `POST /cuenta/recuperaciones` (público, 202 siempre, sin enumerar; idempotente por solicitud viva) | misma respuesta exista o no el correo; segunda solicitud viva no duplica | test web (CI) | HECHO (CI verde en a0cc5678d: integración, web, barrido y contrato; #522 en dev) |
+| H4.S1.M2 | `GET /cuenta/recuperaciones` + `POST …/aprobacion` y `…/rechazo` (permiso, motivo, ≠ titular) | autoaprobación → `AP-CU09-09` y la base la rechaza aunque se evite la app | test con base real (CI) | HECHO (CI verde en a0cc5678d: integración, web, barrido y contrato; #522 en dev) |
+| H4.S1.M3 | Trabajo `EmisionDeRecuperaciones` (SKIP LOCKED, idempotente, solo tras el enfriamiento) | antes del plazo no emite; dos corridas emiten una vez | test del trabajo con reloj fijo (CI) | HECHO (CI verde en a0cc5678d: integración, web, barrido y contrato; #522 en dev) |
+| H4.S2.M1 | `completar` para alcance CLAVE y FACTOR (FACTOR exige la clave actual; no reactiva el otro secreto) | cada alcance cambia solo lo suyo y corta sesiones y confianza | test web (CI) | HECHO (CI verde en a0cc5678d: integración, web, barrido y contrato; #522 en dev) |
 
 ## H5 — Bitácora y avisos (P-5)
 
@@ -79,7 +79,7 @@
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H5.S1.M1 | `BitacoraDeCuenta` (eventos y aviso por outbox) | la carga trae solo ids y los campos de la forma v1 | `BitacoraDeCuentaTest` (CI) | A MEDIAS |
+| H5.S1.M1 | `BitacoraDeCuenta` (eventos y aviso por outbox) | la carga trae solo ids y los campos de la forma v1 | `BitacoraDeCuentaTest` (CI) | HECHO (CI verde en a0cc5678d: integración, web, barrido y contrato; #522 en dev) |
 
 ## H6 — Backoffice (regla 95)
 
@@ -104,7 +104,7 @@
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
 | H7.S1.M1 | Verificadores locales en 0 | todos 0 | salidas en `evidencia/verificadores.txt` | HECHO |
-| H7.S1.M2 | PR a `dev` con CI verde y aviso a la sesión principal | CI verde | check-runs | TODO |
+| H7.S1.M2 | PR a `dev` con CI verde y aviso a la sesión principal | CI verde | check-runs | HECHO (#522 fusionado en `dev` con CI verde en a0cc5678d; aviso a la sesión principal enviado) |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |

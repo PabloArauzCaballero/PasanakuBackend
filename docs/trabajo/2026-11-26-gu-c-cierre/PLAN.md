@@ -16,8 +16,8 @@
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H1.S1.M1 | OpenAPI de identidad válido | el generador lo procesa sin error | `./gradlew :servicios:identidad:generarServidorOpenApi --rerun-tasks` → BUILD SUCCESSFUL | TODO |
-| H1.S2.M1 | Criterio CU-04 del enfriamiento + código AP-CU04-11 | `verificar_criterios` y `verificar_boveda` en 0 | scripts | TODO |
-| H1.S2.M2 | `CU04StepUp.abrir` rechaza dentro del enfriamiento (config, sin literal) | tests del criterio: dentro rechaza, fuera pasa, sin reinscripción pasa | `./gradlew :servicios:identidad:test --tests '*StepUpTest'` | TODO |
-| H1.S3.M1 | Capturas UI 390/834/1440 × claro/oscuro, animaciones off, miradas | 6 capturas por pantalla revisadas | `evidencia/` | TODO |
-| H1.S4.M1 | Estado real del PLAN de #522 | cada fila con su evidencia | diff del PLAN | TODO |
+| H1.S1.M1 | OpenAPI de identidad válido | el generador lo procesa sin error | `./gradlew :servicios:identidad:generarServidorOpenApi --rerun-tasks` → BUILD SUCCESSFUL | HECHO |
+| H1.S2.M1 | Criterio CU-04 del enfriamiento + código AP-CU04-11 | `verificar_criterios` y `verificar_boveda` en 0 | scripts | HECHO |
+| H1.S2.M2 | `CU04StepUp.abrir` rechaza dentro del enfriamiento (config, sin literal) | tests del criterio: dentro rechaza, fuera pasa, sin reinscripción pasa | `./gradlew :servicios:identidad:test --tests '*StepUpTest'` | HECHO |
+| H1.S3.M1 | Capturas UI 390/834/1440 × claro/oscuro, animaciones off, miradas | 6 capturas por pantalla revisadas | `evidencia/` | A MEDIAS |
+| H1.S4.M1 | Estado real del PLAN de #522 | cada fila con su evidencia | diff del PLAN | HECHO |
