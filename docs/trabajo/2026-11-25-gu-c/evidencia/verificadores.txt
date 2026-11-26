@@ -23,3 +23,12 @@ $ python3 scripts/verificar_contratos_limites.py
   - transparencia · openapi/*.yaml#/components/schemas/MetricaDeRiesgo/umbral: sin limite (`maxLength`/`maximum`/`maxItems`)
 Los contratos de request en el alcance de este gate declaran limites y additionalProperties: false.
 exit=0
+
+== 2026-11-26 tras merge de origin/dev (4d3cad2b8), local ==
+verificar_boveda: TODO OK (115 CU · 363 tablas · 341 entidades · 192 restricciones · 56 ADR)
+verificar_criterios: "Sin divergencias entre la boveda y el codigo."
+verificar_seguridad: TODO OK · 5 aviso(s) (preexistentes, fuera de alcance)
+verificar_carriles: TODO OK (con avisos)
+generar_ddl: sql/ generado: 363 tablas · 728 FK · 832 indices · 579 CHECK
+gradlew :servicios:identidad:test :plataforma:comun-pruebas:testBarrido :plataforma:comun-pruebas:contractTest: BUILD SUCCESSFUL
+(integrationTest requiere Docker: solo corre en CI)

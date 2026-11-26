@@ -1,12 +1,16 @@
-> **AVANCE: 0 / 23 — 0,0 %.** (microtareas HECHO / total del PLAN; ver estado real abajo: hay trabajo escrito, ninguna microtarea tiene todavía su DoD ejecutado en CI)
+> **AVANCE: 4 / 23 — 17,4 %.** (microtareas HECHO / total del PLAN. El resto está en A MEDIAS: código escrito, compila y pasa unit/web/barrido en local, pero las pruebas de integración solo corren en CI y todavía no hay una corrida verde.)
 
 # Reporte — GU-C · Invitación, credencial y recuperación asistida del operador
 
 - Fecha: 2026-11-25 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/gu-c-credencial` (PR #522 a `dev`, borrador) · UI: `claude/gu-c-credencial-ui`
-- Peldaño de evidencia alcanzado: **WRITTEN** (backend y contrato) con verificadores de repositorio en 0. Java solo compila y prueba en CI (Gradle local devuelve 429 de Maven Central); hasta que CI corra, no se afirma «compila» ni «tests dirigidos pasan».
+- Peldaño de evidencia alcanzado: **RUNS** (compila; unit/web/barrido/contrato en verde en local tras el merge con dev) (backend y contrato) con verificadores de repositorio en 0. Java solo compila y prueba en CI (Gradle local devuelve 429 de Maven Central); hasta que CI corra, no se afirma «compila» ni «tests dirigidos pasan».
 
 ## Completado
-Ninguna microtarea cumple todavía «DoD demostrado con salida literal».
+| ID | Qué se logró | Comando | Resultado |
+|---|---|---|---|
+| H1.S1.M1, H1.S1.M2 | Tabla `solicitud_recuperacion_acceso` y propósitos de token en el modelo | `python3 scripts/generar_ddl.py` | 363 tablas, sin deriva · `evidencia/verificadores.txt` |
+| H1.S2.M2 | CU-04/CU-09 al día | `python3 scripts/verificar_criterios.py; python3 scripts/verificar_boveda.py` | sin divergencias / TODO OK |
+| H7.S1.M1 | Verificadores locales en 0 | boveda, criterios, seguridad, carriles | TODO OK |
 
 ## A medias
 
@@ -48,11 +52,9 @@ Ver `evidencia/verificadores.txt`.
 ## Decisiones y ambigüedades
 Ver PLAN.md: A1 plazo de enfriamiento (24 h supuesto), A2 vigencia de la invitación (72 h), A3 quién pide la recuperación, A4 enfriamiento posterior al factor, A5 aviso por correo. A confirmar con Pablo.
 
-## Estado de CI y próximo paso (2026-11-25, para quien retome)
-CI de #522 en `46736691` tuvo 3 rojos; diagnóstico y fix en `9bfceddab`:
-1. **Gitleaks**: la constante `SECRETO` de `CU09CuentaDeOperadorTest` parecía una API key → ahora `"s".repeat(40)`.
-2. **Bóveda/esquema**: faltaba regenerar `docs/catalogo-de-datos.md` y `servicios/auditoria/.../catalogo-datos.json` (`python3 scripts/catalogo_de_datos.py --escribir`) → regenerados.
-3. **Spotless**: violaciones en `DespuesDelCommit`, `InvitacionesDeCuenta` (corregidas según el diff del log) y **sin corregir aún** en `RecuperacionesDeAcceso`, `PlantillaCorreoDeInvitacion`, `RecuperacionesRepositorio`, `TokensDeCuentaRepositorio`, `CU09CuentaDeOperadorTest` (el log solo mostró el diff de los dos primeros). Próximo paso: leer el diff de `spotlessJavaCheck` en la próxima corrida y aplicarlo (o correr `./gradlew :servicios:identidad:spotlessApply` donde Maven responda).
-Después: compilación y tests de CI nunca corrieron (el job de formato falló antes); pueden aparecer errores de compilación.
-UI: rama `claude/gu-c-credencial-ui` (`b1ee5e6ea`), WIP del subagente cortado por límite de uso; sin verificar, sin capturas. Reanudar con SendMessage al agente `aa0b87028c2e32bb5` o rehacer desde su PLAN-UI.
-Pendiente de B (#516): hook de alta, step-up en aprobación.
+## Estado de CI y próximo paso (2026-11-26)
+- Resuelto en CI previo: gitleaks, catálogo, spotless, compilación, barrido, specs/lint del frontend, 253/254 integración (el último fallo era el código AP-CU09) y la matriz de rutas públicas (`PoliticaDeAcceso`, cuatro rutas de `/cuenta` con su control).
+- Hook de alta y step-up conectados con el contrato real de B (#516) y UI integrada en esta rama.
+- Se hizo `merge origin/dev` (#525 y #520 ya estaban): conflictos resueltos (cifras 363/341/192, prefijo `/cuenta` junto a `/cuentas-servicio`, SQL y artefactos regenerados).
+- Falta: CI verde sobre el head final; capturas de UI 390/834/1440 × claro/oscuro (el cliente Angular generado no existe en local); `openapi validate` formal (no corrió local).
+- No cubierto: fecha de nacimiento del alta (GU-17), enfriamiento tras reinscribir factor (ADR-038 §5), envío real de correo y consumidor de notificaciones, caída de dependencias.
