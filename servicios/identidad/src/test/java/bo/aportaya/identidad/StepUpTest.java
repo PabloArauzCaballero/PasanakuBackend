@@ -58,7 +58,14 @@ class StepUpTest {
                 .thenAnswer(i -> ((Function<Object, Object>) i.getArgument(1)).apply(null));
         var accesos = mock(AccesoRepositorio.class);
         when(accesos.factorActivo(any(), eq(usuario))).thenReturn(Optional.of("TOTP"));
-        stepUp = new CU04StepUp(datos, accesos, factor, emisor, Duration.ofMinutes(5), "aportaya-nucleo-financiero");
+        stepUp = new CU04StepUp(
+                datos,
+                accesos,
+                factor,
+                emisor,
+                Duration.ofMinutes(5),
+                "aportaya-nucleo-financiero",
+                Duration.ofHours(24));
     }
 
     private ContextoSesion como(UUID u) {
