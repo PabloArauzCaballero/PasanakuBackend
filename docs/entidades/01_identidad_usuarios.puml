@@ -1277,6 +1277,9 @@ entity "expediente_medida_cuenta" as expmed {
   prescribe_en : TIMESTAMPTZ
   firme_en : TIMESTAMPTZ <<NULL>>
   cerrada_en : TIMESTAMPTZ <<NULL>>
+  # entrega_liberada_por : UUID <<FK, NULL>>
+  entrega_liberada_en : TIMESTAMPTZ <<NULL>>
+  fundamento_liberacion_entrega : TEXT <<NULL>>
   clave_idempotencia : VARCHAR(80) <<UQ>>
   version : INTEGER
 }

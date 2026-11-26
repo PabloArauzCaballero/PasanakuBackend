@@ -2,6 +2,7 @@ package bo.aportaya.identidad.web;
 
 import bo.aportaya.identidad.aplicacion.CU134ConsultarParticipante;
 import bo.aportaya.identidad.aplicacion.CU134GestionarMedida;
+import bo.aportaya.identidad.aplicacion.CU134LiberarEntrega;
 import bo.aportaya.identidad.dominio.RegistroDeMedida;
 import bo.aportaya.identidad.web.generado.IdentidadApi;
 import bo.aportaya.identidad.web.generado.modelo.DatoRevelado;
@@ -9,6 +10,7 @@ import bo.aportaya.identidad.web.generado.modelo.EntradaBusquedaParticipantes;
 import bo.aportaya.identidad.web.generado.modelo.EntradaDecisionDeMedida;
 import bo.aportaya.identidad.web.generado.modelo.EntradaDescargoDeMedida;
 import bo.aportaya.identidad.web.generado.modelo.EntradaJustificacionDeLectura;
+import bo.aportaya.identidad.web.generado.modelo.EntradaLiberacionDeEntrega;
 import bo.aportaya.identidad.web.generado.modelo.EntradaMedidaDeCuenta;
 import bo.aportaya.identidad.web.generado.modelo.EntradaNotificacionDeMedida;
 import bo.aportaya.identidad.web.generado.modelo.EntradaResolucionDeApelacion;
@@ -48,14 +50,17 @@ abstract class RutasDeParticipantes implements IdentidadApi {
 
     private final CU134ConsultarParticipante consulta;
     private final CU134GestionarMedida medidas;
+    private final CU134LiberarEntrega liberacion;
     private final SesionDeLaPeticion sesion;
     private final HttpServletRequest peticion;
 
     protected RutasDeParticipantes(
             CU134ConsultarParticipante consulta,
             CU134GestionarMedida medidas,
+            CU134LiberarEntrega liberacion,
             SesionDeLaPeticion sesion,
             HttpServletRequest peticion) {
+        this.liberacion = liberacion;
         this.consulta = consulta;
         this.medidas = medidas;
         this.sesion = sesion;
@@ -179,6 +184,14 @@ abstract class RutasDeParticipantes implements IdentidadApi {
             UUID idempotencyKey, UUID expedienteId, EntradaDecisionDeMedida e) {
         return ResponseEntity.ok(expediente(medidas.decidir(
                 expedienteId, e.getResultado().getValue(), e.getFundamento(), e.getEvidenciaMfa(), sesion.actual())));
+    }
+
+    @Override
+    @Permiso("PARTICIPANTES_MEDIDA_DECIDIR")
+    public ResponseEntity<ExpedienteDeMedida> liberarEntregaRetenidaPorMedida(
+            UUID idempotencyKey, UUID expedienteId, EntradaLiberacionDeEntrega e) {
+        return ResponseEntity.ok(
+                expediente(liberacion.ejecutar(expedienteId, e.getFundamento(), e.getEvidenciaMfa(), sesion.actual())));
     }
 
     @Override

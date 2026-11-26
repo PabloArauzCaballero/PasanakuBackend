@@ -121,8 +121,8 @@
    "descripcion": "Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena.",
    "tablas": 40,
    "tablasDeNegocio": 36,
-   "columnas": 422,
-   "relaciones": 59,
+   "columnas": 425,
+   "relaciones": 60,
    "appendOnly": 3,
    "conDatosPersonales": 8,
    "servicio": "identidad"
@@ -50598,14 +50598,15 @@
    "negocio": {
     "queEs": "El expediente de una medida de seguridad sobre la cuenta de un participante (bloqueo cautelar o suspensión temporal), con su causal cerrada, sus plazos guardados y su decisión motivada.",
     "negocio": "Que ninguna cuenta quede suspendida o bloqueada sin causal, evidencia, notificación, descargo y decisión de otra persona, y que siempre se pueda mostrar por qué y hasta cuándo.",
-    "porQue": "usuario.estado dice *que* la cuenta está suspendida; el expediente dice *por qué*, *quién* lo propuso, *quién* lo decidió y *con qué plazos*. Sin él no hay debido proceso que demostrar (regla 91.4).\n\n- causal: motivo del catálogo cerrado; mora, orden de autoridad y sospecha de lavado van por otros casos de uso.\n- medida: bloqueo cautelar inmediato o suspensión temporal.\n- cautelar: si la medida se aplicó antes del descargo, cosa que solo admiten la cuenta comprometida y el fraude con evidencia.\n- estado_cuenta_previo: estado de la cuenta antes de la medida, al que vuelve cuando la medida termina.\n- fecha_limite_descargo: plazo de descargo calculado en días hábiles al notificar y guardado; no se recalcula.\n- fecha_limite_apelacion: plazo de apelación calculado al decidir.\n- prescribe_en: fecha en la que el expediente prescribe si nadie decidió.\n- vigente_hasta: fin de la suspensión temporal.\n- clave_idempotencia: el mismo pedido reenviado devuelve el mismo expediente."
+    "porQue": "usuario.estado dice *que* la cuenta está suspendida; el expediente dice *por qué*, *quién* lo propuso, *quién* lo decidió y *con qué plazos*. Sin él no hay debido proceso que demostrar (regla 91.4).\n\n- causal: motivo del catálogo cerrado; mora, orden de autoridad y sospecha de lavado van por otros casos de uso.\n- medida: bloqueo cautelar inmediato o suspensión temporal.\n- cautelar: si la medida se aplicó antes del descargo, cosa que solo admiten la cuenta comprometida y el fraude con evidencia.\n- estado_cuenta_previo: estado de la cuenta antes de la medida, al que vuelve cuando la medida termina.\n- fecha_limite_descargo: plazo de descargo calculado en días hábiles al notificar y guardado; no se recalcula.\n- fecha_limite_apelacion: plazo de apelación calculado al decidir.\n- prescribe_en: fecha en la que el expediente prescribe si nadie decidió.\n- vigente_hasta: fin de la suspensión temporal.\n- entrega_liberada_por: operador que liberó la entrega retenida por una medida firme, con su segundo factor (A-1, Pablo 2026-11-26); hasta entonces la entrega sigue retenida aunque la medida venza o se cierre.\n- entrega_liberada_en: cuándo se liberó la entrega retenida.\n- fundamento_liberacion_entrega: por qué se liberó la entrega retenida; al menos 20 caracteres.\n- clave_idempotencia: el mismo pedido reenviado devuelve el mismo expediente."
    },
    "reglas": [
     "ck_expediente_medida_no_autopropuesta",
     "ck_expediente_medida_decide_otro",
     "uq_expediente_medida_abierto",
     "ck_expediente_medida_decision_fundada",
-    "ck_expediente_medida_firme_confirmada"
+    "ck_expediente_medida_firme_confirmada",
+    "ck_expediente_medida_liberacion_completa"
    ],
    "columnas": [
     {
@@ -50837,6 +50838,38 @@
      "sensibilidad": "NINGUNA"
     },
     {
+     "nombre": "entrega_liberada_por",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "referencia": "usuario",
+     "negocio": "operador que liberó la entrega retenida por una medida firme, con su segundo factor (A-1, Pablo 2026-11-26); hasta entonces la entrega sigue retenida aunque la medida venza o se cierre.",
+     "origenNegocio": "ficha",
+     "sistema": "UUID, opcional, referencia a usuario.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "identidad"
+    },
+    {
+     "nombre": "entrega_liberada_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": true,
+     "pk": false,
+     "negocio": "cuándo se liberó la entrega retenida.",
+     "origenNegocio": "ficha",
+     "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "fundamento_liberacion_entrega",
+     "tipo": "TEXT",
+     "nulable": true,
+     "pk": false,
+     "negocio": "por qué se liberó la entrega retenida; al menos 20 caracteres.",
+     "origenNegocio": "ficha",
+     "sistema": "TEXT, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
      "nombre": "clave_idempotencia",
      "tipo": "VARCHAR(80)",
      "nulable": false,
@@ -50899,6 +50932,16 @@
       "alBorrar": "SET NULL",
       "cardinalidad": "N:1",
       "obligatoria": false
+     },
+     {
+      "columna": "entrega_liberada_por",
+      "tabla": "usuario",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_expediente_medida_cuenta_entrega_liberada_por",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
      }
     ],
     "entrantes": [
@@ -50934,7 +50977,7 @@
      }
     ]
    },
-   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de politica_medida_cuenta, usuario. La referencian apelacion_medida_cuenta, evidencia_medida_cuenta, historial_estado_medida_cuenta. Reglas nombradas: ck_expediente_medida_no_autopropuesta, ck_expediente_medida_decide_otro, uq_expediente_medida_abierto, ck_expediente_medida_decision_fundada, ck_expediente_medida_firme_confirmada.",
+   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de politica_medida_cuenta, usuario. La referencian apelacion_medida_cuenta, evidencia_medida_cuenta, historial_estado_medida_cuenta. Reglas nombradas: ck_expediente_medida_no_autopropuesta, ck_expediente_medida_decide_otro, uq_expediente_medida_abierto, ck_expediente_medida_decision_fundada, ck_expediente_medida_firme_confirmada, ck_expediente_medida_liberacion_completa.",
    "clasificacion": {
     "personales": 0,
     "financieros": 0,
@@ -55734,6 +55777,16 @@
       "esquema": "identidad",
       "columnaDestino": "id",
       "restriccion": "fk_expediente_medida_cuenta_decidida_por",
+      "alBorrar": "SET NULL",
+      "cardinalidad": "N:1",
+      "obligatoria": false
+     },
+     {
+      "columna": "entrega_liberada_por",
+      "tabla": "expediente_medida_cuenta",
+      "esquema": "identidad",
+      "columnaDestino": "id",
+      "restriccion": "fk_expediente_medida_cuenta_entrega_liberada_por",
       "alBorrar": "SET NULL",
       "cardinalidad": "N:1",
       "obligatoria": false

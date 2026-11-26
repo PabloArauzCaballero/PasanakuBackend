@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
@@ -152,7 +153,17 @@ public abstract class LecturasDeMedidasRepositorio {
         return dsl.select(EXPEDIENTE_MEDIDA_CUENTA.ID)
                 .from(EXPEDIENTE_MEDIDA_CUENTA)
                 .where(EXPEDIENTE_MEDIDA_CUENTA.USUARIO_ID.eq(usuarioId))
-                .and(EXPEDIENTE_MEDIDA_CUENTA.CERRADA_EN.isNull())
+                .and(enCurso(ahora).or(firmeSinLiberar()))
+                .orderBy(EXPEDIENTE_MEDIDA_CUENTA.PROPUESTA_EN)
+                .limit(1)
+                .fetchOptional(EXPEDIENTE_MEDIDA_CUENTA.ID);
+    }
+
+    /** Abierta, vigente y aplicada: firme, o cautelar mientras corre el debido proceso. */
+    private static Condition enCurso(OffsetDateTime ahora) {
+        return EXPEDIENTE_MEDIDA_CUENTA
+                .CERRADA_EN
+                .isNull()
                 .and(EXPEDIENTE_MEDIDA_CUENTA
                         .VIGENTE_HASTA
                         .isNull()
@@ -168,10 +179,22 @@ public abstract class LecturasDeMedidasRepositorio {
                                         "NOTIFICACION_PENDIENTE",
                                         "EN_DESCARGO",
                                         "DECIDIDA",
-                                        "EN_APELACION"))))
-                .orderBy(EXPEDIENTE_MEDIDA_CUENTA.PROPUESTA_EN)
-                .limit(1)
-                .fetchOptional(EXPEDIENTE_MEDIDA_CUENTA.ID);
+                                        "EN_APELACION"))));
+    }
+
+    /** A-1 (Pablo, 2026-11-26): lo que llegó a firme retiene aunque venza o se cierre, hasta la liberación humana. */
+    private static Condition firmeSinLiberar() {
+        return EXPEDIENTE_MEDIDA_CUENTA.FIRME_EN.isNotNull().and(EXPEDIENTE_MEDIDA_CUENTA.ENTREGA_LIBERADA_EN.isNull());
+    }
+
+    /** Si la entrega retenida por este expediente ya se liberó (A-1). */
+    public boolean entregaLiberada(DSLContext dsl, UUID expedienteId) {
+        return dsl.fetchExists(
+                EXPEDIENTE_MEDIDA_CUENTA,
+                EXPEDIENTE_MEDIDA_CUENTA
+                        .ID
+                        .eq(expedienteId)
+                        .and(EXPEDIENTE_MEDIDA_CUENTA.ENTREGA_LIBERADA_EN.isNotNull()));
     }
 
     public Optional<Apelacion> apelacion(DSLContext dsl, UUID expedienteId) {

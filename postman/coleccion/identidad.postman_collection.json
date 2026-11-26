@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AportaYa · identidad",
-    "description": "# AportaYa · identidad\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**74 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
+    "description": "# AportaYa · identidad\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**75 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -5068,7 +5068,7 @@
           ],
           "variable": []
         },
-        "description": "## Catalogo de permisos\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `listarPermisos` |\n| **Ruta** | `GET /api/v1/permisos` |\n| **Permiso** | `PERMISOS_INTERNOS_LEER` |\n| **Respuestas** | `200` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU134-01` | Justificacion insuficiente |\n| `AP-CU134-02` | Actua sobre si mismo |\n| `AP-CU134-03` | Segundo factor requerido |\n| `AP-CU134-04` | Causal fuera de catalogo |\n| `AP-CU134-05` | Cautelar no admitida |\n| `AP-CU134-06` | Expediente abierto |\n| `AP-CU134-07` | Plazo descargo abierto |\n| `AP-CU134-08` | Misma persona |\n| `AP-CU134-09` | Apelacion duplicada |\n| `AP-CU134-10` | Expediente prescrito |\n| `AP-CU134-11` | Reclamo en curso |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+        "description": "## Catalogo de permisos\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `listarPermisos` |\n| **Ruta** | `GET /api/v1/permisos` |\n| **Permiso** | `PERMISOS_INTERNOS_LEER` |\n| **Respuestas** | `200` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU134-01` | Justificacion insuficiente |\n| `AP-CU134-02` | Actua sobre si mismo |\n| `AP-CU134-03` | Segundo factor requerido |\n| `AP-CU134-04` | Causal fuera de catalogo |\n| `AP-CU134-05` | Cautelar no admitida |\n| `AP-CU134-06` | Expediente abierto |\n| `AP-CU134-07` | Plazo descargo abierto |\n| `AP-CU134-08` | Misma persona |\n| `AP-CU134-09` | Apelacion duplicada |\n| `AP-CU134-10` | Expediente prescrito |\n| `AP-CU134-11` | Reclamo en curso |\n| `AP-CU134-12` | Entrega no retenida |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
       },
       "response": [],
       "event": [
@@ -5943,6 +5943,98 @@
         "body": {
           "mode": "raw",
           "raw": "{\n  \"resultado\": \"ACEPTADA\",\n  \"resolucion\": \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\n  \"evidenciaMfa\": \"evidenciaMfa-de-prueba\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "liberarEntregaRetenidaPorMedida · Libera la entrega que una medida firme dejo retenida, con segundo factor y fundamento (CU-134, A-1)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/identidad/medidas-cuenta/:expedienteId/liberacion-de-entrega",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "identidad",
+            "medidas-cuenta",
+            ":expedienteId",
+            "liberacion-de-entrega"
+          ],
+          "variable": [
+            {
+              "key": "expedienteId",
+              "value": "{{expedienteId}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## Libera la entrega que una medida firme dejo retenida, con segundo factor y fundamento (CU-134, A-1)\n\nUna medida que llego a firme retiene la entrega del participante aunque venza o se cierre: nada se libera solo (A-1, Pablo 2026-11-26). Esta operacion registra quien, cuando y por que se libera (R-SEG-17).\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `liberarEntregaRetenidaPorMedida` |\n| **Ruta** | `POST /api/v1/identidad/medidas-cuenta/{expedienteId}/liberacion-de-entrega` |\n| **Permiso** | `PARTICIPANTES_MEDIDA_DECIDIR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `401`, `403`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU134-02` | Actua sobre si mismo |\n| `AP-CU134-12` | Entrega no retenida |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fundamento\": \"fundamento-de-prueba\",\n  \"evidenciaMfa\": \"evidenciaMfa-de-prueba\"\n}",
           "options": {
             "raw": {
               "language": "json"

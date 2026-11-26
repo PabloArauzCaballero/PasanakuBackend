@@ -2105,6 +2105,17 @@ ALTER TABLE expediente_medida_cuenta
          AND fundamento_decision IS NOT NULL AND length(btrim(fundamento_decision)) >= 50)),
   ADD CONSTRAINT ck_expediente_medida_firme_confirmada CHECK (
         firme_en IS NULL OR resultado_decision = 'CONFIRMADA');
+
+-- R-SEG-17 · la entrega retenida por una medida firme se libera con quién, cuándo y por qué (CU-134, A-1)
+--
+-- Nada se libera solo: la liberación existe únicamente sobre una medida que llegó a firme, la
+-- registra alguien distinto del afectado y lleva su fundamento.
+ALTER TABLE expediente_medida_cuenta
+  ADD CONSTRAINT ck_expediente_medida_liberacion_completa CHECK (
+        (entrega_liberada_en IS NULL AND entrega_liberada_por IS NULL AND fundamento_liberacion_entrega IS NULL)
+     OR (entrega_liberada_en IS NOT NULL AND entrega_liberada_por IS NOT NULL
+         AND firme_en IS NOT NULL AND entrega_liberada_por <> usuario_id
+         AND length(btrim(fundamento_liberacion_entrega)) >= 20));
 -- R-SEG-16 · nadie aprueba su propia recuperación de acceso
 --
 -- ADR-038 §4 dejaba la aprobación a cargo de la aplicación («hueco declarado»): ninguna tabla

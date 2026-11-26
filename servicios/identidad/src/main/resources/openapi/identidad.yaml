@@ -1863,13 +1863,13 @@ paths:
 
   # ---------------------------------------------------------------------------------
   # CU-134 · Directorio y ficha del participante, y suspension o bloqueo de su cuenta
-  # por seguridad con debido proceso. Errores AP-CU134-01..11:
+  # por seguridad con debido proceso. Errores AP-CU134-01..12:
   #   AP-CU134-01 JUSTIFICACION_INSUFICIENTE · AP-CU134-02 ACTUA_SOBRE_SI_MISMO
   #   AP-CU134-03 SEGUNDO_FACTOR_REQUERIDO   · AP-CU134-04 CAUSAL_FUERA_DE_CATALOGO
   #   AP-CU134-05 CAUTELAR_NO_ADMITIDA       · AP-CU134-06 EXPEDIENTE_ABIERTO
   #   AP-CU134-07 PLAZO_DESCARGO_ABIERTO     · AP-CU134-08 MISMA_PERSONA
   #   AP-CU134-09 APELACION_DUPLICADA        · AP-CU134-10 EXPEDIENTE_PRESCRITO
-  #   AP-CU134-11 RECLAMO_EN_CURSO
+  #   AP-CU134-11 RECLAMO_EN_CURSO        · AP-CU134-12 ENTREGA_NO_RETENIDA
   # El termino buscado y la justificacion viajan en el cuerpo, nunca en la URL (regla 90.2.2).
   # ---------------------------------------------------------------------------------
   /identidad/participantes/busquedas:
@@ -2122,6 +2122,34 @@ paths:
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU134-03 · AP-CU134-08 MISMA_PERSONA
+
+  /identidad/medidas-cuenta/{expedienteId}/liberacion-de-entrega:
+    post:
+      tags: [Participantes]
+      operationId: liberarEntregaRetenidaPorMedida
+      summary: Libera la entrega que una medida firme dejo retenida, con segundo factor y fundamento (CU-134, A-1)
+      description: >-
+        Una medida que llego a firme retiene la entrega del participante aunque venza o se cierre: nada se libera
+        solo (A-1, Pablo 2026-11-26). Esta operacion registra quien, cuando y por que se libera (R-SEG-17).
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - { name: expedienteId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaLiberacionDeEntrega' }
+      responses:
+        '200':
+          description: Entrega liberada; si ya estaba liberada devuelve el expediente sin otro evento (idempotente)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExpedienteDeMedida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU134-02 ACTUA_SOBRE_SI_MISMO · AP-CU134-03 · AP-CU134-10 · AP-CU134-12 ENTREGA_NO_RETENIDA
 
   /identidad/participantes/{usuarioId}/medida-vigente:
     get:
@@ -3354,6 +3382,13 @@ components:
       properties:
         resultado:  { type: string, enum: [ACEPTADA, RECHAZADA] }
         resolucion: { type: string, minLength: 50, maxLength: 4000 }
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096, description: 'Evidencia de step-up de quien actua, un solo uso (R-SEG-12)' }
+    EntradaLiberacionDeEntrega:
+      type: object
+      additionalProperties: false
+      required: [fundamento, evidenciaMfa]
+      properties:
+        fundamento: { type: string, minLength: 20, maxLength: 2000 }
         evidenciaMfa: { type: string, minLength: 20, maxLength: 4096, description: 'Evidencia de step-up de quien actua, un solo uso (R-SEG-12)' }
     HitoDeMedida:
       type: object

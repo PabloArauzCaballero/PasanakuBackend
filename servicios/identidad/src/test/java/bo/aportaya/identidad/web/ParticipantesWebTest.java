@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import bo.aportaya.identidad.aplicacion.CU134ConsultarParticipante;
 import bo.aportaya.identidad.aplicacion.CU134GestionarMedida;
+import bo.aportaya.identidad.aplicacion.CU134LiberarEntrega;
 import bo.aportaya.identidad.dominio.RegistroDeMedida;
 import bo.aportaya.identidad.dominio.RegistroDeParticipante;
 import bo.aportaya.plataforma.dominio.CodigoError;
@@ -51,6 +52,9 @@ class ParticipantesWebTest {
 
     @MockitoBean
     private CU134GestionarMedida medidas;
+
+    @MockitoBean
+    private CU134LiberarEntrega liberacion;
 
     @Test
     @DisplayName("buscar: 200 con el directorio, sin contacto")
@@ -146,6 +150,28 @@ class ParticipantesWebTest {
 
         mvc.perform(get("/identidad/medidas-cuenta/{id}", EXPEDIENTE).with(Sesiones.restringida("PARTICIPANTE")))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("liberar entrega (A-1): 200 con segundo factor y fundamento; sin el permiso de decidir, 403")
+    void liberarEntrega() throws Exception {
+        when(liberacion.ejecutar(eq(EXPEDIENTE), any(), eq("evidencia-mfa-de-prueba-larga"), any()))
+                .thenReturn(vista("CUMPLIDA"));
+        String cuerpo =
+                "{\"fundamento\":\"Medida cumplida y sin deuda exigible\",\"evidenciaMfa\":\"evidencia-mfa-de-prueba-larga\"}";
+
+        mvc.perform(post("/identidad/medidas-cuenta/{id}/liberacion-de-entrega", EXPEDIENTE)
+                        .with(Sesiones.como("RESPONSABLE_SEGURIDAD", "PARTICIPANTES_MEDIDA_DECIDIR"))
+                        .header("Idempotency-Key", UUID.randomUUID().toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(cuerpo))
+                .andExpect(status().isOk());
+        mvc.perform(post("/identidad/medidas-cuenta/{id}/liberacion-de-entrega", EXPEDIENTE)
+                        .with(Sesiones.como("SOPORTE", "PARTICIPANTES_LEER"))
+                        .header("Idempotency-Key", UUID.randomUUID().toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(cuerpo))
+                .andExpect(status().isForbidden());
     }
 
     @Test

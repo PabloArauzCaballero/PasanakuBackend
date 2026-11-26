@@ -1,0 +1,6 @@
+$ grep -rn -A2 "@PermitidoEnRestriccion" servicios/*/src/main --include=*.java | grep -oE "ResponseEntity<[A-Za-z]+> [a-zA-Z]+"
+ResponseEntity<SalidaCobro> pagarCuotaConSaldo
+ResponseEntity<ExpedienteDeMedida> consultarExpedienteDeMedida
+ResponseEntity<ExpedienteDeMedida> presentarDescargoDeMedida
+ResponseEntity<ExpedienteDeMedida> apelarMedidaDeCuenta
+A-4 (Pablo, 2026-11-26): QR, recarga y reclamar BLOQUEADOS en modo restringido. Ninguna de esas rutas lleva la anotación: el código ya cumple.

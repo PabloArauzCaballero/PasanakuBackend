@@ -34,8 +34,9 @@ public class VerificacionesController extends RutasDeContactoEnGrupo {
             bo.aportaya.identidad.aplicacion.ConsultarContactoEnGrupo contactos,
             bo.aportaya.identidad.aplicacion.CU134ConsultarParticipante consulta,
             bo.aportaya.identidad.aplicacion.CU134GestionarMedida medidas,
+            bo.aportaya.identidad.aplicacion.CU134LiberarEntrega liberacion,
             jakarta.servlet.http.HttpServletRequest peticion) {
-        super(contactos, sesion, consulta, medidas, peticion);
+        super(contactos, sesion, consulta, medidas, liberacion, peticion);
         this.revision = revision;
         this.sesion = sesion;
     }
