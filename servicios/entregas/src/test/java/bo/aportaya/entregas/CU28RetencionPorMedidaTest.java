@@ -21,7 +21,9 @@ class CU28RetencionPorMedidaTest extends EscenarioDeDesembolso {
 
     @Test
     @DisplayName(
-            "91.6 · retenida no mueve nada; liberada, la misma clave emite una sola orden por el neto y es idempotente")
+            "Dada una entrega retenida por una medida de CU-134 · Cuando la emisión se reintenta con la misma clave y"
+                    + " luego la medida se libera · Entonces mientras está retenida no hay orden ni evento de desembolso"
+                    + " · Y liberada la misma clave emite una sola orden por el neto de la entrega")
     void retenidaYLuegoLiberada() {
         Caso c = caso(true, true);
         EntradaOrden libre = orden(c, "des-retencion-916");
