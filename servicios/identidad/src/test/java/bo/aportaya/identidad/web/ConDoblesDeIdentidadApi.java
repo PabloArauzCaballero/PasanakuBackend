@@ -2,6 +2,7 @@ package bo.aportaya.identidad.web;
 
 import bo.aportaya.identidad.aplicacion.CU134ConsultarParticipante;
 import bo.aportaya.identidad.aplicacion.CU134GestionarMedida;
+import bo.aportaya.identidad.aplicacion.CU134LiberarEntrega;
 import bo.aportaya.identidad.aplicacion.ConsultarContactoEnGrupo;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -16,5 +17,11 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@MockitoBean(types = {ConsultarContactoEnGrupo.class, CU134ConsultarParticipante.class, CU134GestionarMedida.class})
+@MockitoBean(
+        types = {
+            ConsultarContactoEnGrupo.class,
+            CU134ConsultarParticipante.class,
+            CU134GestionarMedida.class,
+            CU134LiberarEntrega.class
+        })
 @interface ConDoblesDeIdentidadApi {}

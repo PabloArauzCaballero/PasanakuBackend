@@ -1,0 +1,2 @@
+  ✓  30 [chromium] › e2e/visual-roles-y-cuentas-de-servicio.e2e.ts:82:11 › cuentas de servicio error — escritorio × dark (1.7s)
+  30 passed (1.4m)

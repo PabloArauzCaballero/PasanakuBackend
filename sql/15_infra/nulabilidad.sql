@@ -519,10 +519,13 @@ ALTER TABLE identidad.evidencia_medida_cuenta ALTER COLUMN referencia_id DROP NO
 ALTER TABLE identidad.expediente_medida_cuenta ALTER COLUMN cerrada_en DROP NOT NULL;
 ALTER TABLE identidad.expediente_medida_cuenta ALTER COLUMN decidida_en DROP NOT NULL;
 ALTER TABLE identidad.expediente_medida_cuenta ALTER COLUMN decidida_por DROP NOT NULL;
+ALTER TABLE identidad.expediente_medida_cuenta ALTER COLUMN entrega_liberada_en DROP NOT NULL;
+ALTER TABLE identidad.expediente_medida_cuenta ALTER COLUMN entrega_liberada_por DROP NOT NULL;
 ALTER TABLE identidad.expediente_medida_cuenta ALTER COLUMN fecha_limite_apelacion DROP NOT NULL;
 ALTER TABLE identidad.expediente_medida_cuenta ALTER COLUMN fecha_limite_descargo DROP NOT NULL;
 ALTER TABLE identidad.expediente_medida_cuenta ALTER COLUMN firme_en DROP NOT NULL;
 ALTER TABLE identidad.expediente_medida_cuenta ALTER COLUMN fundamento_decision DROP NOT NULL;
+ALTER TABLE identidad.expediente_medida_cuenta ALTER COLUMN fundamento_liberacion_entrega DROP NOT NULL;
 ALTER TABLE identidad.expediente_medida_cuenta ALTER COLUMN notificada_en DROP NOT NULL;
 ALTER TABLE identidad.expediente_medida_cuenta ALTER COLUMN resultado_decision DROP NOT NULL;
 ALTER TABLE identidad.expediente_medida_cuenta ALTER COLUMN vigente_hasta DROP NOT NULL;

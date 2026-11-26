@@ -50,6 +50,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
             bo.aportaya.identidad.aplicacion.CU136GobernarCuentasDeServicio.class,
             bo.aportaya.identidad.aplicacion.CU134ConsultarParticipante.class,
             bo.aportaya.identidad.aplicacion.CU134GestionarMedida.class,
+            bo.aportaya.identidad.aplicacion.CU134LiberarEntrega.class,
             bo.aportaya.identidad.aplicacion.InvitacionesDeCuenta.class,
             bo.aportaya.identidad.aplicacion.RecuperacionesDeAcceso.class,
             bo.aportaya.identidad.aplicacion.CambiarClaveDeCuenta.class

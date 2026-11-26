@@ -139,6 +139,22 @@ public class MedidasDeCuentaRepositorio extends LecturasDeMedidasRepositorio {
                 .execute();
     }
 
+    /**
+     * A-1: registra quién liberó la entrega retenida por una medida firme y por qué. La precondición va en la
+     * escritura: solo un expediente firme y todavía sin liberar cambia; devuelve cuántas filas cambiaron.
+     */
+    public int liberarEntrega(DSLContext dsl, UUID id, UUID por, String fundamento, OffsetDateTime ahora) {
+        return dsl.update(EXPEDIENTE_MEDIDA_CUENTA)
+                .set(EXPEDIENTE_MEDIDA_CUENTA.ENTREGA_LIBERADA_POR, por)
+                .set(EXPEDIENTE_MEDIDA_CUENTA.ENTREGA_LIBERADA_EN, ahora)
+                .set(EXPEDIENTE_MEDIDA_CUENTA.FUNDAMENTO_LIBERACION_ENTREGA, fundamento)
+                .set(EXPEDIENTE_MEDIDA_CUENTA.VERSION, EXPEDIENTE_MEDIDA_CUENTA.VERSION.plus(1))
+                .where(EXPEDIENTE_MEDIDA_CUENTA.ID.eq(id))
+                .and(EXPEDIENTE_MEDIDA_CUENTA.FIRME_EN.isNotNull())
+                .and(EXPEDIENTE_MEDIDA_CUENTA.ENTREGA_LIBERADA_EN.isNull())
+                .execute();
+    }
+
     public void cerrar(DSLContext dsl, UUID id, OffsetDateTime ahora) {
         dsl.update(EXPEDIENTE_MEDIDA_CUENTA)
                 .set(EXPEDIENTE_MEDIDA_CUENTA.CERRADA_EN, ahora)

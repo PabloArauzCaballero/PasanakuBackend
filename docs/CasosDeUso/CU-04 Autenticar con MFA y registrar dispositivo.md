@@ -71,6 +71,7 @@ normas: [ASFI Seguridad de la Información, ISO/IEC 27001 A.5.15-A.5.18, ISO/IEC
 | 3b | **Operador** en un dispositivo ya marcado confiable | Se le exige el factor igual; `es_confiable` no habilita ningún atajo (`R-SEG-10`) |
 | 4c | **Operador sin TOTP enrolado** | No entra: `FACTOR_NO_ENROLADO`. Se lo deriva a la **invitación de un solo uso** que recibió en su correo institucional al darse de alta, donde elige su clave y enrola su TOTP sin necesitar una sesión previa ([[CU-09 Cambiar credenciales y solicitar la baja]] §10); si perdió el teléfono, pide la reinscripción del factor, que otra persona de seguridad aprueba (§11). Una asignación de rol sin factor deja al operador afuera, y eso es lo correcto |
 | 4d | Alguien intenta enrolar `SMS` o `WHATSAPP` como factor de un operador | Rechazo `FACTOR_NO_ADMISIBLE`: canales apagados ([[ADR-035 Canales por defecto]]) y expuestos al intercambio de SIM (`R-SEG-10`) |
+| 1b | **Cuenta de servicio** (CU-136) vencida o revocada, con la clave correcta | No entra: `AP-CU04-02` y el intento queda con motivo `CUENTA_DE_SERVICIO_NO_VIGENTE`; quien no es cuenta de servicio no se ve afectado |
 | 6b | Acción con `permiso.requiere_mfa` sin desafío vigente | Se pide reautenticación por paso; la vigencia del desafío es corta y está atada a la operación, no a la sesión |
 
 ## Postcondiciones
@@ -297,6 +298,14 @@ Entonces se rechaza con AP-CU04-08
 Dado un titular con un TOTP confirmado
 Cuando inicia otro enrolamiento con su sesión
 Entonces se rechaza con AP-CU04-09
+
+Dado un factor reinscrito dentro del enfriamiento
+Cuando abre un step-up
+Entonces se rechaza con AP-CU04-11
+
+Dado un factor reinscrito hace más que el enfriamiento
+Cuando abre un step-up
+Entonces se emite el desafío
 
 Dado un enrolamiento TOTP iniciado
 Cuando se lee su fila en factor_mfa

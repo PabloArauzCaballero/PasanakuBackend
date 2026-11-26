@@ -2,6 +2,7 @@ package bo.aportaya.identidad.web;
 
 import bo.aportaya.identidad.aplicacion.CU134ConsultarParticipante;
 import bo.aportaya.identidad.aplicacion.CU134GestionarMedida;
+import bo.aportaya.identidad.aplicacion.CU134LiberarEntrega;
 import bo.aportaya.identidad.aplicacion.ConsultarContactoEnGrupo;
 import bo.aportaya.identidad.web.generado.IdentidadApi;
 import bo.aportaya.identidad.web.generado.modelo.ContactoEnGrupo;
@@ -27,8 +28,9 @@ abstract class RutasDeContactoEnGrupo extends RutasDeParticipantes {
             SesionDeLaPeticion sesion,
             CU134ConsultarParticipante consulta,
             CU134GestionarMedida medidas,
+            CU134LiberarEntrega liberacion,
             HttpServletRequest peticion) {
-        super(consulta, medidas, sesion, peticion);
+        super(consulta, medidas, liberacion, sesion, peticion);
         this.contactos = contactos;
         this.sesion = sesion;
     }

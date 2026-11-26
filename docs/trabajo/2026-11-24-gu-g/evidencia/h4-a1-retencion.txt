@@ -1,0 +1,13 @@
+$ ./gradlew :servicios:identidad:generateJooq --rerun :servicios:identidad:integrationTest --tests "*CU134*" :servicios:identidad:webTest :servicios:identidad:testBarrido   (local: PostgreSQL 16 en 5433 con el esquema aplicado, Testcontainers)
+BUILD SUCCESSFUL in 1m 2s
+CU134*: 19/19 · webTest 224/224 · testBarrido 3/3
+CU134EntregaRetenidaTest:
+Dada una medida firme cuya suspensión ya venció · Cuando entregas consulta la medida vigente del participante · Entonces la entrega sigue retenida · Y deja de estarlo solo cuando un operador registra la liberación con su segundo factor y un fundamento"
+Dado un expediente que no llegó a firme · Cuando un operador intenta liberar la entrega · Entonces se rechaza con AP-CU134-12"
+rechaza una liberacion sin quien ni fundamento, o antes de la firmeza (R-SEG-17)"
+
+$ ./gradlew :servicios:identidad:spotlessCheck :servicios:identidad:test :servicios:identidad:integrationTest
+BUILD SUCCESSFUL in 1m 27s
+test 155/155 · integrationTest 290/290
+
+Esquema: psql -f sql/aplicar.sql exit 0; ck_expediente_medida_liberacion_completa presente. Verificadores: boveda, criterios, seguridad, pruebas_web, contratos_limites, narrativas → exit 0; inventario alineado.

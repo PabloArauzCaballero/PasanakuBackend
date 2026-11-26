@@ -117,6 +117,25 @@
 |---|---|---|---|---|
 | H3.S7.M1 | Regresión de `identidad` y `entregas`, verificadores, PR con CI verde | Todo en 0 | salidas pegadas | TODO |
 
+## H4 — Decisiones de Pablo del 2026-11-26 (A-1 y A-4)
+
+**CA:** Dada una medida que llegó a firme, cuando su suspensión vence o el expediente se cierra, entonces la entrega del
+participante sigue retenida hasta que un operador registre la liberación con su segundo factor y un fundamento; y en
+modo restringido no se alcanzan QR, recarga ni reclamos.
+**DoD:** `CU134EntregaRetenidaTest` y `ParticipantesWebTest` en verde contra PostgreSQL real; verificadores de bóveda y
+contratos en exit 0; PR aparte desde `dev` con CI verde.
+**Estado:** HECHO en local; falta la CI del PR aparte
+
+### H4.S1 — Retención tras la firmeza y lista cerrada
+**CA:** igual que H4. **DoD:** el de cada microtarea. **Estado:** HECHO en local
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H4.S1.M1 | A-4 registrado: QR, recarga y reclamar fuera de la lista cerrada | La lista cerrada no incluye esas rutas | `grep -rn PermitidoEnRestriccion servicios/*/src/main` → solo expediente, descargo, apelación y `pagarCuotaConSaldo` | HECHO — la lista cerrada tiene solo esas cuatro rutas (`evidencia/h4-m1-a4.txt`); el código ya cumplía A-4 |
+| H4.S1.M2 | Modelo: liberación de la entrega retenida en `expediente_medida_cuenta` (quién, cuándo, fundamento) | DDL y deriva en cero | `generar_ddl.py` + `verificar_boveda.py` exit 0 | HECHO — `expediente_medida_cuenta` + `entrega_liberada_por/en`, `fundamento_liberacion_entrega` y `R-SEG-17` (`ck_expediente_medida_liberacion_completa`); `generar_ddl.py` y `aplicar.sql` exit 0, `verificar_boveda.py` exit 0 (`evidencia/h4-a1-retencion.txt`) |
+| H4.S1.M3 | La retención sigue tras la firmeza hasta la liberación humana | Medida firme y cumplida → `medida-vigente` sigue reteniendo; liberada → no | `./gradlew :servicios:identidad:integrationTest --tests '*CU134EntregaRetenidaTest'` | HECHO (TESTED local) — `vigenteQueRetiene` = medida aplicada y vigente, **o** firme sin liberar; `CU134EntregaRetenidaTest` 3/3 contra PostgreSQL real (`evidencia/h4-a1-retencion.txt`) |
+| H4.S1.M4 | Liberar la entrega: operación con segundo factor, fundamento y evento | 200 con evidencia; sin evidencia AP-CU134-03; sin firmeza AP-CU134-12 | ídem + `webTest --tests '*ParticipantesWebTest'` | HECHO (TESTED local) — `CU134LiberarEntrega` (segundo factor, no sobre sí mismo, idempotente, evento `identidad.medida_cuenta_entrega_liberada`) y `POST /identidad/medidas-cuenta/{id}/liberacion-de-entrega` con `PARTICIPANTES_MEDIDA_DECIDIR`; `ParticipantesWebTest` 200/403; identidad test 155, webTest 224, integrationTest 290 en verde |
+
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
 |---|---|---|

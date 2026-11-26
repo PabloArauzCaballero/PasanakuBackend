@@ -5,6 +5,7 @@ import static bo.aportaya.identidad.generado.Tables.DISPOSITIVO;
 import static bo.aportaya.identidad.generado.Tables.FACTOR_MFA;
 import static bo.aportaya.identidad.generado.Tables.INTENTO_AUTENTICACION;
 import static bo.aportaya.identidad.generado.Tables.SESION;
+import static bo.aportaya.identidad.generado.Tables.SOLICITUD_RECUPERACION_ACCESO;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
@@ -130,6 +131,16 @@ public class AccesoRepositorio {
                 .orderBy(FACTOR_MFA.ES_PRINCIPAL.desc())
                 .limit(1)
                 .fetchOptional(FACTOR_MFA.TIPO);
+    }
+
+    /** R-SEG-11 / ADR-038 §5: ¿se reinscribio el factor de esta persona por recuperacion asistida desde {@code desde}? */
+    public boolean factorReinscritoDesde(DSLContext dsl, UUID usuarioId, OffsetDateTime desde) {
+        return dsl.fetchExists(dsl.selectOne()
+                .from(SOLICITUD_RECUPERACION_ACCESO)
+                .where(SOLICITUD_RECUPERACION_ACCESO.USUARIO_ID.eq(usuarioId))
+                .and(SOLICITUD_RECUPERACION_ACCESO.ALCANCE.eq("FACTOR"))
+                .and(SOLICITUD_RECUPERACION_ACCESO.ESTADO.eq("COMPLETADA"))
+                .and(SOLICITUD_RECUPERACION_ACCESO.COMPLETADA_EN.ge(desde)));
     }
 
     public SesionAbierta abrirSesion(

@@ -24,7 +24,8 @@ import org.springframework.test.web.servlet.MockMvc;
 @MockitoBean(
         types = {
             bo.aportaya.identidad.aplicacion.CU134ConsultarParticipante.class,
-            bo.aportaya.identidad.aplicacion.CU134GestionarMedida.class
+            bo.aportaya.identidad.aplicacion.CU134GestionarMedida.class,
+            bo.aportaya.identidad.aplicacion.CU134LiberarEntrega.class
         })
 class ContactoEnGrupoWebTest {
 
