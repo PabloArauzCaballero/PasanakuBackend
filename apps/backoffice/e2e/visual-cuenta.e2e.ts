@@ -70,7 +70,7 @@ for (const v of VIEWPORTS) {
 
     for (const estado of [
       { nombre: 'datos', status: 200, cuerpo: { items: [SOLICITUD, { ...SOLICITUD, id: '0c900000-0000-4000-8000-000000000002', alcance: 'FACTOR', estado: 'APROBADA', enfriamientoHasta: '2026-11-27T10:00:00Z' }] }, espera: /Olvidé mi clave/ },
-      { nombre: 'vacio', status: 200, cuerpo: { items: [] }, espera: /recuperaciones|Recuperaciones/ },
+      { nombre: 'vacio', status: 200, cuerpo: { items: [] }, espera: /Ningún registro de esta página coincide/ },
       { nombre: 'error', status: 503, cuerpo: { codigo: 'AP-0000', mensaje: 'x', trazaId: 'traza-visual' }, espera: /Volver a intentar|intentar/ },
     ] as const) {
       test(`recuperaciones ${estado.nombre} — ${v.nombre} × ${tema}`, async ({ page }) => {
