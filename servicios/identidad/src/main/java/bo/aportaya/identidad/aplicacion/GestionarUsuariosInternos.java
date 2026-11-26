@@ -79,6 +79,7 @@ public class GestionarUsuariosInternos {
         String motivo = motivoExigido(entrada.getMotivo());
         reglas.exigirStepUp(ctx, entrada.getEvidenciaMfa());
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
+        fechaDeNacimientoReal(entrada.getFechaNacimiento(), ahora.toLocalDate());
         return datos.conContexto(ctx, dsl -> {
             UsuarioInternoDetalle detalle = repositorio.crear(dsl, entrada, ctx.usuarioId(), ahora);
             registrar(
@@ -218,6 +219,14 @@ public class GestionarUsuariosInternos {
 
     private static final String ACTIVO = "ACTIVO";
     private static final String SUSPENDIDO = "SUSPENDIDO";
+
+    /** AP-CU08-13 (GU-17): la fecha de nacimiento la declara quien da el alta; no hay valor por omision ni futura. */
+    public static void fechaDeNacimientoReal(java.time.LocalDate fecha, java.time.LocalDate hoy) {
+        if (fecha == null || fecha.isAfter(hoy)) {
+            throw new ErrorDeNegocio(
+                    CodigoError.de(8, 13), "La fecha de nacimiento tiene que ser real: no puede faltar ni ser futura.");
+        }
+    }
 
     /** AP-CU08-11: el alta no viaja sin el porque (P-7); el contrato lo deja opcional solo por compatibilidad. */
     private static String motivoExigido(String motivo) {
