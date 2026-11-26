@@ -78,10 +78,13 @@ Pendiente fuera del repositorio: dos `git stash` con capturas de `docs/trabajo/2
 ## Pendiente
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| Implementación de CU-134 (Ola 3) | `TODO` | Aprobada por la sesión principal; arranca cuando #516 (lote B) esté en `dev` o contra un doble declarado de su contrato |
-| A-1 destino de la entrega retenida si la medida queda firme | Decidido | Custodia al titular durante la vigencia. Falta integrar en entregas. |
-| A-2 prescripción en meses y duración máxima en días | Decidido | Columnas propias en la política. |
-| A-3 plazo de resolución de la apelación interna | Decidido | Diez días hábiles, con aceptación por vencimiento. |
+| H2.S1.M3 · PR a `dev` con CI en verde | `EN CURSO` | CI de #541 |
+| H3.S7.M1 · regresión, verificadores y CI | `TODO` (local en verde: entregas, backoffice, verificadores) | CI de #541 |
+| Implementación de CU-134 | Hecho | Mergeado en `dev` con #525 |
+| A-1 · entrega retenida si la medida queda firme | Hecho | Mergeado con #532: queda retenida hasta liberación humana |
+| A-2 · prescripción en meses y duración máxima en días | Hecho | Columnas propias en la política (#525) |
+| A-3 · plazo de la apelación interna | Hecho | Diez días hábiles, con aceptación por vencimiento (#525) |
+| A-4 · QR, recarga y reclamar en modo restringido | Hecho | Bloqueados; verificado en `evidencia/h4-m1-a4.txt` |
 
 ## Hallazgos (relevamiento)
 | Hecho | Ruta |
