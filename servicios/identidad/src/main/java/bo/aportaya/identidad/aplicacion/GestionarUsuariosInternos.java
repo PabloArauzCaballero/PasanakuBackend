@@ -220,11 +220,22 @@ public class GestionarUsuariosInternos {
     private static final String ACTIVO = "ACTIVO";
     private static final String SUSPENDIDO = "SUSPENDIDO";
 
-    /** AP-CU08-13 (GU-17): la fecha de nacimiento la declara quien da el alta; no hay valor por omision ni futura. */
+    /** GU-17 (decision de Pablo, A9): el personal interno es mayor de edad. */
+    static final int EDAD_MINIMA_DEL_OPERADOR = 18;
+
+    /**
+     * AP-CU08-13 / AP-CU08-14 (GU-17): la fecha de nacimiento la declara quien da el alta; no hay valor por omision,
+     * no puede ser futura y la persona tiene que haber cumplido la edad minima hoy (cumplirla hoy mismo alcanza).
+     */
     public static void fechaDeNacimientoReal(java.time.LocalDate fecha, java.time.LocalDate hoy) {
         if (fecha == null || fecha.isAfter(hoy)) {
             throw new ErrorDeNegocio(
                     CodigoError.de(8, 13), "La fecha de nacimiento tiene que ser real: no puede faltar ni ser futura.");
+        }
+        if (fecha.isAfter(hoy.minusYears(EDAD_MINIMA_DEL_OPERADOR))) {
+            throw new ErrorDeNegocio(
+                    CodigoError.de(8, 14),
+                    "El personal interno tiene que ser mayor de " + EDAD_MINIMA_DEL_OPERADOR + " anos.");
         }
     }
 

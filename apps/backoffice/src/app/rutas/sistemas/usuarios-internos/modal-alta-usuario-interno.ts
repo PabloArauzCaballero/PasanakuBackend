@@ -58,7 +58,9 @@ export class ModalAltaUsuarioInterno {
   protected readonly errorDeFecha = computed(() => {
     if (this.error()?.campo === 'fechaNacimiento') return this.error()!.mensaje
     const v = this.fechaNacimiento()
-    return v !== '' && v > hoy() ? 'La fecha de nacimiento no puede ser futura.' : undefined
+    if (v === '') return undefined
+    if (v > hoy()) return 'La fecha de nacimiento no puede ser futura.'
+    return v > hoy(EDAD_MINIMA) ? 'El personal interno tiene que ser mayor de 18 años.' : undefined
   })
   protected readonly errorDeRol = computed(() => (this.error()?.campo === 'rol' ? this.error()!.mensaje : undefined))
   protected readonly errorDeRoles = computed(() => (this.roles.error() ? mensajeDeError(this.roles.error(), 'No se pudo cargar el catálogo de roles.').mensaje : undefined))
@@ -95,8 +97,12 @@ export class ModalAltaUsuarioInterno {
   }
 }
 
-/** Hoy como `AAAA-MM-DD` en hora local (el valor de un `<input type="date">`). */
-function hoy(): string {
+/** La edad mínima del personal interno (GU-17, decisión de Pablo): la misma regla que aplica el servidor. */
+const EDAD_MINIMA = 18
+
+/** Hoy (o hoy menos `anios`) como `AAAA-MM-DD` en hora local, el valor de un `<input type="date">`. */
+function hoy(anios = 0): string {
   const d = new Date()
+  d.setFullYear(d.getFullYear() - anios)
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }

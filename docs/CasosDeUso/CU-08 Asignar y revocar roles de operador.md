@@ -151,6 +151,7 @@ export const ErroresCU08 = {
   MOTIVO_REQUERIDO:             'AP-CU08-11',
   FILTRO_DE_LISTADO_INVALIDO:   'AP-CU08-12',
   FECHA_DE_NACIMIENTO_INVALIDA: 'AP-CU08-13',
+  OPERADOR_MENOR_DE_EDAD:       'AP-CU08-14',
 } as const
 ```
 
@@ -169,6 +170,7 @@ export const ErroresCU08 = {
 | `MOTIVO_REQUERIDO` | El alta de un operador llega sin motivo (el contrato lo deja opcional solo por compatibilidad) |
 | `FILTRO_DE_LISTADO_INVALIDO` | `AP-CU08-12` · cursor a medias en `GET /usuarios-internos` (GU-17): llega `antesDe` sin `antesDeId` o al revés |
 | `FECHA_DE_NACIMIENTO_INVALIDA` | `AP-CU08-13` · el alta de un operador llega sin fecha de nacimiento o con una futura (GU-17: la declara quien da el alta, sin valor por omisión) |
+| `OPERADOR_MENOR_DE_EDAD` | `AP-CU08-14` · el alta de un operador con menos de 18 años cumplidos hoy (A9, decisión de Pablo 2026-11-26); cumplirlos hoy mismo alcanza |
 
 ### Contrato de eventos (bitácora y aviso) · forma v1
 
@@ -245,6 +247,14 @@ incompatible sube `version`.
 Dada un alta de operador con una fecha de nacimiento futura
 Cuando se la intenta crear
 Entonces se rechaza con AP-CU08-13
+
+Dada un alta de operador que cumple 18 años hoy
+Cuando se la valida
+Entonces se acepta
+
+Dada un alta de operador con 17 años y 364 días
+Cuando se la valida
+Entonces se rechaza con AP-CU08-14
 
 Dada un alta de operador con una fecha de nacimiento real
 Cuando se la valida
