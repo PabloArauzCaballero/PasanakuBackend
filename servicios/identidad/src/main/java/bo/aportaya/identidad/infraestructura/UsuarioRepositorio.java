@@ -47,6 +47,22 @@ public class UsuarioRepositorio {
         return cuentas.size() == 1 ? Optional.of(cuentas.get(0)) : Optional.empty();
     }
 
+    /**
+     * GU-18: una cuenta de servicio vencida o revocada no abre sesion (CU-136). Quien no es cuenta de servicio no tiene
+     * fila en {@code cuenta_servicio} y esta consulta le da {@code false}: el login de las personas no cambia.
+     */
+    public boolean cuentaDeServicioNoVigente(DSLContext dsl, UUID usuarioId, OffsetDateTime ahora) {
+        var tabla = org.jooq.impl.DSL.table(org.jooq.impl.DSL.name("identidad", "cuenta_servicio"));
+        var usuario = org.jooq.impl.DSL.field(org.jooq.impl.DSL.name("usuario_id"), org.jooq.impl.SQLDataType.UUID);
+        var estado = org.jooq.impl.DSL.field(org.jooq.impl.DSL.name("estado"), org.jooq.impl.SQLDataType.VARCHAR);
+        var vence = org.jooq.impl.DSL.field(
+                org.jooq.impl.DSL.name("vence_en"), org.jooq.impl.SQLDataType.TIMESTAMPWITHTIMEZONE);
+        return dsl.fetchExists(dsl.selectOne()
+                .from(tabla)
+                .where(usuario.eq(usuarioId))
+                .and(estado.eq("REVOCADA").or(vence.le(ahora))));
+    }
+
     public Optional<String> estadoDe(DSLContext dsl, UUID usuarioId) {
         return dsl.select(USUARIO.ESTADO)
                 .from(USUARIO)

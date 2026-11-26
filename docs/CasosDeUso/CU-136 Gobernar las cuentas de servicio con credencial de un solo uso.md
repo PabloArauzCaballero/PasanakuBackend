@@ -145,8 +145,7 @@ credencial, su hash ni datos personales.
 - **A3 · segundo factor de la cuenta:** el TOTP de la cuenta de servicio sigue el enrolamiento existente.
 - **A5 · crear la cuenta desde cero:** cómo se identifica (teléfono o correo) y cómo enrola su
   segundo factor. Confirmar con Seguridad y con Pablo antes de implementarlo.
-- **Vencimiento en el login:** hoy se guarda y se muestra; que el ingreso lo rechace al vencer es el
-  siguiente paso (toca CU-04).
+- **Vencimiento en el login:** resuelto: una cuenta vencida o revocada no abre sesión (CU-04, flujo 1b).
 
 ## Criterios de aceptación
 
