@@ -43,7 +43,7 @@ COMMENT ON COLUMN identidad.usuario.nombres IS '[NEGOCIO] Atributo que represent
 COMMENT ON COLUMN identidad.usuario.apellidos IS '[NEGOCIO] Atributo que representa apellidos en el modelo de `usuario`. [SISTEMA] varchar(80), obligatoria (NOT NULL), sensibilidad PERSONAL.';
 COMMENT ON COLUMN identidad.usuario.telefono_e164 IS '[NEGOCIO] Atributo que representa telefono e164 en el modelo de `usuario`. [SISTEMA] varchar(20), obligatoria (NOT NULL), restricción UNIQUE, con índice B-tree, sensibilidad PERSONAL.';
 COMMENT ON COLUMN identidad.usuario.correo IS '[NEGOCIO] Atributo que representa correo en el modelo de `usuario`. [SISTEMA] varchar(150), opcional, restricción UNIQUE, sensibilidad PERSONAL.';
-COMMENT ON COLUMN identidad.usuario.fecha_nacimiento IS '[NEGOCIO] Marca temporal o fecha de nacimiento en `usuario`. [SISTEMA] date, obligatoria (NOT NULL), sensibilidad PERSONAL.';
+COMMENT ON COLUMN identidad.usuario.fecha_nacimiento IS '[NEGOCIO] Marca temporal o fecha de nacimiento en `usuario`. [SISTEMA] date, opcional, sensibilidad PERSONAL.';
 COMMENT ON COLUMN identidad.usuario.estado IS '[NEGOCIO] Estado operativo o fase del ciclo de vida en que se encuentra el registro. [SISTEMA] varchar(25), obligatoria (NOT NULL).';
 COMMENT ON COLUMN identidad.usuario.nivel_kyc IS '[NEGOCIO] Atributo que representa nivel kyc en el modelo de `usuario`. [SISTEMA] varchar(15), obligatoria (NOT NULL).';
 COMMENT ON COLUMN identidad.usuario.idioma IS '[NEGOCIO] Atributo que representa idioma en el modelo de `usuario`. [SISTEMA] varchar(10), obligatoria (NOT NULL).';

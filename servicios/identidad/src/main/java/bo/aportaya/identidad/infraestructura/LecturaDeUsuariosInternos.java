@@ -45,7 +45,8 @@ final class LecturaDeUsuariosInternos {
             USUARIO_INTERNO.CARGO,
             USUARIO.ESTADO,
             USUARIO_INTERNO.DEBE_CAMBIAR_CONTRASENA,
-            USUARIO.FECHA_REGISTRO);
+            USUARIO.FECHA_REGISTRO,
+            USUARIO.FECHA_NACIMIENTO);
 
     private final AccesosRepositorio accesos;
 

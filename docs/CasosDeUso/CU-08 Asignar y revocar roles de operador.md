@@ -152,6 +152,7 @@ export const ErroresCU08 = {
   FILTRO_DE_LISTADO_INVALIDO:   'AP-CU08-12',
   FECHA_DE_NACIMIENTO_INVALIDA: 'AP-CU08-13',
   OPERADOR_MENOR_DE_EDAD:       'AP-CU08-14',
+  FECHA_YA_DECLARADA:           'AP-CU08-15',
 } as const
 ```
 
@@ -171,6 +172,7 @@ export const ErroresCU08 = {
 | `FILTRO_DE_LISTADO_INVALIDO` | `AP-CU08-12` · cursor a medias en `GET /usuarios-internos` (GU-17): llega `antesDe` sin `antesDeId` o al revés |
 | `FECHA_DE_NACIMIENTO_INVALIDA` | `AP-CU08-13` · el alta de un operador llega sin fecha de nacimiento o con una futura (GU-17: la declara quien da el alta, sin valor por omisión) |
 | `OPERADOR_MENOR_DE_EDAD` | `AP-CU08-14` · el alta de un operador con menos de 18 años cumplidos hoy (A9, decisión de Pablo 2026-11-26); cumplirlos hoy mismo alcanza |
+| `FECHA_YA_DECLARADA` | `AP-CU08-15` · se intenta completar la fecha de nacimiento de un operador que ya tiene una (GU-17/A8: solo se completa a quien está «sin dato»; no se reescribe) |
 
 ### Contrato de eventos (bitácora y aviso) · forma v1
 
@@ -187,6 +189,7 @@ bitácora es `auditoria` (lote E); el del aviso es `notificaciones`.
 | `OPERADOR_REACTIVADO` | `identidad.usuario_interno_reactivado` | `usuario` |
 | `OPERADOR_DADO_DE_BAJA` | `identidad.usuario_interno_dado_de_baja` | `usuario` |
 | `OPERADOR_DESBLOQUEADO` | `identidad.usuario_interno_desbloqueado` | `usuario` |
+| `OPERADOR_FECHA_COMPLETADA` | `identidad.usuario_interno_fecha_completada` | `usuario` |
 
 Carga del evento de bitácora: `version` (`"1"`), `accion`, `actorId` (quien actuó; en
 `ROL_VENCIDO` del trabajo diario es el id fijo del proceso), `actorRol` (el rol de la sesión
@@ -234,7 +237,7 @@ incompatible sube `version`.
 
 ## Restricciones aplicables
 
-`R-SEG-04` · `R-SEG-07` · `R-SEG-08` · `R-SEG-10` · `R-SEG-12` · `R-AUD-01` · `R-AUD-04`
+`R-SEG-04` · `R-SEG-07` · `R-SEG-08` · `R-SEG-10` · `R-SEG-12` · `R-SEG-18` · `R-AUD-01` · `R-AUD-04`
 
 ## Evidencia que deja
 
@@ -247,6 +250,23 @@ incompatible sube `version`.
 Dada un alta de operador con una fecha de nacimiento futura
 Cuando se la intenta crear
 Entonces se rechaza con AP-CU08-13
+
+Dado un usuario que no es personal interno
+Cuando se intenta guardarlo sin fecha de nacimiento
+Entonces la base lo rechaza (R-SEG-18)
+
+Dado un operador del personal interno
+Cuando se lo guarda sin fecha de nacimiento
+Entonces se acepta como sin dato
+
+Dado un operador sin dato de fecha de nacimiento
+Cuando se completa su fecha real con step-up
+Entonces queda guardada
+Y la bitácora lo registra
+
+Dado un operador que ya tiene su fecha de nacimiento
+Cuando se intenta completarla otra vez
+Entonces se rechaza con AP-CU08-15
 
 Dada un alta de operador que cumple 18 años hoy
 Cuando se la valida

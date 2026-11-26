@@ -1,0 +1,10 @@
+== R-SEG-18: participante sin fecha (debe fallar al confirmar) ==
+ERROR:  R-SEG-18: el usuario a7b86d37-5191-4384-b4df-8cf0c65f554a no es personal interno y necesita fecha de nacimiento
+== R-SEG-18: operador sin fecha, usuario e interno en la misma transaccion (debe aceptar) ==
+COMMIT
+T-B2|sin dato
+== participante existente: borrar la fecha (UPDATE) tambien se rechaza ==
+ERROR:  R-SEG-18: el usuario 00000000-0000-4000-8000-0000000000a4 no es personal interno y necesita fecha de nacimiento
+== aplicar.sql por segunda vez sobre la base con datos ==
+1
+5

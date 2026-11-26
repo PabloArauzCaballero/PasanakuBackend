@@ -108,7 +108,8 @@ public class GestionarUsuariosInternos {
     @Transactional
     public UsuarioInternoDetalle actualizar(UUID id, EntradaActualizarUsuarioInterno entrada, ContextoSesion ctx) {
         boolean cambiaEstado = entrada.getEstado() != null;
-        if (cambiaEstado) {
+        boolean completaFecha = entrada.getFechaNacimiento() != null;
+        if (cambiaEstado || completaFecha) {
             reglas.exigirStepUp(ctx, entrada.getEvidenciaMfa());
         }
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
@@ -136,6 +137,22 @@ public class GestionarUsuariosInternos {
                 }
             }
 
+            if (completaFecha) {
+                fechaDeNacimientoReal(entrada.getFechaNacimiento(), ahora.toLocalDate());
+                if (!repositorio.completarFechaDeNacimiento(dsl, id, entrada.getFechaNacimiento())) {
+                    throw new ErrorDeNegocio(
+                            CodigoError.de(8, 15), "Esa persona ya tiene su fecha de nacimiento: no se reescribe.");
+                }
+                UUID afectado = gobierno.operador(dsl, id).orElseThrow(GobiernoDeAccesos::noHabilitado);
+                registrar(
+                        dsl,
+                        HechoDeAcceso.Accion.OPERADOR_FECHA_COMPLETADA,
+                        afectado,
+                        motivo,
+                        Map.of("campo", "fechaNacimiento"),
+                        ctx,
+                        ahora);
+            }
             UsuarioInternoDetalle detalle = repositorio.actualizar(dsl, id, entrada, ctx.usuarioId(), ahora);
             UUID correlacion = BitacoraDeAccesos.correlacionDe(ctx);
             outbox.emitir(

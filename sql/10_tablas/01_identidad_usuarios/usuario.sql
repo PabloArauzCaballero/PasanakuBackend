@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS identidad.usuario (
   apellidos                          VARCHAR(80) NOT NULL,
   telefono_e164                      VARCHAR(20) NOT NULL,
   correo                             VARCHAR(150),
-  fecha_nacimiento                   DATE NOT NULL,
+  fecha_nacimiento                   DATE,
   estado                             VARCHAR(25) NOT NULL,
   nivel_kyc                          VARCHAR(15) NOT NULL,
   idioma                             VARCHAR(10) NOT NULL,
@@ -35,6 +35,7 @@ COMMENT ON COLUMN identidad.usuario.id IS 'Identificador estable de la fila (UUI
 COMMENT ON COLUMN identidad.usuario.codigo_publico IS 'UQ';
 COMMENT ON COLUMN identidad.usuario.telefono_e164 IS 'UQ, IDX';
 COMMENT ON COLUMN identidad.usuario.correo IS 'UQ, NULL';
+COMMENT ON COLUMN identidad.usuario.fecha_nacimiento IS 'NULL';
 COMMENT ON COLUMN identidad.usuario.estado IS 'CK';
 COMMENT ON COLUMN identidad.usuario.nivel_kyc IS 'CK';
 COMMENT ON COLUMN identidad.usuario.url_avatar IS 'NULL';
