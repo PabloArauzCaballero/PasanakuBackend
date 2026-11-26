@@ -141,6 +141,16 @@ public class CU04Autenticar {
                             CodigoError.de(4, 2), "Tu cuenta no esta habilitada para ingresar. Escribinos a soporte."));
         }
 
+        // GU-18 (CU-136): una cuenta de servicio vencida o revocada no abre sesion, aunque su clave sea correcta.
+        if (usuarios.cuentaDeServicioNoVigente(dsl, usuario, ahora)) {
+            return cerrar(
+                    dsl,
+                    intentoId,
+                    "CUENTA_DE_SERVICIO_NO_VIGENTE",
+                    ResultadoDeAutenticacion.rechazado(
+                            CodigoError.de(4, 2), "Tu cuenta no esta habilitada para ingresar. Escribinos a soporte."));
+        }
+
         var dispositivo = accesos.dispositivoPorHuella(dsl, usuario, entrada.huella(), entrada.plataforma(), ahora);
         Optional<String> enrolado = accesos.factorActivo(dsl, usuario);
 
