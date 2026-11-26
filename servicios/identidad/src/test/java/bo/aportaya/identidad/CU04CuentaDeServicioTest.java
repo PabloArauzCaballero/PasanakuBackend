@@ -74,15 +74,17 @@ class CU04CuentaDeServicioTest extends BaseDeCU04 {
                 INSERT INTO identidad.cuenta_servicio
                     (usuario_id, rol_id, nombre, estado, vence_en, creada_por, creada_en, credencial_rotada_en,
                      revocada_por, revocada_en, motivo_revocacion)
-                VALUES (?, ?, 'Cuenta sintetica', ?, ?, ?, now(), now(), ?, ?, ?)
+                VALUES (?, ?, 'Cuenta sintetica', ?, ?::timestamptz, ?, now(), now(), ?::uuid, ?::timestamptz, ?)
                 """,
                 usuario,
                 rol,
                 revocada ? "REVOCADA" : "ACTIVA",
-                OffsetDateTime.now().plusDays("VENCIDA".equals(situacion) ? -1 : 30),
+                OffsetDateTime.now()
+                        .plusDays("VENCIDA".equals(situacion) ? -1 : 30)
+                        .toString(),
                 fixtura.otorgante(),
                 revocada ? fixtura.otorgante() : null,
-                revocada ? OffsetDateTime.now() : null,
+                revocada ? OffsetDateTime.now().toString() : null,
                 revocada ? "Prueba" : null);
     }
 
