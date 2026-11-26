@@ -68,3 +68,14 @@ H2.S1.M3 (doble de step-up): **DESCARTADO** — #516 ya está en dev y trae el p
 H3.S1.M1/M2 (backoffice): **TODO** — falta además un componente de step-up (abrir desafío + código TOTP → evidencia), que el backoffice no tiene.
 H4.S1.M2/M3: **TODO / EN ESPERA de CI**.
 Alcance de H2 ajustado: se **registra** una cuenta ya aprovisionada (no se crea el usuario): ambigüedad A5.
+
+## Decisiones de Pablo sobre las ambigüedades (2026-11-26)
+| # | Decisión | Estado |
+|---|---|---|
+| A1 | Cuatro ojos para permisos de riesgo ALTO y CRÍTICO, **solo al agregar** (como está implementado) | RESUELTA |
+| A2 | Vigencia máxima de la cuenta de servicio: 90 días, configurable (`aportaya.cuentas-servicio.vigencia-maxima`, como está) | RESUELTA |
+| A3 | Rotación del TOTP: Pablo no decidió. Supuesto vigente: lo más seguro (exigir TOTP/step-up); el TOTP sigue el enrolamiento existente | SUPUESTO REGISTRADO |
+| A4 | Roles personalizados solo de ámbito GLOBAL por ahora | RESUELTA |
+| A5 | Crear la cuenta de servicio desde cero: Pablo no decidió. Supuesto vigente: solo se registran cuentas ya aprovisionadas, con step-up y TOTP exigidos | SUPUESTO REGISTRADO |
+
+Las microtareas H3.S1.M1 y H3.S1.M2 (pantallas) siguen **A MEDIAS**: no se ejercitaron en runtime contra el backend real (identidad + PostgreSQL + gateway + TOTP real); lo hecho es E2E con backend simulado declarado (30 passed, PR #533). Falta ese ejercicio para cerrarlas.
