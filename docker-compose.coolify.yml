@@ -99,6 +99,8 @@ services:
       esquema:
         condition: service_completed_successfully
     environment:
+      APORTES_PASARELA_MODO: ${APORTES_PASARELA_MODO:-simulada}
+      APORTES_PASARELA_PROVEEDOR: ${APORTES_PASARELA_PROVEEDOR:-QR_INTEROP}
       APORTES_WEBHOOK_SECRETO: ${APORTES_WEBHOOK_SECRETO}
       BD_CLAVE: ${BD_CLAVE}
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
