@@ -6,20 +6,21 @@ import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pant
 import { formatearFecha } from '@aportaya/ui/fecha/fecha';
 import { Icono } from '@aportaya/ui/icono/icono';
 import { SeccionDeExpediente } from '@aportaya/ui/seccion-de-expediente/seccion-de-expediente';
-import type { ExpedienteDeMedida } from 'clientes/angular/identidad/model/expedienteDeMedida';
 import type { FichaDeParticipante as Ficha } from 'clientes/angular/identidad/model/fichaDeParticipante';
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista';
 import { MarcoDeCumplimiento } from '../compartido/marco';
 import { fichaDe, justificacionValida } from '../dominio/cu134-participantes';
 import { textosParticipantes } from '../textos-participantes';
+import { MedidasDelParticipante } from './medidas-del-participante';
+import { RevelarDato } from './revelar-dato';
 
 const T = textosParticipantes;
 
 /**
  * CU-134 · ficha del participante. Se abre recién con la justificación escrita: es la que queda en el registro de
  * accesos. Muestra el contacto enmascarado y las medidas con su línea de tiempo; no muestra saldo, movimientos ni
- * casos de cumplimiento (el contrato no los devuelve). Revelar un dato, decidir y resolver exigen segundo factor y
- * todavía no tienen pantalla (H3.S6.M3).
+ * casos de cumplimiento (el contrato no los devuelve). Los actos (revelar, proponer, decidir,
+ * resolver y liberar) viven en sus componentes.
  */
 @Component({
   selector: 'ap-ficha-de-participante',
@@ -32,6 +33,8 @@ const T = textosParticipantes;
     SeccionDeExpediente,
     ChipEstado,
     Icono,
+    MedidasDelParticipante,
+    RevelarDato,
   ],
   template: `
     <ap-marco-de-cumplimiento [titulo]="t.ficha.titulo" [proposito]="t.proposito" icono="persona">
@@ -62,30 +65,13 @@ const T = textosParticipantes;
                 }}</ap-chip-estado>
               </ap-seccion-de-expediente>
               <ap-seccion-de-expediente [titulo]="t.ficha.contacto" [datos]="contactoDe(f)" />
+              <ap-revelar-dato [usuarioId]="usuarioId()" [tieneCorreo]="!!f.correoEnmascarado" />
             </section>
-            <section aria-labelledby="medidas" class="bloque">
-              <h2 id="medidas"><ap-icono nombre="escudo" tamano="s4" />{{ t.ficha.medidas }}</h2>
-              @for (m of f.medidas; track m.expedienteId) {
-                <article class="medida">
-                  <header>
-                    <strong>{{ texto(t.causales, m.causal) }}</strong> · {{ texto(t.medidas, m.medida) }}
-                    <ap-chip-estado tono="aviso">{{ texto(t.etapas, m.estado) }}</ap-chip-estado>
-                  </header>
-                  <h3><ap-icono nombre="historial" tamano="s4" />{{ t.ficha.lineaDeTiempo }}</h3>
-                  <ol>
-                    @for (h of m.lineaDeTiempo; track $index) {
-                      <li>
-                        <time [attr.datetime]="h.ocurridoEn">{{ fecha(h.ocurridoEn) }}</time> ·
-                        {{ texto(t.etapas, h.estado) }}
-                      </li>
-                    }
-                  </ol>
-                  <p class="plazos">{{ plazos(m) }}</p>
-                </article>
-              } @empty {
-                <p class="indicacion">{{ t.ficha.sinMedidas }}</p>
-              }
-            </section>
+            <ap-medidas-del-participante
+              [usuarioId]="usuarioId()"
+              [medidas]="f.medidas"
+              (cambio)="ficha.reload()"
+            />
           }
         </ap-estado-de-pantalla>
       }
@@ -101,37 +87,16 @@ const T = textosParticipantes;
       gap: var(--s3);
       max-width: 40rem;
     }
-    .justificar p,
-    .indicacion,
-    .plazos {
+    .justificar p {
       margin: 0;
       color: var(--text-2);
     }
-    h2,
-    h3 {
+    h2 {
       display: flex;
       align-items: center;
       gap: var(--s2);
       margin: 0;
       font: var(--t-titulo-3);
-    }
-    .medida {
-      display: grid;
-      gap: var(--s2);
-      padding: var(--s4);
-      border: var(--borde-fino) solid var(--border);
-      border-radius: var(--r-lg);
-      background: var(--surface);
-    }
-    .medida header {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: var(--s2);
-    }
-    ol {
-      margin: 0;
-      padding-left: var(--s5);
     }
   `,
 })
@@ -145,8 +110,6 @@ export class FichaDeParticipante {
   protected readonly error = signal<string | undefined>(undefined);
   protected readonly motivo = signal<string | null>(null);
   protected readonly ficha = fichaDe(this.usuarioId, this.motivo);
-  protected readonly fecha = (iso: string) => formatearFecha(iso);
-  protected readonly texto = (mapa: Record<string, string>, codigo: string) => mapa[codigo] ?? codigo
   protected readonly estado = (codigo: string) => T.estados[codigo] ?? codigo;
 
   protected abrir(): void {
@@ -172,14 +135,5 @@ export class FichaDeParticipante {
       { nombre: T.ficha.telefono, valor: f.telefonoEnmascarado },
       { nombre: T.ficha.correo, valor: f.correoEnmascarado ?? '—' },
     ];
-  }
-
-  protected plazos(m: ExpedienteDeMedida): string {
-    const partes = [
-      m.fechaLimiteDescargo ? `Descargo hasta ${formatearFecha(m.fechaLimiteDescargo)}` : null,
-      m.fechaLimiteApelacion ? `Apelación hasta ${formatearFecha(m.fechaLimiteApelacion)}` : null,
-      `Prescribe el ${formatearFecha(m.prescribeEn)}`,
-    ];
-    return partes.filter(Boolean).join(' · ');
   }
 }

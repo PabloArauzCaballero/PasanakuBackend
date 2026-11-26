@@ -1,6 +1,6 @@
 # Reporte — Lote G · CU de gobierno de participantes (borrador para aprobación)
 
-> **AVANCE: 31 / 35 — 88,6 %** (`plan_status.py`). #525 mergeado en `dev` (CU-134, entregas, backoffice y modo restringido). H4 (A-1 y A-4 de Pablo del 2026-11-26) hecho y verificado en local, en PR aparte; abiertos H3.S4.M2 (evidencia 91.6) y H3.S6.M3.
+> **AVANCE: 34 / 36 — 94,4 %** (`plan_status.py`). #525 y #532 mergeados en `dev`. H3.S4.M2 (retención de la entrega con evidencia 91.6) y H3.S6.M3/M4 (actos con segundo factor en la ficha) hechos y verificados en local, en PR aparte; abiertos H2.S1.M3 y H3.S7.M1 hasta la CI verde de ese PR.
 
 - Fecha: 2026-11-24 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/gu-g-cu-participantes` → PR a `dev`
 - Peldaño de evidencia alcanzado: `RUNS` sobre la bóveda, en local y en la CI del PR #514 (los verificadores corren en exit 0 con el CU nuevo). Es un documento: no hay comportamiento que ejercitar; el CU queda **BORRADOR** hasta que Pablo lo apruebe (decisión P-11).
@@ -55,7 +55,7 @@ Continúan pendientes H3.S4–S6: custodia de punta a punta en entregas, aplicac
 
 - **Hallazgo de seguridad corregido (`a605b179f`):** la credencial `SERVICIO_ENTREGAS` tenía `PARTICIPANTES_LEER`, que le abría el directorio y las fichas con datos personales. Ahora `medida-vigente` usa el permiso propio `PARTICIPANTES_MEDIDA_VIGENTE_LEER` (solo esa credencial), con su WebTest negativo (403 al abrir una ficha). Lo detectó la matriz de roles del backoffice. Compilación y WebTest se verifican en la CI de #525 (sin Gradle local).
 - **H3.S5.M1 — A MEDIAS.** Qué anda: un `SUSPENDIDO` hoy no obtiene token (`CU04Autenticar.java:132`), falla cerrado. Qué no anda: no hay alcance restringido. Qué falta: claim `alcance=RESTRINGIDO` en CU-04 y lista blanca en `GuardiaDePermiso` (plataforma/comun-web), aditivo, coordinado con el lote C (avisado el 2026-11-25; respondió que no lo toma: CU-04 y GuardiaDePermiso quedan fuera de su alcance, lo asigna la sesión principal). Dónde quedó: sin código; contrato y tres niveles en `PLAN.md`.
-- **H3.S6.M3 — TODO:** revelar, proponer, decidir y resolver con segundo factor desde el backoffice.
+- **H3.S6.M3 — HECHO (2026-11-26, ver abajo).**
 
 ## CI de #525 hasta verde (2026-11-25)
 
@@ -69,6 +69,11 @@ Pendiente fuera del repositorio: dos `git stash` con capturas de `docs/trabajo/2
 
 - **A-4**: QR, recarga y reclamar quedan bloqueados en modo restringido. El código ya lo cumplía: la lista cerrada es expediente, descargo, apelación y `pagarCuotaConSaldo` (`evidencia/h4-m1-a4.txt`).
 - **A-1**: si la medida queda firme, la entrega sigue retenida hasta resolución humana. **El código no lo cumplía**: al vencer la suspensión el trabajo `vencer` cerraba el expediente y la retención se levantaba sola. Corregido en una rama nueva desde `dev`: columnas de liberación en `expediente_medida_cuenta` con `R-SEG-17`, retención = en curso **o** firme sin liberar, y `CU134LiberarEntrega` con segundo factor, fundamento, idempotencia y evento. Verificado en local contra PostgreSQL real (`evidencia/h4-a1-retencion.txt`); falta la CI del PR. Nada se aplica a deuda: la liberación solo deja de retener, y la emisión sigue el curso normal de CU-28.
+
+## Continuación del 2026-11-26 · H3.S4.M2 y H3.S6.M3/M4
+
+- **H3.S4.M2 — HECHO (TESTED, PostgreSQL real).** `CU28RetencionPorMedidaTest`: con medida vigente, dos emisiones con la misma clave devuelven AP-CU28-08 sin orden ni evento de desembolso; liberada la medida, la misma clave emite una sola orden por el neto y el reintento devuelve el mismo `ordenId`. Escenario agregado al gherkin de CU-28. Regresión de entregas: test 49, integrationTest 76, webTest 65, testBarrido 2 en verde. Los cinco puntos de 91.6 en `evidencia/h3-s4-m2-916.txt`.
+- **H3.S6.M3/M4 — HECHO (VERIFIED_FUNCTIONAL contra backend simulado).** La ficha suma revelar dato, proponer medida, confirmar/desestimar, aceptar/rechazar apelación y liberar entrega (A-1), cada acto con su permiso y segundo factor reutilizando `DialogoDeActo`; errores AP-CU134-* mapeados a su campo. Specs 14/14, suite del backoffice 1527/1527, lint y typecheck en 0, e2e visual 30/30 con capturas en tres viewports y dos temas (`evidencia/h3-s6-m3-actos.txt`, `evidencia/capturas/actos-*`). No se ejercitó contra `identidad` real.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
@@ -157,6 +162,7 @@ sobre la misma rama la pisó); se relanzó una vez y terminó en verde.
 Archivos completos: [evidencia/](./evidencia/).
 
 ## No cubierto
+- Actos de H3.S6.M3/M4 contra el servicio `identidad` real (solo simulado y `HttpTestingController`); lector de pantalla no ejercitado (sí axe y teclado en specs).
 - El CU no se implementó ni se ejecutó contra nada: es especificación. Ninguna regla de él está verificada en runtime.
 - No se dieron de alta en `docs/Restricciones.md` las restricciones nuevas ni en el modelo las entidades `expediente_medida_cuenta` / `apelacion_medida_cuenta`, los permisos `PARTICIPANTES_*` ni los valores de CHECK nuevos: quedan propuestos dentro del CU.
 - Los jobs de Flutter, iOS y punta a punta se saltaron en la CI por no aplicar a un cambio de documentación.
