@@ -36,6 +36,7 @@ describe('PantallaRolesInternos · accesibilidad', () => {
     fixture.detectChanges()
 
     http.expectOne(`${GW}/roles?asignablesAPersonalInterno=true`).flush(ROLES_FIXTURE)
+    http.expectOne(`${GW}/roles/solicitudes`).flush([])
     await fixture.whenStable()
     fixture.detectChanges()
 

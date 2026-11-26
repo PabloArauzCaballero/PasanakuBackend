@@ -63,6 +63,12 @@ public class GuardiaDePermiso implements HandlerInterceptor {
         // Sin token esto lanza SinContextoDeSesion, que sale 401. No se traduce a 403:
         // son dos situaciones distintas para quien llama.
         var contexto = sesion.actual();
+        // CU-134 (D-6): una cuenta bajo medida entra con alcance restringido y solo llega a las rutas de la
+        // lista cerrada. Va antes del permiso: el permiso correcto no abre una ruta que la medida cierra.
+        if (sesion.restringida() && !permitidaEnRestriccion(metodo)) {
+            BITACORA.info("acceso denegado: sesion restringida fuera de su lista");
+            throw new AccessDeniedException("sesion restringida");
+        }
         String codigo = exigido.value();
 
         if (codigo.equals(contexto.rol()) || sesion.permisos().contains(codigo)) {
@@ -79,6 +85,11 @@ public class GuardiaDePermiso implements HandlerInterceptor {
 
         BITACORA.info("acceso denegado: el rol {} no tiene {}", contexto.rol(), codigo);
         throw new AccessDeniedException("falta " + codigo);
+    }
+
+    private static boolean permitidaEnRestriccion(HandlerMethod metodo) {
+        return metodo.hasMethodAnnotation(PermitidoEnRestriccion.class)
+                || metodo.getBeanType().isAnnotationPresent(PermitidoEnRestriccion.class);
     }
 
     /** Lo del metodo gana sobre lo de la clase: lo mas especifico manda, como en Spring. */

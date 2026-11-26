@@ -1,0 +1,59 @@
+{
+  "servicio": "identidad",
+  "operacion": "listarSolicitudesDeRol",
+  "metodo": "get",
+  "ruta": "/roles/solicitudes",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "e4cdffad-82ae-4e7b-8663-61d6677c9e28",
+          "tipo": "CREAR",
+          "rolId": "23fc0740-62bb-4de0-8147-0aa086b71520",
+          "codigo": "codigo",
+          "nombre": "nombre",
+          "descripcion": "descripcion",
+          "permisos": [
+            "permisos[0]"
+          ],
+          "motivo": "motivo",
+          "propuestaPor": "6522377c-2d97-4314-88b5-e46892ba0a90",
+          "propuestaEn": "2026-01-15T10:30:00Z"
+        }
+      ]
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": []
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "e4cdffad-82ae-4e7b-8663-61d6677c9e28",
+          "tipo": "CREAR",
+          "rolId": "23fc0740-62bb-4de0-8147-0aa086b71520",
+          "codigo": "codigo",
+          "nombre": "nombre",
+          "descripcion": "descripcion",
+          "permisos": [
+            "permisos[0]"
+          ],
+          "motivo": "motivo",
+          "propuestaPor": "6522377c-2d97-4314-88b5-e46892ba0a90",
+          "propuestaEn": "2026-01-15T10:30:00Z"
+        }
+      ]
+    },
+    "rechazo": {
+      "estado": 401,
+      "cuerpo": {
+        "codigo": "AP-CU135-01",
+        "mensaje": "Codigo invalido",
+        "detalle": {},
+        "trazaId": "traza-listarSolicitudesDeRol-rechazo"
+      }
+    }
+  }
+}

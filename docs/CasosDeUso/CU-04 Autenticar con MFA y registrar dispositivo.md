@@ -302,7 +302,16 @@ Dado un enrolamiento TOTP iniciado
 Cuando se lee su fila en factor_mfa
 Entonces el secreto está cifrado con su version_llave y nunca en claro
 
-Dada una cuenta SUSPENDIDO, BLOQUEADO_SEGURIDAD, BAJA_VOLUNTARIA o ELIMINADO
+Dada una cuenta BLOQUEADO_SEGURIDAD, BAJA_VOLUNTARIA o ELIMINADO
+Cuando inicia sesión con la clave correcta
+Entonces se responde AP-CU04-02 y no se abre sesión
+
+Dado un participante con la cuenta SUSPENDIDO por una medida de CU-134
+Cuando inicia sesión con la clave correcta
+Entonces no se lo rechaza por su estado
+Y el token que se le emite lleva alcance RESTRINGIDO
+
+Dado un operador del personal interno con la cuenta SUSPENDIDO
 Cuando inicia sesión con la clave correcta
 Entonces se responde AP-CU04-02 y no se abre sesión
 
@@ -339,4 +348,4 @@ Entonces renueva: el corte es solo del backoffice
 
 ## Ver también
 
-[[CU-08 Asignar y revocar roles de operador]] · [[CU-09 Cambiar credenciales y solicitar la baja]] · [[CU-11 Retirar saldo]] · [[CU-55 Gestionar un incidente de seguridad]] · [[ADR-038 Acceso administrativo · segundo factor y recuperación asistida]] · [[Seguridad]] · [[Restricciones]]
+[[CU-08 Asignar y revocar roles de operador]] · [[CU-09 Cambiar credenciales y solicitar la baja]] · [[CU-11 Retirar saldo]] · [[CU-55 Gestionar un incidente de seguridad]] · [[ADR-038 Acceso administrativo · segundo factor y recuperación asistida]] · [[Seguridad]] · [[Restricciones]] · [[CU-135 Crear, editar y retirar roles personalizados con step-up y cuatro ojos]]

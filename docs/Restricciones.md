@@ -1910,6 +1910,18 @@ ALTER TABLE asignacion_rol
      OR (ambito <> 'GRUPO' AND ambito_id IS NULL)),
   ADD CONSTRAINT ck_asignacion_revocacion_motivada CHECK (
         revocada_en IS NULL OR motivo_revocacion IS NOT NULL);
+-- GU-16 · cuatro ojos en el cambio de un rol de riesgo alto: quien propone no resuelve; resolver deja fecha y motivo
+ALTER TABLE solicitud_cambio_rol
+  ADD CONSTRAINT ck_solicitud_cambio_rol_cuatro_ojos CHECK (resuelta_por IS NULL OR resuelta_por <> propuesta_por),
+  ADD CONSTRAINT ck_solicitud_cambio_rol_resolucion CHECK (
+        (estado = 'PENDIENTE' AND resuelta_por IS NULL AND resuelta_en IS NULL)
+     OR (estado <> 'PENDIENTE' AND resuelta_por IS NOT NULL AND resuelta_en IS NOT NULL AND motivo_resolucion IS NOT NULL)),
+  ADD CONSTRAINT ck_solicitud_cambio_rol_rol_requerido CHECK (tipo = 'CREAR' OR rol_id IS NOT NULL);
+-- GU-18 · una cuenta de servicio revocada dice quién, cuándo y por qué
+ALTER TABLE cuenta_servicio
+  ADD CONSTRAINT ck_cuenta_servicio_revocacion CHECK (
+        (estado = 'ACTIVA' AND revocada_en IS NULL AND revocada_por IS NULL AND motivo_revocacion IS NULL)
+     OR (estado = 'REVOCADA' AND revocada_en IS NOT NULL AND revocada_por IS NOT NULL AND motivo_revocacion IS NOT NULL));
 
 -- R-SEG-08 · una sola asignación viva por usuario, rol y ámbito
 CREATE UNIQUE INDEX uq_asignacion_vigente

@@ -1,0 +1,4 @@
+typecheck=0
+All files pass linting.
+TODO OK
+lint=0

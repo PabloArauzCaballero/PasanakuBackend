@@ -75,6 +75,19 @@ export const rutasCumplimiento: Routes = [
     title: 'Bloqueos de autoridad · AportaYa',
   },
   {
+    // CU-134: los códigos de `buscarParticipantes` y `abrirFichaDeParticipante` (identidad.yaml).
+    path: 'participantes',
+    canMatch: [guardiaDe('participantes')],
+    loadComponent: () => import('./participantes/directorio-de-participantes').then((m) => m.DirectorioDeParticipantes),
+    title: 'Participantes · AportaYa',
+  },
+  {
+    path: 'participantes/:usuarioId',
+    canMatch: [guardiaDe('participantes')],
+    loadComponent: () => import('./participantes/ficha-de-participante').then((m) => m.FichaDeParticipante),
+    title: 'Ficha del participante · AportaYa',
+  },
+  {
     path: 'uif/reportes',
     canMatch: [guardiaDe('uif/reportes')],
     loadComponent: () => import('./uif/bandeja-de-reportes').then((m) => m.BandejaDeReportes),

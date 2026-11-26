@@ -25,8 +25,7 @@ normas: [Debido proceso, protección de datos personales, ASFI Seguridad de la I
 > decisiones D-1 a D-15 quedan con la opción recomendada en el borrador, listadas en
 > *Decisiones aprobadas*. Lo marcado **APROBADO** era propuesta en el borrador. Los números
 > de plazo (D-3) y la retención de la entrega (D-11) los fijó Pablo aparte, el mismo día, **sin
-> fuente normativa**: son valores de plataforma editables sin tocar código. Queda abierto qué se
-> hace con una entrega retenida cuando la medida queda firme (ver *Ambigüedades abiertas*).
+> fuente normativa**: son valores de plataforma editables sin tocar código. Pablo también fijó el destino de la entrega retenida y el plazo de resolución de la apelación el 2026-11-25 (ver *Decisiones aprobadas*).
 
 ## Qué ya existe y no se duplica
 
@@ -83,8 +82,8 @@ Este caso **no** reemplaza a ninguno de estos; los invoca o se aparta de ellos.
    estable (`fecha_registro`, `id`) y devuelve por fila solo: código público, nombre
    abreviado («Juan P.»), `estado`, `nivel_kyc`, fecha de registro y marcas booleanas
    (tiene restricción vigente, tiene bloqueo vigente, tiene medida de seguridad en curso).
-   Cada búsqueda escribe una fila en [[registro_acceso_datos]] con `operacion='BUSQUEDA'`,
-   `cantidad_registros` y la justificación. El término buscado viaja en el cuerpo, nunca en
+   Cada búsqueda escribe en [[registro_acceso_datos]] una fila por persona devuelta, con
+   `operacion='BUSQUEDA'` y la justificación; sin resultados no se leyó el dato de nadie. El término buscado viaja en el cuerpo, nunca en
    la URL (regla 90.2.2).
 2. **Abrir la ficha.** Devuelve los datos **mínimos y enmascarados**:
    - identidad: nombre completo, código público, `estado`, `nivel_kyc`, fecha de registro,
@@ -169,7 +168,9 @@ Este caso **no** reemplaza a ninguno de estos; los invoca o se aparta de ellos.
     `prescribe_en_dias`, el expediente se cierra `PRESCRITO` y no se reabre por el mismo hecho.
 13. **Apelación.** Una sola por expediente (mismo criterio que `R-ORG-05`), dentro del plazo
     guardado. La resuelve una tercera persona, que **no** propuso ni decidió (`R-SEG-04`).
-    Si la instancia no resuelve en su plazo, **se resuelve a favor del apelante**.
+    El plazo de resolución es de **10 días hábiles desde la recepción acreditada de la apelación**.
+    Se calcula con CU-59 y se guarda al recibirla. Si la instancia no resuelve en ese plazo,
+    **se resuelve a favor del apelante** y se revierte la medida de este expediente.
 14. **Efectos firmes.** Con el expediente `FIRME`: el estado queda con su fin de vigencia,
     se registra un [[evento_reputacion]] **solo** para `FRAUDE_CON_EVIDENCIA` y
     `ABUSO_CONTRA_PARTICIPANTES` (*APROBADO*, ver D-8; nunca para cuenta comprometida, que
@@ -197,8 +198,11 @@ Este caso **no** reemplaza a ninguno de estos; los invoca o se aparta de ellos.
     **Entrega durante la medida (D-11 aprobada):** si el turno del participante cae mientras
     tiene una medida vigente, su entrega **se retiene en custodia** sin perderse ni moverse a
     otro: no se le acredita hasta resolver. Se **libera** a su cuenta verificada si la medida
-    se levanta, se desestima, se revierte o vence. Si la medida **queda firme**, el destino de
-    lo retenido **no está decidido** (ver *Ambigüedades abiertas*): queda retenido. La retención
+    se levanta, se desestima, se revierte o vence, siempre que no exista una restricción independiente
+    vigente. Si la medida **queda firme**, la custodia sigue segregada a favor del titular solo
+    mientras la medida esté vigente. La firmeza no cambia el beneficiario ni extingue su derecho.
+    Si falta una cuenta de destino verificada, se conserva la custodia a favor del titular y se
+    deriva a revisión. Toda liberación exige conciliación e idempotencia. La retención
     la ejecuta el servicio `entregas` al consultar a `identidad` si el beneficiario tiene medida
     vigente; el contrato entre servicios y su idempotencia se definen al implementar (reglas 91
     y 98), sin cambiar la liquidación más de lo necesario.
@@ -330,11 +334,11 @@ export const ErroresCU134 = {
 | Átomo | `enmascarar(campo, valor)` | Teléfono, correo y documento enmascarados; puro |
 | Átomo | `causalAdmiteCautelar(causal)` | Lee el catálogo cerrado; puro |
 | Átomo | `plazosDeMedida(politica, notificadoEn, calendario)` | Descargo, apelación y prescripción en días hábiles; puro |
-| Molécula | `RegistroDeLectura` | Escribe [[registro_acceso_datos]] en la transacción de la lectura |
-| Molécula | `ExpedienteMedidaCuentaRepositorio` | Persistencia del expediente, evidencias, decisión y apelación (*APROBADO*, D-4) |
-| Molécula | `RevocadorDeSesiones` | Compartido con [[CU-04 Autenticar con MFA y registrar dispositivo]] |
-| Organismo | `CU134ConsultarParticipante` | Transacción: lectura + registro de lectura |
-| Organismo | `CU134ProponerMedida` · `CU134DecidirMedida` · `CU134ResolverApelacion` | Transacción: expediente, estado de cuenta, bloqueo, sesiones y evento |
+| Molécula | `ParticipantesRepositorio` | Directorio, ficha y rastro en [[registro_acceso_datos]] en la transaccion de la lectura |
+| Molécula | `MedidasDeCuentaRepositorio` | Expediente, evidencia e historial append-only, apelacion, estado de cuenta, bloqueo y calendario habil |
+| Molécula | `AccesosRepositorio.cerrarSesionesDe` | Compartido con [[CU-04 Autenticar con MFA y registrar dispositivo]] y CU-08 |
+| Organismo | `CU134ConsultarParticipante` | Transacción: busqueda, ficha y revelacion con su rastro; medida vigente para `entregas` |
+| Organismo | `CU134GestionarMedida` | Transacción: proponer, notificar, descargo, decidir, apelar, resolver y el trabajo diario de vencimientos |
 | Página | `POST /identidad/participantes/busquedas` · `POST /identidad/participantes/{id}/ficha` · `POST /identidad/participantes/{id}/medidas` · `POST /identidad/medidas-cuenta/{id}/decision` | Traduce y delega |
 
 ## Eventos, trabajos y permisos
@@ -342,6 +346,7 @@ export const ErroresCU134 = {
 | Emite | Dispara | Exige |
 | --- | --- | --- |
 | — (las lecturas van a [[registro_acceso_datos]], no al outbox) | — | `PARTICIPANTES_LEER` (*APROBADO*, permiso nuevo) |
+| — (consulta servicio a servicio de `entregas`, D-11) | — | `PARTICIPANTES_MEDIDA_VIGENTE_LEER` (*APROBADO*, permiso nuevo de mínimo privilegio: solo la credencial `SERVICIO_ENTREGAS`; no abre directorio ni ficha) |
 | — | Revelación de un campo | `DATOS_SENSIBLES_LEER` (existe) + segundo factor |
 | `cuenta_participante.medida_propuesta` | Notificación con causal, evidencia visible y cómo defenderse | `PARTICIPANTES_MEDIDA_PROPONER` (*APROBADO*) |
 | `cuenta_participante.bloqueo_cautelar` | Revocación de sesiones y aviso al titular | `PARTICIPANTES_MEDIDA_PROPONER` |
@@ -426,8 +431,8 @@ Entonces se rechaza con CAUTELAR_NO_ADMITIDA
 
 Dada una cuenta comprometida con evidencia de sesiones anómalas
 Cuando el analista propone un bloqueo cautelar
-Entonces la cuenta queda BLOQUEADO_SEGURIDAD, sus sesiones quedan revocadas
-Y el expediente queda CAUTELAR con la fecha límite de descargo guardada al notificar
+Entonces la cuenta queda BLOQUEADO_SEGURIDAD, sus sesiones quedan revocadas y el expediente queda CAUTELAR
+Y al acreditarse la notificación se guarda la fecha límite de descargo y el expediente pasa a EN_DESCARGO
 
 Dado un expediente con el plazo de descargo abierto y sin descargo
 Cuando se intenta decidir
@@ -441,10 +446,15 @@ Dada una propuesta de medida reenviada con la misma clave de idempotencia
 Cuando llega por segunda vez
 Entonces devuelve el mismo expedienteId y no se crea otro expediente
 
-Dada una apelación que la instancia no resuelve dentro de su plazo
-Cuando vence
+Dada una apelación que una tercera persona acepta
+Cuando la resuelve
 Entonces la medida queda REVOCADA, la cuenta vuelve a su estado previo
-Y se registra un evento de reputación compensatorio sin borrar el original
+Y se emite identidad.medida_cuenta_revocada sin borrar el historial del expediente
+
+Dada una apelación recibida y pendiente de resolución
+Cuando vencen los diez días hábiles sin decisión
+Entonces la apelación queda ACEPTADA_POR_VENCIMIENTO y la medida se revierte
+Y se emite una sola vez identidad.medida_cuenta_revocada
 
 Dada una cuenta suspendida con aportes pendientes en un grupo
 Cuando se aplica la suspensión
@@ -470,7 +480,7 @@ principal del trabajo de gobierno de usuarios.
 | D-8 | Reputación | Solo una medida firme por `FRAUDE_CON_EVIDENCIA` o `ABUSO_CONTRA_PARTICIPANTES` produce evento de reputación |
 | D-9 | Base legal | Contrato de adhesión + seguridad de la información + prevención del fraude ([[Cumplimiento]] §5) |
 | D-10 | Aportes pendientes | Siguen exigibles y la persona puede pagarlos |
-| D-11 | Entrega durante la medida | **Se retiene en custodia hasta resolver** (decisión de Pablo del 2026-11-24): se libera si la medida se levanta, se desestima, se revierte o vence; si queda firme, el destino se decide aparte |
+| D-11 | Entrega durante la medida | **Se retiene en custodia hasta resolver** (decisión de Pablo del 2026-11-24): si queda firme se conserva a favor del titular solo mientras la medida esté vigente; se libera al terminar, previa verificación de otras restricciones y de la cuenta destino |
 | D-12 | Reemplazo en el grupo | Nunca por esta medida |
 | D-13 | Inhabilitación con saldo o deuda | No aplica: D-2 no incluye inhabilitación definitiva |
 | D-14 | Registro de lectura | Se agregan `FICHA_PARTICIPANTE` y `CORREO` a `registro_acceso_datos.tipo_dato` |
@@ -480,9 +490,10 @@ principal del trabajo de gobierno de usuarios.
 
 | ID | Ambigüedad | Supuesto mientras tanto | A quién confirmar |
 | --- | --- | --- | --- |
-| A-1 | Destino de una entrega retenida cuando la medida queda firme (D-11) | Sigue retenida; nadie la mueve | Pablo |
+| A-1 | **Resuelta por Pablo (2026-11-25)**: custodia a favor del titular mientras siga vigente la medida | Al terminar, liberar a cuenta verificada solo si no hay otra restricción vigente | — |
 | A-2 | ~~Unidad de la prescripción~~ — **resuelta**: [[politica_medida_cuenta]] guarda `prescribe_en_meses` y `duracion_maxima_suspension_dias` en columnas propias | — | — |
-| A-3 | Plazo de la segunda instancia para resolver la apelación (sin él no hay «resuelta a favor por vencimiento») | `plazo_resolucion_apelacion_dias_habiles` queda vacío: no se resuelve sola | Pablo |
+| A-3 | **Resuelta por Pablo (2026-11-25)**: la segunda instancia dispone de 10 días hábiles desde la recepción acreditada | Si vence el plazo sin resolución, se acepta la apelación y se revierte la medida | — |
+| A-4 | Qué rutas cuentan como «pagar» y «reclamar» en el modo restringido (D-6) | Implementado lo inequívoco: ver el expediente, descargo, apelación y `pagarCuotaConSaldo`. Quedan **fuera** hasta decisión: emitir/pagar/leer QR y la recarga de billetera; ver el perfil o la billetera. No existe ruta para que el participante **presente** un reclamo (solo la bandeja del Punto de Reclamo), así que «reclamar» no tiene qué abrir | Pablo |
 
 ## Ver también
 

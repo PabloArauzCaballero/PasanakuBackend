@@ -1485,6 +1485,369 @@ paths:
                 type: array
                 items: { $ref: '#/components/schemas/RolCatalogo' }
 
+    post:
+      operationId: crearRol
+      tags: [Roles]
+      summary: Crear un rol personalizado
+      description: >-
+        GU-16 (decision P-9). El rol nace GLOBAL, nunca `es_sistema`, con al menos un permiso del catalogo y sin
+        un par incompatible (R-SEG-04, AP-CU135-05). El codigo no puede ser SERVICIO_* ni de participante
+        (AP-CU135-01). Exige step-up y motivo. Si incluye algun permiso de riesgo ALTO o CRITICO no se crea:
+        responde 202 con la solicitud que otra persona debe aprobar. Deja `identidad.rol_creado` o
+        `identidad.rol_solicitado` en la bitacora.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDeCreacionDeRol' }
+      responses:
+        '201':
+          description: Rol creado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDeRol' }
+        '202':
+          description: Pendiente de aprobacion de otra persona
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDeRol' }
+        '400':
+          description: El cuerpo no cumple el contrato
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ROLES_INTERNOS_GESTIONAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  # CU-135 (GU-16): AP-CU135-01 CODIGO_INVALIDO · AP-CU135-02 CODIGO_EN_USO · AP-CU135-03 SIN_PERMISOS
+  # AP-CU135-04 PERMISO_INEXISTENTE · AP-CU135-05 PAR_INCOMPATIBLE · AP-CU135-06 ROL_DE_SISTEMA
+  # AP-CU135-07 ROL_INEXISTENTE · AP-CU135-08 MOTIVO_REQUERIDO · AP-CU135-09 STEP_UP_REQUERIDO
+  # AP-CU135-10 CON_ASIGNACIONES_VIGENTES · AP-CU135-11 SOLICITUD_INEXISTENTE · AP-CU135-12 APROBADOR_ES_EL_PROPONENTE
+  # AP-CU135-13 ASIGNADO_QUEDARIA_EN_CONFLICTO · AP-CU135-14 SOLICITUD_YA_RESUELTA
+
+  /roles/solicitudes:
+    get:
+      operationId: listarSolicitudesDeRol
+      tags: [Roles]
+      summary: Solicitudes de cambio de rol pendientes de la segunda persona (cuatro ojos)
+      description: >-
+        GU-16. Las propuestas de crear o editar un rol que agrega permisos de riesgo ALTO o CRITICO esperan aca
+        a que otra persona las apruebe o las rechace. Lectura: alcanza ROLES_INTERNOS_LEER.
+      responses:
+        '200':
+          description: Solicitudes pendientes, la mas antigua primero (hasta 100)
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/SolicitudDeRol' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ROLES_INTERNOS_LEER ni ROLES_INTERNOS_GESTIONAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /roles/solicitudes/{solicitudId}/aprobacion:
+    post:
+      operationId: aprobarSolicitudDeRol
+      tags: [Roles]
+      summary: Aprobar la solicitud de otra persona y aplicar el cambio
+      description: >-
+        Exige step-up y motivo. La persona que propuso no puede resolver su propia solicitud (AP-CU135-12, y la
+        base lo impide). Al aprobar se vuelven a comprobar todas las reglas del rol.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - name: solicitudId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDeResolucionDeRol' }
+      responses:
+        '200':
+          description: Cambio aplicado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDeRol' }
+        '400':
+          description: El cuerpo no cumple el contrato
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ROLES_INTERNOS_GESTIONAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /roles/solicitudes/{solicitudId}/rechazo:
+    post:
+      operationId: rechazarSolicitudDeRol
+      tags: [Roles]
+      summary: Rechazar la solicitud de otra persona, con motivo
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - name: solicitudId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDeResolucionDeRol' }
+      responses:
+        '200':
+          description: Solicitud rechazada; no se cambio ningun rol
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDeRol' }
+        '400':
+          description: El cuerpo no cumple el contrato
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ROLES_INTERNOS_GESTIONAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /roles/{rolId}:
+    patch:
+      operationId: editarRol
+      tags: [Roles]
+      summary: Editar un rol personalizado (nombre, descripcion y permisos)
+      description: >-
+        GU-16. Solo roles personalizados: uno `es_sistema` responde AP-CU135-06. Exige step-up y motivo; el
+        conjunto de permisos no puede reunir un par incompatible (AP-CU135-05) ni dejar a un titular vigente en
+        conflicto (AP-CU135-13). Si agrega permisos de riesgo ALTO o CRITICO no se aplica: responde 202 con la
+        solicitud a cuatro ojos. El codigo no se cambia.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - name: rolId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDeEdicionDeRol' }
+      responses:
+        '200':
+          description: Cambio aplicado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDeRol' }
+        '202':
+          description: Pendiente de aprobacion de otra persona
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDeRol' }
+        '400':
+          description: El cuerpo no cumple el contrato
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ROLES_INTERNOS_GESTIONAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /roles/{rolId}/retiro:
+    post:
+      operationId: retirarRol
+      tags: [Roles]
+      summary: Retirar un rol personalizado sin asignaciones vigentes
+      description: >-
+        El rol queda con retirado_en y no se asigna mas; la fila no se borra. Exige step-up y motivo. Un rol
+        con titulares vigentes responde AP-CU135-10. Es POST y no DELETE porque lleva cuerpo (motivo).
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - name: rolId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDeRetiroDeRol' }
+      responses:
+        '200':
+          description: Rol retirado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDeRol' }
+        '400':
+          description: El cuerpo no cumple el contrato
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ROLES_INTERNOS_GESTIONAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  # CU-136 (GU-18): AP-CU136-01 NOMBRE_INVALIDO · AP-CU136-02 MOTIVO_REQUERIDO · AP-CU136-03 VENCIMIENTO_INVALIDO
+  # AP-CU136-04 STEP_UP_REQUERIDO · AP-CU136-05 SIN_ROL_DE_SERVICIO · AP-CU136-06 YA_REGISTRADA
+  # AP-CU136-07 CUENTA_INEXISTENTE · AP-CU136-08 CUENTA_REVOCADA · AP-CU136-09 NADIE_SE_GOBIERNA_A_SI_MISMO
+  # AP-CU136-10 SIN_CREDENCIAL
+  /cuentas-servicio:
+    get:
+      operationId: listarCuentasDeServicio
+      tags: [CuentasDeServicio]
+      summary: Cuentas de servicio registradas, con su vencimiento y la ultima rotacion de su clave
+      description: >-
+        GU-18. Nunca devuelve una credencial ni su hash: solo cuando vence y cuando se roto por ultima vez.
+      responses:
+        '200':
+          description: Cuentas registradas, la mas reciente primero (hasta 200)
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/CuentaDeServicio' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ACCESOS_ADMINISTRAR ni USUARIOS_INTERNOS_LEER
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+    post:
+      operationId: registrarCuentaDeServicio
+      tags: [CuentasDeServicio]
+      summary: Registrar una cuenta de servicio ya aprovisionada, con nombre y vencimiento
+      description: >-
+        GU-18 (decision P-10). El usuario ya existe y porta un rol SERVICIO_* vigente (se aprovisiona fuera del
+        repositorio); registrarla le pone nombre, vencimiento y dueño, y la deja bajo gobierno. Los permisos son los del
+        rol SERVICIO_*: no se agregan permisos sueltos. Exige step-up y motivo; nadie gobierna su propia cuenta.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDeAltaDeCuentaDeServicio' }
+      responses:
+        '201':
+          description: Cuenta registrada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDeAltaDeCuentaDeServicio' }
+        '400':
+          description: El cuerpo no cumple el contrato
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ACCESOS_ADMINISTRAR ni USUARIOS_INTERNOS_GESTIONAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /cuentas-servicio/{cuentaId}/rotacion:
+    post:
+      operationId: rotarCredencialDeCuentaDeServicio
+      tags: [CuentasDeServicio]
+      summary: Rotar la clave de la cuenta; la credencial nueva se entrega UNA sola vez
+      description: >-
+        Genera una credencial aleatoria, guarda solo su hash (la anterior pasa al historial), cierra las sesiones vigentes
+        de la cuenta y devuelve el valor en esta respuesta, que no se vuelve a poder pedir ni aparece en logs, eventos ni
+        lecturas. La respuesta lleva Cache-Control no-store. El servicio que la usa tiene que recibir la nueva clave antes
+        de su proxima autenticacion. Exige step-up y motivo.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - name: cuentaId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDeRotacionDeCuentaDeServicio' }
+      responses:
+        '200':
+          description: Credencial rotada; el valor viene solo en esta respuesta
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDeRotacionDeCuentaDeServicio' }
+        '400':
+          description: El cuerpo no cumple el contrato
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ACCESOS_ADMINISTRAR ni USUARIOS_INTERNOS_GESTIONAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /cuentas-servicio/{cuentaId}/revocacion:
+    post:
+      operationId: revocarCuentaDeServicio
+      tags: [CuentasDeServicio]
+      summary: Revocar la cuenta — pierde su rol, su clave vence y sus sesiones se cierran
+      description: >-
+        Deja la cuenta REVOCADA (no vuelve a ACTIVA: se registra otra), revoca sus asignaciones de rol, vence la
+        credencial, suspende al usuario y cierra sus sesiones, todo en una transaccion. Exige step-up y motivo.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - name: cuentaId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDeRevocacionDeCuentaDeServicio' }
+      responses:
+        '200':
+          description: Cuenta revocada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaDeRevocacionDeCuentaDeServicio' }
+        '400':
+          description: El cuerpo no cumple el contrato
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: Sin ACCESOS_ADMINISTRAR ni USUARIOS_INTERNOS_GESTIONAR
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
   /permisos:
     get:
       operationId: listarPermisos
@@ -1497,6 +1860,288 @@ paths:
               schema:
                 type: array
                 items: { $ref: '#/components/schemas/PermisoCatalogo' }
+
+  # ---------------------------------------------------------------------------------
+  # CU-134 · Directorio y ficha del participante, y suspension o bloqueo de su cuenta
+  # por seguridad con debido proceso. Errores AP-CU134-01..11:
+  #   AP-CU134-01 JUSTIFICACION_INSUFICIENTE · AP-CU134-02 ACTUA_SOBRE_SI_MISMO
+  #   AP-CU134-03 SEGUNDO_FACTOR_REQUERIDO   · AP-CU134-04 CAUSAL_FUERA_DE_CATALOGO
+  #   AP-CU134-05 CAUTELAR_NO_ADMITIDA       · AP-CU134-06 EXPEDIENTE_ABIERTO
+  #   AP-CU134-07 PLAZO_DESCARGO_ABIERTO     · AP-CU134-08 MISMA_PERSONA
+  #   AP-CU134-09 APELACION_DUPLICADA        · AP-CU134-10 EXPEDIENTE_PRESCRITO
+  #   AP-CU134-11 RECLAMO_EN_CURSO
+  # El termino buscado y la justificacion viajan en el cuerpo, nunca en la URL (regla 90.2.2).
+  # ---------------------------------------------------------------------------------
+  /identidad/participantes/busquedas:
+    post:
+      tags: [Participantes]
+      operationId: buscarParticipantes
+      summary: Directorio de participantes, paginado, con rastro de la busqueda (CU-134)
+      description: >-
+        Devuelve por fila solo codigo publico, nombre abreviado, estado, nivel KYC, fecha de
+        registro y marcas. Cada busqueda escribe registro_acceso_datos (BUSQUEDA) con la
+        justificacion. Orden fechaRegistro descendente y, a igual fecha, id descendente; la pagina
+        siguiente se pide con el cursor de la ultima fila.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaBusquedaParticipantes' }
+      responses:
+        '200':
+          description: Pagina de participantes (vacia si no hay coincidencias)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeParticipantes' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU134-01 JUSTIFICACION_INSUFICIENTE
+
+  /identidad/participantes/{usuarioId}/ficha:
+    post:
+      tags: [Participantes]
+      operationId: abrirFichaDeParticipante
+      summary: Ficha enmascarada del participante, con registro de la lectura (CU-134)
+      description: >-
+        Contacto enmascarado, participacion sin importes y medidas vigentes. No devuelve saldo,
+        movimientos, cuentas ni casos de cumplimiento. Si no se puede registrar la lectura, no
+        se muestra.
+      parameters:
+        - { name: usuarioId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaJustificacionDeLectura' }
+      responses:
+        '200':
+          description: Ficha enmascarada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FichaDeParticipante' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '404': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU134-01 JUSTIFICACION_INSUFICIENTE · AP-CU134-02 ACTUA_SOBRE_SI_MISMO
+
+  /identidad/participantes/{usuarioId}/revelaciones:
+    post:
+      tags: [Participantes]
+      operationId: revelarDatoDeParticipante
+      summary: Revela un campo de contacto, con segundo factor y rastro (CU-134)
+      parameters:
+        - { name: usuarioId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaRevelacion' }
+      responses:
+        '200':
+          description: El valor del campo pedido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DatoRevelado' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '404': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU134-01 · AP-CU134-02 · AP-CU134-03 SEGUNDO_FACTOR_REQUERIDO
+
+  /identidad/participantes/{usuarioId}/medidas:
+    post:
+      tags: [Participantes]
+      operationId: proponerMedidaDeCuenta
+      summary: Abre el expediente de una suspension o un bloqueo cautelar (CU-134)
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - { name: usuarioId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaMedidaDeCuenta' }
+      responses:
+        '201':
+          description: Expediente abierto (o el mismo, si se reintenta con la misma clave)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExpedienteDeMedida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU134-02 · AP-CU134-04 CAUSAL_FUERA_DE_CATALOGO · AP-CU134-05 CAUTELAR_NO_ADMITIDA · AP-CU134-06 EXPEDIENTE_ABIERTO
+
+  /identidad/medidas-cuenta/{expedienteId}:
+    get:
+      tags: [Participantes]
+      operationId: consultarExpedienteDeMedida
+      summary: Expediente con su linea de tiempo y sus plazos (operador o titular) (CU-134)
+      parameters:
+        - { name: expedienteId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: El expediente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExpedienteDeMedida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '404': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /identidad/medidas-cuenta/{expedienteId}/notificacion:
+    post:
+      tags: [Participantes]
+      operationId: registrarNotificacionDeMedida
+      summary: Acredita la entrega del aviso y hace correr el plazo de descargo (CU-134)
+      description: >-
+        La invoca el servicio de notificaciones con el acuse de entrega. El plazo de descargo se
+        calcula aca, en dias habiles, y se guarda; un segundo acuse no lo mueve.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - { name: expedienteId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaNotificacionDeMedida' }
+      responses:
+        '200':
+          description: Expediente con el plazo guardado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExpedienteDeMedida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU134-10 EXPEDIENTE_PRESCRITO
+
+  /identidad/medidas-cuenta/{expedienteId}/descargo:
+    post:
+      tags: [Participantes]
+      operationId: presentarDescargoDeMedida
+      summary: El titular presenta su descargo con evidencias (CU-134)
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - { name: expedienteId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDescargoDeMedida' }
+      responses:
+        '200':
+          description: Descargo agregado al expediente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExpedienteDeMedida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU134-10 EXPEDIENTE_PRESCRITO
+
+  /identidad/medidas-cuenta/{expedienteId}/decision:
+    post:
+      tags: [Participantes]
+      operationId: decidirMedidaDeCuenta
+      summary: Decision motivada por una persona distinta de quien propuso (CU-134)
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - { name: expedienteId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDecisionDeMedida' }
+      responses:
+        '200':
+          description: Expediente decidido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExpedienteDeMedida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU134-03 · AP-CU134-07 PLAZO_DESCARGO_ABIERTO · AP-CU134-08 MISMA_PERSONA · AP-CU134-10 · AP-CU134-11 RECLAMO_EN_CURSO
+
+  /identidad/medidas-cuenta/{expedienteId}/apelacion:
+    post:
+      tags: [Participantes]
+      operationId: apelarMedidaDeCuenta
+      summary: Una sola apelacion por expediente (CU-134)
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - { name: expedienteId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDescargoDeMedida' }
+      responses:
+        '201':
+          description: Apelacion presentada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExpedienteDeMedida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU134-09 APELACION_DUPLICADA
+
+  /identidad/medidas-cuenta/{expedienteId}/apelacion/resolucion:
+    post:
+      tags: [Participantes]
+      operationId: resolverApelacionDeMedida
+      summary: Resuelve la apelacion una tercera persona (CU-134)
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+        - { name: expedienteId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaResolucionDeApelacion' }
+      responses:
+        '200':
+          description: Apelacion resuelta
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExpedienteDeMedida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU134-03 · AP-CU134-08 MISMA_PERSONA
+
+  /identidad/participantes/{usuarioId}/medida-vigente:
+    get:
+      tags: [Participantes]
+      operationId: consultarMedidaVigente
+      summary: Si el participante tiene una medida vigente que retiene su entrega (servicio a servicio) (CU-134)
+      description: >-
+        La consulta `entregas` antes de acreditar una entrega (D-11). Devuelve identificadores y
+        un booleano, nunca la causal ni la evidencia. Permiso propio `PARTICIPANTES_MEDIDA_VIGENTE_LEER`, que solo
+        tiene la credencial de `entregas`: no abre el directorio ni la ficha.
+      parameters:
+        - { name: usuarioId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Estado de la medida
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MedidaVigente' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
 
 components:
   parameters:
@@ -2434,6 +3079,144 @@ components:
           type: array
           items: { type: string }
 
+    EntradaDeCreacionDeRol:
+      type: object
+      additionalProperties: false
+      required: [codigo, nombre, permisos, motivo, evidenciaMfa]
+      properties:
+        codigo: { type: string, minLength: 3, maxLength: 30, pattern: '^[A-Z][A-Z0-9_]{2,29}$' }
+        nombre: { type: string, minLength: 1, maxLength: 60 }
+        descripcion: { type: string, maxLength: 255, nullable: true }
+        permisos: { type: array, minItems: 1, maxItems: 100, uniqueItems: true, items: { type: string, maxLength: 60 } }
+        motivo: { type: string, minLength: 1, maxLength: 160 }
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096 }
+
+    EntradaDeEdicionDeRol:
+      type: object
+      additionalProperties: false
+      required: [nombre, permisos, motivo, evidenciaMfa]
+      properties:
+        nombre: { type: string, minLength: 1, maxLength: 60 }
+        descripcion: { type: string, maxLength: 255, nullable: true }
+        permisos: { type: array, minItems: 1, maxItems: 100, uniqueItems: true, items: { type: string, maxLength: 60 } }
+        motivo: { type: string, minLength: 1, maxLength: 160 }
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096 }
+
+    EntradaDeRetiroDeRol:
+      type: object
+      additionalProperties: false
+      required: [motivo, evidenciaMfa]
+      properties:
+        motivo: { type: string, minLength: 1, maxLength: 160 }
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096 }
+
+    EntradaDeResolucionDeRol:
+      type: object
+      additionalProperties: false
+      required: [motivo, evidenciaMfa]
+      properties:
+        motivo: { type: string, minLength: 1, maxLength: 160 }
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096 }
+
+    SalidaDeRol:
+      type: object
+      additionalProperties: false
+      required: [estado]
+      properties:
+        estado: { type: string, enum: [APLICADO, PENDIENTE_DE_APROBACION, RECHAZADA] }
+        rolId: { type: string, format: uuid, nullable: true }
+        solicitudId: { type: string, format: uuid, nullable: true }
+
+    SolicitudDeRol:
+      type: object
+      additionalProperties: false
+      required: [id, tipo, codigo, nombre, permisos, motivo, propuestaPor, propuestaEn]
+      properties:
+        id: { type: string, format: uuid }
+        tipo: { type: string, enum: [CREAR, EDITAR, RETIRAR] }
+        rolId: { type: string, format: uuid, nullable: true }
+        codigo: { type: string }
+        nombre: { type: string }
+        descripcion: { type: string, nullable: true }
+        permisos: { type: array, items: { type: string } }
+        motivo: { type: string }
+        propuestaPor: { type: string, format: uuid }
+        propuestaEn: { type: string, format: date-time }
+
+    CuentaDeServicio:
+      type: object
+      additionalProperties: false
+      required: [id, usuarioId, rolCodigo, nombre, estado, venceEn, creadaEn, credencialRotadaEn]
+      properties:
+        id: { type: string, format: uuid }
+        usuarioId: { type: string, format: uuid }
+        rolCodigo: { type: string }
+        nombre: { type: string }
+        estado: { type: string, enum: [ACTIVA, REVOCADA] }
+        venceEn: { type: string, format: date-time }
+        creadaEn: { type: string, format: date-time }
+        credencialRotadaEn: { type: string, format: date-time }
+        revocadaEn: { type: string, format: date-time, nullable: true }
+
+    EntradaDeAltaDeCuentaDeServicio:
+      type: object
+      additionalProperties: false
+      required: [usuarioId, nombre, venceEn, motivo, evidenciaMfa]
+      properties:
+        usuarioId: { type: string, format: uuid }
+        nombre: { type: string, minLength: 1, maxLength: 80 }
+        venceEn: { type: string, format: date-time }
+        motivo: { type: string, minLength: 1, maxLength: 160 }
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096 }
+
+    SalidaDeAltaDeCuentaDeServicio:
+      type: object
+      additionalProperties: false
+      required: [cuentaId, usuarioId, rolCodigo, venceEn]
+      properties:
+        cuentaId: { type: string, format: uuid }
+        usuarioId: { type: string, format: uuid }
+        rolCodigo: { type: string }
+        venceEn: { type: string, format: date-time }
+
+    EntradaDeRotacionDeCuentaDeServicio:
+      type: object
+      additionalProperties: false
+      required: [motivo, evidenciaMfa]
+      properties:
+        venceEn: { type: string, format: date-time, nullable: true }
+        motivo: { type: string, minLength: 1, maxLength: 160 }
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096 }
+
+    SalidaDeRotacionDeCuentaDeServicio:
+      type: object
+      additionalProperties: false
+      required: [cuentaId, credencial, venceEn, sesionesCerradas]
+      properties:
+        cuentaId: { type: string, format: uuid }
+        credencial:
+          type: string
+          description: El valor de la credencial. Existe SOLO en esta respuesta y no se vuelve a poder pedir.
+        venceEn: { type: string, format: date-time }
+        sesionesCerradas: { type: integer, minimum: 0 }
+
+    EntradaDeRevocacionDeCuentaDeServicio:
+      type: object
+      additionalProperties: false
+      required: [motivo, evidenciaMfa]
+      properties:
+        motivo: { type: string, minLength: 1, maxLength: 160 }
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096 }
+
+    SalidaDeRevocacionDeCuentaDeServicio:
+      type: object
+      additionalProperties: false
+      required: [cuentaId, asignacionesRevocadas, sesionesCerradas]
+      properties:
+        cuentaId: { type: string, format: uuid }
+        asignacionesRevocadas: { type: integer, minimum: 0 }
+        sesionesCerradas: { type: integer, minimum: 0 }
+
     PermisoCatalogo:
       type: object
       additionalProperties: false
@@ -2447,6 +3230,172 @@ components:
         nivelRiesgo: { type: string, enum: [BAJO, MEDIO, ALTO, CRITICO] }
         exigeMotivo: { type: boolean }
         requiereMfa: { type: boolean }
+
+    # --- CU-134 ---------------------------------------------------------------------
+    EntradaBusquedaParticipantes:
+      type: object
+      additionalProperties: false
+      required: [justificacion]
+      properties:
+        codigoPublico:   { type: string, maxLength: 12 }
+        telefonoE164:    { type: string, maxLength: 20, pattern: '^\+\d{8,15}$' }
+        estado:          { type: string, enum: [ACTIVO, BAJA_VOLUNTARIA, BLOQUEADO_SEGURIDAD, ELIMINADO, INCOMPLETO_KYC, PENDIENTE_VERIFICACION, PRE_REGISTRO, SUSPENDIDO] }
+        justificacion:   { type: string, minLength: 10, maxLength: 300 }
+        ticketSoporteId: { type: string, maxLength: 30 }
+        antesDe:         { type: string, format: date-time }
+        antesDeId:       { type: string, format: uuid }
+        limite:          { type: integer, minimum: 1, maximum: 50, default: 20 }
+    ParticipanteResumen:
+      type: object
+      additionalProperties: false
+      required: [usuarioId, codigoPublico, nombreAbreviado, estado, nivelKyc, fechaRegistro, tieneRestriccion, tieneBloqueo, tieneMedidaEnCurso]
+      properties:
+        usuarioId:          { type: string, format: uuid }
+        codigoPublico:      { type: string, maxLength: 12 }
+        nombreAbreviado:    { type: string, maxLength: 90 }
+        estado:             { type: string, maxLength: 25 }
+        nivelKyc:           { type: string, maxLength: 15 }
+        fechaRegistro:      { type: string, format: date-time }
+        tieneRestriccion:   { type: boolean }
+        tieneBloqueo:       { type: boolean }
+        tieneMedidaEnCurso: { type: boolean }
+    PaginaDeParticipantes:
+      type: object
+      additionalProperties: false
+      required: [filas]
+      properties:
+        filas: { type: array, maxItems: 50, items: { $ref: '#/components/schemas/ParticipanteResumen' } }
+    EntradaJustificacionDeLectura:
+      type: object
+      additionalProperties: false
+      required: [justificacion]
+      properties:
+        justificacion:   { type: string, minLength: 10, maxLength: 300 }
+        ticketSoporteId: { type: string, maxLength: 30 }
+    FichaDeParticipante:
+      type: object
+      additionalProperties: false
+      description: >-
+        gruposActivos y bloqueoDeAutoridadVigente viven en grupos y nucleo-financiero; identidad no lee esas bases
+        (regla 98.1). Quedan vacios hasta que se lean por la API de su dueno.
+      required: [usuarioId, codigoPublico, nombreCompleto, estado, nivelKyc, fechaRegistro, telefonoEnmascarado, medidas]
+      properties:
+        usuarioId:           { type: string, format: uuid }
+        codigoPublico:       { type: string, maxLength: 12 }
+        nombreCompleto:      { type: string, maxLength: 161 }
+        estado:              { type: string, maxLength: 25 }
+        nivelKyc:            { type: string, maxLength: 15 }
+        fechaRegistro:       { type: string, format: date-time }
+        ultimoAcceso:        { type: string, format: date-time }
+        telefonoEnmascarado: { type: string, maxLength: 20 }
+        correoEnmascarado:   { type: string, maxLength: 150 }
+        gruposActivos:       { type: integer, minimum: 0 }
+        medidas:             { type: array, maxItems: 100, items: { $ref: '#/components/schemas/ExpedienteDeMedida' } }
+        bloqueoDeAutoridadVigente: { type: boolean }
+    EntradaRevelacion:
+      type: object
+      additionalProperties: false
+      required: [campo, justificacion, evidenciaMfa]
+      properties:
+        campo:         { type: string, enum: [TELEFONO, CORREO] }
+        justificacion: { type: string, minLength: 10, maxLength: 300 }
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096, description: 'Evidencia de step-up de quien actua, un solo uso (R-SEG-12)' }
+    DatoRevelado:
+      type: object
+      additionalProperties: false
+      required: [campo, valor]
+      properties:
+        campo: { type: string, enum: [TELEFONO, CORREO] }
+        valor: { type: string, maxLength: 150 }
+    EvidenciaDeMedida:
+      type: object
+      additionalProperties: false
+      required: [descripcion]
+      properties:
+        descripcion:  { type: string, minLength: 1, maxLength: 300 }
+        referenciaId: { type: string, format: uuid }
+    EntradaMedidaDeCuenta:
+      type: object
+      additionalProperties: false
+      required: [causal, medida, cautelar, motivo, evidencias]
+      properties:
+        causal:       { type: string, enum: [CUENTA_COMPROMETIDA, FRAUDE_CON_EVIDENCIA, ABUSO_CONTRA_PARTICIPANTES, CUENTA_DUPLICADA_O_DE_TERCERO] }
+        medida:       { type: string, enum: [BLOQUEO_CAUTELAR, SUSPENSION_TEMPORAL] }
+        cautelar:     { type: boolean }
+        motivo:       { type: string, minLength: 30, maxLength: 500 }
+        evidencias:   { type: array, minItems: 1, maxItems: 20, items: { $ref: '#/components/schemas/EvidenciaDeMedida' } }
+        vigenteHasta: { type: string, format: date-time }
+    EntradaNotificacionDeMedida:
+      type: object
+      additionalProperties: false
+      required: [entregadaEn]
+      properties:
+        entregadaEn: { type: string, format: date-time }
+        mensajeId:   { type: string, format: uuid }
+    EntradaDescargoDeMedida:
+      type: object
+      additionalProperties: false
+      required: [argumento]
+      properties:
+        argumento:  { type: string, minLength: 20, maxLength: 4000 }
+        evidencias: { type: array, maxItems: 10, items: { $ref: '#/components/schemas/EvidenciaDeMedida' } }
+    EntradaDecisionDeMedida:
+      type: object
+      additionalProperties: false
+      required: [resultado, fundamento, evidenciaMfa]
+      properties:
+        resultado:  { type: string, enum: [CONFIRMADA, DESESTIMADA] }
+        fundamento: { type: string, minLength: 50, maxLength: 4000 }
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096, description: 'Evidencia de step-up de quien actua, un solo uso (R-SEG-12)' }
+    EntradaResolucionDeApelacion:
+      type: object
+      additionalProperties: false
+      required: [resultado, resolucion, evidenciaMfa]
+      properties:
+        resultado:  { type: string, enum: [ACEPTADA, RECHAZADA] }
+        resolucion: { type: string, minLength: 50, maxLength: 4000 }
+        evidenciaMfa: { type: string, minLength: 20, maxLength: 4096, description: 'Evidencia de step-up de quien actua, un solo uso (R-SEG-12)' }
+    HitoDeMedida:
+      type: object
+      additionalProperties: false
+      required: [estado, ocurridoEn]
+      properties:
+        estadoAnterior: { type: string, maxLength: 25 }
+        estado:         { type: string, maxLength: 25 }
+        motivo:         { type: string, maxLength: 500 }
+        ocurridoEn:     { type: string, format: date-time }
+    ExpedienteDeMedida:
+      type: object
+      additionalProperties: false
+      required: [expedienteId, usuarioId, causal, medida, cautelar, estado, estadoCuenta, propuestaEn, prescribeEn, lineaDeTiempo]
+      properties:
+        expedienteId:         { type: string, format: uuid }
+        usuarioId:            { type: string, format: uuid }
+        causal:               { type: string, maxLength: 40 }
+        medida:               { type: string, maxLength: 25 }
+        cautelar:             { type: boolean }
+        motivo:               { type: string, maxLength: 500 }
+        estado:               { type: string, enum: [PROPUESTA, CAUTELAR, NOTIFICACION_PENDIENTE, EN_DESCARGO, DECIDIDA, EN_APELACION, FIRME, DESESTIMADA, REVOCADA, CUMPLIDA, PRESCRITO] }
+        estadoCuenta:         { type: string, maxLength: 25 }
+        propuestaEn:          { type: string, format: date-time }
+        notificadaEn:         { type: string, format: date-time }
+        fechaLimiteDescargo:  { type: string, format: date-time }
+        resultadoDecision:    { type: string, enum: [CONFIRMADA, DESESTIMADA] }
+        fundamentoDecision:   { type: string, maxLength: 4000 }
+        fechaLimiteApelacion: { type: string, format: date-time }
+        vigenteHasta:         { type: string, format: date-time }
+        prescribeEn:          { type: string, format: date-time }
+        apelacionEstado:      { type: string, enum: [PRESENTADA, ACEPTADA, RECHAZADA, ACEPTADA_POR_VENCIMIENTO] }
+        fechaLimiteResolucionApelacion: { type: string, format: date-time, description: 'Plazo de la segunda instancia, fijado cuando se recibe la apelación (CU-134)' }
+        lineaDeTiempo:        { type: array, maxItems: 100, items: { $ref: '#/components/schemas/HitoDeMedida' } }
+    MedidaVigente:
+      type: object
+      additionalProperties: false
+      required: [usuarioId, retenerEntrega]
+      properties:
+        usuarioId:      { type: string, format: uuid }
+        retenerEntrega: { type: boolean }
+        expedienteId:   { type: string, format: uuid }
 
   responses:
     ReglaDeNegocio:

@@ -1,0 +1,14 @@
+$ ./gradlew :servicios:identidad:spotlessCheck :servicios:identidad:testBarrido :servicios:identidad:test :servicios:identidad:webTest :servicios:identidad:integrationTest  (local: PostgreSQL 16 en 5433 para jOOQ + Testcontainers con dockerd local)
+BUILD SUCCESSFUL in 1m 36s
+test=138 webTest=195 integrationTest=259 testBarrido=3 · failures=0 errors=0
+PuedeAutenticarseTest 20/20 · CU04CuentaNoHabilitadaTest 9/9:
+Dado un participante con la cuenta SUSPENDIDO por una medida de CU-134 · Cuando inicia sesión con la clave correcta · Entonces no se lo rechaza por su estado · Y el token que se le emite lleva alcance RESTRINGIDO"
+Dado un operador del personal interno con la cuenta SUSPENDIDO · Cuando inicia sesión con la clave correcta · Entonces se responde AP-CU04-02 y no se abre sesión"
+[1] estado=BLOQUEADO_SEGURIDAD"
+[2] estado=BAJA_VOLUNTARIA"
+[3] estado=ELIMINADO"
+Dado un interno con un bloqueo_cuenta vigente · Cuando un operador lo desbloquea · Entonces el login ya no ve un bloqueo vigente · Y queda registrado quién lo liberó"
+Dada una cuenta suspendida · Cuando se intenta entrar con una clave equivocada · Entonces se responde AP-CU04-01 sin revelar su estado"
+Dada una cuenta suspendida con una sesión viva · Cuando renueva su refresh · Entonces no se renueva y la sesión queda revocada · Y reactivar la cuenta no resucita esa sesión"
+Dada una cuenta PENDIENTE_VERIFICACION · Cuando inicia sesión con la clave correcta · Entonces no se la rechaza por su estado"
+$ python3 scripts/verificar_criterios.py → exit 0

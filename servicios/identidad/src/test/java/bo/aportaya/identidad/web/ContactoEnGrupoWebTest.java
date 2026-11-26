@@ -21,6 +21,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 /** Perfil del integrante (2026-10-21): el telefono de alguien, solo para quien comparte su grupo. */
 @PruebaWeb(VerificacionesController.class)
+@MockitoBean(
+        types = {
+            bo.aportaya.identidad.aplicacion.CU134ConsultarParticipante.class,
+            bo.aportaya.identidad.aplicacion.CU134GestionarMedida.class
+        })
 class ContactoEnGrupoWebTest {
 
     private static final UUID GRUPO = UUID.fromString("e0000000-0000-4000-8000-000000000001");
@@ -45,6 +50,14 @@ class ContactoEnGrupoWebTest {
                 .andExpect(jsonPath("$.telefonoE164").value("+59171234567"))
                 .andExpect(jsonPath("$.correo").doesNotExist())
                 .andExpect(jsonPath("$.estado").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("CU-134 · limite: una sesion restringida no llega al contacto en grupo (fuera de la lista cerrada)")
+    void restringidaNoVeElContacto() throws Exception {
+        mvc.perform(get(RUTA, GRUPO, USUARIO).with(Sesiones.restringida("PARTICIPANTE")))
+                .andExpect(status().isForbidden());
+        verifyNoInteractions(contactos);
     }
 
     @Test

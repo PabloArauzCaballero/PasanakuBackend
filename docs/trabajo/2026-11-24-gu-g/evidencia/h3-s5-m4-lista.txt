@@ -1,0 +1,7 @@
+$ ./gradlew :servicios:identidad:webTest :servicios:aportes:webTest :servicios:identidad:testBarrido :servicios:aportes:testBarrido  (local)
+BUILD SUCCESSFUL in 41s
+identidad webTest 197/197 · aportes webTest 101/101
+CU-134 · limite: una sesion restringida no llega al contacto en grupo (fuera de la lista cerrada)"
+CU-134 · correcto: la cuenta suspendida (sesion restringida) consulta su expediente"
+CU-134 · correcto: una cuenta suspendida (sesion restringida) paga su cuota: 201"
+$ verificar_criterios / verificar_seguridad / verificar_pruebas_web / verificar_boveda → exit 0; inventario_endpoints --check alineado; generar_postman sin cambios

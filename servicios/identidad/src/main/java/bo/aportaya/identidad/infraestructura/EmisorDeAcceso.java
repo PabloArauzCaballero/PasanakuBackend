@@ -1,5 +1,6 @@
 package bo.aportaya.identidad.infraestructura;
 
+import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -124,6 +125,21 @@ public class EmisorDeAcceso {
             String nivelDiligencia,
             String dispositivo,
             UUID sesionId) {
+        return emitir(usuarioId, rol, permisos, nivelDiligencia, dispositivo, sesionId, false);
+    }
+
+    /**
+     * Igual, y con {@code restringida} el token lleva {@code alcance=RESTRINGIDO} (CU-134, D-6): la guardia de cada
+     * servicio solo lo deja llegar a las rutas {@code @PermitidoEnRestriccion}.
+     */
+    public Emitido emitir(
+            UUID usuarioId,
+            String rol,
+            List<String> permisos,
+            String nivelDiligencia,
+            String dispositivo,
+            UUID sesionId,
+            boolean restringida) {
 
         Instant ahora = Instant.now();
         Instant vence = ahora.plus(VIGENCIA);
@@ -138,6 +154,9 @@ public class EmisorDeAcceso {
                 .claim("nivel_diligencia", nivelDiligencia)
                 .claim("dispositivo", dispositivo);
         if (sesionId != null) constructor.claim("sesion_id", sesionId.toString());
+        if (restringida) {
+            constructor.claim(SesionDeLaPeticion.RECLAMO_ALCANCE, SesionDeLaPeticion.ALCANCE_RESTRINGIDO);
+        }
         var reclamos = constructor.build();
 
         try {
