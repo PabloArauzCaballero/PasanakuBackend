@@ -32,6 +32,8 @@ done
 # Una columna NOT NULL sin DEFAULT entra opcional (no se puede imponer sobre filas existentes).
 # Sin permiso para CREATE DATABASE solo avisa y sigue (el comportamiento anterior).
 # Sobre una base vacia no hace nada.
+# Tablas particionadas: se cambia la MADRE y PostgreSQL lo propaga. Una columna no se agrega a una
+# particion y un CHECK heredado no se borra desde ella (TEST, 2026-11-25).
 expandir_columnas() {
   local ref="${PGDATABASE}_ref" hay
   hay=$(psql -tAc "select count(*) from information_schema.tables where table_schema = 'identidad'" 2>/dev/null || echo 0)
@@ -57,7 +59,7 @@ SELECT format($f$DO $q$ BEGIN
   CASE WHEN a.attnotnull AND d.adbin IS NOT NULL THEN ' NOT NULL' ELSE '' END,
   n.nspname || '.' || c.relname || '.' || a.attname)
   FROM pg_attribute a
-  JOIN pg_class c ON c.oid = a.attrelid AND c.relkind = 'r'
+  JOIN pg_class c ON c.oid = a.attrelid AND c.relkind IN ('r', 'p') AND NOT c.relispartition
   JOIN pg_namespace n ON n.oid = c.relnamespace
   LEFT JOIN pg_attrdef d ON d.adrelid = a.attrelid AND d.adnum = a.attnum
  WHERE a.attnum > 0 AND NOT a.attisdropped AND a.attgenerated = ''
@@ -87,9 +89,9 @@ SELECT format($f$DO $q$ DECLARE d text; BEGIN
   n.nspname, c.relname, k.conname, pg_get_constraintdef(k.oid),
   n.nspname || '.' || c.relname || '.' || k.conname)
   FROM pg_constraint k
-  JOIN pg_class c ON c.oid = k.conrelid AND c.relkind = 'r'
+  JOIN pg_class c ON c.oid = k.conrelid AND c.relkind IN ('r', 'p')
   JOIN pg_namespace n ON n.oid = c.relnamespace
- WHERE k.contype = 'c' AND n.nspname !~ '^pg_' AND n.nspname NOT IN ('information_schema', 'public')
+ WHERE k.contype = 'c' AND k.coninhcount = 0 AND n.nspname !~ '^pg_' AND n.nspname NOT IN ('information_schema', 'public')
  ORDER BY n.nspname, c.relname, k.conname;
 SQL
   psql -qc "DROP DATABASE IF EXISTS \"${ref}\"" >/dev/null 2>&1
