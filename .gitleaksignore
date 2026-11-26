@@ -92,3 +92,5 @@ d2d8c26b7225a7a7e57955af21c82bc5af7c8f95:plataforma/comun-web/src/test/java/bo/a
 # 2026-11-23: falso positivo generic-api-key en SHOWN_INPUTS de PLAN.md. Son identificadores públicos de campos del modelo usados en un ejemplo UI; mismo contexto que el fingerprint anterior de este archivo.
 452446ac86f766fe56c23a75ee9eb2248db1a367:docs/trabajo/2026-10-11-alta-atlas-sesion-premium/PLAN.md:generic-api-key:52147
 46736691ba532eaeae51f6382921f59ee8e752f8:servicios/identidad/src/test/java/bo/aportaya/identidad/CU09CuentaDeOperadorTest.java:generic-api-key:45
+# 2026-11-26: falso positivo generic-api-key en PasarelaSimuladaTest (commit a2fc82d1). El literal era un string sintético de prueba para firmar avisos del DOBLE de la pasarela, no una credencial de ningún entorno; ya se reemplazó por "s".repeat(40) en 984935ec. Se allowlistea solo esa huella porque el literal sigue en el historial del PR.
+a2fc82d1213a68e688da59cc99878b680c0b9faa:servicios/aportes/src/test/java/bo/aportaya/aportes/infraestructura/pasarela/simulada/PasarelaSimuladaTest.java:generic-api-key:24
