@@ -17,9 +17,9 @@
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H1.S1.M1 | Backend: `fechaDeNacimientoReal` exige ≥ 18 años (sin literal fuera de una constante nombrada) | 18 hoy pasa; 17 años 364 días y la futura se rechazan con AP-CU08-14 | `./gradlew :servicios:identidad:test --tests '*CU08AltaConFechaReal*'` | TODO |
-| H1.S1.M2 | CU-08: código AP-CU08-14 y criterios de borde | `verificar_criterios` y `verificar_boveda` en 0 | scripts | TODO |
-| H1.S2.M1 | Modal: error por campo para menores de 18 y mapeo de AP-CU08-14 | spec pasa; no deja crear | `ng test` de `sistemas` | TODO |
+| H1.S1.M1 | Backend: `fechaDeNacimientoReal` exige ≥ 18 años (sin literal fuera de una constante nombrada) | 18 hoy pasa; 17 años 364 días y la futura se rechazan con AP-CU08-14 | `./gradlew :servicios:identidad:test --tests '*CU08AltaConFechaReal*'` | HECHO |
+| H1.S1.M2 | CU-08: código AP-CU08-14 y criterios de borde | `verificar_criterios` y `verificar_boveda` en 0 | scripts | HECHO |
+| H1.S2.M1 | Modal: error por campo para menores de 18 y mapeo de AP-CU08-14 | spec pasa; no deja crear | `ng test` de `sistemas` | HECHO |
 
 ## H2 — Operadores «sin dato» (A8)
 **CA:** Dado un operador con `fecha_nacimiento = 1990-01-01` registrado antes del corte, cuando se aplica el esquema, entonces queda `NULL`; la segunda aplicación no cambia nada; la reversa la restituye.
@@ -27,8 +27,8 @@
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H2.S1.M1 | Modelo: `usuario.fecha_nacimiento` `<<NULL>>` + invariante en la base (solo el personal interno puede no tenerla) | participante sin fecha → rechazo de la base; operador sin fecha → acepta | `psql` con ambos casos | TODO |
-| H2.S1.M2 | Corrección generada con nombre explícito, acotada por corte, con reversa | primera corrida marca N filas; segunda marca 0; reversa restituye | `psql` con salida | TODO |
-| H2.S2.M1 | Backend: el detalle del operador indica que falta la fecha y se puede completar una vez (con motivo y step-up, mismas reglas que las demás ediciones) | se completa: queda guardada con bitácora; ya completa: se rechaza | `test` + `webTest` | TODO |
-| H2.S2.M2 | Backoffice: aviso «Falta la fecha de nacimiento» en el detalle y acción para completarla | spec; captura | `ng test` + Playwright | TODO |
-| H2.S3.M1 | Gates y deriva | `generar_ddl` sin diff, `verificar_*` OK, lint/typecheck | scripts | TODO |
+| H2.S1.M1 | Modelo: `usuario.fecha_nacimiento` `<<NULL>>` + invariante en la base (solo el personal interno puede no tenerla) | participante sin fecha → rechazo de la base; operador sin fecha → acepta | `psql` con ambos casos | HECHO |
+| H2.S1.M2 | Corrección generada con nombre explícito, acotada por corte, con reversa | primera corrida marca N filas; segunda marca 0; reversa restituye | `psql` con salida | HECHO |
+| H2.S2.M1 | Backend: el detalle del operador indica que falta la fecha y se puede completar una vez (con motivo y step-up, mismas reglas que las demás ediciones) | se completa: queda guardada con bitácora; ya completa: se rechaza | `test` + `webTest` | A MEDIAS |
+| H2.S2.M2 | Backoffice: aviso «Falta la fecha de nacimiento» en el detalle y acción para completarla | spec; captura | `ng test` + Playwright | A MEDIAS |
+| H2.S3.M1 | Gates y deriva | `generar_ddl` sin diff, `verificar_*` OK, lint/typecheck | scripts | A MEDIAS |
