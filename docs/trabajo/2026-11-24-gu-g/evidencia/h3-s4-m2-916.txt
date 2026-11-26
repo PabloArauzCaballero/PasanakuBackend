@@ -1,0 +1,12 @@
+# H3.S4.M2 · evidencia de la regla 91.6 de la retención por medida (CU-28 × CU-134)
+$ ./gradlew :servicios:entregas:integrationTest --tests "*CU28RetencionPorMedidaTest"   (local, PostgreSQL real con Testcontainers)
+CU28RetencionPorMedidaTest: tests=1 failures=0 errors=0
+$ ./gradlew :servicios:entregas:spotlessCheck :servicios:entregas:test :servicios:entregas:integrationTest :servicios:entregas:webTest :servicios:entregas:testBarrido
+BUILD SUCCESSFUL in 1m 15s
+test 49/49 · integrationTest 76/76 · webTest 65/65 · testBarrido 2/2
+
+1. Asientos generados: NINGUNO mientras está retenida (sin orden_desembolso, sin intento, sin evento entregas.desembolso_ordenado). Tras liberar: 1 orden y 1 evento; el asiento se arma en la confirmación del proveedor (CU-28, sin cambio).
+2. Idempotencia: dos intentos retenidos → AP-CU28-08 los dos, 0 órdenes; liberada, la misma clave dos veces → misma ordenId, esNueva true/false, 1 orden.
+3. Cuadre: orden_desembolso.monto = entrega_fondo.monto_neto_a_entregar (isEqualByComparingTo).
+4. Reversa: no aplica — retener no genera asiento que revertir; liberar solo deja de retener (A-1).
+5. Redondeo: no aplica — no se divide ni se calcula importe: la orden es el neto ya calculado.
