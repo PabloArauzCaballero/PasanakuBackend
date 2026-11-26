@@ -6354,11 +6354,14 @@ Los tres motivos (`VENTA`, `REEMPLAZO_POR_MORA`, `RETIRO`) tienen consecuencias 
 - `fecha_limite_apelacion`: plazo de apelación calculado al decidir.
 - `prescribe_en`: fecha en la que el expediente prescribe si nadie decidió.
 - `vigente_hasta`: fin de la suspensión temporal.
+- `entrega_liberada_por`: operador que liberó la entrega retenida por una medida firme, con su segundo factor (A-1, Pablo 2026-11-26); hasta entonces la entrega sigue retenida aunque la medida venza o se cierre.
+- `entrega_liberada_en`: cuándo se liberó la entrega retenida.
+- `fundamento_liberacion_entrega`: por qué se liberó la entrega retenida; al menos 20 caracteres.
 - `clave_idempotencia`: el mismo pedido reenviado devuelve el mismo expediente.
 
 **Casos de uso que la nombran.** CU-134 Directorio y ficha del participante, y suspensión o bloqueo de su cuenta por seguridad con debido proceso
 
-**Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `politica_medida_cuenta`, `usuario`. La referencian `apelacion_medida_cuenta`, `evidencia_medida_cuenta`, `historial_estado_medida_cuenta`. Reglas nombradas: `ck_expediente_medida_no_autopropuesta`, `ck_expediente_medida_decide_otro`, `uq_expediente_medida_abierto`, `ck_expediente_medida_decision_fundada`, `ck_expediente_medida_firme_confirmada`.
+**Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `politica_medida_cuenta`, `usuario`. La referencian `apelacion_medida_cuenta`, `evidencia_medida_cuenta`, `historial_estado_medida_cuenta`. Reglas nombradas: `ck_expediente_medida_no_autopropuesta`, `ck_expediente_medida_decide_otro`, `uq_expediente_medida_abierto`, `ck_expediente_medida_decision_fundada`, `ck_expediente_medida_firme_confirmada`, `ck_expediente_medida_liberacion_completa`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
@@ -6384,6 +6387,9 @@ Los tres motivos (`VENTA`, `REEMPLAZO_POR_MORA`, `RETIRO`) tienen consecuencias 
 | `prescribe_en` | TIMESTAMPTZ | fecha en la que el expediente prescribe si nadie decidió. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `firme_en` | TIMESTAMPTZ | Marca temporal o fecha de firme en `expediente_medida_cuenta`. | TIMESTAMPTZ, opcional. | NINGUNA |
 | `cerrada_en` | TIMESTAMPTZ | Marca temporal o fecha de cerrada en `expediente_medida_cuenta`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `entrega_liberada_por` | UUID | operador que liberó la entrega retenida por una medida firme, con su segundo factor (A-1, Pablo 2026-11-26); hasta entonces la entrega sigue retenida aunque la medida venza o se cierre. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `entrega_liberada_en` | TIMESTAMPTZ | cuándo se liberó la entrega retenida. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `fundamento_liberacion_entrega` | TEXT | por qué se liberó la entrega retenida; al menos 20 caracteres. | TEXT, opcional. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(80) | el mismo pedido reenviado devuelve el mismo expediente. | VARCHAR(80), obligatoria, restricción única. | NINGUNA |
 | `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
 

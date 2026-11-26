@@ -833,6 +833,9 @@ proceso que demostrar (regla 91.4).
 - `fecha_limite_apelacion`: plazo de apelación calculado al decidir.
 - `prescribe_en`: fecha en la que el expediente prescribe si nadie decidió.
 - `vigente_hasta`: fin de la suspensión temporal.
+- `entrega_liberada_por`: operador que liberó la entrega retenida por una medida firme, con su segundo factor (A-1, Pablo 2026-11-26); hasta entonces la entrega sigue retenida aunque la medida venza o se cierre.
+- `entrega_liberada_en`: cuándo se liberó la entrega retenida.
+- `fundamento_liberacion_entrega`: por qué se liberó la entrega retenida; al menos 20 caracteres.
 - `clave_idempotencia`: el mismo pedido reenviado devuelve el mismo expediente.
 
 ### `EvidenciaMedidaCuenta` / `evidencia_medida_cuenta`

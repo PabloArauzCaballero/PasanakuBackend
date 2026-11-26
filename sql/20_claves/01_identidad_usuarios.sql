@@ -119,6 +119,11 @@ ALTER TABLE identidad.expediente_medida_cuenta
   ADD CONSTRAINT fk_expediente_medida_cuenta_decidida_por
   FOREIGN KEY (decidida_por) REFERENCES identidad.usuario (id) ON DELETE SET NULL ON UPDATE CASCADE;
 
+ALTER TABLE identidad.expediente_medida_cuenta DROP CONSTRAINT IF EXISTS fk_expediente_medida_cuenta_entrega_liberada_por;
+ALTER TABLE identidad.expediente_medida_cuenta
+  ADD CONSTRAINT fk_expediente_medida_cuenta_entrega_liberada_por
+  FOREIGN KEY (entrega_liberada_por) REFERENCES identidad.usuario (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
 ALTER TABLE identidad.expediente_medida_cuenta DROP CONSTRAINT IF EXISTS fk_expediente_medida_cuenta_politica_medida_cuenta_id;
 ALTER TABLE identidad.expediente_medida_cuenta
   ADD CONSTRAINT fk_expediente_medida_cuenta_politica_medida_cuenta_id

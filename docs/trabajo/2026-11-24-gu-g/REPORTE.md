@@ -1,6 +1,6 @@
 # Reporte — Lote G · CU de gobierno de participantes (borrador para aprobación)
 
-> **AVANCE: 23 / 31 — 74,2 %** (`plan_status.py`). PR #525 con la CI completa en verde (head `d855ce0e2`) y fuera de draft. H3.S3 y H3.S4.M1 TESTED en la CI; H3.S6.M1/M2 hechos contra backend simulado; abiertos H3.S4.M2 (evidencia 91.6), H3.S5 (modo restringido, asignado a G) y H3.S6.M3.
+> **AVANCE: 31 / 35 — 88,6 %** (`plan_status.py`). #525 mergeado en `dev` (CU-134, entregas, backoffice y modo restringido). H4 (A-1 y A-4 de Pablo del 2026-11-26) hecho y verificado en local, en PR aparte; abiertos H3.S4.M2 (evidencia 91.6) y H3.S6.M3.
 
 - Fecha: 2026-11-24 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/gu-g-cu-participantes` → PR a `dev`
 - Peldaño de evidencia alcanzado: `RUNS` sobre la bóveda, en local y en la CI del PR #514 (los verificadores corren en exit 0 con el CU nuevo). Es un documento: no hay comportamiento que ejercitar; el CU queda **BORRADOR** hasta que Pablo lo apruebe (decisión P-11).
@@ -64,6 +64,11 @@ La primera compilación real del backend se hizo en la CI (Gradle local bloquead
 Resultado en `d855ce0e2`: 12 trabajos en verde (formato y compilación, cinco corredores con las pruebas de identidad y entregas, frontend, contratos, esquema y semillas sobre PostgreSQL real, dependencias, Trivy, bootJar e imagen) y 6 omitidos por diseño (solo `main`, iOS, goldens).
 
 Pendiente fuera del repositorio: dos `git stash` con capturas de `docs/trabajo/2026-10-08-endurecimiento-integral/` que la corrida e2e local sobrescribió (no se commitean; descartar con confirmación).
+
+## Continuación del 2026-11-26 · decisiones de Pablo (H4)
+
+- **A-4**: QR, recarga y reclamar quedan bloqueados en modo restringido. El código ya lo cumplía: la lista cerrada es expediente, descargo, apelación y `pagarCuotaConSaldo` (`evidencia/h4-m1-a4.txt`).
+- **A-1**: si la medida queda firme, la entrega sigue retenida hasta resolución humana. **El código no lo cumplía**: al vencer la suspensión el trabajo `vencer` cerraba el expediente y la retención se levantaba sola. Corregido en una rama nueva desde `dev`: columnas de liberación en `expediente_medida_cuenta` con `R-SEG-17`, retención = en curso **o** firme sin liberar, y `CU134LiberarEntrega` con segundo factor, fundamento, idempotencia y evento. Verificado en local contra PostgreSQL real (`evidencia/h4-a1-retencion.txt`); falta la CI del PR. Nada se aplica a deuda: la liberación solo deja de retener, y la emisión sigue el curso normal de CU-28.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |

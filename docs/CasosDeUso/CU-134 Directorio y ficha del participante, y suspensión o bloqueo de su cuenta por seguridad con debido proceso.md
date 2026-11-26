@@ -226,6 +226,7 @@ Este caso **no** reemplaza a ninguno de estos; los invoca o se aparta de ellos.
 | 13b | La instancia no resuelve en su plazo | La apelación se resuelve a favor del apelante y la medida se revierte (paso 16) |
 | — | Venció `prescribe_en_dias` sin decisión | Se cierra `PRESCRITO`; un intento de decidir responde `EXPEDIENTE_PRESCRITO` |
 | — | Hay un reclamo en curso contra la medida ([[CU-52 Atender un reclamo en plazo]]) | El expediente no queda firme mientras el reclamo esté en revisión (mismo criterio que AP-CU27-07 y AP-CU93-07): `RECLAMO_EN_CURSO` |
+| — | Una medida firme vence o su expediente se cierra | La entrega del titular **sigue retenida** (A-1): la libera solo un operador con segundo factor y fundamento (`R-SEG-17`); sobre un expediente que no llegó a firme responde `ENTREGA_NO_RETENIDA` |
 | — | La persona es también organizador | La medida de cuenta no reasigna grupos por sí sola; si corresponde, se abre [[CU-93 Sancionar al organizador y resolver su apelación]] aparte |
 | — | La cuenta tiene un caso LGI/FT abierto | El operador de este caso no lo ve; si cumplimiento necesita congelar, lo hace por CU-44 sin avisar al titular |
 
@@ -288,6 +289,11 @@ export const DescargoCU134 = z.object({
 
 export const ApelacionCU134 = DescargoCU134   // POST /identidad/medidas-cuenta/{expedienteId}/apelacion
 
+export const LiberacionEntregaCU134 = z.object({
+  fundamento: z.string().min(20).max(2000),
+  evidenciaMfa: z.string(),                    // step-up de quien libera (R-SEG-12)
+}).strict()   // POST /identidad/medidas-cuenta/{expedienteId}/liberacion-de-entrega   (A-1)
+
 export const SalidaMedidaCU134 = z.object({
   expedienteId: z.string().uuid(),
   estado: z.enum(['PROPUESTA','CAUTELAR','NOTIFICACION_PENDIENTE','EN_DESCARGO','DECIDIDA',
@@ -310,6 +316,7 @@ export const ErroresCU134 = {
   APELACION_DUPLICADA:        'AP-CU134-09',
   EXPEDIENTE_PRESCRITO:       'AP-CU134-10',
   RECLAMO_EN_CURSO:           'AP-CU134-11',
+  ENTREGA_NO_RETENIDA:        'AP-CU134-12',
 } as const
 ```
 
@@ -326,6 +333,7 @@ export const ErroresCU134 = {
 | `APELACION_DUPLICADA` | Ya existe una apelación para ese expediente |
 | `EXPEDIENTE_PRESCRITO` | Venció `prescribe_en_dias` sin decisión: no se reabre por el mismo hecho |
 | `RECLAMO_EN_CURSO` | Hay un reclamo en revisión contra la medida: no queda firme mientras tanto (regla 91.4) |
+| `ENTREGA_NO_RETENIDA` | Se intenta liberar la entrega de un expediente que no llegó a firme (liberar dos veces es idempotente: devuelve el expediente sin otro evento) |
 
 ## Descomposición atómica
 
@@ -352,6 +360,7 @@ export const ErroresCU134 = {
 | `cuenta_participante.bloqueo_cautelar` | Revocación de sesiones y aviso al titular | `PARTICIPANTES_MEDIDA_PROPONER` |
 | `cuenta_participante.medida_decidida` | Aviso con el fundamento y el plazo de apelación | `PARTICIPANTES_MEDIDA_DECIDIR` (*APROBADO*) |
 | `cuenta_participante.medida_firme` | Evento de reputación cuando la causal lo prevé | — |
+| `identidad.medida_cuenta_entrega_liberada` | `entregas` vuelve a poder desembolsar | `PARTICIPANTES_MEDIDA_DECIDIR` + segundo factor (A-1) |
 | `cuenta_participante.medida_revocada` | Restitución, reputación compensatoria y riesgo operativo si hubo perjuicio | `PARTICIPANTES_APELACION_RESOLVER` (*APROBADO*) |
 | — | Trabajo diario: vence descargos, apelaciones y vigencias; prescribe; resuelve a favor del apelante si la instancia no respondió | — |
 
@@ -375,11 +384,12 @@ leer; `FRAUD_ANALYST` → proponer; `RESPONSABLE_SEGURIDAD` → decidir; comité
 ## Restricciones aplicables
 
 `R-SEG-02` · `R-SEG-03` · `R-SEG-04` · `R-SEG-09` · `R-SEG-10` · `R-SEG-12` · `R-SEG-13` ·
-`R-SEG-14` · `R-SEG-15` · `R-AUD-01` · `R-AUD-04` · `R-REP-01`
+`R-SEG-14` · `R-SEG-15` · `R-SEG-17` · `R-AUD-01` · `R-AUD-04` · `R-REP-01`
 
 `R-SEG-13`: proponente, decisor y resolutor de la apelación son tres personas distintas y
 ninguna es el afectado (CHECK y trigger). `R-SEG-14`: un expediente abierto por cuenta y causal
 (UNIQUE parcial). `R-SEG-15`: no hay decisión sin fundamento ni firmeza sin decisión confirmada.
+`R-SEG-17`: la entrega retenida por una medida firme se libera con quién, cuándo y fundamento, nunca sola.
 Una apelación por expediente la garantiza el UNIQUE de `apelacion_medida_cuenta`; la evidencia
 y el historial son append-only (`R-AUD-01`).
 
@@ -459,6 +469,15 @@ Y se emite una sola vez identidad.medida_cuenta_revocada
 Dada una cuenta suspendida con aportes pendientes en un grupo
 Cuando se aplica la suspensión
 Entonces ninguna obligación, entrega ni cupo del grupo cambia por la medida
+
+Dada una medida firme cuya suspensión ya venció
+Cuando entregas consulta la medida vigente del participante
+Entonces la entrega sigue retenida
+Y deja de estarlo solo cuando un operador registra la liberación con su segundo factor y un fundamento
+
+Dado un expediente que no llegó a firme
+Cuando un operador intenta liberar la entrega
+Entonces se rechaza con AP-CU134-12
 ```
 
 ## Decisiones aprobadas
@@ -490,10 +509,10 @@ principal del trabajo de gobierno de usuarios.
 
 | ID | Ambigüedad | Supuesto mientras tanto | A quién confirmar |
 | --- | --- | --- | --- |
-| A-1 | **Resuelta por Pablo (2026-11-25)**: custodia a favor del titular mientras siga vigente la medida | Al terminar, liberar a cuenta verificada solo si no hay otra restricción vigente | — |
+| A-1 | **Resuelta por Pablo (2026-11-26)**: si la medida queda firme, la entrega retenida **sigue retenida** hasta resolución humana (operador con segundo factor); nada se libera ni se aplica a deuda solo | Implementado: retención tras la firmeza hasta `liberarEntregaRetenidaPorMedida` (`R-SEG-17`) | — |
 | A-2 | ~~Unidad de la prescripción~~ — **resuelta**: [[politica_medida_cuenta]] guarda `prescribe_en_meses` y `duracion_maxima_suspension_dias` en columnas propias | — | — |
 | A-3 | **Resuelta por Pablo (2026-11-25)**: la segunda instancia dispone de 10 días hábiles desde la recepción acreditada | Si vence el plazo sin resolución, se acepta la apelación y se revierte la medida | — |
-| A-4 | Qué rutas cuentan como «pagar» y «reclamar» en el modo restringido (D-6) | Implementado lo inequívoco: ver el expediente, descargo, apelación y `pagarCuotaConSaldo`. Quedan **fuera** hasta decisión: emitir/pagar/leer QR y la recarga de billetera; ver el perfil o la billetera. No existe ruta para que el participante **presente** un reclamo (solo la bandeja del Punto de Reclamo), así que «reclamar» no tiene qué abrir | Pablo |
+| A-4 | **Resuelta por Pablo (2026-11-26)**: en modo restringido QR, recarga y reclamar quedan **bloqueados** | La lista cerrada queda en ver el expediente, descargo, apelación y `pagarCuotaConSaldo` | — |
 
 ## Ver también
 

@@ -25,6 +25,9 @@ CREATE TABLE IF NOT EXISTS identidad.expediente_medida_cuenta (
   prescribe_en                       TIMESTAMPTZ NOT NULL,
   firme_en                           TIMESTAMPTZ,
   cerrada_en                         TIMESTAMPTZ,
+  entrega_liberada_por               UUID,
+  entrega_liberada_en                TIMESTAMPTZ,
+  fundamento_liberacion_entrega      TEXT,
   clave_idempotencia                 VARCHAR(80) NOT NULL,
   version                            INTEGER DEFAULT 0 NOT NULL,
   CONSTRAINT pk_expediente_medida_cuenta PRIMARY KEY (id),
@@ -56,4 +59,7 @@ COMMENT ON COLUMN identidad.expediente_medida_cuenta.vigente_hasta IS 'fin de la
 COMMENT ON COLUMN identidad.expediente_medida_cuenta.prescribe_en IS 'fecha en la que el expediente prescribe si nadie decidió.';
 COMMENT ON COLUMN identidad.expediente_medida_cuenta.firme_en IS 'NULL';
 COMMENT ON COLUMN identidad.expediente_medida_cuenta.cerrada_en IS 'NULL';
+COMMENT ON COLUMN identidad.expediente_medida_cuenta.entrega_liberada_por IS 'operador que liberó la entrega retenida por una medida firme, con su segundo factor (A-1, Pablo 2026-11-26); hasta entonces la entrega sigue retenida aunque la medida venza o se cierre.';
+COMMENT ON COLUMN identidad.expediente_medida_cuenta.entrega_liberada_en IS 'cuándo se liberó la entrega retenida.';
+COMMENT ON COLUMN identidad.expediente_medida_cuenta.fundamento_liberacion_entrega IS 'por qué se liberó la entrega retenida; al menos 20 caracteres.';
 COMMENT ON COLUMN identidad.expediente_medida_cuenta.clave_idempotencia IS 'el mismo pedido reenviado devuelve el mismo expediente.';
