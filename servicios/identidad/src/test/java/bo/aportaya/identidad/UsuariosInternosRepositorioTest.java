@@ -68,6 +68,7 @@ class UsuariosInternosRepositorioTest {
                 "Contable",
                 "prueba." + sufijo + "@ejemplo.test",
                 telefonoUnico(),
+                java.time.LocalDate.of(1985, 6, 15),
                 "Finanzas",
                 "Analista de pruebas",
                 rolCodigo);

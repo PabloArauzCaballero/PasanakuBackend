@@ -5,7 +5,7 @@ import type { ErrorParaVista } from '@aportaya/ui/error-de-envio/error-de-envio'
  * que pertenecen (regla 95.3): el servidor responde `AP-CU08-xx` y la interfaz nunca muestra el texto crudo. Un código
  * que no se conoce cae al mensaje que el interceptor ya tradujo por estado.
  */
-export type CampoDeGobierno = 'rol' | 'ambito' | 'motivo' | 'codigo' | 'vigencia'
+export type CampoDeGobierno = 'rol' | 'ambito' | 'motivo' | 'codigo' | 'vigencia' | 'fechaNacimiento'
 export type ErrorDeGobierno = ErrorParaVista & { codigo?: string; campo?: CampoDeGobierno }
 
 const POR_CODIGO: Readonly<Record<string, { mensaje: string; campo?: CampoDeGobierno }>> = {
@@ -19,6 +19,7 @@ const POR_CODIGO: Readonly<Record<string, { mensaje: string; campo?: CampoDeGobi
   'AP-CU08-09': { mensaje: 'Falta confirmar con tu segundo factor, o el código ya se usó o venció. Ingresá uno nuevo.', campo: 'codigo' },
   'AP-CU08-10': { mensaje: 'La cuenta de la persona no está habilitada (suspendida, bloqueada o dada de baja). Reactivala antes de este cambio.' },
   'AP-CU08-11': { mensaje: 'Escribí el motivo (mínimo 10 caracteres): queda en la auditoría.', campo: 'motivo' },
+  'AP-CU08-13': { mensaje: 'La fecha de nacimiento tiene que ser real: no puede faltar ni ser futura.', campo: 'fechaNacimiento' },
   'AP-CU08-12': { mensaje: 'No pudimos seguir el listado desde donde estaba. Volvé a la primera página.' },
   // CU-135 (GU-16): roles personalizados
   'AP-CU135-01': { mensaje: 'El código va en mayúsculas, sin espacios, de 3 a 30 caracteres, y no puede empezar con SERVICIO_. El nombre es obligatorio.', campo: 'rol' },

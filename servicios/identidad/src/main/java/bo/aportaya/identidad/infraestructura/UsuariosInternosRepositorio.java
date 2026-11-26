@@ -15,7 +15,6 @@ import bo.aportaya.identidad.web.generado.modelo.UsuarioInternoResumen;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import java.security.SecureRandom;
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +75,7 @@ public class UsuariosInternosRepositorio {
                 .set(USUARIO.APELLIDOS, entrada.getApellidos())
                 .set(USUARIO.CORREO, entrada.getCorreo())
                 .set(USUARIO.TELEFONO_E164, entrada.getTelefono())
-                .set(USUARIO.FECHA_NACIMIENTO, LocalDate.of(1990, 1, 1))
+                .set(USUARIO.FECHA_NACIMIENTO, entrada.getFechaNacimiento())
                 .set(USUARIO.ESTADO, "ACTIVO")
                 .set(USUARIO.NIVEL_KYC, "NINGUNO")
                 .set(USUARIO.IDIOMA, "ES_BO")

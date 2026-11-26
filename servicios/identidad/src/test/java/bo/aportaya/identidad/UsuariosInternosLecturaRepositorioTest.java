@@ -197,6 +197,7 @@ class UsuariosInternosLecturaRepositorioTest {
                 "Lectura",
                 "lectura." + sufijo + "@ejemplo.test",
                 telefonoUnico(),
+                java.time.LocalDate.of(1985, 6, 15),
                 "Sistemas",
                 "Operador de pruebas",
                 rol);

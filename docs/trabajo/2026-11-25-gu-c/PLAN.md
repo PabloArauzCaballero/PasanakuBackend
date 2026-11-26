@@ -90,7 +90,7 @@
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
 | H6.S1.M1 | Cliente tipado de `/cuenta/*` + simulado con ejemplos curados | el simulado responde los tres niveles | spec del cliente | HECHO (specs en CI verde + capturas 390/834/1440 × claro/oscuro miradas, `evidencia` en 2026-11-26-gu-c-cierre) |
-| H6.S1.M2 | Pantalla de invitación (token del fragmento, clave, QR TOTP, código) | errores por campo; sin doble envío; token fuera de la URL tras leerlo | spec + capturas | A MEDIAS |
+| H6.S1.M2 | Pantalla de invitación (token del fragmento, clave, QR TOTP, código) | errores por campo; sin doble envío; token fuera de la URL tras leerlo | spec + capturas | HECHO (errores por campo, QR TOTP y carga capturados y miradas en 3 viewports × 2 temas; specs en CI verde) |
 | H6.S1.M3 | Pantalla «No puedo entrar» + enlace desde el ingreso | respuesta neutra siempre | spec + capturas | HECHO (specs en CI verde + capturas 390/834/1440 × claro/oscuro miradas, `evidencia` en 2026-11-26-gu-c-cierre) |
 | H6.S1.M4 | Pantalla «Cambiar mi clave» | error por campo, sesión cerrada tras cambiar | spec + capturas | HECHO (specs en CI verde + capturas 390/834/1440 × claro/oscuro miradas, `evidencia` en 2026-11-26-gu-c-cierre) |
 | H6.S1.M5 | Pantalla de aprobaciones de recuperación | lista paginada con 4 estados, aprobar/rechazar con motivo | spec + capturas | HECHO (specs en CI verde + capturas 390/834/1440 × claro/oscuro miradas, `evidencia` en 2026-11-26-gu-c-cierre) |

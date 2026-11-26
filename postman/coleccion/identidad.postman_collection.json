@@ -3311,7 +3311,7 @@
         "description": "## Alta de usuario interno con contrasena provisional\n\n\n\n| | |\n| --- | --- |\n| **Servicio** | `identidad` |\n| **Operacion** | `crearUsuarioInterno` |\n| **Ruta** | `POST /api/v1/usuarios-internos` |\n| **Permiso** | `USUARIOS_INTERNOS_GESTIONAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"nombres\": \"nombres-de-prueba\",\n  \"apellidos\": \"apellidos-de-prueba\",\n  \"correo\": \"correo-de-prueba\",\n  \"telefono\": \"telefono-de-prueba\",\n  \"departamento\": \"departamento-de-prueba\",\n  \"cargo\": \"cargo-de-prueba\",\n  \"rolCodigo\": \"rolCodigo-de-prueba\",\n  \"motivo\": \"motivo-de-prueba\",\n  \"evidenciaMfa\": \"evidenciaMfa-de-prueba\"\n}",
+          "raw": "{\n  \"nombres\": \"nombres-de-prueba\",\n  \"apellidos\": \"apellidos-de-prueba\",\n  \"correo\": \"correo-de-prueba\",\n  \"telefono\": \"telefono-de-prueba\",\n  \"fechaNacimiento\": \"{{fecha_hoy}}\",\n  \"departamento\": \"departamento-de-prueba\",\n  \"cargo\": \"cargo-de-prueba\",\n  \"rolCodigo\": \"rolCodigo-de-prueba\",\n  \"motivo\": \"motivo-de-prueba\",\n  \"evidenciaMfa\": \"evidenciaMfa-de-prueba\"\n}",
           "options": {
             "raw": {
               "language": "json"
