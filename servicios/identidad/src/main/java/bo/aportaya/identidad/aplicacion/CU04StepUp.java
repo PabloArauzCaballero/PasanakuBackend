@@ -9,6 +9,8 @@ import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -39,6 +41,7 @@ public class CU04StepUp {
     private final EmisorDeAcceso emisor;
     private final Duration vigenciaDeLaEvidencia;
     private final String audiencia;
+    private final Duration enfriamientoDelFactor;
     private final Map<UUID, Abierto> abiertos = new ConcurrentHashMap<>();
 
     public CU04StepUp(
@@ -47,7 +50,9 @@ public class CU04StepUp {
             DesafioDeFactor desafio,
             EmisorDeAcceso emisor,
             @Value("${aportaya.mfa.vigencia-evidencia:PT5M}") Duration vigenciaDeLaEvidencia,
-            @Value("${aportaya.mfa.audiencia-evidencia:aportaya-nucleo-financiero}") String audiencia) {
+            @Value("${aportaya.mfa.audiencia-evidencia:aportaya-nucleo-financiero}") String audiencia,
+            @Value("${aportaya.acceso.recuperacion.enfriamiento-factor:PT24H}") Duration enfriamientoDelFactor) {
+        this.enfriamientoDelFactor = enfriamientoDelFactor;
         this.datos = datos;
         this.accesos = accesos;
         this.desafio = desafio;
@@ -64,6 +69,13 @@ public class CU04StepUp {
         String tipo = datos.conContexto(ctx, dsl -> accesos.factorActivo(dsl, ctx.usuarioId()))
                 .orElseThrow(() -> new ErrorDeNegocio(
                         CodigoError.de(4, 6), "Tenes que enrolar tu segundo factor antes de continuar."));
+        // ADR-038 §5: el factor recien reinscrito entra, pero no habilita acciones con step-up.
+        OffsetDateTime desde = OffsetDateTime.now(ZoneOffset.UTC).minus(enfriamientoDelFactor);
+        if (datos.conContexto(ctx, dsl -> accesos.factorReinscritoDesde(dsl, ctx.usuarioId(), desde))) {
+            throw new ErrorDeNegocio(
+                    CodigoError.de(4, 11),
+                    "Tu factor se acaba de reinscribir. Esta accion se habilita pasado el plazo de seguridad.");
+        }
         limpiarVencidos();
         UUID id = desafio.emitir(ctx.usuarioId(), tipo);
         Instant vence = Instant.now().plus(VIDA_DEL_DESAFIO);

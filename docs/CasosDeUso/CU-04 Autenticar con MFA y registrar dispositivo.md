@@ -298,6 +298,14 @@ Dado un titular con un TOTP confirmado
 Cuando inicia otro enrolamiento con su sesión
 Entonces se rechaza con AP-CU04-09
 
+Dado un factor reinscrito dentro del enfriamiento
+Cuando abre un step-up
+Entonces se rechaza con AP-CU04-11
+
+Dado un factor reinscrito hace más que el enfriamiento
+Cuando abre un step-up
+Entonces se emite el desafío
+
 Dado un enrolamiento TOTP iniciado
 Cuando se lee su fila en factor_mfa
 Entonces el secreto está cifrado con su version_llave y nunca en claro
