@@ -28,6 +28,12 @@ aportaya:
   aportes:
     webhook:
       secreto: ${APORTES_WEBHOOK_SECRETO}
+    # Pasarela de pagos (puerto dominio.PasarelaDePagos). `simulada` = doble determinista, SOLO local/test: en cualquier otro
+    # perfil el arranque FALLA (GuardiaDePasarelaSimulada, regla 90.3.4). `real` exige el adaptador de infraestructura/pasarela/real
+    # (hoy no existe y el arranque lo dice). docs/operacion/pasarela-real-como-enchufar.md
+    pasarela:
+      modo: ${APORTES_PASARELA_MODO:simulada}
+      proveedor-codigo: ${APORTES_PASARELA_PROVEEDOR:QR_INTEROP}   # proveedor_pago sembrado (sql/60_semillas/14-proveedores-externos.sql)
   # Tableros (CU-98): relleno de indicadores al arrancar. 0 = no rellena (produccion); dev y TEST lo piden en el compose
   # para que el tablero tenga serie con la base sembrada. El diario corre siempre (aportaya.indicadores.cron).
   indicadores:

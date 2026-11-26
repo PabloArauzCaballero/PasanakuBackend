@@ -1,10 +1,10 @@
-> **AVANCE: 7 / 8 — 87,5 %.** (queda en A MEDIAS H2.S2.M1: su prueba de integración solo corre en CI)
+> **AVANCE: 8 / 8 — 100,0 %.** (#543 fusionado en `dev` con CI verde en `692558f9c`)
 
 # Reporte — GU-17 · edad mínima 18 (A9) y operadores «sin dato» (A8)
 
 - Fecha: 2026-11-26 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/gu-c-credencial` (desde `origin/dev` tras #538)
 - Decisiones de Pablo (vía sesión principal): A9 → 18 años, código estable, test de límite. A8 → marcar «sin dato» donde vale exactamente 1990-01-01, migración con nombre explícito, reversible, sin tocar la base a mano; el backoffice pide completar la real.
-- Peldaño de evidencia alcanzado: **RUNS/TESTED** (unitarios, web y SQL real contra PostgreSQL local); integración de servicio solo en CI; UI en curso.
+- Peldaño de evidencia alcanzado: **REGRESSION_VERIFIED para el alcance de #543** (unitarios, web y SQL real local + CI completa verde, incluida la integración contra base); la UI se verificó contra backend simulado declarado.
 
 ## Completado
 | ID | Qué se logró | Comando | Resultado |
@@ -15,14 +15,11 @@
 | H2.S1.M1 | `usuario.fecha_nacimiento` nullable (`<<NULL>>`) + R-SEG-18: solo el personal interno puede estar sin dato | `psql` (evidencia/sql-r-seg-18.txt) | participante sin fecha → `ERROR: R-SEG-18`; operador sin fecha → COMMIT; UPDATE a NULL de un participante → rechazado |
 | H2.S2.M2 | Backoffice: aviso «Falta la fecha de nacimiento» + modal con paso de seguridad; capturas 390/834/1440 × claro/oscuro miradas (aviso, error de fecha futura, alta con menor de 18) | `yarn typecheck`, `yarn lint`, `ng test` sistemas (224), `npx playwright test e2e/visual-fecha-operador.e2e.ts --workers=1 --project=chromium` | todo OK; `18 passed (52.3s)`; capturas móvil y escritorio en `evidencia/capturas/` (tablet tomada y mirada, no versionada) |
 | H2.S3.M1 | Gates y deriva sobre el head | `spotlessCheck`, `testBarrido`, `contractTest`, `verificar_boveda/criterios/seguridad/carriles`, `inventario_endpoints --check`, `generar_ddl`/`extraer_sql`/`generar_postman`/`catalogo_de_datos --escribir` sin diff | todo en verde / sin deriva |
+| H2.S2.M1 | Completar la fecha (backend): `PATCH /usuarios-internos/{id}` con `fechaNacimiento` valida (AP-CU08-13/14), escribe con la precondición «solo si está NULL» (AP-CU08-15 si ya hay), exige step-up y deja bitácora `OPERADOR_FECHA_COMPLETADA` | CI de #543, job «Los cinco corredores» (incluye `CU08CompletarFechaTest` y `CU08FechaDeNacimientoDeLaBaseTest`) | `success` en el head `692558f9c` (18 checks verdes o saltados; salida en la corrida 45751030502) |
 | H2.S1.M2 | Corrección generada `sql/15_infra/correccion_gu17_fecha_ficticia.sql` (acotada por corte, de una sola vez, con reversa) | `psql` (evidencia/sql-a8.txt, sql-reaplicacion.txt) | 1.ª corrida: 1 fila (solo el operador previo con 1990-01-01); 2.ª: `UPDATE 0`; reversa restituye; `aplicar.sql` dos veces sin errores |
 
 ## A medias
-### H2.S2.M1 — Completar la fecha (backend)
-- Qué anda: `PATCH /usuarios-internos/{id}` con `fechaNacimiento` valida (13/14), escribe con la precondición «solo si está NULL» (15 si ya hay), exige step-up y deja bitácora (`OPERADOR_FECHA_COMPLETADA`); compila, unitarios, web y barrido en verde.
-- Qué no anda / no verificado: `CU08CompletarFechaTest` (integración con base) solo corre en CI; no se ejecutó local (Docker).
-- Qué falta: CI verde de la rama con esa prueba.
-- Dónde quedó: `GestionarUsuariosInternos`, `UsuariosInternosRepositorio`, `LecturaDeUsuariosInternos`, `identidad.yaml`; compila.
+Ninguna.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
@@ -34,7 +31,7 @@
 `evidencia/sql-a8.txt`, `evidencia/sql-r-seg-18.txt`, `evidencia/sql-reaplicacion.txt` (PostgreSQL 16 local, datos sintéticos).
 
 ## No cubierto
-- Integración contra base de la alta, la edad y completar fecha (CI).
+- La integración contra base de la alta, la edad y completar fecha se ejecutó solo en CI (verde); no se corrió en la máquina de desarrollo (sin Docker).
 - El corte `2026-11-26 03:17:43+00` es el instante en que #538 entró a `dev`; un entorno que despliegue más tarde no cambia nada, pero un operador dado de alta con el alta VIEJA después de ese corte conservaría 1990-01-01 sin marcar (no debería existir: el alta nuevo exige fecha).
 - `sql-a8.txt` se capturó antes de agregar `SET CONSTRAINTS` a la corrección; `sql-reaplicacion.txt` prueba la versión final.
 

@@ -10,6 +10,7 @@ import bo.aportaya.aportes.dominio.VerificadorDeFirmaWebhook;
 import bo.aportaya.aportes.infraestructura.PagoRepositorio;
 import bo.aportaya.aportes.infraestructura.ProveedorPagoRepositorio;
 import bo.aportaya.aportes.infraestructura.WebhookRepositorio;
+import bo.aportaya.aportes.infraestructura.pasarela.simulada.InterpreteDeWebhookJson;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Dinero;
@@ -87,7 +88,7 @@ class CU100WebhookTest extends BaseDeAportes {
                 new PagoRepositorio(),
                 codigo -> Optional.of(SECRETO_DE_PRUEBA),
                 Reloj.fijo(AHORA_DE_BORDE),
-                new ObjectMapper());
+                new InterpreteDeWebhookJson(new ObjectMapper()));
         return transaccion.execute(t ->
                 casoDeUso.recibir(new Entrada(proveedorCodigo, cuerpo, firma, String.valueOf(timestampEpochSegundos))));
     }

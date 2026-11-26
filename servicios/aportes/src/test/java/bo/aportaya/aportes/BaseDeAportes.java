@@ -11,6 +11,7 @@ import bo.aportaya.aportes.infraestructura.ObligacionRepositorio;
 import bo.aportaya.aportes.infraestructura.PagoRepositorio;
 import bo.aportaya.aportes.infraestructura.ProveedorPagoRepositorio;
 import bo.aportaya.aportes.infraestructura.WebhookRepositorio;
+import bo.aportaya.aportes.infraestructura.pasarela.simulada.InterpreteDeWebhookJson;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Reloj;
@@ -104,7 +105,7 @@ abstract class BaseDeAportes {
                 pagos,
                 secretoFijo,
                 Reloj.delSistema(),
-                new ObjectMapper());
+                new InterpreteDeWebhookJson(new ObjectMapper()));
     }
 
     protected ContextoSesion contextoDe(UUID usuarioId) {
