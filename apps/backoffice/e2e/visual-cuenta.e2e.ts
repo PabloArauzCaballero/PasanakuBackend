@@ -60,6 +60,7 @@ for (const v of VIEWPORTS) {
       await page.route(/\/cuenta\/recuperaciones$/, (r) => r.fulfill(json(202, { recibido: true })))
       await preparar(page, v, tema, errores)
       await page.goto('/acceso/recuperar')
+      await expect(page.getByLabel('Correo institucional')).toBeVisible()
       await foto(page, 'recuperar-formulario', v, tema)
       await page.getByLabel('Correo institucional').fill('operador@ejemplo.test')
       await page.getByRole('button', { name: /Enviar|Pedir/ }).click()
