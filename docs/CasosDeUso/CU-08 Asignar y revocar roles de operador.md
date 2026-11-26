@@ -150,6 +150,7 @@ export const ErroresCU08 = {
   DESTINATARIO_NO_HABILITADO:   'AP-CU08-10',
   MOTIVO_REQUERIDO:             'AP-CU08-11',
   FILTRO_DE_LISTADO_INVALIDO:   'AP-CU08-12',
+  FECHA_DE_NACIMIENTO_INVALIDA: 'AP-CU08-13',
 } as const
 ```
 
@@ -167,6 +168,7 @@ export const ErroresCU08 = {
 | `DESTINATARIO_NO_HABILITADO` | El destinatario no tiene perfil interno o su cuenta no está `ACTIVO` |
 | `MOTIVO_REQUERIDO` | El alta de un operador llega sin motivo (el contrato lo deja opcional solo por compatibilidad) |
 | `FILTRO_DE_LISTADO_INVALIDO` | `AP-CU08-12` · cursor a medias en `GET /usuarios-internos` (GU-17): llega `antesDe` sin `antesDeId` o al revés |
+| `FECHA_DE_NACIMIENTO_INVALIDA` | `AP-CU08-13` · el alta de un operador llega sin fecha de nacimiento o con una futura (GU-17: la declara quien da el alta, sin valor por omisión) |
 
 ### Contrato de eventos (bitácora y aviso) · forma v1
 
@@ -240,6 +242,14 @@ incompatible sube `version`.
 ## Criterios de aceptación
 
 ```gherkin
+Dada un alta de operador con una fecha de nacimiento futura
+Cuando se la intenta crear
+Entonces se rechaza con AP-CU08-13
+
+Dada un alta de operador con una fecha de nacimiento real
+Cuando se la valida
+Entonces se acepta sin cambiarla
+
 Dado un rol de ámbito GLOBAL con permisos de cumplimiento
 Cuando el administrador se lo asigna a un analista con MFA configurado
 Entonces existe una asignacion_rol vigente

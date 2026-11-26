@@ -25,11 +25,12 @@ const CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         <ap-campo etiqueta="Apellidos" [(valor)]="apellidos" autocompletar="family-name" [error]="errorDe('apellidos')" />
         <ap-campo etiqueta="Correo institucional" tipo="email" [(valor)]="correo" autocompletar="email" [error]="errorDe('correo')" />
         <ap-campo etiqueta="Teléfono móvil" tipo="tel" [(valor)]="telefono" marcador="+591…" autocompletar="tel" [error]="errorDe('telefono')" />
+        <ap-campo etiqueta="Fecha de nacimiento" tipo="date" [(valor)]="fechaNacimiento" autocompletar="bday" [error]="errorDeFecha()" ayuda="La declara quien da el alta: la persona la confirma al activar su cuenta." />
         <ap-lista-de-opciones etiqueta="Departamento" [opciones]="departamentos" [(valor)]="departamento" />
         <ap-campo etiqueta="Cargo" [(valor)]="cargo" [error]="errorDe('cargo')" />
       </div>
       <ap-lista-de-opciones etiqueta="Rol inicial" [opciones]="opcionesDeRol()" [(valor)]="rolCodigo" [deshabilitado]="opcionesDeRol().length === 0" [error]="errorDeRoles() ?? errorDeRol()" ayuda="Solo se ofrecen roles de personal interno." />
-      <p class="nota">Se le asigna una contraseña provisional que tiene que cambiar en su primer ingreso.</p>
+      <p class="nota">No se crea ninguna contraseña: la persona recibe por correo una invitación de un solo uso para elegir su clave y activar su autenticador.</p>
     </ap-dialogo-de-acto>
   `,
   styles: `
@@ -49,10 +50,16 @@ export class ModalAltaUsuarioInterno {
   protected readonly apellidos = signal('')
   protected readonly correo = signal('')
   protected readonly telefono = signal('')
+  protected readonly fechaNacimiento = signal('')
   protected readonly departamento = signal<string>(DEPARTAMENTOS_INTERNOS[0])
   protected readonly cargo = signal('')
   protected readonly rolCodigo = linkedSignal(() => this.opcionesDeRol()[0]?.valor ?? '')
   protected readonly error = signal<ErrorDeGobierno | null>(null)
+  protected readonly errorDeFecha = computed(() => {
+    if (this.error()?.campo === 'fechaNacimiento') return this.error()!.mensaje
+    const v = this.fechaNacimiento()
+    return v !== '' && v > hoy() ? 'La fecha de nacimiento no puede ser futura.' : undefined
+  })
   protected readonly errorDeRol = computed(() => (this.error()?.campo === 'rol' ? this.error()!.mensaje : undefined))
   protected readonly errorDeRoles = computed(() => (this.roles.error() ? mensajeDeError(this.roles.error(), 'No se pudo cargar el catálogo de roles.').mensaje : undefined))
 
@@ -66,8 +73,8 @@ export class ModalAltaUsuarioInterno {
   }
 
   protected esValido(): boolean {
-    const campos = [this.nombres(), this.apellidos(), this.correo(), this.telefono(), this.cargo()].map((v) => v.trim())
-    return campos.every((v) => v !== '') && (['nombres', 'apellidos', 'correo', 'telefono', 'cargo'] as const).every((c) => !this.errorDe(c)) && this.rolCodigo() !== ''
+    const campos = [this.nombres(), this.apellidos(), this.correo(), this.telefono(), this.cargo(), this.fechaNacimiento()].map((v) => v.trim())
+    return campos.every((v) => v !== '') && !this.errorDeFecha() && (['nombres', 'apellidos', 'correo', 'telefono', 'cargo'] as const).every((c) => !this.errorDe(c)) && this.rolCodigo() !== ''
   }
 
   /** El alta con la evidencia del segundo factor y el motivo (GU-11): el servidor exige ambos. */
@@ -77,6 +84,7 @@ export class ModalAltaUsuarioInterno {
       apellidos: this.apellidos().trim(),
       correo: this.correo().trim().toLowerCase(),
       telefono: this.telefono().trim(),
+      fechaNacimiento: this.fechaNacimiento(),
       departamento: this.departamento(),
       cargo: this.cargo().trim(),
       rolCodigo: this.rolCodigo(),
@@ -85,4 +93,10 @@ export class ModalAltaUsuarioInterno {
     }
     return this.ejecutarCreacion(payload)
   }
+}
+
+/** Hoy como `AAAA-MM-DD` en hora local (el valor de un `<input type="date">`). */
+function hoy(): string {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }

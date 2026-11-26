@@ -69,3 +69,7 @@ A1–A4 en el PLAN (cuatro ojos para todo riesgo ALTO/CRÍTICO del catálogo; vi
 - Peldaño: `TESTED` para backend (tests dirigidos en verde en CI) y para los specs del frontend; **no hay `VERIFIED`**: nadie ejercitó la UI en runtime.
 - **Sigue pendiente:** capturas 390/834/1440 × claro/oscuro de las dos pantallas (necesitan la app compilada con clientes generados: ver en CI o en un entorno con Gradle); vencimiento de cuentas de servicio no aplicado en el login (CU-04); A1–A5 por confirmar.
 - AVANCE por la fórmula del plan: las 13 microtareas tienen su DoD de pruebas en verde en CI **salvo** H3 (capturas) y H4.S1.M3 (cierre con PR): **11 / 13** con la salida de CI como evidencia (enlace en el PR #520).
+
+
+## ACTUALIZACIÓN 4 (2026-11-26, decisiones de Pablo)
+A1, A2 y A4 quedaron **resueltas** como estaban implementadas; A3 y A5 **no están decididas**: se mantiene el supuesto más seguro (step-up y TOTP exigidos; solo se registran cuentas aprovisionadas) y quedan registradas como supuesto. Detalle en el PLAN. El vencimiento de la cuenta de servicio ya se aplica en el login (PR #533). Pendiente para cerrar H3: ejercitar las dos pantallas contra el backend real y recapturar (no hecho en esta entrega).

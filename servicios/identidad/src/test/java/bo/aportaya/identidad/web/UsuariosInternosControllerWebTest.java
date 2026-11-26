@@ -127,6 +127,7 @@ class UsuariosInternosControllerWebTest {
                 """
                 {
                   "telefono": "+59178901234",
+                  "fechaNacimiento": "1988-03-21",
                   "nombres": "Laura",
                   "apellidos": "Rojas",
                   "correo": "nuevo.operador@aportaya.bo",
@@ -144,6 +145,30 @@ class UsuariosInternosControllerWebTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(PERFIL_ID.toString()))
                 .andExpect(jsonPath("$.correo").value("nuevo.operador@aportaya.bo"));
+    }
+
+    @Test
+    @DisplayName("crear: 400 si falta la fecha de nacimiento, sin valor por omision (GU-17)")
+    void crearSinFechaDeNacimiento() throws Exception {
+        String json =
+                """
+                {
+                  "telefono": "+59178901234",
+                  "nombres": "Laura",
+                  "apellidos": "Rojas",
+                  "correo": "nuevo.operador@aportaya.bo",
+                  "departamento": "OPERACIONES",
+                  "cargo": "Especialista de Conciliacion",
+                  "rolCodigo": "OPERATIONS_ANALYST"
+                }
+                """;
+
+        mvc.perform(post("/usuarios-internos")
+                        .with(Sesiones.como("SISTEMAS_ADMIN", "USUARIOS_INTERNOS_GESTIONAR"))
+                        .header("Idempotency-Key", UUID.randomUUID().toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

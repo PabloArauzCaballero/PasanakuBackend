@@ -140,11 +140,9 @@ credencial, su hash ni datos personales.
 
 ## Decisiones requeridas
 
-- **A2 · vigencia máxima:** `aportaya.cuentas-servicio.vigencia-maxima` (por omisión 90 días) es una
-  propuesta de configuración, no un parámetro con fuente. Confirmar con Seguridad.
-- **A3 · segundo factor de la cuenta:** el TOTP de la cuenta de servicio sigue el enrolamiento existente.
-- **A5 · crear la cuenta desde cero:** cómo se identifica (teléfono o correo) y cómo enrola su
-  segundo factor. Confirmar con Seguridad y con Pablo antes de implementarlo.
+- **A2 · vigencia máxima:** decidida por Pablo (2026-11-26): 90 días, configurable con `aportaya.cuentas-servicio.vigencia-maxima`.
+- **A3 · segundo factor de la cuenta:** sin decisión. Supuesto vigente: el TOTP sigue el enrolamiento existente y todo acto exige step-up.
+- **A5 · crear la cuenta desde cero:** sin decisión. Supuesto vigente: solo se registran cuentas ya aprovisionadas; cómo se identifica el usuario nuevo y cómo enrola su TOTP se decide antes de implementarlo.
 - **Vencimiento en el login:** resuelto: una cuenta vencida o revocada no abre sesión (CU-04, flujo 1b).
 
 ## Criterios de aceptación

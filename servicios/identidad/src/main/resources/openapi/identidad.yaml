@@ -2910,12 +2910,18 @@ components:
     EntradaAltaUsuarioInterno:
       type: object
       additionalProperties: false
-      required: [nombres, apellidos, correo, telefono, departamento, cargo, rolCodigo]
+      required: [nombres, apellidos, correo, telefono, fechaNacimiento, departamento, cargo, rolCodigo]
       properties:
         nombres: { type: string, minLength: 2, maxLength: 80 }
         apellidos: { type: string, minLength: 2, maxLength: 80 }
         correo: { type: string, format: email, maxLength: 150 }
         telefono: { type: string, minLength: 8, maxLength: 20 }
+        fechaNacimiento:
+          type: string
+          format: date
+          description: >-
+            Fecha de nacimiento real de la persona (GU-17, decision de Pablo 2026-11-26). La declara quien da el alta;
+            no se inventa ni tiene valor por omision. Una fecha futura se rechaza (AP-CU08-13).
         departamento: { type: string, minLength: 2, maxLength: 60 }
         cargo: { type: string, minLength: 2, maxLength: 80 }
         rolCodigo: { type: string, minLength: 2, maxLength: 30 }

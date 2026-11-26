@@ -41,6 +41,7 @@ describe('ModalAltaUsuarioInterno · POST /usuarios-internos', () => {
     escribir(el, 'Apellidos', 'Prueba')
     escribir(el, 'Correo institucional', correo)
     escribir(el, 'Teléfono móvil', '+59170000001')
+    escribir(el, 'Fecha de nacimiento', '1988-03-21')
     escribir(el, 'Cargo', 'Analista')
     escribir(el, 'Por qué se da de alta', 'Ingreso aprobado por RRHH')
     escribirCodigoDePrueba(el)
@@ -55,11 +56,25 @@ describe('ModalAltaUsuarioInterno · POST /usuarios-internos', () => {
     verificarPasoDeSeguridad(http, GW)
     const req = http.expectOne(`${GW}/usuarios-internos`)
     expect(req.request.method).toBe('POST')
-    expect(req.request.body).toEqual({ nombres: 'Ana', apellidos: 'Prueba', correo: 'nueva.persona@aportaya.test', telefono: '+59170000001', departamento: 'OPERACIONES', cargo: 'Analista', rolCodigo: 'SECURITY_ADMIN', motivo: 'Ingreso aprobado por RRHH', evidenciaMfa: EVIDENCIA_DE_PRUEBA })
+    expect(req.request.body).toEqual({ nombres: 'Ana', apellidos: 'Prueba', correo: 'nueva.persona@aportaya.test', telefono: '+59170000001', fechaNacimiento: '1988-03-21', departamento: 'OPERACIONES', cargo: 'Analista', rolCodigo: 'SECURITY_ADMIN', motivo: 'Ingreso aprobado por RRHH', evidenciaMfa: EVIDENCIA_DE_PRUEBA })
     let guardado = false
     f.componentInstance.guardado.subscribe(() => (guardado = true))
     req.flush({})
     expect(guardado).toBe(true)
+  })
+
+  it('límite: sin fecha de nacimiento no deja crear y una futura marca el campo (GU-17)', async () => {
+    const { f, el } = await montar()
+    await completar(f, el)
+    const crear = () => Array.from(el.querySelectorAll('button')).find((b) => texto(b) === 'Crear usuario') as HTMLButtonElement
+    expect(crear().disabled).toBe(false)
+    escribir(el, 'Fecha de nacimiento', '')
+    await estabilizar(f)
+    expect(crear().disabled).toBe(true)
+    escribir(el, 'Fecha de nacimiento', '2999-01-01')
+    await estabilizar(f)
+    expect(texto(el)).toContain('La fecha de nacimiento no puede ser futura.')
+    expect(crear().disabled).toBe(true)
   })
 
   it('límite: un correo mal escrito marca el campo y no deja crear', async () => {
