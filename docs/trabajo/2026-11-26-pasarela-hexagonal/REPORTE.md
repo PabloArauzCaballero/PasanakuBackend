@@ -1,10 +1,10 @@
-> **AVANCE: 10 / 12 — 83,3 %.**
+> **AVANCE: 12 / 12 — 100 %.**
 
 # Reporte — Pasarela de pagos simulada con arquitectura hexagonal
 
 - Fecha: 2026-11-26 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/pasarela-hexagonal` (desde `origin/dev`)
-- Peldaño de evidencia alcanzado (regla 30): **TESTED** (tests dirigidos y suites `test`/`webTest` verdes contra PostgreSQL 16 real).
-  No `VERIFIED`: no hay recorrido HTTP/E2E ni CI todavía.
+- Peldaño de evidencia alcanzado (regla 30): **TESTED** (tests dirigidos, suites `test`/`webTest` y, en CI, `integrationTest` verdes contra PostgreSQL 16 real).
+  No `VERIFIED`: no hay recorrido HTTP/E2E de punta a punta. CI verde en el head `7307d3cc` (run 45758108728: 18 checks, 0 fallidos; los saltados son por rutas).
 
 ## Completado
 | ID | Qué se logró | Comando | Resultado |
@@ -16,20 +16,12 @@
 | H1.S2.M4 | CU-100 consume el puerto; suites existentes adaptadas | `:servicios:aportes:test :webTest` | 82/82 y 101/101 PASS |
 | H1.S3.M1 | Flujo simulador→CU-100: correcto, duplicado, borde 300 s/301 s, monto distinto, orden inexistente, firma inválida | `CU100PasarelaSimuladaTest` | PASS 6/6 |
 | H1.S3.M2 | Reglas ArchUnit de la pasarela | `ArquitecturaTest` + mutación | PASS 8/8; con un import de adaptador en `aplicacion`, 1 falla |
+| H1.S2.M5 | `ArranqueTest` con `@ActiveProfiles("test")` levanta el contexto real | CI «Los cinco corredores» (incluye `integrationTest`) | PASS en `7307d3cc` |
+| H1.S4.M2 | Spotless, PR contra `dev`, CI verde | `get_check_runs` del PR #540 | PASS: 0 checks fallidos, `mergeable_state: clean` |
 | H1.S4.M1 | Guía `docs/operacion/pasarela-real-como-enchufar.md` | lectura | entregada |
 
 ## A medias
-### H1.S2.M5 — `ArranqueTest` con `@ActiveProfiles("test")`
-- Qué anda: una copia temporal apuntada al PG local levanta con perfil `test` (2/2) y falla con `production`.
-- Qué no anda: el `ArranqueTest` real no se ejecutó aquí (pide Testcontainers y no hay Docker).
-- Qué falta exactamente: que la CI lo corra en verde.
-- Dónde quedó: `ArranqueTest.java` editado, compila.
-
-### H1.S4.M2 — spotless, push, PR, CI verde
-- Qué anda: `spotlessCheck` pasa; commit y push de la rama.
-- Qué no anda: CI aún sin resultado a la hora de escribir esto.
-- Qué falta exactamente: PR contra `dev` fuera de borrador, CI verde, aviso a `@parent`.
-- Dónde quedó: rama `claude/pasarela-hexagonal`.
+Ninguna.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
@@ -43,14 +35,16 @@ Ver [evidencia/pruebas.txt](./evidencia/pruebas.txt) (conteos y salidas recortad
 
 ## No cubierto
 - Todo lo anterior se verificó **contra el doble**: ningún proveedor real, formato de webhook real ni esquema de firma real.
-- `integrationTest` completo: 9 fallos por `ENVIRONMENT` (sin Docker: `AislamientoEsquemaTest`, `ArranqueTest`) y `DATA` (la fixtura
-  `FixturaDeAportes.usuario()` no borra usuarios; colisiona al reusar la base). Ninguno ejercita este cambio; CI usa contenedor nuevo.
+- `integrationTest` en el sandbox local: 9 fallos por `ENVIRONMENT` (sin Docker: `AislamientoEsquemaTest`, `ArranqueTest`) y `DATA` (la fixtura
+  `FixturaDeAportes.usuario()` no borra usuarios; colisiona al reusar la base). Ninguno ejercita este cambio; en CI (contenedor nuevo) `integrationTest` pasó.
 - Sin recorrido HTTP del webhook simulado, sin traza con `correlationId`, sin prueba de caída del dependido (regla 98.8): el doble es
   en proceso, no hay salto remoto.
 - Regla 91.6 (asientos, cuadre, reversa): este cambio **no genera asientos ni acredita**; CU-100 solo marca el webhook
   `PROCESADO`. Idempotencia sí ejercitada (mismo `idEvento` ⇒ `DUPLICADO`, una fila, un pago).
 
 ## Desvíos del plan
+- La CI mostró dos fallos reales que el sandbox no reprodujo: (1) el generador de compose exigía cubrir `APORTES_PASARELA_MODO` y `APORTES_PASARELA_PROVEEDOR` (agregadas a `scripts/generar_compose.py`, regenerado `docker-compose.coolify.yml`); (2) el test con base cayó en el corredor `test` por su nombre: se renombró `PasarelaSimuladaFlujoTest` → `CU100PasarelaSimuladaTest` (corre en `integrationTest`).
+- gitleaks marcó un secreto sintético de prueba (commit `a2fc82d1`, línea 24 de `PasarelaSimuladaTest`). Se reemplazó por `"s".repeat(40)` y, como el literal sigue en el historial del PR, se agregó una entrada acotada y justificada a `.gitleaksignore` (indicado por la sesión padre; el escaneo sigue activo).
 - `PasarelaConfiguracionTest` se movió al paquete `..pasarela` porque la regla ArchUnit nueva (correctamente) marcó que el
   paquete `simulada` no puede referenciar a `real`.
 
