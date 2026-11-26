@@ -22,9 +22,7 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 class PasarelaConfiguracionTest {
 
     private final ApplicationContextRunner runner = new ApplicationContextRunner()
-            .withBean(
-                    ProveedorDeSecretoWebhook.class,
-                    () -> codigo -> Optional.of("secreto-sintetico-de-la-prueba-0001-xx"))
+            .withBean(ProveedorDeSecretoWebhook.class, () -> codigo -> Optional.of("c".repeat(40)))
             .withBean(Reloj.class, Reloj::delSistema)
             .withBean(ObjectMapper.class, ObjectMapper::new)
             .withUserConfiguration(

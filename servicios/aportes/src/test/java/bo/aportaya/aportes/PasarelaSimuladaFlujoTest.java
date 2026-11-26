@@ -198,10 +198,7 @@ class PasarelaSimuladaFlujoTest extends BaseDeAportes {
         String adulterada =
                 (aviso.firma().charAt(0) == 'a' ? "b" : "a") + aviso.firma().substring(1);
         var otroSecreto = new PasarelaSimulada(
-                codigo -> Optional.of("otro-secreto-sintetico-distinto-0000002"),
-                Reloj.delSistema(),
-                new ObjectMapper(),
-                PROVEEDOR);
+                codigo -> Optional.of("o".repeat(40)), Reloj.delSistema(), new ObjectMapper(), PROVEEDOR);
         otroSecreto.crearOrdenDeCobro(new SolicitudDeCobro("flujo-5", Dinero.de("50.00", Moneda.BOB)));
 
         assertThat(recibir(webhookCU, aviso.cuerpoCrudo(), adulterada, aviso.timestamp())

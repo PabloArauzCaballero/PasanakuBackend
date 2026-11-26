@@ -20,8 +20,8 @@ import org.junit.jupiter.api.Test;
 /** El DOBLE de la pasarela en los tres niveles del contrato de {@code PasarelaDePagos} (regla 65). */
 class PasarelaSimuladaTest {
 
-    /** Secreto SINTETICO de prueba (>= 32): no es el de ningun entorno. */
-    private static final String SECRETO = "secreto-sintetico-de-la-prueba-simulada-0001";
+    /** Secreto SINTETICO de prueba (>= 32, repetido a proposito: no es el de ningun entorno). */
+    private static final String SECRETO = "s".repeat(40);
 
     private static final Instant AHORA = Instant.parse("2026-11-26T12:00:00Z");
 
