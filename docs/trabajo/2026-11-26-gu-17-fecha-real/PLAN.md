@@ -13,13 +13,13 @@
 ## H1 — Alta con fecha real
 **CA:** Dado el alta de un operador, cuando falta la fecha de nacimiento o es futura, entonces se rechaza con AP-CU08-13 y no se crea nada; cuando es válida, entonces queda guardada tal cual.
 **DoD:** tests dirigidos + gates locales.
-**Estado:** TODO
+**Estado:** HECHO
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H1.S1.M1 | Contrato: `fechaNacimiento` (date) obligatoria | el generador procesa el YAML | `./gradlew :servicios:identidad:generarServidorOpenApi --rerun-tasks` | TODO |
-| H1.S1.M2 | Backend: valida y guarda la fecha real (sin literal 1990) | futura/ausente → AP-CU08-13; válida → se guarda | `./gradlew :servicios:identidad:test --tests '*AltaConFechaReal*'` | TODO |
-| H1.S1.M3 | Criterios CU-08 + código AP-CU08-13 | `verificar_criterios` y `verificar_boveda` en 0 | scripts | TODO |
-| H1.S2.M1 | Modal de alta: campo «Fecha de nacimiento» obligatorio con error por campo | spec del modal pasa; el envío se bloquea sin fecha | `ng test` del modal | TODO |
-| H1.S2.M2 | Ejemplos simulados y llamadas existentes al día | typecheck y lint del backoffice en 0 | `yarn typecheck` · `yarn lint` | TODO |
-| H2.S1.M1 | Capturas de la invitación: errores por campo, QR TOTP y carga | miradas en 3 viewports × 2 temas | Playwright + `evidencia/` | TODO |
+| H1.S1.M1 | Contrato: `fechaNacimiento` (date) obligatoria | el generador procesa el YAML | `./gradlew :servicios:identidad:generarServidorOpenApi --rerun-tasks` | HECHO |
+| H1.S1.M2 | Backend: valida y guarda la fecha real (sin literal 1990) | futura/ausente → AP-CU08-13; válida → se guarda | `./gradlew :servicios:identidad:test --tests '*AltaConFechaReal*'` | HECHO |
+| H1.S1.M3 | Criterios CU-08 + código AP-CU08-13 | `verificar_criterios` y `verificar_boveda` en 0 | scripts | HECHO |
+| H1.S2.M1 | Modal de alta: campo «Fecha de nacimiento» obligatorio con error por campo | spec del modal pasa; el envío se bloquea sin fecha | `ng test` del modal | HECHO |
+| H1.S2.M2 | Ejemplos simulados y llamadas existentes al día | typecheck y lint del backoffice en 0 | `yarn typecheck` · `yarn lint` | HECHO |
+| H2.S1.M1 | Capturas de la invitación: errores por campo, QR TOTP y carga | miradas en 3 viewports × 2 temas | Playwright + `evidencia/` | HECHO |

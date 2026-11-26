@@ -55,6 +55,51 @@ for (const v of VIEWPORTS) {
       expect(errores, 'consola sin errores inesperados').toEqual([])
     })
 
+    const CONSULTA = { alcance: 'ALTA', nombres: 'Persona', venceEn: '2026-11-29T10:00:00Z', requiereClaveActual: false, requiereFactor: true }
+
+    test(`invitación cargando — ${v.nombre} × ${tema}`, async ({ page }) => {
+      const errores: string[] = []
+      await page.route(/\/cuenta\/invitacion\/consultar$/, async (r) => {
+        await new Promise((resolver) => setTimeout(resolver, 2500))
+        await r.fulfill(json(200, CONSULTA))
+      })
+      await preparar(page, v, tema, errores)
+      await page.goto('/acceso/invitacion#token=token-sintetico-de-prueba')
+      await expect(page.getByText('Revisando tu invitación').first()).toBeVisible()
+      await foto(page, 'invitacion-cargando', v, tema)
+      expect(errores, 'consola sin errores inesperados').toEqual([])
+    })
+
+    test(`invitación errores por campo — ${v.nombre} × ${tema}`, async ({ page }) => {
+      const errores: string[] = []
+      await page.route(/\/cuenta\/invitacion\/consultar$/, (r) => r.fulfill(json(200, CONSULTA)))
+      await preparar(page, v, tema, errores)
+      await page.goto('/acceso/invitacion#token=token-sintetico-de-prueba')
+      await expect(page.getByText(/Hola, Persona/)).toBeVisible()
+      await page.getByLabel('Clave nueva', { exact: true }).fill('corta')
+      await page.getByLabel('Repetí la clave nueva').fill('distinta')
+      await page.getByRole('button', { name: 'Activar mi cuenta' }).click()
+      await expect(page.locator('[aria-invalid="true"]').first()).toBeVisible()
+      await foto(page, 'invitacion-errores', v, tema)
+      expect(errores, 'consola sin errores inesperados').toEqual([])
+    })
+
+    test(`invitación código QR — ${v.nombre} × ${tema}`, async ({ page }) => {
+      const errores: string[] = []
+      await page.route(/\/cuenta\/invitacion\/consultar$/, (r) => r.fulfill(json(200, CONSULTA)))
+      await page.route(/\/cuenta\/invitacion\/factor$/, (r) => r.fulfill(json(200, {
+        factorId: '0c900000-0000-4000-8000-0000000000f1', semilla: 'JBSWY3DPEHPK3PXP',
+        uriOtpauth: 'otpauth://totp/AportaYa:operador%40ejemplo.test?secret=JBSWY3DPEHPK3PXP&issuer=AportaYa',
+      })))
+      await preparar(page, v, tema, errores)
+      await page.goto('/acceso/invitacion#token=token-sintetico-de-prueba')
+      await expect(page.getByText(/Hola, Persona/)).toBeVisible()
+      await page.getByRole('button', { name: 'Generar mi código QR' }).click()
+      await expect(page.getByRole('img', { name: /Código QR/ })).toBeVisible()
+      await foto(page, 'invitacion-qr', v, tema)
+      expect(errores, 'consola sin errores inesperados').toEqual([])
+    })
+
     test(`no puedo entrar — ${v.nombre} × ${tema}`, async ({ page }) => {
       const errores: string[] = []
       await page.route(/\/cuenta\/recuperaciones$/, (r) => r.fulfill(json(202, { recibido: true })))
