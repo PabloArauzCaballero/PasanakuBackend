@@ -27,7 +27,7 @@
 ## Pendiente
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| A10 · migraciones versionadas | DECISION_REQUIRED | Pablo: si la corrección generada alcanza o se abre el ADR de Flyway/Liquibase (hoy el repo no tiene migraciones, `docs/operacion/schema-changes.md`) |
+| A10 · migraciones versionadas | DECIDIDA (2026-11-26, sesión principal) | Alcanza la corrección generada por `generar_ddl.py`. No se abre ADR de Flyway/Liquibase: la regla 97.1 pide una sola fuente de verdad del esquema y el repo ya la declara (modelo → DDL generado); sumar Flyway sería meter la segunda a la vez. Coherente con `docs/operacion/schema-changes.md`, con corte y reversa probados (`evidencia/sql-*.txt`) |
 | Bitácora de la corrección de datos | declarado | La corrección no deja asiento por operador; si se exige, hace falta decidirlo con Pablo |
 
 ## Evidencia
@@ -46,4 +46,4 @@ Se descubrió que `aplicar.sql` corre en una transacción: la corrección dejaba
 - Edad en el borde del 29 de febrero: se rechaza hasta el 1 de marzo (supuesto conservador, A12; confirmar).
 
 ## Decisiones y ambigüedades
-- A10 (arriba). A11: corte = instante de #538. A12: 29 de febrero cumple el 1 de marzo.
+- A10: decidida (ver Pendiente): la corrección generada con corte y reversa alcanza; sin ADR de Flyway. A11: corte = instante de #538. A12: 29 de febrero cumple el 1 de marzo.
