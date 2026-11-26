@@ -1,0 +1,18 @@
+# Corridas reales (PostgreSQL 16 local en :5433 con sql/aplicar.sql; APORTAYA_TEST_DB_URL)
+`./gradlew :servicios:aportes:spotlessCheck :servicios:aportes:test :servicios:aportes:webTest` (base limpia)
+  test      tests=82  skipped=0 failures=0 errors=0   (incluye ArquitecturaTest 8/8, PasarelaSimuladaTest 8/8,
+                                                      InterpreteDeWebhookJsonTest 3/3, PasarelaConfiguracionTest 3/3,
+                                                      PasarelaSimuladaFlujoTest 6/6, CU100WebhookTest)
+  webTest   tests=101 skipped=0 failures=0 errors=0
+`integrationTest` (misma base tras `test`): 161 tests, 9 fallos, TODOS ENVIRONMENT/DATA, ninguno de este cambio:
+  - AislamientoEsquemaTest, ArranqueTest: "Could not find a valid Docker environment" (Testcontainers; sin Docker aqui).
+  - AppendOnlyTest, AuditoriaCriticaTest: uq_usuario_telefono_e164 — FixturaDeAportes.usuario() no borra usuarios y usa un contador
+    de JVM; correr dos tareas sobre la misma base colisiona (preexistente; CI usa contenedor nuevo).
+ArranqueTest con copia temporal apuntada al PG local (borrada despues):
+  @ActiveProfiles("test")       -> 2/2 PASS (contexto Spring real levanta con el doble)
+  @ActiveProfiles("production") -> 2 fallos: "IllegalStateException: aportaya.aportes.pasarela.modo=simulada fuera de los
+                                   perfiles local/test: la pasarela simulada no cobra dinero real. ..."   (kill-test)
+Mutacion de ArchUnit: CU100RecibirWebhookPasarela (aplicacion) importando ..pasarela.simulada.InterpreteDeWebhookJson
+  -> ArquitecturaTest: 8 tests, 1 failed (elNucleoNoConoceLosAdaptadoresDeLaPasarela). Revertido.
+Hallazgo de la propia regla: PasarelaConfiguracionTest estaba en ..pasarela.simulada.. y referenciaba ..real..;
+  elDobleNoDependeDelAdaptadorReal lo marco; se movio al paquete padre.
