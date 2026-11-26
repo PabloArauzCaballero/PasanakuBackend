@@ -25,7 +25,7 @@ Ninguna.
 | Operadores ya dados de alta con `1990-01-01` ficticio (A8) | DECISION_REQUIRED | Pablo/RR.HH.: quién y cómo carga la fecha real de cada uno |
 
 ## Evidencia
-Salidas en la tabla. Capturas en `evidencia/capturas-acceso/` (backend simulado con `page.route`, datos sintéticos).
+Salidas en la tabla. Capturas en `evidencia/capturas-acceso/` (móvil 390 y escritorio 1440, claro y oscuro; las de tablet 834 se tomaron y miraron en la máquina pero no se versionan por peso). Backend simulado con `page.route`, datos sintéticos. Última corrida: `60 passed (1.3m)`.
 
 ## No cubierto
 - Integración contra base de la alta con fecha (`UsuariosInternosRepositorioTest` requiere Docker): corre en CI.
