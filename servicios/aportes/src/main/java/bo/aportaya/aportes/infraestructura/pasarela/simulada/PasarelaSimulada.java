@@ -90,6 +90,11 @@ public class PasarelaSimulada implements PasarelaDePagos, SimuladorDePagoDePasar
     }
 
     @Override
+    public boolean registraOrdenPorCobro() {
+        return true;
+    }
+
+    @Override
     public Optional<CobroConsultado> consultarEstado(String referenciaProveedor) {
         if (referenciaProveedor == null) {
             return Optional.empty();

@@ -1,0 +1,10 @@
+# PostgreSQL 16 local :5433 con sql/aplicar.sql (base nueva por corrida)
+./gradlew :servicios:aportes:spotlessCheck :servicios:aportes:test :servicios:aportes:webTest   (sin APORTAYA_TEST_DB_URL, como CI)
+  test    tests=79  failures=0   (+3: PasarelaSimuladaPerfilTest)
+  webTest tests=106 failures=0   (+5: AvisoSimuladoWebTest)
+./gradlew :servicios:aportes:integrationTest  (base nueva)
+  tests=175 failures=3, todos ENVIRONMENT: ArranqueTest x2 y AislamientoEsquemaTest ("Could not find a valid Docker environment")
+  CU100AvisoSimuladoTest 5/5 · CU21PagoConOrdenSimuladaTest 3/3 · CU21PagoConSaldoTest 6/6 · CU100PasarelaSimuladaTest 6/6 · CU100WebhookTest 9/9
+ArranqueTest con copia temporal apuntada al PG local (borrada): @ActiveProfiles("test") -> 2/2 PASS (controlador nuevo cableado, /qr mapeado).
+Hallazgos de la base al escribir los tests (no del codigo): ck_bitacora_evento_accion rechaza acciones fuera de catalogo (se uso CONCILIACION);
+  fk_bitacora_evento_actor_usuario_id exige un usuario real como actor.
