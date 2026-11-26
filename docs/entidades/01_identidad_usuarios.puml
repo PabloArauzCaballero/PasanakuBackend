@@ -820,7 +820,7 @@ entity "usuario" as usuario {
   apellidos : VARCHAR(80)
   telefono_e164 : VARCHAR(20) <<UQ, IDX>>
   correo : VARCHAR(150) <<UQ, NULL>>
-  fecha_nacimiento : DATE
+  fecha_nacimiento : DATE <<NULL>>
   estado : VARCHAR(25) <<CK>>
   nivel_kyc : VARCHAR(15) <<CK>>
   idioma : VARCHAR(10)

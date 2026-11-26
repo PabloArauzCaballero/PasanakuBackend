@@ -63,7 +63,8 @@ public record HechoDeAcceso(
         OPERADOR_SUSPENDIDO("identidad.usuario_interno_suspendido"),
         OPERADOR_REACTIVADO("identidad.usuario_interno_reactivado"),
         OPERADOR_DADO_DE_BAJA("identidad.usuario_interno_dado_de_baja"),
-        OPERADOR_DESBLOQUEADO("identidad.usuario_interno_desbloqueado");
+        OPERADOR_DESBLOQUEADO("identidad.usuario_interno_desbloqueado"),
+        OPERADOR_FECHA_COMPLETADA("identidad.usuario_interno_fecha_completada");
 
         private final String tipoDeEvento;
 

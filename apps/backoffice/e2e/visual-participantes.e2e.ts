@@ -36,13 +36,13 @@ const DIRECTORIO = [
   { nombre: 'error', status: 503, cuerpo: { codigo: 'AP-0000', mensaje: 'x', trazaId: 'traza-visual' }, espera: /Volver a intentar/ },
 ] as const
 
-async function preparar(page: Page, viewport: (typeof VIEWPORTS)[number], tema: (typeof TEMAS)[number], errores: string[]): Promise<void> {
+async function preparar(page: Page, viewport: (typeof VIEWPORTS)[number], tema: (typeof TEMAS)[number], errores: string[], permisos = ['PARTICIPANTES_LEER']): Promise<void> {
   page.on('console', (m) => {
     if (m.type() === 'error' && !/503/.test(m.text())) errores.push(m.text())
   })
   await page.setViewportSize({ width: viewport.width, height: viewport.height })
   await page.emulateMedia({ colorScheme: tema })
-  await iniciarSesionDePrueba(page, ['PARTICIPANTES_LEER'])
+  await iniciarSesionDePrueba(page, permisos)
 }
 
 const DIR = '../../.playwright/backoffice/visual/participantes'
@@ -72,6 +72,34 @@ for (const viewport of VIEWPORTS) {
       await page.getByRole('button', { name: 'Abrir ficha' }).click()
       await expect(page.getByText('+591 7•••••12')).toBeVisible()
       await page.screenshot({ path: `${DIR}/ficha.${viewport.nombre}.${tema}.png`, fullPage: true })
+      expect(errores, 'consola sin errores inesperados').toEqual([])
+    })
+  }
+}
+
+/** H3.S6.M3 · los actos con segundo factor: la ficha con sus botones y el diálogo de confirmar, en 3 viewports × 2 temas. */
+const ACTOS = ['PARTICIPANTES_LEER', 'PARTICIPANTES_MEDIDA_DECIDIR', 'PARTICIPANTES_MEDIDA_PROPONER', 'DATOS_SENSIBLES_LEER']
+for (const viewport of VIEWPORTS) {
+  for (const tema of TEMAS) {
+    test(`participantes actos — ${viewport.nombre} × ${tema}`, async ({ page }) => {
+      const errores: string[] = []
+      await page.route(/\/identidad\/participantes\/[^/]+\/ficha$/, (r) => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(FICHA) }))
+      await preparar(page, viewport, tema, errores, ACTOS)
+      await navegarSinRecargar(page, `/cumplimiento/participantes/${USUARIO}`)
+      await page.getByLabel('Por qué consultas').fill('Ticket SOP-0001 sintético')
+      await page.getByRole('button', { name: 'Abrir ficha' }).click()
+      await expect(page.getByRole('button', { name: 'Confirmar medida' })).toBeVisible()
+      await expect(page.getByRole('button', { name: 'Revelar teléfono' })).toBeVisible()
+      await page.screenshot({ path: `${DIR}/actos-ficha.${viewport.nombre}.${tema}.png`, fullPage: true })
+      await page.getByRole('button', { name: 'Confirmar medida' }).click()
+      const dialogo = page.getByRole('dialog', { name: 'Confirmar la medida' })
+      await expect(dialogo).toBeVisible()
+      await dialogo.getByLabel('Fundamento de la decisión').fill('La evidencia del sistema y el descargo sostienen la medida propuesta.')
+      await page.screenshot({ path: `${DIR}/actos-confirmar.${viewport.nombre}.${tema}.png` })
+      await dialogo.getByRole('button', { name: 'Cancelar' }).click()
+      await page.getByRole('button', { name: 'Proponer medida' }).click()
+      await expect(page.getByRole('dialog', { name: 'Proponer una medida sobre la cuenta' })).toBeVisible()
+      await page.screenshot({ path: `${DIR}/actos-proponer.${viewport.nombre}.${tema}.png` })
       expect(errores, 'consola sin errores inesperados').toEqual([])
     })
   }

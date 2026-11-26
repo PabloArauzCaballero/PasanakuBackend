@@ -207,6 +207,11 @@ Dado un beneficiario con una medida vigente sobre su cuenta
 Cuando se emite la orden de desembolso
 Entonces se rechaza con ENTREGA_RETENIDA_POR_MEDIDA
 Y la entrega sigue AUTORIZADA sin ninguna orden_desembolso
+
+Dada una entrega retenida por una medida de CU-134
+Cuando la emisión se reintenta con la misma clave y luego la medida se libera
+Entonces mientras está retenida no hay orden ni evento de desembolso
+Y liberada la misma clave emite una sola orden por el neto de la entrega
 ```
 
 ## Ver también

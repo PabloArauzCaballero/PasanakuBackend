@@ -2092,6 +2092,29 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_recuperacion_viva
   ON solicitud_recuperacion_acceso (usuario_id, alcance)
   WHERE (estado IN ('PENDIENTE','APROBADA','EMITIDA'));
 
+-- R-SEG-18 · solo el personal interno puede estar «sin dato» de fecha de nacimiento
+--
+-- GU-17: la fecha de un operador la declara quien da el alta; los operadores dados de alta antes de
+-- ese cambio quedaron con una fecha ficticia y se marcan «sin dato» (NULL). Eso relaja la columna,
+-- pero la fecha de un participante sigue siendo obligatoria: lo verifica la base, al confirmar la
+-- transaccion (el alta inserta `usuario` y luego `usuario_interno` en la misma).
+CREATE OR REPLACE FUNCTION fn_seg_fecha_nacimiento_obligatoria() RETURNS trigger AS $$
+BEGIN
+  IF NEW.fecha_nacimiento IS NULL
+     AND NOT EXISTS (SELECT 1 FROM usuario_interno ui WHERE ui.usuario_id = NEW.id) THEN
+    RAISE EXCEPTION 'R-SEG-18: el usuario % no es personal interno y necesita fecha de nacimiento', NEW.id;
+  END IF;
+  RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS tg_fecha_nacimiento_obligatoria ON usuario;
+DROP TRIGGER IF EXISTS tg_fecha_nacimiento_obligatoria ON usuario;
+CREATE CONSTRAINT TRIGGER tg_fecha_nacimiento_obligatoria
+  AFTER INSERT OR UPDATE OF fecha_nacimiento ON usuario
+  DEFERRABLE INITIALLY DEFERRED
+  FOR EACH ROW WHEN (NEW.fecha_nacimiento IS NULL)
+  EXECUTE FUNCTION fn_seg_fecha_nacimiento_obligatoria();
+
 
 -- ---------------------------------------------------------------------
 -- R-LIC — Licencia y gobierno

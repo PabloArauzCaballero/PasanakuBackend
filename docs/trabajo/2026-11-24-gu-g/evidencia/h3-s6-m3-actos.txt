@@ -1,0 +1,30 @@
+# H3.S6.M3 y H3.S6.M4 — actos de CU-134 en la ficha (backoffice), 2026-11-26
+Backend: simulado (@aportaya/simulado) y HttpTestingController — VERIFIED_FUNCTIONAL contra doble, no contra identidad real.
+
+$ npx ng test --include=src/app/rutas/cumplimiento/participantes/*.spec.ts
+ Test Files  3 passed (3)
+      Tests  14 passed (14)
+
+$ npx ng test   (suite completa del backoffice)
+ Test Files  247 passed (247)
+      Tests  1527 passed (1527)
+exit=0
+
+$ corepack yarn lint
+
+✖ 1 problem (1 error, 0 warnings)
+$ corepack yarn lint (tras partir la spec en acciones-de-medida.spec.ts + revelar-y-proponer.spec.ts)
+TODO OK
+exit=0
+
+$ npx playwright test e2e/visual-participantes.e2e.ts --workers=1
+  ✓  27 [chromium] › e2e/visual-participantes.e2e.ts:84:9 › participantes actos — tablet × light (1.9s)
+  ✓  28 [chromium] › e2e/visual-participantes.e2e.ts:84:9 › participantes actos — tablet × dark (2.0s)
+  ✓  29 [chromium] › e2e/visual-participantes.e2e.ts:84:9 › participantes actos — escritorio × light (2.1s)
+  ✓  30 [chromium] › e2e/visual-participantes.e2e.ts:84:9 › participantes actos — escritorio × dark (2.1s)
+
+  30 passed (1.5m)
+
+Capturas (3 viewports × 2 temas) en .playwright/backoffice/visual/participantes/actos-{ficha,confirmar,proponer}.*; revisadas movil.dark (ficha) y escritorio.light (proponer). Copias en evidencia/capturas/. Datos sintéticos (AP-SINT-0001).
+
+Specs cubren: sin permiso no hay botón; confirmar con step-up + Idempotency-Key + axe; fundamento corto bloquea; apelación + AP-CU134-03 al campo OTP; A-1 liberar; revelar con/sin DATOS_SENSIBLES_LEER; proponer validación, cuerpo, AP-CU134-04 en causal y datos preservados.

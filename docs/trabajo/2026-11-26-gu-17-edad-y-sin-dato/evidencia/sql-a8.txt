@@ -1,0 +1,25 @@
+== siembra sintetica (4 usuarios + 3 internos) ==
+-- antes
+T-A1|1990-01-01
+T-A2|1990-01-01
+T-A3|1985-06-15
+T-A4|1990-01-01
+== correccion, 1a corrida ==
+UPDATE 1
+-- despues
+T-A1|sin dato
+T-A2|1990-01-01
+T-A3|1985-06-15
+T-A4|1990-01-01
+== 2a corrida (idempotencia) ==
+1
+UPDATE 0
+T-A1|sin dato
+T-A2|1990-01-01
+T-A3|1985-06-15
+T-A4|1990-01-01
+== reversa ==
+T-A1|1990-01-01
+T-A2|1990-01-01
+T-A3|1985-06-15
+T-A4|1990-01-01

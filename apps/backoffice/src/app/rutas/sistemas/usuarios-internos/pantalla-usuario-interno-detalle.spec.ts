@@ -101,3 +101,62 @@ describe('PantallaUsuarioInternoDetalle · acciones sin prompt()', () => {
     http.verify()
   })
 })
+
+describe('PantallaUsuarioInternoDetalle · operador sin dato de fecha (GU-17)', () => {
+  const SIN_DATO: UsuarioInternoDetalle = { ...USUARIO_DETALLE, fechaNacimientoPendiente: true }
+
+  async function montar(permisos: string[], detalle: UsuarioInternoDetalle) {
+    TestBed.configureTestingModule({
+      providers: [provideZonelessChangeDetection(), provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: GATEWAY, useValue: 'http://gw/api/v1' }, { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'u-1' } } } }],
+    })
+    const http = TestBed.inject(HttpTestingController)
+    TestBed.inject(Sesion).abrir('token', permisos, 'OPERADOR')
+    const f = TestBed.createComponent(PantallaUsuarioInternoDetalle)
+    f.detectChanges()
+    http.expectOne('http://gw/api/v1/usuarios-internos/u-1').flush(detalle)
+    const el = await estabilizar(f)
+    return { f, el, http }
+  }
+
+  it('avisa que falta la fecha y ofrece completarla solo a quien gestiona', async () => {
+    const { el } = await montar(['USUARIOS_INTERNOS_GESTIONAR'], SIN_DATO)
+    expect(el.textContent).toContain('Falta la fecha de nacimiento')
+    expect(Array.from(el.querySelectorAll('button')).some((b) => (b.textContent ?? '').includes('Completar la fecha'))).toBe(true)
+  })
+
+  it('sin permiso de gestión el aviso se ve pero no hay acción para completarla', async () => {
+    const sinPermiso = await montar([], SIN_DATO)
+    expect(sinPermiso.el.textContent).toContain('Falta la fecha de nacimiento')
+    expect(Array.from(sinPermiso.el.querySelectorAll('button')).some((b) => (b.textContent ?? '').includes('Completar la fecha'))).toBe(false)
+  })
+
+  it('con la fecha cargada no muestra el aviso', async () => {
+    const { el } = await montar(['USUARIOS_INTERNOS_GESTIONAR'], USUARIO_DETALLE)
+    expect(el.textContent).not.toContain('Falta la fecha de nacimiento')
+  })
+
+  it('Completar la fecha manda PATCH con la fecha, el motivo y el segundo factor', async () => {
+    const { f, el, http } = await montar(['USUARIOS_INTERNOS_GESTIONAR'], SIN_DATO)
+    pulsar(el, 'Completar la fecha')
+    await estabilizar(f)
+    const d = el.querySelector('dialog[open]')!
+    const fecha = Array.from(d.querySelectorAll('input')).find((i) => i.type === 'date') as HTMLInputElement
+    fecha.value = '1985-06-15'
+    fecha.dispatchEvent(new Event('input'))
+    const area = d.querySelector('textarea') as HTMLTextAreaElement
+    area.value = 'Dato verificado con su documento'
+    area.dispatchEvent(new Event('input'))
+    escribirCodigoDePrueba(d)
+    await estabilizar(f)
+    pulsar(d, 'Guardar la fecha')
+    verificarPasoDeSeguridad(http, 'http://gw/api/v1')
+    const req = http.expectOne('http://gw/api/v1/usuarios-internos/u-1')
+    expect(req.request.method).toBe('PATCH')
+    expect(req.request.body).toEqual({ fechaNacimiento: '1985-06-15', motivo: 'Dato verificado con su documento', evidenciaMfa: EVIDENCIA_DE_PRUEBA })
+    req.flush({ ...USUARIO_DETALLE })
+    f.detectChanges()
+    http.expectOne('http://gw/api/v1/usuarios-internos/u-1').flush({ ...USUARIO_DETALLE })
+    await estabilizar(f)
+    expect(el.textContent).not.toContain('Falta la fecha de nacimiento')
+  })
+})

@@ -59,7 +59,7 @@
 |---|---|---|---|---|
 | H2.S1.M1 | CU-134: estado APROBADO, «Decisiones aprobadas», PROPUESTA→APROBADO, pasos 7 y 18 según D-2/D-10/D-12 | Ninguna «PROPUESTA — requiere aprobación» queda en el CU | `grep -c "requiere aprobación de Pablo" CU-134…md` → 0 y `verificar_boveda.py` → `TODO OK` | HECHO |
 | H2.S1.M2 | Fila del índice y nota del rango sin «borrador» | Índice dice «Aprobado por Pablo el 2026-11-24» | `grep -c "Aprobado por Pablo el 2026-11-24\|fue aprobado por Pablo" _CasosDeUso.md` → 2 | HECHO |
-| H2.S1.M3 | PR a `dev` con CI en verde | PR abierto y checks verdes | checks del PR | EN CURSO |
+| H2.S1.M3 | PR a `dev` con CI en verde | PR abierto y checks verdes | checks del PR | HECHO — CI de #541 en verde sobre 4a87bff1c (12 success, 0 failure); `evidencia/h3-s7-m1-ci-541.txt` |
 
 ## H3 — Implementación de CU-134 (Ola 3)
 **CA:** Dado un operador con permiso, cuando busca un participante, abre su ficha, propone una medida, el afectado se descarga, otra persona decide y una tercera resuelve la apelación, entonces cada paso queda en la base con rastro, plazos guardados en días hábiles, segregación verificada en la base, y la entrega de quien tiene medida vigente queda retenida (contra un doble de `entregas` si no expone el contrato).
@@ -95,7 +95,7 @@
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
 | H3.S4.M1 | Contrato mínimo y doble en tres niveles (correcto, límite, inválido/caída) de la consulta a `identidad` | Pruebas del doble en verde | `./gradlew :servicios:entregas:test --tests '*MedidaVigente*'` | HECHO (TESTED en la CI) — `:servicios:entregas:test` en verde en el job 139534905860 (head `d855ce0e2`): `MedidaDeCuentaPorHttpTest` en tres niveles (correcto, límite, inválido/caída: falla cerrado) contra una identidad de ensayo declarada; no probado contra `identidad` real |
-| H3.S4.M2 | Retener la entrega con medida vigente y liberarla al levantarse, con idempotencia y evidencia de la regla 91.6 | Duplicado sin doble efecto | ídem + evidencia 91.6 | A MEDIAS — Qué anda: `CU28EmitirDesembolso` rechaza con AP-CU28-08 y la entrega sigue AUTORIZADA; criterio de CU-28 en verde en la CI (job 139534905860). Qué no anda / falta: la liberación al levantarse la medida no tiene prueba propia (hoy se reintenta la emisión) y falta la evidencia de la regla 91.6 (no se mueve dinero al retener, pero la reversa y el cuadre de la emisión posterior no se ejercitaron). Dónde quedó: rama `claude/gu-g-cu-participantes`, compila y pasa |
+| H3.S4.M2 | Retener la entrega con medida vigente y liberarla al levantarse, con idempotencia y evidencia de la regla 91.6 | Duplicado sin doble efecto | ídem + evidencia 91.6 | HECHO (TESTED local, PostgreSQL real) — `CU28RetencionPorMedidaTest`: retenida dos veces → AP-CU28-08 sin orden ni evento; liberada, la misma clave emite una sola orden por el neto y es idempotente; reversa y redondeo no aplican (no hay asiento ni división). La liberación al levantarse la medida es la de A-1 (`CU134EntregaRetenidaTest`). entregas 49/76/65/2 en verde (`evidencia/h3-s4-m2-916.txt`) |
 
 ### H3.S5 — Modo restringido del suspendido (D-6)
 | ID | Microtarea | CA (binario) | DoD | Estado |
@@ -110,12 +110,13 @@
 |---|---|---|---|---|
 | H3.S6.M1 | Entrada «Participantes» (bajo Cumplimiento › Riesgo y seguridad: Cumplimiento ya tiene 8 pestañas, tope del test del menú) + directorio con cuatro estados | Specs en verde | `npx ng test --include='src/app/nucleo/menu*.spec.ts' --include='src/app/rutas/cumplimiento/**/*.spec.ts'` | HECHO — 42 archivos / 311 tests en verde (`evidencia/h3-s6-ng-test.txt`); typecheck y lint exit 0 (`evidencia/h3-s6-typecheck-lint.txt`). Clientes Angular del tarball, no commiteados |
 | H3.S6.M2 | Ficha enmascarada con justificación previa y medidas con línea de tiempo | Specs en verde + capturas en 3 viewports y 2 temas | `playwright test e2e/visual-participantes.e2e.ts --workers=1` | HECHO (VERIFIED_FUNCTIONAL contra backend SIMULADO, declarado) — specs 576/576 en verde; 24 capturas 3 viewports × 2 temas × (directorio datos/vacío/error + ficha), consola sin errores, inspeccionadas (`evidencia/h3-s6-capturas.txt`). No verificado contra `identidad` real. Las capturas corrigieron códigos crudos y el color del enlace |
-| H3.S6.M3 | Acciones con segundo factor: revelar dato, proponer, decidir y resolver apelación | Specs en verde + capturas del diálogo | specs del backoffice | TODO — los endpoints existen (`identidad.yaml`, `evidenciaMfa`); falta la pantalla y el paso de step-up del backoffice |
+| H3.S6.M3 | Acciones con segundo factor en la ficha: revelar teléfono o correo, confirmar o desestimar la medida, aceptar o rechazar la apelación y liberar la entrega (A-1), cada una visible solo con su permiso | Specs en verde (pasos del step-up y cuerpo de cada operación) + capturas del diálogo | `npx ng test --include='src/app/rutas/cumplimiento/participantes/**'` | HECHO (VERIFIED_FUNCTIONAL contra backend simulado) — specs 14/14, suite 1527/1527, lint y typecheck 0, e2e visual 30/30 con capturas 3×2 revisadas; `evidencia/h3-s6-m3-actos.txt` |
+| H3.S6.M4 | Proponer una medida desde la ficha (causal, medida, cautelar, motivo y evidencia), sin doble envío y con el error del servidor en su campo | Specs en verde | ídem | HECHO (VERIFIED_FUNCTIONAL contra backend simulado) — specs 14/14, suite 1527/1527, lint y typecheck 0, e2e visual 30/30 con capturas 3×2 revisadas; `evidencia/h3-s6-m3-actos.txt` |
 
 ### H3.S7 — Regresión y gates
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H3.S7.M1 | Regresión de `identidad` y `entregas`, verificadores, PR con CI verde | Todo en 0 | salidas pegadas | TODO |
+| H3.S7.M1 | Regresión de `identidad` y `entregas`, verificadores, PR con CI verde | Todo en 0 | salidas pegadas | HECHO — CI de #541 en verde sobre 4a87bff1c (12 success, 0 failure); `evidencia/h3-s7-m1-ci-541.txt` |
 
 ## H4 — Decisiones de Pablo del 2026-11-26 (A-1 y A-4)
 
