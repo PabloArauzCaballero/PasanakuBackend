@@ -60,7 +60,7 @@ class CU21PagoConOrdenSimuladaTest extends BaseDeAportes {
 
     @Test
     @DisplayName(
-            "correcto: el pago queda con la referencia de una orden simulada PENDIENTE del mismo monto, y la respuesta es la de siempre")
+            "cuadre: el pago queda con la referencia de una orden simulada PENDIENTE del mismo monto, y la respuesta es la de siempre")
     void ordenYReferencia() {
         UUID usuario = fixtura.usuario();
         var obligacion = fixtura.obligacion(usuario, "100.00", 10);
@@ -77,8 +77,7 @@ class CU21PagoConOrdenSimuladaTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName(
-            "limite: el reintento con la misma clave devuelve el MISMO pago (esNuevo=false), una sola orden y un solo pago")
+    @DisplayName("reintento: la misma clave devuelve el MISMO pago (esNuevo=false), una sola orden y un solo pago")
     void reintentoIdempotente() {
         UUID usuario = fixtura.usuario();
         var obligacion = fixtura.obligacion(usuario, "100.00", 10);
@@ -96,7 +95,7 @@ class CU21PagoConOrdenSimuladaTest extends BaseDeAportes {
 
     @Test
     @DisplayName(
-            "invalido: monto declarado distinto, cuota ya pagada y obligacion inexistente dan los MISMOS errores de siempre")
+            "rechaza con los MISMOS errores de siempre: monto declarado distinto, cuota ya pagada y obligacion inexistente")
     void erroresIntactos() {
         UUID usuario = fixtura.usuario();
         var obligacion = fixtura.obligacion(usuario, "100.00", 10);
