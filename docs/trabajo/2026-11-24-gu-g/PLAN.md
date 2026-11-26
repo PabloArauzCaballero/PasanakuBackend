@@ -59,7 +59,7 @@
 |---|---|---|---|---|
 | H2.S1.M1 | CU-134: estado APROBADO, «Decisiones aprobadas», PROPUESTA→APROBADO, pasos 7 y 18 según D-2/D-10/D-12 | Ninguna «PROPUESTA — requiere aprobación» queda en el CU | `grep -c "requiere aprobación de Pablo" CU-134…md` → 0 y `verificar_boveda.py` → `TODO OK` | HECHO |
 | H2.S1.M2 | Fila del índice y nota del rango sin «borrador» | Índice dice «Aprobado por Pablo el 2026-11-24» | `grep -c "Aprobado por Pablo el 2026-11-24\|fue aprobado por Pablo" _CasosDeUso.md` → 2 | HECHO |
-| H2.S1.M3 | PR a `dev` con CI en verde | PR abierto y checks verdes | checks del PR | EN CURSO |
+| H2.S1.M3 | PR a `dev` con CI en verde | PR abierto y checks verdes | checks del PR | HECHO — CI de #541 en verde sobre 4a87bff1c (12 success, 0 failure); `evidencia/h3-s7-m1-ci-541.txt` |
 
 ## H3 — Implementación de CU-134 (Ola 3)
 **CA:** Dado un operador con permiso, cuando busca un participante, abre su ficha, propone una medida, el afectado se descarga, otra persona decide y una tercera resuelve la apelación, entonces cada paso queda en la base con rastro, plazos guardados en días hábiles, segregación verificada en la base, y la entrega de quien tiene medida vigente queda retenida (contra un doble de `entregas` si no expone el contrato).
@@ -116,7 +116,7 @@
 ### H3.S7 — Regresión y gates
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H3.S7.M1 | Regresión de `identidad` y `entregas`, verificadores, PR con CI verde | Todo en 0 | salidas pegadas | TODO |
+| H3.S7.M1 | Regresión de `identidad` y `entregas`, verificadores, PR con CI verde | Todo en 0 | salidas pegadas | HECHO — CI de #541 en verde sobre 4a87bff1c (12 success, 0 failure); `evidencia/h3-s7-m1-ci-541.txt` |
 
 ## H4 — Decisiones de Pablo del 2026-11-26 (A-1 y A-4)
 

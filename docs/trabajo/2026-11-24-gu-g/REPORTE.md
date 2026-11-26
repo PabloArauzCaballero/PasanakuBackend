@@ -1,6 +1,6 @@
 # Reporte — Lote G · CU de gobierno de participantes (borrador para aprobación)
 
-> **AVANCE: 34 / 36 — 94,4 %** (`plan_status.py`). #525 y #532 mergeados en `dev`. H3.S4.M2 (retención de la entrega con evidencia 91.6) y H3.S6.M3/M4 (actos con segundo factor en la ficha) hechos y verificados en local, en PR aparte; abiertos H2.S1.M3 y H3.S7.M1 hasta la CI verde de ese PR.
+> **AVANCE: 36 / 36 — 100 %** (`plan_status.py`). #525 y #532 mergeados en `dev`; #541 (H3.S4.M2 retención con evidencia 91.6 y H3.S6.M3/M4 actos en la ficha) con CI en verde, listo para revisión. Los actos del backoffice quedaron verificados contra backend simulado, no contra `identidad` real.
 
 - Fecha: 2026-11-24 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/gu-g-cu-participantes` → PR a `dev`
 - Peldaño de evidencia alcanzado: `RUNS` sobre la bóveda, en local y en la CI del PR #514 (los verificadores corren en exit 0 con el CU nuevo). Es un documento: no hay comportamiento que ejercitar; el CU queda **BORRADOR** hasta que Pablo lo apruebe (decisión P-11).
@@ -78,8 +78,8 @@ Pendiente fuera del repositorio: dos `git stash` con capturas de `docs/trabajo/2
 ## Pendiente
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| H2.S1.M3 · PR a `dev` con CI en verde | `EN CURSO` | CI de #541 |
-| H3.S7.M1 · regresión, verificadores y CI | `TODO` (local en verde: entregas, backoffice, verificadores) | CI de #541 |
+| H2.S1.M3 · PR a `dev` con CI en verde | Hecho | CI de #541 verde (`evidencia/h3-s7-m1-ci-541.txt`) |
+| H3.S7.M1 · regresión, verificadores y CI | Hecho | Local y CI de #541 en verde |
 | Implementación de CU-134 | Hecho | Mergeado en `dev` con #525 |
 | A-1 · entrega retenida si la medida queda firme | Hecho | Mergeado con #532: queda retenida hasta liberación humana |
 | A-2 · prescripción en meses y duración máxima en días | Hecho | Columnas propias en la política (#525) |

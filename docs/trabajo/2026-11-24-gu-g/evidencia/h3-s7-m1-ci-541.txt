@@ -1,0 +1,10 @@
+# CI del PR #541 sobre el head 4a87bff1c (2026-11-26, 03:16–03:48 UTC)
+success: Detectar impacto del cambio · Formato, reglas propias y compilacion · Contratos y clientes generados ·
+  La boveda y el esquema no divergen · Base efimera, semillas y permisos · Dependencias, secretos e imagen ·
+  bootJar y docker build, multietapa y sin root · Los cinco corredores · Frontend — Flutter y Angular (ADR-044) ·
+  Trivy · Esquema, semillas y prueba de humo sobre PostgreSQL real · Bóveda, seguridad, carriles y despliegue coherentes
+skipped (por impacto o solo en main): OSV-Scanner · Punta a punta financiero · Punta a punta — solo en main ·
+  App goldens · App simulador iOS · Release iOS
+failure: ninguno
+Local previo: entregas test 49 / integrationTest 76 / webTest 65 / testBarrido 2; backoffice 1527/1527, lint y typecheck 0,
+e2e visual 30/30; verificar_boveda, verificar_criterios, verificar_seguridad, verificar_pruebas_web OK.
