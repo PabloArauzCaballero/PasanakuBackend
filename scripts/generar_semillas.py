@@ -471,7 +471,7 @@ def procesar(entorno):
 # no se escribe a mano —seria una segunda fuente de verdad—: este generador lo reescribe entre
 # dos marcas cada vez que corre, y un diff despues de generar delata que quedo viejo.
 #
-# Hoy son tres: las cuentas sinteticas (dev/17), el sandbox de GRUPO_PASANAKU (dev/18) y las politicas de token
+# Hoy son cuatro: las cuentas sinteticas (dev/17), el sandbox de GRUPO_PASANAKU (dev/18), QR_INTEROP activo en TEST (dev/19) y las politicas de token
 # (minimos/13: una base poblada conserva la fila vieja porque la siembra es DO NOTHING; la version nueva entra por aca).
 MARCA_INICIO = "# >>> SQL-GENERADO"
 MARCA_FIN = "# <<< SQL-GENERADO"
@@ -480,6 +480,7 @@ SIEMBRAS_DE_TEST = [
     ("17-usuarios-e2e-sinteticos", pathlib.Path("despliegue/ensayos/sembrar_test.sh"), "SQL_SEMILLA_E2E", "dev"),
     ("18-licencia-sandbox-test", pathlib.Path("despliegue/ensayos/sandbox_licencia_test.sh"), "SQL_SEMILLA_SANDBOX", "dev"),
     ("13-politicas-de-token", pathlib.Path("despliegue/ensayos/politica_invitacion_test.sh"), "SQL_SEMILLA_POLITICA", "minimos"),
+    ("19-proveedor-qr-interop-activo-test", pathlib.Path("despliegue/ensayos/proveedor_qr_test.sh"), "SQL_SEMILLA_PROVEEDOR_QR", "dev"),
 ]
 
 
