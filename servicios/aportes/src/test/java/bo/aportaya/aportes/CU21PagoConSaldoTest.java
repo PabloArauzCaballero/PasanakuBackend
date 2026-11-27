@@ -32,8 +32,23 @@ class CU21PagoConSaldoTest extends BaseDeAportes {
                 new bo.aportaya.plataforma.datos.Datos(dsl),
                 new bo.aportaya.aportes.infraestructura.ObligacionRepositorio(),
                 new bo.aportaya.aportes.infraestructura.PagoRepositorio(),
-                cobroCU);
+                cobroCU,
+                SIN_ORDEN_POR_COBRO);
     }
+
+    /** Una pasarela que NO pide orden por cobro (el comportamiento de siempre): si se la llamara, la prueba falla. */
+    private static final bo.aportaya.aportes.dominio.PasarelaDePagos SIN_ORDEN_POR_COBRO =
+            new bo.aportaya.aportes.dominio.PasarelaDePagos() {
+                @Override
+                public OrdenDeCobro crearOrdenDeCobro(SolicitudDeCobro solicitud) {
+                    throw new AssertionError("no debia abrir una orden");
+                }
+
+                @Override
+                public Optional<CobroConsultado> consultarEstado(String referenciaProveedor) {
+                    throw new AssertionError("no debia consultar");
+                }
+            };
 
     private static Dinero bob(String monto) {
         return Dinero.de(monto, Moneda.BOB);
