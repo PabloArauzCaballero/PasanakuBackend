@@ -1,0 +1,9 @@
+# Analisis del diff de catalogo-operaciones.json (HEAD de dev vs regenerado con scripts/generar_catalogo_operaciones.py)
+operaciones: comprometido=349 regenerado=396
+solo en el comprometido (retiradas del OpenAPI): ['src-consultarSupresion', 'src-reversarTransaccion']
+solo en el regenerado (nuevas en el OpenAPI): 49
+nuevas con operationId en algun OpenAPI: 49/49
+retiradas ausentes de todos los OpenAPI: 2/2
+operaciones existentes con algun cambio: 56; por campo: {'dtoEntrada': 26, 'payloadEjemplo': 7, 'dtoSalida': 6, 'payloadRespuesta': 6, 'explicacionNegocio': 27, 'proposito': 14}
+orden relativo de las operaciones comunes: igual = True
+OpenAPI: operationId unicos = 395 ; entradas del catalogo = 396

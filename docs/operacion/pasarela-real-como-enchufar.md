@@ -67,9 +67,11 @@ sintético, **no** contra un proveedor.
    `uq_webhook_idem`, conciliación). Repetirlo devuelve `DUPLICADO`. Deja rastro en `comun.bitacora_evento` (acción `CONCILIACION`,
    `simulado: true`). 401 sin sesión · 403 sin `ADMIN_PLATAFORMA` · 422 orden desconocida (`AP-CU100-11`) o verificación fallida (`AP-CU100-12`).
 3. **Fail-closed:** el controlador y el caso de uso son `@Profile({"local","test"})` + `modo=simulada`: fuera de ahí la ruta no existe (404).
-4. **Requisito de datos en TEST:** el proveedor `QR_INTEROP` está sembrado con `activo = FALSE`
-   (`sql/60_semillas/14-proveedores-externos.sql`); mientras siga inactivo el aviso responde `AP-CU100-12`. Activarlo es una decisión de
-   negocio (contrato de tercero vigente, `CU99`): no se corrige en la base a mano.
+4. **Requisito de datos en TEST:** `QR_INTEROP` se siembra con `activo = FALSE` en `seeders/minimos/14` (producción no cambia).
+   Para TEST/dev lo activa la semilla `seeders/dev/19-proveedor-qr-interop-activo-test.json` (un `UPDATE` idempotente; la guarda
+   `app.entorno = 'dev'` impide aplicarla en producción). En el servidor TEST se aplica con
+   `ssh <host> 'bash -s' < despliegue/ensayos/proveedor_qr_test.sh` (guardas de perfil `local` y de entorno; `--estado`, `--retirar`).
+   Sin esto el aviso responde `AP-CU100-12`. No se corrige en la base a mano.
 
 El adaptador real **no** debe devolver `registraOrdenPorCobro() = true` hasta que exista la cadena `orden_cobro → intento_pago`.
 

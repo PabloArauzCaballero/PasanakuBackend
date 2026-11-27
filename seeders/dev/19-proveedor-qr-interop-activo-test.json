@@ -1,0 +1,23 @@
+{
+  "descripcion": "Activa el proveedor de pago QR_INTEROP SOLO en DEV y TEST, para que la pasarela simulada de aportes pueda recorrer orden → aviso → conciliacion (el aviso simulado exige un proveedor activo con webhook).",
+  "entorno": "dev",
+  "sintetico": true,
+  "apto_produccion": false,
+  "procedencia": {
+    "fuente": "Decision de Pablo (dueño de TEST), 2026-11-27, relayada por la sesion padre: «Activar QR_INTEROP SOLO en la semilla de TEST/dev (activo=TRUE); produccion sigue inactivo».",
+    "obtenido": "2026-11-27",
+    "licencia": "No aplica: contenido propio del proyecto, sin datos de terceros.",
+    "autor": "trabajo docs/trabajo/2026-11-27-qr-interop-activo-en-dev"
+  },
+  "nota": "El proveedor QR_INTEROP lo siembra seeders/minimos/14-proveedores-externos.json con activo = FALSE (sin contrato de tercero vigente, CU-99 AP-CU99-02); esa semilla NO se toca, asi que produccion sigue inactivo. Esta semilla de dev solo cambia ese bit en DEV y TEST con un UPDATE re-ejecutable: la segunda corrida no cambia ninguna fila. No hay ningun contrato con ese proveedor: en TEST lo atiende el DOBLE de la pasarela (aportaya.aportes.pasarela.modo=simulada). No toca url_base, credenciales, comisiones ni prioridad.",
+  "advertencia": "SOLO DEV Y TEST. Lo que SIMULA, sin que haya pasado de verdad: que exista un contrato vigente con un proveedor de QR. Que QR_INTEROP quede activo en TEST no significa que haya proveedor ni pasarela reales; el cobro real sigue siendo con saldo y la pasarela del servidor aportes es un doble que no corre fuera de local/test.",
+  "reglas_que_permite_probar": [
+    "CU-100 — el aviso simulado de pago (POST /qr/simulador/avisos-de-pago) deja de responder AP-CU100-12 por proveedor inactivo"
+  ],
+  "bloques": [
+    {
+      "comentario": "SINTETICO · apto_produccion=false. Activa QR_INTEROP solo en dev/test; la semilla minima de produccion lo deja inactivo. UPDATE re-ejecutable: sin filas que cambiar en la segunda corrida.",
+      "sql": "UPDATE proveedor_pago SET activo = TRUE WHERE codigo = 'QR_INTEROP' AND activo = FALSE;"
+    }
+  ]
+}

@@ -54,5 +54,6 @@ END $$;
 \ir 16-campania-cu-principales.sql
 \ir 17-usuarios-e2e-sinteticos.sql
 \ir 18-licencia-sandbox-test.sql
+\ir 19-proveedor-qr-interop-activo-test.sql
 
 COMMIT;

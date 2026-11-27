@@ -94,3 +94,10 @@ d2d8c26b7225a7a7e57955af21c82bc5af7c8f95:plataforma/comun-web/src/test/java/bo/a
 46736691ba532eaeae51f6382921f59ee8e752f8:servicios/identidad/src/test/java/bo/aportaya/identidad/CU09CuentaDeOperadorTest.java:generic-api-key:45
 # 2026-11-26: falso positivo generic-api-key en PasarelaSimuladaTest (commit a2fc82d1). El literal era un string sintético de prueba para firmar avisos del DOBLE de la pasarela, no una credencial de ningún entorno; ya se reemplazó por "s".repeat(40) en 984935ec. Se allowlistea solo esa huella porque el literal sigue en el historial del PR.
 a2fc82d1213a68e688da59cc99878b680c0b9faa:servicios/aportes/src/test/java/bo/aportaya/aportes/infraestructura/pasarela/simulada/PasarelaSimuladaTest.java:generic-api-key:24
+# 2026-11-27: falsos positivos generic-api-key en la regeneracion del catalogo de operaciones (commit 0939345c). Son el UUID de ejemplo fijo del generador (7c9e6679-7425-40de-944b-e07fc1f90ae7, el UUID de muestra del RFC 4122) en el campo tokenId del payloadEjemplo de 6 operaciones de invitacion; documentan el formato, no son credenciales. Mismo caso que el del 2026-11-23 para este catalogo; se allowlistean solo estas 6 huellas.
+0939345cf30f235548c801339c2b221088bba6c2:apps/backoffice/src/app/rutas/sistemas/operaciones/dominio/operaciones.json:generic-api-key:26608
+0939345cf30f235548c801339c2b221088bba6c2:apps/backoffice/src/app/rutas/sistemas/operaciones/dominio/operaciones.json:generic-api-key:26718
+0939345cf30f235548c801339c2b221088bba6c2:apps/backoffice/src/app/rutas/sistemas/operaciones/dominio/operaciones.json:generic-api-key:26850
+0939345cf30f235548c801339c2b221088bba6c2:servicios/auditoria/src/main/resources/catalogo/catalogo-operaciones.json:generic-api-key:26608
+0939345cf30f235548c801339c2b221088bba6c2:servicios/auditoria/src/main/resources/catalogo/catalogo-operaciones.json:generic-api-key:26718
+0939345cf30f235548c801339c2b221088bba6c2:servicios/auditoria/src/main/resources/catalogo/catalogo-operaciones.json:generic-api-key:26850

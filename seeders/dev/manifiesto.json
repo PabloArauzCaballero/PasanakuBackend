@@ -24,6 +24,7 @@
     "15-usuarios-dev.json",
     "16-campania-cu-principales.json",
     "17-usuarios-e2e-sinteticos.json",
-    "18-licencia-sandbox-test.json"
+    "18-licencia-sandbox-test.json",
+    "19-proveedor-qr-interop-activo-test.json"
   ]
 }
