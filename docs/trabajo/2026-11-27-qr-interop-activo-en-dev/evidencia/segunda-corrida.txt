@@ -1,0 +1,33 @@
+== paso 8: semillas minimas DOS veces
+exit=0
+-- QR_INTEROP tras minimos (produccion):
+QR_INTEROP activo=false
+== paso 9: semillas dev DOS veces
+-- 1a corrida:
+UPDATE 4
+UPDATE 1
+UPDATE 1
+UPDATE 3
+UPDATE 12
+tras 1a: QR_INTEROP activo=true
+-- 2a corrida:
+psql:sql/61_dev/sembrar_dev.sql:37: NOTICE:  Semillas de desarrollo ya presentes: no se inserta nada. Para rehacerlas, ./gradlew bd:reset
+UPDATE 0
+UPDATE 1
+UPDATE 1
+UPDATE 3
+tras 2a: QR_INTEROP activo=true
+== SQL del guion (SEMILLA_SQL) aplicado por separado, dos veces:
+UPDATE 0
+UPDATE 0
+-- otros proveedores activos (no deben cambiar):
+0
+== paso 10: produccion rechaza
+psql:sql/61_dev/sembrar_dev.sql:24: ERROR:  SEMILLAS DE DEV BLOQUEADAS: app.entorno = produccion, se exige 'dev'
+exit=3
+== base nueva con SOLO minimos; el SQL de la semilla dev/19 (el mismo del guion) dos veces:
+antes: QR_INTEROP activo=false
+corrida 1: UPDATE 1
+corrida 2: UPDATE 0
+despues: QR_INTEROP activo=true
+otros proveedores activos: 0

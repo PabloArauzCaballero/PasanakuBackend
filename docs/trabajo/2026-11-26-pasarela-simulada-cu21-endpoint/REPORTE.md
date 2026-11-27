@@ -1,10 +1,10 @@
-> **AVANCE: 6 / 7 — 85,7 %.**
+> **AVANCE: 7 / 7 — 100 %.**
 
 # Reporte — CU21 conectado a la pasarela simulada + endpoint del aviso simulado
 
 - Fecha: 2026-11-26 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/pasarela-simulada-cu21-endpoint` (desde `origin/dev`)
 - Peldaño de evidencia alcanzado (regla 30): **TESTED** (suites `test`/`webTest` y tests de integración contra PostgreSQL 16 real; arranque
-  Spring real con copia temporal de `ArranqueTest`). No `VERIFIED`: sin recorrido HTTP real contra el servidor TEST ni CI todavía.
+  Spring real con copia temporal de `ArranqueTest`). CI sin fallos en el head `b9e4b424` (evento `check_suite.completed` sin suites fallidas o en curso) y PR #547 fusionado en `dev`. No `VERIFIED`: sin recorrido HTTP real contra el servidor TEST.
 - Todo lo verificado es contra el **DOBLE** (`QR_INTEROP` simulado): ningún proveedor real.
 
 ## Completado
@@ -15,22 +15,19 @@
 | H2.M1 | `POST /qr/simulador/avisos-de-pago` en OpenAPI, esquemas estrictos | generación OpenAPI + `AvisoSimuladoWebTest` | PASS |
 | H2.M2 | `CU100EmitirAvisoDePagoSimulado`: emite, entrega a CU-100 real, audita | `CU100AvisoSimuladoTest` | PASS 5/5 (PROCESADO, DUPLICADO, orden desconocida, proveedor inactivo, monto distinto) |
 | H2.M3 | Controlador `@Profile` + propiedad, `@Permiso("ADMIN_PLATAFORMA")`, matriz negativa | `AvisoSimuladoWebTest` (5) + `PasarelaSimuladaPerfilTest` (3) | PASS: 401 sin sesión/sin rol, 403 en 7 sesiones, 400 en 5 cuerpos, ruta inexistente en production/staging/sin perfil/modo real |
+| H3.M2 | spotless, un push, PR contra `dev`, CI verde, aviso a `@parent` | checks del PR #547 | PASS: head `b9e4b424` sin fallos; fusionado; avisado a `@parent` |
 | H2.M4 | Postman regenerado (lo valida la CI); catálogos de operaciones NO regenerados | `python3 scripts/generar_postman.py` | cambios solo de la operación nueva |
 
 Suites: `test` 79/79 · `webTest` 106/106 · `integrationTest` 175 con 3 fallos `ENVIRONMENT` (sin Docker: `ArranqueTest`, `AislamientoEsquemaTest`).
 Arranque Spring real (copia temporal de `ArranqueTest` apuntada al PG local, ya borrada): 2/2 con perfil `test`. Detalle en [evidencia/pruebas.txt](./evidencia/pruebas.txt).
 
 ## A medias
-### H3.M2 — spotless, push, PR, CI verde, aviso
-- Qué anda: `spotlessCheck` verde; todo el código escrito y probado en local.
-- Qué no anda: CI y PR todavía sin resultado al escribir esto.
-- Qué falta exactamente: un push, PR contra `dev` fuera de borrador, CI verde, aviso a `@parent`.
-- Dónde quedó: rama `claude/pasarela-simulada-cu21-endpoint`, compila.
+Ninguna.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| Activar `QR_INTEROP` en TEST | `DECISION_REQUIRED` | Pablo/Cumplimiento: el seed lo deja `activo = FALSE` (contrato de tercero). Mientras tanto el endpoint responde `AP-CU100-12` explicando qué revisar |
+| Activar `QR_INTEROP` en TEST | RESUELTO por decisión de Pablo (2026-11-27) | Semilla dev/19 + `proveedor_qr_test.sh`, ver `docs/trabajo/2026-11-27-qr-interop-activo-en-dev` (producción sigue inactivo) |
 | Regenerar `catalogo-operaciones.json` y `operaciones.json` del backoffice | `DECISION_REQUIRED` | El generador produce ~11 000 líneas de diferencia ajenas a este cambio (los archivos comprometidos ya estaban desfasados); no es parte de la CI y no se mezcla aquí |
 | Adaptador real | `BLOQUEADO` | Proveedor contratado (P-15) |
 
@@ -45,6 +42,7 @@ Ver [evidencia/pruebas.txt](./evidencia/pruebas.txt).
 - Regla 98.8 (caída del dependido, traza entre servicios): el doble es en proceso, no hay salto remoto.
 
 ## Desvíos del plan
+- Fallos reales de la CI, corregidos antes de fusionar: `verificar_criterios.py` exigía que los `@DisplayName` de `CU21PagoConOrdenSimuladaTest` calzaran con un criterio de la bóveda o empezaran con `cuadre`/`reintento`/`rechaza` (renombrados); el job de corredores ya había exigido llevar el test con base a `integrationTest`.
 - El caso de uso y los códigos de error se numeran `CU-100` / `AP-CU100-11/12` (no `CU-101`): no se inventa un caso de uso nuevo en el catálogo de CU.
 - La acción de bitácora es `CONCILIACION` (catálogo cerrado `ck_bitacora_evento_accion`); `AVISO_SIMULADO` fue rechazado por la base y no se agregó valor.
 - `CU21PagoConSaldoTest` solo cambió su constructor (recibe una pasarela que no pide orden).
@@ -54,5 +52,5 @@ Ver [evidencia/pruebas.txt](./evidencia/pruebas.txt).
 - La orden simulada vive en memoria: un reinicio la olvida y el aviso devuelve `AP-CU100-11`.
 
 ## Decisiones y ambigüedades
-- Permiso: se reusa `ADMIN_PLATAFORMA` (precedente en `darDeAltaProveedor`) en vez de sembrar un permiso nuevo en la bóveda de roles. Confirmar con Pablo.
+- Permiso: se reusa `ADMIN_PLATAFORMA` (precedente en `darDeAltaProveedor`) en vez de sembrar un permiso nuevo en la bóveda de roles. CONFIRMADO por Pablo (2026-11-27): se deja `ADMIN_PLATAFORMA`.
 - Registro de la orden: capacidad `registraOrdenPorCobro()` en el puerto, no una propiedad: el adaptador real no puede abrir órdenes por error.
